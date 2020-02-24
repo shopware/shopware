@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductIndexer implements EntityIndexerInterface
@@ -46,13 +47,19 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $listingPriceUpdater;
 
+    /**
+     * @var InheritanceUpdater
+     */
+    private $inheritanceUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
         CacheClearer $cacheClearer,
         VariantListingUpdater $variantListingUpdater,
-        ListingPriceUpdater $listingPriceUpdater
+        ListingPriceUpdater $listingPriceUpdater,
+        InheritanceUpdater $inheritanceUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -60,6 +67,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->cacheClearer = $cacheClearer;
         $this->variantListingUpdater = $variantListingUpdater;
         $this->listingPriceUpdater = $listingPriceUpdater;
+        $this->inheritanceUpdater = $inheritanceUpdater;
     }
 
     public function getName(): string
@@ -88,6 +96,8 @@ class ProductIndexer implements EntityIndexerInterface
             return null;
         }
 
+        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
+
         return new EntityIndexingMessage($updates, null);
     }
 
@@ -109,6 +119,8 @@ class ProductIndexer implements EntityIndexerInterface
         $all = array_unique(array_filter(array_merge($ids, $parentIds)));
 
         $context = Context::createDefaultContext();
+
+        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
 
         $this->variantListingUpdater->update($parentIds, $context);
 

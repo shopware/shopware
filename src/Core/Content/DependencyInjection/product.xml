@@ -322,6 +322,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater"/>
             <tag name="shopware.entity_indexer" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">

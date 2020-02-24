@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -25,6 +26,9 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater instead
+ */
 class InheritanceIndexer implements IndexerInterface
 {
     /**
@@ -61,6 +65,9 @@ class InheritanceIndexer implements IndexerInterface
 
         foreach ($this->registry->getDefinitions() as $definition) {
             if (!$definition->isInheritanceAware()) {
+                continue;
+            }
+            if ($definition->getClass() === ProductDefinition::class) {
                 continue;
             }
 
@@ -102,6 +109,10 @@ class InheritanceIndexer implements IndexerInterface
         $definitions = array_filter(
             $this->registry->getDefinitions(),
             function (EntityDefinition $definition) {
+                if ($definition->getClass() === ProductDefinition::class) {
+                    return false;
+                }
+
                 return $definition->isInheritanceAware();
             }
         );
@@ -139,6 +150,10 @@ class InheritanceIndexer implements IndexerInterface
         foreach ($event->getEvents() as $nested) {
             $definition = $this->registry->getByEntityName($nested->getEntityName());
 
+            if ($definition->getClass() === ProductDefinition::class) {
+                continue;
+            }
+
             if ($definition->isInheritanceAware()) {
                 $this->update($definition, $nested->getIds(), $nested->getContext());
             }
@@ -147,6 +162,10 @@ class InheritanceIndexer implements IndexerInterface
 
     public function update(EntityDefinition $definition, array $ids, Context $context): void
     {
+        if ($definition->getClass() === ProductDefinition::class) {
+            return;
+        }
+
         $inherited = $definition->getFields()->filter(function (Field $field) {
             return $field->is(Inherited::class) && $field instanceof AssociationField;
         });
@@ -170,6 +189,10 @@ class InheritanceIndexer implements IndexerInterface
 
     public function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
+        if ($definition->getClass() === ProductDefinition::class) {
+            return;
+        }
+
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
@@ -224,6 +247,9 @@ class InheritanceIndexer implements IndexerInterface
 
     public function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
+        if ($definition->getClass() === ProductDefinition::class) {
+            return;
+        }
         $bytes = array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);

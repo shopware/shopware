@@ -47,6 +47,11 @@ class ThemeConfigField extends Struct
     protected $section;
 
     /**
+     * @var string|null
+     */
+    protected $tab;
+
+    /**
      * @var int|null
      */
     protected $order;
@@ -60,6 +65,11 @@ class ThemeConfigField extends Struct
      * @var int|null
      */
     protected $blockOrder;
+
+    /**
+     * @var int|null
+     */
+    protected $tabOrder;
 
     /**
      * @var array|null
@@ -136,6 +146,16 @@ class ThemeConfigField extends Struct
         $this->section = $section;
     }
 
+    public function getTab(): ?string
+    {
+        return $this->tab;
+    }
+
+    public function setTab(?string $tab): void
+    {
+        $this->tab = $tab;
+    }
+
     public function getOrder(): ?int
     {
         return $this->order;
@@ -144,6 +164,16 @@ class ThemeConfigField extends Struct
     public function setOrder(?int $order): void
     {
         $this->order = $order;
+    }
+
+    public function getTabOrder(): ?int
+    {
+        return $this->tabOrder;
+    }
+
+    public function setTabOrder(?int $tabOrder): void
+    {
+        $this->tabOrder = $tabOrder;
     }
 
     public function getSectionOrder(): ?int

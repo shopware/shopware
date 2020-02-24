@@ -240,6 +240,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added method `removeByTag`
         * Added method `runUploads`
         * Added method `_startUpload`
+      * Added possibility to add tabs to Theme Manager
+      * Deprecated method `getFields`, use `getStructuredFields` instead
+      * Added method `getStructuredFields` to themeApiService
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
@@ -299,6 +302,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `trackingUrl` property to the `Shopware\Core\Checkout\Shipping\ShippingMethodEntity.php`
     * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
     * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
+    * Deprecated route `_action/theme/{themeId}/fields`, use `_action/theme/{themeId}/structured-fields` instead
+    * Added new route `_action/theme/{themeId}/structured-fields`
         
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

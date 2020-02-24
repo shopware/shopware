@@ -4,7 +4,6 @@
         {% block sw_theme_manager_detail_search_bar %}
             <template slot="search-bar">
                 <sw-search-bar :placeholder="$tc('sw-theme-manager.general.placeholderSearchBar')"
-                               :searchType="$tc('sw-theme-manager.general.mainMenuItemIndex')"
                                :entityService="themeRepository"
                                @search="onSearch">
                 </sw-search-bar>
@@ -51,174 +50,199 @@
                 <sw-loader v-if="isLoading" size="30" class="sw-theme-manager-detail__loading-indicator"></sw-loader>
 
                 <div v-else class="sw-theme-manager-detail__content">
+                    <sw-tabs v-if="shouldShowContent" defaultItem="default">
+                        <template #default="{ active }" v-if="hasMoreThanOneTab">
+                            <sw-tabs-item v-for="(tab, tabName) in themeFields.tabs"
+                                          :key="tabName"
+                                          :title="tab.label"
+                                          :name="tabName"
+                                          :active="active === tabName">
+                                {{ tab.label || $tc('sw-theme-manager.general.defaultTab') }}
+                            </sw-tabs-item>
+                        </template>
 
-                    <template v-if="theme && parentTheme">
-                        {% block sw_theme_manager_detail_content_inheritance %}
-                            <div class="sw-theme-manager-detail__inheritance">
-                                {% block sw_theme_manager_detail_content_inheritance_icon %}
-                                    <sw-icon :multicolor="true" size="20" name="custom-inherited"></sw-icon>
-                                {% endblock %}
+                        <template #content="{ active }">
+                            <template v-if="active === 'default'">
+                                <template v-if="theme && parentTheme">
+                                    {% block sw_theme_manager_detail_content_inheritance %}
+                                        <div class="sw-theme-manager-detail__inheritance">
+                                            {% block sw_theme_manager_detail_content_inheritance_icon %}
+                                                <sw-icon :multicolor="true" size="20" name="custom-inherited"></sw-icon>
+                                            {% endblock %}
 
-                                {% block sw_theme_manager_detail_content_inheritance_text %}
-                                    <p class="sw-theme-manager-detail__inheritance-text">
-                                        {{ $tc('sw-theme-manager.detail.inheritanceInfo', 0, { parentThemeName: parentTheme.name }) }}
-                                    </p>
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </template>
-
-                    {% block sw_theme_manager_detail_content_info %}
-                        <sw-card class="sw-theme-manager-detail__info-card">
-                            <div class="sw-theme-manager-detail__info">
-
-                                {% block sw_theme_manager_detail_content_info_image %}
-                                    <div class="sw-theme-manager-detail__info-image" :style="previewMedia"></div>
-                                {% endblock %}
-
-                                {% block sw_theme_manager_detail_content_info_content %}
-                                    <div class="sw-theme-manager-detail__info-content">
-                                        <div class="sw-theme-manager-detail__info-name">{{ theme.name }}</div>
-                                        <div class="sw-theme-manager-detail__info-author">{{ theme.author }}</div>
-                                        <div v-if="theme.description" class="sw-theme-manager-detail__info-descr">
-                                            <p class="sw-theme-manager-detail__info-descr-title">
-                                                {{ $tc('sw-theme-manager.detail.description') }}:
-                                            </p>
-                                            <p>{{ theme.description |truncate(140) }}</p>
+                                            {% block sw_theme_manager_detail_content_inheritance_text %}
+                                                <p class="sw-theme-manager-detail__inheritance-text">
+                                                    {{ $tc('sw-theme-manager.detail.inheritanceInfo', 0, { parentThemeName: parentTheme.name }) }}
+                                                </p>
+                                            {% endblock %}
                                         </div>
-
-                                        <div v-if="theme.salesChannels.length > 0"
-                                             class="sw-theme-manager-detail__info-saleschannels">
-                                            <p>{{ $tc('sw-theme-manager.detail.salesChannel') }}:</p>
-
-                                            <span class="sw-theme-manager-detail__saleschannel"
-                                                v-for="salesChannel, index in theme.salesChannels">
-                                                <router-link :to="{ name: 'sw.sales.channel.detail.theme', params: { id: salesChannel.id } }"
-                                                             class="sw-theme-manager-detail__saleschannel-link">
-                                                    <span>
-                                                        {{ salesChannel.name }}<template v-if="index < theme.salesChannels.length - 1">, </template>
-                                                    </span>
-                                                </router-link>
-                                            </span>
-                                        </div>
-                                    </div>
-                                {% endblock %}
-                            </div>
-
-                            {% block sw_theme_manager_detail_content_info_context_button %}
-                                <sw-context-button class="sw-theme-manager-detail__context-button">
-
-                                    {% block sw_theme_manager_detail_context_button_option_rename %}
-                                        <sw-context-menu-item @click="onRenameTheme(theme)">
-                                            {{ $tc('sw-theme-manager.actions.rename') }}
-                                        </sw-context-menu-item>
                                     {% endblock %}
+                                </template>
 
-                                    {% block sw_theme_manager_detail_context_button_option_create %}
-                                        <sw-context-menu-item @click="onDuplicateTheme(theme)" v-if="!theme.parentThemeId">
-                                            {{ $tc('sw-theme-manager.actions.duplicate') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
+                                {% block sw_theme_manager_detail_content_info %}
+                                    <sw-card class="sw-theme-manager-detail__info-card">
+                                        <div class="sw-theme-manager-detail__info">
 
-                                    {% block sw_theme_manager_detail_context_button_option_reset %}
-                                        <sw-context-menu-item
-                                            @click="onReset"
-                                            v-if="theme.configValues !== null"
-                                            variant="danger">
-                                            {{ $tc('sw-theme-manager.actions.buttonReset') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
+                                            {% block sw_theme_manager_detail_content_info_image %}
+                                                <div class="sw-theme-manager-detail__info-image" :style="previewMedia"></div>
+                                            {% endblock %}
 
-                                    {% block sw_theme_manager_detail_context_button_option_delete %}
-                                        <sw-context-menu-item
-                                            v-if="theme.parentThemeId"
-                                            :disabled="theme.salesChannels.length > 0"
-                                            v-tooltip="deleteDisabledToolTip"
-                                            class="sw-theme-manager-detail__option-delete"
-                                            variant="danger"
-                                            @click="onDeleteTheme(theme)">
-                                            {{ $tc('sw-theme-manager.actions.delete') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-                                </sw-context-button>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
+                                            {% block sw_theme_manager_detail_content_info_content %}
+                                                <div class="sw-theme-manager-detail__info-content">
+                                                    <div class="sw-theme-manager-detail__info-name">{{ theme.name }}</div>
+                                                    <div class="sw-theme-manager-detail__info-author">{{ theme.author }}</div>
+                                                    <div v-if="theme.description" class="sw-theme-manager-detail__info-descr">
+                                                        <p class="sw-theme-manager-detail__info-descr-title">
+                                                            {{ $tc('sw-theme-manager.detail.description') }}:
+                                                        </p>
+                                                        <p>{{ theme.description |truncate(140) }}</p>
+                                                    </div>
 
-                    {% block sw_theme_manager_detail_content_areas %}
-                        <sw-card v-for="(area, areaIndex) in themeFields"
-                                 v-if="Object.values(area.sections).length > 0"
-                                 :key="areaIndex"
-                                 :title="$tc(area.label)"
-                                 class="sw-theme-manager-detail__area">
+                                                    <div v-if="theme.salesChannels.length > 0"
+                                                         class="sw-theme-manager-detail__info-saleschannels">
+                                                        <p>{{ $tc('sw-theme-manager.detail.salesChannel') }}:</p>
 
-                            {% block sw_theme_manager_detail_content_sections %}
-                                <sw-card-section v-for="(section, sectionIndex) in area.sections" :key="sectionIndex">
-                                    <div v-if="section.label" class="sw-theme-manager-detail__content--section_title">{{ $tc(section.label) }}</div>
-
-                                    {% block sw_theme_manager_detail_content_fields %}
-                                        <sw-container class="sw-theme-manager-detail__content--section_field">
-                                            <div v-for="(field, fieldIndex) in section"
-                                                 v-if="fieldIndex !== 'label' && themeConfig[fieldIndex]"
-                                                 :key="fieldIndex"
-                                                 class="sw-theme-manager-detail__content--section_field">
-
-                                                <sw-field
-                                                    v-if="mapSwFieldTypes(field.type) === 'select'"
-                                                    type="select"
-                                                    :placeholder="field.placeholder"
-                                                    :options="field.options"
-                                                    :label="!field.label ? '' : field.label"
-                                                    :helpText="!field.helpText ? null : field.helpText"
-                                                    v-model="themeConfig[fieldIndex].value">
-                                                </sw-field>
-                                                <sw-field
-                                                    v-else-if="field.type === 'url'"
-                                                    type="url"
-                                                    :label="!field.label ? '' : field.label"
-                                                    :helpText="!field.helpText ? null : field.helpText"
-                                                    v-model="themeConfig[fieldIndex].value">
-                                                </sw-field>
-                                                <div v-else-if="field.type === 'media'">
-
-                                                    <sw-upload-store-listener
-                                                        :uploadTag="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
-                                                        @media-upload-finish="successfulUpload($event, themeConfig[fieldIndex])"
-                                                        autoUpload>
-                                                    </sw-upload-store-listener>
-
-                                                    <sw-media-upload
-                                                        :label="!field.label ? '' : field.label"
-                                                        :source="themeConfig[fieldIndex].value"
-                                                        :uploadTag="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
-                                                        :helpText="!field.helpText ? null : field.helpText"
-                                                        :ref="areaIndex + '-' + sectionIndex + '-' + fieldIndex"
-                                                        :defaultFolder="themeRepository.schema.entity"
-                                                        :allowMultiSelect="false"
-                                                        @media-drop="onDropMedia($event, themeConfig[fieldIndex])"
-                                                        @media-upload-sidebar-open="openMediaSidebar()"
-                                                        @media-upload-remove-image="removeMediaItem(themeConfig[fieldIndex])">
-                                                    </sw-media-upload>
+                                                        <span class="sw-theme-manager-detail__saleschannel"
+                                                              v-for="salesChannel, index in theme.salesChannels">
+                                                                <router-link :to="{ name: 'sw.sales.channel.detail.theme', params: { id: salesChannel.id } }"
+                                                                             class="sw-theme-manager-detail__saleschannel-link">
+                                                                    <span>
+                                                                        {{ salesChannel.name }}<template v-if="index < theme.salesChannels.length - 1">, </template>
+                                                                    </span>
+                                                                </router-link>
+                                                            </span>
+                                                    </div>
                                                 </div>
-                                                <sw-field
-                                                    v-else-if="mapSwFieldTypes(field.type)"
-                                                    :type="mapSwFieldTypes(field.type)"
-                                                    :label="!field.label ? '' : field.label"
-                                                    :helpText="!field.helpText ? null : field.helpText"
-                                                    v-model="themeConfig[fieldIndex].value">
-                                                </sw-field>
-                                                <sw-form-field-renderer
-                                                        v-else
-                                                        v-bind="getBind(field)"
-                                                        v-model="themeConfig[fieldIndex].value">
-                                                </sw-form-field-renderer>
-                                            </div>
-                                        </sw-container>
+                                            {% endblock %}
+                                        </div>
+
+                                        {% block sw_theme_manager_detail_content_info_context_button %}
+                                            <sw-context-button class="sw-theme-manager-detail__context-button">
+
+                                                {% block sw_theme_manager_detail_context_button_option_rename %}
+                                                    <sw-context-menu-item @click="onRenameTheme(theme)">
+                                                        {{ $tc('sw-theme-manager.actions.rename') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_theme_manager_detail_context_button_option_create %}
+                                                    <sw-context-menu-item @click="onDuplicateTheme(theme)" v-if="!theme.parentThemeId">
+                                                        {{ $tc('sw-theme-manager.actions.duplicate') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_theme_manager_detail_context_button_option_reset %}
+                                                    <sw-context-menu-item
+                                                        @click="onReset"
+                                                        v-if="theme.configValues !== null"
+                                                        variant="danger">
+                                                        {{ $tc('sw-theme-manager.actions.buttonReset') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+
+                                                {% block sw_theme_manager_detail_context_button_option_delete %}
+                                                    <sw-context-menu-item
+                                                        v-if="theme.parentThemeId"
+                                                        :disabled="theme.salesChannels.length > 0"
+                                                        v-tooltip="deleteDisabledToolTip"
+                                                        class="sw-theme-manager-detail__option-delete"
+                                                        variant="danger"
+                                                        @click="onDeleteTheme(theme)">
+                                                        {{ $tc('sw-theme-manager.actions.delete') }}
+                                                    </sw-context-menu-item>
+                                                {% endblock %}
+                                            </sw-context-button>
+                                        {% endblock %}
+                                    </sw-card>
+                                {% endblock %}
+                            </template>
+
+                            <template v-for="(tab, tabName) in themeFields.tabs">
+                                <template v-if="tabName === active">
+                                    {% block sw_theme_manager_detail_content_areas %}
+                                        <sw-card v-for="(block, blockName) in tab.blocks"
+                                                 :key="blockName"
+                                                 class="sw-theme-manager-detail__area"
+                                                 :title="block.label">
+
+                                            {% block sw_theme_manager_detail_content_sections %}
+                                                <sw-card-section v-for="(section, sectionName) in block.sections"
+                                                                 :key="sectionName">
+                                                    <div v-if="section.label" class="sw-theme-manager-detail__content--section_title">
+                                                        {{ section.label }}
+                                                    </div>
+
+                                                    {% block sw_theme_manager_detail_content_fields %}
+                                                        <sw-container class="sw-theme-manager-detail__content--section_field">
+                                                            <div v-for="(field, fieldName) in section.fields"
+                                                                 :key="fieldName"
+                                                                 class="sw-theme-manager-detail__content--section_field">
+                                                                <template v-if="themeConfig[fieldName]">
+                                                                    <sw-field
+                                                                        v-if="mapSwFieldTypes(field.type) === 'select'"
+                                                                        type="select"
+                                                                        :placeholder="field.placeholder"
+                                                                        :options="field.options"
+                                                                        :label="!field.label ? '' : field.label"
+                                                                        :helpText="!field.helpText ? null : field.helpText"
+                                                                        v-model="themeConfig[fieldName].value">
+                                                                    </sw-field>
+
+                                                                    <sw-field
+                                                                        v-else-if="field.type === 'url'"
+                                                                        type="url"
+                                                                        :label="!field.label ? '' : field.label"
+                                                                        :helpText="!field.helpText ? null : field.helpText"
+                                                                        v-model="themeConfig[fieldName].value">
+                                                                    </sw-field>
+
+                                                                    <div v-else-if="field.type === 'media'">
+
+                                                                        <sw-upload-listener
+                                                                            :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
+                                                                            @media-upload-finish="successfulUpload($event, themeConfig[fieldName])"
+                                                                            autoUpload>
+                                                                        </sw-upload-listener>
+
+                                                                        <sw-media-upload-v2
+                                                                            :label="!field.label ? '' : field.label"
+                                                                            :source="themeConfig[fieldName].value"
+                                                                            :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
+                                                                            :helpText="!field.helpText ? null : field.helpText"
+                                                                            :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
+                                                                            :defaultFolder="themeRepository.schema.entity"
+                                                                            :allowMultiSelect="false"
+                                                                            @media-drop="onDropMedia($event, themeConfig[fieldName])"
+                                                                            @media-upload-sidebar-open="openMediaSidebar()"
+                                                                            @media-upload-remove-image="removeMediaItem(themeConfig[fieldName])">
+                                                                        </sw-media-upload-v2>
+                                                                    </div>
+
+                                                                    <sw-field
+                                                                        v-else-if="mapSwFieldTypes(field.type)"
+                                                                        :type="mapSwFieldTypes(field.type)"
+                                                                        :label="!field.label ? '' : field.label"
+                                                                        :helpText="!field.helpText ? null : field.helpText"
+                                                                        v-model="themeConfig[fieldName].value">
+                                                                    </sw-field>
+
+                                                                    <sw-form-field-renderer
+                                                                        v-else
+                                                                        v-bind="getBind(field)"
+                                                                        v-model="themeConfig[fieldName].value">
+                                                                    </sw-form-field-renderer>
+                                                                </template>
+                                                            </div>
+                                                        </sw-container>
+                                                    {% endblock %}
+                                                </sw-card-section>
+                                            {% endblock %}
+                                        </sw-card>
                                     {% endblock %}
-                                </sw-card-section>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
+                                </template>
+                            </template>
+                        </template>
+                    </sw-tabs>
                 </div>
             {% endblock %}
 

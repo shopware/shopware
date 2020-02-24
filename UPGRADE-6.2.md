@@ -161,6 +161,7 @@ Administration
         * Added computed property `mediaRepository`
         * Method `handleError` is now async
     * sw-media-compact-upload is deprecated and replaced by sw-media-compact-upload-v2
+* Deprecated method `getFields`, use `getStructuredFields` instead
 
 Storefront
 ----------
@@ -178,6 +179,40 @@ Storefront
         @import "../../../../vendor/shopware/platform/src/Storefront/Resources/app/storefront/src/scss/base.scss";
         @import "../../../../vendor/shopware/platform/src/Storefront/Resources/app/storefront/src/scss/skin/shopware/base";
 * We changed the storefront ESLint rule `comma-dangle` to `never`, so that trailing commas won't be forcefully added anymore
+* The theme manager supports now tabs. Usage: 
+```json
+"config": {
+    "tabs": {
+        "colors": {
+            "label": {
+                "en-GB": "Colours",
+                "de-DE": "Farben"
+            }
+        },
+    },
+    "blocks": {
+    ...
+    },
+    ...,
+    "fields": {
+        "sw-color-brand-primary": {
+            "label": {
+                "en-GB": "Primary colour",
+                "de-DE": "Primärfarbe"
+            },
+            "type": "color",
+            "value": "#008490",
+            "editable": true,
+            "block": "themeColors",
+            "tab": "colors",
+            "order": 100
+        },
+        ...
+    }
+}
+```
+
+When you don´t specify a tab then it will be shown in the main tab.
 
 
 Refactorings

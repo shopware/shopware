@@ -281,7 +281,7 @@ config and both configurations are merged. This also means that you only have to
 actually want to change. You can find a more detailed explanation of the configuration inheritance
 in the next section.
 
-The `theme.json` contains a `config` property which consists a list of blocks, sections and fields.
+The `theme.json` contains a `config` property which consists a list of tabs, blocks, sections and fields.
 
 The key of each config fields item is also the technical name which you use to access the config option
 in your theme or scss files. `config` entries will show up in the administration and 
@@ -295,6 +295,7 @@ The following parameters can be defined for a config field item:
 | type         | Type of the config. Possible values: color, fontFamily and media                     |
 | value        | Value for the config                                                                 |
 | editable     | If set to false, the config option will not be displayed (e.g. in the administration |
+| tab          | Name of a tab to organize the config options                                         |
 | block        | Name of a block to organize the config options                                       |
 | section      | Name of a section to organize the config options                                     |
 | custom       | The defined data will not be processed but is available via API                      |
@@ -322,13 +323,13 @@ the values of these properties. So the chain would look like this:
 If the user duplicates a theme in administration, the configuration is copied. This also
 means that even if original theme changes, these change will not affect the duplicate.
 
-## Blocks and sections
-You can use blocks and sections to structure and group the config options.
+## Tabs, blocks and sections
+You can use tabs, blocks and sections to structure and group the config options.
 
-![Example of blocks and sections](./img/theme-config.png)
+![Example of tabs, blocks and sections](./img/theme-config.png)
 
-In the picture above is one block "Colors" which contains two sections named "General colors" and
-"Additional colors". You can define the block and section individually for each item. Example:
+In the picture above are four tabs. In the "Colours" tab there is one block "Theme colours" which contains two sections 
+named "Important colors" and "Other". You can define the block and section individually for each item. Example:
 ```json
 {
   "name": "Just another theme",
@@ -338,23 +339,24 @@ In the picture above is one block "Colors" which contains two sections named "Ge
     "fields": {
       "sw-color-brand-primary": {
         "label": {
-          "en-GB": "Primary",
+          "en-GB": "Primary colour",
           "de-DE": "Primär"
         },
         "type": "color",
         "value": "#399",
         "editable": true,
-        "block": "colors",
-        "section": "generalColors"
+        "tab": "colors",
+        "block": "themeColors",
+        "section": "importantColors"
       }
     }
   }
 }
 ```
 
-The section property is not required.
+The tab and section property is not required.
 
-You can extend the config to add translated labels for the blocks and sections:
+You can extend the config to add translated labels for the tabs, blocks and sections:
 ```json
 {
   "name": "Just another theme",
@@ -363,32 +365,41 @@ You can extend the config to add translated labels for the blocks and sections:
   "config": {
     "blocks": {
       "colors": {
-        "label": {
-          "en-GB": "Colors",
-          "de-DE": "Farben"
+        "themeColors": {
+          "en-GB": "Theme colours",
+          "de-DE": "Theme Farben"
         }
       }
     },
     "sections": {
-      "generalColors": {
+      "importantColors": {
         "label": {
-          "en-GB": "General colors",
-          "de-DE": "Allgemeine Farben"
+          "en-GB": "Important colors",
+          "de-DE": "Wichtige Farben"
         }
       }
     },
+    "tabs": {
+      "colors": {
+          "label": {
+              "en-GB": "Colours",
+              "de-DE": "Farben"
+          }
+      } 
+    },
     "fields": {
       "sw-color-brand-primary": {
-        "label": {
-          "en-GB": "Primary",
-          "de-DE": "Primär"
-        },
-        "type": "color",
-        "value": "#399",
-        "editable": true,
-        "block": "colors",
-        "section": "generalColors"
-      }
+          "label": {
+            "en-GB": "Primary colour",
+            "de-DE": "Primär"
+          },
+          "type": "color",
+          "value": "#399",
+          "editable": true,
+          "tab": "colors",
+          "block": "themeColors",
+          "section": "importantColors"
+        }
     }
   }
 }

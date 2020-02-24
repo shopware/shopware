@@ -8,7 +8,8 @@
       "captionMediaUpload": "Lade ein Bild hoch",
       "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden.",
       "titleError": "Fehler",
-      "messageSaveError": "Theme konnte dem Verkaufskanal nicht zugewiesen werden"
+      "messageSaveError": "Theme konnte dem Verkaufskanal nicht zugewiesen werden",
+      "defaultTab": "Allgemein"
     },
     "sorting": {
       "labelSort": "Sortieren nach:",

@@ -239,6 +239,10 @@ class ThemeLifecycleService
             $translations = array_merge_recursive($translations, $this->extractLabels('sections', $config['sections']));
         }
 
+        if (array_key_exists('tabs', $config)) {
+            $translations = array_merge_recursive($translations, $this->extractLabels('tabs', $config['tabs']));
+        }
+
         if (array_key_exists('fields', $config)) {
             $translations = array_merge_recursive($translations, $this->extractLabels('fields', $config['fields']));
         }

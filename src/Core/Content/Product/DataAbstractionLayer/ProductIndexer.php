@@ -79,6 +79,11 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $manyToManyIdFieldUpdater;
 
+    /**
+     * @var StockUpdater
+     */
+    private $stockUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -91,7 +96,8 @@ class ProductIndexer implements EntityIndexerInterface
         RatingAverageUpdater $ratingAverageUpdater,
         SearchKeywordUpdater $searchKeywordUpdater,
         ChildCountUpdater $childCountUpdater,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        StockUpdater $stockUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -105,6 +111,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->ratingAverageUpdater = $ratingAverageUpdater;
         $this->childCountUpdater = $childCountUpdater;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
+        $this->stockUpdater = $stockUpdater;
     }
 
     public function getName(): string
@@ -135,6 +142,8 @@ class ProductIndexer implements EntityIndexerInterface
 
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
 
+        $this->stockUpdater->update($updates, $event->getContext());
+
         return new EntityIndexingMessage($updates, null);
     }
 
@@ -150,6 +159,7 @@ class ProductIndexer implements EntityIndexerInterface
 
         $childrenIds = $this->getChildrenIds($ids);
 
+//        $context = $message->getContext();
         $context = Context::createDefaultContext();
 
         $this->inheritanceUpdater->update(
@@ -157,6 +167,8 @@ class ProductIndexer implements EntityIndexerInterface
             array_merge($ids, $parentIds, $childrenIds),
             $context
         );
+
+        $this->stockUpdater->update($ids, $context);
 
         $this->variantListingUpdater->update($parentIds, $context);
 

@@ -16,6 +16,7 @@ module.exports = {
     },
     'rules': {
         'comma-dangle': ['error', 'never'],
+        'one-var': ['error', 'never'],
         'no-console': 0,
         'no-debugger': (isDevMode ? 0 : 2),
         'prefer-const': 'warn',

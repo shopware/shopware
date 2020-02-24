@@ -25,6 +25,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
     * Added `Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php` to ensure the DAL for custom Field updates via repositories is working correctly.
     * Added file extension whitelist for media manager file upload. Can be configured in the `shopware.yaml`or with the `MediaFileExtensionWhitelistEvent`event
+    * Added `Shopware\Core\Checkout\Cart\Event\CartCreatedEvent` which is dispatched when a cart is created in the `Shopware\Core\Checkout\Cart\SalesChannel\CartService`. 
 
 ### 6.1.1
 

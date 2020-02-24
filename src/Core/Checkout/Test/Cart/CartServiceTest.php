@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Composer\Repository\RepositoryInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartServiceTest extends TestCase
@@ -81,6 +83,24 @@ class CartServiceTest extends TestCase
             ->create([$product], $context);
     }
 
+    public function testCreateNewWithEvent(): void
+    {
+        $caughtEvent = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
+
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $token = Uuid::randomHex();
+        $newCart = $cartService->createNew($token, __METHOD__);
+
+        static::assertInstanceOf(CartCreatedEvent::class, $caughtEvent);
+        static::assertSame($newCart, $caughtEvent->getCart());
+        static::assertSame($newCart, $cartService->getCart($token, $this->getSalesChannelContext()));
+        static::assertNotSame($newCart, $cartService->createNew($token, __METHOD__));
+    }
+
     public function testLineItemAddedEventFired(): void
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -92,8 +112,7 @@ class CartServiceTest extends TestCase
 
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getSalesChannelContext();
 
         $cartService->add(
             $cartService->getCart(Uuid::randomHex(), $context),
@@ -113,8 +132,7 @@ class CartServiceTest extends TestCase
 
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getSalesChannelContext();
 
         $lineItem = (new ProductLineItemFactory())->create($this->productId);
 
@@ -140,8 +158,7 @@ class CartServiceTest extends TestCase
 
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getSalesChannelContext();
 
         $lineItem = (new ProductLineItemFactory())->create($this->productId);
 
@@ -158,8 +175,7 @@ class CartServiceTest extends TestCase
     {
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getSalesChannelContext();
 
         $productId = Uuid::randomHex();
         $product = [
@@ -272,5 +288,11 @@ class CartServiceTest extends TestCase
                 'customerNumber' => 'not',
             ],
         ], $context);
+    }
+
+    private function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 }

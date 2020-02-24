@@ -349,6 +349,8 @@ class OrderActionController extends AbstractController
         $data->set('senderName', $mailTemplate->getSenderName());
         $data->set('salesChannelId', $order->getSalesChannelId());
 
+        $data->set('templateId', $mailTemplate->getId());
+        $data->set('customFields', $mailTemplate->getCustomFields());
         $data->set('contentHtml', $mailTemplate->getContentHtml());
         $data->set('contentPlain', $mailTemplate->getContentPlain());
         $data->set('subject', $mailTemplate->getSubject());

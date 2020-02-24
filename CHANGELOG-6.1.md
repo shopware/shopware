@@ -8,6 +8,13 @@ To get the diff for a specific change, go to https://github.com/shopware/platfor
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
 
 
+### 6.1.3
+
+**Addition / Changes**
+
+* Core
+    * Moved cart extension takeover earlier in `\Shopware\Core\Checkout\Cart\Processor::process` so that custom implementations can now access all extensions of the cart. 
+
 ### 6.1.2
 
 **Addition / Changes**

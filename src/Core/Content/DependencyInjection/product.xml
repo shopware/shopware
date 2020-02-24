@@ -322,8 +322,9 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater"/>
-            <tag name="shopware.entity_indexer" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater"/>
+            <tag name="shopware.entity_indexer" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">
@@ -337,6 +338,10 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>
 </container>

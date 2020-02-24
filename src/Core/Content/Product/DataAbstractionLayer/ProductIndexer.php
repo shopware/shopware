@@ -57,6 +57,11 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $inheritanceUpdater;
 
+    /**
+     * @var RatingAverageUpdater
+     */
+    private $ratingAverageUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -65,7 +70,8 @@ class ProductIndexer implements EntityIndexerInterface
         VariantListingUpdater $variantListingUpdater,
         ProductCategoryDenormalizer $categoryDenormalizer,
         ListingPriceUpdater $listingPriceUpdater,
-        InheritanceUpdater $inheritanceUpdater
+        InheritanceUpdater $inheritanceUpdater,
+        RatingAverageUpdater $ratingAverageUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -75,6 +81,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->categoryDenormalizer = $categoryDenormalizer;
         $this->listingPriceUpdater = $listingPriceUpdater;
         $this->inheritanceUpdater = $inheritanceUpdater;
+        $this->ratingAverageUpdater = $ratingAverageUpdater;
     }
 
     public function getName(): string
@@ -134,6 +141,8 @@ class ProductIndexer implements EntityIndexerInterface
         $this->categoryDenormalizer->update($ids, $context);
 
         $this->listingPriceUpdater->update($ids, $context);
+
+        $this->ratingAverageUpdater->update($ids, $context);
 
         $this->cacheClearer->invalidateIds($all, ProductDefinition::ENTITY_NAME);
 

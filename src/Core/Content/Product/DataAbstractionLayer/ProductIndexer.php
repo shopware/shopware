@@ -53,6 +53,11 @@ class ProductIndexer implements EntityIndexerInterface
     private $listingPriceUpdater;
 
     /**
+     * @var SearchKeywordUpdater
+     */
+    private $searchKeywordUpdater;
+
+    /**
      * @var InheritanceUpdater
      */
     private $inheritanceUpdater;
@@ -71,7 +76,8 @@ class ProductIndexer implements EntityIndexerInterface
         ProductCategoryDenormalizer $categoryDenormalizer,
         ListingPriceUpdater $listingPriceUpdater,
         InheritanceUpdater $inheritanceUpdater,
-        RatingAverageUpdater $ratingAverageUpdater
+        RatingAverageUpdater $ratingAverageUpdater,
+        SearchKeywordUpdater $searchKeywordUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -80,6 +86,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->variantListingUpdater = $variantListingUpdater;
         $this->categoryDenormalizer = $categoryDenormalizer;
         $this->listingPriceUpdater = $listingPriceUpdater;
+        $this->searchKeywordUpdater = $searchKeywordUpdater;
         $this->inheritanceUpdater = $inheritanceUpdater;
         $this->ratingAverageUpdater = $ratingAverageUpdater;
     }
@@ -123,18 +130,17 @@ class ProductIndexer implements EntityIndexerInterface
             return;
         }
 
-        $parentIds = $this->connection->fetchAll(
-            'SELECT DISTINCT LOWER(HEX(IFNULL(product.parent_id, id))) as id FROM product WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-        $parentIds = array_column($parentIds, 'id');
+        $parentIds = $this->getParentIds($ids);
 
-        $all = array_unique(array_filter(array_merge($ids, $parentIds)));
+        $childrenIds = $this->getChildrenIds($ids);
 
         $context = Context::createDefaultContext();
 
-        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+        $this->inheritanceUpdater->update(
+            ProductDefinition::ENTITY_NAME,
+            array_merge($ids, $parentIds, $childrenIds),
+            $context
+        );
 
         $this->variantListingUpdater->update($parentIds, $context);
 
@@ -144,8 +150,39 @@ class ProductIndexer implements EntityIndexerInterface
 
         $this->ratingAverageUpdater->update($ids, $context);
 
-        $this->cacheClearer->invalidateIds($all, ProductDefinition::ENTITY_NAME);
+        $this->searchKeywordUpdater->update($ids, $context);
+
+        $this->cacheClearer->invalidateIds(
+            array_merge($ids, $parentIds, $childrenIds),
+            ProductDefinition::ENTITY_NAME
+        );
 
 //        $this->eventDispatcher->dispatch()
+    }
+
+    private function getChildrenIds(array $ids): array
+    {
+        $childrenIds = $this->connection->fetchAll(
+            'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        return array_column($childrenIds, 'id');
+    }
+
+    /**
+     * @return array|mixed[]
+     */
+    private function getParentIds(array $ids)
+    {
+        $parentIds = $this->connection->fetchAll(
+            'SELECT DISTINCT LOWER(HEX(IFNULL(product.parent_id, id))) as id FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        $parentIds = array_column($parentIds, 'id');
+
+        return $parentIds;
     }
 }

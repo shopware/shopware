@@ -324,6 +324,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater"/>
             <tag name="shopware.entity_indexer" />
         </service>
 
@@ -342,6 +343,13 @@
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
         </service>
     </services>
 </container>

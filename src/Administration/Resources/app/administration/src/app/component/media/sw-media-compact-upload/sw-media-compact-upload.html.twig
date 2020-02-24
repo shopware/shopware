@@ -2,7 +2,7 @@
     <div class="sw-media-upload sw-media-compact-upload">
         {% block sw_media_upload_compact %}
             {% block sw_media_upload_compact_label %}
-                <label v-if="label" class="sw-media-compact-upload__label">
+                <label v-if="label" class="sw-media-compact-upload__label" :class="swMediaUploadLabelClasses">
                     {{ label }}
                 </label>
             {% endblock %}
@@ -121,6 +121,7 @@
                         </div>
                         {% endblock %}
                     </div>
+                    <sw-field-error :error="error"></sw-field-error>
                 {% endblock %}
             </div>
         {% endblock %}

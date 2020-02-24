@@ -7,7 +7,7 @@
     }
 
     .sw-media-upload__button {
-        margin: 0;
+        margin: 0 5px 0 0;
     }
 
     .sw-media-upload__preview {
@@ -19,10 +19,6 @@
         flex-direction: row;
         justify-content: flex-end;
         align-items: stretch;
-    }
-
-    .sw-media-upload__button {
-        margin-right: 5px;
     }
 
     .sw-media-compact-upload__browse-button {
@@ -44,5 +40,8 @@
         user-select: none;
     }
 
+    .is--required::after {
+        content: "*";
+        color: $color-shopware-blue;
+    }
 }
-

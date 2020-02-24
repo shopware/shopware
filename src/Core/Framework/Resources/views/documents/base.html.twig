@@ -13,7 +13,7 @@
 
     {% set currencyIsoCode = order.currency.isoCode %}
 
-    {% set locale = customer.customer.language.locale.code %}
+    {% set locale = order.language.locale.code %}
 
     {% if config.itemsPerPage <= 0 %}
         {% set itemsPerPage = 10 %}

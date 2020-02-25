@@ -90,8 +90,7 @@
                             <template #column-label="{ item, isInlineEdit}">
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_label_inline_edit %}
                                     <sw-order-product-select v-if="isInlineEdit"
-                                                             :item="item"
-                                                             :displayProductSelection="itemCreatedFromProduct(item.id)">
+                                                             :item="item">
                                     </sw-order-product-select>
                                 {% endblock %}
 
@@ -118,7 +117,7 @@
                             <template #column-unitPrice="{ item, isInlineEdit}">
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_unit_price_inline_edit %}
-                                    <sw-number-field v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
+                                    <sw-number-field v-if="isInlineEdit && !itemCreatedFromProduct(item)"
                                               placeholder="0"
                                               size="small"
                                               :min="getMinItemPrice(item)"

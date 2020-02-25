@@ -1,12 +1,10 @@
 import template from './sw-order-product-select.html.twig';
 import './sw-order-product-select.scss';
 
-const { Component } = Shopware;
+const { Component, Service } = Shopware;
 
 Component.register('sw-order-product-select', {
     template,
-
-    inject: ['repositoryFactory'],
 
     props: {
         item: {
@@ -16,13 +14,15 @@ Component.register('sw-order-product-select', {
                 return [];
             }
         },
+        /** @deprecated tag:v6.4.0 */
         displayProductSelection: {
             type: Boolean,
-            required: true,
+            required: false,
             default() {
                 return true;
             }
         }
+
     },
 
     data() {
@@ -33,7 +33,19 @@ Component.register('sw-order-product-select', {
 
     computed: {
         productRepository() {
-            return this.repositoryFactory.create('product');
+            return Service('repositoryFactory').create('product');
+        },
+
+        lineItemTypes() {
+            return Service('cartSalesChannelService').getLineItemTypes();
+        },
+
+        isShownProductSelect() {
+            return this.item._isNew && this.item.type === this.lineItemTypes.PRODUCT;
+        },
+
+        isShownItemLabelInput() {
+            return this.item.type !== this.lineItemTypes.PRODUCT;
         }
     },
     methods: {

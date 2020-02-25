@@ -4,7 +4,7 @@ import template from './sw-profile-index.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const types = Shopware.Utils.types;
 
 Component.register('sw-profile-index', {
@@ -39,7 +39,7 @@ Component.register('sw-profile-index', {
     },
 
     computed: {
-        ...mapApiErrors('user', [
+        ...mapPropertyErrors('user', [
             'email'
         ]),
 

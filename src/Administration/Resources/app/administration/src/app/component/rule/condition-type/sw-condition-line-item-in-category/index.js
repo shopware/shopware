@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-in-category.html.twig';
 
 const { Component, Context } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
@@ -40,7 +40,7 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.operator', 'value.categoryIds']),
+        ...mapPropertyErrors('condition', ['value.operator', 'value.categoryIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;

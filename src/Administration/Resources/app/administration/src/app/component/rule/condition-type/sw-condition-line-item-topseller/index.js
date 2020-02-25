@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-topseller.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-line-item-topseller', 'sw-condition-base', {
     template,
@@ -28,7 +28,7 @@ Component.extend('sw-condition-line-item-topseller', 'sw-condition-base', {
             return [this.trueOption, this.falseOption];
         },
 
-        ...mapApiErrors('condition', ['value.isTopseller']),
+        ...mapPropertyErrors('condition', ['value.isTopseller']),
 
         currentError() {
             return this.conditionValueIsTopsellerError;

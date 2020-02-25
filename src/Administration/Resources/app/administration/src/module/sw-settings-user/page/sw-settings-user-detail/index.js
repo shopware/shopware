@@ -4,7 +4,7 @@ import './sw-settings-user-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-user-detail', {
@@ -52,7 +52,7 @@ Component.register('sw-settings-user-detail', {
     },
 
     computed: {
-        ...mapApiErrors('user', [
+        ...mapPropertyErrors('user', [
             'firstName',
             'lastName',
             'email',

@@ -1,5 +1,7 @@
 import fileReaderUtils from 'src/core/service/utils/file-reader.utils';
 
+jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
+
 // these tests use Blob objects to simulate a File objects
 describe('src/core/service/utils/file-reader.utils.js', () => {
     it('should provide promised based file access', () => {

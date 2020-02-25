@@ -55,6 +55,7 @@ Javascript analysis:
             - master
             - "6.1"
     stage: unit
+    timeout: 1h 00m
     before_script: []
     script:
         - cd src/Administration/Resources
@@ -79,6 +80,7 @@ PHP analysis:
     retry:
         max: 2
         when: runner_system_failure
+    timeout: 1h 00m
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
@@ -108,6 +110,7 @@ PHP analysis:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     variables:
         TEST_SUITES: "administration storefront checkout content framework migration system elasticsearch docs"
+    timeout: 1h 00m
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
@@ -143,6 +146,7 @@ PHP 7.2:
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
+    timeout: 1h 00m
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -160,6 +164,7 @@ PHP 7.3:
     image: shopware/development:7.3
     stage: unit
     when: manual
+    timeout: 1h 00m
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -177,6 +182,7 @@ PHP 7.4:
     image: shopware/development:7.4
     stage: unit
     when: manual
+    timeout: 1h 00m
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -193,6 +199,7 @@ MySQL 5.7:
     extends: .phpunit_base
     stage: unit
     when: manual
+    timeout: 1h 00m
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -209,6 +216,7 @@ MySQL 8.0:
     extends: .phpunit_base
     stage: unit
     when: manual
+    timeout: 1h 00m
     services:
         -   name: mysql:8.0
             alias: mysql
@@ -227,6 +235,7 @@ MariaDB 10.4:
     extends: .phpunit_base
     stage: unit
     when: manual
+    timeout: 1h 00m
     services:
         -   name: mariadb:10.4
             alias: mysql
@@ -242,6 +251,7 @@ Administration (Jest):
             - master
             - "6.1"
     stage: unit
+    timeout: 1h 00m
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -261,6 +271,7 @@ Storefront (Jest):
             - master
             - "6.1"
     stage: unit
+    timeout: 1h 00m
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
@@ -331,6 +342,7 @@ General (Storefront):
         - schedules
     <<: *e2e_definition
     needs: [Storefront (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -346,6 +358,7 @@ Content (Mixed):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -361,6 +374,7 @@ Catalogues (Mixed):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -376,6 +390,7 @@ Customers (Mixed):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -392,6 +407,7 @@ Media and Marketing (Mixed):
     <<: *e2e_definition
     needs: [Administration (Jest)]
     script: *mixed_definition
+    timeout: 1h 00m
     after_script: *mochawesome_report_definition
     variables:
         SECTION: 'Administration'
@@ -406,6 +422,7 @@ General (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -421,6 +438,7 @@ Orders (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -436,6 +454,7 @@ Rules and Product Groups (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -451,6 +470,7 @@ Settings (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:

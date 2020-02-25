@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-newsletter-config';
 
 const { Module } = Shopware;
@@ -22,5 +21,11 @@ Module.register('sw-settings-newsletter-config', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.newsletter.config.index',
+        icon: 'default-basic-stack-line'
     }
 });

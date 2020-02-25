@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-login-registration';
 
 const { Module } = Shopware;
@@ -22,5 +21,11 @@ Module.register('sw-settings-login-registration', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.login.registration.index',
+        icon: 'default-action-log-in'
     }
 });

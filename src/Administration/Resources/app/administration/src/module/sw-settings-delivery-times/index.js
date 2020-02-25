@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-delivery-time-list';
 import './page/sw-settings-delivery-time-detail';
 import './page/sw-settings-delivery-time-create';
@@ -37,5 +36,11 @@ Module.register('sw-settings-delivery-time', {
                 parentPath: 'sw.settings.delivery.time.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.delivery.time.index',
+        icon: 'default-time-clock'
     }
 });

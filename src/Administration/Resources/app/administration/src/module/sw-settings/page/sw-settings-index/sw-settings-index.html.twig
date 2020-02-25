@@ -39,7 +39,6 @@
                                 {% endblock %}
                             </template>
 
-
                             <template #content="{ active }">
                                 {% block sw_settings_content_card %}
                                     {% block sw_settings_content_header %}
@@ -47,18 +46,51 @@
                                     {% endblock %}
 
                                     <sw-card class="sw-settings__card">
-                                        <slot name="shop">
-                                            <div v-show="active === 'shop'" class="sw-settings__content-grid">
-                                                {% block sw_settings_content_card_slot_shop %}{% endblock %}
+                                        {#
+                                            @deprecated tag:v6.4.0
+                                            replace defaultSettingsGroups with settingsGroups
+                                        #}
+                                        <slot v-for="(settingsItems, settingsGroup) in defaultSettingsGroups"
+                                              :name="settingsGroup">
+                                            <div v-show="active === settingsGroup"
+                                                 class="sw-settings__content-grid"
+                                                 :id="`sw-settings__content-grid-${settingsGroup}`"
+                                            >
+                                                <sw-settings-item v-for="settingsItem in settingsItems"
+                                                                  :key="settingsItem.name"
+                                                                  :label="$tc(settingsItem.label)"
+                                                                  :to="{ name: settingsItem.to }"
+                                                                  :id="settingsItem.id">
+                                                    <template #icon>
+                                                        <sw-icon :name="settingsItem.icon"></sw-icon>
+                                                    </template>
+                                                </sw-settings-item>
+
+                                                {# @deprecated tag:v6.4.0 #}
+                                                <div v-if="settingsGroup === 'shop'">
+                                                    {% block sw_settings_content_card_slot_shop %}{% endblock %}
+                                                </div>
+                                                {# @deprecated tag:v6.4.0 #}
+                                                <div v-if="settingsGroup === 'system'">
+                                                    {% block sw_settings_content_card_slot_system %}{% endblock %}
+                                                </div>
                                             </div>
                                         </slot>
-                                        <slot name="system">
-                                            <div v-show="active === 'system'" class="sw-settings__content-grid">
-                                                {% block sw_settings_content_card_slot_system %}{% endblock %}
-                                            </div>
-                                        </slot>
+
+                                        {# @deprecated tag:v6.4.0 #}
                                         <slot name="plugins">
                                             <div v-show="active === 'plugins'" class="sw-settings__content-grid" ref="pluginConfig">
+                                                <sw-settings-item v-for="pluginSettingsItem in pluginSettingsGroup"
+                                                                  :key="pluginSettingsItem.name"
+                                                                  :label="$tc(pluginSettingsItem.label)"
+                                                                  :to="{ name: pluginSettingsItem.to }"
+                                                                  :id="pluginSettingsItem.id">
+                                                    <component v-if="pluginSettingsItem.iconComponent" :is="pluginSettingsItem.iconComponent"></component>
+                                                    <template v-else #icon>
+                                                        <sw-icon :name="pluginSettingsItem.icon"></sw-icon>
+                                                    </template>
+                                                </sw-settings-item>
+
                                                 {% block sw_settings_content_card_slot_plugins %}{% endblock %}
                                             </div>
                                         </slot>
@@ -68,7 +100,6 @@
                         </sw-tabs>
                     {% endblock %}
                 </sw-card-view>
-
             </template>
         {% endblock %}
     </sw-page>

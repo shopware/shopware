@@ -200,6 +200,10 @@ function registerModule(moduleId, module) {
         moduleDefinition.navigation = module.navigation;
     }
 
+    if (hasOwnProperty(module, 'settingsItem') && module.settingsItem) {
+        addSettingsItemsToStore(moduleId, module);
+    }
+
     modules.set(moduleId, moduleDefinition);
 
     return moduleDefinition;
@@ -287,7 +291,7 @@ function createRouteComponentList(route, moduleId, module) {
         if (!component) {
             warn(
                 'ModuleFactory',
-                `The route definition of module "${moduleId}" is not valid. 
+                `The route definition of module "${moduleId}" is not valid.
                     A route needs an assigned component name.`
             );
             return;
@@ -367,4 +371,45 @@ function getModuleSnippets() {
 
         return accumulator;
     }, {});
+}
+
+/**
+ * Adds a module to the settingsItems Store
+ *
+ * @param {String} moduleId
+ * @param {Object} module
+ * @returns void
+ */
+function addSettingsItemsToStore(moduleId, module) {
+    if (!Array.isArray(module.settingsItem)) {
+        module.settingsItem = [module.settingsItem];
+    }
+
+    module.settingsItem.forEach((settingsItem) => {
+        if (settingsItem.group
+            && settingsItem.to
+            && (settingsItem.icon || settingsItem.iconComponent)
+        ) {
+            if (!hasOwnProperty(settingsItem, 'id') || !settingsItem.id) {
+                settingsItem.id = moduleId;
+            }
+
+            if (!hasOwnProperty(settingsItem, 'name') || !settingsItem.name) {
+                settingsItem.name = module.name;
+            }
+
+            if (!hasOwnProperty(settingsItem, 'label') || !settingsItem.label) {
+                settingsItem.label = module.title;
+            }
+
+            Shopware.State.commit('settingsItems/addItem', settingsItem);
+        } else {
+            warn(
+                'ModuleFactory',
+                'The settingsItem entry does not contain the necessary properties',
+                'Abort registration of settingsItem entry',
+                settingsItem
+            );
+        }
+    });
 }

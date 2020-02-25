@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-integration-list';
 
 const { Module } = Shopware;
@@ -23,5 +22,11 @@ Module.register('sw-integration', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.integration.index',
+        icon: 'default-action-settings'
     }
 });

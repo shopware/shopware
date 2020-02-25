@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-store';
 
 const { Module } = Shopware;
@@ -20,5 +19,11 @@ Module.register('sw-settings-store', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.store.index',
+        icon: 'default-device-laptop'
     }
 });

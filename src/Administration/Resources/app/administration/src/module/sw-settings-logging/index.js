@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-logging-list';
 
 import './component/sw-settings-logging-entry-info';
@@ -24,5 +23,11 @@ Module.register('sw-settings-logging', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.logging.index',
+        icon: 'default-device-server'
     }
 });

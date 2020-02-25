@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './component/sw-mail-template-list';
 import './component/sw-mail-header-footer-list';
 import './page/sw-mail-template-detail';
@@ -59,5 +58,11 @@ Module.register('sw-mail-template', {
                 parentPath: 'sw.mail.template.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.mail.template.index',
+        icon: 'default-communication-envelope'
     }
 });

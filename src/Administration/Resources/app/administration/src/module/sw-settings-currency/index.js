@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-currency-list';
 import './page/sw-settings-currency-detail';
 
@@ -43,5 +42,11 @@ Module.register('sw-settings-currency', {
                 parentPath: 'sw.settings.currency.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.currency.index',
+        icon: 'default-symbol-euro'
     }
 });

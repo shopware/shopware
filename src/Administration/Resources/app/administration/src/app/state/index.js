@@ -5,6 +5,7 @@ import adminMenu from './admin-menu.store';
 import context from './context.store';
 import licenseViolation from './license-violation.store';
 import error from './error.store';
+import settingsItems from './settings-item.store';
 
 export default {
     notification,
@@ -13,5 +14,6 @@ export default {
     adminMenu,
     licenseViolation,
     context,
-    error
+    error,
+    settingsItems
 };

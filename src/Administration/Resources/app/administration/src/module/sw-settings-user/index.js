@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-user-list';
 import './page/sw-settings-user-detail';
 import './page/sw-settings-user-create';
@@ -39,5 +38,11 @@ Module.register('sw-settings-user', {
                 parentPath: 'sw.settings.user.list'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.user.list',
+        icon: 'default-avatar-single'
     }
 });

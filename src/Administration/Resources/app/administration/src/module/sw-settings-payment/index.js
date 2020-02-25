@@ -1,5 +1,4 @@
 import './component/sw-plugin-box';
-import './extension/sw-settings-index';
 import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-detail';
 import './page/sw-settings-payment-create';
@@ -38,5 +37,11 @@ Module.register('sw-settings-payment', {
                 parentPath: 'sw.settings.payment.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.payment.index',
+        icon: 'default-money-card'
     }
 });

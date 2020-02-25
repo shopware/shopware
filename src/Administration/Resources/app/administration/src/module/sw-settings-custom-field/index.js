@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-custom-field-set-create';
 import './page/sw-settings-custom-field-set-list';
 import './page/sw-settings-custom-field-set-detail';
@@ -48,5 +47,11 @@ Module.register('sw-settings-custom-field', {
                 parentPath: 'sw.settings.custom.field.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.custom.field.index',
+        icon: 'default-basic-stack-block'
     }
 });

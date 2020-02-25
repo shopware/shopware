@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './component/sw-first-run-wizard-modal';
 import './component/sw-plugin-card';
 import './page/index';
@@ -22,7 +21,7 @@ const { Module } = Shopware;
 Module.register('sw-first-run-wizard', {
     type: 'core',
     name: 'first-run-wizard',
-    title: 'sw-login.general.mainMenuItemsGeneral',
+    title: 'sw-first-run-wizard.general.mainMenuItemGeneral',
     description: 'First Run Wizard to set up languages and plugins after the installation process',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -104,5 +103,11 @@ Module.register('sw-first-run-wizard', {
                 }
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.first.run.wizard.index',
+        icon: 'default-object-rocket'
     }
 });

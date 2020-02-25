@@ -2,7 +2,7 @@ import template from './sw-condition-line-item-release-date.html.twig';
 import './sw-condition-line-item-release-date.scss';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-line-item-release-date', 'sw-condition-base', {
     template,
@@ -19,7 +19,7 @@ Component.extend('sw-condition-line-item-release-date', 'sw-condition-base', {
             }
         },
 
-        ...mapApiErrors('condition', ['value.useTime', 'value.lineItemReleaseDate']),
+        ...mapPropertyErrors('condition', ['value.useTime', 'value.lineItemReleaseDate']),
 
         currentError() {
             return this.conditionValueLineItemReleaseDateError;

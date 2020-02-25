@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-clearance-sale.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-line-item-clearance-sale', 'sw-condition-base', {
     template,
@@ -28,7 +28,7 @@ Component.extend('sw-condition-line-item-clearance-sale', 'sw-condition-base', {
             return [this.trueOption, this.falseOption];
         },
 
-        ...mapApiErrors('condition', ['value.clearanceSale']),
+        ...mapPropertyErrors('condition', ['value.clearanceSale']),
 
         currentError() {
             return this.conditionValueClearanceSaleError;

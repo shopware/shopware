@@ -98,7 +98,7 @@
                                             <sw-label v-if="item.transactions && item.transactions[0]"
                                                       :variant="getVariantFromPaymentState(item)"
                                                       appearance="pill">
-                                                {{ item.transactions[0].stateMachineState.name }}
+                                                {{ item.transactions[0].stateMachineState.translated.name }}
                                             </sw-label>
                                         </template>
                                     {% endblock %}
@@ -108,7 +108,7 @@
                                         <sw-label v-if="item.deliveries && item.deliveries[0]"
                                                   :variant="getVariantFromDeliveryState(item)"
                                                   appearance="pill">
-                                            {{ item.deliveries[0].stateMachineState.name }}
+                                            {{ item.deliveries[0].stateMachineState.translated.name }}
                                         </sw-label>
                                     </template>
                                 {% endblock %}

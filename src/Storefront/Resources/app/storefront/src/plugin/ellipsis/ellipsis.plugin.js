@@ -3,12 +3,12 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 
 export default class EllipsisPlugin extends Plugin {
-    static options = {
-        hiddenClass: 'swag-ellipsis-hidden',
-    };
-
     init() {
         this._registerEventListeners();
+        this.ellipsisSpan = DomAccess.querySelector(this.el, '.swag-ellipsis-span', false);
+        this.totalSpan = DomAccess.querySelector(this.el, '.swag-ellipsis-total-span', false);
+
+        this.totalSpan.style.display = 'none'
     }
 
     /**
@@ -18,28 +18,25 @@ export default class EllipsisPlugin extends Plugin {
         const expandLink = DomAccess.querySelector(this.el, '.swag-ellipsis-expand-link', false);
         const shrinkLink = DomAccess.querySelector(this.el, '.swag-ellipsis-shrink-link', false);
 
+        if(!expandLink && !shrinkLink) {
+            return;
+        }
+
         expandLink.addEventListener(
             'click',
-            this._onLinkClick.bind(this)
+            event => this._onLinkClick.call(this, event, 'expand')
         );
 
         shrinkLink.addEventListener(
             'click',
-            this._onLinkClick.bind(this)
+            event => this._onLinkClick.call(this, event, 'shrink')
         );
+
     }
 
-    _onLinkClick(event) {
-        const ellipsisSpan = DomAccess.querySelector(this.el, '.swag-ellipsis-span', false);
-        const totalSpan = DomAccess.querySelector(this.el, '.swag-ellipsis-total-span', false);
-
-        if (!ellipsisSpan.classList.contains(this.options.hiddenClass)) {
-            ellipsisSpan.classList.add(this.options.hiddenClass);
-            totalSpan.classList.remove(this.options.hiddenClass);
-        } else {
-            totalSpan.classList.add(this.options.hiddenClass);
-            ellipsisSpan.classList.remove(this.options.hiddenClass);
-        }
+    _onLinkClick(event, action) {
+        this.ellipsisSpan.style.display = action === 'expand' ? 'none' : 'inline';
+        this.totalSpan.style.display = action === 'shrink' ? 'none' : 'inline';
 
         event.preventDefault();
     }

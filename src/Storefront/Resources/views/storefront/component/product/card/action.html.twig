@@ -49,6 +49,12 @@
                                            value="1">
                                 {% endblock %}
 
+                                {% block page_product_detail_product_buy_meta %}
+                                    <input type="hidden"
+                                           name="product-name"
+                                           value="{{ product.translated.name }}">
+                                {% endblock %}
+
                                 <button class="btn btn-block btn-buy"
                                         title="{{ "listing.boxAddProduct"|trans|striptags }}">
                                     {{ "listing.boxAddProduct"|trans|sw_sanitize }}

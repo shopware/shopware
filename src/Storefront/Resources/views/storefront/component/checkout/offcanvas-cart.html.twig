@@ -123,7 +123,7 @@
 
                     {% block component_offcanvas_cart_actions_checkout %}
                         <a href="{{ path('frontend.checkout.confirm.page') }}"
-                           class="btn btn-block {% if isCartNotEmpty %}btn-primary{% else %}btn-light disabled{% endif %}"
+                           class="btn btn-block begin-checkout-btn{% if isCartNotEmpty %} btn-primary{% else %} btn-light disabled{% endif %}"
                            title="{{ "checkout.proceedToCheckout"|trans|striptags }}">
                             {{ "checkout.proceedToCheckout"|trans|sw_sanitize }}
                         </a>
@@ -139,5 +139,11 @@
                 </div>
             {% endblock %}
         </div>
+
+        {% block component_offcanvas_cart_hidden_line_items_information %}
+            {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                lineItems: page.cart.lineItems
+            } %}
+        {% endblock %}
     {% endblock %}
 {% endblock %}

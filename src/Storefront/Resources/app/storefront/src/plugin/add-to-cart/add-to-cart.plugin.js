@@ -47,7 +47,7 @@ export default class AddToCartPlugin extends Plugin {
         const requestUrl = DomAccess.getAttribute(this._form, 'action');
         const formData = FormSerializeUtil.serialize(this._form);
 
-        this.$emitter.publish('beforeFormSubmit');
+        this.$emitter.publish('beforeFormSubmit', formData);
 
         this._openOffCanvasCarts(requestUrl, formData);
     }

@@ -1,0 +1,18 @@
+{% block component_head_analytics %}
+    {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() %}
+        {% set trackingId = context.salesChannel.analytics.getTrackingId() %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ trackingId }}"></script>
+        <script>
+            window.gtagActive = true;
+            window.controllerName = '{{ controllerName|lower }}';
+            window.actionName = '{{ controllerAction|lower }}';
+            window.dataLayer = window.dataLayer || [];
+            window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';
+
+            function gtag(){ dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', '{{ trackingId }}');
+        </script>
+    {% endif %}
+{% endblock %}

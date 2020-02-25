@@ -217,10 +217,6 @@
           },
           "trackOrders": {
             "label": "Bestellungen tracken"
-          },
-          "metaTagVerification": {
-            "label": "Domain Verifizierung",
-            "placeHolder": "Meta Tag eingeben..."
           }
         }
       }

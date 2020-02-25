@@ -59,6 +59,15 @@
                                value="1">
                     {% endblock %}
 
+                    {% block page_product_detail_product_buy_meta %}
+                        <input type="hidden"
+                               name="product-name"
+                               value="{{ product.translated.name }}">
+                        <input type="hidden"
+                               name="brand-name"
+                               value="{{ product.manufacturer.getName() }}">
+                    {% endblock %}
+
                     {% block page_product_detail_buy_button_container %}
                         <div class="col-8">
                             {% block page_product_detail_buy_button %}

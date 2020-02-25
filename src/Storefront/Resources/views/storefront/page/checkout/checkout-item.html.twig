@@ -261,6 +261,7 @@
                                     {% block page_checkout_item_remove_submit %}
                                         <button type="submit"
                                                 title="{{ "checkout.removeLineItem"|trans|striptags }}"
+                                                data-product-id="{{ lineItem.id }}"
                                                 class="btn btn-light btn-sm cart-item-remove-button">
                                             {% sw_icon 'x' style { 'size': 'sm' } %}
                                         </button>

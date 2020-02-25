@@ -38,7 +38,6 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
             new StringField('tracking_id', 'trackingId'),
             new BoolField('active', 'active'),
             new BoolField('track_orders', 'trackOrders'),
-            new StringField('meta_tag', 'metaTag'),
             (new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false)),
         ]);
     }

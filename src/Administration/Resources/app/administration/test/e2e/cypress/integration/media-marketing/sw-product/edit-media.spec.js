@@ -16,7 +16,7 @@ describe('Product: Edit product media', () => {
             });
     });
 
-    it('@package @catalogue: change media sorting', () => {
+    it('@catalogue: change media sorting', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-test-image/);
     });
 
-    it('@package @catalogue: set another cover image', () => {
+    it('@base @catalogue: set another cover image', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -172,7 +172,7 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-test-image/);
     });
 
-    it('@package @catalogue: remove a product\'s image', () => {
+    it('@catalogue: remove a product\'s image', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

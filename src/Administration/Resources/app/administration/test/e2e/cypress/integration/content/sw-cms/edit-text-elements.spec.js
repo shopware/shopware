@@ -17,7 +17,7 @@ describe('CMS: Check usage and editing of text elements', () => {
             });
     });
 
-    it('@package @content: use text block with headline', () => {
+    it('@base @content: use text block with headline', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',
@@ -82,7 +82,7 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.cms-block p:nth-of-type(2)').contains('Herr von Ribbeck auf Ribbeck im Havelland,');
     });
 
-    it('@package @content: use text block with three columns', () => {
+    it('@content: use text block with three columns', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',

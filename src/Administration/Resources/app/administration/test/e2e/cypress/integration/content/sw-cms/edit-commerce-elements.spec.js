@@ -36,7 +36,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
             });
     });
 
-    it('@package @content: use simple product block', () => {
+    it('@base @content: use simple product block', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',

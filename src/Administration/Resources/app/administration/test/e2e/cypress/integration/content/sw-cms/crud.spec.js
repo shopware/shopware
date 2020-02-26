@@ -15,7 +15,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it('@package @content: create and read layout', () => {
+    it('@base @content: create and read layout', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page',
@@ -55,7 +55,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laidout');
     });
 
-    it('@package @content: update and read layout', () => {
+    it('@base @content: update and read layout', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',
@@ -107,7 +107,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
     });
 
-    it('@package @content: delete layout', () => {
+    it('@base @content: delete layout', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page/*',

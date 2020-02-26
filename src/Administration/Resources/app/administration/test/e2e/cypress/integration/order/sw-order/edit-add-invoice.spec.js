@@ -28,7 +28,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@package @order: add document to order', () => {
+    it('@base @order: add document to order', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later

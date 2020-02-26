@@ -42,7 +42,7 @@ describe('Seo: Test crud operations on templates', () => {
             });
     });
 
-    it('@package @settings: update template', () => {
+    it('@settings: update template', () => {
         cy.route({
             url: '/api/v1/_action/sync',
             method: 'post'
@@ -76,7 +76,7 @@ describe('Seo: Test crud operations on templates', () => {
         });
     });
 
-    it('@package @settings: update template for a saleschannel', () => {
+    it('@base @settings: update template for a saleschannel', () => {
         cy.route({
             url: '/api/v1/_action/sync',
             method: 'post'
@@ -116,7 +116,7 @@ describe('Seo: Test crud operations on templates', () => {
         cy.awaitAndCheckNotification('SEO url templates have been saved.');
     });
 
-    it('@package @settings: cannot edit templates for headless saleschannels', () => {
+    it('@base @settings: cannot edit templates for headless saleschannels', () => {
         cy.get('.sw-sales-channel-switch')
             .typeSingleSelectAndCheck('Headless', '.sw-entity-single-select');
 

@@ -16,7 +16,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it('@package @catalogue: edit a product\'s translation', () => {
+    it('@base @catalogue: edit a product\'s translation', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

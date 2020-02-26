@@ -16,7 +16,7 @@ describe('Media: Replace media', () => {
             });
     });
 
-    it('replace media with same file type', () => {
+    it('@media: replace media with same file type', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -76,7 +76,7 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-quickinfo-metadata-name input').should('have.value', 'sw-login-background');
     });
 
-    it('replace media with different file type', () => {
+    it('@media: replace media with different file type', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

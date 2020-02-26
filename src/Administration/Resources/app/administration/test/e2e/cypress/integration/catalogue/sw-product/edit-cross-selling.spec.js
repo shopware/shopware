@@ -37,7 +37,7 @@ describe('Product: Check cross selling integration', () => {
             });
     });
 
-    it('@package @catalogue: add cross selling stream to product', () => {
+    it('@catalogue: add cross selling stream to product', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later

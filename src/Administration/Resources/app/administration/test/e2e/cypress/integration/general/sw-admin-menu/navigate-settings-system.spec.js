@@ -12,7 +12,7 @@ describe('Administration: Check module navigation in settings', () => {
             });
     });
 
-    it('@general: navigate to user module', () => {
+    it('@navigation: navigate to user module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/user?page=1&limit=25',
@@ -31,7 +31,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-user-list').should('be.visible');
     });
 
-    it('@general: navigate to shopware account module', () => {
+    it('@navigation: navigate to shopware account module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.store',
@@ -50,7 +50,29 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-system-config').should('be.visible');
     });
 
-    it('@general: navigate to shopware update module', () => {
+    it('@navigation: navigate to logging module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/log-entry',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+
+        cy.get('.sw-settings__tab-system').should('be.visible');
+        cy.get('.sw-settings__tab-system').click();
+
+        cy.get('#sw-settings-logging').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-data-grid').should('be.visible');
+    });
+
+    it('@navigation: navigate to shopware update module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/system-config/schema?domain=core.update',
@@ -69,7 +91,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-card__title').contains('Shopware Updates');
     });
 
-    it('@general: navigate to custom field module', () => {
+    it('@base @navigation: navigate to custom field module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/search/custom-field-set',
@@ -88,7 +110,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-custom-field-set-list__card').should('be.visible');
     });
 
-    it('@general: navigate to plugin module', () => {
+    it('@base @navigation: navigate to plugin module', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/plugin/refresh',
@@ -114,10 +136,10 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-plugin-list').should('be.visible');
     });
 
-    it('@general: navigate to integrations module', () => {
+    it('@navigation: navigate to integrations module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1//integration?page=1&limit=25',
+            url: '/api/v1/integration?page=1&limit=25',
             method: 'get'
         }).as('getData');
 

@@ -16,7 +16,7 @@ describe('Product: Test crud operations', () => {
             });
     });
 
-    it('@p @catalogue: create and read product', () => {
+    it('@base @catalogue: create and read product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Product: Test crud operations', () => {
         cy.get('.product-detail-price').contains('10.00');
     });
 
-    it('@p @catalogue: update and read product', () => {
+    it('@base @catalogue: update and read product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -120,7 +120,7 @@ describe('Product: Test crud operations', () => {
             .contains('What remains of Edith Finch');
     });
 
-    it('@p @catalogue: delete product', () => {
+    it('@base @catalogue: delete product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

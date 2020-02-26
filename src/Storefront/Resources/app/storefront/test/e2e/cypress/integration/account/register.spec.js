@@ -1,7 +1,7 @@
 import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Register via account menu', () => {
-    it('trigger validation error', () => {
+    it('@login: Trigger validation error', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');
@@ -10,7 +10,7 @@ describe('Account: Register via account menu', () => {
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
     });
 
-    it('fill registration form and submit', () => {
+    it('@base @login: Fill registration form and submit', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');
@@ -41,7 +41,7 @@ describe('Account: Register via account menu', () => {
         });
     });
 
-    it('fill registration without state', () => {
+    it('@login: Fill registration without state', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');

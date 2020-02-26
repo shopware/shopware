@@ -13,5 +13,8 @@
     <tr><td>{% trans with {'%deliveryDate%': config.custom.deliveryDate|format_date('medium', locale=order.saleschannel.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
 {% endblock %}
 
+{% block document_line_item_table_shipping %}
+{% endblock %}
+
 {% block document_sum %}
 {% endblock %}

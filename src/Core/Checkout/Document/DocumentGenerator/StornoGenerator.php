@@ -80,6 +80,7 @@ class StornoGenerator implements DocumentGeneratorInterface
             $tax->setTax($tax->getTax() / -1);
         }
 
+        $order->setShippingTotal($order->getShippingTotal() / -1);
         $order->setAmountNet($order->getAmountNet() / -1);
         $order->setAmountTotal($order->getAmountTotal() / -1);
 

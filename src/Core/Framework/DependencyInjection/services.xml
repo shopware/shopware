@@ -272,7 +272,7 @@
             <argument type="service" id="twig"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator" decorates="twig.template_iterator">
+        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator" decorates="twig.template_iterator" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
             <argument>%kernel.bundles%</argument>
         </service>

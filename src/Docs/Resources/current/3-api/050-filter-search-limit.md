@@ -108,7 +108,9 @@ The result can therefore be restricted to certain ids using the parameter `ids`.
 ```
 
 
-## Source
+## Source - @deprecated tag:v6.3.0
+This feature is deprecated with 6.2.0 and will be removed in 6.3.0, use `includes` instead.
+
 In the response of a search or get request, all fields of an entity are returned by default. 
 However, it is also possible to minimize the response size by only returning certain fields via Api.
 
@@ -166,6 +168,48 @@ However, it is also possible to minimize the response size by only returning cer
 }
 ```
 
+## Includes
+In the response of a search or get request, all fields of an entity are returned by default. 
+However, it is also possible to minimize the response size by only returning certain fields via Api.
+Every object that is returned via api has an 'apiAlias'. This can be used to limit the properties of this object in the response:
+
+```json
+{
+    "limit": 1,
+    "includes": {
+        "product": ["id", "name", "tax", "price"],
+        "tax": ["id", "name"],
+        "price": ["gross"]
+    }
+}
+```
+
+Response:
+
+```json
+{
+    "total": 60,
+    "data": [
+        {
+            "price": [
+                {
+                    "gross": 71,
+                    "apiAlias": "price"
+                }
+            ],
+            "name": "Synergistic Leather Wannabeans",
+            "tax": {
+                "name": "7%",
+                "id": "4f76966be2d14367ac209763c870005c",
+                "apiAlias": "tax"
+            },
+            "id": "09522bceae50470db5f10faf96daf023",
+            "apiAlias": "product"
+        }
+    ],
+    "aggregations": []
+}
+```
 
 ## Term
 The API provides an integrated full text search that is pre-configured per entity. 

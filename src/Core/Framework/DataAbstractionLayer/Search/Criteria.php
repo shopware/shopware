@@ -28,6 +28,8 @@ class Criteria extends Struct
     public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
+     * @deprecated tag:v6.3.0 - Use `includes` instead
+     *
      * @var array|null
      */
     protected $source;
@@ -101,6 +103,11 @@ class Criteria extends Struct
      * @var string|null
      */
     protected $term;
+
+    /**
+     * @var array|null
+     */
+    protected $includes;
 
     /**
      * @throws InconsistentCriteriaIdsException
@@ -482,6 +489,16 @@ class Criteria extends Struct
     public function setSource(?array $source): void
     {
         $this->source = $source;
+    }
+
+    public function setIncludes(?array $includes): void
+    {
+        $this->includes = $includes;
+    }
+
+    public function getIncludes()
+    {
+        return $this->includes;
     }
 
     private function collectFields(array $parts): array

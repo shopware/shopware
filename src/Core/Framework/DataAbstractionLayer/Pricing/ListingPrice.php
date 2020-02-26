@@ -70,4 +70,9 @@ class ListingPrice extends Struct
     {
         return $this->getTo()->getGross() !== $this->getFrom()->getGross();
     }
+
+    public function getApiAlias(): string
+    {
+        return 'listing_price';
+    }
 }

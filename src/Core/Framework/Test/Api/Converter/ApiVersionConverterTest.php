@@ -459,10 +459,13 @@ class ApiVersionConverterTest extends TestCase
         $entity->setId($id ?? Uuid::randomHex());
         $entity->setPrice(10);
         $entity->setPrices([10]);
+
         $tax = new TaxEntity();
         $tax->setId(Uuid::randomHex());
         $tax->setName('19%');
         $tax->setTaxRate(19);
+        $tax->internalSetEntityName('tax');
+
         $entity->setTax($tax);
         $entity->setTaxId($tax->getId());
 

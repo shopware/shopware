@@ -26,11 +26,6 @@ class AggregationResultCollection extends Collection
         return $this->elements[$name] ?? null;
     }
 
-    public function jsonSerialize(): array
-    {
-        return $this->elements;
-    }
-
     protected function getExpectedClass(): ?string
     {
         return AggregationResult::class;

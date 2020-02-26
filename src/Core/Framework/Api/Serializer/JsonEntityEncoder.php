@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Serializer;
 
 class JsonEntityEncoder
@@ -71,7 +73,58 @@ class JsonEntityEncoder
             $decoded = $this->filterSource($source, $decoded);
         }
 
+        $includes = $criteria->getIncludes() ?? [];
+        $decoded = $this->filterIncludes($includes, $decoded, $entity);
+
         return $this->removeNotAllowedFields($decoded, $definition, $baseUrl, $apiVersion);
+    }
+
+    private function filterIncludes(array $includes, array $decoded, Struct $struct): array
+    {
+        $alias = $struct->getApiAlias();
+
+        foreach ($decoded as $property => $value) {
+            if (!$this->propertyAllowed($includes, $alias, $property)) {
+                unset($decoded[$property]);
+
+                continue;
+            }
+
+            if (!is_array($value)) {
+                continue;
+            }
+
+            $object = $struct->getVars()[$property];
+
+            if ($object instanceof Collection) {
+                $object = array_values($object->getElements());
+
+                foreach ($value as $index => $loop) {
+                    $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $object[$index]);
+                }
+
+                continue;
+            }
+
+            if ($object instanceof Struct) {
+                $decoded[$property] = $this->filterIncludes($includes, $value, $object);
+
+                continue;
+            }
+        }
+
+        $decoded['apiAlias'] = $alias;
+
+        return $decoded;
+    }
+
+    private function propertyAllowed(array $includes, string $alias, string $property): bool
+    {
+        if (!isset($includes[$alias])) {
+            return true;
+        }
+
+        return in_array($property, $includes[$alias], true);
     }
 
     private function filterSource(array $properties, array $decoded): array

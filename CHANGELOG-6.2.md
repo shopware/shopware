@@ -311,6 +311,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated Action Constant `StateMachineTransitionActions::PAY` use `StateMachineTransitionActions::DO_PAY` instead
         
 
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
 * Storefront	
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json

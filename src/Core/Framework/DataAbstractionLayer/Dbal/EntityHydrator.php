@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * Allows to hydrate database values into struct objects.
@@ -103,16 +103,17 @@ class EntityHydrator
         $identifier = implode('-', $identifier);
 
         $entity->setUniqueIdentifier($identifier);
+        $entity->internalSetEntityName($definition->getEntityName());
 
         $cacheKey = $definition->getEntityName() . '::' . $identifier;
         if (isset($this->objects[$cacheKey])) {
             return $this->objects[$cacheKey];
         }
 
-        $mappingStorage = new ArrayEntity([]);
+        $mappingStorage = new ArrayStruct([]);
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
 
-        $foreignKeys = new ArrayEntity([]);
+        $foreignKeys = new ArrayStruct([]);
         $entity->addExtension(EntityReader::FOREIGN_KEYS, $foreignKeys);
 
         /** @var Field $field */

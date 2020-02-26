@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver;
 
-class FieldConfig implements \JsonSerializable
+use Shopware\Core\Framework\Struct\Struct;
+
+class FieldConfig extends Struct
 {
     public const SOURCE_STATIC = 'static';
     public const SOURCE_MAPPED = 'mapped';
@@ -10,17 +12,17 @@ class FieldConfig implements \JsonSerializable
     /**
      * @var string
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      */
-    private $source;
+    protected $source;
 
     /**
      * @var mixed
      */
-    private $value;
+    protected $value;
 
     public function __construct(string $name, string $source, $value)
     {
@@ -52,10 +54,5 @@ class FieldConfig implements \JsonSerializable
     public function isMapped(): bool
     {
         return $this->source === self::SOURCE_MAPPED;
-    }
-
-    public function jsonSerialize()
-    {
-        return get_object_vars($this);
     }
 }

@@ -19,6 +19,7 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
         $rule->setName('Test rule');
         $rule->setDescription('Test description');
         $rule->setPayload(new AndRule([new TrueRule(), new FalseRule()]));
+        $rule->internalSetEntityName('rule');
         $ruleCollection->add($rule);
 
         return $ruleCollection;
@@ -123,6 +124,7 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
                 'updatedAt' => null,
                 'extensions' => [],
                 'promotionSetGroups' => null,
+                'apiAlias' => 'rule',
             ],
         ];
     }

@@ -59,6 +59,11 @@ class DefinitionInstanceRegistry
         return $entityDefinition;
     }
 
+    public function has(string $name): bool
+    {
+        return isset($this->definitions[$name]);
+    }
+
     /**
      * @throws DefinitionNotFoundException
      */

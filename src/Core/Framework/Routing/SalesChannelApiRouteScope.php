@@ -31,6 +31,6 @@ class SalesChannelApiRouteScope extends AbstractRouteScope implements SalesChann
 
     public function getId(): string
     {
-        return self::ID;
+        return static::ID;
     }
 }

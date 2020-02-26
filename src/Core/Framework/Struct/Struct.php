@@ -23,4 +23,14 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
     {
         return get_object_vars($this);
     }
+
+    public function getApiAlias(): string
+    {
+        $class = static::class;
+
+        $class = explode('\\', $class);
+        $class = implode('', $class);
+
+        return \ltrim(\mb_strtolower(\preg_replace('/[A-Z]/', '_$0', $class)), '_');
+    }
 }

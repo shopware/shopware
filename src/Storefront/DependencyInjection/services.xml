@@ -141,11 +141,9 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
-            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
-            <argument type="service" id="sales_channel.category.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">

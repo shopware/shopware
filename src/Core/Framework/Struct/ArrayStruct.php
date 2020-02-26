@@ -2,19 +2,12 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-
-class ArrayEntity extends Entity implements \ArrayAccess
+class ArrayStruct extends Struct implements \ArrayAccess
 {
     /**
      * @var array
      */
     protected $data;
-
-    /**
-     * @var string
-     */
-    protected $_entityName = 'array-entity';
 
     public function __construct(array $data = [])
     {
@@ -24,20 +17,6 @@ class ArrayEntity extends Entity implements \ArrayAccess
     public function has(string $property): bool
     {
         return \array_key_exists($property, $this->data);
-    }
-
-    public function getUniqueIdentifier(): string
-    {
-        if (!$this->_uniqueIdentifier) {
-            return $this->data['id'];
-        }
-
-        return parent::getUniqueIdentifier();
-    }
-
-    public function getId(): string
-    {
-        return $this->data['id'];
     }
 
     public function offsetExists($offset)
@@ -73,10 +52,6 @@ class ArrayEntity extends Entity implements \ArrayAccess
     public function assign(array $options)
     {
         $this->data = array_replace_recursive($this->data, $options);
-
-        if (\array_key_exists('id', $options)) {
-            $this->_uniqueIdentifier = $options['id'];
-        }
 
         return $this;
     }

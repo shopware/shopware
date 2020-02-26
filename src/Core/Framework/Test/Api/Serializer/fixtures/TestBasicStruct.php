@@ -16,6 +16,7 @@ class TestBasicStruct extends SerializationFixture
         $media->setFileSize(310818);
         $media->setAlt('A media object description');
         $media->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $media->internalSetEntityName('media');
 
         return $media;
     }
@@ -222,6 +223,7 @@ class TestBasicStruct extends SerializationFixture
             '_uniqueIdentifier' => '1d23c1b015bf43fb97e89008cf42d6fe',
             'versionId' => null,
             'extensions' => [],
+            'apiAlias' => 'media',
         ];
     }
 

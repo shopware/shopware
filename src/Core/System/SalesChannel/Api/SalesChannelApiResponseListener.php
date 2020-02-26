@@ -1,0 +1,48 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\SalesChannel\Api;
+
+use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+class SalesChannelApiResponseListener implements EventSubscriberInterface
+{
+    /**
+     * @var StructEncoder
+     */
+    private $encoder;
+
+    public function __construct(StructEncoder $encoder)
+    {
+        $this->encoder = $encoder;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::RESPONSE => ['encodeResponse', 10000],
+        ];
+    }
+
+    public function encodeResponse(ResponseEvent $event): void
+    {
+        $response = $event->getResponse();
+
+        if (!$response instanceof SalesChannelApiResponse) {
+            return;
+        }
+
+        $fields = new ResponseFields(
+            $event->getRequest()->get('includes', [])
+        );
+
+        $version = $event->getRequest()->attributes->getInt('version');
+
+        $encoded = $this->encoder->encode($response->getObject(), $version, $fields);
+
+        $event->setResponse(new JsonResponse($encoded));
+    }
+}

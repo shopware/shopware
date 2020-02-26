@@ -124,5 +124,15 @@
             <tag name="shopware.dal.exception_handler"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Api\SalesChannelApiResponseListener">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+            <argument type="service" id="serializer"/>
+        </service>
     </services>
 </container>

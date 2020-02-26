@@ -23,6 +23,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $user->internalSetEntityName('user');
 
         $media = new MediaEntity();
         $media->setId('3e352be2d85846dd97529c0f6b544870');
@@ -34,6 +35,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $media->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
         $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
         $media->setTitle('Lagerkorn-5,0klein');
+        $media->internalSetEntityName('media');
 
         $mediaCollection->add($media);
         $user->setMedia($mediaCollection);
@@ -291,6 +293,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
             'active' => true,
             'locale' => null,
             'avatarMedia' => null,
+            'apiAlias' => 'user',
             'media' => [
                 [
                     'id' => '3e352be2d85846dd97529c0f6b544870',
@@ -330,6 +333,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'extensions' => [],
                         'admin' => true,
                         'aclRoles' => null,
+                        'apiAlias' => 'user',
                     ],
                     'translations' => null,
                     'categories' => null,
@@ -360,6 +364,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'createdAt' => '2012-08-15T00:00:00+00:00',
                     'updatedAt' => '2017-11-21T11:25:34+00:00',
                     'extensions' => [],
+                    'apiAlias' => 'media',
                 ],
             ],
             'accessKeys' => null,

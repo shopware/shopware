@@ -20,4 +20,9 @@ abstract class AggregationResult extends Struct
     {
         return $this->name;
     }
+
+    public function getApiAlias(): string
+    {
+        return $this->name . '_aggregation';
+    }
 }

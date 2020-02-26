@@ -101,6 +101,7 @@ class JsonEntityEncoderTest extends TestCase
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
 
+        unset($actual['apiAlias']);
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }
 
@@ -120,6 +121,7 @@ class JsonEntityEncoderTest extends TestCase
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
 
+        unset($actual['apiAlias']);
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }
 

@@ -41,6 +41,8 @@ class DeprecatedEntity extends Entity
      */
     protected $product;
 
+    protected $_entityName = 'deprecated-entity';
+
     /**
      * @deprecated in 6.1.0 will be removed in 6.2.0 use `getPrices()` instead
      */

@@ -49,7 +49,7 @@ describe('Account: Edit order', () => {
         cy.get('.card-body > [data-toggle="modal"]').click();
         cy.get('label[for~="paymentMethod2"]').click();
         cy.get('#confirmPaymentForm > .btn-primary').click();
-        cy.get('.card-body > .custom-control').click();
+        cy.get('.custom-checkbox label').click(1, 1);
         cy.get('#confirmOrderForm > .btn').scrollIntoView();
         cy.get('#confirmOrderForm > .btn').click();
         cy.get('.order-table-header-order-table-body > :nth-child(3)').contains('Paid in advance');

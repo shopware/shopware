@@ -2,23 +2,19 @@
 
 namespace Shopware\Storefront\Page;
 
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteInterface;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteInterface;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class GenericPageLoader
+class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**
      * @var HeaderPageletLoaderInterface
@@ -31,32 +27,32 @@ class GenericPageLoader
     private $footerLoader;
 
     /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $shippingMethodsRepository;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $paymentMethodsRepository;
-
-    /**
      * @var SystemConfigService
      */
     private $systemConfigService;
 
+    /**
+     * @var PaymentMethodRouteInterface
+     */
+    private $paymentMethodPageRoute;
+
+    /**
+     * @var ShippingMethodRouteInterface
+     */
+    private $shippingMethodPageRoute;
+
     public function __construct(
         HeaderPageletLoaderInterface $headerLoader,
         FooterPageletLoaderInterface $footerLoader,
-        SalesChannelRepositoryInterface $shippingMethodsRepository,
-        SalesChannelRepositoryInterface $paymentMethodsRepository,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        PaymentMethodRouteInterface $paymentMethodPageRoute,
+        ShippingMethodRouteInterface $shippingMethodPageRoute
     ) {
         $this->headerLoader = $headerLoader;
         $this->footerLoader = $footerLoader;
-        $this->shippingMethodsRepository = $shippingMethodsRepository;
-        $this->paymentMethodsRepository = $paymentMethodsRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->paymentMethodPageRoute = $paymentMethodPageRoute;
+        $this->shippingMethodPageRoute = $shippingMethodPageRoute;
     }
 
     /**
@@ -79,25 +75,14 @@ class GenericPageLoader
             $this->footerLoader->load($request, $salesChannelContext)
         );
 
-        $shippingMethodsCriteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('media');
+        $page->setSalesChannelShippingMethods(
+            $this->shippingMethodPageRoute->load(new Request(), $salesChannelContext)->getShippingMethods()
+        );
 
-        /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodsRepository->search($shippingMethodsCriteria, $salesChannelContext)->getEntities();
-        $page->setSalesChannelShippingMethods($shippingMethods);
+        $page->setSalesChannelPaymentMethods(
+            $this->paymentMethodPageRoute->load(new Request(), $salesChannelContext)->getPaymentMethods()
+        );
 
-        $paymentMethodsCriteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('media');
-
-        /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodsRepository->search($paymentMethodsCriteria, $salesChannelContext)->getEntities();
-        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
-
-        $page->setSalesChannelPaymentMethods($paymentMethods);
         $page->setMetaInformation((new MetaInformation())->assign([
             'revisit' => '15 days',
             'robots' => 'index,follow',

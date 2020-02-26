@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductPageLoader
 {
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -78,7 +78,7 @@ class ProductPageLoader
     private $crossSellingLoader;
 
     public function __construct(
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         SalesChannelRepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,

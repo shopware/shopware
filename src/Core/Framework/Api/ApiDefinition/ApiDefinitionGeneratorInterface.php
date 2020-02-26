@@ -10,12 +10,12 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  */
 interface ApiDefinitionGeneratorInterface
 {
-    public function supports(string $format): bool;
+    public function supports(string $format, int $version, string $api): bool;
 
     /**
      * @param EntityDefinition[]|SalesChannelDefinitionInterface[] $definitions
      */
-    public function generate(array $definitions, int $version): array;
+    public function generate(array $definitions, int $version, string $api): array;
 
     /**
      * @param EntityDefinition[]|SalesChannelDefinitionInterface[] $definitions

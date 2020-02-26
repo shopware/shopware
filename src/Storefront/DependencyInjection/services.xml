@@ -170,23 +170,23 @@
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
-            <argument type="service" id="sales_channel.language.repository"/>
-            <argument type="service" id="sales_channel.currency.repository"/>
-            <argument type="service" id="sales_channel.category.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/><argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader">
-            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\GenericPageLoader">
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader"/>
-            <argument type="service" id="sales_channel.shipping_method.repository"/>
-            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">

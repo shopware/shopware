@@ -91,6 +91,11 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesApiController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
+            <argument type="service" id="twig"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>

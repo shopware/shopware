@@ -11,14 +11,14 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class AccountProfilePageLoader
 {
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -33,7 +33,7 @@ class AccountProfilePageLoader
     private $salutationRepository;
 
     public function __construct(
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelRepositoryInterface $salutationRepository
     ) {

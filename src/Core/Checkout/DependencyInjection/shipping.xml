@@ -24,5 +24,11 @@
         <service id="Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" public="true">
+            <argument type="service" id="sales_channel.shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition"/>
+        </service>
     </services>
 </container>

@@ -75,6 +75,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand">
+            <tag name="console.command"/>
+            <argument>%kernel.bundles_metadata%</argument>
+        </service>
+
         <!-- Serializer -->
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiDecoder">
             <tag name="serializer.encoder"/>
@@ -134,6 +139,7 @@
         <service id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator"/>
         </service>
@@ -157,6 +163,14 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator">
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
+            <argument>%kernel.bundles_metadata%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">

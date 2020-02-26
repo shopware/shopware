@@ -130,7 +130,8 @@
         "symfony/phpunit-bridge": "4.4.4",
         "symfony/stopwatch": "4.4.4",
         "symfony/var-dumper": "4.4.4",
-        "symfony/web-profiler-bundle": "4.4.4"
+        "symfony/web-profiler-bundle": "4.4.4",
+        "nikic/php-parser": "4.3.0"
     },
     "conflict": {
         "symfony/symfony": "*"

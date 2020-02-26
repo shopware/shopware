@@ -42,7 +42,7 @@
 
         // Build a system
         const ui = SwaggerUIBundle({
-            url: "{{ url(schemaUrl, {'format': 'yaml', 'version': apiVersion}) }}",
+            url: "{{ url(schemaUrl, {'version': apiVersion}) }}",
             dom_id: '#swagger-ui',
             deepLinking: true,
             displayOperationId: true,

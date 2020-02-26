@@ -92,5 +92,12 @@
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator">
             <tag name="shopware.cart.validator"/>
         </service>
+
+        <!-- Sales Channel API -->
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" public="true">
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition"/>
+        </service>
     </services>
 </container>

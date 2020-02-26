@@ -3,16 +3,16 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class NavigationPageLoader
 {
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -22,18 +22,18 @@ class NavigationPageLoader
     private $eventDispatcher;
 
     /**
-     * @var CategoryRoute
+     * @var CategoryRouteInterface
      */
-    private $categoryRoute;
+    private $cmsPageRoute;
 
     public function __construct(
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        CategoryRoute $cmsPageRoute
+        CategoryRouteInterface $cmsPageRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->categoryRoute = $cmsPageRoute;
+        $this->cmsPageRoute = $cmsPageRoute;
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage
@@ -43,7 +43,7 @@ class NavigationPageLoader
 
         $navigationId = $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
-        $category = $this->categoryRoute
+        $category = $this->cmsPageRoute
             ->load($navigationId, $request, $context)
             ->getCategory();
 

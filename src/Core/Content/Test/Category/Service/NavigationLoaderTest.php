@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
@@ -78,7 +79,8 @@ class NavigationLoaderTest extends TestCase
         $loader = new NavigationLoader(
             $this->createMock(Connection::class),
             $this->createMock(SalesChannelRepository::class),
-            $this->createMock(EventDispatcher::class)
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(NavigationRoute::class)
         );
 
         $method = ReflectionHelper::getMethod(NavigationLoader::class, 'buildTree');

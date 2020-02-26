@@ -19,6 +19,10 @@ class SalesChannelApiRouteScope extends AbstractRouteScope implements SalesChann
 
     public function isAllowed(Request $request): bool
     {
+        if (!$request->attributes->get('auth_required', false)) {
+            return true;
+        }
+
         /** @var Context $requestContext */
         $requestContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
 

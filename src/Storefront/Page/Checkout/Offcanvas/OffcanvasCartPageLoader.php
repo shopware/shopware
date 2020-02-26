@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -28,7 +28,7 @@ class OffcanvasCartPageLoader
     private $cartService;
 
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -40,7 +40,7 @@ class OffcanvasCartPageLoader
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         SalesChannelRepositoryInterface $shippingMethodRepository
     ) {
         $this->eventDispatcher = $eventDispatcher;

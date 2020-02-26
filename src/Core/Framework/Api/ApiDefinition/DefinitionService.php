@@ -12,6 +12,7 @@ class DefinitionService
 {
     public const API = 'api';
     public const SALES_CHANNEL_API = 'sales-channel-api';
+    public const STORE_API = 'store-api';
 
     /**
      * @var ApiDefinitionGeneratorInterface[]
@@ -44,7 +45,7 @@ class DefinitionService
             $version = PlatformRequest::API_VERSION;
         }
 
-        return $this->getGenerator($format)->generate($this->getDefinitions($type), $version);
+        return $this->getGenerator($format, $version, $type)->generate($this->getDefinitions($type), $version, $type);
     }
 
     public function getSchema(string $format = 'openapi-3', string $type = self::API, ?int $version = null): array
@@ -53,16 +54,16 @@ class DefinitionService
             $version = PlatformRequest::API_VERSION;
         }
 
-        return $this->getGenerator($format)->getSchema($this->getDefinitions($type), $version);
+        return $this->getGenerator($format, $version, $type)->getSchema($this->getDefinitions($type), $version);
     }
 
     /**
      * @throws ApiDefinitionGeneratorNotFoundException
      */
-    private function getGenerator(string $format): ApiDefinitionGeneratorInterface
+    private function getGenerator(string $format, int $version, string $type): ApiDefinitionGeneratorInterface
     {
         foreach ($this->generators as $generator) {
-            if ($generator->supports($format)) {
+            if ($generator->supports($format, $version, $type)) {
                 return $generator;
             }
         }
@@ -81,7 +82,7 @@ class DefinitionService
             return $this->definitionRegistry->getDefinitions();
         }
 
-        if ($type === self::SALES_CHANNEL_API) {
+        if ($type === self::SALES_CHANNEL_API || $type === self::STORE_API) {
             return $this->salesChannelDefinitionRegistry->getDefinitions();
         }
 

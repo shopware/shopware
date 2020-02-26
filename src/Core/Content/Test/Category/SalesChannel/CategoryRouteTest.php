@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,7 +18,7 @@ class CategoryRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var CategoryRoute
+     * @var CategoryRouteInterface
      */
     private $route;
 
@@ -51,7 +52,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'GET',
-            '/shop-api/v2/category/' . $this->ids->get('category')
+            '/store-api/v2/category/' . $this->ids->get('category')
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -86,7 +87,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/shop-api/v2/category/' . $this->ids->get('category'),
+            '/store-api/v2/category/' . $this->ids->get('category'),
             [
                 'includes' => [
                     'product_manufacturer' => ['id', 'name', 'options'],
@@ -123,7 +124,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/shop-api/v2/category/' . $this->ids->get('category'),
+            '/store-api/v2/category/' . $this->ids->get('category'),
             [
                 'manufacturer' => $this->ids->get('manufacturer-2'),
                 'reduce-aggregations' => true,

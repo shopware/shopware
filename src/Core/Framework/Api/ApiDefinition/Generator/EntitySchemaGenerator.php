@@ -55,12 +55,12 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
     public const FORMAT = 'entity-schema';
 
-    public function supports(string $format): bool
+    public function supports(string $format, int $version, string $api): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, int $version): array
+    public function generate(array $definitions, int $version, string $api): array
     {
         return $this->getSchema($definitions, $version);
     }

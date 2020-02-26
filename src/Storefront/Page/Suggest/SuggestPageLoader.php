@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInte
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -24,14 +24,14 @@ class SuggestPageLoader
     private $suggestGateway;
 
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         ProductSuggestGatewayInterface $suggestGateway,
-        GenericPageLoader $genericLoader
+        GenericPageLoaderInterface $genericLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->suggestGateway = $suggestGateway;

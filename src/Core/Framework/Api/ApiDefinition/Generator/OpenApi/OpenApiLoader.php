@@ -28,7 +28,7 @@ class OpenApiLoader
         $this->rootDir = $rootDir;
     }
 
-    public function load(bool $forSalesChannel): OpenApi
+    public function load(string $api): OpenApi
     {
         $pathsToScan = [
             // project src
@@ -46,7 +46,7 @@ class OpenApiLoader
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
-                if ($operation instanceof Operation && !in_array($this->getTagForApi($forSalesChannel), $operation->tags, true)) {
+                if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
                 $allUndefined = ($pathItem->$key === UNDEFINED && $allUndefined === true);
@@ -59,10 +59,5 @@ class OpenApiLoader
         $openApi->paths = $calculatedPaths;
 
         return $openApi;
-    }
-
-    private function getTagForApi(bool $forSalesChannel): string
-    {
-        return $forSalesChannel ? 'Sales Channel Api' : 'Admin Api';
     }
 }

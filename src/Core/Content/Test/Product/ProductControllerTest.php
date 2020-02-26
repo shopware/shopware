@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use function Flag\skipTestNext6025;
 
 class ProductControllerTest extends TestCase
 {
@@ -110,5 +112,110 @@ class ProductControllerTest extends TestCase
         static::assertEquals(10, $content['data']['price'][0]['gross']);
         static::assertEquals('with id', $content['data']['tax']['name']);
         static::assertEquals(17, $content['data']['tax']['taxRate']);
+    }
+
+    public function testProductDetailWithInactiveProduct(): void
+    {
+        $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+
+        $client = $this->getSalesChannelBrowser();
+        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'Test',
+                'stock' => 1,
+                'active' => false,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
+
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+
+        static::assertSame(404, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+    }
+
+    public function testProductDetailWithIsCloseoutProduct(): void
+    {
+        skipTestNext6025($this);
+
+        // enable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+
+        $client = $this->getSalesChannelBrowser();
+        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'Test',
+                'stock' => 1,
+                'isCloseout' => true,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
+
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
+    }
+
+    public function testProductDetailWithIsCloseoutProductOutOfStock(): void
+    {
+        skipTestNext6025($this);
+
+        // enable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+
+        $client = $this->getSalesChannelBrowser();
+        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'Test',
+                'stock' => 0,
+                'isCloseout' => true,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
+
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+
+        static::assertSame(404, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }
 }

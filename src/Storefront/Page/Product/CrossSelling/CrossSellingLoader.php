@@ -10,10 +10,13 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function Flag\next6025;
 
 class CrossSellingLoader
 {
@@ -37,16 +40,23 @@ class CrossSellingLoader
      */
     private $productRepository;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $crossSellingRepository,
         EventDispatcherInterface $eventDispatcher,
         ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepositoryInterface $productRepository
+        SalesChannelRepositoryInterface $productRepository,
+        SystemConfigService $systemConfigService
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->crossSellingRepository = $crossSellingRepository;
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function load(string $productId, SalesChannelContext $context): CrossSellingLoaderResult
@@ -56,7 +66,9 @@ class CrossSellingLoader
         $result = new CrossSellingLoaderResult();
 
         foreach ($crossSellings as $crossSelling) {
-            if ($element = $this->loadCrossSellingElement($crossSelling, $context)) {
+            $element = $this->loadCrossSellingElement($crossSelling, $context);
+
+            if ($element->getTotal() > 0) {
                 $result->add($element);
             }
         }
@@ -102,6 +114,23 @@ class CrossSellingLoader
         $criteria->addFilter(...$filters)
             ->setLimit($crossSelling->getLimit())
             ->addSorting($crossSelling->getSorting());
+
+        if (next6025()) {
+            $salesChannelId = $context->getSalesChannel()->getId();
+            $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+
+            if ($hideCloseoutProductsWhenOutOfStock) {
+                $criteria->addFilter(
+                    new NotFilter(
+                        NotFilter::CONNECTION_AND,
+                        [
+                            new EqualsFilter('product.isCloseout', true),
+                            new EqualsFilter('product.available', false),
+                        ]
+                    )
+                );
+            }
+        }
 
         $searchResult = $this->productRepository->search($criteria, $context);
 

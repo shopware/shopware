@@ -239,6 +239,7 @@ class ProductPageLoader
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('product.parentId', $productId))
             ->addSorting(new FieldSorting('product.price'))
+            ->addSorting(new FieldSorting('product.available'))
             ->setLimit(1);
 
         $variantId = $this->productRepository->searchIds($criteria, $salesChannelContext);

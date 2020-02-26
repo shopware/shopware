@@ -9,16 +9,10 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
     },
 
     methods: {
-        /**
-         * @override
-         */
         resetActiveItem(position = 0) {
             this.$refs.swSelectResultList.setActiveItemIndex(position);
         },
 
-        /**
-         * @override
-         */
         search(searchTerm) {
             // Remove earlier "Add Tag" elements
             this.filterSearchGeneratedTags();
@@ -37,9 +31,6 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             });
         },
 
-        /**
-         * @override
-         */
         addItem(item) {
             if (item.id === -1) {
                 this.createNewTag();

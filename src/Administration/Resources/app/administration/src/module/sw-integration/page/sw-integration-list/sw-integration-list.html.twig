@@ -1,10 +1,18 @@
 {% block sw_integration_list %}
     <sw-page class="sw-integration-list">
-        <template slot="smart-bar-header">
-            {% block sw_integration_list_smart_bar_header %}
-                <h2>{{ $tc('sw-integration.general.headlineIntegrations') }}</h2>
-            {% endblock %}
-        </template>
+        {% block sw_integration_list_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_integration_list_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_integration_list_smart_bar_header_title_text %}
+                            {{ $tc('sw-settings.index.title') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                            {{ $tc('sw-integration.general.headlineIntegrations') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
 
         <template slot="smart-bar-actions">
             {% block sw_integration_list_smart_bar_actions %}

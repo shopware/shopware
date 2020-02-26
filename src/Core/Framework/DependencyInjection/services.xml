@@ -335,7 +335,7 @@
             <tag name="shopware.route_scope"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\SalesApiRouteScope">
+        <service id="Shopware\Core\Framework\Routing\ShopApiRouteScope">
             <tag name="shopware.route_scope"/>
         </service>
 

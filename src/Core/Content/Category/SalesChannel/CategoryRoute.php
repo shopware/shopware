@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"sales-api"})
+ * @RouteScope(scopes={"shop-api"})
  */
 class CategoryRoute
 {
@@ -70,7 +70,7 @@ class CategoryRoute
      *     ),
      * )
      *
-     * @Route("/sales-api/v{version}/category/{categoryId}", name="sales-api.category.detail", methods={"GET","POST"})
+     * @Route("/shop-api/v{version}/category/{categoryId}", name="shop-api.category.detail", methods={"GET","POST"})
      */
     public function load(string $categoryId, Request $request, SalesChannelContext $context): CategoryResponse
     {

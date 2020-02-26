@@ -51,7 +51,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'GET',
-            '/sales-api/v2/category/' . $this->ids->get('category')
+            '/shop-api/v2/category/' . $this->ids->get('category')
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -86,7 +86,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/sales-api/v2/category/' . $this->ids->get('category'),
+            '/shop-api/v2/category/' . $this->ids->get('category'),
             [
                 'includes' => [
                     'product_manufacturer' => ['id', 'name', 'options'],
@@ -123,7 +123,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/sales-api/v2/category/' . $this->ids->get('category'),
+            '/shop-api/v2/category/' . $this->ids->get('category'),
             [
                 'manufacturer' => $this->ids->get('manufacturer-2'),
                 'reduce-aggregations' => true,

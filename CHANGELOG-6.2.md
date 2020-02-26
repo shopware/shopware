@@ -519,6 +519,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader`
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage`
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
+    * Deprecated `purchasePrice` in `Shopware\Core\Content\Product` use `purchasePrices` instead
+    * Deprecated `payload.purchasePrice` in `Shopware\Core\Checkout\Cart\LineItem\LineItem` use `payload.purchasePrices` instead
 
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     * Added `\Shopware\Storefront\Theme\ThemeCompilerInterface`

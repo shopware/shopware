@@ -1278,6 +1278,21 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testFilterPriceField(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        // Filter by the PriceField purchasePrices
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('purchasePrices', 100));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(3, $products->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testXorQuery(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
@@ -1418,6 +1433,9 @@ class ElasticsearchProductTest extends TestCase
             'name' => $name,
             'stock' => $stock,
             'purchasePrice' => $purchasePrice,
+            'purchasePrices' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / 115 * 100, 'linked' => false],
+            ],
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false],
             ],

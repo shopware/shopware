@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
@@ -159,7 +160,8 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new Inherited()),
             (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new Inherited()),
             (new BoolField('shipping_free', 'shippingFree'))->addFlags(new Inherited()),
-            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited()),
+            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited(), new Deprecated('v1', 'v2')),
+            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited()),
             (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new Inherited()),
             (new FloatField('weight', 'weight'))->addFlags(new Inherited()),
             (new FloatField('width', 'width'))->addFlags(new Inherited()),

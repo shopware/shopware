@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @group rules
- */
 class LineItemPurchasePriceRuleTest extends TestCase
 {
     /**
@@ -44,16 +44,34 @@ class LineItemPurchasePriceRuleTest extends TestCase
     /**
      * @dataProvider getMatchingRuleTestData
      */
-    public function testIfMatchesCorrectWithLineItem(string $operator, float $amount, float $lineItemAmount, bool $expected): void
+    public function testIfMatchesLineItemPurchasePriceGrossCorrect(string $operator, float $amount, float $lineItemPurchasePrice, bool $expected): void
     {
         $this->rule->assign([
+            'isNet' => false,
             'amount' => $amount,
             'operator' => $operator,
         ]);
-
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem($lineItemAmount),
-            $this->createMock(SalesChannelContext::class)
+            $this->createLineItemWithPurchasePrice(0, $lineItemPurchasePrice),
+            $this->getSalesChannelContextMockWithDefaultCurrency()
+        ));
+
+        static::assertEquals($expected, $match);
+    }
+
+    /**
+     * @dataProvider getMatchingRuleTestData
+     */
+    public function testIfMatchesLineItemPurchasePriceNetCorrect(string $operator, float $amount, float $lineItemPurchasePrice, bool $expected): void
+    {
+        $this->rule->assign([
+            'isNet' => true,
+            'amount' => $amount,
+            'operator' => $operator,
+        ]);
+        $match = $this->rule->match(new LineItemScope(
+            $this->createLineItemWithPurchasePrice($lineItemPurchasePrice, 0),
+            $this->getSalesChannelContextMockWithDefaultCurrency()
         ));
 
         static::assertEquals($expected, $match);
@@ -63,27 +81,27 @@ class LineItemPurchasePriceRuleTest extends TestCase
     {
         return [
             // OPERATOR_EQ
-            'match / operator equals / same price' => [LineItemPurchasePriceRule::OPERATOR_EQ, 100, 100, true],
-            'no match / operator equals / different price' => [LineItemPurchasePriceRule::OPERATOR_EQ, 200, 100, false],
+            'match / operator equals / same price' => [Rule::OPERATOR_EQ, 100, 100, true],
+            'no match / operator equals / different price' => [Rule::OPERATOR_EQ, 200, 100, false],
             // OPERATOR_NEQ
-            'no match / operator not equals / same price' => [LineItemPurchasePriceRule::OPERATOR_NEQ, 100, 100, false],
-            'match / operator not equals / different price' => [LineItemPurchasePriceRule::OPERATOR_NEQ, 200, 100, true],
+            'no match / operator not equals / same price' => [Rule::OPERATOR_NEQ, 100, 100, false],
+            'match / operator not equals / different price' => [Rule::OPERATOR_NEQ, 200, 100, true],
             // OPERATOR_GT
-            'no match / operator greater than / lower price' => [LineItemPurchasePriceRule::OPERATOR_GT, 100, 50, false],
-            'no match / operator greater than / same price' => [LineItemPurchasePriceRule::OPERATOR_GT, 100, 100, false],
-            'match / operator greater than / higher price' => [LineItemPurchasePriceRule::OPERATOR_GT, 100, 200, true],
+            'no match / operator greater than / lower price' => [Rule::OPERATOR_GT, 100, 50, false],
+            'no match / operator greater than / same price' => [Rule::OPERATOR_GT, 100, 100, false],
+            'match / operator greater than / higher price' => [Rule::OPERATOR_GT, 100, 200, true],
             // OPERATOR_GTE
-            'no match / operator greater than equals / lower price' => [LineItemPurchasePriceRule::OPERATOR_GTE, 100, 50, false],
-            'match / operator greater than equals / same price' => [LineItemPurchasePriceRule::OPERATOR_GTE, 100, 100, true],
-            'match / operator greater than equals / higher price' => [LineItemPurchasePriceRule::OPERATOR_GTE, 100, 200, true],
+            'no match / operator greater than equals / lower price' => [Rule::OPERATOR_GTE, 100, 50, false],
+            'match / operator greater than equals / same price' => [Rule::OPERATOR_GTE, 100, 100, true],
+            'match / operator greater than equals / higher price' => [Rule::OPERATOR_GTE, 100, 200, true],
             // OPERATOR_LT
-            'match / operator lower than / lower price' => [LineItemPurchasePriceRule::OPERATOR_LT, 100, 50, true],
-            'no match / operator lower  than / same price' => [LineItemPurchasePriceRule::OPERATOR_LT, 100, 100, false],
-            'no match / operator lower than / higher price' => [LineItemPurchasePriceRule::OPERATOR_LT, 100, 200, false],
+            'match / operator lower than / lower price' => [Rule::OPERATOR_LT, 100, 50, true],
+            'no match / operator lower  than / same price' => [Rule::OPERATOR_LT, 100, 100, false],
+            'no match / operator lower than / higher price' => [Rule::OPERATOR_LT, 100, 200, false],
             // OPERATOR_LTE
-            'match / operator lower than equals / lower price' => [LineItemPurchasePriceRule::OPERATOR_LTE, 100, 50, true],
-            'match / operator lower than equals / same price' => [LineItemPurchasePriceRule::OPERATOR_LTE, 100, 100, true],
-            'no match / operator lower than equals / higher price' => [LineItemPurchasePriceRule::OPERATOR_LTE, 100, 200, false],
+            'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, true],
+            'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, true],
+            'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, false],
         ];
     }
 
@@ -93,6 +111,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
     public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemAmount1, float $lineItemAmount2, bool $expected): void
     {
         $this->rule->assign([
+            'isNet' => true,
             'amount' => $amount,
             'operator' => $operator,
         ]);
@@ -100,14 +119,14 @@ class LineItemPurchasePriceRuleTest extends TestCase
         $cart = new Cart('test', Uuid::randomHex());
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add($this->createLineItem($lineItemAmount1));
-        $lineItemCollection->add($this->createLineItem($lineItemAmount2));
+        $lineItemCollection->add($this->createLineItemWithPurchasePrice($lineItemAmount1));
+        $lineItemCollection->add($this->createLineItemWithPurchasePrice($lineItemAmount2));
 
         $cart->setLineItems($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            $this->getSalesChannelContextMockWithDefaultCurrency()
         ));
 
         static::assertEquals($expected, $match);
@@ -148,15 +167,43 @@ class LineItemPurchasePriceRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             new LineItem('dummy-article', 'product', null, 3),
-            $this->createMock(SalesChannelContext::class)
+            $this->getSalesChannelContextMockWithDefaultCurrency()
         ));
 
         static::assertFalse($match);
     }
 
-    private function createLineItem(float $purchasePrice): LineItem
+    private function getSalesChannelContextMockWithDefaultCurrency(): SalesChannelContext
     {
-        return (new LineItem(Uuid::randomHex(), 'product', null, 3))
-            ->setPayloadValue('purchasePrice', $purchasePrice);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getContext')->willReturn($this->getContextMockWithDefaultCurrency());
+
+        return $salesChannelContext;
+    }
+
+    private function getContextMockWithDefaultCurrency(): Context
+    {
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+
+        return $baseContext;
+    }
+
+    private function createLineItemWithPurchasePrice(
+        float $purchasePriceNet = 0,
+        float $purchasePriceGross = 0
+    ): LineItem {
+        $lineItemWithNetPurchasePrice = new LineItem(Uuid::randomHex(), 'product', null, 3);
+        $lineItemWithNetPurchasePrice->setPayloadValue(
+            'purchasePrices',
+            json_encode(new Price(
+                Defaults::CURRENCY,
+                $purchasePriceNet,
+                $purchasePriceGross,
+                false
+            ))
+        );
+
+        return $lineItemWithNetPurchasePrice;
     }
 }

@@ -479,7 +479,9 @@
         "greaterThan": "Is greater than",
         "notEquals": "Is not equal to",
         "isOneOf": "Is one of",
-        "isNoneOf": "Is none of"
+        "isNoneOf": "Is none of",
+        "gross": "Gross",
+        "net": "Net"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",

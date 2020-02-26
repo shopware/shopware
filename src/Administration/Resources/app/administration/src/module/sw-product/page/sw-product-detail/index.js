@@ -285,13 +285,15 @@ Component.register('sw-product-detail', {
                 this.loadTaxes(),
                 this.loadAttributeSet()
             ]).then(() => {
-                // set default product price
-                this.product.price = [{
+                // set default product price and purchase price
+                const defaultPrice = {
                     currencyId: this.defaultCurrency.id,
                     net: null,
                     linked: true,
                     gross: null
-                }];
+                };
+                this.product.price = [defaultPrice];
+                this.product.purchasePrices = [{ ...defaultPrice }];
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });

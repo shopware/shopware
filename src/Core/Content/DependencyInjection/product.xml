@@ -123,6 +123,10 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Api\ProductPurchasePriceApiConverter" public="true" >
+            <tag name="shopware.api.converter"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer">
         </service>
 

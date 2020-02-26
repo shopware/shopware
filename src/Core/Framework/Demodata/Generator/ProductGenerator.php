@@ -146,6 +146,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array
     {
         $price = random_int(1, 1000);
+        $purchasePrice = random_int(1, 100);
         $rules = $context->getIds('rule');
         $tax = $taxes->get(array_rand($taxes->getIds()));
         $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
@@ -155,6 +156,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true]],
+            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $reverseTaxrate, 'linked' => true]],
             'name' => $faker->productName,
             'description' => $faker->text(),
             'descriptionLong' => $this->generateRandomHTML(

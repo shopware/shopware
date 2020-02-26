@@ -479,7 +479,9 @@
         "greaterThan": "Größer",
         "notEquals": "Ungleich",
         "isOneOf": "Ist eine von",
-        "isNoneOf": "Ist keine von"
+        "isNoneOf": "Ist keine von",
+        "gross": "Brutto",
+        "net": "Netto"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",

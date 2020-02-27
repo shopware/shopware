@@ -250,11 +250,17 @@
         background: $color-white;
         font-size: 14px;
         left: 0;
-        right: 88px;
+        right: 0;
         height: 64px;
         z-index: 7;
         border-bottom: 1px inset $color-steam-cloud;
         padding: 20px 12px 20px 100px;
+    }
+
+    &.sw-data-grid--actions {
+        .sw-data-grid__bulk {
+            right: 88px;
+        }
     }
 
     .sw-data-grid__bulk-selected {

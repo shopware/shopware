@@ -125,6 +125,10 @@ Defining the above configuration results in the following behavior:
 * `@Storefront` then defines that the shopware storefront theme should be used as the last inheritance level.
 
 ## Theme assets
+
+If your theme is installed and active, Shopware will automatically collect all your 
+script and style files. All SASS files (*.scss) in the style folder are compiled to css.
+
 You can add custom styles or javascript by using the `style` and `script` property in the `theme.json`.
 Example `theme.json`
 ```json
@@ -249,7 +253,7 @@ This gives you the ability to use the Bootstrap SCSS without the Shopware Storef
 ## Theme Configuration
 
 One of the benefits of creating a theme is that you can overwrite the theme configuration of 
-the default theme or add your own configuration.
+the default theme or add your own configurations.
 
 Example `theme.json`
 ```json
@@ -289,20 +293,206 @@ can be customized by the enduser (if `editable` is set to `true`, see table belo
 
 The following parameters can be defined for a config field item:
 
-| Name         | Meaning                                                                              |
-|------------- |--------------------------------------------------------------------------------------|
-| label        | Array of translations with locale code as key                                        |
-| type         | Type of the config. Possible values: color, fontFamily and media                     |
-| value        | Value for the config                                                                 |
-| editable     | If set to false, the config option will not be displayed (e.g. in the administration |
-| tab          | Name of a tab to organize the config options                                         |
-| block        | Name of a block to organize the config options                                       |
-| section      | Name of a section to organize the config options                                     |
-| custom       | The defined data will not be processed but is available via API                      |
+| Name         | Meaning                                                                               |
+|------------- |---------------------------------------------------------------------------------------|
+| label        | Array of translations with locale code as key                                         |
+| type         | Type of the config. Possible values: color, fontFamily, media and switch              |
+| value        | Value for the config                                                                  |
+| editable     | If set to false, the config option will not be displayed (e.g. in the administration) |
+| tab          | Name of a tab to organize the config options                                          |
+| block        | Name of a block to organize the config options                                        |
+| section      | Name of a section to organize the config options                                      |
+| custom       | The defined data will not be processed but is available via API                       |
 
+### Examples for custom config fields
 
-If your plugin is installed and active, Shopware will automatically collect all your 
-script and style files. All SASS files (*.scss) in the style folder are compiled to css.
+* A custom single-select field example
+
+```json
+{
+  "name": "Just another theme",
+  "author": "Just another author",
+  "description": {
+    "en-GB": "Just another description",
+    "de-DE": "Nur eine weitere Beschreibung"
+  },
+  "views": [
+    "@Storefront",
+    "@Plugins",
+    "@SelectExample"
+  ],
+  "style": [
+    "app/storefront/src/scss/overrides.scss",
+    "@Storefront",
+    "app/storefront/src/scss/base.scss"
+  ],
+  "script": [
+    "@Storefront",
+    "app/storefront/dist/storefront/js/select-example.js"
+  ],
+  "asset": [
+    "app/storefront/src/assets"
+  ],
+  "config": {
+    "blocks": {
+      "exampleBlock": {
+        "label": {
+          "en-GB": "Example block",
+          "de-DE": "Beispiel Block"
+        }
+      }
+    },
+    "sections": {
+      "exampleSection": {
+        "label": {
+          "en-GB": "Example section",
+          "de-DE": "Beispiel Sektion"
+        }
+      }
+    },
+    "fields": {
+      "my-single-select-field": {
+        "label": {
+          "en-GB": "Select a font size",
+          "de-DE": "Wähle ein Schriftgröße"
+        },
+        "type": "text",
+        "value": "24",
+        "custom": {
+          "componentName": "sw-single-select",
+          "options": [
+            {
+              "value": "16",
+              "label": {
+                "en-GB": "16px",
+                "de-DE": "16px"
+              }
+            },
+            {
+              "value": "20",
+              "label": {
+                "en-GB": "20px",
+                "de-DE": "20px"
+              }
+            },
+            {
+              "value": "24",
+              "label": {
+                "en-GB": "24px",
+                "de-DE": "24px"
+              }
+            }
+          ]
+        },
+        "editable": true,
+        "block": "exampleBlock",
+        "section": "exampleSection"
+      }
+    }
+  }
+}
+```
+
+![Example of a custom single-select field](./img/example-single-select-config.png)
+
+* A custom multi-select field example
+
+````json
+{
+  "name": "Just another theme",
+  "author": "Just another author",
+  "description": {
+    "en-GB": "Just another description",
+    "de-DE": "Nur eine weitere Beschreibung"
+  },
+  "views": [
+    "@Storefront",
+    "@Plugins",
+    "@SelectExample"
+  ],
+  "style": [
+    "app/storefront/src/scss/overrides.scss",
+    "@Storefront",
+    "app/storefront/src/scss/base.scss"
+  ],
+  "script": [
+    "@Storefront",
+    "app/storefront/dist/storefront/js/select-example.js"
+  ],
+  "asset": [
+    "app/storefront/src/assets"
+  ],
+  "config": {
+    "blocks": {
+      "exampleBlock": {
+        "label": {
+          "en-GB": "Example block",
+          "de-DE": "Beispiel Block"
+        }
+      }
+    },
+    "sections": {
+      "exampleSection": {
+        "label": {
+          "en-GB": "Example section",
+          "de-DE": "Beispiel Sektion"
+        }
+      }
+    },
+    "fields": {
+      "my-multi-select-field": {
+        "label": {
+          "en-GB": "Select some colours",
+          "de-DE": "Wähle Farben aus"
+        },
+        "type": "text",
+        "editable": true,
+        "value": [
+          "green",
+          "blue"
+        ],
+        "custom": {
+          "componentName": "sw-multi-select",
+          "options": [
+            {
+              "value": "green",
+              "label": {
+                "en-GB": "green",
+                "de-DE": "grün"
+              }
+            },
+            {
+              "value": "red",
+              "label": {
+                "en-GB": "red",
+                "de-DE": "rot"
+              }
+            },
+            {
+              "value": "blue",
+              "label": {
+                "en-GB": "blue",
+                "de-DE": "blau"
+              }
+            },
+            {
+              "value": "yellow",
+              "label": {
+                "en-GB": "yellow",
+                "de-DE": "gelb"
+              }
+            }
+          ]
+        },
+        "block": "exampleBlock",
+        "section": "exampleSection"
+      }
+    }
+  }
+}
+````
+
+![Example of a custom multi-select field](./img/example-multi-select-config.png)
 
 ### Inheritance of theme config
 All custom themes inherit the config of the Shopware default theme. The main reason is that in case 

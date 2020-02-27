@@ -4,9 +4,13 @@
             <div class="card-body">
                 {% block page_checkout_finish_header %}
                     <h1 class="finish-header">
-                        {{ "checkout.finishHeader"|trans({
-                            '%shop%': shopware.config.core.basicInformation.shopName
-                        })|sw_sanitize }}
+                        {% if page.changedPayment == true %}
+                            {{ "checkout.finishPaymentHeader"|trans|sw_sanitize }}
+                        {% else %}
+                            {{ "checkout.finishHeader"|trans({
+                                '%shop%': shopware.config.core.basicInformation.shopName
+                            })|sw_sanitize }}
+                        {% endif %}
                     </h1>
                 {% endblock %}
 
@@ -19,7 +23,9 @@
                 {% block page_checkout_finish_content %}
                     <div class="finish-content">
                         {% block page_checkout_finish_teaser %}
-                            <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
+                            {% if page.changedPayment != true %}
+                                <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
+                            {% endif %}
                         {% endblock %}
 
                         {# @depracted tag:6.4.0 #}

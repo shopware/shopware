@@ -294,6 +294,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="sales_channel.payment_method.repository"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="sales_channel.country.repository"/>

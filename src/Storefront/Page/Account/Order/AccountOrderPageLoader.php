@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -59,7 +60,7 @@ class AccountOrderPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderPage
     {
-        if (!$salesChannelContext->getCustomer()) {
+        if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
             throw new CustomerNotLoggedInException();
         }
 
@@ -90,12 +91,21 @@ class AccountOrderPageLoader
         $limit = (int) $request->query->get('limit', 10);
         $page = (int) $request->query->get('p', 1);
 
-        return (new Criteria())
+        $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('lineItems')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+
+        if ($request->get('deepLinkCode')) {
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
+        }
+
+        return $criteria;
     }
 }

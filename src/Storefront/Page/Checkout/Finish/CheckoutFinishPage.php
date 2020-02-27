@@ -12,6 +12,11 @@ class CheckoutFinishPage extends Page
      */
     protected $order;
 
+    /**
+     * @var bool
+     */
+    protected $changedPayment = false;
+
     public function getOrder(): OrderEntity
     {
         return $this->order;
@@ -20,5 +25,15 @@ class CheckoutFinishPage extends Page
     public function setOrder(OrderEntity $order): void
     {
         $this->order = $order;
+    }
+
+    public function isChangedPayment(): bool
+    {
+        return $this->changedPayment;
+    }
+
+    public function setChangedPayment(bool $changedPayment): void
+    {
+        $this->changedPayment = $changedPayment;
     }
 }

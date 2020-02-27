@@ -66,19 +66,18 @@ class AccountOrderRoute extends AbstractAccountOrderRoute
      */
     public function load(Request $request, SalesChannelContext $context): AccountOrderRouteResponse
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-
         $criteria = $this->requestCriteriaBuilder->handleRequest(
             $request,
             $criteria,
             $this->orderDefinition,
             $context->getContext()
         );
+        if ($context->getCustomer()) {
+            $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
+        } elseif (!$criteria->hasEqualsFilter('order.deepLinkCode')) {
+            throw new CustomerNotLoggedInException();
+        }
 
         return new AccountOrderRouteResponse($this->orderRepository->search($criteria, $context->getContext()));
     }

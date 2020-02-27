@@ -52,6 +52,6 @@ describe('Account: Edit order', () => {
         cy.get('.custom-checkbox label').click(1, 1);
         cy.get('#confirmOrderForm > .btn').scrollIntoView();
         cy.get('#confirmOrderForm > .btn').click();
-        cy.get('.order-table-header-order-table-body > :nth-child(3)').contains('Paid in advance');
+        cy.get('.finish-order-details .checkout-card .card-body p:first').contains('Paid in advance');
     });
 });

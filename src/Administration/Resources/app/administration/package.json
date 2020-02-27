@@ -28,7 +28,6 @@
     },
     "dependencies": {
         "@babel/runtime": "7.5.5",
-        "@shopware-ag/e2e-testsuite-platform": "^1.1.9",
         "@shopware-ag/eslint-config-base": "1.0.0",
         "@shopware-ag/webpack-copy-after-build": "1.0.1",
         "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",

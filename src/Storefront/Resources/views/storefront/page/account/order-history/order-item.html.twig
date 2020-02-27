@@ -1,98 +1,270 @@
 {% block page_account_order_item_overview %}
     <div class="order-wrapper">
         <div class="order-item-header">
-            <div class="row">
+
+                {# @deprecated tag:v6.4.0 #}
                 {% block page_account_order_item_date %}
-                    <div class="col-12 col-md order-item order-item-date">
-                        {% block page_account_order_item_date_label %}
-                            <strong class="order-item-label order-item-date-label">{{ "account.orderItemColumnDate"|trans|sw_sanitize }}</strong>
-                        {% endblock %}
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_date_label %}{% endblock %}
 
-                        {% block page_account_order_item_date_value %}
-                            <span class="order-item-value order-item-date-value">
-                                {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}
-                            </span>
-                        {% endblock %}
-                    </div>
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_date_value %}{% endblock %}
                 {% endblock %}
 
+                {# @deprecated tag:v6.4.0 #}
                 {% block page_account_order_item_number %}
-                    <div class="col-12 col-md order-item order-item-number">
-                        {% block page_account_order_item_number_label %}
-                            <strong class="order-item-label order-item-number-label">{{ "account.orderItemColumnNumber"|trans|sw_sanitize }}</strong>
-                        {% endblock %}
 
-                        {% block page_account_order_item_number_value %}
-                            <span class="order-item-value order-item-number-value">{{ order.orderNumber }}</span>
-                        {% endblock %}
-                    </div>
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_number_label %}{% endblock %}
+
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_number_value %}{% endblock %}
                 {% endblock %}
 
+                {# @deprecated tag:v6.4.0 #}
                 {% block page_account_order_item_payment_method %}
-                    <div class="col-12 col-md order-item order-item-payment-method">
-                        {% block page_account_order_item_payment_method_label %}
-                            <strong class="order-item-label order-item-payment-method-label">{{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}</strong>
-                        {% endblock %}
 
-                        {% block page_account_order_item_payment_method_value %}
-                            <span class="order-item-value order-item-payment-method-value">
-                                {% for transaction in order.transactions %}
-                                    {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
-                                {% endfor %}
-                            </span>
-                        {% endblock %}
-                    </div>
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_payment_method_label %}{% endblock %}
+
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_payment_method_value %}{% endblock %}
                 {% endblock %}
 
+                {# @deprecated tag:v6.4.0 #}
                 {% block page_account_order_item_shipping_method %}
-                    <div class="col-12 col-md order-item order-item-shipping-method">
-                        {% block page_account_order_item_shipping_method_label %}
-                            <strong class="order-item-label order-item-shipping-method-label">{{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}</strong>
-                        {% endblock %}
 
-                        {% block page_account_order_item_shipping_method_value %}
-                            <span class="order-item-value order-item-shipping-method-value">
-                                {% for delivery in order.deliveries %}
-                                    {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
-                                {% endfor %}
-                            </span>
-                        {% endblock %}
-                    </div>
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_shipping_method_label %}{% endblock %}
+
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_shipping_method_value %}{% endblock %}
                 {% endblock %}
 
+                {# @deprecated tag:v6.4.0 #}
                 {% block page_account_order_item_actions %}
-                    <div class="col-12 col-md order-item order-item-actions">
-                        {% set formAjaxSubmitOptions = {
-                            replaceSelectors: ".js-order-detail-container-#{order.id}",
-                            submitOnce: true
-                        } %}
 
-                        {% block page_account_order_item_actions_value %}
-                            <form action="{{ path('widgets.account.order.detail', { id: order.id }) }}"
-                                  class="order-detail-form"
-                                  method="get"
-                                  data-form-ajax-submit="true"
-                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-                                <button class="btn btn-light btn-sm order-hide-btn collapsed"
-                                        type="submit"
-                                        data-toggle="collapse"
-                                        data-target="#order{{ order.orderNumber }}"
-                                        aria-expanded="false"
-                                        aria-controls="collapseExample">
-                                    {% block page_account_order_item_actions_value_text %}
-                                        <span class="order-hide-btn-text">{{ "account.orderActionHide"|trans|sw_sanitize }}</span>
-                                        <span class="order-view-btn-text">{{ "account.orderActionView"|trans|sw_sanitize }}</span>
+                    {# @deprecated tag:v6.4.0 #}
+                    {% block page_account_order_item_actions_value %}
+
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block page_account_order_item_actions_value_text %}{% endblock %}
+                    {% endblock %}
+                {% endblock %}
+
+                <div class="row flex-wrap">
+                    {% block page_account_order_item_heading %}
+                        <h2 class="col order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h2>
+                    {% endblock %}
+
+                    {% block page_account_order_item_status_col %}
+                        <div class="col">
+                            {% block page_account_order_item_status %}
+                                <span class="order-table-header-order-status">
+                                    {{ "account.orderStatus"|trans|sw_sanitize }}
+                                    {% if order.transactions.last.stateMachineState.technicalName == 'failed' or order.transactions.last.stateMachineState.technicalName == 'reminded' %}
+                                        {{ "account.orderStatusActionRequired"|trans|sw_sanitize }}
+                                        {% else %}
+                                        {{ order.stateMachineState.translated.name }}
+                                    {% endif %}
+                                </span>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_account_order_item_context_menu_col %}
+                        <div class="col-1 order-table-header-context-menu-wrapper">
+
+                            {% block page_account_order_item_context_menu %}
+
+                                {% block page_account_order_item_context_menu_button %}
+                                    <button class="btn dropdown-toggle order-table-header-context-menu"
+                                            type="button"
+                                            id="accountOrderDropdown"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        {% sw_icon 'more-horizontal' %}
+                                    </button>
+                                {% endblock %}
+
+                                {% block page_account_order_item_context_menu_content %}
+                                    <div class="dropdown-menu dropdown-menu-right order-table-header-context-menu-content"
+                                         aria-labelledby="accountOrderDropdown">
+
+                                        {% set orderState = order.stateMachineState.technicalName %}
+                                        {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
+
+                                        {% if orderState != 'cancelled' and (orderPaymentState == 'open' or orderPaymentState == 'failed' or orderPaymentState == 'reminded') %}
+                                            {% block page_account_order_item_context_menu_content_change_payment_button %}
+                                                <a class="order-table-header-context-menu-content-link"
+                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                    {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
+                                                </a>
+                                            {% endblock %}
+                                        {% endif %}
+
+                                        {% block page_account_order_item_context_menu_reorder %}
+                                            {% set action %}
+                                                {% block page_account_order_item_context_menu_reorder_form_action %}
+                                                    {{ path('frontend.checkout.line-item.add') }}
+                                                {% endblock %}
+                                            {% endset %}
+
+                                            {% block page_account_order_item_context_menu_reorder_form %}
+                                                <form action="{{ action }}"
+                                                      id="orderDetailForm-{{ order.Id }}"
+                                                      method="post"
+                                                      class="order-table-header-context-menu-content-form"
+                                                      data-add-to-cart="true">
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_csrf %}
+                                                        {{ sw_csrf('frontend.checkout.line-item.add') }}
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_redirect %}
+                                                        <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
+                                                        {% for lineItem in order.lineItems %}
+                                                            {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
+                                                                {% if lineItem.type == 'product' %}
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][id]"
+                                                                           value="{{ lineItem.identifier }}">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][referencedId]"
+                                                                           value="{{ lineItem.identifier }}">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][type]"
+                                                                           value="{{ lineItem.type }}">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][stackable]"
+                                                                           value="1">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][removable]"
+                                                                           value="1">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][quantity]"
+                                                                           value="{{ lineItem.quantity }}">
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        {% endfor %}
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_button %}
+                                                        <button class="order-table-header-context-menu-content-link" type="submit">{{ "account.orderContextMenuReorder"|trans|sw_sanitize }}</button>
+                                                    {% endblock %}
+                                                     </form>
+                                                {% endblock %}
+                                            {% endblock %}
+
+                                        {% if orderState != 'cancelled' %}
+                                            <button type="button"
+                                                    class="order-table-header-context-menu-content-link"
+                                                    data-toggle="modal"
+                                                    data-target="#order-{{ order.id }}">
+                                                {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endif %}
                                     {% endblock %}
-                                </button>
-                            </form>
+                               </div>
+                            {% endblock %}
+
+                            {% if orderState != 'cancelled' %}
+                                <div class="tester">
+                                    {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    {% endblock %}
+
+                    {% block page_account_order_item_order_number_col %}
+                        <div class="col-12">
+
+                            {% block page_account_order_item_order_number %}
+                                <span class="order-table-header-order-number">{{ "account.orderNumber"|trans|sw_sanitize }} {{ order.orderNumber|sw_sanitize }}</span>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+
+
+                {% block page_account_order_item_order_table_header_col %}
+                        {% block page_account_order_item_order_table_header %}
+                            <div class="col-12 row order-table-header-order-table-header">
+
+                                {% block page_account_order_item_order_table_header_cell_shipping_status %}
+                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_header_cell_payment_status %}
+                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderPaymentStatus"|trans|sw_sanitize }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_header_cell_payment_method %}
+                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderPaymentMethod"|trans|sw_sanitize }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_header_cell_shipping_method %}
+                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_header_cell_placeholder %}
+                                    <div class="col-3 order-table-header-order-table-header-cell"></div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                {% endblock %}
+
+                {% block page_account_order_item_order_table_body_col %}
+                        {% block page_account_order_item_order_table_body %}
+                            <div class="col-12 row order-table-header-order-table-body">
+
+                                {% block page_account_order_item_order_table_body_cell_shipping_status %}
+                                    <div class="col order-table-header-order-table-body-cell">{{ order.deliveries|first.stateMachineState.translated.name }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_body_cell_payment_status %}
+                                    <div class="col order-table-header-order-table-body-cell">{{ order.transactions|last.stateMachineState.translated.name }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_body_cell_payment_method %}
+                                    <div class="col order-table-header-order-table-body-cell">{{ order.transactions|last.paymentMethod.translated.name }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_body_cell_shipping_method %}
+                                    <div class="col order-table-header-order-table-body-cell">{{ order.deliveries|first.shippingMethod.translated.name }}</div>
+                                {% endblock %}
+
+                                {% block page_account_order_item_order_table_body_cell_toggle_order_details %}
+                                    <div class="col-3 order-item order-item-actions order-table-header-order-table-body-cell">
+
+                                        {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
+                                            <button class="btn btn-light btn-sm order-hide-btn collapsed"
+                                                    type="submit"
+                                                    data-toggle="collapse"
+                                                    data-target="#order{{ order.orderNumber }}"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseExample">
+
+                                                {% block page_account_order_item_order_table_body_cell_toggle_order_details_button_text %}
+                                                    <span class="order-hide-btn-text">{{ "account.orderActionHide"|trans|sw_sanitize }}</span>
+                                                    <span class="order-view-btn-text">{{ "account.orderActionView"|trans|sw_sanitize }}</span>
+                                                {% endblock %}
+                                            </button>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
                         {% endblock %}
                     </div>
                 {% endblock %}
             </div>
-        </div>
 
-    {% block page_account_order_item_detail %}
-        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail.html.twig' %}
-    {% endblock %}
-    </div>
+        {% block page_account_order_item_detail %}
+            {% sw_include '@Storefront/storefront/page/account/order-history/order-detail.html.twig' %}
+        {% endblock %}
 {% endblock %}

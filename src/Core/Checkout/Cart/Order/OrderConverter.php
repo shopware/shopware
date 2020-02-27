@@ -265,7 +265,15 @@ class OrderConverter
         ];
 
         if ($order->getTransactions()) {
-            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $order->getTransactions()->first()->getPaymentMethodId();
+            foreach ($order->getTransactions() as $transaction) {
+                $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
+                if (
+                    $transaction->getStateMachineState() !== null
+                    && $transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_PAID
+                ) {
+                    break;
+                }
+            }
         }
 
         return $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);

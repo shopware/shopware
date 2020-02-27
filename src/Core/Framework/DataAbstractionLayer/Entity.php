@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Entity extends Struct
@@ -67,9 +68,9 @@ class Entity extends Struct
             return $this->getExtension($property);
         }
 
-        /** @var Entity|null $extension */
+        /** @var ArrayStruct|null $extension */
         $extension = $this->getExtension('foreignKeys');
-        if ($extension && $extension instanceof self && $extension->has($property)) {
+        if ($extension && $extension instanceof ArrayStruct && $extension->has($property)) {
             return $extension->get($property);
         }
 

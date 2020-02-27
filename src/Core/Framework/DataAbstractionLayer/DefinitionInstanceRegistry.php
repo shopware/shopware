@@ -119,18 +119,21 @@ class DefinitionInstanceRegistry
         return $map[$source] ?? null;
     }
 
-    public function register(EntityDefinition $definition): void
+    public function register(EntityDefinition $definition, ?string $serviceId = null): void
     {
-        $class = get_class($definition);
-        if (!$this->container->has($class)) {
-            $this->container->set($class, $definition);
+        if (!$serviceId) {
+            $serviceId = get_class($definition);
+        }
+
+        if (!$this->container->has($serviceId)) {
+            $this->container->set($serviceId, $definition);
         }
 
         if ($this->entityClassMapping !== null) {
             $this->entityClassMapping[$definition->getEntityClass()] = $definition;
         }
 
-        $this->definitions[$definition->getEntityName()] = $class;
+        $this->definitions[$definition->getEntityName()] = $serviceId;
 
         $definition->compile($this);
     }

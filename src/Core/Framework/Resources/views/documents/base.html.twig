@@ -13,7 +13,7 @@
 
     {% set currencyIsoCode = order.currency.isoCode %}
 
-    {% set locale = customer.customer.language.locale.code %}
+    {% set locale = order.language.locale.code %}
 
     {% if config.itemsPerPage <= 0 %}
         {% set itemsPerPage = 10 %}
@@ -62,16 +62,16 @@
                     {% block document_footer_first_column %}
                         <ul>
                             {% block document_footer_company_name %}
-                                <li class="bold">{{ config.companyName }}</li>
+                               {% if config.companyName %} <li class="bold">{{ config.companyName }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_tax_number %}
-                                <li>{{ 'document.taxNumber'|trans({'%taxNumber%': config.taxNumber})|sw_sanitize }}</li>
+                                {% if config.taxNumber %}<li>{{ 'document.taxNumber'|trans({'%taxNumber%': config.taxNumber})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_vat_id %}
-                                <li>{{ 'document.vatId'|trans({'%vatId%': config.vatId})|sw_sanitize }}</li>
+                                {% if config.vatId %}<li>{{ 'document.vatId'|trans({'%vatId%': config.vatId})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_tax_office %}
-                                <li>{{ 'document.taxOffice'|trans({'%taxOffice%': config.taxOffice})|sw_sanitize }}</li>
+                                {% if config.taxOffice %}<li>{{ 'document.taxOffice'|trans({'%taxOffice%': config.taxOffice})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                         </ul>
                     {% endblock %}
@@ -79,43 +79,44 @@
                     {% block document_footer_second_column %}
                         <ul>
                             {% block document_footer_bank_account %}
-                                <li class="bold">{{ 'document.bankAccount'|trans|sw_sanitize }}</li>
+                                {% if config.companyName %}<li class="bold">{{ 'document.bankAccount'|trans|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_bank_name %}
-                                <li>{{ config.bankName }}</li>
+                                {% if config.bankName %}<li>{{ config.bankName }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_bank_iban %}
-                                <li>{{ 'document.bankIban'|trans({'%bankIban%': config.bankIban})|sw_sanitize }}</li>
+                                {% if config.bankIban %}<li>{{ 'document.bankIban'|trans({'%bankIban%': config.bankIban})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_bank_bic %}
-                                <li>{{ 'document.bankBic'|trans({'%bankBic%': config.bankBic})|sw_sanitize }}</li>
+                                {% if config.bankBic %}<li>{{ 'document.bankBic'|trans({'%bankBic%': config.bankBic})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                         </ul>
                     {% endblock %}
 
                     {% block document_footer_third_column %}
                         <ul>
-                            <li>&nbsp;</li>
                             {% block document_footer_place_of_jurisdiction %}
-                                <li>{{ 'document.placeOfJurisdiction'|trans({'%placeOfJurisdiction%': config.placeOfJurisdiction})|sw_sanitize }}</li>
+                                {% if config.placeOfJurisdiction %}<li>{{ 'document.placeOfJurisdiction'|trans({'%placeOfJurisdiction%': config.placeOfJurisdiction})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_place_of_fulfillment %}
-                                <li>{{ 'document.placeOfFulfillment'|trans({'%placeOfFulfillment%': config.placeOfFulfillment})|sw_sanitize }}</li>
+                                {% if config.placeOfFulfillment %}<li>{{ 'document.placeOfFulfillment'|trans({'%placeOfFulfillment%': config.placeOfFulfillment})|sw_sanitize }}</li>{% endif %}
                             {% endblock %}
                             {% block document_footer_payment_shipping_additional_info %}
-                                <li>{{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize }}</li>
+                                {% deprecated '@deprecated tag:v6.4.0 The "document_footer_payment_shipping_additional_info" block is deprecated, use "document_payment_shipping_additional" instead.' %}
                             {% endblock %}
                         </ul>
                     {% endblock %}
 
                     {% block document_footer_fourth_column %}
                         <ul>
-                            {% block document_footer_ceo %}
-                                <li class="bold">{{ 'document.ceo'|trans|sw_sanitize }}</li>
-                            {% endblock %}
-                            {% block document_footer_ceo_name %}
-                                <li>{{ config.executiveDirector }}</li>
-                            {% endblock %}
+                            {% if config.executiveDirector %}
+                                {% block document_footer_ceo %}
+                                    <li class="bold">{{ 'document.ceo'|trans|sw_sanitize }}</li>
+                                {% endblock %}
+                                {% block document_footer_ceo_name %}
+                                    <li>{{ config.executiveDirector }}</li>
+                                {% endblock %}
+                            {% endif %}
                         </ul>
                     {% endblock %}
                 {% endblock %}
@@ -129,7 +130,9 @@
                             {{ config.companyAddress }}<br><br>
                         {% endblock %}
                     </span>
-                    {# todo support companys #}
+                    {% if billingAddress.company %}
+                        {{ billingAddress.company }}<br>
+                    {% endif %}
                     {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }}<br>
                     {{ billingAddress.street }}<br>
                     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
@@ -273,6 +276,37 @@
                                         {% endblock %}
                                     </tr>
                                 {% endfor %}
+                                {% block document_line_item_table_custom %}
+                                {% endblock %}
+                                {% block document_line_item_table_shipping %}
+                                    {% if loop.last == true %}
+                                        <tr class="line-item">
+                                            {% block document_line_item_table_shipping_position %}
+                                                {% if config.displayLineItemPosition %}
+                                                    <td>{{ loop.index }}</td>
+                                                {% endif %}
+                                            {% endblock %}
+                                            {% block document_line_item_table_shipping_number %}
+                                                <td>{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }}</td>
+                                            {% endblock %}
+                                            {% block document_line_item_table_shipping_label %}
+                                                <td class="line-item-breakable">{{ order.deliveries.first.shippingMethod.name }}</td>
+                                            {% endblock %}
+                                            {% block document_line_item_table_shipping_quantity %}
+                                                <td class="align-right">1</td>
+                                            {% endblock %}
+                                            {% block document_line_item_table_shipping_tax %}
+                                                <td class="align-right">{% for tax in order.deliveries.first.shippingCosts.calculatedTaxes %}{{ tax.taxRate }}%{% if loop.last %}{% else %}<br>{% endif %}{% endfor %}</td>
+                                            {% endblock %}
+                                            {% block document_line_item_table_unit_price %}
+                                                <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode) }}</td>
+                                            {% endblock %}
+                                            {% block document_line_item_table_total_price %}
+                                                <td class="align-right">{{ order.shippingTotal|currency(currencyIsoCode) }}</td>
+                                            {% endblock %}
+                                        </tr>
+                                    {% endif %}
+                                {% endblock %}
                             </table>
                         {% endblock %}
                     </div>
@@ -299,12 +333,15 @@
                                 {% endblock %}
 
                                 {% block document_sum_shipping_costs %}
+                                    {% deprecated '@deprecated tag:v6.4.0 The "document_sum_shipping_costs" block is deprecated, use "document_line_item_table_shipping" instead.' %}
                                     <tr>
                                         {% block document_sum_shipping_costs_label %}
-                                            <td class="align-right">{{ 'document.lineItems.shippingCosts'|trans|sw_sanitize }}</td>
+                                            <td></td>
+                                            {% deprecated '@deprecated tag:v6.4.0 The "document_sum_shipping_costs_label" block is deprecated, use "document_line_item_table_shipping_label" instead.' %}
                                         {% endblock %}
                                         {% block document_sum_shipping_costs_price %}
-                                            <td class="align-right">{{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}</td>
+                                            <td></td>
+                                            {% deprecated '@deprecated tag:v6.4.0 The "document_sum_shipping_costs_price" block is deprecated, use "document_line_item_table_shipping_price" instead.' %}
                                         {% endblock %}
                                     </tr>
                                 {% endblock %}
@@ -342,10 +379,10 @@
                 <div class="payment-shipping-container">
                     {% block document_payment_shipping_inner %}
                         {% block document_payment %}
-                            {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.first.paymentMethod.name})|sw_sanitize }}
+                            {{ 'document.paymentShippingInfo.paymentMethod'|trans({'%paymentMethod%': order.transactions.first.paymentMethod.name})|sw_sanitize }}<br>
                         {% endblock %}
                         {% block document_shipping %}
-                            {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.name})|sw_sanitize }}<br>
+                            {{ 'document.paymentShippingInfo.shippingMethod'|trans({'%shippingMethod%': order.deliveries.first.shippingMethod.name})|sw_sanitize }}<br><br>
                         {% endblock %}
                         {% block document_payment_shipping_additional %}
                             {{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize }}<br>

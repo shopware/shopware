@@ -36,11 +36,11 @@
             "tax": "zzgl. %taxRate%% MwSt.:",
             "total": "Gesamtsumme:",
             "totalNet": "Gesamtsumme (Netto):",
-            "shippingCosts": "Versandkosten:"
+            "shippingCosts": "Versandkosten"
         },
         "paymentShippingInfo": {
-            "paymentMethod": "Gewählte Zahlungsart %paymentMethod%",
-            "shippingMethod": "Gewählte Versandart %shippingMethod%",
+            "paymentMethod": "Gewählte Zahlungsart: %paymentMethod%",
+            "shippingMethod": "Gewählte Versandart: %shippingMethod%",
             "additionalInfo": "Die Ware bleibt, bis zur vollständigen Bezahlung, unser Eigentum."
         }
     },

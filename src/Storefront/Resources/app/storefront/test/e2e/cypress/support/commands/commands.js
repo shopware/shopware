@@ -51,6 +51,7 @@ Cypress.Commands.add('setCustomerGroup', (customerNumber, customerGroupData) => 
  * @param {Object} data - Necessary  for the API request
  */
 Cypress.Commands.add('createViaAdminApi', (data) => {
+    console.log(data);
     return cy.requestAdminApi(
         'POST',
         `${Cypress.env('apiPath')}/${data.endpoint}?response=true`,

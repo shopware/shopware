@@ -131,7 +131,7 @@ Component.register('sw-order-create', {
         },
 
         removeInvalidCode() {
-            this.promotionCodeTags = this.promotionCodeTags.filter(item => !item.isInvalid);
+            State.commit('swOrder/removeInvalidPromotionCodes');
             this.closeInvalidCodeModal();
         }
     }

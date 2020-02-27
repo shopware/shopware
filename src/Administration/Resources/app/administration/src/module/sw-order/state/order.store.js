@@ -67,6 +67,10 @@ export default {
 
         removeEmptyLineItem(state, emptyLineItemKey) {
             state.cart.lineItems = state.cart.lineItems.filter(item => item.id !== emptyLineItemKey);
+        },
+
+        removeInvalidPromotionCodes(state) {
+            state.promotionCodes = state.promotionCodes.filter(item => !item.isInvalid);
         }
     },
 

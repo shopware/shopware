@@ -224,17 +224,18 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return 0;
         },
 
-        isNotPromotion(item) {
-            return item.type !== 'promotion';
+        isPromotionItem(item) {
+            return item.type === this.lineItemTypes.PROMOTION;
         },
 
-        isNotAutoPromotion(item) {
-            if (!this.isNotPromotion(item)) {
-                if (item.payload.code === '') {
-                    return false;
-                }
-            }
-            return true;
+        isAutoPromotionItem(item) {
+            return this.isPromotionItem(item) && !get(item, 'payload.code');
+        },
+
+        showTaxValue(item) {
+            return (this.isCreditItem(item) || this.isPromotionItem(item)) && (item.price.taxRules.length > 1)
+                ? this.$tc('sw-order.createBase.textCreditTax')
+                : `${item.price.taxRules[0].taxRate} %`;
         },
 
         checkItemPrice(price, item) {

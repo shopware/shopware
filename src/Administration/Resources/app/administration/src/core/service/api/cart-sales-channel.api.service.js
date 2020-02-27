@@ -143,6 +143,22 @@ class CartSalesChannelService extends ApiService {
 
         return this.httpClient.patch(route, payload, { additionalParams, headers });
     }
+
+    addPromotionCode(
+        salesChannelId,
+        contextToken,
+        code,
+        additionalParams = {},
+        additionalHeaders = {}
+    ) {
+        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/cart/code/${code}`;
+        const headers = {
+            ...this.getBasicHeaders(additionalHeaders),
+            'sw-context-token': contextToken
+        };
+
+        return this.httpClient.post(route, {}, { additionalParams, headers });
+    }
 }
 
 export default CartSalesChannelService;

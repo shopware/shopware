@@ -101,7 +101,7 @@
       "columnTotalPrice": "Total",
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
-      "textCreditTax": "Auto",
+      "textCreditTax": "auto",
       "contextMenuShowProduct": "Show product",
       "messageEmptyItem": "No items added yet",
       "buttonAddProduct" :"Add product",
@@ -111,7 +111,36 @@
       "summaryLabelAmountWithoutTaxes": "Total excluding VAT",
       "summaryLabelAmountTotal": "Total including VAT",
       "summaryLabelShippingCosts": "plus shipping costs",
-      "summaryLabelTaxes": "plus {taxRate}% VAT"
+      "discountLabelShippingCosts": "discount shipping costs",
+      "summaryLabelTaxes": "plus {taxRate}% VAT",
+      "labelAddPromotion": "Add promotion",
+      "placeholderAddPromotion": "Enter promotion code ...",
+      "textInvalidPromotionCode": "Invalid promotion code",
+      "textPromotionDescription": {
+        "cart": {
+          "percentage": "{value}% discount on shopping cart",
+          "absolute": "{value} discount on shopping cart",
+          "fixed_unit": "Fixed {value} for each specific product in shopping cart"
+        },
+        "delivery": {
+          "percentage": "{value}% discount on shipping cost",
+          "absolute": "{value} discount on shipping cost",
+          "fixed_unit": "Fixed {value} on shipping cost",
+          "fixed": "Fixed {value} on shipping cost"
+        },
+        "set": {
+          "percentage": "{value}% discount on product set",
+          "absolute": "{value} discount on product set",
+          "fixed_unit": "Fixed {value} for each specific product of product set",
+          "fixed": "Fixed {value} for each product set"
+        },
+        "setgroup": {
+          "percentage": "{value}% discount on set group {groupId}",
+          "absolute": "{value} discount on set group {groupId}",
+          "fixed_unit": "Fixed {value} for each specific product of set group {groupId}",
+          "fixed": "Fixed {value} for each set group {groupId}"
+        }
+      }
     },
     "detailBase": {
       "cardTitleDetails": "Details",

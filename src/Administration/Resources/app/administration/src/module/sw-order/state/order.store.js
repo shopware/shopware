@@ -29,7 +29,8 @@ export default {
             },
             currency: {
                 shortName: 'EUR'
-            }
+            },
+            promotionCodes: []
         };
     },
 
@@ -58,6 +59,10 @@ export default {
 
         setCurrency(state, currency) {
             state.currency = currency;
+        },
+
+        setPromotionCodes(state, promotionCodes) {
+            state.promotionCodes = promotionCodes;
         },
 
         removeEmptyLineItem(state, emptyLineItemKey) {
@@ -129,6 +134,12 @@ export default {
             return Service('cartSalesChannelService')
                 .saveLineItem(salesChannelId, contextToken, item)
                 .then((response) => commit('setCart', response.data.data));
+        },
+
+        addPromotionCode({ commit }, { salesChannelId, contextToken, code }) {
+            return Service('cartSalesChannelService')
+                .addPromotionCode(salesChannelId, contextToken, code)
+                .then(response => commit('setCart', response.data.data));
         }
     }
 };

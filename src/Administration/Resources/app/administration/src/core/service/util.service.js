@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce';
 import flattenDeep from 'lodash/flattenDeep';
 import uuidV4 from 'uuid/v4';
 import remove from 'lodash/remove';
+import slice from 'lodash/slice';
 
 import {
     deepCopyObject,
@@ -92,7 +93,8 @@ export const sort = {
 
 export const array = {
     flattenDeep: flattenDeep,
-    remove: remove
+    remove: remove,
+    slice: slice
 };
 
 export default {

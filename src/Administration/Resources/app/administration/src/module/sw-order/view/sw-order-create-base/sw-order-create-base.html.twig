@@ -75,7 +75,20 @@
                             {% block sw_order_create_base_line_items_summary %}
                                 <sw-card-section v-show="cartLineItems.length" divider="top" secondary slim>
                                     <sw-container columns="1fr 440px"
+                                                  gap="14px"
                                                   class="sw-order-create-summary">
+                                        {% block sw_order_create_base_line_items_voucher_field %}
+                                            <sw-order-promotion-tag-field
+                                                :disabled="!hasLineItem"
+                                                :currency="currency"
+                                                :label="$tc('sw-order.createBase.labelAddPromotion')"
+                                                v-model="promotionCodeTags"
+                                                :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+                                                @on-remove-code="onRemoveExistingCode"
+                                                :error="promotionError">
+                                            </sw-order-promotion-tag-field>
+                                        {% endblock %}
+
                                         <sw-description-list grid="265px 1fr"
                                                              class="sw-order-create-summary__data">
                                             {% block sw_order_create_base_line_items_summary_entries %}
@@ -93,7 +106,11 @@
                                                                                      value="">
                                                                 {{ cartDelivery.shippingCosts.totalPrice | currency(currency.shortName) }}
                                                             </sw-order-saveable-field>
-                                                    </dd>
+                                                        </dd>
+                                                    </template>
+                                                    <template v-if="cartDeliveryDiscounts" v-for="delivery in cartDeliveryDiscounts">
+                                                        <dt>{{ $tc('sw-order.createBase.discountLabelShippingCosts') }}</dt>
+                                                        <dd>{{ delivery.shippingCosts.totalPrice | currency(currency.shortName) }}</dd>
                                                     </template>
                                                 {% endblock %}
 

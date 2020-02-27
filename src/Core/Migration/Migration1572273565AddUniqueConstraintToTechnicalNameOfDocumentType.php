@@ -31,14 +31,14 @@ class Migration1572273565AddUniqueConstraintToTechnicalNameOfDocumentType extend
         );
 
         foreach ($duplicatedDocumentTypes as $duplicatedDocumentType) {
-            $connection->executeQuery(
+            $connection->executeUpdate(
                 'DELETE FROM `document_type`
                 WHERE `id` = :id',
                 $duplicatedDocumentType
             );
         }
 
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'ALTER TABLE `document_type` ADD CONSTRAINT `uniq.document_type.technical_name` UNIQUE (`technical_name`)'
         );
     }

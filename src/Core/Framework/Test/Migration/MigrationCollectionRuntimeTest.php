@@ -49,7 +49,7 @@ class MigrationCollectionRuntimeTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->executeQuery(
+        $this->connection->executeUpdate(
             'DELETE FROM `migration`
               WHERE `class` LIKE \'%_test_migrations_valid_run_time%\'
               OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\''

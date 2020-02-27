@@ -14,7 +14,7 @@ class Migration1536232980Cart extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `cart` (
               `token` VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
               `name` VARCHAR(500) COLLATE utf8mb4_unicode_ci NOT NULL,

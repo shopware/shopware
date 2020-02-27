@@ -14,12 +14,12 @@ class Migration1575197543MailTemplateCustomFields extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'ALTER TABLE `mail_template_translation`
 ADD `custom_fields` json NULL AFTER `content_plain`;'
         );
 
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'ALTER TABLE `mail_template_translation` ADD CONSTRAINT `json.mail_template_translation.custom_fields` CHECK (JSON_VALID(`custom_fields`));'
         );
     }

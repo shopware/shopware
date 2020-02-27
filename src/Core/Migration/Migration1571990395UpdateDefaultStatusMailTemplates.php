@@ -259,7 +259,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 
     private function changeMailTemplateNameForType(Connection $connection, string $mailTemplateType): void
     {
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\') 
             WHERE `technical_name` = :type',
             ['type' => $mailTemplateType]

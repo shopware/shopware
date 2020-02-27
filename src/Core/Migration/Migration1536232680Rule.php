@@ -14,7 +14,7 @@ class Migration1536232680Rule extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `rule` (
               `id`              BINARY(16)      NOT NULL,
               `name`            VARCHAR(500)    NOT NULL,

@@ -14,7 +14,7 @@ class Migration1536232710Integration extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `integration` (
               `id`                  BINARY(16)      NOT NULL,
               `write_access`        TINYINT(1)      NOT NULL DEFAULT 0,

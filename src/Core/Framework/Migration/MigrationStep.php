@@ -25,7 +25,7 @@ abstract class MigrationStep
 
     public function removeTrigger(Connection $connection, string $name): void
     {
-        $connection->executeQuery(sprintf('DROP TRIGGER %s', $name));
+        $connection->executeUpdate(sprintf('DROP TRIGGER %s', $name));
     }
 
     /**

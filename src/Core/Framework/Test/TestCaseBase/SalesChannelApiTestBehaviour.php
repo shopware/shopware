@@ -42,7 +42,7 @@ trait SalesChannelApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeQuery(
+            $connection->executeUpdate(
                 'DELETE FROM sales_channel WHERE id IN (:salesChannelIds)',
                 ['salesChannelIds' => $this->salesChannelIds],
                 ['salesChannelIds' => Connection::PARAM_STR_ARRAY]

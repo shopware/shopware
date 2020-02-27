@@ -33,7 +33,7 @@ class Migration1569482074AddProductMainCategory extends MigrationStep
                 REFERENCES `product` (`id`, `version_id`) ON UPDATE CASCADE ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
-        $connection->executeQuery($sql);
+        $connection->executeUpdate($sql);
     }
 
     public function updateDestructive(Connection $connection): void

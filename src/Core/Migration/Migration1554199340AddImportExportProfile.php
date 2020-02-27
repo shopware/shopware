@@ -16,7 +16,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `import_export_profile` (
               `id` binary(16) NOT NULL,
               `name` varchar(255) NOT NULL,

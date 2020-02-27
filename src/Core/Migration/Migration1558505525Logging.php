@@ -16,7 +16,7 @@ class Migration1558505525Logging extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `log_entry` (
               `id` BINARY(16) NOT NULL,
               `message` VARCHAR(255) NOT NULL,

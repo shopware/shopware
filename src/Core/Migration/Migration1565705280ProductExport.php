@@ -16,7 +16,7 @@ class Migration1565705280ProductExport extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_export` (
                 `id` BINARY(16) NOT NULL,
                 `product_stream_id` BINARY(16) NOT NULL,

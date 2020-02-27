@@ -14,7 +14,7 @@ class Migration1571753490v1 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `_test_bundle` (
               `id` BINARY(16) NOT NULL,
               `name` VARCHAR(255) NOT NULL,

@@ -14,7 +14,7 @@ class Migration1536233320DeadMessage extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `dead_message` (
               `id` BINARY(16) NOT NULL,
               `original_message_class` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,

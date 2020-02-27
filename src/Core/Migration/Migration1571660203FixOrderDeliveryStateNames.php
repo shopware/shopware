@@ -21,7 +21,7 @@ class Migration1571660203FixOrderDeliveryStateNames extends MigrationStep
                   AND `language_id` = :lang
 SQL;
 
-            $connection->executeQuery($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => $this->getLanguageIdByLocale($connection, 'en-GB')]);
+            $connection->executeUpdate($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => $this->getLanguageIdByLocale($connection, 'en-GB')]);
 
             $sql = <<<SQL
             UPDATE `mail_template_type_translation` SET `name` = :name 
@@ -29,7 +29,7 @@ SQL;
                   AND `language_id` = :lang
 SQL;
 
-            $connection->executeQuery($sql, ['name' => $mailTemplate['nameDe'], 'technicalName' => $technicalName, 'lang' => $this->getLanguageIdByLocale($connection, 'de-DE')]);
+            $connection->executeUpdate($sql, ['name' => $mailTemplate['nameDe'], 'technicalName' => $technicalName, 'lang' => $this->getLanguageIdByLocale($connection, 'de-DE')]);
         }
     }
 

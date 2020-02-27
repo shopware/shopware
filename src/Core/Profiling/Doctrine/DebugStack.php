@@ -9,6 +9,14 @@ use Doctrine\DBAL\Logging\DebugStack as DoctrineDebugStack;
  */
 class DebugStack extends DoctrineDebugStack
 {
+    public static $writeSqlRegex = '/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/';
+
+    public function startQuery($sql, ?array $params = null, ?array $types = null): void
+    {
+        $this->ensureMasterSlaveCompatibility($sql);
+        parent::startQuery($sql, $params, $types);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -35,5 +43,26 @@ class DebugStack extends DoctrineDebugStack
         $stack = array_filter($stack);
 
         $this->queries[$this->currentQuery]['stack'] = $stack;
+    }
+
+    private function ensureMasterSlaveCompatibility(string $query): void
+    {
+        $sqlMethod = debug_backtrace()[2]['function'];
+        if ($sqlMethod !== 'executeQuery') {
+            return;
+        }
+
+        $matches = preg_match_all(self::$writeSqlRegex, $query);
+
+        if ($matches) {
+            if (getenv('APP_ENV') === 'test') {
+                throw new \RuntimeException(
+                    sprintf('Write operations are not supported when using executeQuery. Query: %s', $query)
+                );
+            }
+
+            // will throw an exception with 6.3.0
+            @trigger_error('Write operations are not supported when using executeQuery.', E_USER_DEPRECATED);
+        }
     }
 }

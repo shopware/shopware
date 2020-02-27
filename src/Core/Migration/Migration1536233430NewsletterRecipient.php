@@ -14,7 +14,7 @@ class Migration1536233430NewsletterRecipient extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `newsletter_recipient` (
               `id` BINARY(16) NOT NULL,
               `email` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,

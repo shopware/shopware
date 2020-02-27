@@ -41,10 +41,10 @@ class BundleExample extends Plugin
 
         $connection = $this->container->get(Connection::class);
 
-        $connection->executeQuery('DROP TABLE IF EXISTS `swag_bundle_product`');
-        $connection->executeQuery('DROP TABLE IF EXISTS `swag_bundle_translation`');
-        $connection->executeQuery('DROP TABLE IF EXISTS `swag_bundle`');
-        $connection->executeQuery('ALTER TABLE `product` DROP COLUMN `bundles`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `swag_bundle_product`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `swag_bundle_translation`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `swag_bundle`');
+        $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `bundles`');
     }
 }
 ```

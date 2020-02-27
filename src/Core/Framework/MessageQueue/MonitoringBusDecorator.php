@@ -73,7 +73,7 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private function incrementMessageQueueSize(string $name): void
     {
-        $this->connection->executeQuery('
+        $this->connection->executeUpdate('
             INSERT INTO `message_queue_stats` (`id`, `name`, `size`, `created_at`)
             VALUES (:id, :name, 1, :createdAt)
             ON DUPLICATE KEY UPDATE `size` = `size` +1, `updated_at` = :createdAt

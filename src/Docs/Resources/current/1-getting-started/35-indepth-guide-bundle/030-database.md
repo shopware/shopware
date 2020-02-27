@@ -110,7 +110,7 @@ class Migration1554708925Bundle extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `swag_bundle` (
               `id` BINARY(16) NOT NULL,
               `discount_type` VARCHAR(255) NOT NULL,

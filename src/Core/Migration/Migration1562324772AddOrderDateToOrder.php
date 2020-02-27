@@ -14,12 +14,12 @@ class Migration1562324772AddOrderDateToOrder extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `order`
             CHANGE `order_date` `order_date_time` DATETIME(3) NOT NULL;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `order`
             ADD COLUMN `order_date` DATE GENERATED ALWAYS AS (CONVERT(`order_date_time`, DATE)) STORED AFTER `order_date_time`;
         ');

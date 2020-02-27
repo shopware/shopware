@@ -14,7 +14,7 @@ class Migration1536233190ProductPriceRule extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_price` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,

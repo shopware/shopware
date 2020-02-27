@@ -15,7 +15,7 @@ class Migration1536232920PaymentMethod extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `payment_method` (
                 `id`                    BINARY(16)                              NOT NULL,
                 `handler_identifier`    VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT "' . str_replace('\\', '\\\\', DefaultPayment::class) . '",
@@ -36,7 +36,7 @@ class Migration1536232920PaymentMethod extends MigrationStep
                 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `payment_method_translation` (
               `payment_method_id` BINARY(16)                              NOT NULL,
               `language_id`       BINARY(16)                              NOT NULL,

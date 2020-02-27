@@ -129,7 +129,7 @@ class MigrationStepTest extends TestCase
 
         $this->removeMigrationFromTable($migration);
         $now = date('Y-m-d H:i:s');
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'INSERT `migration` (`class`, `creation_timestamp`, `update`, `update_destructive`) 
                 VALUES (:class, :creationTimestamp, :update, :updateDestructive);',
             [

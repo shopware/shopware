@@ -94,7 +94,7 @@ class CleanPersonalDataCommandTest extends TestCase
             $this->createGuest(false);
         }
 
-        $this->connection->executeQuery(
+        $this->connection->executeUpdate(
             'UPDATE customer set created_at = :createdAt where guest = true limit 1',
             ['createdAt' => (new \DateTime())->modify('-14 Day')->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
         );
@@ -266,7 +266,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private function clearTable(string $table): void
     {
-        $this->connection->executeQuery("DELETE FROM {$table}");
+        $this->connection->executeUpdate("DELETE FROM {$table}");
     }
 
     private function createGuest(bool $isGuest = true): string

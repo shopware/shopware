@@ -69,9 +69,9 @@ class Migration1536232940SalesChannel extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeQuery($sql);
+        $connection->executeUpdate($sql);
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_translation` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -88,7 +88,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_language` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -100,7 +100,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_currency` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `currency_id` BINARY(16) NOT NULL,
@@ -112,7 +112,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_country` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `country_id` BINARY(16) NOT NULL,
@@ -124,7 +124,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_shipping_method` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `shipping_method_id` BINARY(16) NOT NULL,
@@ -136,7 +136,7 @@ SQL;
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_payment_method` (
               `sales_channel_id` BINARY(16) NOT NULL,
               `payment_method_id` BINARY(16) NOT NULL,

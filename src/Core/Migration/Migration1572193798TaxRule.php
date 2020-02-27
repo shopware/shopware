@@ -32,7 +32,7 @@ class Migration1572193798TaxRule extends MigrationStep
 
     public function createTables(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `tax_rule_type`
             (
                 `id` BINARY(16) NOT NULL,
@@ -44,7 +44,7 @@ class Migration1572193798TaxRule extends MigrationStep
                 UNIQUE KEY `uniq.technical_name` (`technical_name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `tax_rule_type_translation`
             (
                 `tax_rule_type_id` BINARY(16) NOT NULL,
@@ -59,7 +59,7 @@ class Migration1572193798TaxRule extends MigrationStep
                     FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `tax_rule`
             (
                 `id` BINARY(16) NOT NULL,

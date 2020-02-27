@@ -14,7 +14,7 @@ class Migration1536232930Navigation extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `navigation` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
@@ -39,7 +39,7 @@ class Migration1536232930Navigation extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `navigation_translation` (
               `navigation_id` BINARY(16) NOT NULL,
               `navigation_version_id` BINARY(16) NOT NULL,

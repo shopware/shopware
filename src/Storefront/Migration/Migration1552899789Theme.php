@@ -16,7 +16,7 @@ class Migration1552899789Theme extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `theme` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(255) NULL,
@@ -35,7 +35,7 @@ class Migration1552899789Theme extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `theme_translation` (
               `theme_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -54,7 +54,7 @@ class Migration1552899789Theme extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `theme_sales_channel` (
               `theme_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NOT NULL,

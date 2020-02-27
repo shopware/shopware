@@ -12,7 +12,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
-	* Added `disabled` attribute of fields to `sw-customer-address-form` component
+    * Added `disabled` attribute of fields to `sw-customer-address-form` component
     * Deprecated `tagStore` in `sw-newsletter-recipient-list`
     * Moved `sw-manufacturer`, it now uses `repositoryFactory` instead of `StateDeprecated` for fetching and editing data
         * Deprecated `mediaStore`
@@ -28,16 +28,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Deprecated watcher for value
     * Added "Cache & Indexes" Module to system settings
     * The component sw-integration-list was refactored to use the `repositoryFactory` instead of `StateDeprecated` to fetch and save data
-	    * Changed default data `integrations` from `[]` to `null`
-	    * Deprecated `StateDeprecated`
-	    * Deprecated computed `id`
-	    * Deprecated computed `integrationStore`
-	    * Deprecated block `sw_integration_list_grid_inner`
-	    * Deprecated block `sw_integration_list_grid_inner_slot_columns`
-	    * Deprecated block `sw_integration_list_grid_pagination`
+        * Changed default data `integrations` from `[]` to `null`
+        * Deprecated `StateDeprecated`
+        * Deprecated computed `id`
+        * Deprecated computed `integrationStore`
+        * Deprecated block `sw_integration_list_grid_inner`
+        * Deprecated block `sw_integration_list_grid_inner_slot_columns`
+        * Deprecated block `sw_integration_list_grid_pagination`
     * Deprecated the use of `fixed-top` class in `header-minimal.html.twig`
     * `sw-settings-custom-field-set`
-	    * Add computed property `listingCriteria`
+        * Add computed property `listingCriteria`
     * `sw-settings-document-list`
         * Add computed property `listingCriteria`
     * Refactor  `sw-settings-snippet-list`
@@ -321,6 +321,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
 * Storefront	
+    * Deprecated `$connection->executeQuery()` for write operations
+
+
+* Storefront    
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json
         {

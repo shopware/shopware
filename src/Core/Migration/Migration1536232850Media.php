@@ -14,7 +14,7 @@ class Migration1536232850Media extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `media` (
               `id`              BINARY(16)                                  NOT NULL,
               `user_id`         BINARY(16)                                  NULL,
@@ -39,7 +39,7 @@ class Migration1536232850Media extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `media_translation` (
               `media_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,

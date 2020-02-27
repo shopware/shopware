@@ -27,7 +27,7 @@ class Migration1536233380UserRecovery extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
-        $connection->executeQuery($query);
+        $connection->executeUpdate($query);
     }
 
     public function updateDestructive(Connection $connection): void

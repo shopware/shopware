@@ -98,7 +98,7 @@ class Migration1554708925Bundle extends MigrationStep
     {
         ...
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `swag_bundle_translation` (
               `swag_bundle_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,

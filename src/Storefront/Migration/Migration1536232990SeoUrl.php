@@ -17,7 +17,7 @@ class Migration1536232990SeoUrl extends MigrationStep
         /*
          * The migration was moved from the core into the storefront bundle.
          */
-        $connection->query('DROP TABLE IF EXISTS `seo_url`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `seo_url`');
 
         $sql = <<<SQL
             CREATE TABLE `seo_url` (
@@ -49,7 +49,7 @@ class Migration1536232990SeoUrl extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 SQL;
 
-        $connection->executeQuery($sql);
+        $connection->executeUpdate($sql);
     }
 
     public function updateDestructive(Connection $connection): void

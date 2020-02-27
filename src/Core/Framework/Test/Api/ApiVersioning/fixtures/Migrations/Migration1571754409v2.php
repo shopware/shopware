@@ -19,18 +19,18 @@ class Migration1571754409v2 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `_test_bundle` 
             ADD COLUMN `is_absolute` TINYINT(1) NOT NULL DEFAULT 0 AFTER `discount_type`;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             UPDATE `_test_bundle` 
             SET `is_absolute` = 1
             WHERE `discount_type` = "absolute"
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `_test_bundle` 
             ALTER COLUMN `is_absolute` DROP DEFAULT;
         ');
@@ -76,7 +76,7 @@ class Migration1571754409v2 extends MigrationStep
         $this->removeTrigger($connection, self::BACKWARD_INSERT_TRIGGER_NAME);
         $this->removeTrigger($connection, self::FORWARD_INSERT_TRIGGER_NAME);
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `_test_bundle` 
             DROP COLUMN `discount_type`,
             DROP COLUMN `long_description`;

@@ -57,7 +57,7 @@ class ApiVersioningV2Test extends TestCase
         static::clearCache();
 
         $connection = static::container()->get(Connection::class);
-        $connection->executeQuery('DROP TABLE IF EXISTS `_test_bundle`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `_test_bundle`');
     }
 
     public function setUp(): void

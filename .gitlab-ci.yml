@@ -107,7 +107,7 @@ PHP analysis:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     variables:
-        TEST_SUITES: "administration storefront checkout content framework migration system elasticsearch docs"
+        TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi

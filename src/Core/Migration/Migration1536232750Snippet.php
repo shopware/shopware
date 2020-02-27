@@ -14,7 +14,7 @@ class Migration1536232750Snippet extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `snippet` (
               `id`              BINARY(16)                              NOT NULL,
               `translation_key` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,

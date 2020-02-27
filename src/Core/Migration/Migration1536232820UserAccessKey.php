@@ -14,7 +14,7 @@ class Migration1536232820UserAccessKey extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `user_access_key` (
               `id`                  BINARY(16)      NOT NULL,
               `user_id`             BINARY(16)      NOT NULL,

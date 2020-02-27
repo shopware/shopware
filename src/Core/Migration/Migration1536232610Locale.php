@@ -14,7 +14,7 @@ class Migration1536232610Locale extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'CREATE TABLE `locale` (
                `id`          BINARY(16)                              NOT NULL,
                `code`        VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -25,17 +25,17 @@ class Migration1536232610Locale extends MigrationStep
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
         );
 
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'ALTER TABLE `language` ADD CONSTRAINT `fk.language.locale_id` FOREIGN KEY (`locale_id`)
                REFERENCES `locale` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;'
         );
 
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'ALTER TABLE `language` ADD CONSTRAINT `fk.language.translation_code_id` FOREIGN KEY (`translation_code_id`) 
                REFERENCES `locale` (`id`) ON DELETE CASCADE ON UPDATE CASCADE'
         );
 
-        $connection->executeQuery(
+        $connection->executeUpdate(
             'CREATE TABLE `locale_translation` (
                `locale_id`       BINARY(16)                              NOT NULL,
                `language_id`     BINARY(16)                              NOT NULL,

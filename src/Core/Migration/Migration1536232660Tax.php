@@ -14,7 +14,7 @@ class Migration1536232660Tax extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `tax` (
               `id`              BINARY(16)                              NOT NULL,
               `tax_rate`        DECIMAL(10, 2)                          NOT NULL,

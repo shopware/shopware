@@ -14,7 +14,7 @@ class Migration1536232810User extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `user` (
               `id`              BINARY(16)                              NOT NULL,
               `username`        VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,

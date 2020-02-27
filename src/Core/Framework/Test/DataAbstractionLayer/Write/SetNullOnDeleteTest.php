@@ -57,13 +57,13 @@ class SetNullOnDeleteTest extends TestCase
             $this->getContainer()->get('event_dispatcher')
         );
 
-        $this->getContainer()->get(Connection::class)->executeQuery(
+        $this->getContainer()->get(Connection::class)->executeUpdate(
             'DROP TABLE IF EXISTS set_null_on_delete_child;
              DROP TABLE IF EXISTS set_null_on_delete_parent;
              DROP TABLE IF EXISTS set_null_on_delete_many_to_one;'
         );
 
-        $this->getContainer()->get(Connection::class)->executeQuery(
+        $this->getContainer()->get(Connection::class)->executeUpdate(
             'CREATE TABLE `set_null_on_delete_parent` (
                `id` binary(16) NOT NULL,
                `set_null_on_delete_many_to_one_id` binary(16) NULL,
@@ -75,7 +75,7 @@ class SetNullOnDeleteTest extends TestCase
              );'
         );
 
-        $this->getContainer()->get(Connection::class)->executeQuery(
+        $this->getContainer()->get(Connection::class)->executeUpdate(
             'CREATE TABLE `set_null_on_delete_child` (
                `id` binary(16) NOT NULL,
                `set_null_on_delete_parent_id` binary(16) NULL,
@@ -89,7 +89,7 @@ class SetNullOnDeleteTest extends TestCase
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
         );
 
-        $this->getContainer()->get(Connection::class)->executeQuery(
+        $this->getContainer()->get(Connection::class)->executeUpdate(
             'CREATE TABLE `set_null_on_delete_many_to_one` (
                `id` binary(16) NOT NULL,
                `name` varchar(255) NOT NULL,
@@ -99,7 +99,7 @@ class SetNullOnDeleteTest extends TestCase
              );'
         );
 
-        $this->getContainer()->get(Connection::class)->executeQuery(
+        $this->getContainer()->get(Connection::class)->executeUpdate(
             'ALTER TABLE `set_null_on_delete_parent`
              ADD FOREIGN KEY (`set_null_on_delete_many_to_one_id`) REFERENCES `set_null_on_delete_many_to_one` (`id`) ON DELETE SET NULL;'
         );

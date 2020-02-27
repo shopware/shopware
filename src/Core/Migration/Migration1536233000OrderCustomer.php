@@ -14,7 +14,7 @@ class Migration1536233000OrderCustomer extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `order_customer` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,

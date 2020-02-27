@@ -14,7 +14,7 @@ class Migration1559050903PromotionExclusion extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `promotion` ADD `exclusion_ids` JSON  NULL;
         ');
     }

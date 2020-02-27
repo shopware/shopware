@@ -21,7 +21,7 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `product_translation`
             DROP COLUMN `additional_text`
         ');
@@ -29,11 +29,11 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     private function addProductColum(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `product_translation`
             ADD COLUMN `meta_description` varchar(255) NULL AFTER `additional_text`
         ');
-        $connection->executeQuery('
+        $connection->executeUpdate('
             UPDATE `product_translation`
             SET `meta_description` = `additional_text`;
         ');
@@ -41,17 +41,17 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     private function addCategoryColumns(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `category_translation`
             ADD COLUMN `meta_title` varchar(255) NULL AFTER `description`
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `category_translation`
             ADD COLUMN `meta_description` varchar(255) NULL AFTER `meta_title`
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `category_translation`
             ADD COLUMN `keywords` varchar(255) NULL AFTER `meta_description`
         ');

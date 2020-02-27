@@ -14,7 +14,7 @@ class Migration1569907970RemoveUnusedSeoColumns extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `seo_url`
             MODIFY COLUMN `is_valid` TINYINT(1) NULL,
             MODIFY COLUMN `auto_increment` BIGINT unsigned NULL,
@@ -26,7 +26,7 @@ class Migration1569907970RemoveUnusedSeoColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             ALTER TABLE `seo_url`
             DROP COLUMN `is_valid`,
             DROP COLUMN `auto_increment`

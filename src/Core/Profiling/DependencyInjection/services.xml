@@ -45,6 +45,8 @@
             />
         </service>
 
+        <service id="Shopware\Core\Profiling\Doctrine\MasterSlaveSqlLogger"/>
+
         <service id="Shopware\Core\Profiling\Twig\DoctrineExtension" public="false">
             <tag name="twig.extension" />
         </service>

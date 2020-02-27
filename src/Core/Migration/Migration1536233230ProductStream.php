@@ -14,7 +14,7 @@ class Migration1536233230ProductStream extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_stream` (
               `id` BINARY(16) NOT NULL,
               `api_filter` JSON NULL,
@@ -26,7 +26,7 @@ class Migration1536233230ProductStream extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `product_stream_translation` (
               `product_stream_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,

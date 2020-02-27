@@ -43,7 +43,7 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
         if ($entryLifetimeSeconds !== -1) {
             $deleteBefore = (new \DateTime(sprintf('- %s seconds', $entryLifetimeSeconds)))
                 ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $this->connection->executeQuery(
+            $this->connection->executeUpdate(
                 'DELETE FROM `log_entry` WHERE `created_at` < :before',
                 ['before' => $deleteBefore]
             );

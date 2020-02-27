@@ -14,7 +14,7 @@ class Migration1536233390Promotion extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
         CREATE TABLE IF NOT EXISTS `promotion` (
               `id` BINARY(16) NOT NULL,
               `active` TINYINT(1) NOT NULL DEFAULT 0,
@@ -32,7 +32,7 @@ class Migration1536233390Promotion extends MigrationStep
               PRIMARY KEY (`id`)
           ) ENGINE = InnoDB');
 
-        $connection->executeQuery('
+        $connection->executeUpdate('
         CREATE TABLE `promotion_translation` (
             `name` VARCHAR(255) NULL,
             `promotion_id` BINARY(16) NOT NULL,

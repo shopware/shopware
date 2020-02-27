@@ -45,6 +45,9 @@ Core
     * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.
     * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
     
+* The usage of `$connection->executeQuery()` for write operations is deprecated, use 
+`$connection->executeUpdate()` instead.
+
 Administration
 --------------
 

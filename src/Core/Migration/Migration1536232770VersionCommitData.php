@@ -14,7 +14,7 @@ class Migration1536232770VersionCommitData extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `version_commit_data` (
               `id`                  BINARY(16)                              NOT NULL,
               `auto_increment`      BIGINT NOT                              NULL AUTO_INCREMENT UNIQUE,

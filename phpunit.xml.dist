@@ -46,6 +46,10 @@
             <directory>src/Core/Migration</directory>
         </testsuite>
 
+        <testsuite name="profiling">
+            <directory>src/Core/Profiling</directory>
+        </testsuite>
+
         <testsuite name="system">
             <directory>src/Core/System</directory>
         </testsuite>

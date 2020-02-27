@@ -14,7 +14,7 @@ class Migration1536233480SalesChannelApiContext extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `sales_channel_api_context` (
               `token` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
               `payload` JSON NOT NULL,

@@ -14,7 +14,7 @@ class Migration1564385954ThemeMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeQuery('
+        $connection->executeUpdate('
             CREATE TABLE `theme_media` (
               `theme_id` BINARY(16) NOT NULL,
               `media_id` BINARY(16) NOT NULL,

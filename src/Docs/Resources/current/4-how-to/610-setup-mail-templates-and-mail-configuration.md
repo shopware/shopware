@@ -7,7 +7,7 @@ Shopware 6 sends different emails on different purposes. E.g for the registratio
 
 ## Setup
 
-First you need to make sure that you have a correct MAIL_URL set. This has been configured during the setup process and is stored in the .env file in the root directory.
+First you need to make sure that you have a correct MAILER_URL set. This has been configured during the setup process and is stored in the .env file in the root directory.
 Then you need to setup your email address for outgoing mails in the administration (Settings->Basic information->Shop owner email address).
 After that the mail template which should be sent have to be assigned to the sales channel. (Settings->Email templates->_Template_->edit->Sales Channels)
 

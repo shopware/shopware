@@ -18,6 +18,7 @@ require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 require('./pages/general.page-object');
 require('./pages/checkout.page-object');
 require('./pages/account.page-object');
+require('./service/fixture/rule-builder.fixture');
 
 // Custom storefront commands
 require('./commands/commands');

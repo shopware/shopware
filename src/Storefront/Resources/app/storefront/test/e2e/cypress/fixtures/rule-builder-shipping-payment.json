@@ -10,33 +10,24 @@
   "conditions":[
     {
       "type":"orContainer",
-      "ruleId":"ee8dbdcaa2a14a138d47a87c72c4e56f",
       "position":0,
       "children":[
         {
           "type":"andContainer",
-          "ruleId":"ee8dbdcaa2a14a138d47a87c72c4e56f",
-          "parentId":"0999eaa93e1147dda70e0385e8433a3e",
           "position":0,
           "children":[
             {
               "type":"paymentMethod",
-              "ruleId":"ee8dbdcaa2a14a138d47a87c72c4e56f",
-              "parentId":"d57695dcf96d48ac874b4a4159904f20",
               "value":{
                 "operator":"=",
                 "paymentMethodIds":[
                 ]
               },
-              "position":0,
-              "id":"bbd8cf7b68024b2d80801066ff0c0d1f"
+              "position":0
             }
-          ],
-          "id":"d57695dcf96d48ac874b4a4159904f20"
+          ]
         }
-      ],
-      "id":"0999eaa93e1147dda70e0385e8433a3e"
+      ]
     }
-  ],
-  "id":"ee8dbdcaa2a14a138d47a87c72c4e56f"
+  ]
 }

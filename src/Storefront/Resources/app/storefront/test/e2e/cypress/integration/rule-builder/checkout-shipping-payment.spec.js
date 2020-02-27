@@ -1,5 +1,6 @@
 import CheckoutPageObject from "../../support/pages/checkout.page-object";
 import AccountPageObject from "../../support/pages/account.page-object";
+import createId from 'uuid/v4';
 
 let product = {};
 describe(`Checkout rule builder handling for shipping and payment methods`, () => {
@@ -17,8 +18,30 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
             // Get fixture and set the previous payment method id into the fixture data
             // The IDs which are in the JSON are generated
             return cy.fixture('rule-builder-shipping-payment.json').then((data) => {
-                data.conditions[0].children[0].children[0].value.paymentMethodIds.push(id);
-                return data;
+
+                const ruleId = createId().replace(/-/g, '');;
+                const orContainerId = createId().replace(/-/g, '');;
+                const andContainerId = createId().replace(/-/g, '');;
+                const paymentMethodRuleId = createId().replace(/-/g, '');;
+
+                return Cypress._.merge(data, {
+                    id: ruleId,
+                    conditions: [{
+                        id: orContainerId,
+                        ruleId: ruleId,
+                        children: [{
+                            id: andContainerId,
+                            ruleId: ruleId,
+                            parentId: orContainerId,
+                            children: [{
+                                ruleId: ruleId,
+                                parentId: andContainerId,
+                                id: paymentMethodRuleId,
+                                value: { paymentMethodIds: [id] }
+                            }]
+                        }]
+                    }]
+                });
             });
         }).then((fixture) => {
             // Create rule fixture via api
@@ -41,7 +64,7 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
                 endpoint: 'shipping-method',
                 data: {
                     field: 'name',
-                    value: 'Express'
+                    value: 'Standard'
                 }
             }).then(({ id: shippingMethodId }) => {
                 // Update the shipping method with the newly created rule id
@@ -85,7 +108,7 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
 
         // Check if we're getting a message in the offcanvas cart
         cy.get(`${page.elements.offCanvasCart} .alert-danger .alert-content`)
-          .contains('The shipping method Express is blocked for your current shopping cart.')
+            .contains('The shipping method Standard is blocked for your current shopping cart.')
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
@@ -95,7 +118,7 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
 
         // Check if we're getting a message that the current shipping method is not available
         cy.get('.alert-content-container .alert-content')
-          .contains('Shipping method Express not available.')
+            .contains('Shipping method Standard not available.')
 
         // Next open up the shipping calc precalucation and check what happens when we're switching to invoice as
         // payment method
@@ -129,7 +152,7 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
 
         // Check if we're getting a message in the offcanvas cart
         cy.get(`${page.elements.offCanvasCart} .alert-danger .alert-content`)
-            .contains('The shipping method Express is blocked for your current shopping cart.')
+            .contains('The shipping method Standard is blocked for your current shopping cart.')
 
         // Go to checkout
         cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -159,9 +182,9 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
 
         // Validate that the shipping method is not available
         cy.get('.alert-content-container .alert-content')
-          .contains('Shipping method Express not available.');
+            .contains('Shipping method Standard not available.');
 
-        cy.get('.confirm-shipping-current.is-invalid').contains('Express');
+        cy.get('.confirm-shipping-current.is-invalid').contains('Standard');
         cy.get('.confirm-method-tooltip').should('be.visible');
     });
 });

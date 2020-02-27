@@ -23,6 +23,7 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         },
         limit: {
             type: Number,
+            required: false,
             default: 25
         }
     },

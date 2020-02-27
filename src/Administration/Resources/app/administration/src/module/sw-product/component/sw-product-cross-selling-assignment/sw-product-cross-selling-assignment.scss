@@ -8,8 +8,10 @@
         border-radius: $border-radius-default;
     }
 
-    .icon--small-default-checkmark-line-medium {
-        position: absolute;
-        right: 0;
+    .sw-product-cross-selling-assignment__select-container {
+        .icon--small-default-checkmark-line-medium {
+            position: absolute;
+            right: 0;
+        }
     }
 }

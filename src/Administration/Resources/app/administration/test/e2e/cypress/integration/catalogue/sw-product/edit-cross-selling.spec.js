@@ -37,7 +37,7 @@ describe('Product: Check cross selling integration', () => {
             });
     });
 
-    it.skip('@catalogue: add cross selling stream to product', () => {
+    it('@catalogue: add cross selling stream to product', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Product: Check cross selling integration', () => {
 
         cy.contains(
             `.sw-product-detail-cross-selling__empty-state ${page.elements.ghostButton}`,
-            'Add new cross selling'
+            'Add new Cross Selling'
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 
@@ -152,7 +152,7 @@ describe('Product: Check cross selling integration', () => {
 
         cy.contains(
             `.sw-product-detail-cross-selling__empty-state ${page.elements.ghostButton}`,
-            'Add new cross selling'
+            'Add new Cross Selling'
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
 

@@ -6,18 +6,20 @@
                     :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
                     entity="product"
                     value=""
+                    :criteria="searchCriteria"
                     disableAutoClose
                     @change="onToggleProduct">
 
-                    <template #result-label-property="{ item }">
-                        {{ item.translated.name || item.name }}
-
-                        <transition name="sw-select-result-appear">
-                            <sw-icon v-if="isSelected(item)"
-                                     name="small-default-checkmark-line-medium"
-                                     size="16px">
-                            </sw-icon>
-                        </transition>
+                    <template #result-item="{ item, index }">
+                        <slot name="result-item" v-bind="{ item, index, isSelected }">
+                            <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
+                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                    <span class="sw-select-result__result-item-text">
+                                    {{ item.translated.name || item.name }}
+                                    </span>
+                                {% endblock %}
+                            </li>
+                        </slot>
                     </template>
 
                 </sw-entity-single-select>

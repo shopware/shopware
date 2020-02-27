@@ -296,8 +296,8 @@
       "inputCrossSellingPosition": "Position",
       "inputCrossSellingSorting": "Sortierung",
       "inputCrossSellingProductStream": "Produktgruppe",
-      "inputCrossSellingProductList": "Product Zuordnung",
-      "inputCrossSellingTitlePlaceholder": "Wähle einen Titel ...",
+      "inputCrossSellingProductList": "Produkt-Zuordnung",
+      "inputCrossSellingTitlePlaceholder": "Gib einen Namen ein ...",
       "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
       "inputCrossSellingLimit": "Maximale Produktanzahl",
@@ -313,8 +313,8 @@
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling Konfiguration.",
-      "assignEmptyStateDescription": "Speichere Dein ausgefülltes Cross Selling, um Produkte hinzuzufügen.",
-      "assignPlaceholder": "Suche nach Produkten ..."
+      "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
+      "assignPlaceholder": "Durchsuche Produkte ..."
     }
   }
 }

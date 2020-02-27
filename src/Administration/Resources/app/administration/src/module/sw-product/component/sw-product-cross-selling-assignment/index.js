@@ -2,8 +2,8 @@ import template from './sw-product-cross-selling-assignment.html.twig';
 import './sw-product-cross-selling-assignment.scss';
 
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
-
 const { Component, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-cross-selling-assignment', {
     template,
@@ -16,55 +16,15 @@ Component.register('sw-product-cross-selling-assignment', {
             required: true
         },
 
-        resultLimit: {
-            type: Number,
-            required: false,
-            default: 10
-        },
-
-        highlightSearchTerm: {
-            type: Boolean,
-            required: false,
-            default: true
-        },
-
-        labelProperty: {
-            type: String,
-            required: false,
-            default: 'name'
-        },
-
         crossSellingId: {
             type: String,
             required: true
-        },
-
-        placeholder: {
-            type: String,
-            required: false,
-            default() {
-                return this.$tc('global.entity-components.placeholderToManyAssociationCard');
-            }
-        },
-
-        searchableFields: {
-            type: Array,
-            required: false,
-            default() {
-                return [];
-            }
         }
     },
 
     data() {
         return {
-            selectedIds: [],
-            resultCollection: null,
-            positionColumnKey: 0,
-            totalAssigned: 0,
-            loadingGridState: this.isLoading,
             isLoadingData: false,
-            assignmentGridKey: 0,
             total: 0
         };
     },
@@ -77,18 +37,6 @@ Component.register('sw-product-cross-selling-assignment', {
         ...mapGetters('swProductDetail', [
             'isLoading'
         ]),
-
-        crossSellingAssigmentRepository() {
-            return this.repositoryFactory.create('product_cross_selling_assigned_products');
-        },
-
-        context() {
-            return this.assignedProducts.context;
-        },
-
-        languageId() {
-            return this.context.languageId;
-        },
 
         isLoadingGrid() {
             return this.isLoadingData || this.isLoading;
@@ -105,25 +53,11 @@ Component.register('sw-product-cross-selling-assignment', {
             return this.repositoryFactory.create('product');
         },
 
-        currentAssignedProducts: {
-            get() {
-                return this.assignedProducts;
-            },
-
-            set(collection) {
-                Shopware.State.commit('swProductDetail/setAssignedProductsFromCrossSelling', {
-                    id: this.crossSellingId,
-                    collection: collection
-                });
-            }
-        },
-
-        focusEl() {
-            return this.$refs.searchInput;
-        },
-
-        originalFilters() {
-            return this.criteria.filters;
+        searchCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
+            console.log(criteria);
+            return criteria;
         },
 
         assignedProductColumns() {
@@ -134,13 +68,13 @@ Component.register('sw-product-cross-selling-assignment', {
                 allowResize: true,
                 sortable: false
             }, {
-                property: 'position',
-                label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
+                property: 'product.productNumber',
+                label: this.$tc('sw-product.list.columnProductNumber'),
                 allowResize: true,
                 sortable: false
             }, {
-                property: 'product.productNumber',
-                label: this.$tc('sw-product.list.columnProductNumber'),
+                property: 'position',
+                label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
                 allowResize: true,
                 sortable: false
             }];
@@ -178,6 +112,7 @@ Component.register('sw-product-cross-selling-assignment', {
 
                 this.productRepository.get(productId, Context.api).then((product) => {
                     newProduct.product = product;
+                    this.total = this.assignedProducts.length;
                     this.isLoadingData = false;
                 });
             }

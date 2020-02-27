@@ -71,8 +71,28 @@ class ThemeApiService extends ApiService {
         });
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - use getStructuredFields instead
+     * @param themeId
+     * @returns {Promise<AxiosResponse<T>>}
+     */
     getFields(themeId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/fields`;
+
+        const additionalHeaders = {};
+
+        return this.httpClient.get(
+            apiRoute,
+            {
+                headers: this.getBasicHeaders(additionalHeaders)
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
+    getStructuredFields(themeId) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/structured-fields`;
 
         const additionalHeaders = {};
 

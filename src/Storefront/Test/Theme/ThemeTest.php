@@ -110,6 +110,14 @@ class ThemeTest extends TestCase
         static::assertEquals(ThemeFixtures::getThemeFields(), $theme);
     }
 
+    public function testDefaultThemeConfigStructuredFields(): void
+    {
+        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+
+        $theme = $this->themeService->getThemeConfigurationStructuredFields($theme->getId(), false, $this->context);
+        static::assertEquals(ThemeFixtures::getThemeStructuredFields(), $theme);
+    }
+
     public function testInheritedThemeConfig(): void
     {
         $criteria = new Criteria();

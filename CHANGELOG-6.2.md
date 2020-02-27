@@ -240,6 +240,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added method `removeByTag`
         * Added method `runUploads`
         * Added method `_startUpload`
+      * Added possibility to add tabs to Theme Manager
+      * Deprecated method `getFields`, use `getStructuredFields` instead
+      * Added method `getStructuredFields` to themeApiService
 
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
     * The `fixed` directive is now deprecated and will be removed with version 6.4
@@ -312,6 +315,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added OrderTransactionStates `failed` and `in_progress`
     * Deprecated `OrderTransactionStateHandler::pay` use `OrderTransactionStateHandler::doPay` instead
     * Deprecated Action Constant `StateMachineTransitionActions::PAY` use `StateMachineTransitionActions::DO_PAY` instead
+    * Deprecated route `_action/theme/{themeId}/fields`, use `_action/theme/{themeId}/structured-fields` instead
+    * Added new route `_action/theme/{themeId}/structured-fields`
         
 
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead

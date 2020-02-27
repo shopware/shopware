@@ -71,6 +71,14 @@ Component.register('sw-theme-manager-detail', {
 
         themeId() {
             return this.$route.params.id;
+        },
+
+        shouldShowContent() {
+            return Object.values(this.themeFields).length > 0;
+        },
+
+        hasMoreThanOneTab() {
+            return Object.values(this.themeFields.tabs).length > 1;
         }
     },
 
@@ -121,7 +129,7 @@ Component.register('sw-theme-manager-detail', {
                 return;
             }
 
-            this.themeService.getFields(this.themeId).then((fields) => {
+            this.themeService.getStructuredFields(this.themeId).then((fields) => {
                 this.themeFields = fields;
             });
 

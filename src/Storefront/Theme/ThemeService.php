@@ -239,6 +239,53 @@ class ThemeService
         });
     }
 
+    public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array
+    {
+        $mergedConfig = $this->getThemeConfiguration($themeId, $translate, $context)['fields'];
+
+        $translations = [];
+        if ($translate) {
+            $translations = $this->getTranslations($themeId, $context);
+            $mergedConfig = $this->translateLabels($mergedConfig, $translations);
+        }
+
+        $outputStructure = [];
+
+        foreach ($mergedConfig as $fieldName => $fieldConfig) {
+            $tab = $this->getTab($fieldConfig);
+            $tabLabel = $this->getTabLabel($tab, $translations);
+            $block = $this->getBlock($fieldConfig);
+            $blockLabel = $this->getBlockLabel($block, $translations);
+            $section = $this->getSection($fieldConfig);
+            $sectionLabel = $this->getSectionLabel($section, $translations);
+
+            // set default tab
+            $outputStructure['tabs']['default']['label'] = '';
+
+            // set labels
+            $outputStructure['tabs'][$tab]['label'] = $tabLabel;
+            $outputStructure['tabs'][$tab]['blocks'][$block]['label'] = $blockLabel;
+            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['label'] = $sectionLabel;
+
+            // add fields to sections
+            $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] = [
+                'label' => $fieldConfig['label'],
+                'helpText' => $fieldConfig['helpText'] ?? null,
+                'type' => $fieldConfig['type'],
+                'custom' => $fieldConfig['custom'],
+            ];
+        }
+
+        return $outputStructure;
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 use getThemeConfigurationStructuredFields instead
+     *
+     * @throws InconsistentCriteriaIdsException
+     * @throws InvalidThemeConfigException
+     * @throws InvalidThemeException
+     */
     public function getThemeConfigurationFields(string $themeId, bool $translate, Context $context): array
     {
         $mergedConfig = $this->getThemeConfiguration($themeId, $translate, $context)['fields'];
@@ -248,6 +295,7 @@ class ThemeService
             $translations = $this->getTranslations($themeId, $context);
             $mergedConfig = $this->translateLabels($mergedConfig, $translations);
         }
+
         $blocks = [];
         $noblocks = [
             'label' => $this->getBlockLabel('unordered', $translations),
@@ -387,9 +435,31 @@ class ThemeService
         return $configuredTheme;
     }
 
+    private function getTab($fieldConfig): string
+    {
+        $tab = 'default';
+
+        if (isset($fieldConfig['tab'])) {
+            $tab = $fieldConfig['tab'];
+        }
+
+        return $tab;
+    }
+
+    private function getBlock($fieldConfig): string
+    {
+        $block = 'default';
+
+        if (isset($fieldConfig['block'])) {
+            $block = $fieldConfig['block'];
+        }
+
+        return $block;
+    }
+
     private function getSection($fieldConfig): string
     {
-        $section = '';
+        $section = 'default';
 
         if (isset($fieldConfig['section'])) {
             $section = $fieldConfig['section'];
@@ -398,13 +468,30 @@ class ThemeService
         return $section;
     }
 
+    private function getTabLabel(string $tabName, array $translations)
+    {
+        if ($tabName === 'default') {
+            return '';
+        }
+
+        return $translations['tabs.' . $tabName] ?? $tabName;
+    }
+
     private function getBlockLabel(string $blockName, array $translations)
     {
+        if ($blockName === 'default') {
+            return '';
+        }
+
         return $translations['blocks.' . $blockName] ?? $blockName;
     }
 
     private function getSectionLabel(string $sectionName, array $translations)
     {
+        if ($sectionName === 'default') {
+            return '';
+        }
+
         return $translations['sections.' . $sectionName] ?? $sectionName;
     }
 

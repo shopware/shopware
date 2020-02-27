@@ -25,6 +25,7 @@ import './component/sw-order-create-details-footer';
 import './component/sw-order-create-address-modal';
 import './component/sw-order-new-customer-modal';
 import './component/sw-order-promotion-tag-field';
+import './component/sw-order-create-invalid-promotion-modal';
 
 const { Module } = Shopware;
 

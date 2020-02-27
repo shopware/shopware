@@ -91,7 +91,6 @@
       },
       "cardTitleLineItems": "Positionen",
       "placeholderSearchBarItem": "Durchsuche Positionen ...",
-      "labelDeleteOrderCard": "Delete order",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
       "columnPriceGross": "Bruttopreis",
@@ -286,6 +285,11 @@
     "newCustomerModal": {
       "labelDetails": "Details",
       "labelGuest": "Guest account"
+    },
+    "invalidPromotionModal": {
+      "modalTitle": "Invalid promotion codes will be removed",
+      "modalDescription": "The following invalid promotion codes will be removed",
+      "buttonConfirm": "OK"
     }
   }
 }

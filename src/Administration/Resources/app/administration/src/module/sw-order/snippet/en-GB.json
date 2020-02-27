@@ -91,7 +91,6 @@
       },
       "cardTitleLineItems": "Items",
       "placeholderSearchBarItem": "Search items...",
-      "labelDeleteOrderCard": "Delete order",
       "columnProductName": "Item",
       "columnQuantity": "Quantity",
       "columnPriceNet": "Price (net)",
@@ -286,6 +285,11 @@
     "newCustomerModal": {
       "labelDetails": "Details",
       "labelGuest": "Guest account"
+    },
+    "invalidPromotionModal": {
+      "modalTitle": "Invalid promotion codes will be removed",
+      "modalDescription": "The following invalid promotion codes will be removed",
+      "buttonConfirm": "OK"
     }
   }
 }

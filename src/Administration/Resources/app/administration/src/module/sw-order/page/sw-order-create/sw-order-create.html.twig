@@ -39,5 +39,13 @@
                 <router-view @error="showError"></router-view>
             </template>
         {% endblock %}
+
+        {% block sw_order_create_invalid_promotion_modal %}
+            <sw-order-create-invalid-promotion-modal
+                v-if="showInvalidCodeModal"
+                @confirm="removeInvalidCode"
+                @close="closeInvalidCodeModal">
+            </sw-order-create-invalid-promotion-modal>
+        {% endblock %}
     </sw-page>
 {% endblock %}

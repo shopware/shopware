@@ -15,6 +15,8 @@
             <template #smart-bar-header>
                 <h2>
                     {% block sw_settings_user_list_smart_bar_header_title_text %}
+                        {{ $tc('sw-settings.index.title') }}
+                        <sw-icon name="small-arrow-medium-right" small></sw-icon>
                         {{ $tc('sw-settings-user.general.labelUserList') }}
                     {% endblock %}
 

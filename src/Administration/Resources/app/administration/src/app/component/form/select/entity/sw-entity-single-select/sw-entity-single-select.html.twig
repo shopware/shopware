@@ -4,6 +4,7 @@
                     :isLoading="isLoading"
                     @select-expanded="onSelectExpanded"
                     @select-collapsed="onSelectCollapsed"
+                    :disableAutoClose="disableAutoClose"
                     v-bind="$attrs"
                     v-on="$listeners">
         {% block sw_entity_single_select_base %}

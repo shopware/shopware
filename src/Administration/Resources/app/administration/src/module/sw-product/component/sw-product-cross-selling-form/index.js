@@ -3,7 +3,7 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Context } = Shopware;
-const { mapPropertyErrors, mapGetters } = Component.getComponentHelper();
+const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
     template,
@@ -24,7 +24,6 @@ Component.register('sw-product-cross-selling-form', {
             productStream: null,
             productStreamFilter: [],
             optionSearchTerm: '',
-            isLoadingCrossSelling: this.isLoading,
             useManualAssignment: false,
             sortBy: 'name',
             sortDirection: 'ASC',
@@ -39,6 +38,10 @@ Component.register('sw-product-cross-selling-form', {
             'sortingType'
         ]),
 
+        ...mapState('swProductDetail', [
+            'product'
+        ]),
+
         ...mapGetters('swProductDetail', [
             'isLoading'
         ]),
@@ -47,30 +50,12 @@ Component.register('sw-product-cross-selling-form', {
             return this.repositoryFactory.create('product_cross_selling');
         },
 
-        product() {
-            const state = Shopware.State.get('swProductDetail');
-
-            if (this.isInherited) {
-                return state.parentProduct;
-            }
-
-            return state.product;
-        },
-
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
         },
 
         crossSellingAssigmentRepository() {
             return this.repositoryFactory.create('product_cross_selling_assigned_products');
-        },
-
-        displayTitle() {
-            if (this.crossSelling._isNew) {
-                return this.$tc('sw-product.crossselling.cardTitleCrossSelling');
-            }
-
-            return this.crossSelling.translated.name || this.$tc('sw-product.crossselling.cardTitleCrossSelling');
         },
 
         sortingTypes() {
@@ -146,6 +131,7 @@ Component.register('sw-product-cross-selling-form', {
         onConfirmDelete() {
             this.onCloseDeleteModal();
             this.$nextTick(() => {
+                // TODO: check if it works on inherited products (variants)
                 this.product.crossSellings.remove(this.crossSelling.id);
             });
         },
@@ -188,30 +174,6 @@ Component.register('sw-product-cross-selling-form', {
 
         onTypeChanged(value) {
             this.useManualAssignment = value === 'productList';
-        },
-
-        getAssignedProductsColumns() {
-            return [{
-                property: 'product.name',
-                label: this.$tc('sw-product.list.columnName'),
-                primary: true,
-                allowResize: true,
-                sortable: false
-            }, {
-                property: 'product.productNumber',
-                label: this.$tc('sw-product.list.columnProductNumber'),
-                allowResize: true,
-                sortable: false
-            }, {
-                property: 'position',
-                label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
-                allowResize: true,
-                sortable: false
-            }];
-        },
-
-        productCriteria() {
-            return (new Criteria(1, 500));
         }
     }
 });

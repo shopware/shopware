@@ -1,20 +1,14 @@
 import template from './sw-product-cross-selling-assignment.html.twig';
 import './sw-product-cross-selling-assignment.scss';
 
-const { debounce, get } = Shopware.Utils;
-const { Criteria } = Shopware.Data;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
 
-const { Component, Context, Mixin } = Shopware;
+const { Component, Context } = Shopware;
 
 Component.register('sw-product-cross-selling-assignment', {
     template,
 
     inject: ['repositoryFactory'],
-
-    mixins: [
-        Mixin.getByName('position')
-    ],
 
     props: {
         assignedProducts: {
@@ -22,28 +16,10 @@ Component.register('sw-product-cross-selling-assignment', {
             required: true
         },
 
-        columns: {
-            type: Array,
-            required: true
-        },
-
-        localMode: {
-            type: Boolean,
-            required: true
-        },
-
         resultLimit: {
             type: Number,
             required: false,
             default: 10
-        },
-
-        criteria: {
-            type: Object,
-            required: false,
-            default() {
-                return new Criteria(1, this.resultLimit);
-            }
         },
 
         highlightSearchTerm: {
@@ -82,19 +58,14 @@ Component.register('sw-product-cross-selling-assignment', {
 
     data() {
         return {
-            gridCriteria: null,
-            searchCriteria: null,
-            isLoadingResults: false,
-            isLoadingGrid: false,
             selectedIds: [],
-            total: 0,
             resultCollection: null,
-            gridData: this.assignedProducts,
             positionColumnKey: 0,
-            searchTerm: '',
             totalAssigned: 0,
-            loadingGridState: false,
-            assignmentGridKey: 0
+            loadingGridState: this.isLoading,
+            isLoadingData: false,
+            assignmentGridKey: 0,
+            total: 0
         };
     },
 
@@ -119,8 +90,8 @@ Component.register('sw-product-cross-selling-assignment', {
             return this.context.languageId;
         },
 
-        isDataLoading() {
-            return this.isLoading || this.isLoadingGrid;
+        isLoadingGrid() {
+            return this.isLoadingData || this.isLoading;
         },
 
         assignmentRepository() {
@@ -130,10 +101,8 @@ Component.register('sw-product-cross-selling-assignment', {
             );
         },
 
-        searchRepository() {
-            return this.repositoryFactory.create(
-                'product'
-            );
+        productRepository() {
+            return this.repositoryFactory.create('product');
         },
 
         currentAssignedProducts: {
@@ -149,54 +118,32 @@ Component.register('sw-product-cross-selling-assignment', {
             }
         },
 
-        page: {
-            get() {
-                return this.gridCriteria.page;
-            },
-            set(page) {
-                this.gridCriteria.page = page;
-            }
-        },
-
-        limit: {
-            get() {
-                return this.gridCriteria.limit;
-            },
-            set(limit) {
-                this.gridCriteria.page = limit;
-            }
-        },
-
         focusEl() {
             return this.$refs.searchInput;
         },
 
         originalFilters() {
             return this.criteria.filters;
-        }
-    },
-
-    watch: {
-        criteria: {
-            immediate: true,
-            handler() {
-                this.gridCriteria = Criteria.fromCriteria(this.criteria);
-                this.searchCriteria = Criteria.fromCriteria(this.criteria);
-            }
         },
 
-        assignedProducts() {
-            this.selectedIds = this.assignedProducts.map(product => product.productId);
-        },
-
-        languageId() {
-            if (!this.localMode) {
-                this.$refs.assignmentGrid.load();
-            }
-        },
-
-        'selectedIds.length'() {
-            this.total = this.selectedIds.length;
+        assignedProductColumns() {
+            return [{
+                property: 'product.name',
+                label: this.$tc('sw-product.list.columnName'),
+                primary: true,
+                allowResize: true,
+                sortable: false
+            }, {
+                property: 'position',
+                label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
+                allowResize: true,
+                sortable: false
+            }, {
+                property: 'product.productNumber',
+                label: this.$tc('sw-product.list.columnProductNumber'),
+                allowResize: true,
+                sortable: false
+            }];
         }
     },
 
@@ -206,188 +153,51 @@ Component.register('sw-product-cross-selling-assignment', {
 
     methods: {
         createdComponent() {
-            this.$root.$on('product-saved', () => {
-                this.forceGridRerender();
-            });
-            this.initData();
+            this.total = this.assignedProducts.length;
         },
 
-        initData() {
-            this.page = 1;
-            this.selectedIds = this.currentAssignedProducts.map(product => product.productId);
-            this.currentAssignedProducts = this.assignedProducts;
-        },
-
-        onSearchTermChange(input) {
-            this.searchTerm = input.target.value || null;
-
-            this.debouncedSearch();
-        },
-
-        debouncedSearch: debounce(function debouncedSearch() {
-            this.resetSearchCriteria();
-            this.searchCriteria.term = this.searchTerm || null;
-
-            this.addContainsFilter(this.searchCriteria);
-
-            this.searchItems().then((searchResult) => {
-                this.resultCollection = searchResult;
-            });
-        }, 500),
-
-        onSelectExpanded() {
-            this.resetSearchCriteria();
-
-            this.focusEl.select();
-
-            this.searchItems().then((searchResult) => {
-                this.resultCollection = searchResult;
-            });
-        },
-
-        paginateResult() {
-            if (this.resultCollection.length >= this.resultCollection.total) {
+        onToggleProduct(productId) {
+            if (productId === null) {
                 return;
             }
 
-            this.searchCriteria.page += 1;
-
-            this.searchItems().then((searchResult) => {
-                this.resultCollection.push(...searchResult);
+            this.isLoadingData = true;
+            const matchedAssignedProduct = this.assignedProducts.find((assignedProduct) => {
+                return assignedProduct.productId === productId;
             });
-        },
 
-        searchItems() {
-            return this.searchRepository.search(this.searchCriteria, this.context).then((result) => {
-                if (!this.localMode) {
-                    const criteria = new Criteria(1, this.searchCriteria.limit);
-                    criteria.setIds(result.getIds());
+            if (matchedAssignedProduct) {
+                this.removeItem(matchedAssignedProduct);
+                this.isLoadingData = false;
+            } else {
+                const newProduct = this.assignmentRepository.create();
+                newProduct.crossSellingId = this.crossSellingId;
+                newProduct.productId = productId;
+                newProduct.position = this.assignedProducts.length + 1;
+                this.assignedProducts.add(newProduct);
 
-                    this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
-                        data.forEach((id) => {
-                            if (!this.isSelected({ id })) {
-                                this.selectedIds.push(id);
-                            }
-                        });
-                    });
-                }
-
-                return result.filter(item => item.id !== this.product.id);
-            });
-        },
-
-        onItemSelect(item) {
-            if (this.isSelected(item)) {
-                this.removeItem(item);
-                return;
-            }
-
-            const entity = this.assignmentRepository.create(this.context);
-
-            this.getMaximumPosition().then((maximumPosition) => {
-                entity.crossSellingId = this.crossSellingId;
-                entity.productId = item.id;
-                entity.position = maximumPosition;
-
-                this.assignmentRepository.save(entity, this.context).then(() => {
-                    this.selectedIds.push(item.id);
-                    this.currentAssignedProducts = this.assignedProducts;
+                this.productRepository.get(productId, Context.api).then((product) => {
+                    newProduct.product = product;
+                    this.isLoadingData = false;
                 });
-            });
+            }
         },
 
         removeItem(item) {
-            const productId = item.productId ? item.productId : item.id;
-            const itemCriteria = new Criteria();
+            const oldPosition = item.position;
 
-            itemCriteria.addPostFilter(Criteria.equals('productId', productId));
+            this.assignedProducts.remove(item.id);
+            this.assignedProducts.forEach((assignedProduct) => {
+                if (assignedProduct.position <= oldPosition) {
+                    return;
+                }
 
-            return this.assignmentRepository.search(itemCriteria, this.context).then((result) => {
-                const assigmentIds = result.getIds();
-
-                return this.assignmentRepository.delete(assigmentIds[0], this.context).then(() => {
-                    this.selectedIds = this.selectedIds.filter((selectedId) => {
-                        this.isLoadingGrid = false;
-                        return selectedId !== productId;
-                    });
-                });
+                assignedProduct.position -= 1;
             });
         },
 
         isSelected(item) {
-            return this.selectedIds.some((selectedId) => {
-                return item.id === selectedId;
-            });
-        },
-
-        resetActiveItem() {
-            this.$refs.swSelectResultList.setActiveItemIndex(0);
-        },
-
-        onSelectCollapsed() {
-            this.resultCollection = null;
-
-            if (!this.localMode) {
-                this.$refs.assignmentGrid.load();
-                this.$root.$emit('assignment-changed');
-            }
-        },
-
-        resetSearchCriteria() {
-            this.searchCriteria.page = 1;
-            this.searchCriteria.term = this.searchTerm || null;
-            this.searchCriteria.limit = this.resultLimit;
-
-            this.addContainsFilter(this.searchCriteria);
-        },
-
-        getKey(object, keyPath, defaultValue) {
-            return get(object, keyPath, defaultValue);
-        },
-
-        setGridFilter() {
-            this.gridCriteria.term = this.searchTerm || null;
-            this.addContainsFilter(this.gridCriteria);
-        },
-
-        addContainsFilter(criteria) {
-            if (criteria.term === null) {
-                criteria.filters = [...this.originalFilters];
-                return;
-            }
-
-            if (this.searchableFields.length > 0) {
-                const containsFilter = this.searchableFields.map((field) => {
-                    return Criteria.contains(field, criteria.term);
-                });
-
-                criteria.filters = [
-                    ...this.criteria.filters,
-                    Criteria.multi(
-                        'OR',
-                        containsFilter
-                    )
-                ];
-                criteria.term = null;
-            }
-        },
-
-        removeFromGrid(item) {
-            this.isLoadingGrid = true;
-            this.removeItem(item).then(() => {
-                this.resultCollection = null;
-                this.$refs.assignmentGrid.load();
-                this.$root.$emit('assignment-changed');
-                this.isLoadingGrid = false;
-            });
-        },
-
-        getMaximumPosition() {
-            return this.getNewPosition(this.assignmentRepository, this.criteria, Context.api);
-        },
-
-        forceGridRerender() {
-            this.assignmentGridKey += 1;
+            return this.assignedProducts.some(p => p.productId === item.id);
         }
     }
 });

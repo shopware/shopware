@@ -1,7 +1,7 @@
 {% block sw_product_cross_selling_form %}
     <div class="product-detail-cross-selling-form">
         {% block sw_prduct_cross_selling_form_card %}
-            <sw-card :title="displayTitle">
+            <sw-card :title="crossSelling.name">
                 <div v-if="!isLoading && crossSelling" class="product-detail-cross-selling-form__card-container">
                     {% block sw_prduct_cross_selling_form_context_menu %}
                         <div class="sw-product-detail-cross-selling__context-button">
@@ -112,12 +112,9 @@
 
                     {% block sw_product_detail_cross_selling_assignment %}
                         <sw-product-cross-selling-assignment
-                            v-if="useManualAssignment && !isLoadingCrossSelling"
+                            v-else
                             :assignedProducts="crossSelling.assignedProducts"
-                            :localMode="crossSelling.isNew()"
-                            :columns="getAssignedProductsColumns()"
                             :crossSellingId="crossSelling.id"
-                            :criteria="productCriteria()"
                             :searchableFields="['name', 'productNumber']">
                         </sw-product-cross-selling-assignment>
                     {% endblock %}

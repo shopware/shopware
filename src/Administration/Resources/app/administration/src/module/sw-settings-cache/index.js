@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-cache-index';
 import './component/sw-settings-cache-modal';
 
@@ -23,5 +22,11 @@ Module.register('sw-settings-cache', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.cache.index',
+        icon: 'default-action-replace'
     }
 });

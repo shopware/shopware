@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-number-range-list';
 import './page/sw-settings-number-range-detail';
 import './page/sw-settings-number-range-create';
@@ -37,5 +36,11 @@ Module.register('sw-settings-number-range', {
                 parentPath: 'sw.settings.number.range.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.number.range.index',
+        icon: 'default-documentation-paper-pencil-signed'
     }
 });

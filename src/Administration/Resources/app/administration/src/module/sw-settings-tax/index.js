@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-tax-list';
 import './page/sw-settings-tax-detail';
 import './component/sw-tax-rule-card';
@@ -51,5 +50,11 @@ Module.register('sw-settings-tax', {
                 parentPath: 'sw.settings.tax.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.tax.index',
+        icon: 'default-chart-pie'
     }
 });

@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-units';
 
 const { Module } = Shopware;
@@ -21,5 +20,11 @@ Module.register('sw-settings-units', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.units.index',
+        icon: 'default-object-scale'
     }
 });

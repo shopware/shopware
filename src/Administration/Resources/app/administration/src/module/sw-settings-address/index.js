@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-address';
 
 const { Module } = Shopware;
@@ -23,5 +22,11 @@ Module.register('sw-settings-address', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.address.index',
+        icon: 'default-object-address'
     }
 });

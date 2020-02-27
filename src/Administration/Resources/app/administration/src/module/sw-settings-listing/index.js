@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-listing';
 
 const { Module } = Shopware;
@@ -23,5 +22,11 @@ Module.register('sw-settings-listing', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.listing.index',
+        icon: 'default-symbol-products'
     }
 });

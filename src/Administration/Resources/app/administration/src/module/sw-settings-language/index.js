@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 
@@ -39,5 +38,11 @@ Module.register('sw-settings-language', {
                 parentPath: 'sw.settings.language.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.language.index',
+        icon: 'default-location-flag'
     }
 });

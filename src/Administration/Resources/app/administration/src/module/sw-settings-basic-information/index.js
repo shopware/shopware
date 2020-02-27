@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-basic-information';
 
 const { Module } = Shopware;
@@ -22,5 +21,11 @@ Module.register('sw-settings-basic-information', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.basic.information.index',
+        icon: 'default-basic-stack-line'
     }
 });

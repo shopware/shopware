@@ -2,7 +2,6 @@ import './component/sw-seo-url-template-card';
 import './component/sw-seo-url';
 import './component/sw-seo-main-category';
 
-import './extension/sw-settings-index';
 import './page/sw-settings-seo';
 
 const { Module } = Shopware;
@@ -25,5 +24,11 @@ Module.register('sw-settings-seo', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.seo.index',
+        icon: 'default-action-search'
     }
 });

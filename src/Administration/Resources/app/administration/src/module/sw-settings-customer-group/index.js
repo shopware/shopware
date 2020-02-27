@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-customer-group-list';
 import './page/sw-settings-customer-group-detail';
 
@@ -45,5 +44,11 @@ Module.register('sw-settings-customer-group', {
                 parentPath: 'sw.settings.customer.group.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.customer.group.index',
+        icon: 'default-avatar-multiple'
     }
 });

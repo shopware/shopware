@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-shipping-list';
 import './page/sw-settings-shipping-detail';
 import './page/sw-settings-shipping-create';
@@ -41,5 +40,11 @@ Module.register('sw-settings-shipping', {
                 parentPath: 'sw.settings.shipping.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.shipping.index',
+        icon: 'default-package-open'
     }
 });

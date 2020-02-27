@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-snippet-set-list';
 import './page/sw-settings-snippet-list';
 import './page/sw-settings-snippet-detail';
@@ -49,5 +48,11 @@ Module.register('sw-settings-snippet', {
                 parentPath: 'sw.settings.snippet.list'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.snippet.index',
+        icon: 'default-object-globe'
     }
 });

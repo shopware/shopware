@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-salutation-list';
 import './page/sw-settings-salutation-detail';
 
@@ -45,5 +44,11 @@ Module.register('sw-settings-salutation', {
                 parentPath: 'sw.settings.salutation.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.salutation.index',
+        icon: 'default-communication-speech-bubbles'
     }
 });

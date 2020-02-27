@@ -9,7 +9,6 @@ import './component/sw-plugin-store-login-status';
 import './component/sw-plugin-updates-grid';
 import './component/sw-plugin-last-updates-grid';
 import './component/sw-plugin-table-entry';
-import './extension/sw-settings-index';
 import './component/sw-plugin-config';
 import './component/sw-plugin-description';
 
@@ -99,5 +98,11 @@ Module.register('sw-plugin', {
                 }
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.plugin.index',
+        icon: 'default-object-plug'
     }
 });

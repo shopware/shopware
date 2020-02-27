@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-sitemap';
 
 const { Module } = Shopware;
@@ -22,5 +21,11 @@ Module.register('sw-settings-sitemap', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.sitemap.index',
+        icon: 'default-location-map'
     }
 });

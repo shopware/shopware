@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-country-list';
 import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';
@@ -38,5 +37,11 @@ Module.register('sw-settings-country', {
                 parentPath: 'sw.settings.country.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.country.index',
+        icon: 'default-location-map'
     }
 });

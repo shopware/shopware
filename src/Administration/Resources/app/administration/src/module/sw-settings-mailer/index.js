@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './component/sw-settings-mailer-smtp';
 import './page/sw-settings-mailer';
 
@@ -19,5 +18,11 @@ Shopware.Module.register('sw-settings-mailer', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.mailer.index',
+        icon: 'default-communication-envelope'
     }
 });

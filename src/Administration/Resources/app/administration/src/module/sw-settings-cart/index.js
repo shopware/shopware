@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-cart';
 
 const { Module } = Shopware;
@@ -23,5 +22,11 @@ Module.register('sw-settings-cart', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.cart.index',
+        icon: 'default-lock-closed'
     }
 });

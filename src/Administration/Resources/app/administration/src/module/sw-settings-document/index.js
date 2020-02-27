@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-document-list';
 import './page/sw-settings-document-detail';
 import './page/sw-settings-document-create';
@@ -37,5 +36,11 @@ Module.register('sw-settings-document', {
                 parentPath: 'sw.settings.document.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.document.index',
+        icon: 'default-documentation-file'
     }
 });

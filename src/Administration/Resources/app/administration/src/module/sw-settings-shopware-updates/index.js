@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-shopware-updates-index';
 import './page/sw-settings-shopware-updates-wizard';
 import './view/sw-settings-shopware-updates-info';
@@ -34,5 +33,11 @@ Module.register('sw-settings-shopware-updates', {
                 parentPath: 'sw.settings.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'system',
+        to: 'sw.settings.shopware.updates.index',
+        icon: 'default-arrow-360-full'
     }
 });

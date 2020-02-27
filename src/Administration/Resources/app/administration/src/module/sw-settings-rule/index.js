@@ -1,4 +1,3 @@
-import './extension/sw-settings-index';
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 
@@ -43,5 +42,11 @@ Module.register('sw-settings-rule', {
                 parentPath: 'sw.settings.rule.index'
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.rule.index',
+        icon: 'default-symbol-rule'
     }
 });

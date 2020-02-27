@@ -166,6 +166,30 @@ Administration
     * sw-media-compact-upload is deprecated and replaced by sw-media-compact-upload-v2
 * Deprecated method `getFields`, use `getStructuredFields` instead
 
+* Refactored settings items list
+    * Deprecated `sw_settings_content_card_slot_plugins` twig block with version 6.4
+    * If your Plugin extends `src/module/sw-settings/page/sw-settings-index/sw-settings-index.html.twig`
+      to appear in the "plugins" tab on settings page, 
+      remove the extension from your plugin and add an `settingsItem` Array to your Module instead:
+      
+        ```
+        Module.register('my-awesome-plugin') {
+            // ...
+            settingsItem: [
+                {
+                    name:   'my-awesome-plugin',             // unique name
+                    to:     'my.awesome.plugin.index',       // dot notated route to your plugin's settings index page  
+                    label:  'my.awesome.plugin.title',       // translation snippet key
+                    group:  'plugins',                       // register plugin under "plugins" tab in settings page
+                    icon:   'use a shopware icon here',
+                    // OR
+                    component: 'component'                   // use a component here, if you want to render the icon in any other way            
+                }
+                // ... more settings items
+            ]
+        }
+        ```
+
 Storefront
 ----------
 

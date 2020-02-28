@@ -9,7 +9,8 @@ Component.register('sw-theme-manager-detail', {
     template,
 
     mixins: [
-        Mixin.getByName('theme')
+        Mixin.getByName('theme'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -21,6 +22,7 @@ Component.register('sw-theme-manager-detail', {
             themeConfig: {},
             showResetModal: false,
             showSaveModal: false,
+            errorModalMessage: null,
             baseThemeConfig: {},
             isLoading: false,
             isSaveSuccessful: false,
@@ -187,6 +189,10 @@ Component.register('sw-theme-manager-detail', {
             this.showResetModal = false;
         },
 
+        onCloseErrorModal() {
+            this.errorModalMessage = null;
+        },
+
         onConfirmThemeReset() {
             this.themeService.resetTheme(this.themeId).then(() => {
                 this.getTheme();
@@ -201,7 +207,7 @@ Component.register('sw-theme-manager-detail', {
                 return;
             }
 
-            this.onSaveTheme();
+            return this.onSaveTheme();
         },
 
         onCloseSaveModal() {
@@ -221,8 +227,27 @@ Component.register('sw-theme-manager-detail', {
 
             return this.themeService.updateTheme(this.themeId, { config: newValues }).then(() => {
                 this.getTheme();
-            }).catch(() => {
+            }).catch((error) => {
                 this.isLoading = false;
+
+                const actions = [];
+
+                const errorObject = error.response.data.errors[0];
+                if (errorObject.code === 'THEME__COMPILING_ERROR') {
+                    actions.push({
+                        label: this.$tc('sw-theme-manager.detail.showFullError'),
+                        method: function showFullError() {
+                            this.errorModalMessage = errorObject.detail;
+                        }.bind(this)
+                    });
+                }
+
+                this.createNotificationError({
+                    title: this.$tc('sw-theme-manager.detail.titleSaveError'),
+                    message: error.toString(),
+                    autoClose: false,
+                    actions: [...actions]
+                });
             });
         },
 

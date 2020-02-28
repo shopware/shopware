@@ -34,6 +34,8 @@
       "textDeleteInfo": "Are you sure you really want to delete the theme \"{themeName}\"?",
       "buttonCancel":  "Cancel",
       "buttonDelete": "Delete",
+      "buttonClose": "Close",
+      "errorModalTitle": "Unable to compile theme",
       "modalTitleDuplicate": "Create duplicate",
       "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional sales channels.",
       "labelDuplicateThemeName": "Name of the duplicate",
@@ -74,6 +76,8 @@
       "description": "Description",
       "salesChannel": "Assigned to the following sales channels",
       "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" theme.",
+      "titleSaveError": "Error while saving",
+      "showFullError": "Show full error",
       "label": {
         "media": "Media",
         "colors": "Colours",

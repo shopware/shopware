@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\UNDEFINED;
+use Symfony\Component\Finder\Finder;
 use const OpenApi\Annotations\UNDEFINED;
 use function OpenApi\scan;
 
@@ -38,7 +39,8 @@ class OpenApiLoader
             // plugins
             $this->rootDir . '/custom/plugins',
         ];
-        $openApi = scan($pathsToScan, ['analysis' => new DeactivateValidationAnalysis()]);
+        $pathsToExclude = $this->pluginVendorDirectories();
+        $openApi = scan($pathsToScan, ['analysis' => new DeactivateValidationAnalysis(), 'exclude' => $pathsToExclude]);
 
         $allUndefined = true;
         $calculatedPaths = [];
@@ -59,6 +61,13 @@ class OpenApiLoader
         $openApi->paths = $calculatedPaths;
 
         return $openApi;
+    }
+
+    private function pluginVendorDirectories(): array
+    {
+        $finder = (new Finder())->directories()->in($this->rootDir . '/custom/plugins')->depth(1)->name('vendor');
+
+        return array_keys(iterator_to_array($finder));
     }
 
     private function getTagForApi(bool $forSalesChannel): string

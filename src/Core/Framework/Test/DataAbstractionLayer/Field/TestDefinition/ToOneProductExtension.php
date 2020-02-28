@@ -4,19 +4,19 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class ProductExtension implements EntityExtensionInterface
+class ToOneProductExtension implements EntityExtensionInterface
 {
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            new OneToOneAssociationField('toOne', 'id', 'product_id', ExtendedProductDefinition::class, false)
+            new FkField('many_to_one_id', 'manyToOneId', ManyToOneProductDefinition::class)
         );
         $collection->add(
-            new OneToManyAssociationField('oneToMany', ExtendedProductDefinition::class, 'product_id', 'id')
+            new ManyToOneAssociationField('manyToOne', 'many_to_one_id', ManyToOneProductDefinition::class)
         );
     }
 

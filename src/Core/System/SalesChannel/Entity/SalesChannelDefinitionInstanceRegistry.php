@@ -34,7 +34,11 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 
     public function get(string $class): EntityDefinition
     {
-        return parent::get($this->prefix . $class);
+        if (strpos($class, $this->prefix) !== 0) {
+            $class = $this->prefix . $class;
+        }
+
+        return parent::get($class);
     }
 
     /**
@@ -45,5 +49,14 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
         return array_filter($this->getDefinitions(), static function ($definition): bool {
             return $definition instanceof SalesChannelDefinitionInterface;
         });
+    }
+
+    public function register(EntityDefinition $definition, ?string $serviceId = null): void
+    {
+        if (!$serviceId) {
+            $serviceId = $this->prefix . get_class($definition);
+        }
+
+        parent::register($definition, $serviceId);
     }
 }

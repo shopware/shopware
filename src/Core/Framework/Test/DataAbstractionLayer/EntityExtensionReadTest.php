@@ -15,8 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtensionSelfReferenced;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOneProductExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -47,7 +49,13 @@ class EntityExtensionReadTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->registerDefinition(ExtendedProductDefinition::class);
-        $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class, ProductExtensionSelfReferenced::class);
+        $this->registerDefinition(ManyToOneProductDefinition::class);
+        $this->registerDefinitionWithExtensions(
+            ProductDefinition::class,
+            ProductExtension::class,
+            ProductExtensionSelfReferenced::class,
+            ToOneProductExtension::class
+        );
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -55,7 +63,7 @@ class EntityExtensionReadTest extends TestCase
         $this->connection->rollBack();
 
         $this->connection->executeUpdate('
-            DROP TABLE IF EXISTS `extended_product`; 
+            DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
@@ -70,7 +78,21 @@ class EntityExtensionReadTest extends TestCase
         ');
 
         $this->connection->executeUpdate('
-            ALTER TABLE `product` ADD COLUMN `linked_product_id` binary(16) NULL, ADD COLUMN `linked_product_version_id` binary(16) NULL
+            DROP TABLE IF EXISTS `many_to_one_product`;
+            CREATE TABLE `many_to_one_product` (
+                `id` BINARY(16) NOT NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`)
+            )
+        ');
+
+        $this->connection->executeUpdate('
+            ALTER TABLE `product`
+                ADD COLUMN `linked_product_id` binary(16) NULL,
+                ADD COLUMN `linked_product_version_id` binary(16) NULL,
+                ADD COLUMN `many_to_one_id` binary(16) NULL,
+                ADD CONSTRAINT `fk.product.many_to_one_id` FOREIGN KEY (`many_to_one_id`) REFERENCES `many_to_one_product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
         ');
 
         $this->connection->beginTransaction();
@@ -79,14 +101,23 @@ class EntityExtensionReadTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `extended_product`');
         $this->connection->executeUpdate('
-            ALTER TABLE `product` DROP COLUMN `linked_product_id`, DROP COLUMN `linked_product_version_id`;
+            ALTER TABLE `product`
+            DROP FOREIGN KEY `fk.product.many_to_one_id`;
+        ');
+        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->executeUpdate('DROP TABLE `many_to_one_product`');
+        $this->connection->executeUpdate('
+            ALTER TABLE `product`
+            DROP COLUMN `linked_product_id`,
+            DROP COLUMN `linked_product_version_id`,
+            DROP COLUMN `many_to_one_id`;
         ');
         $this->connection->beginTransaction();
 
         $this->removeExtension(ProductExtension::class);
         $this->removeExtension(ProductExtensionSelfReferenced::class);
+        $this->removeExtension(ToOneProductExtension::class);
 
         parent::tearDown();
     }
@@ -94,6 +125,7 @@ class EntityExtensionReadTest extends TestCase
     public function testICanAddAManyToOneAsExtension(): void
     {
         $productId = Uuid::randomHex();
+        $extendableId = Uuid::randomHex();
 
         $this->productRepository->create([
             [
@@ -104,17 +136,16 @@ class EntityExtensionReadTest extends TestCase
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
                 'tax' => ['name' => 'test', 'taxRate' => 5],
                 'manyToOne' => [
-                    'productId' => $productId,
-                    'name' => 'test',
+                    'id' => $extendableId,
                 ],
             ],
         ], Context::createDefaultContext());
 
-        $created = $this->connection->fetchAll('SELECT * FROM extended_product');
+        $created = $this->connection->fetchAll('SELECT * FROM many_to_one_product');
 
         static::assertCount(1, $created);
         $reference = array_shift($created);
-        static::assertSame($productId, Uuid::fromBytesToHex($reference['product_id']));
+        static::assertSame($extendableId, Uuid::fromBytesToHex($reference['id']));
 
         $criteria = new Criteria();
         $criteria->addAssociation('manyToOne');
@@ -130,14 +161,43 @@ class EntityExtensionReadTest extends TestCase
 
         /** @var ArrayEntity $extension */
         static::assertInstanceOf(ArrayEntity::class, $extension);
-        static::assertEquals('test', $extension->get('name'));
+        static::assertEquals($extendableId, $extension->get('id'));
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('manyToOne.name', 'test'));
-        $criteria->addExtension('test', new ArrayEntity());
+        $criteria->addFilter(new EqualsFilter('manyToOne.id', $extendableId));
 
         $products = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
         static::assertTrue($products->has($productId));
+    }
+
+    public function testICanReadManyToOneOverAssociation(): void
+    {
+        $productId = Uuid::randomHex();
+        $extendableId = Uuid::randomHex();
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'Test product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8.10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manyToOne' => [
+                    'id' => $extendableId,
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$extendableId]);
+        $criteria->addAssociation('products');
+
+        /** @var EntityRepositoryInterface $manyToOneRepo */
+        $manyToOneRepo = $this->getContainer()->get('many_to_one_product.repository');
+        $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(ArrayEntity::class, $manyToOne);
+        static::assertCount(1, $manyToOne->get('products'));
     }
 
     public function testICanReadNestedAssociationsFromToOneExtensions(): void

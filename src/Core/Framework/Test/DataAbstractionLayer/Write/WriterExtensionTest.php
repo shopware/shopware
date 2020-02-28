@@ -45,7 +45,7 @@ class WriterExtensionTest extends TestCase
         $this->connection->rollBack();
 
         $this->connection->executeUpdate('
-            DROP TABLE IF EXISTS `extended_product`; 
+            DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,

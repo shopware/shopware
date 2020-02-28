@@ -24,8 +24,7 @@ Component.register('sw-product-cross-selling-assignment', {
 
     data() {
         return {
-            isLoadingData: false,
-            total: 0
+            isLoadingData: false
         };
     },
 
@@ -56,9 +55,17 @@ Component.register('sw-product-cross-selling-assignment', {
         searchCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
-            console.log(criteria);
             return criteria;
         },
+
+        total() {
+            if (!this.assignedProducts || !Array.isArray(this.assignedProducts)) {
+                return 0;
+            }
+
+            return this.assignedProducts.length;
+        },
+
 
         assignedProductColumns() {
             return [{
@@ -81,15 +88,7 @@ Component.register('sw-product-cross-selling-assignment', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.total = this.assignedProducts.length;
-        },
-
         onToggleProduct(productId) {
             if (productId === null) {
                 return;
@@ -112,7 +111,6 @@ Component.register('sw-product-cross-selling-assignment', {
 
                 this.productRepository.get(productId, Context.api).then((product) => {
                     newProduct.product = product;
-                    this.total = this.assignedProducts.length;
                     this.isLoadingData = false;
                 });
             }

@@ -20,26 +20,26 @@
         {% endblock %}
 
         {% block sw_product_detail_empty_state %}
-        <sw-card class="sw-product-detail-cross-selling__empty-state"  v-else>
-            <sw-loader v-if="isLoading"></sw-loader>
-            <div v-else>
-                <template>
-                    <div class="sw-product-detail-cross-selling__empty-state-inner">
-                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+            <sw-card class="sw-product-detail-cross-selling__empty-state"  v-else>
+                <sw-loader v-if="isLoading"></sw-loader>
+                <div v-else>
+                    <template>
+                        <div class="sw-product-detail-cross-selling__empty-state-inner">
+                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
 
-                        <div class="sw-product-detail-cross-selling__empty-state-inner--label">
-                            <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
+                            <div class="sw-product-detail-cross-selling__empty-state-inner--label">
+                                <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
+                            </div>
+
+                            {% block sw_product_detail_empty_state_cross_selling_add %}
+                            <sw-button variant="ghost" @click="onAddCrossSelling" :disabled="false">
+                                {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+                            </sw-button>
+                            {% endblock %}
                         </div>
-
-                        {% block sw_product_detail_empty_state_cross_selling_add %}
-                        <sw-button variant="ghost" @click="onAddCrossSelling" :disabled="false">
-                            {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-                        </sw-button>
-                        {% endblock %}
-                    </div>
-                </template>
-            </div>
-        </sw-card>
+                    </template>
+                </div>
+            </sw-card>
         {% endblock %}
     </div>
 {% endblock %}

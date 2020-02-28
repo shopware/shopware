@@ -97,12 +97,10 @@ Component.register('sw-settings-payment-list', {
 
         onPositionChanged: utils.debounce(function syncPayment(payment) {
             this.payment = payment;
-            console.log(payment);
 
             this.paymentRepository.sync(payment, Shopware.Context.api)
                 .then(this.getList)
-                .catch((e) => {
-                    console.log(e);
+                .catch(() => {
                     this.getList();
                     this.createNotificationError({
                         title: this.$tc('global.default.error'),

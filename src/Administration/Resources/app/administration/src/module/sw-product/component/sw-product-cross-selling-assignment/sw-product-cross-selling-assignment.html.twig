@@ -15,7 +15,7 @@
                             <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                     <span class="sw-select-result__result-item-text">
-                                    {{ item.translated.name || item.name }}
+                                        {{ item.translated.name || item.name }}
                                     </span>
                                 {% endblock %}
                             </li>
@@ -37,7 +37,7 @@
 
                     <template #actions="{ item }">
                         <sw-context-menu-item variant="danger" @click="removeItem(item)">
-                            {{ $tc('global.entity-components.labelRemoveAssociation') }}
+                            {{ $tc('global.default.delete') }}
                         </sw-context-menu-item>
                     </template>
                     {% block sw_product_cross_selling_assignment_option_grid_column_position %}

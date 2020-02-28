@@ -131,7 +131,6 @@ Component.register('sw-product-cross-selling-form', {
         onConfirmDelete() {
             this.onCloseDeleteModal();
             this.$nextTick(() => {
-                // TODO: check if it works on inherited products (variants)
                 this.product.crossSellings.remove(this.crossSelling.id);
             });
         },

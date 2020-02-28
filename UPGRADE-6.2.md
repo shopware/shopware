@@ -47,6 +47,9 @@ Core
     
 * The usage of `$connection->executeQuery()` for write operations is deprecated, use 
 `$connection->executeUpdate()` instead.
+* For the possibility to add individual product to across selling, you need to use a new field for creating a cross selling
+    * Please use type `productList` or `productStream` in order to create a corresponding cross selling
+   
 
 Administration
 --------------
@@ -189,6 +192,8 @@ Administration
             ]
         }
         ```
+* Implemented the possibility to add individual product to cross selling
+    * Added `sw-product-cross-selling-assignment` component
 
 Storefront
 ----------

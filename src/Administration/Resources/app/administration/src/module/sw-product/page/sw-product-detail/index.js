@@ -468,11 +468,9 @@ Component.register('sw-product-detail', {
 
                 // save product
                 this.productRepository.save(this.product, Shopware.Context.api).then(() => {
-                    console.log('save product', this.product);
                     this.loadAll().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
 
-                        this.$root.$emit('product-saved');
                         resolve('success');
                     });
                 }).catch((response) => {

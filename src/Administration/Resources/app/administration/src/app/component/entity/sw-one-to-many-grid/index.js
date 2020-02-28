@@ -20,17 +20,13 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         dataSource: {
             type: [Array, Object],
             required: false
-        },
-        limit: {
-            type: Number,
-            required: false,
-            default: 25
         }
     },
 
     data() {
         return {
             page: 1,
+            limit: 25,
             total: 0
         };
     },

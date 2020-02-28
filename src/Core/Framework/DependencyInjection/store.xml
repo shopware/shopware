@@ -51,5 +51,21 @@
                 <argument>%kernel.project_dir%/vendor/shopware/core/Framework/Store/public.key</argument>
             </argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\Command\StoreDownloadCommand">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
+            <argument type="service" id="plugin.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
+            <argument type="service" id="user.repository" />
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Store\Command\StoreLoginCommand">
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
+            <argument type="service" id="user.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

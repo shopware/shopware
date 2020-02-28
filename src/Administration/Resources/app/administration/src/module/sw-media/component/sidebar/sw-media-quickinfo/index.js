@@ -76,7 +76,7 @@ Component.register('sw-media-quickinfo', {
             const criteria = new Criteria(1, 100)
                 .addFilter(Criteria.equals('relations.entityName', 'media'))
                 .addAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition'))
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true))
                 .setLimit(100);
 
             const searchResult = await this.customFieldSetRepository.search(criteria, Shopware.Context.api);

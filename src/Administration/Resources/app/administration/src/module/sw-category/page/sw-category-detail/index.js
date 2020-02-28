@@ -97,7 +97,7 @@ Component.register('sw-category-detail', {
             criteria.addFilter(Criteria.equals('relations.entityName', 'category'));
             criteria
                 .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition'));
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },

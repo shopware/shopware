@@ -91,7 +91,7 @@ Component.register('sw-manufacturer-detail', {
             );
 
             criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC'))
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true))
                 .setLimit(100);
 
             return criteria;

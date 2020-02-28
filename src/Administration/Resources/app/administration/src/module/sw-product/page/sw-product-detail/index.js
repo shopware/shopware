@@ -143,7 +143,7 @@ Component.register('sw-product-detail', {
             criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
             criteria
                 .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition'));
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },

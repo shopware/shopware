@@ -9,10 +9,18 @@
 
     .sw-label__dismiss {
         color: $color-text;
+
+        .sw-icon {
+            color: $color-text;
+        }
     }
 
     &.sw-label--ghost {
         background: transparent;
+        border-color: $color-border;
+    }
+
+    &.sw-label--dismissable:hover {
         border-color: $color-border;
     }
 }

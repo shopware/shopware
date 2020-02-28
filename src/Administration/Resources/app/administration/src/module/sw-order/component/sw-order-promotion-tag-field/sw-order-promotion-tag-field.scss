@@ -14,18 +14,7 @@ $color-background-danger: $color-crimson-50;
 
     .sw-label {
         &.sw-label--danger {
-            &,
-            &:hover {
-                border-color: $color-label-danger;
-            }
-
-            .sw-label__dismiss {
-                background: $color-background-danger;
-            }
-
-            .sw-icon {
-                color: $color-label-danger;
-            }
+            border-color: $color-label-danger;
         }
     }
 }

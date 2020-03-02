@@ -293,16 +293,76 @@ can be customized by the enduser (if `editable` is set to `true`, see table belo
 
 The following parameters can be defined for a config field item:
 
-| Name         | Meaning                                                                               |
-|------------- |---------------------------------------------------------------------------------------|
-| label        | Array of translations with locale code as key                                         |
-| type         | Type of the config. Possible values: color, fontFamily, media and switch              |
-| value        | Value for the config                                                                  |
-| editable     | If set to false, the config option will not be displayed (e.g. in the administration) |
-| tab          | Name of a tab to organize the config options                                          |
-| block        | Name of a block to organize the config options                                        |
-| section      | Name of a section to organize the config options                                      |
-| custom       | The defined data will not be processed but is available via API                       |
+| Name         | Meaning                                                                                          |
+|------------- |--------------------------------------------------------------------------------------------------|
+| label        | Array of translations with locale code as key                                                    |
+| type         | Type of the config. Possible values: color, text, number, fontFamily, media, checkbox and switch |                                                       |
+| editable     | If set to false, the config option will not be displayed (e.g. in the administration)            |
+| tab          | Name of a tab to organize the config options                                                     |
+| block        | Name of a block to organize the config options                                                   |
+| section      | Name of a section to organize the config options                                                 |
+| custom       | The defined data will not be processed but is available via API                                  |
+
+### Field types
+You can use different field types in your theme manager:
+
+* A text field example:
+```json
+"modal-padding": {
+    "label": {
+      "en-GB": "Modal padding",
+      "de-DE": "Modal Innenabstand"
+    },
+    "type": "text",
+    "value": "(0, 0, 0, 0)",
+    "editable": true
+}
+```
+
+* A number field example: 
+```json
+"visible-slides": {
+    "label": {
+      "en-GB": "Number of visible slides",
+      "de-DE": "Anzahl an sichtbaren Slider Bildern"
+    },
+    "type": "number",
+    "custom": {
+      "numberType": "int",
+      "min": 1,
+      "max": 6
+    },
+    "value": 3,
+    "editable": true
+}
+```
+
+* Two boolean field examples:
+```json
+"navigation-fixed": {
+    "label": {
+      "en-GB": "Fix navigation",
+      "de-DE": "Navigation fixieren"
+    },
+    "type": "switch",
+    "value": true,
+    "editable": true
+}
+```
+
+or
+
+```json
+"navigation-fixed": {
+    "label": {
+      "en-GB": "Fix navigation",
+      "de-DE": "Navigation fixieren"
+    },
+    "type": "checkbox",
+    "value": true,
+    "editable": true
+}
+```
 
 ### Examples for custom config fields
 

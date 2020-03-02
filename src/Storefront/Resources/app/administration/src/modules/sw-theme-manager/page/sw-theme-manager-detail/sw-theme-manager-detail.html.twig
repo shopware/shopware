@@ -431,6 +431,28 @@
                     {% endblock %}
                 </sw-modal>
             {% endblock %}
+
+            {% block sw_theme_manager_detail_error_modal %}
+                <sw-modal v-if="errorModalMessage"
+                          @modal-close="onCloseErrorModal"
+                          :title="$tc('sw-theme-manager.modal.errorModalTitle')"
+                          variant="large">
+
+                    {% block sw_theme_manager_detail_error_modal_message %}
+                        <pre style="white-space: pre-line;">{{ errorModalMessage }}</pre>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_error_modal_footer %}
+                        <template slot="modal-footer">
+                            {% block sw_theme_manager_detail_error_modal_close %}
+                                <sw-button @click="onCloseErrorModal" size="small">
+                                    {{ $tc('sw-theme-manager.modal.buttonClose') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
         </template>
 
         {% block sw_theme_manager_detail_sidebar %}

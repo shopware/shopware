@@ -179,7 +179,15 @@ class ThemeCompiler
         });
 
         $variables = $this->dumpVariables($configuration->getThemeConfig());
-        $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
+
+        try {
+            $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
+        } catch (\Throwable $exception) {
+            throw new ThemeCompileException(
+                $configuration->getTechnicalName(),
+                $exception->getMessage()
+            );
+        }
         $autoPreFixer = new Autoprefixer($cssOutput);
 
         return $autoPreFixer->compile();

@@ -68,7 +68,7 @@ class CrossSellingLoader
         foreach ($crossSellings as $crossSelling) {
             $element = $this->loadCrossSellingElement($crossSelling, $context);
 
-            if ($element->getTotal() > 0) {
+            if ($element && $element->getTotal() > 0) {
                 $result->add($element);
             }
         }

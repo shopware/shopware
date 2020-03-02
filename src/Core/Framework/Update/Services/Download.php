@@ -90,7 +90,9 @@ class Download
             }
         });
 
+        /** @var bool $isHalted */
         $isHalted = false;
+        /** @var bool $isError */
         $isError = false;
         curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $str) use ($me, $partFile, &$isHalted, &$isError) {
             if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 206) {

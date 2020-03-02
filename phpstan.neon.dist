@@ -1,6 +1,7 @@
 # The second definitions in "paths" and "excludes_analyse" are necessary for the correct execution of the pre-commit hook
 parameters:
     level: 5
+    treatPhpDocTypesAsCertain: false
     autoload_files:
         # the placeholder "%ShopwareAutoloadFile%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
         - %ShopwareAutoloadFile%

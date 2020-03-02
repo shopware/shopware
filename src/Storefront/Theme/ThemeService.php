@@ -17,7 +17,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 class ThemeService
 {
     /**
-     * @var StorefrontPluginRegistry
+     * @var StorefrontPluginRegistryInterface
      */
     private $pluginRegistry;
 
@@ -37,11 +37,6 @@ class ThemeService
     private $mediaRepository;
 
     /**
-     * @var StorefrontPluginRegistry
-     */
-    private $storefrontPluginRegistry;
-
-    /**
      * @var ThemeCompiler
      */
     private $themeCompiler;
@@ -52,11 +47,10 @@ class ThemeService
     private $cache;
 
     public function __construct(
-        StorefrontPluginRegistry $pluginRegistry,
+        StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
         EntityRepositoryInterface $mediaRepository,
-        StorefrontPluginRegistry $storefrontPluginRegistry,
         ThemeCompiler $themeCompiler,
         CacheInterface $cache
     ) {
@@ -64,7 +58,6 @@ class ThemeService
         $this->themeRepository = $themeRepository;
         $this->themeSalesChannelRepository = $themeSalesChannelRepository;
         $this->mediaRepository = $mediaRepository;
-        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
         $this->themeCompiler = $themeCompiler;
         $this->cache = $cache;
     }
@@ -87,7 +80,7 @@ class ThemeService
             $salesChannelId,
             $themeId,
             $themePluginConfiguration,
-            $configurationCollection ?? $this->storefrontPluginRegistry->getConfigurations(),
+            $configurationCollection ?? $this->pluginRegistry->getConfigurations(),
             $withAssets
         );
 

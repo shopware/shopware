@@ -13,6 +13,10 @@ interface TemplateNamespaceHierarchyBuilderInterface
      *     'SwagPayPal',
      *     'MyOwnTheme',
      * ]
+     *
+     * @param string[] $namespaceHierarchy
+     *
+     * @return string[]
      */
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array;
 }

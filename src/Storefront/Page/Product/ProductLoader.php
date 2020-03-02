@@ -13,10 +13,14 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function Flag\next6025;
 
 class ProductLoader
 {
@@ -30,12 +34,19 @@ class ProductLoader
      */
     private $eventDispatcher;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -55,6 +66,24 @@ class ProductLoader
             ->addAssociation('mainCategories.category');
 
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position'));
+
+        if (next6025()) {
+            $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+            $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+
+            if ($hideCloseoutProductsWhenOutOfStock) {
+                $criteria->addFilter(
+                    new NotFilter(
+                        NotFilter::CONNECTION_AND,
+                        [
+                            new EqualsFilter('product.isCloseout', true),
+                            new EqualsFilter('product.available', false),
+                            new EqualsFilter('product.parentId', null),
+                        ]
+                    )
+                );
+            }
+        }
 
         $this->eventDispatcher->dispatch(
             new ProductLoaderCriteriaEvent($criteria, $salesChannelContext)

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductExportControllerTest extends TestCase
 {
@@ -35,7 +36,7 @@ class ProductExportControllerTest extends TestCase
         $client = $this->createSalesChannelBrowser(null, true);
         $client->request('GET', getenv('APP_URL') . '/export/foo/bar');
 
-        static::assertEquals(500, $client->getResponse()->getStatusCode());
+        static::assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
 
     public function testUtf8CsvExport(): void

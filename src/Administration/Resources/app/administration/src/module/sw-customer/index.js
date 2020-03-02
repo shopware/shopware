@@ -93,6 +93,7 @@ Module.register('sw-customer', {
         label: 'sw-customer.general.mainMenuItemList',
         color: '#F88962',
         icon: 'default-avatar-multiple',
-        parent: 'sw-customer'
+        parent: 'sw-customer',
+        position: 10
     }]
 });

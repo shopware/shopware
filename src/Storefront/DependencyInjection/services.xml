@@ -30,6 +30,10 @@
             <argument type="service" id="request_stack"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">
+            <argument type="service" id="request_stack"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
             <tag name="shopware.route_scope"/>
         </service>
@@ -106,6 +110,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler" />
             <argument>%kernel.debug%</argument>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

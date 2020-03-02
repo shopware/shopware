@@ -54,13 +54,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $csrfPlaceholderHandler;
 
+    /**
+     * @var MaintenanceModeResolver
+     */
+    private $maintenanceModeResolver;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
         ErrorController $errorController,
         SalesChannelContextServiceInterface $contextService,
         CsrfPlaceholderHandler $csrfPlaceholderHandler,
-        bool $kernelDebug
+        bool $kernelDebug,
+        MaintenanceModeResolver $maintenanceModeResolver
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -68,6 +74,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->contextService = $contextService;
         $this->kernelDebug = $kernelDebug;
         $this->csrfPlaceholderHandler = $csrfPlaceholderHandler;
+        $this->maintenanceModeResolver = $maintenanceModeResolver;
     }
 
     public static function getSubscribedEvents(): array
@@ -93,50 +100,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['setCanonicalUrl'],
             ],
         ];
-    }
-
-    public function maintenanceResolver(RequestEvent $event): void
-    {
-        $master = $this->requestStack->getMasterRequest();
-        if (!$master || !$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-
-        $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
-
-        if ($route && mb_strpos($route, 'frontend.maintenance') !== false) {
-            return;
-        }
-
-        if ($route === null && $request->attributes->get('_controller') === 'error_controller') {
-            return;
-        }
-
-        if ($request->isXmlHttpRequest()) {
-            return;
-        }
-
-        $salesChannelMaintenance = $master->attributes
-            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
-        if (!$salesChannelMaintenance) {
-            return;
-        }
-
-        $currentIp = $request->server->get('REMOTE_ADDR');
-
-        $maintenanceWhiteList = $master->attributes
-            ->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
-        if ($maintenanceWhiteList) {
-            $maintenanceWhiteList = json_decode($maintenanceWhiteList, true);
-
-            if (in_array($currentIp, $maintenanceWhiteList, true)) {
-                return;
-            }
-        }
-
-        $redirect = new RedirectResponse($this->router->generate('frontend.maintenance.page'));
-        $event->setResponse($redirect);
     }
 
     public function startSession(): void
@@ -239,6 +202,15 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
 
         $event->setResponse($redirectResponse);
+    }
+
+    public function maintenanceResolver(RequestEvent $event): void
+    {
+        if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
+            $event->setResponse(
+                new RedirectResponse($this->router->generate('frontend.maintenance.page'))
+            );
+        }
     }
 
     public function preventPageLoadingFromXmlHttpRequest(ControllerEvent $event): void

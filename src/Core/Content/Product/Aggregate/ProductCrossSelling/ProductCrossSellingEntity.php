@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSelling;
 
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
@@ -62,6 +63,16 @@ class ProductCrossSellingEntity extends Entity
      * @var ProductStreamEntity|null
      */
     protected $productStream;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * @var ProductCrossSellingAssignedProductsCollection|null
+     */
+    protected $assignedProducts;
 
     /**
      * @var ProductCrossSellingTranslationCollection|null
@@ -181,5 +192,25 @@ class ProductCrossSellingEntity extends Entity
     public function getSorting(): FieldSorting
     {
         return new FieldSorting($this->sortBy, $this->sortDirection);
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getAssignedProducts(): ?ProductCrossSellingAssignedProductsCollection
+    {
+        return $this->assignedProducts;
+    }
+
+    public function setAssignedProducts(ProductCrossSellingAssignedProductsCollection $assignedProducts): void
+    {
+        $this->assignedProducts = $assignedProducts;
     }
 }

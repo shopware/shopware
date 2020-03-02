@@ -1,0 +1,68 @@
+<div class="sw-product-cross-selling-assignment">
+    {% block sw_product_cross_selling_assignment_container %}
+        <div class="sw-product-cross-selling-assignment__select-container">
+            {% block sw_product_cross_selling_assignment_select %}
+                <sw-entity-single-select
+                    :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
+                    entity="product"
+                    value=""
+                    :criteria="searchCriteria"
+                    disableAutoClose
+                    @change="onToggleProduct">
+
+                    <template #result-item="{ item, index }">
+                        <slot name="result-item" v-bind="{ item, index, isSelected }">
+                            <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
+                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                    <span class="sw-select-result__result-item-text">
+                                        {{ item.translated.name || item.name }}
+                                    </span>
+                                {% endblock %}
+                            </li>
+                        </slot>
+                    </template>
+
+                </sw-entity-single-select>
+            {% endblock %}
+
+            {% block sw_product_cross_selling_assignment_option_grid %}
+                <sw-data-grid
+                    v-if="total"
+                    :dataSource="assignedProducts"
+                    :key="isLoadingGrid"
+                    :isLoading="isLoadingGrid"
+                    :columns="assignedProductColumns"
+                    :showSettings="true"
+                    :showSelection="false">
+
+                    <template #actions="{ item }">
+                        <sw-context-menu-item variant="danger" @click="removeItem(item)">
+                            {{ $tc('global.default.delete') }}
+                        </sw-context-menu-item>
+                    </template>
+                    {% block sw_product_cross_selling_assignment_option_grid_column_position %}
+                        <template #column-position="{ item }">
+                            <sw-data-grid-column-position
+                                ref="columnPosition"
+                                v-model="assignedProducts"
+                                :showValue="true"
+                                :item="item">
+                            </sw-data-grid-column-position>
+                        </template>
+                    {% endblock %}
+                </sw-data-grid>
+            {% endblock %}
+            {% block sw_product_cross_selling_assignment_empty_state %}
+                <sw-empty-state
+                    v-if="!total && !isLoadingGrid"
+                    class="sw-product-cross-selling-assignment__option-list-empty-state"
+                    title=""
+                    :subline="$tc('sw-product.crossselling.assignEmptyStateDescription')">
+                        <template #icon>
+                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        </template>
+                </sw-empty-state>
+            {% endblock %}
+        </div>
+    {% endblock %}
+</div>

@@ -194,7 +194,6 @@ Component.register('sw-many-to-many-assignment-card', {
                 this.selectedIds = this.entityCollection.getIds();
                 return;
             }
-
             this.gridData = this.entityCollection;
         },
 

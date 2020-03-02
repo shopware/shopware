@@ -102,6 +102,11 @@ export default {
             return false;
         },
 
+        setAssignedProductsFromCrossSelling(state, { id, collection }) {
+            const entity = state.product.crossSellings.get(id);
+            entity.assignedProducts = collection;
+        },
+
         setProductId(state, productId) {
             state.productId = productId;
         },

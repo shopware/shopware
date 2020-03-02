@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -55,7 +56,9 @@ class CrossSellingLoader
         $result = new CrossSellingLoaderResult();
 
         foreach ($crossSellings as $crossSelling) {
-            $result->add($this->loadCrossSellingElement($crossSelling, $context));
+            if ($element = $this->loadCrossSellingElement($crossSelling, $context)) {
+                $result->add($element);
+            }
         }
 
         $this->eventDispatcher->dispatch(new CrossSellingLoadedEvent($result, $context));
@@ -68,6 +71,7 @@ class CrossSellingLoader
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('product.id', $productId))
+            ->addFilter(new EqualsFilter('active', 1))
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
         /** @var ProductCrossSellingCollection $crossSellings */
@@ -78,7 +82,16 @@ class CrossSellingLoader
         return $crossSellings;
     }
 
-    private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): CrossSellingElement
+    private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
+    {
+        if ($crossSelling->getType() === 'productStream') {
+            return $this->loadCrossSellingProductStream($crossSelling, $context);
+        }
+
+        return $this->loadCrossSellingProductList($crossSelling, $context);
+    }
+
+    private function loadCrossSellingProductStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): CrossSellingElement
     {
         $filters = $this->productStreamBuilder->buildFilters(
             $crossSelling->getProductStreamId(),
@@ -100,6 +113,47 @@ class CrossSellingLoader
         $element->setProducts($products);
 
         $element->setTotal($searchResult->getTotal());
+
+        return $element;
+    }
+
+    private function loadCrossSellingProductList(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
+    {
+        $criteria = new Criteria([$crossSelling->getId()]);
+        $criteria->addAssociation('assignedProducts');
+
+        /** @var ProductCrossSellingEntity $crossSelling */
+        $crossSelling = $this->crossSellingRepository->search($criteria, $context->getContext())->getEntities()->first();
+
+        $crossSelling->getAssignedProducts()->sort(function (
+            ProductCrossSellingAssignedProductsEntity $a,
+            ProductCrossSellingAssignedProductsEntity $b
+        ) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+
+        $assignedProductsIds = array_values(array_map(function (ProductCrossSellingAssignedProductsEntity $entity) {
+            return $entity->getProductId();
+        }, $crossSelling->getAssignedProducts()->getElements()));
+
+        $criteria = new Criteria($assignedProductsIds);
+
+        if (!count($assignedProductsIds)) {
+            return null;
+        }
+
+        $searchResult = $this->productRepository->search($criteria, $context);
+
+        $products = new ProductCollection();
+        foreach ($crossSelling->getAssignedProducts()->getElements() as $element) {
+            $products->add($searchResult->get($element->getProductId()));
+        }
+
+        $element = new CrossSellingElement();
+        $element->setCrossSelling($crossSelling);
+        $element->setProducts($products);
+
+        $element->setTotal($crossSelling->getAssignedProducts()->count());
 
         return $element;
     }

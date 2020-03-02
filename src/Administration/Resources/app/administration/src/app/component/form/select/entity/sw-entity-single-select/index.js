@@ -70,6 +70,12 @@ Component.register('sw-entity-single-select', {
             default() {
                 return { active: false };
             }
+        },
+
+        disableAutoClose: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -277,7 +283,10 @@ Component.register('sw-entity-single-select', {
 
         setValue(item) {
             this.itemRecentlySelected = true;
-            this.closeResultList();
+
+            if (!this.disableAutoClose) {
+                this.closeResultList();
+            }
 
             // This is a little against v-model. But so we dont need to load the selected item on every selection
             // from the server

@@ -97,14 +97,14 @@
                     :columns="columns"
                     :v-bind="$attrs"
                     :showSelection="false">
-    
+
                     <template v-for="column in columns" v-slot:[`column-${column.property}`]="columnProps">
                         {% block sw_entity_many_to_many_assignment_card_grid_column %}
                             <slot :name="`column-${column.property}`"
                                   v-bind="{ ...columnProps, searchTerm, highlightSearchTerm }"></slot>
                         {% endblock %}
                     </template>
-    
+
                     <template #actions="{ item }">
                         {% block sw_entity_many_to_many_assignment_card_grid_column_actions %}
                             <sw-context-menu-item variant="danger" @click="removeFromGrid(item)">
@@ -112,7 +112,7 @@
                             </sw-context-menu-item>
                         {% endblock %}
                     </template>
-    
+
                     <template #pagination>
                         {% block sw_entity_many_to_many_assignment_card_grid_footer %}
                             {% block sw_entity_many_to_many_assignment_card_grid_footer_remote_mode %}

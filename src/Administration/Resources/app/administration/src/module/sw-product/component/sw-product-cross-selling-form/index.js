@@ -3,7 +3,7 @@ import './sw-product-cross-selling-form.scss';
 
 const { Criteria } = Shopware.Data;
 const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
     template,
@@ -23,8 +23,11 @@ Component.register('sw-product-cross-selling-form', {
             showModalPreview: false,
             productStream: null,
             productStreamFilter: [],
+            optionSearchTerm: '',
+            useManualAssignment: false,
             sortBy: 'name',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
+            assignmentKey: 0
         };
     },
 
@@ -35,26 +38,24 @@ Component.register('sw-product-cross-selling-form', {
             'sortingType'
         ]),
 
-        product() {
-            const state = Shopware.State.get('swProductDetail');
+        ...mapState('swProductDetail', [
+            'product'
+        ]),
 
-            if (this.isInherited) {
-                return state.parentProduct;
-            }
+        ...mapGetters('swProductDetail', [
+            'isLoading'
+        ]),
 
-            return state.product;
+        productCrossSellingRepository() {
+            return this.repositoryFactory.create('product_cross_selling');
         },
 
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
         },
 
-        displayTitle() {
-            if (this.crossSelling._isNew) {
-                return this.$tc('sw-product.crossselling.cardTitleCrossSelling');
-            }
-
-            return this.crossSelling.translated.name || this.$tc('sw-product.crossselling.cardTitleCrossSelling');
+        crossSellingAssigmentRepository() {
+            return this.repositoryFactory.create('product_cross_selling_assigned_products');
         },
 
         sortingTypes() {
@@ -76,18 +77,34 @@ Component.register('sw-product-cross-selling-form', {
             }];
         },
 
+        crossSellingTypes() {
+            return [{
+                label: this.$tc('sw-product.crossselling.productStreamType'),
+                value: 'productStream'
+            }, {
+                label: this.$tc('sw-product.crossselling.productListType'),
+                value: 'productList'
+            }];
+        },
+
         previewDisabled() {
             return !this.productStream;
         },
 
         sortingConCat() {
             return `${this.crossSelling.sortBy}:${this.crossSelling.sortDirection}`;
+        },
+
+        disablePositioning() {
+            return (!!this.term) || (this.sortBy !== 'position');
         }
     },
 
     watch: {
         'crossSelling.productStreamId'() {
-            this.loadStreamPreview();
+            if (!this.useManualAssignment) {
+                this.loadStreamPreview();
+            }
         }
     },
 
@@ -97,7 +114,10 @@ Component.register('sw-product-cross-selling-form', {
 
     methods: {
         createdComponent() {
-            this.loadStreamPreview();
+            this.useManualAssignment = this.crossSelling.type === 'productList';
+            if (!this.useManualAssignment && this.crossSelling.productStreamId !== null) {
+                this.loadStreamPreview();
+            }
         },
 
         onShowDeleteModal() {
@@ -149,6 +169,10 @@ Component.register('sw-product-cross-selling-form', {
 
         onSortingChanged(value) {
             [this.crossSelling.sortBy, this.crossSelling.sortDirection] = value.split(':');
+        },
+
+        onTypeChanged(value) {
+            this.useManualAssignment = value === 'productList';
         }
     }
 });

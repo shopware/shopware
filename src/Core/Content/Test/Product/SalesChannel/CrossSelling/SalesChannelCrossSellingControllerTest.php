@@ -45,6 +45,7 @@ class SalesChannelCrossSellingControllerTest extends TestCase
             'name' => 'Test Cross Selling',
             'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
             'sortDirection' => FieldSorting::ASCENDING,
+            'type' => 'productStream',
             'active' => true,
             'limit' => 3,
             'productStreamId' => $this->createProductStream(),
@@ -84,12 +85,14 @@ class SalesChannelCrossSellingControllerTest extends TestCase
             'id' => $crossSellingIds[0],
             'name' => 'First Cross Selling',
             'position' => 1,
+            'type' => 'productStream',
             'active' => true,
             'productStreamId' => $this->createProductStream(),
         ], [
             'id' => $crossSellingIds[1],
             'name' => 'Second Cross Selling',
             'position' => 2,
+            'type' => 'productStream',
             'active' => true,
             'productStreamId' => $this->createProductStream(),
         ]];

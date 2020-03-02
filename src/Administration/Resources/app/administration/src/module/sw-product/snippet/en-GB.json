@@ -288,15 +288,17 @@
       }
     },
     "crossselling": {
-      "cardTitleCrossSelling": "Cross selling",
-      "buttonAddCrossSelling": "Add new cross selling",
+      "cardTitleCrossSelling": "Cross Selling",
+      "buttonAddCrossSelling": "Add new Cross Selling",
       "buttonDeleteCrossSelling": "Delete",
-      "inputCrossSellingTitle": "Title",
+      "inputCrossSellingTitle": "Name",
       "inputCrossSellingActive": "Active",
+      "inputCrossSellingType": "Type",
       "inputCrossSellingPosition": "Position",
       "inputCrossSellingSorting": "Sorting",
       "inputCrossSellingProductStream": "Product group",
-      "inputCrossSellingTitlePlaceholder": "Select a title...",
+      "inputCrossSellingProductList": "Product assignment",
+      "inputCrossSellingTitlePlaceholder": "Enter a name...",
       "inputCrossSellingPositionPlaceholder": "Select a position...",
       "inputCrossSellingProductStreamPlaceholder": "Select a dynamic product group...",
       "popularitySortingType": "Popularity",
@@ -304,14 +306,18 @@
       "priceAscendingSortingType": "Price, ascending",
       "priceDescendingSortingType": "Price, descending",
       "nameSortingType": "Name",
+      "productStreamType": "Dynamic product group",
+      "productListType": "Manual selection",
       "releaseDateAscendingSortingType": "Release date, ascending",
       "releaseDateDescendingSortingType": "Release date, descending",
-      "deleteConfirmTitle": "Delete cross selling",
+      "deleteConfirmTitle": "Delete Cross Selling",
       "deleteConfirmText": "Are you sure you want to delete the cross selling configuration?",
       "deleteButtonCancel": "Cancel",
       "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
-      "emptyStateDescription": "This product has no cross selling configured yet."
+      "emptyStateDescription": "No Cross Selling configured for this product.",
+      "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
+      "assignPlaceholder": "Search products..."
     }
   }
 }

@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-product-cross-selling-assignment {
+    .sw-product-cross-selling-assignment__empty-state,
+    .sw-product-cross-selling-assignment__option-list-empty-state {
+        position: relative;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+    }
+
+    .sw-product-cross-selling-assignment__select-container {
+        .icon--small-default-checkmark-line-medium {
+            position: absolute;
+            right: 0;
+        }
+    }
+}

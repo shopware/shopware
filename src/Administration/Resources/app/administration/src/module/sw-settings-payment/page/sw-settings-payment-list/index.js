@@ -98,7 +98,7 @@ Component.register('sw-settings-payment-list', {
         onPositionChanged: utils.debounce(function syncPayment(payment) {
             this.payment = payment;
 
-            this.paymentRepository.sync(payment, this.context)
+            this.paymentRepository.sync(payment, Shopware.Context.api)
                 .then(this.getList)
                 .catch(() => {
                     this.getList();

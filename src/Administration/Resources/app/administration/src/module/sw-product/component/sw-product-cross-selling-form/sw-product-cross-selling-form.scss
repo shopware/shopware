@@ -23,6 +23,10 @@
         }
     }
 
+    .sw-product-detail-cross-selling__active-switch {
+        display: flex;
+    }
+
     .sw-product-cross-selling-form__links {
         .sw-card__quick-link:first-child {
             margin-top: 0;

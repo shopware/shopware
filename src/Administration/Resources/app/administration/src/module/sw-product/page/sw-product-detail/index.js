@@ -122,7 +122,10 @@ Component.register('sw-product-detail', {
                 .addFilter(Criteria.equals('isCanonical', true));
 
             criteria.getAssociation('crossSellings')
-                .addSorting(Criteria.sort('position', 'ASC'));
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .getAssociation('assignedProducts')
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .addAssociation('product');
 
             criteria
                 .addAssociation('categories')
@@ -467,6 +470,7 @@ Component.register('sw-product-detail', {
                 this.productRepository.save(this.product, Shopware.Context.api).then(() => {
                     this.loadAll().then(() => {
                         Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
+
                         resolve('success');
                     });
                 }).catch((response) => {

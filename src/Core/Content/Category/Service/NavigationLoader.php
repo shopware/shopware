@@ -106,6 +106,7 @@ class NavigationLoader implements NavigationLoaderInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('category.parentId', $categoryId));
+        $criteria->addAssociation('media');
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $context)->getEntities();

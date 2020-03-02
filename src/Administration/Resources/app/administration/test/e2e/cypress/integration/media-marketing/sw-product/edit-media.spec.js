@@ -2,12 +2,6 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
 describe('Product: Edit product media', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -221,21 +215,20 @@ describe('Product: Edit product media', () => {
         });
         runOn('firefox', () => {
             // Upload medium
-            cy.get('.sw-media-upload__switch-mode').click();
+            cy.get('.sw-media-upload-v2__content .sw-context-button__button').click();
             cy.contains('Upload file from URL').click();
             cy.get('input[name=sw-field--url]').should('be.visible')
                 .type(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
             cy.get('.sw-media-url-form__submit-button').click();
 
-            cy.get('.sw-media-preview__placeholder').should('be.visible');
+            cy.awaitAndCheckNotification('File has been saved.');
             cy.get('.sw-media-preview__placeholder').should('not.exist');
 
-            cy.get('.sw-media-preview__item').should('be.visible');
+            cy.get('.sw-media-preview-v2').should('be.visible');
         });
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
-        cy.awaitAndCheckNotification('File has been saved.');
 
         // Save product
         cy.get(page.elements.productSaveAction).click();

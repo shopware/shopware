@@ -10,9 +10,6 @@ describe('Category: Create several categories', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
             });
     });

@@ -13,3 +13,11 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 require('@shopware-ag/e2e-testsuite-platform/cypress/support');
+
+const runOn = (browser, fn) => {
+    if (Cypress.isBrowser(browser)) {
+        fn()
+    }
+};
+
+global.runOn = runOn;

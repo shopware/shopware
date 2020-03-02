@@ -2,12 +2,6 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
 describe('Product: Test crud operations', () => {
     beforeEach(() => {
         cy.setToInitialState()

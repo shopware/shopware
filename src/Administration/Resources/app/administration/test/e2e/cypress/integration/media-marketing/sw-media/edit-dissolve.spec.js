@@ -2,12 +2,6 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
 describe('Media: Dissolve folder', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -40,8 +34,8 @@ describe('Media: Dissolve folder', () => {
         runOn('firefox', () => {
             // Upload medium
             cy.clickContextMenuItem(
-                '.sw-media-upload__button-url-upload',
-                '.sw-media-upload__button-context-menu'
+                '.sw-media-upload-v2__button-url-upload',
+                '.sw-media-upload-v2__button-context-menu'
             );
             page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
         });

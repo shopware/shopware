@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const uuid = require('uuid/v4');
 
 /**

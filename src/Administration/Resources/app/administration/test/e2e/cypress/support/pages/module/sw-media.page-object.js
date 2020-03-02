@@ -35,9 +35,6 @@ export default class MediaPageObject extends GeneralPageObject {
             .type(path);
         cy.get('.sw-media-url-form__submit-button').click();
 
-        cy.get('.sw-media-preview-v2__placeholder').should('be.visible');
-        cy.get('.sw-media-preview-v2__placeholder').should('not.exist');
-
         cy.get('.sw-media-preview-v2__item').should('be.visible');
         return this;
     }
@@ -54,8 +51,7 @@ export default class MediaPageObject extends GeneralPageObject {
                 }
             );
         });
-        cy.get('.sw-media-preview-v2__placeholder').should('be.visible');
-        cy.get('.sw-media-preview-v2__placeholder').should('not.exist');
+
         cy.get('.sw-media-preview-v2__item').should('be.visible');
 
         return this;

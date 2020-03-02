@@ -2,12 +2,6 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
 runOn('chrome', () => {
     describe('Media: Move folder and image', () => {
         beforeEach(() => {
@@ -74,14 +68,17 @@ runOn('chrome', () => {
                 page.elements.contextMenuButton,
                 `${page.elements.gridItem}--0`
             );
+            cy.get(page.elements.loader).should('not.exist');
             cy.get(page.elements.smartBarHeader).contains('2nd folder');
             cy.get(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`).contains('1st folder');
             cy.get(`${page.elements.gridItem}--1 ${page.elements.baseItemName}`).contains('sw-test-image.png');
+
             cy.clickContextMenuItem(
                 page.elements.showMediaAction,
                 page.elements.contextMenuButton,
                 `${page.elements.gridItem}--0`
             );
+            cy.get(page.elements.loader).should('not.exist');
             cy.get(page.elements.smartBarHeader).contains('1st folder');
             cy.get(`${page.elements.gridItem}--0 ${page.elements.baseItemName}`)
                 .contains('sw-login-background.png');

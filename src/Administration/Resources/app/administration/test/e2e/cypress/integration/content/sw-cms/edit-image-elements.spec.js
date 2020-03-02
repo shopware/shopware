@@ -2,12 +2,6 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
 runOn('chrome', () => {
     describe('CMS: Check usage and editing of image elements', () => {
         beforeEach(() => {
@@ -145,7 +139,7 @@ runOn('chrome', () => {
                     }
                 );
             });
-            cy.get('.sw-media-preview__item[alt="sw-login-background"]').should('be.visible');
+            cy.get('.sw-media-preview-v2__item[alt="sw-login-background"]').should('be.visible');
 
             cy.fixture('img/sw-test-image.png').then(fileContent => {
                 cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`).upload(
@@ -158,7 +152,7 @@ runOn('chrome', () => {
                     }
                 );
             });
-            cy.get('.sw-media-preview__item[alt="sw-test-image"]').should('be.visible');
+            cy.get('.sw-media-preview-v2__item[alt="sw-test-image"]').should('be.visible');
 
             cy.fixture('img/sw-storefront-en.jpg').then(fileContent => {
                 cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`).upload(
@@ -171,7 +165,7 @@ runOn('chrome', () => {
                     }
                 );
             });
-            cy.get('.sw-media-preview__item[alt="sw-storefront-en"]').should('be.visible');
+            cy.get('.sw-media-preview-v2__item[alt="sw-storefront-en"]').should('be.visible');
 
             cy.awaitAndCheckNotification('File has been saved.');
             cy.get('.sw-modal__footer .sw-button--primary').click();

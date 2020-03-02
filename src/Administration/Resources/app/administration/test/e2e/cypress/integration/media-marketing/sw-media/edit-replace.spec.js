@@ -2,12 +2,6 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
 runOn('chrome', () => {
     describe('Media: Replace media', () => {
         beforeEach(() => {
@@ -67,7 +61,7 @@ runOn('chrome', () => {
 
             // Verify image is about to be replaced
             cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');
-            cy.get('.sw-media-modal-replace .sw-media-preview__item').should('be.visible');
+            cy.get('.sw-media-modal-replace .sw-media-preview-v2__item').should('be.visible');
 
             // Click replace button and upload new image
             cy.get('.sw-media-modal-replace .sw-media-replace__replace-media-action').click();
@@ -125,7 +119,7 @@ runOn('chrome', () => {
 
             // Verify image is about to be replaced
             cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');
-            cy.get('.sw-media-modal-replace .sw-media-preview__item').should('be.visible');
+            cy.get('.sw-media-modal-replace .sw-media-preview-v2__item').should('be.visible');
 
             // Verify warning for different file extension is shown
             cy.get('.sw-media-modal-replace .sw-media-modal-replace__file-extension-warning').contains('(jpg)');

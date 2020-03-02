@@ -11,6 +11,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 **Addition / Changes**
 
+* Administration
+    * Fixed VAT Information in default order confirmation mail templates
+
 * Core
     * Fix updater language to use the admin user language
     * Fix gzip unpacking error in sitemap

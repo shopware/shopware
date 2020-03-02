@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -112,8 +113,9 @@ class NavigationPageLoader
 
     private function loadCategory(string $categoryId, SalesChannelContext $context): CategoryEntity
     {
-        $criteria = new Criteria([$categoryId]);
-        $criteria->addAssociation('media');
+        $criteria = (new Criteria([$categoryId]))
+            ->addAssociation('media')
+            ->addFilter(new EqualsFilter('active', true));
 
         $category = $this->categoryRepository->search($criteria, $context)->get($categoryId);
 

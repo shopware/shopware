@@ -140,10 +140,55 @@ As the value of this attribute use the options you want to override as a json ob
 ```twig
 {% sw_extends '@Storefront/storefront/page/product-detail/index.html.twig' %}
 
+{% set examplePluginOptions = {
+    text: "Are you not interested in this product?"
+} %}
+
 {% block page_product_detail_content %}
     {{ parent() }}
 
-    <template data-example-plugin data-example-plugin-options='{ "text": "Are you not interested in this product?" }'></template>
+    <template data-example-plugin data-example-plugin-options='{{ examplePluginOptions|json_encode }}'></template>
+{% endblock %}
+```
+
+It is best practice to use a variable for the options because this is extendable from plugins.
+
+## Modify existing options
+
+You can use the `replace_recursive` Twig filter for changing existing options.
+
+```twig
+{% set productSliderOptions = {
+    productboxMinWidth: sliderConfig.elMinWidth.value ? sliderConfig.elMinWidth.value : '',
+    slider: {
+        gutter: 30,
+        autoplayButtonOutput: false,
+        nav: false,
+        mouseDrag: false,
+        controls: sliderConfig.navigation.value ? true : false,
+        autoplay: sliderConfig.rotate.value ? true : false
+    }
+} %}
+
+{% block element_product_slider_slider %}
+    <div class="base-slider"
+         data-product-slider="true"
+         data-product-slider-options="{{ productSliderOptions|json_encode }}">
+    </div>
+{% endblock %}
+```
+
+Now the variable can be overwritten with `replace_recursive`:
+
+```twig
+{% block element_product_slider_slider %}
+    {% set productSliderOptions = productSliderOptions|replace_recursive({
+        slider: {
+            mouseDrag: true
+        }
+    }) %}
+
+    {{ parent() }}
 {% endblock %}
 ```
 

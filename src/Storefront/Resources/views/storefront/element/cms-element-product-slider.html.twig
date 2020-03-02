@@ -8,68 +8,81 @@
             {% if config.verticalAlign.value %}
                 <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
-                <div class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigation.value %} has-nav{% endif %}"
-                     data-product-slider="true"
-                     data-product-slider-options='{
-                        {% if sliderConfig.elMinWidth.value %}"productboxMinWidth": "{{ sliderConfig.elMinWidth.value }}",{% endif %}
-                        "slider": {
-                            "gutter": 30,
-                            "autoplayButtonOutput": false,
-                            "nav": false,
-                            "controls": {% if sliderConfig.navigation.value %}true{% else %}false{% endif %},
-                            {% if not sliderConfig.navigation.value %}"mouseDrag": true,{% endif %}
-                            "autoplay": {% if sliderConfig.rotate.value %}true{% else %}false{% endif %}
+
+                {% set productSliderOptions = {
+                    productboxMinWidth: sliderConfig.elMinWidth.value ? sliderConfig.elMinWidth.value : '',
+                    slider: {
+                        gutter: 30,
+                        autoplayButtonOutput: false,
+                        nav: false,
+                        mouseDrag: false,
+                        controls: sliderConfig.navigation.value ? true : false,
+                        autoplay: sliderConfig.rotate.value ? true : false
+                    }
+                } %}
+
+                {% if not sliderConfig.navigation.value %}
+                    {% set productSliderOptions = productSliderOptions|replace_recursive({
+                        slider: {
+                            mouseDrag: true
                         }
-                     }'>
+                    }) %}
+                {% endif %}
 
-                    {% block element_product_slider_title %}
-                        {% if sliderConfig.title.value %}
-                            <div class="cms-element-title">
-                                <p class="cms-element-title-paragraph">{{ sliderConfig.title.value }}</p>
-                            </div>
-                        {% endif %}
-                    {% endblock %}
+                {% block element_product_slider_slider %}
+                    <div class="base-slider product-slider{% if sliderConfig.border.value %} has-border{% endif %}{% if sliderConfig.navigation.value %} has-nav{% endif %}"
+                         data-product-slider="true"
+                         data-product-slider-options="{{ productSliderOptions|json_encode }}">
 
-                    {% block element_product_slider_inner %}
-                        {% block element_product_slider_element %}
-                            <div class="product-slider-container"
-                                 data-product-slider-container="true">
-                                {% for product in element.data.products.elements %}
-                                    {% block element_product_slider_inner_item %}
-                                        <div class="product-slider-item">
-                                            {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                'layout': sliderConfig.boxLayout.value,
-                                                'displayMode': sliderConfig.displayMode.value
-                                            } %}
-                                        </div>
-                                    {% endblock %}
-                                {% endfor %}
-                            </div>
-                        {% endblock %}
-
-                        {% block element_product_slider_controls %}
-                            {% if sliderConfig.navigation.value %}
-                                <div class="product-slider-controls-container">
-                                    <div class="base-slider-controls"
-                                         data-product-slider-controls="true">
-                                        {% block element_product_slider_controls_items %}
-                                            <button class="base-slider-controls-prev product-slider-controls-prev{% if sliderConfig.border.value %} has-border{% endif %}">
-                                                {% block element_product_slider_controls_items_prev_icon %}
-                                                    {% sw_icon 'arrow-head-left' %}
-                                                {% endblock %}
-                                            </button>
-                                            <button class="base-slider-controls-next product-slider-controls-next{% if sliderConfig.border.value %} has-border{% endif %}">
-                                                {% block element_product_slider_controls_items_next_icon %}
-                                                    {% sw_icon 'arrow-head-right' %}
-                                                {% endblock %}
-                                            </button>
-                                        {% endblock %}
-                                    </div>
+                        {% block element_product_slider_title %}
+                            {% if sliderConfig.title.value %}
+                                <div class="cms-element-title">
+                                    <p class="cms-element-title-paragraph">{{ sliderConfig.title.value }}</p>
                                 </div>
                             {% endif %}
                         {% endblock %}
-                    {% endblock %}
-                </div>
+
+                        {% block element_product_slider_inner %}
+                            {% block element_product_slider_element %}
+                                <div class="product-slider-container"
+                                     data-product-slider-container="true">
+                                    {% for product in element.data.products.elements %}
+                                        {% block element_product_slider_inner_item %}
+                                            <div class="product-slider-item">
+                                                {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                    'layout': sliderConfig.boxLayout.value,
+                                                    'displayMode': sliderConfig.displayMode.value
+                                                } %}
+                                            </div>
+                                        {% endblock %}
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+
+                            {% block element_product_slider_controls %}
+                                {% if sliderConfig.navigation.value %}
+                                    <div class="product-slider-controls-container">
+                                        <div class="base-slider-controls"
+                                             data-product-slider-controls="true">
+                                            {% block element_product_slider_controls_items %}
+                                                <button class="base-slider-controls-prev product-slider-controls-prev{% if sliderConfig.border.value %} has-border{% endif %}">
+                                                    {% block element_product_slider_controls_items_prev_icon %}
+                                                        {% sw_icon 'arrow-head-left' %}
+                                                    {% endblock %}
+                                                </button>
+                                                <button class="base-slider-controls-next product-slider-controls-next{% if sliderConfig.border.value %} has-border{% endif %}">
+                                                    {% block element_product_slider_controls_items_next_icon %}
+                                                        {% sw_icon 'arrow-head-right' %}
+                                                    {% endblock %}
+                                                </button>
+                                            {% endblock %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
             {% if config.verticalAlign.value %}
                 </div>
             {% endif %}

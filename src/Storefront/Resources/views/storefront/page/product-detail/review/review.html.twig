@@ -73,6 +73,11 @@
                                     {% block page_product_detail_review_list %}
                                         {% block page_product_detail_review_list_actions %}
                                             <div class="row align-items-center product-detail-review-actions">
+                                                {% set formAjaxSubmitOptions = {
+                                                    replaceSelectors: [".js-review-container"],
+                                                    submitOnChange: true
+                                                } %}
+
                                                 {% block page_product_detail_review_list_action_language %}
                                                     <div class="col product-detail-review-language">
                                                         {% if foreignReviewsCount > 0 %}
@@ -80,10 +85,7 @@
                                                                   action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                                   method="post"
                                                                   data-form-ajax-submit="true"
-                                                                  data-form-ajax-submit-options='{
-                                                                      "replaceSelectors": [".js-review-container"],
-                                                                      "submitOnChange": true
-                                                                  }'>
+                                                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                                 {% block page_product_detail_review_list_action_language_csrf %}
                                                                     {{ sw_csrf('frontend.product.reviews') }}
@@ -119,19 +121,21 @@
 
                                                 {% block page_product_detail_review_list_action_sortby %}
                                                     <div class="col-12 col-md-auto product-detail-review-sortby">
+                                                        {% set formAjaxSubmitOptions = {
+                                                            replaceSelectors: [
+                                                                ".js-review-info",
+                                                                ".js-review-teaser",
+                                                                ".js-review-content"
+                                                            ],
+                                                            submitOnChange: true
+                                                        } %}
+
                                                         {% block page_product_detail_review_list_action_sortby_form %}
                                                             <form class="form-inline product-detail-review-sortby-form"
                                                                   action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                                   method="post"
                                                                   data-form-ajax-submit="true"
-                                                                  data-form-ajax-submit-options='{
-                                                                      "replaceSelectors": [
-                                                                        ".js-review-info",
-                                                                        ".js-review-teaser",
-                                                                        ".js-review-content"
-                                                                      ],
-                                                                      "submitOnChange": true
-                                                                  }'>
+                                                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                                 {% block page_product_detail_review_list_action_sortby_form_csrf %}
                                                                     {{ sw_csrf('frontend.product.reviews') }}
@@ -208,44 +212,48 @@
                                             {% set totalPages = (reviews.total/criteria.limit)|round(0,'ceil') %}
 
                                             {% if totalPages > 1 %}
-                                                <div class="product-detail-review-pagination">
-                                                    <form class="product-detail-review-pagination-form"
-                                                          action="{{ path('frontend.product.reviews', { productId: reviews.productId }) }}"
-                                                          method="post"
-                                                          data-form-ajax-submit="true"
-                                                          data-form-ajax-submit-options='{
-                                                              "replaceSelectors": ".js-review-container",
-                                                              "submitOnChange": true
-                                                          }'>
+                                                {% set formAjaxSubmitOptions = {
+                                                    replaceSelectors: ".js-review-container",
+                                                    submitOnChange: true
+                                                } %}
 
-                                                        {% block page_product_detail_review_list_paging_csrf %}
-                                                            {{ sw_csrf('frontend.product.reviews') }}
-                                                        {% endblock %}
+                                                {% block page_product_detail_review_list_paging_form %}
+                                                    <div class="product-detail-review-pagination">
+                                                        <form class="product-detail-review-pagination-form"
+                                                              action="{{ path('frontend.product.reviews', { productId: reviews.productId }) }}"
+                                                              method="post"
+                                                              data-form-ajax-submit="true"
+                                                              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
-                                                        {% if app.request.get('limit') %}
-                                                            <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                        {% endif %}
+                                                            {% block page_product_detail_review_list_paging_csrf %}
+                                                                {{ sw_csrf('frontend.product.reviews') }}
+                                                            {% endblock %}
 
-                                                        {% if app.request.get('language') %}
-                                                            <input type="hidden" name="language" value="{{ app.request.get('language') }}">
-                                                        {% endif %}
+                                                            {% if app.request.get('limit') %}
+                                                                <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
+                                                            {% endif %}
 
-                                                        {% if app.request.get('sort') %}
-                                                            <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
-                                                        {% endif %}
+                                                            {% if app.request.get('language') %}
+                                                                <input type="hidden" name="language" value="{{ app.request.get('language') }}">
+                                                            {% endif %}
 
-                                                        {% if app.request.get('points') %}
-                                                            {% for points in app.request.get('points') %}
-                                                                <input type="hidden" name="points[]" value="{{ points }}">
-                                                            {% endfor %}
-                                                        {% endif %}
+                                                            {% if app.request.get('sort') %}
+                                                                <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
+                                                            {% endif %}
 
-                                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                                            entities: reviews,
-                                                            criteria: reviews.criteria
-                                                        }  %}
-                                                    </form>
-                                                </div>
+                                                            {% if app.request.get('points') %}
+                                                                {% for points in app.request.get('points') %}
+                                                                    <input type="hidden" name="points[]" value="{{ points }}">
+                                                                {% endfor %}
+                                                            {% endif %}
+
+                                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                                                entities: reviews,
+                                                                criteria: reviews.criteria
+                                                            }  %}
+                                                        </form>
+                                                    </div>
+                                                {% endblock %}
                                             {% endif %}
                                         {% endblock %}
                                     {% endblock %}

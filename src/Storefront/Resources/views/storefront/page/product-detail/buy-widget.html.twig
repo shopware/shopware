@@ -121,6 +121,11 @@
                         </div>
                     {% endblock %}
 
+                    {% set remoteClickOptions = {
+                        selector: "#review-tab",
+                        scrollToElement: true
+                    } %}
+
                     {% block page_product_detail_reviews %}
                         {% if page.product.ratingAverage > 0 and shopware.config.detail.showReviews %}
                             <p class="product-detail-reviews">
@@ -132,10 +137,7 @@
                                    class="product-detail-reviews-link"
                                    data-offcanvas-tabs="true"
                                    data-remote-click="true"
-                                   data-remote-click-options='{
-                                        "selector": "#review-tab",
-                                        "scrollToElement": true
-                                    }'
+                                   data-remote-click-options='{{ remoteClickOptions|json_encode }}'
                                    href="#review-tab-pane"
                                    aria-controls="review-tab-pane">
                                     {{ page.reviews.totalReviews}}

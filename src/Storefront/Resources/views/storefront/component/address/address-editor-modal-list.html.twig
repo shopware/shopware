@@ -38,14 +38,16 @@
                                                                         {% block component_address_address_editor_modal_list_address_action_billing %}
                                                                             {% if changeBilling %}
                                                                                 <div class="col-sm-6">
+                                                                                    {% set formAjaxSubmitOptions = {
+                                                                                        replaceSelectors: '.js-address-editor'
+                                                                                    }%}
+
                                                                                     {% block component_address_address_editor_modal_list_address_action_billing_form %}
                                                                                         <form action="{{ path('frontend.account.addressbook') }}"
                                                                                               class="js-close-address-editor"
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"
-                                                                                              data-form-ajax-submit-options='{
-                                                                                                  "replaceSelectors": ".js-address-editor"
-                                                                                              }'>
+                                                                                              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                                                             {% block component_address_address_editor_modal_list_address_action_billing_form_csrf %}
                                                                                                 {{ sw_csrf('frontend.account.addressbook') }}
@@ -86,14 +88,16 @@
                                                                         {% block component_address_address_editor_modal_list_address_action_shipping %}
                                                                             {% if changeShipping %}
                                                                                 <div class="col-6">
+                                                                                    {% set formAjaxSubmitOptions = {
+                                                                                        replaceSelectors: '.js-address-editor'
+                                                                                    } %}
+
                                                                                     {% block component_address_address_editor_modal_list_address_action_shipping_form %}
                                                                                         <form action="{{ path('frontend.account.addressbook') }}"
                                                                                               class="js-close-address-editor"
                                                                                               method="post"
                                                                                               data-form-ajax-submit="true"
-                                                                                              data-form-ajax-submit-options='{
-                                                                                                  "replaceSelectors": ".js-address-editor"
-                                                                                              }'>
+                                                                                              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                                                             {% block component_address_address_editor_modal_list_address_action_shipping_form_csrf %}
                                                                                                 {{ sw_csrf('frontend.account.addressbook') }}

@@ -62,15 +62,17 @@
 
                 {% block page_account_order_item_actions %}
                     <div class="col-12 col-md order-item order-item-actions">
+                        {% set formAjaxSubmitOptions = {
+                            replaceSelectors: ".js-order-detail-container-#{order.id}",
+                            submitOnce: true
+                        } %}
+
                         {% block page_account_order_item_actions_value %}
                             <form action="{{ path('widgets.account.order.detail', { id: order.id }) }}"
                                   class="order-detail-form"
                                   method="get"
                                   data-form-ajax-submit="true"
-                                  data-form-ajax-submit-options='{
-                                        "replaceSelectors": ".js-order-detail-container-{{ order.id }}",
-                                        "submitOnce": true
-                                  }'>
+                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
                                 <button class="btn btn-light btn-sm order-hide-btn collapsed"
                                         type="submit"
                                         data-toggle="collapse"

@@ -49,6 +49,51 @@
                 <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
+
+                {% set gallerySliderOptions = {
+                    slider: {
+                        navPosition: 'bottom',
+                        speed: 500,
+                        gutter: gutter ? gutter : 0,
+                        controls: navigationArrows ? true : false,
+                        autoHeight: false,
+                        startIndex: startIndexThumbnails ? startIndexThumbnails : null
+                    },
+                    thumbnailSlider: {
+                        autoWidth: (galleryPosition == "underneath") ? true : false,
+                        controls: (galleryPosition == "underneath") ? false : true,
+                        startIndex: startIndexThumbnails ? startIndexThumbnails : null,
+                        responsive: {
+                            xs: {
+                                enabled: false,
+                                controls: false
+                            },
+                            sm: {
+                                enabled: false,
+                                controls: false
+                            }
+                        }
+                    }
+                } %}
+
+                {% if galleryPosition == "left" %}
+                    {% set gallerySliderOptions = gallerySliderOptions|replace_recursive({
+                        thumbnailSlider: {
+                            responsive: {
+                                md: {
+                                    axis: 'vertical'
+                                },
+                                lg: {
+                                    axis: 'vertical'
+                                },
+                                xl: {
+                                    axis: 'vertical'
+                                }
+                            }
+                        }
+                    }) %}
+                {% endif %}
+
                 {% block element_image_gallery_inner %}
                     <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
                             {% if zoom %}
@@ -59,46 +104,7 @@
                             {% endif %}
                             {% if imageCount > 1 %}
                                 data-gallery-slider="true"
-                                data-gallery-slider-options='{
-                                "slider": {
-                                    "navPosition": "bottom",
-                                    "speed": 500,
-                                    "gutter": {% if gutter %} {{ gutter }} {% else %} 0 {% endif %},
-                                    "controls": {% if navigationArrows %}true{% else %}false{% endif %},
-                                    "autoHeight": {% if displayMode == "standard" %}true{% else %}false{% endif %}
-                                    {% if startIndexThumbnails %}
-                                    ,"startIndex": {{ startIndexThumbnails }}
-                                    {% endif %}
-                                },
-                                "thumbnailSlider": {
-                                    {% if galleryPosition == "underneath" %}
-                                    "autoWidth": true,
-                                    "controls": false,
-                                    {% endif %}
-                                    {% if startIndexThumbnails %}
-                                    "startIndex": {{ startIndexThumbnails }},
-                                    {% endif %}
-                                    "responsive": {
-                                        "xs": {
-                                            "enabled": false,
-                                            "controls": false
-                                        },
-                                        "sm": {
-                                            "enabled": false,
-                                            "controls": false
-                                        }{% if galleryPosition == "left" %},
-                                        "md": {
-                                            "axis": "vertical"
-                                        },
-                                        "lg": {
-                                            "axis": "vertical"
-                                        },
-                                        "xl": {
-                                            "axis": "vertical"
-                                        }{% endif %}
-                                    }
-                                }
-                            }'
+                                data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'
                             {% endif %}>
 
                         {% block element_image_gallery_inner_col %}

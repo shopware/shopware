@@ -16,6 +16,10 @@
                     </div>
                 {% endblock %}
 
+                {% set formAjaxSubmitOptions = {
+                    replaceSelectors: '.js-address-editor'
+                } %}
+
                 {% block component_address_address_editor_modal_create_address_card_body %}
                     <div class="card-body">
                         {% block component_address_address_editor_modal_create_address_form %}
@@ -23,9 +27,7 @@
                                   action="{{ path('frontend.account.addressbook') }}"
                                   class="js-close-address-editor"
                                   data-form-ajax-submit="true"
-                                  data-form-ajax-submit-options='{
-                                      "replaceSelectors": ".js-address-editor"
-                                  }'>
+                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                 {% block component_address_address_editor_modal_create_address_form_csrf %}
                                     {{ sw_csrf('frontend.account.addressbook') }}

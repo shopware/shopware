@@ -2,21 +2,23 @@
     {%  set sliderConfig = element.fieldConfig.elements %}
 
     <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
+        {% set baseSliderOptions = {
+            slider: {
+                navPosition: 'bottom',
+                speed: 500,
+                nav: sliderConfig.navigationDots.value ? true : false,
+                controls: sliderConfig.navigationArrows.value ? true : false,
+                autoHeight: (sliderConfig.displayMode.value == "standard") ? true : false
+            }
+        } %}
+
         {% block element_image_slider_alignment %}
             {% if config.verticalAlign.value %}
                 <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {%  endif %}
                 <div class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
                      data-base-slider="true"
-                     data-base-slider-options='{
-                        "slider": {
-                            "navPosition": "bottom",
-                            "speed": 500,
-                            "nav": {% if sliderConfig.navigationDots.value %}true{% else %}false{% endif %},
-                            "controls": {% if sliderConfig.navigationArrows.value %}true{% else %}false{% endif %},
-                            "autoHeight": {% if sliderConfig.displayMode.value == "standard" %}true{% else %}false{% endif %}
-                        }
-                    }'>
+                     data-base-slider-options='{{ baseSliderOptions|json_encode }}'>
 
                     {% block element_image_slider_inner %}
                         <div class="image-slider-container"

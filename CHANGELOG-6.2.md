@@ -344,6 +344,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
     * Added JS plugin to add a Google Analytics integration: `google-analytics.plugin.js` 
     * Added additional data to the JS plugin events `SearchWidget::handleInputEvent`, `FormValidation::onFormSubmit` and `AddToCart::beforeFormSubmit`
+    * Added Twig Filter `replace_recursive` for editing values in nested Arrays
+    * All javascript plugin options can now be overwritten in Twig 
 
 **Removals**
 

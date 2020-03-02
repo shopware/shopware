@@ -438,7 +438,8 @@
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Weight of cart",
         "dayOfWeekRule": "Day of the week",
-        "lineItemTagRule": "Line item tag"
+        "lineItemTagRule": "Line item tag",
+        "alwaysValidRule": "Always valid"
       }
     },
     "sw-product-image": {

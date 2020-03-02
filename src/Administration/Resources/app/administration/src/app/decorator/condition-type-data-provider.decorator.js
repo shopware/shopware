@@ -161,5 +161,10 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemTagRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('alwaysValid', {
+        component: 'sw-condition-is-always-valid',
+        label: 'global.sw-condition.condition.alwaysValidRule',
+        scopes: ['global']
+    });
     return ruleConditionService;
 });

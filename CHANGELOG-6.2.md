@@ -432,6 +432,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed computed property `uploadStore` from component `sw-product-variants-delivery-media` 
     * Removed computed property `uploadStore` from component `sw-property-option-detail` 
     * Removed computed property `mediaStore` from component `sw-property-option-detail` 
+    * Fix endless loading spinner in categories when user changes content language without having a category selected
 
 * Core
     *

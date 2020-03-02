@@ -207,10 +207,7 @@ class CacheStore implements StoreInterface
         $hash = 'md' . hash('sha256', $uri);
 
         $event = new HttpCacheGenerateKeyEvent($hash, $request);
-        $this->eventDispatcher->dispatch(
-            $event,
-            CacheEvents::CACHE_GENERATE_KEY_EVENT
-        );
+        $this->eventDispatcher->dispatch($event);
         $hash = $event->getHash();
 
         if ($request->cookies->has(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE)) {

@@ -12,17 +12,19 @@
     {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans|sw_sanitize %}
 {% endif %}
 
+{% set filterRatingOptions = {
+    name: name,
+    maxPoints: maxPoints,
+    snippets: {
+        filterRatingActiveLabelStart: filterRatingActiveLabelStart,
+        filterRatingActiveLabelEnd: filterRatingActiveLabelEnd,
+    }
+} %}
+
 {% block component_filter_rating %}
     <div class="filter-rating filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-filter-rating="true"
-         data-filter-rating-options='{
-            "name": "{{ name }}",
-            "maxPoints": "{{ maxPoints }}",
-            "snippets": {
-                "filterRatingActiveLabelStart": "{{ filterRatingActiveLabelStart }}",
-                "filterRatingActiveLabelEnd": "{{ filterRatingActiveLabelEnd }}"
-            }
-         }'>
+         data-filter-rating-options='{{ filterRatingOptions|json_encode }}'>
 
         {% block component_filter_rating_toggle %}
             <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"

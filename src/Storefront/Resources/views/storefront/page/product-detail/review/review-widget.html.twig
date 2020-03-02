@@ -37,6 +37,15 @@
 				<hr>
 			{% endif %}
 
+            {% set formAjaxSubmitOptions = {
+                replaceSelectors: [
+                    ".js-review-info",
+                    ".js-review-teaser",
+                    ".js-review-content"
+                ],
+                submitOnChange: true
+            } %}
+
 			{% block page_product_detail_review_filter %}
                 {% if productReviewCount > 0 %}
                     <div class="js-review-filter">
@@ -44,14 +53,7 @@
 						  action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
 						  method="post"
 						  data-form-ajax-submit="true"
-						  data-form-ajax-submit-options='{
-							  "replaceSelectors": [
-							    ".js-review-info",
-							    ".js-review-teaser",
-							    ".js-review-content"
-							  ],
-							  "submitOnChange": true
-						  }'>
+						  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                             {% block page_product_detail_review_filter_csrf %}
                                 {{ sw_csrf('frontend.product.reviews') }}

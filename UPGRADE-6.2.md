@@ -246,6 +246,43 @@ Storefront
 
 When you don´t specify a tab then it will be shown in the main tab.
 
+* Added Twig Filter `replace_recursive` for editing values in nested Arrays. This allows for editing
+js options in Twig:
+
+```twig
+{% set productSliderOptions = {
+    productboxMinWidth: sliderConfig.elMinWidth.value ? sliderConfig.elMinWidth.value : '',
+    slider: {
+        gutter: 30,
+        autoplayButtonOutput: false,
+        nav: false,
+        mouseDrag: false,
+        controls: sliderConfig.navigation.value ? true : false,
+        autoplay: sliderConfig.rotate.value ? true : false
+    }
+} %}
+
+{% block element_product_slider_slider %}
+    <div class="base-slider"
+         data-product-slider="true"
+         data-product-slider-options="{{ productSliderOptions|json_encode }}">
+    </div>
+{% endblock %}
+```
+
+Now the variable can be overwritten with `replace_recursive`:
+
+```twig
+{% block element_product_slider_slider %}
+    {% set productSliderOptions = productSliderOptions|replace_recursive({
+        slider: {
+            mouseDrag: true
+        }
+    }) %}
+
+    {{ parent() }}
+{% endblock %}
+```
 
 Refactorings
 ------------

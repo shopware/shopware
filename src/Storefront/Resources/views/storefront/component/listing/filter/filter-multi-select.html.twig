@@ -4,10 +4,14 @@
     {% set pluginSelector = 'filter-multi-select' %}
 {% endif %}
 
+{% set dataPluginSelectorOptions = {
+    name: name
+} %}
+
 {% block component_filter_multi_select %}
     <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}"
          data-{{ pluginSelector }}="true"
-         data-{{ pluginSelector }}-options='{ "name": "{{ name }}" }'>
+         data-{{ pluginSelector }}-options='{{ dataPluginSelectorOptions|json_encode }}'>
 
         {% block component_filter_multi_select_toggle %}
             <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"

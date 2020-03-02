@@ -18,15 +18,17 @@
 
                                 {% block page_account_overview_billing_address_actions %}
                                     <div class="card-actions">
+                                        {% set addressEditorOptions = {
+                                            changeBilling: true,
+                                            csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
+                                        } %}
+
                                         {% block page_account_overview_billing_address_actions_link %}
                                             <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultBillingAddress.id}) }}"
                                                title="{{ "account.overviewChangeBilling"|trans|striptags }}"
                                                class="btn btn-light"
                                                data-address-editor="true"
-                                               data-address-editor-options='{
-                                                    "changeBilling": true,
-                                                    "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
-                                                }'>
+                                               data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
                                                 {{ "account.overviewChangeBilling"|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
@@ -59,15 +61,17 @@
 
                                 {% block page_account_overview_shipping_address_actions %}
                                     <div class="card-actions">
+                                        {% set addressEditorOptions = {
+                                            changeShipping: true,
+                                            csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
+                                        } %}
+
                                         {% block page_account_overview_shipping_address_actions_link %}
                                             <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultShippingAddress.id}) }}"
                                                title="{{ "account.overviewChangeShipping"|trans|striptags }}"
                                                class="btn btn-light"
                                                data-address-editor="true"
-                                               data-address-editor-options='{
-                                                    "changeShipping": true,
-                                                    "csrfToken": "{{ sw_csrf("frontend.account.addressbook", {"mode": "token"}) }}"
-                                                }'>
+                                               data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
                                                 {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}

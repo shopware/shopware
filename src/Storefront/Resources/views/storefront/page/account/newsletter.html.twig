@@ -9,15 +9,17 @@
         {% endif %}
     {% endblock %}
 
+    {% set formAutoSubmitOptions = {
+        useAjax: true,
+        ajaxContainerSelector: '.js-newsletter-wrapper'
+    } %}
+
     {% block page_account_overview_newsletter_content_form %}
         <form name="newsletterRegister"
               method="post"
               action="{{ path("frontend.account.newsletter") }}"
               data-form-auto-submit="true"
-              data-form-auto-submit-options='{
-                  "useAjax": true,
-                  "ajaxContainerSelector": ".js-newsletter-wrapper"
-              }'>
+              data-form-auto-submit-options='{{ formAutoSubmitOptions|json_encode }}'>
 
             {% block page_account_overview_newsletter_content_form_csrf %}
                 {{ sw_csrf('frontend.account.newsletter') }}

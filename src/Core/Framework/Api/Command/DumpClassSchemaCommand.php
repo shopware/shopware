@@ -11,6 +11,7 @@ use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\Collection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -61,6 +62,10 @@ class DumpClassSchemaCommand extends Command
         $extends = class_parents($className);
 
         if (!isset($extends[Collection::class])) {
+            return null;
+        }
+
+        if (isset($extends[EntitySearchResult::class])) {
             return null;
         }
 

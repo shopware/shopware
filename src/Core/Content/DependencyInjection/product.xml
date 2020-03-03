@@ -221,18 +221,12 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway">
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductSuggestRoute"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway">
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductSearchRoute"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
@@ -306,6 +300,20 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\ProductSuggestRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\ProductSearchRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
     </services>
 </container>

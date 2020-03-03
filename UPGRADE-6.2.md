@@ -195,6 +195,8 @@ Administration
 * Implemented the possibility to add individual product to cross selling
     * Added `sw-product-cross-selling-assignment` component
 
+* CustomFields are now sorted naturally when custom position is used with customFieldPosition (for example 1,9,10 instead of 1,10,9)
+ 
 Storefront
 ----------
 

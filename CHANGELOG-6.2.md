@@ -442,6 +442,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed computed property `uploadStore` from component `sw-product-variants-delivery-media` 
     * Removed computed property `uploadStore` from component `sw-property-option-detail` 
     * Removed computed property `mediaStore` from component `sw-property-option-detail` 
+    * CustomFields are now sorted naturally when custom position is used with customFieldPosition (for example 1,9,10 instead of 1,10,9)
 
 * Core
     *

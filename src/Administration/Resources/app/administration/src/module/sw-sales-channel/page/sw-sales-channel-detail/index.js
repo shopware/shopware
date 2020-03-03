@@ -222,7 +222,7 @@ Component.register('sw-sales-channel-detail', {
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
             criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition'));
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             this.customFieldRepository
                 .search(criteria, Context.api)

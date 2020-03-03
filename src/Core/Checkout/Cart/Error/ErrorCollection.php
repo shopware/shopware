@@ -33,6 +33,28 @@ class ErrorCollection extends Collection
         return false;
     }
 
+    public function getErrors(): array
+    {
+        return $this->filterByErrorLevel(Error::LEVEL_ERROR);
+    }
+
+    public function getWarnings(): array
+    {
+        return $this->filterByErrorLevel(Error::LEVEL_WARNING);
+    }
+
+    public function getNotices(): array
+    {
+        return $this->filterByErrorLevel(Error::LEVEL_NOTICE);
+    }
+
+    public function filterByErrorLevel(int $errorLevel): array
+    {
+        return $this->fmap(static function (Error $error) use ($errorLevel): ?Error {
+            return $errorLevel === $error->getLevel() ? $error : null;
+        });
+    }
+
     public function hasLevel(int $errorLevel): bool
     {
         foreach ($this->getIterator() as $element) {

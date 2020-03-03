@@ -131,6 +131,22 @@ Component.register('sw-order-create-base', {
 
         hasLineItem() {
             return this.cartLineItems.filter(item => item.hasOwnProperty('id')).length > 0;
+        },
+
+        shippingCostsDetail() {
+            if (!this.cartDelivery) {
+                return null;
+            }
+
+            const calcTaxes = this.sortByTaxRate(this.cartDelivery.shippingCosts.calculatedTaxes);
+            const decorateCalcTaxes = calcTaxes.map((item) => {
+                return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
+                    taxRate: item.taxRate,
+                    tax: format.currency(item.tax, this.currency.shortName)
+                });
+            });
+
+            return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
         }
     },
 
@@ -332,6 +348,23 @@ Component.register('sw-order-create-base', {
             if (promotionCodeLength > 0 && latestTag.isInvalid) {
                 this.promotionError = { detail: this.$tc('sw-order.createBase.textInvalidPromotionCode') };
             }
+        },
+
+        onShippingChargeEdited(amount) {
+            const positiveAmount = Math.abs(amount);
+            this.cartDelivery.shippingCosts.unitPrice = positiveAmount;
+            this.cartDelivery.shippingCosts.totalPrice = positiveAmount;
+            this.updateLoading(true);
+
+            State.dispatch('swOrder/modifyShippingCosts', {
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+                shippingCosts: this.cartDelivery.shippingCosts
+            }).catch((error) => {
+                this.$emit('error', error);
+            }).finally(() => {
+                this.updateLoading(false);
+            });
         }
     }
 });

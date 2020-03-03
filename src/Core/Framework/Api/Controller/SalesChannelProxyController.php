@@ -2,7 +2,12 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Shopware\Administration\Service\AdminOrderCartService;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
@@ -28,12 +33,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @RouteScope(scopes={"api"})
@@ -46,6 +55,7 @@ class SalesChannelProxyController extends AbstractController
 
     private const ADMIN_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES,
+        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION,
     ];
 
     /**
@@ -89,6 +99,11 @@ class SalesChannelProxyController extends AbstractController
     private $eventDispatcher;
 
     /**
+     * @var AdminOrderCartService
+     */
+    private $adminOrderCartService;
+
+    /**
      * @var SalesChannelContextServiceInterface
      */
     private $contextService;
@@ -101,7 +116,8 @@ class SalesChannelProxyController extends AbstractController
         SalesChannelContextFactory $salesChannelContextFactory,
         SalesChannelRequestContextResolver $requestContextResolver,
         SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        AdminOrderCartService $adminOrderCartService
     ) {
         $this->kernel = $kernel;
         $this->salesChannelRepository = $salesChannelRepository;
@@ -111,6 +127,7 @@ class SalesChannelProxyController extends AbstractController
         $this->requestContextResolver = $requestContextResolver;
         $this->contextService = $contextService;
         $this->eventDispatcher = $eventDispatcher;
+        $this->adminOrderCartService = $adminOrderCartService;
     }
 
     /**
@@ -163,6 +180,30 @@ class SalesChannelProxyController extends AbstractController
         ]));
 
         return $response;
+    }
+
+    /**
+     * @Route("/api/v{version}/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
+     *
+     * @throws InconsistentCriteriaIdsException
+     * @throws InvalidSalesChannelIdException
+     * @throws MissingRequestParameterException
+     */
+    public function modifyShippingCosts(Request $request): JsonResponse
+    {
+        if (!$request->request->has(self::SALES_CHANNEL_ID)) {
+            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+        }
+
+        $salesChannelId = $request->request->get('salesChannelId');
+
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+
+        $calculatedPrice = $this->parseCalculatedPriceByRequest($request);
+
+        $cart = $this->adminOrderCartService->updateShippingCosts($calculatedPrice, $salesChannelContext);
+
+        return new JsonResponse(['data' => $cart]);
     }
 
     private function wrapInSalesChannelApiRoute(Request $request, callable $call): Response
@@ -315,5 +356,26 @@ class SalesChannelProxyController extends AbstractController
             $payload[SalesChannelContextService::PERMISSIONS] = self::ADMIN_ORDER_PERMISSIONS;
             $this->contextPersister->save($contextToken, $payload);
         }
+    }
+
+    private function parseCalculatedPriceByRequest(Request $request): CalculatedPrice
+    {
+        $this->validateShippingCostsParameters($request);
+
+        $shippingCosts = $request->get('shippingCosts');
+
+        return new CalculatedPrice($shippingCosts['unitPrice'], $shippingCosts['totalPrice'], new CalculatedTaxCollection(), new TaxRuleCollection());
+    }
+
+    private function validateShippingCostsParameters(Request $request): void
+    {
+        if (!$request->request->has('shippingCosts')) {
+            throw new MissingRequestParameterException('shippingCosts');
+        }
+
+        $validation = new DataValidationDefinition('shipping-cost');
+        $validation->add('unitPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(['value' => 0]));
+        $validation->add('totalPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(['value' => 0]));
+        $this->validator->validate($request->request->get('shippingCosts'), $validation);
     }
 }

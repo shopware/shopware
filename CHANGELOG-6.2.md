@@ -265,7 +265,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Permissions exists:
              `ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES`
              `ProductCartProcessor::SKIP_PRODUCT_RECALCULATION`
-             `DeliveryProcessor::SKIP_DELIVERY_RECALCULATION`
+             `DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION`
+             `DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION`
              `PromotionCollector::SKIP_PROMOTION`
         * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
         * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.
@@ -290,7 +291,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
             * Permissions exists:
                  `ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES`
                  `ProductCartProcessor::SKIP_PRODUCT_RECALCULATION`
-                 `DeliveryProcessor::SKIP_DELIVERY_RECALCULATION`
+                 `DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION`
+                 `DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION`
                  `PromotionCollector::SKIP_PROMOTION`
             * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
             * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.

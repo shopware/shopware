@@ -58,7 +58,8 @@ class OrderConverter
     private const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION,
-        DeliveryProcessor::SKIP_DELIVERY_RECALCULATION,
+        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION,
+        DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION,
         PromotionCollector::SKIP_PROMOTION,
     ];
 

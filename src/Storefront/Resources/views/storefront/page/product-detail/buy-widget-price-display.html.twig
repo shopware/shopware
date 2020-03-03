@@ -1,0 +1,63 @@
+{% block page_product_detail_price_display %}
+    {% set price = page.product.calculatedPrice %}
+
+    {% if page.product.calculatedPrices|length == 1 %}
+        {% set price = page.product.calculatedPrices.first %}
+    {% endif %}
+
+    <meta itemprop="price"
+          content="{{ price.unitPrice }}">
+
+    {% block page_product_detail_price_content %}
+        {% set listPrice = page.product.priceRange ? null : price.listPrice %}
+
+        <p class="product-detail-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
+            {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+        </p>
+
+        {% if listPrice.percentage > 0 %}
+            {% block page_product_detail_was_price %}
+
+                {% block page_product_detail_was_price_badge %}
+                    <span class="list-price-badge">&#37;</span>
+                {% endblock %}
+
+                {% block page_product_detail_was_price_wrapper %}
+                    <span class="product-detail-list-price-wrapper">
+                            <span
+                                class="list-price-price">{{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}</span>
+
+                            <span
+                                class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
+                        </span>
+                {% endblock %}
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+
+    {% if page.product.purchaseUnit %}
+        {% block page_product_detail_price_unit %}
+            <div class="product-detail-price-unit">
+                {% block page_product_detail_price_unit_label %}
+                    <span class="price-unit-label">
+                            {{ "detail.priceUnitName"|trans|sw_sanitize }}
+                        </span>
+                {% endblock %}
+
+                {% block page_product_detail_price_unit_content %}
+                    <span class="price-unit-content">
+                            {{ page.product.purchaseUnit }} {{ page.product.unit.name }}
+                        </span>
+                {% endblock %}
+
+                {% if price.referencePrice is not null %}
+                    {% block page_product_detail_price_unit_refrence_content %}
+                        <span class="price-unit-reference-content">
+                                ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                            </span>
+                    {% endblock %}
+                {% endif %}
+            </div>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

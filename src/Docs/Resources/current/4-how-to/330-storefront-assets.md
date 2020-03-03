@@ -1,8 +1,8 @@
-[titleEn]: <>(Using custom CSS and Javascript in the Storefront)
+[titleEn]: <>(Using custom CSS and JavaScript in the Storefront)
 [metaDescriptionEn]: <>(Quite often your plugin will have to change a few templates for the Storefront. Those might require custom stylings to look neat and a few lines of javascript, to add special functionality. This How To will explain how this is done.)
 
 Quite often your plugin will have to change a few templates for the Storefront.
-Those might require custom stylings to look neat and a few lines of javascript, to add special functionality.
+Those might require custom stylings to look neat and a few lines of JavaScript, to add special functionality.
 This How To will explain how this is done.
 
 ## Setup
@@ -19,8 +19,8 @@ put its assets into another directory outside of its scope though -  but how do 
 
 For CSS and Javascript things are a bit different. CSS and SCSS is handled by a PHP SASS compiler.
 
-Javascript can't be compiled by PHP so [webpack](https://webpack.js.org/) is used for compilation.
-This also means that you have to ship your plugin with the javascript already build.
+JavaScript can't be compiled by PHP so [webpack](https://webpack.js.org/) is used for compilation.
+This also means that you have to ship your plugin with the JavaScript already build.
 
 If you don't want to create a custom webpack configuration, you can use the Shopware webpack build 
 configuration. In order to do that, you have to define an entry-point, so webpack knows where to get started.
@@ -69,8 +69,10 @@ This has the advantage that when you want to change the values of your variables
 ### Loading the assets
 
 Since Shopware knows where your style files are located, they are automatically compiled, compressed 
-and loaded in the storefront. For javascript you normally would have two locations where your *.js files
-are located. You have your main.js as an entry point and by default the compiled js file is saved at
+and loaded in the storefront. For JavaScript you normally would have two locations where your `*.js` files
+are located. You have your `main.js` as an entry point  inside of the following directory: `<plugin root>/src/Resources/app/storefront/src`.
+
+By default the compiled js file is saved at
 `<plugin root>/src/Resources/app/storefront/dist/storefront/js/<plugin-name>.js`.
 This file will be recognized automatically by shopware.
 

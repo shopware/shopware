@@ -194,11 +194,17 @@ Now the variable can be overwritten with `replace_recursive`:
 
 ## Plugin script path
 
-For 6.1.0 RC and above the default path where shopware looks for your js files is `Resources/app/storefront/dist/storefront/js`.
+For JavaScript you normally would have two locations where your `*.js` files are located.
+You have your `main.js` as an entry point inside of the following directory: `<plugin root>/src/Resources/app/storefront/src`.
+
+By default the compiled js file is saved at
+`<plugin root>/src/Resources/app/storefront/dist/storefront/js/<plugin-name>.js`.
+This file will be recognized automatically by shopware.
+
 
 ## Testing your changes
 
-To see your changes you have to build the storefront. Use the `/psh.phar storefront:build` command and reload your storefront.
+To see your changes you have to build the storefront. Use the `./psh.phar storefront:build` command and reload your storefront.
 If you now scroll to the bottom of your page an alert should appear.
 
 ## Source

@@ -109,6 +109,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($route === null && $request->attributes->get('_controller') === 'error_controller') {
+            return;
+        }
+
         if ($request->isXmlHttpRequest()) {
             return;
         }

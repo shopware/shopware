@@ -196,6 +196,7 @@ Administration
     * Added `sw-product-cross-selling-assignment` component
 
 * CustomFields are now sorted naturally when custom position is used with customFieldPosition (for example 1,9,10 instead of 1,10,9)
+* moved block prices and normal price of buy-widget-price.html.twig into two new separate files
  
 Storefront
 ----------

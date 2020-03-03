@@ -122,6 +122,7 @@
         "johnkary/phpunit-speedtrap": "3.1.0",
         "league/flysystem-memory": "1.0.2",
         "mbezhanov/faker-provider-collection": "1.2.1",
+        "nikic/php-parser": "4.3.0",
         "phpunit/phpunit": "8.5.2",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "4.4.4",
@@ -130,8 +131,7 @@
         "symfony/phpunit-bridge": "4.4.4",
         "symfony/stopwatch": "4.4.4",
         "symfony/var-dumper": "4.4.4",
-        "symfony/web-profiler-bundle": "4.4.4",
-        "nikic/php-parser": "4.3.0"
+        "symfony/web-profiler-bundle": "4.4.4"
     },
     "conflict": {
         "symfony/symfony": "*"

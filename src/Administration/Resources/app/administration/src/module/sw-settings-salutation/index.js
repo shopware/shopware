@@ -46,9 +46,11 @@ Module.register('sw-settings-salutation', {
         }
     },
 
-    settingsItem: {
-        group: 'shop',
-        to: 'sw.settings.salutation.index',
-        icon: 'default-communication-speech-bubbles'
-    }
+    navigation: [{
+        id: 'sw-salutation',
+        path: 'sw.settings.salutation.index',
+        label: 'sw-settings-salutation.general.mainMenuItemGeneral',
+        parent: 'sw-customer',
+        position: 30
+    }]
 });

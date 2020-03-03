@@ -101,8 +101,8 @@ class GenericPageLoader
         $page->setMetaInformation((new MetaInformation())->assign([
             'revisit' => '15 days',
             'robots' => 'index,follow',
-            'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE),
-            'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName'),
+            'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
+            'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName') ?? '',
         ]));
 
         return $page;

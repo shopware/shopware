@@ -1,7 +1,7 @@
 {% block sw_order_list %}
     <sw-page class="sw-order-list">
         {% block sw_order_list_search_bar %}
-            <template slot="search-bar">
+            <template #search-bar>
                 <sw-search-bar initialSearchType="order"
                                :initialSearch="term"
                                @search="onSearch">
@@ -10,7 +10,7 @@
         {% endblock %}
 
         {% block sw_order_list_smart_bar_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 {% block sw_order_list_smart_bar_header_title %}
                     <h2>
                         {% block sw_order_list_smart_bar_header_title_text %}
@@ -28,7 +28,7 @@
         {% endblock %}
 
         {% block sw_order_list_smart_bar_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_order_list_smart_bar_actions_slot %}
 
                     {% block sw_order_list_smart_bar_actions_add %}
@@ -49,7 +49,7 @@
         {% endblock %}
 
         {% block sw_order_list_content %}
-            <template slot="content">
+            <template #content>
 
                 {% block sw_order_list_content_slot %}
                     <div class="sw-order-list__content">
@@ -69,13 +69,13 @@
 
                                 {% block sw_order_list_grid_columns %}
                                     {% block sw_order_list_grid_columns_customer_name %}
-                                        <template slot="column-orderCustomer.firstName" slot-scope="{ item }">
+                                        <template #column-orderCustomer.firstName="{ item }">
                                             {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
                                         </template>
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_billing_address %}
-                                        <template slot="column-billingAddressId" slot-scope="{ item }">
+                                        <template #column-billingAddressId="{ item }">
                                             {{ getBillingAddress(item).street }},
                                             {{ getBillingAddress(item).zipcode }}
                                             {{ getBillingAddress(item).city }}
@@ -83,13 +83,13 @@
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_amount %}
-                                        <template slot="column-amountTotal" slot-scope="{ item }">
+                                        <template #column-amountTotal="{ item }">
                                             {{ item.amountTotal | currency(item.currency.translated.shortName) }}
                                         </template>
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_state %}
-                                        <template slot="column-stateMachineState.name" slot-scope="{ item }">
+                                        <template #column-stateMachineState.name="{ item }">
                                             <sw-label :variant="getVariantFromOrderState(item)" appearance="pill">
                                                 {{ item.stateMachineState.translated.name }}
                                             </sw-label>
@@ -97,7 +97,7 @@
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_transaction_state %}
-                                        <template slot="column-transactions[0].stateMachineState.name" slot-scope="{ item }">
+                                        <template #column-transactions[0].stateMachineState.name="{ item }">
                                             <sw-label v-if="item.transactions && item.transactions[0]"
                                                       :variant="getVariantFromPaymentState(item)"
                                                       appearance="pill">
@@ -107,7 +107,7 @@
                                     {% endblock %}
 
                                 {% block sw_order_list_grid_columns_delivery_state %}
-                                    <template slot="column-deliveries[0].stateMachineState.name" slot-scope="{ item }">
+                                    <template #column-deliveries[0].stateMachineState.name="{ item }">
                                         <sw-label v-if="item.deliveries && item.deliveries[0]"
                                                   :variant="getVariantFromDeliveryState(item)"
                                                   appearance="pill">
@@ -117,14 +117,14 @@
                                 {% endblock %}
 
                                     {% block sw_order_list_grid_columns_order_date %}
-                                        <template slot="column-orderDate" slot-scope="{ item }">
+                                        <template #column-orderDate="{ item }">
                                             {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
                                         </template>
                                     {% endblock %}
                                 {% endblock %}
 
                                 {% block sw_order_list_grid_columns_actions %}
-                                    <template slot="actions" slot-scope="{ item }">
+                                    <template #actions="{ item }">
                                         {% block sw_customer_list_grid_columns_actions_view %}
                                             <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
                                                 {{ $tc('sw-order.list.contextMenuView') }}
@@ -145,7 +145,7 @@
                                     </template>
                                 {% endblock %}
 
-                                <template slot="pagination">
+                                <template #pagination>
                                     {% block sw_order_list_grid_pagination %}
                                         <sw-pagination :page="page"
                                                        :limit="limit"
@@ -166,7 +166,7 @@
             </template>
 
             {% block sw_order_list_sidebar %}
-                <sw-sidebar slot="sidebar" class="sw-order-list__sidebar">
+                <sw-sidebar #sidebar class="sw-order-list__sidebar">
 
                     {% block sw_order_list_sidebar_refresh %}
                         <sw-sidebar-item

@@ -59,20 +59,18 @@
                             {% block sw_order_state_change_modal_assign_mail_template_grid_radio_column %}
                                 <template
                                     class="sw-order-state-change-modal-assign-mail-template__radio-column"
-                                    slot="column-radioButtons"
-                                    slot-scope="{ item }">
+                                    #column-radioButtons="{ item }">
 
                                     {% block sw_order_state_change_modal_assign_mail_template_grid_radio_column_wrapper %}
                                         <div class="sw-order-state-change-modal-assign-mail-template__radio-button-wrapper">
 
                                             {% block sw_order_state_change_modal_assign_mail_template_grid_radio_column_button %}
-                                                <sw-field
+                                                <sw-radio-field
                                                     class="sw-order-state-change-modal-assign-mail-template__radio-button"
-                                                    type="radio"
                                                     name="mailTemplate"
                                                     @change="onChangeMailTemplate(item.id)"
                                                     :options="[{ value: item.id }]">
-                                                </sw-field>
+                                                </sw-radio-field>
                                             {% endblock %}
                                         </div>
                                     {% endblock %}

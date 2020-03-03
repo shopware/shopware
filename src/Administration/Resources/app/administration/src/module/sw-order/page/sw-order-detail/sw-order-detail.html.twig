@@ -2,7 +2,7 @@
     <sw-page class="sw-order-detail" v-if="orderId">
 
         {% block sw_order_detail_header %}
-            <template slot="smart-bar-header">
+            <template #smart-bar-header>
                 {% block sw_order_detail_header_title %}
                     <h2 v-if="identifier">{{ $tc('sw-order.detail.textHeadline') }} {{ identifier }}</h2>
                 {% endblock %}
@@ -18,7 +18,7 @@
         {% endblock %}
 
         {% block sw_order_detail_actions %}
-            <template slot="smart-bar-actions">
+            <template #smart-bar-actions>
                 {% block sw_order_detail_actions_abort %}
                     <sw-button class="sw-order-detail__smart-bar-cancel-button"
                                v-if="isEditing"
@@ -56,7 +56,7 @@
         {% endblock %}
 
         {% block sw_order_detail_content %}
-            <sw-card-view slot="content">
+            <template #content>
 
                 {% block sw_order_detail_content_tabs %}
                     <sw-tabs v-if="showTabs" class="sw-order-detail__tabs">
@@ -83,7 +83,7 @@
                     </router-view>
                 {% endblock %}
 
-            </sw-card-view>
+            </template>
         {% endblock %}
 
     </sw-page>

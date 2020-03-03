@@ -3,7 +3,7 @@
              :class="documentCardStyles"
              :isLoading="isLoading || documentsLoading || cardLoading">
 
-        <template slot="grid">
+        <template #grid>
 
         {% block sw_order_document_card_header %}
             <sw-card-section divider="bottom" secondary slim>
@@ -12,7 +12,7 @@
                     <sw-card-filter :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
                                     @sw-card-filter-term-change="onSearchTermChange">
 
-                        <template slot="filter">
+                        <template #filter>
                             {% block sw_order_document_card_header_create_document_context_button %}
                                 <sw-context-button v-if="!attachView">
 
@@ -66,7 +66,7 @@
                           identifier="sw-order-document-grid">
 
                 {% block sw_order_document_card_grid_column_date %}
-                    <template slot="column-createdAt" slot-scope="{ item }">
+                    <template #column-createdAt="{ item }">
                         {% block sw_order_document_card_grid_column_date_label %}
                             {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
                         {% endblock %}
@@ -74,7 +74,7 @@
                 {% endblock %}
 
                 {% block sw_order_document_card_grid_column_sent %}
-                    <template slot="column-sent" slot-scope="{ item }">
+                    <template #column-sent="{ item }">
                         {% block sw_order_document_card_grid_column_sent_label %}
                             <sw-data-grid-column-boolean v-model="item.sent" :isInlineEdit="false" />
                         {% endblock %}
@@ -82,7 +82,7 @@
                 {% endblock %}
 
                 {% block sw_order_document_card_grid_column_attach %}
-                    <template slot="column-attach" slot-scope="{ item }" v-if="attachView">
+                    <template #column-attach="{ item }" v-if="attachView">
                         {% block sw_order_document_card_grid_column_attach_label %}
                             <sw-data-grid-column-boolean v-model="item.attach" :isInlineEdit="true" />
                         {% endblock %}

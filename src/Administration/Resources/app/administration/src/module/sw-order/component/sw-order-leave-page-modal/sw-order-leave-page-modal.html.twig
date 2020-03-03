@@ -7,7 +7,7 @@
             {{ $tc('sw-order.leavePageModal.description') }}
         {% endblock %}
 
-        <template slot="modal-footer">
+        <template #modal-footer>
             {% block sw_order_leave_page_modal_actions %}
                 {% block sw_order_leave_page_modal_action_cancel %}
                     <sw-button size="small" @click="onCancel">

@@ -1,5 +1,5 @@
 {% block sw_order_detail_base %}
-    <div v-if="order && !isLoading" class="sw-order-detail-base">
+    <sw-card-view v-if="order && !isLoading" class="sw-order-detail-base">
         {% block sw_order_detail_base_leave_page_modal %}
             <sw-order-leave-page-modal v-if="isDisplayingLeavePageWarning"
                                        @page-leave-cancel="onLeaveModalClose"
@@ -180,5 +180,5 @@
                 </sw-custom-field-set-renderer>
             </sw-card>
         {% endblock %}
-    </div>
+    </sw-card-view>
 {% endblock %}

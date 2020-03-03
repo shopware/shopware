@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -11,12 +12,40 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use AssertArraySubsetBehaviour;
+    use PromotionTestFixtureBehaviour;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    protected $promotionRepository;
+
+    /**
+     * @var string
+     */
+    private $taxId;
+
+    /**
+     * @var string
+     */
+    private $manufacturerId;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
 
     /**
      * @var EntityRepositoryInterface
@@ -26,6 +55,11 @@ class SalesChannelProxyControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->promotionRepository = $this->getContainer()->get('promotion.repository');
+        $this->taxId = Uuid::randomHex();
+        $this->manufacturerId = Uuid::randomHex();
+        $this->context = Context::createDefaultContext();
     }
 
     public function testProxyWithInvalidSalesChannelId(): void
@@ -135,6 +169,33 @@ class SalesChannelProxyControllerTest extends TestCase
             $salesChannel['id'],
             $langId
         );
+    }
+
+    public function testUpdatingPromotionAfterUpdateProductLineItem(): void
+    {
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $productId = Uuid::randomHex();
+        $promotionCode = 'BF99';
+
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+
+        // Add promotion code to our cart (not existing in DB)
+        $this->addPromotionCodeByAPI($browser, Defaults::SALES_CHANNEL, $promotionCode);
+
+        // Save promotion to database
+        $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $promotionCode, 100, null, $this->getContainer());
+
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+
+        $this->updateLineItemQuantity($browser, Defaults::SALES_CHANNEL, $cart['lineItems'][0]['id'], 3);
+
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(2, $cart['lineItems']);
     }
 
     private function getLangHeaderName(): string
@@ -265,5 +326,53 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
         return $salesChannel;
+    }
+
+    private function createCart($saleChannelId): KernelBrowser
+    {
+        $this->getBrowser()->request('POST', $this->getUrl($saleChannelId, 'checkout/cart'));
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
+
+        $content = json_decode($response->getContent(), true);
+
+        $browser = clone $this->getBrowser();
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+
+        return $browser;
+    }
+
+    private function addProduct(KernelBrowser $browser, string $salesChannelId, string $id, int $quantity = 1): void
+    {
+        $browser->request(
+            'POST',
+            $this->getUrl($salesChannelId, 'checkout/cart/product/' . $id),
+            ['quantity' => $quantity]
+        );
+    }
+
+    private function updateLineItemQuantity(KernelBrowser $browser, string $salesChannelId, string $lineItemId, int $quantity): void
+    {
+        $browser->request(
+            'PATCH',
+            $this->getUrl($salesChannelId, 'checkout/cart/line-item/' . $lineItemId),
+            ['quantity' => $quantity]
+        );
+    }
+
+    private function getCart(KernelBrowser $browser, $salesChannelId): array
+    {
+        $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
+
+        $cart = json_decode($browser->getResponse()->getContent(), true);
+
+        return $cart['data'] ?? $cart;
+    }
+
+    private function addPromotionCodeByAPI(KernelBrowser $browser, string $salesChannelId, string $code): void
+    {
+        $browser->request('POST', $this->getUrl($salesChannelId, 'checkout/cart/code/' . $code));
     }
 }

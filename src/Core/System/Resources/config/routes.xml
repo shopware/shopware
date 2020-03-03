@@ -11,4 +11,6 @@
     <import resource="../../NumberRange/**/*Controller.php" type="annotation" />
     <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="annotation" />
     <import resource="../../StateMachine/Api/*Controller.php" type="annotation" />
+    <import resource="../../Currency/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Language/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

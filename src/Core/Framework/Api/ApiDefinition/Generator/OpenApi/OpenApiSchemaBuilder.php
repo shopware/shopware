@@ -11,60 +11,79 @@ use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\SecurityScheme;
 use OpenApi\Annotations\Server;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class OpenApiSchemaBuilder
 {
-    public function enrich(OpenApi $openApi, bool $forSalesChannel, int $version): void
+    public const API = [
+        DefinitionService::API => [
+            'name' => 'Admin API',
+            'url' => '/api/v%d',
+            'apiKey' => false,
+        ],
+        DefinitionService::STORE_API => [
+            'name' => 'Store API',
+            'url' => '/store-api/v%d',
+            'apiKey' => true,
+        ],
+        DefinitionService::SALES_CHANNEL_API => [
+            'name' => 'Sales Channel API',
+            'url' => '/sales-channel-api/v%d',
+            'apiKey' => true,
+        ],
+    ];
+
+    public function enrich(OpenApi $openApi, string $api, int $version): void
     {
-        $openApi->merge($this->createServers($forSalesChannel, $version));
-        $openApi->info = $this->createInfo($forSalesChannel, $version);
+        $openApi->merge($this->createServers($api, $version));
+        $openApi->info = $this->createInfo($api, $version);
 
         /** @var array|string $security */
         $security = $openApi->security;
-        $openApi->security = [array_merge(is_array($security) ? $security : [], $this->createSecurity($forSalesChannel))];
+        $openApi->security = [array_merge(is_array($security) ? $security : [], $this->createSecurity($api))];
 
         if (!$openApi->components instanceof Components) {
             $openApi->components = new Components([]);
         }
 
-        $this->enrichComponents($openApi->components, $forSalesChannel);
+        $this->enrichComponents($openApi->components, $api);
     }
 
     /**
      * @return Server[]
      */
-    private function createServers(bool $forSalesChannel, int $version): array
+    private function createServers(string $api, int $version): array
     {
         $url = $_SERVER['APP_URL'] ?? '';
 
         return [
-            new Server(['url' => rtrim($url, '/') . ($forSalesChannel ? '/sales-channel-api/v' : '/api/v') . $version]),
+            new Server(['url' => rtrim($url, '/') . sprintf(self::API[$api]['url'], $version)]),
         ];
     }
 
-    private function createInfo(bool $forSalesChannel, int $version): Info
+    private function createInfo(string $api, int $version): Info
     {
         return new Info([
-            'title' => 'Shopware ' . ($forSalesChannel ? 'Sales-Channel' : 'Management') . ' API',
-            'version' => (string) $version,
+            'title' => 'Shopware ' . self::API[$api]['name'],
+            'version' => $version,
         ]);
     }
 
-    private function createSecurity(bool $forSalesChannel): array
+    private function createSecurity(string $api): array
     {
-        if ($forSalesChannel) {
+        if (self::API[$api]['apiKey']) {
             return ['ApiKey' => []];
         }
 
         return ['oAuth' => ['write']];
     }
 
-    private function enrichComponents(Components $components, bool $forSalesChannel): void
+    private function enrichComponents(Components $components, string $api): void
     {
         $components->merge($this->getDefaultSchemas());
-        $components->merge($this->createSecurityScheme($forSalesChannel));
+        $components->merge($this->createSecurityScheme($api));
         $components->merge($this->createDefaultResponses());
     }
 
@@ -338,9 +357,9 @@ class OpenApiSchemaBuilder
     /**
      * @return SecurityScheme[]
      */
-    private function createSecurityScheme(bool $forSalesChannel): array
+    private function createSecurityScheme(string $api): array
     {
-        if ($forSalesChannel) {
+        if (self::API[$api]['apiKey']) {
             return [
                 'ApiKey' => new SecurityScheme([
                     'securityScheme' => 'ApiKey',

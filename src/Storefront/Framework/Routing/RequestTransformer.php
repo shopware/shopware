@@ -67,7 +67,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/_error/',
         '/api/',
         '/sales-channel-api/',
-        '/shop-api/',
+        '/store-api/',
         '/admin/',
     ];
 

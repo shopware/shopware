@@ -6,14 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class ContactPageLoader
 {
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -28,7 +28,7 @@ class ContactPageLoader
     private $salutationRepository;
 
     public function __construct(
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $salutationRepository
     ) {

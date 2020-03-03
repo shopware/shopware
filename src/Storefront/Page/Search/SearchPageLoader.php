@@ -8,14 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchPageLoader
 {
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -30,7 +30,7 @@ class SearchPageLoader
     private $eventDispatcher;
 
     public function __construct(
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         ProductSearchGatewayInterface $searchGateway,
         EventDispatcherInterface $eventDispatcher
     ) {

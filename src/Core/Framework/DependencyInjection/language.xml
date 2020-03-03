@@ -35,5 +35,11 @@
         <service id="Shopware\Core\System\Language\LanguageExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
         </service>
+
+        <service id="Shopware\Core\System\Language\SalesChannel\LanguageRoute" public="true">
+            <argument type="service" id="sales_channel.language.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\SalesChannelLanguageDefinition"/>
+        </service>
     </services>
 </container>

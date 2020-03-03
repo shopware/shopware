@@ -6,4 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 class RuleConditionCollection extends EntityCollection
 {
+    protected function getExpectedClass(): string
+    {
+        return RuleConditionEntity::class;
+    }
 }

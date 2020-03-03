@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -24,7 +24,7 @@ class AccountPaymentMethodPageLoader
     private $paymentMethodRepository;
 
     /**
-     * @var GenericPageLoader
+     * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
@@ -35,7 +35,7 @@ class AccountPaymentMethodPageLoader
 
     public function __construct(
         SalesChannelRepositoryInterface $paymentMethodRepository,
-        GenericPageLoader $genericLoader,
+        GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;

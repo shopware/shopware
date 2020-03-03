@@ -17,9 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"shop-api"})
+ * @RouteScope(scopes={"store-api"})
  */
-class CategoryRoute
+class CategoryRoute implements CategoryRouteInterface
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -51,7 +51,21 @@ class CategoryRoute
      *      path="/category/{categoryId}",
      *      description="Loads a category with the resolved cms page",
      *      operationId="readCategory",
-     *      tags={"Sales Channel Api"},
+     *      tags={"Store API"},
+     *      @OA\Parameter(
+     *          parameter="filter",
+     *          name="filter",
+     *          in="query",
+     *          description="Encoded SwagQL in JSON",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="associations",
+     *          name="associations",
+     *          in="query",
+     *          description="Encoded SwagQL in JSON",
+     *          @OA\Schema(type="string")
+     *      ),
      *      @OA\Parameter(
      *          parameter="categoryId",
      *          name="categoryId",
@@ -70,16 +84,16 @@ class CategoryRoute
      *     ),
      * )
      *
-     * @Route("/shop-api/v{version}/category/{categoryId}", name="shop-api.category.detail", methods={"GET","POST"})
+     * @Route("/store-api/v{version}/category/{categoryId}", name="shop-api.category.detail", methods={"GET","POST"})
      */
-    public function load(string $categoryId, Request $request, SalesChannelContext $context): CategoryResponse
+    public function load(string $categoryId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
         $category = $this->loadCategory($categoryId, $context);
 
         $pageId = $category->getCmsPageId();
 
         if (!$pageId) {
-            return new CategoryResponse($category);
+            return new CategoryRouteResponse($category);
         }
 
         $resolverContext = new EntityResolverContext($context, $request, $this->definition, $category);
@@ -98,7 +112,7 @@ class CategoryRoute
 
         $category->setCmsPage($pages->get($pageId));
 
-        return new CategoryResponse($category);
+        return new CategoryRouteResponse($category);
     }
 
     private function loadCategory(string $categoryId, SalesChannelContext $context): CategoryEntity

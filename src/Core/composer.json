@@ -127,7 +127,8 @@
         "symfony/stopwatch": "4.4.4",
         "symfony/web-profiler-bundle": "4.4.4",
         "symfony/dom-crawler": "4.4.4",
-        "league/flysystem-memory": "1.0.2"
+        "league/flysystem-memory": "1.0.2",
+        "nikic/php-parser": "4.3.0"
     },
     "conflict": {
         "symfony/symfony": "*"

@@ -52,17 +52,17 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $this->openApiLoader = $openApiLoader;
     }
 
-    public function supports(string $format): bool
+    public function supports(string $format, int $version, string $api): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, int $version): array
+    public function generate(array $definitions, int $version, string $api): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
-        $openApi = $this->openApiLoader->load($forSalesChannel);
-        $this->openApiBuilder->enrich($openApi, $forSalesChannel, $version);
+        $openApi = $this->openApiLoader->load($api);
+        $this->openApiBuilder->enrich($openApi, $api, $version);
 
         ksort($definitions);
 

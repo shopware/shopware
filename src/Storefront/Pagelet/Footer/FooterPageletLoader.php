@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Footer;
 
-use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,14 +15,16 @@ class FooterPageletLoader implements FooterPageletLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var NavigationLoader
+     * @var NavigationLoaderInterface
      */
     private $navigationLoader;
 
-    public function __construct(NavigationLoader $navigationLoader, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->navigationLoader = $navigationLoader;
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        NavigationLoaderInterface $navigationLoader
+    ) {
         $this->eventDispatcher = $eventDispatcher;
+        $this->navigationLoader = $navigationLoader;
     }
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): FooterPagelet

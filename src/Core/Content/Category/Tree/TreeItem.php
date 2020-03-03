@@ -3,8 +3,9 @@
 namespace Shopware\Core\Content\Category\Tree;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\Struct\Struct;
 
-class TreeItem
+class TreeItem extends Struct
 {
     /**
      * @var CategoryEntity

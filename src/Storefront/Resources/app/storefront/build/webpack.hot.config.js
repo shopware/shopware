@@ -108,6 +108,20 @@ const devServer = {
     headers: {
         'Access-Control-Allow-Origin': '*',
     },
+    before(app, server) {
+        const chokidar = require('chokidar');
+        const themePattern = `${themeFiles.basePath}/**/*.twig`;
+
+        chokidar
+            .watch([themePattern], {
+                persistent: true,
+                cwd: utils.getProjectRootPath(),
+                ignorePermissionErrors: true
+            })
+            .on('all', () => {
+                server.sockWrite(server.sockets, 'content-changed');
+            });
+    }
 };
 
 /**

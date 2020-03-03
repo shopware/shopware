@@ -97,7 +97,7 @@ Component.register('sw-category-tree', {
 
             this.loadRootCategories()
                 .then(() => {
-                    if (this.category.path === null) {
+                    if (!this.category || this.category.path === null) {
                         this.isLoadingInitialData = false;
                         return Promise.resolve();
                     }

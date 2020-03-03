@@ -13,4 +13,11 @@ export default class CategoryPageObject extends GeneralPageObject {
             }
         };
     }
+
+    changeTranslation(language, position) {
+        cy.get('.sw-language-switch').click();
+        cy.get('.sw-field__select-load-placeholder').should('not.exist');
+        cy.get(`.sw-select-option:nth-of-type(${position})`).contains(language).click();
+        cy.get('.sw-field__select-load-placeholder').should('not.exist');
+    }
 }

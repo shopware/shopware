@@ -14,7 +14,7 @@ PHP
 *  7.2 or higher
 * `memory_limit` 512M minimum
 * `max_execution_time` 30 seconds minimum
-* Extensions: 
+* Extensions:
     * ext-curl
     * ext-dom  
     * ext-fileinfo  
@@ -38,13 +38,13 @@ PHP
 SQL
 * MySQL 5.7.21 or higher
 * MariaDB 10.3 or higher
-    
+
 JavaScript
-* Node.js 8.10.0 or higher
+* Node.js 10.13.0 or higher
 * NPM 6.5.0 or higher
 
 Various
-* Apache 2.4 or higher with mod-rewrite enabled 
+* Apache 2.4 or higher with mod-rewrite enabled
 * Bash
 * Git
 

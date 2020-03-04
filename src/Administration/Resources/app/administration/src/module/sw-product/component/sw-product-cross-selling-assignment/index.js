@@ -58,6 +58,13 @@ Component.register('sw-product-cross-selling-assignment', {
             return criteria;
         },
 
+        searchContext() {
+            return {
+                ...Context.api,
+                inheritance: true
+            };
+        },
+
         total() {
             if (!this.assignedProducts || !Array.isArray(this.assignedProducts)) {
                 return 0;

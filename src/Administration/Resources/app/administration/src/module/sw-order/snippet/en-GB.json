@@ -111,10 +111,10 @@
       "summaryLabelAmountWithoutTaxes": "Total excluding VAT",
       "summaryLabelAmountTotal": "Total including VAT",
       "summaryLabelShippingCosts": "plus shipping costs",
+      "discountLabelShippingCosts": "discount shipping costs",
       "summaryLabelTaxes": "plus {taxRate}% VAT",
       "tax": "Included taxes:",
       "shippingCostsTax": "{taxRate}%: {tax}",
-      "discountLabelShippingCosts": "discount shipping costs",
       "labelAddPromotion": "Add promotion",
       "placeholderAddPromotion": "Enter promotion code ...",
       "textInvalidPromotionCode": "Invalid promotion code",
@@ -199,7 +199,8 @@
       "placeholderTagSelect": "Search tags...",
       "placeholderTrackingCodeSelect": "Add tracking codes...",
       "addTrackingCode": "Click here to add code",
-      "enterValidTrackingCode": "Enter tracking code"
+      "enterValidTrackingCode": "Enter tracking code",
+      "textCreditTax": "auto"
     },
     "detailDeliveries": {
       "cardTitleItems": "Shipment {count}",

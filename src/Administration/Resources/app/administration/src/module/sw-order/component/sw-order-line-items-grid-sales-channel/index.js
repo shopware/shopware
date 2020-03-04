@@ -6,8 +6,6 @@ const { Component, Utils: { get }, State, Service } = Shopware;
 Component.register('sw-order-line-items-grid-sales-channel', {
     template,
 
-    inject: ['repositoryFactory'],
-
     props: {
         cart: {
             type: Object,
@@ -39,7 +37,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
     computed: {
         orderLineItemRepository() {
-            return this.repositoryFactory.create('order_line_item');
+            return Service('repositoryFactory').create('order_line_item');
         },
 
         cartLineItems() {
@@ -113,10 +111,6 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 return;
             }
 
-            if (item._isNew && item.type === '') {
-                item.type = this.lineItemTypes.PRODUCT;
-            }
-
             this.$emit('on-save-item', item);
         },
 
@@ -159,7 +153,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
-            item.type = '';
+            item.type = this.lineItemTypes.PRODUCT;
             this.cartLineItems.unshift(item);
             State.commit('swOrder/setCartLineItems', this.cartLineItems);
         },
@@ -200,9 +194,8 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }
         },
 
-        itemCreatedFromProduct(id) {
-            const item = this.cartLineItems.find((elem) => { return elem.id === id; });
-            return !!item._isNew && item.type === '';
+        itemCreatedFromProduct(item) {
+            return item._isNew && item.type === this.lineItemTypes.PRODUCT;
         },
 
         onSearchTermChange(searchTerm) {

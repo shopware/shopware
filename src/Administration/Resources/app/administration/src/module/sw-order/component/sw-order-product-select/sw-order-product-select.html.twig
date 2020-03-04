@@ -1,7 +1,7 @@
 {% block sw_order_product_select %}
     <span class="sw-order-product-select">
         {% block sw_order_product_select_blank_item%}
-            <sw-text-field v-if="!displayProductSelection && item.type !== 'product'"
+            <sw-text-field v-if="isShownItemLabelInput"
                       v-model="item.label"
                       size="small"
                       :placeholder="$tc('sw-order.detailBase.columnProductName')">
@@ -10,7 +10,7 @@
 
         {% block sw_order_product_select_existing_product %}
             <sw-entity-single-select class="sw-order-product-select__single-select"
-                                     v-else-if="item.type !== 'product'"
+                                     v-else-if="isShownProductSelect"
                                      v-model="product"
                                      entity="product"
                                      @change="onItemChanged"

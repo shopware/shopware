@@ -58,7 +58,7 @@
       "titleFetchError": "Fehler",
       "messageSaveError": "Bestellung konnte nicht gespeichert werden",
       "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
-      "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses"
+      "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten"
     },
     "createBase": {
       "labelDetailsCard": "Details",
@@ -79,7 +79,7 @@
         "buttonAddNewAddress": "Neue Adresse hinzufügen"
       },
       "detailsFooter": {
-        "labelSalesChannel": "Sales channel",
+        "labelSalesChannel": "Verkaufskanäle",
         "labelPaymentMethod": "Zahlungsart",
         "labelShippingMethod": "Versandart",
         "labelOrderLanguage": "Bestellsprache",
@@ -111,13 +111,13 @@
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
+      "discountLabelShippingCosts": "Versandkostenrabatt",
       "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
       "tax": "Enthaltene Steuern:",
       "shippingCostsTax": "{taxRate}%: {tax}",
-      "discountLabelShippingCosts": "discount shipping costs",
-      "labelAddPromotion": "Add promotion",
+      "labelAddPromotion": "Rabattaktion hinzufügen",
       "placeholderAddPromotion": "Gutscheincode eingeben ...",
-      "textInvalidPromotionCode": "Invalid promotion code",
+      "textInvalidPromotionCode": "Ungültiger Aktionscode",
       "textPromotionDescription": {
         "cart": {
           "percentage": "{value}% Rabatt auf den Warenkorb",
@@ -199,7 +199,8 @@
       "placeholderTagSelect": "Tags durchsuchen...",
       "placeholderTrackingCodeSelect": "Tracking-Code hinzufügen ...",
       "addTrackingCode": "Zum Hinzufügen hier klicken",
-      "enterValidTrackingCode": "Tracking-Code eingeben"
+      "enterValidTrackingCode": "Tracking-Code eingeben",
+      "textCreditTax": "auto"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",
@@ -296,11 +297,11 @@
     },
     "newCustomerModal": {
       "labelDetails": "Details",
-      "labelGuest": "Guest account"
+      "labelGuest": "Gastbesteller"
     },
     "invalidPromotionModal": {
-      "modalTitle": "Invalid promotion codes will be removed",
-      "modalDescription": "The following invalid promotion codes will be removed",
+      "modalTitle": "Ungültige Aktionscodes werden entfernt",
+      "modalDescription": "Die folgenden, ungültigen Aktionscodes werden entfernt",
       "buttonConfirm": "OK"
     }
   }

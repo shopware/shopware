@@ -44,7 +44,7 @@ class StorefrontRoutingTest extends TestCase
         );
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(500, $response->getStatusCode());
+        static::assertSame(Response::HTTP_PRECONDITION_FAILED, $response->getStatusCode());
         static::assertStringContainsString(InvalidRouteScopeException::class, $response->getContent());
     }
 }

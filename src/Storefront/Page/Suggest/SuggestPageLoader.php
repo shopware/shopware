@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Suggest;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface;
+use Shopware\Core\Content\Product\SalesChannel\ProductSuggestRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,9 +19,9 @@ class SuggestPageLoader
     private $eventDispatcher;
 
     /**
-     * @var ProductSuggestGatewayInterface
+     * @var ProductSuggestRouteInterface
      */
-    private $suggestGateway;
+    private $productSuggestRoute;
 
     /**
      * @var GenericPageLoaderInterface
@@ -30,11 +30,11 @@ class SuggestPageLoader
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        ProductSuggestGatewayInterface $suggestGateway,
+        ProductSuggestRouteInterface $productSuggestRoute,
         GenericPageLoaderInterface $genericLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->suggestGateway = $suggestGateway;
+        $this->productSuggestRoute = $productSuggestRoute;
         $this->genericLoader = $genericLoader;
     }
 
@@ -49,7 +49,7 @@ class SuggestPageLoader
 
         $page = SuggestPage::createFrom($page);
 
-        $page->setSearchResult($this->suggestGateway->suggest($request, $salesChannelContext));
+        $page->setSearchResult($this->productSuggestRoute->load($request, $salesChannelContext)->getListingResult());
 
         $page->setSearchTerm($request->query->get('search'));
 

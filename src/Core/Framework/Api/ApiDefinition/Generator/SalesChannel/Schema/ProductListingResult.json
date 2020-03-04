@@ -1,0 +1,25 @@
+{
+    "type": "object",
+    "properties": {
+        "apiAlias": {
+            "type": "string"
+        },
+        "sorting": {
+            "type": "string"
+        },
+        "page": {
+            "type": "integer",
+            "format": "int32"
+        },
+        "limit": {
+            "type": "integer",
+            "format": "int32"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/category_flat"
+          }
+        }
+    }
+}

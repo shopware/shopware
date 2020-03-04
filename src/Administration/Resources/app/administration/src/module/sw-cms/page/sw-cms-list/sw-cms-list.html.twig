@@ -256,7 +256,7 @@
                 {% endblock %}
 
                 {% block sw_cms_list_media_modal %}
-                    <sw-modal
+                    <sw-media-modal-v2
                             variant="regular"
                             v-if="showMediaModal"
                             :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
@@ -264,7 +264,7 @@
                             :allowMultiSelect="false"
                             @media-modal-selection-change="onPreviewImageChange"
                             @modal-close="onModalClose">
-                    </sw-modal>
+                    </sw-media-modal-v2>
                 {% endblock %}
 
                 {% block sw_cms_list_delete_modal %}

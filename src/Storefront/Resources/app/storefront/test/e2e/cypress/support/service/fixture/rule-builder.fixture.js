@@ -30,24 +30,19 @@ class RuleBuilderFixture {
     setRuleFixture(userData, shippingMethodName) {
         // Create rule fixture via api
         return this.create('rule', userData).then(() => {
-            console.log('[RuleBuilderFixture] rule created');
             return this.search('rule', {
                 field: 'name',
                 value: 'Foobar'
             })
         }).then((ruleData) => {
             const ruleId = ruleData.id;
-            console.log(`[RuleBuilderFixture] created rule found, ID: ${ruleId}`);
-            console.log(ruleData.data);
             // Get the shipping method id
             return this.search('shipping-method', {
                 field: 'name',
                 value: shippingMethodName
             }).then((shippingMethodData) => {
                 const shippingMethodId = shippingMethodData.id;
-                console.log(`[RuleBuilderFixture] shipping method ${shippingMethodName} found with ID: ${shippingMethodId}`);
 
-                console.log('[RuleBuilderFixture] update shipping rule now');
                 return this.update({
                     type: 'shipping-method',
                     id: shippingMethodId,

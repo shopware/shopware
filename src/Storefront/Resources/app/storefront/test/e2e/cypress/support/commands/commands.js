@@ -175,8 +175,6 @@ Cypress.Commands.add('createRuleFixture', (userData, shippingMethodName = 'Stand
     return cy.fixture('rule-builder-shipping-payment.json').then((result) => {
         return Cypress._.merge(result, userData);
     }).then((data) => {
-        console.log('[RuleBuilderFixture] fixture service, calling setRuleFixture');
-        console.log(data);
         return fixture.setRuleFixture(data, shippingMethodName);
     })
 })

@@ -3,91 +3,52 @@ import AccountPageObject from "../../support/pages/account.page-object";
 import createId from 'uuid/v4';
 
 let product = {};
-describe(`Checkout rule builder handling for shipping and payment methods`, () => {
-    beforeEach(() => {
-        cy.visit('/');
 
-        // Get payment method which isn't the saleschannel default
+// TODO: Re-enable skipped test spec when feature flag epic got merged
+describe.skip('Checkout rule builder handling for shipping and payment methods', () => {
+    beforeEach(() => {
         cy.searchViaAdminApi({
             endpoint: 'payment-method',
             data: {
                 field: 'name',
                 value: 'Invoice'
             }
-        }).then(({ id }) => {
-            // Get fixture and set the previous payment method id into the fixture data
-            // The IDs which are in the JSON are generated
-            return cy.fixture('rule-builder-shipping-payment.json').then((data) => {
+        }).then(({id: paymentMethodId}) => {
+            const ruleId = createId().replace(/-/g, '');;
+            const orContainerId = createId().replace(/-/g, '');;
+            const andContainerId = createId().replace(/-/g, '');;
+            const paymentMethodRuleId = createId().replace(/-/g, '');;
 
-                const ruleId = createId().replace(/-/g, '');;
-                const orContainerId = createId().replace(/-/g, '');;
-                const andContainerId = createId().replace(/-/g, '');;
-                const paymentMethodRuleId = createId().replace(/-/g, '');;
-
-                return Cypress._.merge(data, {
-                    id: ruleId,
-                    conditions: [{
-                        id: orContainerId,
+            return cy.createRuleFixture({
+                id: ruleId,
+                conditions: [{
+                    id: orContainerId,
+                    ruleId: ruleId,
+                    children: [{
+                        id: andContainerId,
                         ruleId: ruleId,
+                        parentId: orContainerId,
                         children: [{
-                            id: andContainerId,
                             ruleId: ruleId,
-                            parentId: orContainerId,
-                            children: [{
-                                ruleId: ruleId,
-                                parentId: andContainerId,
-                                id: paymentMethodRuleId,
-                                value: { paymentMethodIds: [id] }
-                            }]
+                            parentId: andContainerId,
+                            id: paymentMethodRuleId,
+                            value: { paymentMethodIds: [paymentMethodId] }
                         }]
                     }]
-                });
-            });
-        }).then((fixture) => {
-            // Create rule fixture via api
-            return cy.createViaAdminApi({
-                endpoint: 'rule',
-                data: fixture
+                }]
             });
         }).then(() => {
-            // Get the rule id
-            return cy.searchViaAdminApi({
-                endpoint: 'rule',
-                data: {
-                    field: 'name',
-                    value: 'Foobar'
-                }
-            })
-        }).then(({ id: ruleId }) => {
-            // Get the shipping method id
-            return cy.searchViaAdminApi({
-                endpoint: 'shipping-method',
-                data: {
-                    field: 'name',
-                    value: 'Standard'
-                }
-            }).then(({ id: shippingMethodId }) => {
-                // Update the shipping method with the newly created rule id
-                return cy.requestAdminApi(
-                    'PATCH',
-                    `${Cypress.env('apiPath')}/shipping-method/${shippingMethodId}?response=true`,
-                    { data: { availabilityRuleId: ruleId }}
-                );
-            });
-        }).then(() => {
-            // ...last but not least, create a product for testing
-            return cy.createProductFixture({
-                name: 'AwesomeProduct'
-            }).then(() => {
+            return cy.createProductFixture().then(() => {
                 return cy.createDefaultFixture('category')
-            })
+            });
         }).then(() => {
             return cy.fixture('product');
-        }).then((fixture) => {
-            product = fixture;
-            product.name = 'AwesomeProduct'
+        }).then((productFixture) => {
+            product = productFixture;
             return cy.createCustomerFixtureStorefront();
-        })
+        }).then((result) => {
+            cy.visit('/');
+        });
     });
 
     it('@cart @payment @shipping: Check rule conditions in cart', () => {
@@ -184,6 +145,7 @@ describe(`Checkout rule builder handling for shipping and payment methods`, () =
         cy.get('.alert-content-container .alert-content')
             .contains('Shipping method Standard not available.');
 
+        // Check if the label is marked as invalid
         cy.get('.confirm-shipping-current.is-invalid').contains('Standard');
         cy.get('.confirm-method-tooltip').should('be.visible');
     });

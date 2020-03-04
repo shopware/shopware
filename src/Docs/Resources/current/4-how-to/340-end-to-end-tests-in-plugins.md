@@ -18,15 +18,47 @@ In this example, we will use that quick start plugin as a basis.
 
 ## Set up Cypress
 
-Of course you can use a separate installation of Cypress if you want: This guide is still valid in that case, 
-with few customizations. However, you don't need to install Cypress, as it's already shipped with Shopware 6. 
-In this guide, we'll focus on this second way.
+Depending on your environment (administration or storefront) please create the following folder structure:
+```bash
+Resources
+ `-- app
+   `-- <environment>
+     `-- test
+       `-- e2e
+```
+
+In the `e2e` directory (or any other you want to store your end-to-end tests), you can install Cypress by using 
+the following command;
+```bash
+npm install cypress
+```
+
+There's one more thing to do in this directory: Please run `npm init -y` to generate a package.json file. It is 
+very convenient to place a script inside the newly created package.json to run the tests locally. 
+Please add the following script section to do so:
+```javascript
+"scripts": {
+   "open": "node_modules/.bin/cypress open"
+},
+```
+
+Now install this package with the following command:
+```bash
+npm install @shopware/e2e-testsuite-platform
+```
+
+As next step, please create a new file `e2e/cypress/plugins/index.js` with the following content:
+```javascript
+module.exports = require('@shopware/e2e-testsuite-platform/cypress/plugins');
+```
+
+Finally, create a new file `e2e/cypress/support/index.js` with the the following line:
+```javascript
+// Require test suite commands
+require('@shopware/e2e-testsuite-platform/cypress/support');
+```
 
 ### Configuration and directory structure
-
-If you want to start quickly, just open the [test runner](#executing-the-tests). On its first run, Cypress will then 
-create some directories which enables you to start right away. We'll cover up on how to run Cypress in the paragraph 
-"[Executing tests](#executing-the-tests)".
 
 In the `e2e` directory (or any other you want to store your end-to-end tests), you should now see a directory structure 
 similar to this one:
@@ -102,7 +134,7 @@ describe the desired state of your elements, your objects, and your application.
 To use both in your test, you are able to chain commands together. In addition, please use assertion to control if your 
 plugin behaves according to your needs. Let us show you an example:
 ```javascript
-cy.get('.sw-grid__row--0 .sw-plugin-table-entry__title') // Command to find the title element
+cy.get('.sw-data-grid__row--0 .sw-plugin-table-entry__title') // Command to find the title element
   .contains('Label for the plugin PluginCypressTests'); // Command to check the text of the element you found before
 ```
 The `cy.get()` will be chained onto the `.contains`, telling it to check the text of the subject yielded from the 
@@ -119,8 +151,6 @@ assertions, so the syntax may sound familiar:
 This way, we portrait the whole workflow of our test:
 ```javascript
 it('edit plugin\'s configuration', () => {
-    cy.visit(`/admin#/sw/plugin/index/list`);
-                
     // Request we want to wait for later
     cy.server();
     cy.route({
@@ -129,21 +159,23 @@ it('edit plugin\'s configuration', () => {
     }).as('saveData');
 
     // Open plugin configuration
-    cy.get('.sw-grid__row--0 .sw-plugin-table-entry__title')
+    cy.get('.sw-data-grid__row--0 .sw-plugin-table-entry__title')
         .contains('Label for the plugin PluginCypressTests');
 
-    cy.get('.sw-grid__row--0').should('be.visible');
-    cy.get('.sw-grid__row--0 .sw-context-button__button').click({force: true});
+    cy.get('.sw-data-grid__row--0').should('be.visible');
+    cy.get('.sw-data-grid__row--0 .sw-context-button__button').click({force: true});
     cy.get('.sw-context-menu').should('be.visible');
-    cy.get('.sw-context-menu-item:nth-of-type(2)').click();
+    cy.contains('Config').click();
     cy.get('.sw-context-menu').should('not.exist');
 
     // Edit configuration and save
     cy.get('input[name="PluginCypressTests.config.example"]').type('Typed using an E2E test');
     cy.get('.sw-plugin-config__save-action').click();
 
-    cy.get('.sw-notifications__notification--0 .sw-alert__message').should('be.visible')
-        .contains('Die Konfiguration wurde erfolgreich gespeichert');
+    cy.wait('@saveData').then(() => {
+        cy.get('.sw-notifications__notification--0 .sw-alert__message').should('be.visible')
+            .contains('Configuration has been saved.');
+    });
 });
 ```
 For a reference to Cypress' commands and assertions, please see 
@@ -168,7 +200,7 @@ notification, waits for it to be visible and check its text.
 ```javascript
 cy.wait('@saveData').then(() => {
     cy.get('.sw-notifications__notification--0 .sw-alert__message').should('be.visible')
-        .contains('Die Konfiguration wurde erfolgreich gespeichert');
+        .contains('Configuration has been saved.');
 });
 ```
 
@@ -205,7 +237,7 @@ Finally, our test spec should be ready to run! Let's look at it in completion:
 
 describe('PluginCypressTests: Test configuration', () => {
     beforeEach(() => {
-        cy.loginViaApi() // has to be implemented
+        cy.loginViaApi()
             .then(() => {
                 cy.visit('/admin#/sw/plugin/index/list');
             });
@@ -220,13 +252,13 @@ describe('PluginCypressTests: Test configuration', () => {
         }).as('saveData');
 
         // Open plugin configuration
-        cy.get('.sw-grid__row--0 .sw-plugin-table-entry__title')
+        cy.get('.sw-data-grid__row--0 .sw-plugin-table-entry__title')
             .contains('Label for the plugin PluginCypressTests');
 
-        cy.get('.sw-grid__row--0').should('be.visible');
-        cy.get('.sw-grid__row--0 .sw-context-button__button').click({force: true});
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.get('.sw-data-grid__row--0 .sw-context-button__button').click({force: true});
         cy.get('.sw-context-menu').should('be.visible');
-        cy.get('.sw-context-menu-item:nth-of-type(2)').click();
+        cy.contains('Config').click();
         cy.get('.sw-context-menu').should('not.exist');
 
         // Edit configuration and save
@@ -235,7 +267,7 @@ describe('PluginCypressTests: Test configuration', () => {
 
         cy.wait('@saveData').then(() => {
             cy.get('.sw-notifications__notification--0 .sw-alert__message').should('be.visible')
-                .contains('Die Konfiguration wurde erfolgreich gespeichert');
+                .contains('Configuration has been saved.');
         });
     });
 });
@@ -247,8 +279,8 @@ There are several ways to run Cypress tests: You can use the
 [test runner](https://docs.cypress.io/guides/core-concepts/test-runner.html) or
 [command line](https://docs.cypress.io/guides/guides/command-line.html). For example, if you want
 to open the test runner via command line, please run the following command:
-```sh
-./vendor/shopware/platform/src/Administration/Resources/e2e/node_modules/.bin/cypress open --project custom/plugins/PluginCypressTests/tests/e2e --env projectRoot=custom/plugins/PluginCypressTests/tests/e2e
+```bash
+npm run open
 ```
 
 Make sure the `--project` and `--env projectRoot` path in the command actually fits and customise it accordingly, 

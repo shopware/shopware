@@ -23,9 +23,9 @@ stories (workflows) that contain many components and views.
 
 ## Structure and Scope
 
-The second most important thing is to just test the workflow you explicitly want to test: Any other steps or workflows to get your 
-test runnning should be done using API operations in 
-the `beforeEach` hook, as we don't want to test them more than once.
+The second most important thing is to just test the workflow you explicitly want to test: Any other steps or workflows 
+to get your test running should be done using API operations in the `beforeEach` hook, as we don't want to test 
+them more than once.
 
 For example: if you want to test the checkout process you shouldn't do all the steps like create the sales channel, products and categories 
 although you need them in order to process the checkout. Use the API to create these things and let the test just do the checkout.

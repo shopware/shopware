@@ -4,7 +4,7 @@
               @modal-close="onClose">
         {% block sw_order_address_modal_content %}
             <sw-tabs class="sw-order-address-modal" defaultItem="edit" @new-item-active="onNewActiveItem">
-                <template slot-scope="{ active }">
+                <template #default="{ active }">
                 {% block sw_order_address_modal_tabs %}
                     {% block sw_order_address_modal_tab_edit_address %}
                         <sw-tabs-item name="edit" :activeTab="active">
@@ -19,7 +19,7 @@
                 {% endblock %}
                 </template>
 
-                <template slot="content" slot-scope="{ active }">
+                <template #content="{ active }">
                     {% block sw_order_address_modal_tabs_content %}
                         <div v-if="active==='edit'">
                             {% block sw_order_address_modal_tabs_content_edit_address %}
@@ -49,7 +49,7 @@
         {% endblock %}
 
         {% block sw_order_address_modal_actions %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 {% block sw_order_address_modal_action_close %}
                     <sw-button size="small" @click="onClose">
                         {{ $tc('sw-customer.detailAddresses.buttonCancel') }}

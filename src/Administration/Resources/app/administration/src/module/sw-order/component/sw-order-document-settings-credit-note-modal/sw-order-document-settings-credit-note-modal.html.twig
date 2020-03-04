@@ -1,8 +1,7 @@
 {% block sw_order_document_settings_modal_form_document_number %}
-    <sw-field type="text"
-              :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+    <sw-text-field :label="$tc('sw-order.documentModal.labelDocumentNumber')"
               v-model="documentConfig.documentNumber">
-    </sw-field>
+    </sw-text-field>
 {% endblock %}
 
 {% block sw_order_document_settings_modal_form_additional_content %}

@@ -56,11 +56,11 @@ class OrderConverter
     public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
 
     private const ADMIN_EDIT_ORDER_PERMISSIONS = [
-        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES,
-        ProductCartProcessor::SKIP_PRODUCT_RECALCULATION,
-        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION,
-        DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION,
-        PromotionCollector::SKIP_PROMOTION,
+        ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+        ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
+        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
+        DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
+        PromotionCollector::SKIP_PROMOTION => true,
     ];
 
     /**

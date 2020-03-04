@@ -13,6 +13,17 @@
             </sw-order-create-address-modal>
         {% endblock %}
 
+        {% block sw_order_create_promotion_modal %}
+            <sw-order-create-promotion-modal
+                v-if="showPromotionModal"
+                :isLoading="isLoading"
+                :currency="currency"
+                @close="onClosePromotionModal"
+                @save="onSavePromotionModal"
+            >
+            </sw-order-create-promotion-modal>
+        {% endblock %}
+
         {% block sw_order_create_details %}
             <sw-card
                 :title="$tc('sw-order.createBase.labelDetailsCard')"
@@ -79,18 +90,25 @@
                                     <sw-container columns="1fr 440px"
                                                   gap="14px"
                                                   class="sw-order-create-summary">
-                                        {% block sw_order_create_base_line_items_voucher_field %}
-                                            <sw-order-promotion-tag-field
-                                                :disabled="!hasLineItem"
-                                                :currency="currency"
-                                                :label="$tc('sw-order.createBase.labelAddPromotion')"
-                                                v-model="promotionCodeTags"
-                                                :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
-                                                @on-remove-code="onRemoveExistingCode"
-                                                :error="promotionError">
-                                            </sw-order-promotion-tag-field>
-                                        {% endblock %}
-
+                                        <div>
+                                            {% block sw_order_create_base_line_items_switch_promotions %}
+                                                <sw-switch-field class="sw-order-create-summary__switch-promotions"
+                                                                 :label="$tc('sw-order.promotionModal.labelTitle')"
+                                                                 v-model="disabledAutoPromotionVisibility">
+                                                </sw-switch-field>
+                                            {% endblock %}
+                                            {% block sw_order_create_base_line_items_voucher_field %}
+                                                <sw-order-promotion-tag-field
+                                                    :disabled="!hasLineItem"
+                                                    :currency="currency"
+                                                    :label="$tc('sw-order.createBase.labelAddPromotion')"
+                                                    v-model="promotionCodeTags"
+                                                    :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+                                                    @on-remove-code="onRemoveExistingCode"
+                                                    :error="promotionError">
+                                                </sw-order-promotion-tag-field>
+                                            {% endblock %}
+                                        </div>
                                         <sw-description-list grid="265px 1fr"
                                                              class="sw-order-create-summary__data">
                                             {% block sw_order_create_base_line_items_summary_entries %}

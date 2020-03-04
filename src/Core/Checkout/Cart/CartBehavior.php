@@ -25,7 +25,7 @@ class CartBehavior extends Struct
 
     public function hasPermission(string $permission)
     {
-        return in_array($permission, $this->permissions, true);
+        return !empty($this->permissions[$permission]);
     }
 
     /**

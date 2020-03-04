@@ -122,6 +122,7 @@
         "cart": {
           "percentage": "{value}% Rabatt auf den Warenkorb",
           "absolute": "{value} Rabatt auf den Warenkorb",
+          "absoluteUpto": "Bis zu {value} Rabatt. ({totalPrice} Rabatt auf diesen Warenkorb)",
           "fixed_unit": "Festpreis von {value} auf jeden Artikel im Warenkorb"
         },
         "delivery": {
@@ -303,6 +304,11 @@
       "modalTitle": "Ungültige Aktionscodes werden entfernt",
       "modalDescription": "Die folgenden, ungültigen Aktionscodes werden entfernt",
       "buttonConfirm": "OK"
+    },
+    "promotionModal": {
+      "labelTitle": "Deaktivieren Sie automatische Werbeaktionen",
+      "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert",
+      "buttonDisable": "Deaktivieren"
     }
   }
 }

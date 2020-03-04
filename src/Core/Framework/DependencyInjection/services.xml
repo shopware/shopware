@@ -315,6 +315,7 @@
 
         <service id="Shopware\Administration\Service\AdminOrderCartService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SalesChannelProxyController" public="true">

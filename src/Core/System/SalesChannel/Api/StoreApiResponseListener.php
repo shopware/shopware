@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class SalesChannelApiResponseListener implements EventSubscriberInterface
+class StoreApiResponseListener implements EventSubscriberInterface
 {
     /**
      * @var StructEncoder
@@ -31,7 +31,7 @@ class SalesChannelApiResponseListener implements EventSubscriberInterface
     {
         $response = $event->getResponse();
 
-        if (!$response instanceof SalesChannelApiResponse) {
+        if (!$response instanceof StoreApiResponse) {
             return;
         }
 

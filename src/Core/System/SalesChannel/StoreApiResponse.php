@@ -5,7 +5,7 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class SalesChannelApiResponse extends Response
+abstract class StoreApiResponse extends Response
 {
     /**
      * @var Struct

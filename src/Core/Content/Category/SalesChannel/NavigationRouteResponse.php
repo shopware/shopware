@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class NavigationRouteResponse extends SalesChannelApiResponse
+class NavigationRouteResponse extends StoreApiResponse
 {
     /**
      * @var CategoryCollection

@@ -91,7 +91,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesApiController" public="true">
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\StoreApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="twig"/>
         </service>
@@ -129,7 +129,7 @@
             <tag name="shopware.dal.exception_handler"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Api\SalesChannelApiResponseListener">
+        <service id="Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>

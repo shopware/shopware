@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Currency\SalesChannel;
 
 use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class CurrencyRouteResponse extends SalesChannelApiResponse
+class CurrencyRouteResponse extends StoreApiResponse
 {
     /**
      * @var CurrencyCollection

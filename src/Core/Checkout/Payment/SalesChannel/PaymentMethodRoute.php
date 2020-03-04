@@ -126,7 +126,7 @@ class PaymentMethodRoute implements PaymentMethodRouteInterface
             return $a->getPosition() <=> $b->getPosition();
         });
 
-        if ($request->query->getInt('onlyAvailable', 0) === 1) {
+        if ($request->query->getBoolean('onlyAvailable', false)) {
             $paymentMethods = $paymentMethods->filterByActiveRules($context);
         }
 

@@ -15,7 +15,7 @@ const { Component } = Shopware;
  *              If the type requires a value you can set the value prop,
  *              which will be passed in the execCommand function.</p>
  *              <p>To read more about the execCommand function see</p>
- *              <a href="https://developer.mozilla.org/de/docs/Web/API/Document/execCommand" target="_blank">
+ *              <a href="https://developer.mozilla.org/de/docs/Web/API/Document/execCommand" target="_blank" rel="noopener">
  *              https://developer.mozilla.org/de/docs/Web/API/Document/execCommand</a>
  *
  *              <p>If you want to generate a sub-menu you can set a children prop in the button-object which,

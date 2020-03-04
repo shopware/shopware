@@ -98,7 +98,8 @@
                                     <router-link v-else-if="!isInlineEdit && isProductItem(item)"
                                                  :title="$tc('sw-order.createBase.contextMenuShowProduct')"
                                                  :to="{ name: 'sw.product.detail', params: { id: item.id } }"
-                                                 target="_blank">
+                                                 target="_blank"
+                                                 rel="noopener">
                                         {% block sw_order_line_items_grid_sales_channel_columns_name_label %}
                                             {{ item.label }}
                                         {% endblock %}
@@ -196,7 +197,7 @@
                                 <sw-context-menu-item :disabled="!isProductItem(item)"
                                                       icon="default-eye-open"
                                                       :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }"
-                                                      target="_blank">
+                                                      target="_blank" rel="noopener">
                                     {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
                                         {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
                                     {% endblock %}

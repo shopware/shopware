@@ -48,7 +48,7 @@
                                         {% if image.url %}
                                             <a href="{{ image.url }}"
                                                class="image-slider-link"
-                                               {% if image.newTab %}target="_blank"{% endif %}>
+                                               {% if image.newTab %}target="_blank" rel="noopener"{% endif %}>
                                                 {{ imageElement }}
                                             </a>
                                         {% else %}

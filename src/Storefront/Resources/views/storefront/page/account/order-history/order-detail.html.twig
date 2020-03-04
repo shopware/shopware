@@ -112,7 +112,7 @@
                                                                     {% for trackingCode in trackingCodes %}
                                                                         {% if trackingUrl %}
                                                                             {% set output %}
-                                                                                <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank">{{ trackingCode }}</a>
+                                                                                <a href="{{ trackingUrl|format(trackingCode) }}" target="_blank" rel="noopener">{{ trackingCode }}</a>
                                                                             {% endset %}
                                                                         {% else %}
                                                                             {% set output %}

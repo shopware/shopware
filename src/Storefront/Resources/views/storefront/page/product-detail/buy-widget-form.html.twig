@@ -15,9 +15,8 @@
             {{ sw_csrf('frontend.checkout.line-item.add') }}
         {% endblock %}
 
+        {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
         {% block page_product_detail_buy_container %}
-            {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
-
             {% if buyable %}
                 <div class="form-row buy-widget-container">
                     {% block page_product_detail_buy_quantity_container %}

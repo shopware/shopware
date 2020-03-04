@@ -9,6 +9,10 @@ export default class ViewItemListEvent extends AnalyticsEvent
     }
 
     execute() {
+        if (!this.active) {
+            return;
+        }
+
         gtag('event', 'view_item_list', {
             'items': this.getListItems()
         });
@@ -17,6 +21,10 @@ export default class ViewItemListEvent extends AnalyticsEvent
     getListItems() {
         const productBoxes = DomAccessHelper.querySelectorAll(document, '.product-box', false);
         const lineItems = [];
+
+        if (!productBoxes) {
+            return;
+        }
 
         productBoxes.forEach(item => {
             const form = DomAccessHelper.querySelector(item, '.buy-widget');

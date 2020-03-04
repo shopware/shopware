@@ -17,6 +17,10 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
     }
 
     _formSubmit(event) {
+        if (!this.active) {
+            return;
+        }
+        
         const input = DomAccessHelper.querySelector(event.currentTarget, '.form-control');
 
         gtag('event', 'add_to_cart', {

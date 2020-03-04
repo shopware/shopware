@@ -10,19 +10,23 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
 
     getEvents() {
         return {
-            'openOffCanvasCart': this._onOpenOffCanvasCart.bind(this)
+            'offCanvasOpened': this._offCanvasOpened.bind(this)
         };
     }
 
     getPluginName() {
-        return 'AddToCart'
+        return 'OffCanvasCart'
     }
 
-    _onOpenOffCanvasCart() {
+    _offCanvasOpened() {
         DomAccessHelper.querySelector(document, '.begin-checkout-btn').addEventListener('click', this._onBeginCheckout.bind(this));
     }
 
     _onBeginCheckout() {
+        if (!this.active) {
+            return;
+        }
+
         gtag('event', 'begin_checkout', {
             'transaction_id': window.contextToken,
             'items': LineItemHelper.getLineItems()

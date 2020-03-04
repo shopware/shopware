@@ -27,6 +27,18 @@ class CookieProvider implements CookieProviderInterface
         ],
     ];
 
+    private const statisticalCookies = [
+        'snippet_name' => 'cookie.groupStatistical',
+        'snippet_description' => 'cookie.groupStatisticalDescription',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupStatisticalGoogleAnalytics',
+                'cookie' => 'google-analytics-enabled',
+                'value' => '1',
+            ],
+        ],
+    ];
+
     /**
      * A group CAN be a cookie, it's entries MUST be a cookie.
      * If a "group" is a cookie itself, it should not contain "children", because it may lead to unexpected UI behavior.
@@ -59,6 +71,7 @@ class CookieProvider implements CookieProviderInterface
     {
         return [
             self::requiredCookies,
+            self::statisticalCookies,
         ];
     }
 }

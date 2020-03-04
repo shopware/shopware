@@ -1,5 +1,7 @@
 export default class AnalyticsEvent
 {
+    active = true;
+
     /* eslint-disable no-unused-vars */
     /**
      * @param {string} controllerName
@@ -14,5 +16,9 @@ export default class AnalyticsEvent
 
     execute() {
         console.warn('[Google Analytics Plugin] Method \'execute\' was not overridden by `' + this.constructor.name + '`.');
+    }
+
+    disable() {
+        this.active = false;
     }
 }

@@ -9,10 +9,16 @@
             window.dataLayer = window.dataLayer || [];
             window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';
 
-            function gtag(){ dataLayer.push(arguments); }
-            gtag('js', new Date());
+            function gtag() { dataLayer.push(arguments); }
 
-            gtag('config', '{{ trackingId }}');
+            window.gtagCallback = () => {
+                gtag('js', new Date());
+
+                gtag('config', '{{ trackingId }}', {
+                    'cookie_domain': 'none',
+                    'cookie_prefix': '_swag_ga',
+                });
+            };
         </script>
     {% endif %}
 {% endblock %}

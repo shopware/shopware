@@ -475,7 +475,10 @@
         "groupRequired": "Technisch erforderlich",
         "groupRequiredDescription": "Diese Cookies sind für die Grundfunktionen des Shops notwendig.",
         "groupRequiredSession": "Session",
-        "groupRequiredTimezone": "Zeitzone"
+        "groupRequiredTimezone": "Zeitzone",
+        "groupStatistical": "Statistik",
+        "groupStatisticalDescription": "Diese Cookies werden für Statistiken und Shop Performance Metriken genutzt.",
+        "groupStatisticalGoogleAnalytics": "Google Analytics"
     },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

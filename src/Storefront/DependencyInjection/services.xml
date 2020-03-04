@@ -272,9 +272,9 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
-            <argument type="service" id="sales_channel.payment_method.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader">

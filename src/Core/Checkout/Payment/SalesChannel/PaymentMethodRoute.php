@@ -92,6 +92,13 @@ class PaymentMethodRoute implements PaymentMethodRouteInterface
      *          description="Encoded SwagQL in JSON",
      *          @OA\Schema(type="string")
      *      ),
+     *      @OA\Parameter(
+     *          parameter="onlyAvailable",
+     *          name="onlyAvailable",
+     *          in="query",
+     *          description="Encoded SwagQL in JSON",
+     *          @OA\Schema(type="int")
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="All available payment methods",
@@ -118,6 +125,10 @@ class PaymentMethodRoute implements PaymentMethodRouteInterface
         $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
             return $a->getPosition() <=> $b->getPosition();
         });
+
+        if ($request->query->getInt('onlyAvailable', 0) === 1) {
+            $paymentMethods = $paymentMethods->filterByActiveRules($context);
+        }
 
         return new PaymentMethodRouteResponse($paymentMethods);
     }

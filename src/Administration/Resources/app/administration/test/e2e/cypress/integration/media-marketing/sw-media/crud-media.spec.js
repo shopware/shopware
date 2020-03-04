@@ -23,7 +23,17 @@ describe('Media: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        runOn('chrome', () => {
+            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        });
+        runOn('firefox', () => {
+            // Upload medium
+            cy.clickContextMenuItem(
+                '.sw-media-upload-v2__button-url-upload',
+                '.sw-media-upload-v2__button-context-menu'
+            );
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
+        });
 
         cy.wait('@saveData').then((xhr) => {
             cy.awaitAndCheckNotification('File has been saved.');
@@ -77,12 +87,22 @@ describe('Media: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
-        cy.awaitAndCheckNotification('File has been saved.');
+        runOn('chrome', () => {
+            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        });
+        runOn('firefox', () => {
+            // Upload medium
+            cy.clickContextMenuItem(
+                '.sw-media-upload-v2__button-url-upload',
+                '.sw-media-upload-v2__button-context-menu'
+            );
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
+        });
 
         // Delete image
+        cy.awaitAndCheckNotification('File has been saved.');
         cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).should('be.visible');
-        cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}:not(${page.elements.previewPlaceholder}`).click();
+        cy.get(`${page.elements.mediaItem} ${page.elements.previewItem}`).click();
         cy.get('li.quickaction--delete').click();
         cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete "sw-login-background.png"?');
         cy.get('.sw-media-modal-delete__confirm').click();

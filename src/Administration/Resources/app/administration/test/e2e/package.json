@@ -10,15 +10,20 @@
     "npm": ">= 6.5.0"
   },
   "scripts": {
-    "open": "node_modules/.bin/cypress open"
+    "open": "node_modules/.bin/cypress open",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "cy:run:firefox": "cypress run --browser firefox"
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
-    "@shopware-ag/e2e-testsuite-platform": "1.1.6",
+    "@shopware-ag/e2e-testsuite-platform": "1.2.0-beta.1",
     "cypress-multi-reporters": "^1.2.3",
     "mocha": "^7.0.0",
-    "mocha-junit-reporter": "^1.23.1",
     "mochawesome": "^4.1.0",
+    "mocha-junit-reporter": "^1.23.1"
+  },
+  "devDependencies": {
+    "cypress": "^4.0.0",
     "mochawesome-merge": "^4.0.0",
     "mochawesome-report-generator": "^4.1.0"
   }

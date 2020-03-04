@@ -299,16 +299,10 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.2.0-beta.1 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
-
-.generate_mochawesome_reports:
-    after_script: &mochawesome_report_definition
-        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
-        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
-        - docker rm -f cypress
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.0.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
 
 .scheduled_script:
     script: &scheduled_definition
@@ -317,10 +311,16 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.2.0-beta.1 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:3.8.1 -c "npm install --production --prefix /e2e && node_modules/.bin/cypress run --project /e2e --browser chrome --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0"
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.0.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
+
+.generate_mochawesome_reports:
+    after_script: &mochawesome_report_definition
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
+        - docker rm -f cypress
 
 General (Storefront):
     only:
@@ -334,6 +334,7 @@ General (Storefront):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Storefront'
         TEST_DIRECTORY: "cypress/integration/**/*"
 
@@ -349,6 +350,7 @@ Content (Mixed):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/content/**/*"
 
@@ -364,6 +366,7 @@ Catalogues (Mixed):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/catalogue/**/*"
 
@@ -379,6 +382,7 @@ Customers (Mixed):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/customer/**/*"
 
@@ -394,6 +398,7 @@ Media and Marketing (Mixed):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/media-marketing/**/*"
 
@@ -409,6 +414,7 @@ General (Administration):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/general/**/*"
 
@@ -424,6 +430,7 @@ Orders (Administration):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/order/**/*"
 
@@ -439,6 +446,7 @@ Rules and Product Groups (Administration):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/rule-product-stream/**/*"
 
@@ -454,10 +462,11 @@ Settings (Administration):
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'chrome'
         SECTION: 'Administration'
         TEST_DIRECTORY: "cypress/integration/settings/**/*"
 
-Admin (Total):
+Admin on FF (Total):
     only:
         - schedules
     <<: *e2e_definition
@@ -465,10 +474,10 @@ Admin (Total):
     script: *scheduled_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'firefox'
         SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/**/*"
 
-Storefront (Total):
+Storefront on FF (Total):
     only:
         - schedules
     <<: *e2e_definition
@@ -476,8 +485,30 @@ Storefront (Total):
     script: *scheduled_definition
     after_script: *mochawesome_report_definition
     variables:
+        BROWSER: 'firefox'
         SECTION: 'Storefront'
-        TEST_DIRECTORY: "cypress/integration/**/*"
+
+Admin on Chrome (Total):
+    only:
+        - schedules
+    <<: *e2e_definition
+    timeout: 2h 00m
+    script: *scheduled_definition
+    after_script: *mochawesome_report_definition
+    variables:
+        BROWSER: 'chrome'
+        SECTION: 'Administration'
+
+Storefront on Chrome (Total):
+    only:
+        - schedules
+    <<: *e2e_definition
+    timeout: 2h 00m
+    script: *scheduled_definition
+    after_script: *mochawesome_report_definition
+    variables:
+        BROWSER: 'chrome'
+        SECTION: 'Storefront'
 
 # Stage: build
 

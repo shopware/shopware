@@ -39,22 +39,25 @@ describe('Product: Test crud operations', () => {
         cy.get('select[name=sw-field--product-taxId]').select('19%');
         cy.get('#sw-price-field-gross').type('10');
 
-        // Add image to product
-        cy.fixture('img/sw-login-background.png').then(fileContent => {
-            cy.get('#files').upload(
-                {
-                    fileContent,
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
+
+        runOn('chrome', () => {
+            // Add image to product
+            cy.fixture('img/sw-login-background.png').then(fileContent => {
+                cy.get('#files').upload(
+                    {
+                        fileContent,
+                        fileName: 'sw-login-background.png',
+                        mimeType: 'image/png'
+                    }, {
+                        subjectType: 'input'
+                    }
+                );
+            });
+            cy.get('.sw-product-image__image img')
+                .should('have.attr', 'src')
+                .and('match', /sw-login-background/);
+            cy.awaitAndCheckNotification('File has been saved.');
         });
-        cy.get('.sw-product-image__image img')
-            .should('have.attr', 'src')
-            .and('match', /sw-login-background/);
-        cy.awaitAndCheckNotification('File has been saved.');
 
         // Check net price calculation
         cy.wait('@calculatePrice').then(() => {

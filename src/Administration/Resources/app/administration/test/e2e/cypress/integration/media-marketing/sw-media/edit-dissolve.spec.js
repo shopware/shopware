@@ -28,7 +28,17 @@ describe('Media: Dissolve folder', () => {
 
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        runOn('chrome', () => {
+            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        });
+        runOn('firefox', () => {
+            // Upload medium
+            cy.clickContextMenuItem(
+                '.sw-media-upload-v2__button-url-upload',
+                '.sw-media-upload-v2__button-context-menu'
+            );
+            page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
+        });
 
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
 

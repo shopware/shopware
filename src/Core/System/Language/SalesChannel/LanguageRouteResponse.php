@@ -3,9 +3,9 @@
 namespace Shopware\Core\System\Language\SalesChannel;
 
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class LanguageRouteResponse extends SalesChannelApiResponse
+class LanguageRouteResponse extends StoreApiResponse
 {
     /**
      * @var LanguageCollection

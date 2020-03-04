@@ -13,7 +13,7 @@ use Twig\Environment;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class SalesApiController
+class StoreApiController
 {
     /**
      * @var DefinitionService
@@ -32,7 +32,7 @@ class SalesApiController
     }
 
     /**
-     * @Route("/store-api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="shop-api.info.openapi3", methods={"GET"})
+     * @Route("/store-api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
@@ -44,7 +44,7 @@ class SalesApiController
     }
 
     /**
-     * @Route("/store-api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="shop-api.info.open-api-schema", methods={"GET"})
+     * @Route("/store-api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(int $version): JsonResponse
     {
@@ -54,11 +54,11 @@ class SalesApiController
     }
 
     /**
-     * @Route("/store-api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="shop-api.info.swagger", methods={"GET"})
+     * @Route("/store-api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.swagger", methods={"GET"})
      */
     public function infoHtml(int $version): Response
     {
-        $content = $this->twig->render('@Framework/swagger.html.twig', ['schemaUrl' => 'shop-api.info.openapi3', 'apiVersion' => $version]);
+        $content = $this->twig->render('@Framework/swagger.html.twig', ['schemaUrl' => 'store-api.info.openapi3', 'apiVersion' => $version]);
 
         return new Response($content);
     }

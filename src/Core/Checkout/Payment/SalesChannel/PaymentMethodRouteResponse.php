@@ -3,9 +3,9 @@
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class PaymentMethodRouteResponse extends SalesChannelApiResponse
+class PaymentMethodRouteResponse extends StoreApiResponse
 {
     /**
      * @var PaymentMethodCollection

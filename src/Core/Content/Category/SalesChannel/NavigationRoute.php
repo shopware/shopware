@@ -117,7 +117,7 @@ class NavigationRoute implements NavigationRouteInterface
      *          @OA\JsonContent(ref="#/definitions/NavigationRouteResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/navigation/{requestActiveId}/{requestRootId}", name="shop-api.navigation", methods={"GET", "POST"})
+     * @Route("/store-api/v{version}/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})
      */
     public function load(
         string $requestActiveId,

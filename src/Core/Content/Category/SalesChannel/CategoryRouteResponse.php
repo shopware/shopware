@@ -3,18 +3,18 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class CategoryRouteResponse extends SalesChannelApiResponse
+class CategoryRouteResponse extends StoreApiResponse
 {
     /**
      * @var CategoryEntity
      */
     protected $object;
 
-    public function __construct(CategoryEntity $categories)
+    public function __construct(CategoryEntity $category)
     {
-        parent::__construct($categories);
+        parent::__construct($category);
     }
 
     public function getCategory(): CategoryEntity

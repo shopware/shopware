@@ -3,9 +3,9 @@
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class ShippingMethodRouteResponse extends SalesChannelApiResponse
+class ShippingMethodRouteResponse extends StoreApiResponse
 {
     /**
      * @var ShippingMethodCollection

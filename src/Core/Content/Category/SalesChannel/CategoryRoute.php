@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CategoryRoute implements CategoryRouteInterface
 {
+    public const HOME = 'home';
+
     /**
      * @var SalesChannelRepositoryInterface
      */
@@ -86,9 +88,17 @@ class CategoryRoute implements CategoryRouteInterface
      *
      * @Route("/store-api/v{version}/category/{categoryId}", name="shop-api.category.detail", methods={"GET","POST"})
      */
-    public function load(string $categoryId, Request $request, SalesChannelContext $context): CategoryRouteResponse
+    public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        $category = $this->loadCategory($categoryId, $context);
+        if ($navigationId === self::HOME) {
+            $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
+            $request->attributes->set('navigationId', $navigationId);
+            $routeParams = $request->attributes->get('_route_params', []);
+            $routeParams['navigationId'] = $navigationId;
+            $request->attributes->set('_route_params', $routeParams);
+        }
+
+        $category = $this->loadCategory($navigationId, $context);
 
         $pageId = $category->getCmsPageId();
 

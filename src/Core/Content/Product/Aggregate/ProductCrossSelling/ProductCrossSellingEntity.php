@@ -159,7 +159,7 @@ class ProductCrossSellingEntity extends Entity
         $this->product = $product;
     }
 
-    public function getProductStreamId(): string
+    public function getProductStreamId(): ?string
     {
         return $this->productStreamId;
     }

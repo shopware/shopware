@@ -96,7 +96,7 @@ class CrossSellingLoader
 
     private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
     {
-        if ($crossSelling->getType() === 'productStream') {
+        if ($crossSelling->getType() === 'productStream' && $crossSelling->getProductStreamId() !== null) {
             return $this->loadCrossSellingProductStream($crossSelling, $context);
         }
 

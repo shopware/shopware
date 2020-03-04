@@ -20,6 +20,7 @@
                     <sw-container columns="2fr 1fr" gap="0px 30px">
                         {% block sw_prduct_cross_selling_form_title_field %}
                             <sw-text-field
+                                name="sw-field--cross-selling-name"
                                 :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                                 required
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder')"
@@ -27,10 +28,12 @@
                             </sw-text-field>
                         {% endblock %}
                         {% block sw_prduct_cross_selling_form_active_field %}
-                            <sw-field type="switch"
-                                      class="sw-product-detail-cross-selling__active-switch"
-                                      :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
-                                      v-model="crossSelling.active">
+                            <sw-field
+                                name="sw-field--cross-selling-active"
+                                type="switch"
+                                class="sw-product-detail-cross-selling__active-switch"
+                                :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
+                                v-model="crossSelling.active">
                             </sw-field>
                         {% endblock %}
                     </sw-container>
@@ -38,8 +41,10 @@
                     <sw-container columns="2fr 1fr" gap="0px 30px">
                         {% block sw_prduct_cross_selling_form_type %}
                             <sw-select-field
+                                name="sw-field--cross-selling-type"
                                 :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                                 @change="onTypeChanged"
+                                required
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
                                 v-model="crossSelling.type">
                                 <option v-for="option in crossSellingTypes"
@@ -51,9 +56,11 @@
                         {% endblock %}
                         {% block sw_prduct_cross_selling_form_position_field %}
                             <sw-number-field
+                                name="sw-field--cross-selling-position"
                                 numberType="int"
                                 :min="1"
                                 :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
+                                required
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingPositionPlaceholder')"
                                 v-model="crossSelling.position">
                             </sw-number-field>
@@ -63,6 +70,7 @@
                     <div v-if="!useManualAssignment">
                         {% block sw_prduct_cross_selling_form_product_stream_field %}
                             <sw-entity-single-select
+                                name="sw-field--cross-selling-product-stream"
                                 entity="product_stream"
                                 class="sw-select-cross-selling__select-product-stream"
                                 id="sw-field--crossSelling-product-group"
@@ -75,6 +83,7 @@
                         <sw-container columns="1fr 1fr" gap="0px 30px">
                             {% block sw_prduct_cross_selling_form_sort_field %}
                                 <sw-select-field
+                                    name="sw-field--cross-selling-sorting"
                                     :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
                                     :value="sortingConCat"
                                     @change="onSortingChanged">
@@ -88,6 +97,7 @@
 
                             {% block sw_prduct_cross_selling_form_limit_field %}
                                 <sw-number-field
+                                    name="sw-field--cross-selling-limit"
                                     numberType="int"
                                     :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
                                     v-model="crossSelling.limit">

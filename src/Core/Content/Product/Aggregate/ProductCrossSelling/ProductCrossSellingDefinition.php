@@ -72,11 +72,11 @@ class ProductCrossSellingDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new TranslatedField('name'),
-            new IntField('position', 'position', 0),
+            (new TranslatedField('name'))->addFlags(new Required()),
+            (new IntField('position', 'position', 0))->addFlags(new Required()),
             new StringField('sort_by', 'sortBy'),
             new StringField('sort_direction', 'sortDirection'),
-            new StringField('type', 'type'),
+            (new StringField('type', 'type'))->addFlags(new Required()),
             new BoolField('active', 'active'),
             new IntField('limit', 'limit', 0),
 

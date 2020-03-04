@@ -212,7 +212,9 @@ class VersionManager
             $versionData['name'] = $name;
         }
 
-        $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($versionData): void {
+            $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
+        });
 
         $affected = $this->clone($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false);
 

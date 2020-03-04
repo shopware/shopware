@@ -32,6 +32,7 @@
                         {% block component_product_quickview_minimal_product_name %}
                             <a href="{{ seoUrl('frontend.detail.page', {'productId': page.product.id}) }}"
                                target="_blank"
+                               rel="noopener"
                                title="{{ name }}"
                                class="h4 quickview-minimal-product-name">
                                 {{ name }}
@@ -48,6 +49,7 @@
                             {% if manufacturer %}
                                 <a href="{{ manufacturer.link }}"
                                    target="_blank"
+                                   rel="noopener"
                                    title="{{ manufacturer.translated.name }}"
                                    class="quickview-minimal-product-manufacturer">
                                     {% if manufacturer.media %}

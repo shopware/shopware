@@ -35,7 +35,7 @@
                     {% if element.translated.config.url.value %}
                         <a href="{{ element.translated.config.url.value }}"
                            class="cms-image-link"
-                           {% if element.translated.config.newTab.value %}target="_blank"{% endif %}>
+                           {% if element.translated.config.newTab.value %}target="_blank" rel="noopener"{% endif %}>
                             {{ imageElement }}
                         </a>
                     {% else %}

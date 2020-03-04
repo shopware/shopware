@@ -446,9 +446,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed computed property `mediaStore` from component `sw-property-option-detail` 
     * CustomFields are now sorted naturally when custom position is used with customFieldPosition (for example 1,9,10 instead of 1,10,9)
     * Fix endless loading spinner in categories when user changes content language without having a category selected
+    * Add `rel="noopener"` to all `target="_blank"` links
 
 * Core
     *
 
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
+    * Add `rel="noopener"` to all `target="_blank"` links

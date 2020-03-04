@@ -1,0 +1,33 @@
+{
+  "name":"Foobar",
+  "priority":0,
+  "description":"asdasdsadas",
+  "moduleTypes":{
+    "types":[
+      "shipping"
+    ]
+  },
+  "conditions":[
+    {
+      "type":"orContainer",
+      "position":0,
+      "children":[
+        {
+          "type":"andContainer",
+          "position":0,
+          "children":[
+            {
+              "type":"paymentMethod",
+              "value":{
+                "operator":"=",
+                "paymentMethodIds":[
+                ]
+              },
+              "position":0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

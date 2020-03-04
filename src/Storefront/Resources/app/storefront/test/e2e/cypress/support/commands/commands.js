@@ -1,4 +1,5 @@
 const uuid = require('uuid/v4');
+const RuleBuilderFixture = require('../service/fixture/rule-builder.fixture');
 
 /**
  * Search for an existing entity using Shopware API at the given endpoint
@@ -167,6 +168,16 @@ Cypress.Commands.add('typeAndSelect', {
 }, (subject, value) => {
     cy.wrap(subject).select(value);
 });
+
+Cypress.Commands.add('createRuleFixture', (userData, shippingMethodName = 'Standard') => {
+    const fixture = new RuleBuilderFixture();
+
+    return cy.fixture('rule-builder-shipping-payment.json').then((result) => {
+        return Cypress._.merge(result, userData);
+    }).then((data) => {
+        return fixture.setRuleFixture(data, shippingMethodName);
+    })
+})
 
 Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
     return cy.searchViaAdminApi({

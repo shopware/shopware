@@ -3,9 +3,9 @@
 namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
-use Shopware\Core\System\SalesChannel\SalesChannelApiResponse;
+use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class ProductSearchRouteResponse extends SalesChannelApiResponse
+class ProductSearchRouteResponse extends StoreApiResponse
 {
     /**
      * @var ProductListingResult

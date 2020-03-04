@@ -53,7 +53,7 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
         ', ['type' => $mailTemplateType])->fetchColumn();
 
         $templateId = $connection->executeQuery('
-        SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
+        SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1
         ', ['typeId' => $templateTypeId])->fetchColumn();
 
         if ($templateId === false || !is_string($templateId)) {
@@ -112,7 +112,7 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
             $sqlParams['senderName'] = $senderName;
         }
 
-        $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :enLangId AND `updated_at` IS NULL';
+        $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :enLangId';
 
         $connection->executeUpdate($sqlString, $sqlParams);
     }
@@ -143,7 +143,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
         <td style="border-bottom:1px solid #cccccc;">{{ loop.index }} </td>
         <td style="border-bottom:1px solid #cccccc;">
           {{ lineItem.label|u.wordwrap(80) }}<br>
-          Art. No.: {{ lineItem.payload.productNumber|u.wordwrap(80) }}
+          {% if lineItem.payload.productNumber is defined %}Art. No.: {{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}
         </td>
         <td style="border-bottom:1px solid #cccccc;">{{ lineItem.quantity }}</td>
         <td style="border-bottom:1px solid #cccccc;">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
@@ -152,7 +152,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
     {% endfor %}
 </table>
 
-{% set delivery =order.deliveries.first %}
+{% set delivery = order.deliveries.first %}
 <p>
     <br>
     <br>
@@ -213,10 +213,10 @@ Information on your order:
 
 Pos.   Art.No.			Description			Quantities			Price			Total
 {% for lineItem in order.lineItems %}
-{{ loop.index }}      {{ lineItem.payload.productNumber|u.wordwrap(80) }}				{{ lineItem.label|u.wordwrap(80) }}			{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
+{{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}			{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
 {% endfor %}
 
-{% set delivery =order.deliveries.first %}
+{% set delivery = order.deliveries.first %}
 
 Shipping costs: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
 Net total: {{ order.amountNet|currency(currencyIsoCode) }}
@@ -281,7 +281,7 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
         <td style="border-bottom:1px solid #cccccc;">{{ loop.index }} </td>
         <td style="border-bottom:1px solid #cccccc;">
           {{ lineItem.label|u.wordwrap(80) }}<br>
-          Artikel-Nr: {{ lineItem.payload.productNumber|u.wordwrap(80) }}
+          {% if lineItem.payload.productNumber is defined %}Artikel-Nr: {{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}
         </td>
         <td style="border-bottom:1px solid #cccccc;">{{ lineItem.quantity }}</td>
         <td style="border-bottom:1px solid #cccccc;">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
@@ -290,7 +290,7 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
     {% endfor %}
 </table>
 
-{% set delivery =order.deliveries.first %}
+{% set delivery = order.deliveries.first %}
 <p>
     <br>
     <br>
@@ -350,10 +350,10 @@ Informationen zu Ihrer Bestellung:
 
 Pos.   Artikel-Nr.			Beschreibung			Menge			Preis			Summe
 {% for lineItem in order.lineItems %}
-{{ loop.index }}     {{ lineItem.payload.productNumber|u.wordwrap(80) }}				{{ lineItem.label|u.wordwrap(80) }}			{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
+{{ loop.index }}     {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}			{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
 {% endfor %}
 
-{% set delivery =order.deliveries.first %}
+{% set delivery = order.deliveries.first %}
 
 Versandkosten: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
 Gesamtkosten Netto: {{ order.amountNet|currency(currencyIsoCode) }}

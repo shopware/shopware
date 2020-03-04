@@ -9,14 +9,13 @@
     "cypress:open": "./node_modules/.bin/cypress open",
     "cypress:run": "./node_modules/.bin/cypress run",
     "cypress": "./node_modules/.bin/cypress",
-    "open": "./node_modules/.bin/cypress open"
-    "open": "node_modules/.bin/cypress open",
+    "open": "./node_modules/.bin/cypress open",
     "cy:run:chrome": "cypress run --browser chrome",
     "cy:run:firefox": "cypress run --browser firefox"
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
-    "@shopware-ag/e2e-testsuite-platform": "1.2.0-beta.0",
+    "@shopware-ag/e2e-testsuite-platform": "1.2.0-beta.1",
     "cypress-multi-reporters": "^1.2.3",
     "mocha": "^7.0.0",
     "mochawesome": "^4.1.0",

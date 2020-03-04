@@ -124,5 +124,17 @@
             <argument type="service" id="seo_url.repository"/>
             <argument type="service" id="sales_channel_domain.repository"/>
         </service>
+
+        <service id="Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute" public="true">
+            <argument type="service" id="sales_channel.seo_url.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver">
+            <argument type="service" id="sales_channel.seo_url.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

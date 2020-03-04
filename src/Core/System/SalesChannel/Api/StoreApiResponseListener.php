@@ -20,7 +20,7 @@ class StoreApiResponseListener implements EventSubscriberInterface
         $this->encoder = $encoder;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::RESPONSE => ['encodeResponse', 10000],

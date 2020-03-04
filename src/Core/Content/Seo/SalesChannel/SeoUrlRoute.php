@@ -1,0 +1,107 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Seo\SalesChannel;
+
+use OpenApi\Annotations as OA;
+use Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * @RouteScope(scopes={"store-api"})
+ */
+class SeoUrlRoute implements SeoUrlRouteInterface
+{
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $salesChannelRepository;
+
+    /**
+     * @var RequestCriteriaBuilder
+     */
+    private $requestCriteriaBuilder;
+
+    public function __construct(SalesChannelRepositoryInterface $salesChannelRepository, RequestCriteriaBuilder $requestCriteriaBuilder)
+    {
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/seo-url",
+     *      description="Loads seo urls",
+     *      operationId="readSeoUrl",
+     *      tags={"Store API"},
+     *      @OA\Parameter(
+     *          parameter="limit",
+     *          name="limit",
+     *          in="query",
+     *          description="Limit",
+     *          @OA\Schema(type="integer"),
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="offset",
+     *          name="offset",
+     *          in="query",
+     *          description="Offset",
+     *          @OA\Schema(type="integer"),
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="term",
+     *          name="term",
+     *          in="query",
+     *          description="The term to search for",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="filter",
+     *          name="filter",
+     *          in="query",
+     *          description="Encoded SwagQL in JSON",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="aggregations",
+     *          name="aggregations",
+     *          in="query",
+     *          description="Encoded SwagQL in JSON",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Parameter(
+     *          parameter="associations",
+     *          name="associations",
+     *          in="query",
+     *          description="Encoded SwagQL in JSON",
+     *          @OA\Schema(type="string")
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Found seo urls",
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/seo_url_flat"))
+     *     ),
+     *     @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/404"
+     *     )
+     * )
+     *
+     * @Route("/store-api/v{version}/seo-url", name="store-api.seo.url", methods={"GET", "POST"})
+     */
+    public function load(Request $request, SalesChannelContext $context): SeoUrlRouteResponse
+    {
+        $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), new SalesChannelSeoUrlDefinition(), $context->getContext());
+
+        /** @var SeoUrlCollection $seoUrlCollection */
+        $seoUrlCollection = $this->salesChannelRepository->search($criteria, $context)->getEntities();
+
+        return new SeoUrlRouteResponse($seoUrlCollection);
+    }
+}

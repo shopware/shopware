@@ -20,6 +20,7 @@ final class PlatformRequest
     public const HEADER_LANGUAGE_ID = 'sw-language-id';
     public const HEADER_INHERITANCE = 'sw-inheritance';
     public const HEADER_VERSION_ID = 'sw-version-id';
+    public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
 
     /**
      * Context attributes

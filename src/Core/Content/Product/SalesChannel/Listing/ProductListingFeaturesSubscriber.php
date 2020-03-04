@@ -26,8 +26,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
+use function Flag\next6025;
 
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
@@ -49,11 +52,21 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection, EntityRepositoryInterface $optionRepository, ProductListingSortingRegistry $sortingRegistry)
-    {
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    public function __construct(
+        Connection $connection,
+        EntityRepositoryInterface $optionRepository,
+        ProductListingSortingRegistry $sortingRegistry,
+        SystemConfigService $systemConfigService
+    ) {
         $this->optionRepository = $optionRepository;
         $this->connection = $connection;
         $this->sortingRegistry = $sortingRegistry;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public static function getSubscribedEvents()
@@ -110,6 +123,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $criteria = $event->getCriteria();
 
+        $this->handleAvailableStock($criteria, $event->getSalesChannelContext());
+
         // suggestion request supports no aggregations or filters
         $criteria->addAssociation('cover.media');
 
@@ -132,6 +147,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
         $this->handleSorting($request, $criteria, self::DEFAULT_SORT);
+        $this->handleAvailableStock($criteria, $event->getSalesChannelContext());
     }
 
     public function handleSearchRequest(ProductSearchCriteriaEvent $event): void
@@ -144,6 +160,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
         $this->handleSorting($request, $criteria, self::DEFAULT_SEARCH_SORT);
+        $this->handleAvailableStock($criteria, $event->getSalesChannelContext());
     }
 
     public function handleResult(ProductListingResultEvent $event): void
@@ -172,6 +189,31 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $event->getResult()->setPage($this->getPage($event->getRequest()));
 
         $event->getResult()->setLimit($this->getLimit($event->getRequest()));
+    }
+
+    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): void
+    {
+        if (!next6025()) {
+            return;
+        }
+
+        $salesChannelId = $context->getSalesChannel()->getId();
+
+        $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+
+        if (!$hide) {
+            return;
+        }
+
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('product.isCloseout', true),
+                    new EqualsFilter('product.available', false),
+                ]
+            )
+        );
     }
 
     private function handleFilters(Request $request, Criteria $criteria): void

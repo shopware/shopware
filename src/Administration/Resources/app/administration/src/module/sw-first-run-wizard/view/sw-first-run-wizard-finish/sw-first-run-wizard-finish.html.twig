@@ -14,9 +14,24 @@
         <h3 class="headline-useful-links">{{ $tc('sw-first-run-wizard.finish.headlineUsefulLinks') }}</h3>
         <sw-container columns="1fr 1fr 1fr"
                       class="list-useful-links">
-            <a :href="$tc('sw-first-run-wizard.finish.documentationUrl')" class="external-link" target="_blank">{{ $tc('sw-first-run-wizard.finish.documentationLabel') }}</a>
-            <a :href="$tc('sw-first-run-wizard.finish.forumUrl')" class="external-link" target="_blank">{{ $tc('sw-first-run-wizard.finish.forumLabel') }}</a>
-            <a :href="$tc('sw-first-run-wizard.finish.roadmapUrl')" class="external-link" target="_blank">{{ $tc('sw-first-run-wizard.finish.roadmapLabel') }}</a>
+            <a :href="$tc('sw-first-run-wizard.finish.documentationUrl')"
+               class="external-link"
+               target="_blank"
+               rel="noopener">
+                {{ $tc('sw-first-run-wizard.finish.documentationLabel') }}
+            </a>
+            <a :href="$tc('sw-first-run-wizard.finish.forumUrl')"
+               class="external-link"
+               target="_blank"
+               rel="noopener">
+                {{ $tc('sw-first-run-wizard.finish.forumLabel') }}
+            </a>
+            <a :href="$tc('sw-first-run-wizard.finish.roadmapUrl')"
+               class="external-link"
+               target="_blank"
+               rel="noopener">
+                {{ $tc('sw-first-run-wizard.finish.roadmapLabel') }}
+            </a>
         </sw-container>
 
         <div v-if="restarting"

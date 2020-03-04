@@ -28,6 +28,7 @@
                 {% block sw_import_export_progress_footer_actions_download %}
                     <a :href="downloadUrl"
                        target="_blank"
+                       rel="noopener"
                        v-if="downloadUrl">
                         <sw-button variant="primary"
                                    size="small">

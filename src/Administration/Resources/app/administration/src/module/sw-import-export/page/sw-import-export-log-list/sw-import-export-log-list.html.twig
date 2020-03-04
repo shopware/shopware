@@ -79,7 +79,11 @@
                                             </sw-context-menu-item>
                                         {% endblock %}
                                         {% block sw_import_export_log_list_grid_columns_actions_download %}
-                                            <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.file)" target="_blank" download>
+                                            <a class="sw-import-export-log-list__download-action"
+                                               :href="getDownloadUrl(item.file)"
+                                               target="_blank"
+                                               rel="noopener"
+                                               download>
                                                 <sw-context-menu-item
                                                         class="sw-import-export-log-list__download-action"
                                                         @click="triggerReload">

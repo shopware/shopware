@@ -40,7 +40,11 @@
                                             <template label>
                                                 <div class="shopware-id-label">
                                                     <span>{{ $tc('sw-plugin.store-login.labelShopwareId') }}</span>
-                                                    <a :href="$tc('sw-plugin.store-login.linkShopwareIdHelp')" target="_blank">{{ $tc('sw-plugin.store-login.labelShopwareIdHelp') }}</a>
+                                                    <a :href="$tc('sw-plugin.store-login.linkShopwareIdHelp')"
+                                                       target="_blank"
+                                                       rel="noopener">
+                                                        {{ $tc('sw-plugin.store-login.labelShopwareIdHelp') }}
+                                                    </a>
                                                 </div>
                                             </template>
                                         {% endblock %}
@@ -57,7 +61,11 @@
                         {% block sw_plugin_store_login_modal_content_login_form_forgot_password %}
                             <div class="forgot-password">
                                 {% block sw_plugin_store_login_modal_content_login_form_forgot_password_link %}
-                                    <a :href="$tc('sw-plugin.store-login.forgotPasswordUrl')" target="_blank">{{ $tc('sw-plugin.store-login.forgotPassword') }}</a>
+                                    <a :href="$tc('sw-plugin.store-login.forgotPasswordUrl')"
+                                       target="_blank"
+                                       rel="noopener">
+                                        {{ $tc('sw-plugin.store-login.forgotPassword') }}
+                                    </a>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -72,7 +80,10 @@
                     {% block sw_plugin_store_login_modal_footer_information %}
                         <div class="footer-information">
                             <span>{{ $tc('sw-plugin.store-login.footerNoAccount') }}</span>
-                            <a class="new-account-link" :href="$tc('sw-plugin.store-login.registerAccountUrl')" target="_blank">
+                            <a class="new-account-link"
+                               :href="$tc('sw-plugin.store-login.registerAccountUrl')"
+                               target="_blank"
+                               rel="noopener">
                                 {{ $tc('sw-plugin.store-login.footerRegisterAccount') }}
                             </a>
                         </div>

@@ -6,7 +6,15 @@
                 <h5 class="headline">{{ $tc('sw-first-run-wizard.shopwareAccount.headline') }}</h5>
                 <p v-html="$tc('sw-first-run-wizard.shopwareAccount.message')"
                    class="message"></p>
-                <p class="create-account">{{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountText') }} <a class="external-link" :href="$tc('sw-first-run-wizard.shopwareAccount.registerAccountUrl')" target="_blank">{{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountHere') }}</a>.</p>
+                <p class="create-account">
+                    {{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountText') }}
+                    <a class="external-link"
+                       :href="$tc('sw-first-run-wizard.shopwareAccount.registerAccountUrl')"
+                       target="_blank"
+                       rel="noopener">
+                        {{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountHere') }}
+                    </a>.
+                </p>
                 <div class="input-fields">
                     <sw-field type="text"
                               name="shopwareId"
@@ -24,8 +32,12 @@
                     </sw-password-field>
                 </div>
                 <p class="forgot-password">
-                <a class="external-link" :href="$tc('sw-first-run-wizard.shopwareAccount.forgotPasswordUrl')"
-                   target="_blank">{{ $tc('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}</a>
+                <a class="external-link"
+                   :href="$tc('sw-first-run-wizard.shopwareAccount.forgotPasswordUrl')"
+                   target="_blank"
+                   rel="noopener">
+                    {{ $tc('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}
+                </a>
                 </p>
 
                 <div v-if="accountError"

@@ -1,6 +1,8 @@
+import { required } from 'src/core/service/validation.service';
 import template from './sw-order-create-address-modal.html.twig';
+import './sw-order-create-address-modal.scss';
 
-const { Component, Mixin, State, Service } = Shopware;
+const { Component, EntityDefinition, Mixin, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create-address-modal', {
@@ -20,6 +22,14 @@ Component.register('sw-order-create-address-modal', {
             type: Object,
             required: true
         },
+        addAddressModalTitle: {
+            type: String,
+            required: true
+        },
+        editAddressModalTitle: {
+            type: String,
+            required: true
+        },
         cart: {
             type: Object,
             required: true
@@ -30,15 +40,28 @@ Component.register('sw-order-create-address-modal', {
         return {
             addresses: [],
             selectedAddressId: null,
-            isLoading: false
+            activeCustomer: this.customer,
+            isLoading: false,
+            term: null,
+            showAddressFormModal: false,
+            defaultAddressIdMapping: {
+                'billing-address': 'defaultBillingAddressId',
+                'shipping-address': 'defaultShippingAddressId'
+            },
+            currentAddress: null
         };
     },
 
     computed: {
-        customerCriteria() {
-            const criteria = new Criteria({ page: 1, limit: 1 });
-            criteria.setIds([this.customer.id]);
-            criteria.addAssociation('addresses');
+        addressCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('salutation');
+            criteria.addAssociation('country');
+            criteria.addAssociation('countryState');
+
+            if (this.term) {
+                criteria.setTerm(this.term);
+            }
 
             return criteria;
         },
@@ -47,8 +70,11 @@ Component.register('sw-order-create-address-modal', {
             return Service('repositoryFactory').create('customer');
         },
 
-        customerAddressRepository() {
-            return Service('repositoryFactory').create('customer_address');
+        addressRepository() {
+            return Service('repositoryFactory').create(
+                this.activeCustomer.addresses.entity,
+                this.activeCustomer.addresses.source
+            );
         }
     },
 
@@ -57,123 +83,201 @@ Component.register('sw-order-create-address-modal', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
+            await this.getCustomerAddresses();
+        },
+
+        async getCustomerAddresses() {
             this.isLoading = true;
 
             // Get the latest addresses from customer's db
-            this.customerRepository
-                .search(this.customerCriteria, Shopware.Context.api)
-                .then(customer => {
-                    this.addresses = customer[0].addresses;
+            try {
+                this.addresses = await this.addressRepository.search(this.addressCriteria, Shopware.Context.api);
 
-                    return Shopware.State.dispatch('error/resetApiErrors');
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        title: this.$tc('sw-order.create.titleFetchError'),
-                        message: this.$tc('sw-order.create.messageFetchCustomerAddressesError')
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
+                this.selectedAddressId = this.activeCustomer[this.address.contextId]
+                    || this.activeCustomer[this.address.contextDataDefaultId];
+
+                await Shopware.State.dispatch('error/resetApiErrors');
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('sw-order.create.titleFetchError'),
+                    message: this.$tc('sw-order.create.messageFetchCustomerAddressesError')
                 });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         onNewActiveItem() {
             this.selectedAddressId = null;
         },
 
-        addressButtonClasses(addressId) {
-            return {
-                'sw-order-address-modal__entry__selected': addressId === this.selectedAddressId
-            };
+        isCurrentSelected(addressId) {
+            return this.selectedAddressId === addressId;
         },
 
-        onSelectExistingAddress(address) {
+        async onSearchAddress(term) {
+            this.term = term;
+            await this.getCustomerAddresses();
+        },
+
+        async onSelectExistingAddress(address) {
             this.selectedAddressId = address.id;
+            await this.onSave();
         },
 
         findSelectedAddress() {
             return this.addresses.find(address => address.id === this.selectedAddressId);
         },
 
-        updateOrderContext() {
+        async updateOrderContext() {
             const address = this.findSelectedAddress();
+
             const context = {
                 [this.address.contextId]: address.id,
-                [this.address.contextDataKey]: address
+                [this.address.contextDataKey]: address,
+                [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId]
             };
 
-            return State
+            await State
                 .dispatch('swOrder/updateOrderContext', {
                     context,
-                    salesChannelId: this.customer.salesChannelId,
+                    salesChannelId: this.activeCustomer.salesChannelId,
                     contextToken: this.cart.token
-                })
-                .then(() => {
-                    this.$emit('set-customer-address', {
-                        contextId: this.address.contextId,
-                        contextDataKey: this.address.contextDataKey,
-                        data: address
-                    });
-                    this.save();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        title: this.$tc('sw-order.detail.titleSaveError'),
-                        message: this.$tc('sw-order.detail.messageSaveError')
-                    });
                 });
+
+            this.$emit('set-customer-address', {
+                contextId: this.address.contextId,
+                contextDataKey: this.address.contextDataKey,
+                data: address
+            });
         },
 
-        modifyCurrentAddress() {
-            return this.customerAddressRepository
-                .save(this.address.data, Shopware.Context.api)
-                .then(() => {
-                    this.$emit('set-customer-address', {
-                        contextId: this.address.contextId,
-                        contextDataKey: this.address.contextDataKey,
-                        data: this.address.data
-                    });
-                    this.save();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        title: this.$tc('sw-order.detail.titleSaveError'),
-                        message: this.$tc('sw-order.detail.messageSaveError')
-                    });
-                });
+        async saveCurrentCustomer() {
+            if (this.hasOwnProperty('defaultShippingAddressId')) {
+                this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
+            }
+
+            if (this.hasOwnProperty('defaultBillingAddressId')) {
+                this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
+            }
+
+            return this.customerRepository.save(this.activeCustomer, Shopware.Context.api);
         },
 
-        save() {
-            this.$emit('save');
+        async saveCurrentAddress() {
+            this.selectedAddressId = this.currentAddress.id;
+
+            if (this.currentAddress.isNew()) {
+                this.addresses.push(this.currentAddress);
+            }
+
+            return this.addressRepository.save(this.currentAddress, Shopware.Context.api);
         },
 
-        reset() {
-            this.$emit('reset');
+        closeModal() {
+            this.$emit('close-modal');
         },
 
         onCancel() {
-            this.reset();
+            this.closeModal();
         },
 
-        onSave() {
+        async onSave() {
             this.isLoading = true;
 
-            new Promise((resolve, reject) => {
-                // Check if user selected an address
-                if (this.selectedAddressId !== null) {
-                    this.updateOrderContext()
-                        .then(resolve)
-                        .catch(reject);
-                } else {
-                    this.modifyCurrentAddress()
-                        .then(resolve)
-                        .catch(reject);
-                }
-            }).finally(() => {
+            try {
+                await this.updateOrderContext();
+                this.closeModal();
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('sw-order.detail.titleSaveError'),
+                    message: this.$tc('sw-order.detail.messageSaveError')
+                });
+            } finally {
                 this.isLoading = false;
+            }
+        },
+
+        onCloseAddressModal() {
+            this.showAddressFormModal = false;
+        },
+
+        onAddNewAddress() {
+            this.createNewCustomerAddress();
+            this.showAddressFormModal = true;
+        },
+
+        onEditAddress(address) {
+            this.currentAddress = address;
+            this.showAddressFormModal = true;
+        },
+
+        onChangeDefaultAddress(data) {
+            if (!data.value) {
+                return;
+            }
+
+            const name = this.defaultAddressIdMapping[data.name];
+
+            this[name] = data.id;
+        },
+
+        async onSubmitAddressForm() {
+            try {
+                this.isLoading = true;
+
+                if (this.currentAddress === null) {
+                    return;
+                }
+
+                if (!this.isValidAddress(this.currentAddress)) {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('sw-customer.notification.requiredFields')
+                    });
+                    return;
+                }
+
+                await this.saveCurrentAddress();
+                await this.saveCurrentCustomer();
+                await this.updateOrderContext();
+                await this.getCustomerAddresses();
+
+                this.currentAddress = null;
+                this.showAddressFormModal = false;
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('sw-order.detail.titleSaveError'),
+                    message: this.$tc('sw-order.detail.messageSaveError')
+                });
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        getAddressFormModalTitle() {
+            return !this.currentAddress || this.currentAddress.isNew()
+                ? this.addAddressModalTitle
+                : this.editAddressModalTitle;
+        },
+
+        createNewCustomerAddress() {
+            const newAddress = this.addressRepository.create(Shopware.Context.api);
+            newAddress.customerId = this.activeCustomer.id;
+
+            this.currentAddress = newAddress;
+        },
+
+        isValidAddress(address) {
+            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
+            let isValid = true;
+
+            isValid = requiredAddressFields.every(field => {
+                return required(address[field]);
             });
+
+            return isValid;
         }
     }
 });

@@ -9,6 +9,7 @@ import './component/sw-order-delivery-metadata';
 import './component/sw-order-product-select';
 import './component/sw-order-saveable-field';
 import './../sw-customer/component/sw-customer-address-form';
+import './../sw-customer/component/sw-customer-address-form-options';
 import './component/sw-order-address-modal';
 import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';

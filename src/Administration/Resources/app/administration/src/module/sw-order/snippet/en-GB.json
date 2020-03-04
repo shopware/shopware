@@ -57,6 +57,7 @@
       "titleSaveError": "Error",
       "titleFetchError": "Error",
       "messageSaveError": "Order could not be saved.",
+      "messageSwitchCustomerError": "An error occurred during switching customer",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses"
     },
     "createBase": {
@@ -211,8 +212,17 @@
     },
     "addressSelection": {
       "modalTitleEditAddress": "Addresses",
+      "modalTitleSelectAddress": "Change address",
+      "modalTitleAddBillingAddress": "Add new billing address",
+      "modalTitleEditBillingAddress": "Change billing address",
+      "modalTitleAddShippingAddress": "Add new shipping address",
+      "modalTitleEditShippingAddress": "Change shipping address",
       "headlineTabEditAddress" : "Edit address",
-      "headlineTabSelectAddress" :"Select address"
+      "headlineTabSelectAddress" :"Select address",
+      "headlineTabCreateAddress" :"Add address",
+      "currentlySelected" :"Currently selected",
+      "searchAddressToolbarPlaceholder": "Search addresses...",
+      "emptySearchResults": "No addresses found."
     },
     "leavePageModal" : {
       "headline" : "Warning",

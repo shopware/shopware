@@ -1,19 +1,26 @@
 import template from './sw-order-create-base.html.twig';
 
-const { Component, State, Utils, Data, Service } = Shopware;
+const { Component, State, Utils, Data, Service, Mixin } = Shopware;
 const { Criteria } = Data;
 const { get, format, array } = Utils;
 
 Component.register('sw-order-create-base', {
     template,
 
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
     data() {
         return {
             isLoading: false,
+            isLoadingDetail: false,
             address: {
                 data: null
             },
             showAddressModal: false,
+            addAddressModalTitle: null,
+            editAddressModalTitle: null,
             promotionError: null
         };
     },
@@ -45,7 +52,9 @@ Component.register('sw-order-create-base', {
         customerAddressCriteria() {
             const criteria = new Criteria();
 
+            criteria.addAssociation('salutation');
             criteria.addAssociation('country');
+            criteria.addAssociation('countryState');
 
             return criteria;
         },
@@ -151,22 +160,40 @@ Component.register('sw-order-create-base', {
     },
 
     methods: {
-        createCart() {
-            State.dispatch('swOrder/createCart', { salesChannelId: this.customer.salesChannelId });
+        async createCart(salesChannelId) {
+            await State.dispatch('swOrder/createCart', { salesChannelId });
         },
 
-        onSelectExistingCustomer(customerId) {
-            return this.customerRepository
-                .get(customerId, Shopware.Context.api, this.defaultCriteria)
-                .then((customer) => {
-                    this.setCustomer(customer);
+        async onSelectExistingCustomer(customerId) {
+            this.isLoadingDetail = true;
 
-                    this.setCurrency(customer);
+            try {
+                const customer = await this.customerRepository.get(customerId, Shopware.Context.api, this.defaultCriteria);
 
-                    if (!this.cart.token) {
-                        this.createCart();
-                    }
+                if (!this.cart.token) {
+                    await this.createCart(customer.salesChannelId);
+                }
+
+                this.setCustomer(customer);
+                this.setCurrency(customer);
+
+                await this.updateCustomerContext();
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('sw-order.create.titleFetchError'),
+                    message: this.$tc('sw-order.create.messageSwitchCustomerError')
                 });
+            } finally {
+                this.isLoadingDetail = false;
+            }
+        },
+
+        async updateCustomerContext() {
+            await State.dispatch('swOrder/updateCustomerContext', {
+                customerId: this.customer.id,
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token
+            });
         },
 
         setCustomer(customer) {
@@ -182,28 +209,33 @@ Component.register('sw-order-create-base', {
         onEditBillingAddress() {
             const contextId = 'billingAddressId';
             const contextDataKey = 'billingAddress';
+            const contextDataDefaultId = 'defaultBillingAddressId';
             const data = this.customer[contextDataKey]
                 ? this.customer[contextDataKey]
                 : this.customer.defaultBillingAddress;
 
-            this.address = { contextId, contextDataKey, data };
+            this.addAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleAddBillingAddress');
+            this.editAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleEditBillingAddress');
+            this.address = { contextId, contextDataKey, contextDataDefaultId, data };
             this.showAddressModal = true;
         },
 
         onEditShippingAddress() {
             const contextId = 'shippingAddressId';
             const contextDataKey = 'shippingAddress';
+            const contextDataDefaultId = 'defaultShippingAddressId';
             const data = this.customer[contextDataKey]
                 ? this.customer[contextDataKey]
                 : this.customer.defaultShippingAddress;
 
-            this.address = { contextId, contextDataKey, data };
+            this.addAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleAddShippingAddress');
+            this.editAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleEditShippingAddress');
+            this.address = { contextId, contextDataKey, contextDataDefaultId, data };
             this.showAddressModal = true;
         },
 
         setCustomerAddress({ contextId, data }) {
             this.customer[contextId] = data.id;
-
             const availableCustomerAddresses = [
                 {
                     id: this.customer.billingAddressId,
@@ -226,11 +258,13 @@ Component.register('sw-order-create-base', {
             this.customerAddressRepository
                 .get(data.id, Shopware.Context.api, this.customerAddressCriteria)
                 .then((updatedAddress) => {
-                    availableCustomerAddresses.forEach((customerAddress) => {
+                    availableCustomerAddresses.forEach(customerAddress => {
                         if (customerAddress.id === data.id) {
                             this.customer[customerAddress.dataKey] = updatedAddress;
                         }
                     });
+
+                    this.setCustomer(this.customer);
                 });
         },
 
@@ -241,12 +275,6 @@ Component.register('sw-order-create-base', {
 
         save() {
             this.closeModal();
-        },
-
-        reset() {
-            this.onSelectExistingCustomer(this.customer.id).finally(() => {
-                this.closeModal();
-            });
         },
 
         onSaveItem(item) {

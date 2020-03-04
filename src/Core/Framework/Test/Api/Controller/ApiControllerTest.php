@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -221,6 +223,78 @@ EOF;
         $admin->authorizeBrowser($browser);
 
         $this->assertEntityNotExists($browser, 'country-state', $id);
+    }
+
+    public function testTranslatedPropertiesWritableWithParentDefinitionPermissions(): void
+    {
+        skipTestNext3722($this);
+
+        $id = Uuid::randomHex();
+
+        $data = ['id' => $id, 'name' => $id];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id, $response->headers->get('Location'));
+
+        $browser = $this->getBrowser();
+        $connection = $this->getBrowser()->getContainer()->get(Connection::class);
+        $user = TestUser::createNewTestUser($connection, ['country' => ['update', 'detail']]);
+
+        $user->authorizeBrowser($browser);
+
+        $data = ['name' => 'not in system language'];
+        $languageId = $this->getNonSystemLanguageId();
+        $browser->setServerParameter('HTTP_sw-language-id', $languageId);
+
+        $browser->request(
+            'PATCH',
+            '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id,
+            $data
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id, $response->headers->get('Location'));
+
+        $this->assertEntityExists($browser, 'country', $id);
+    }
+
+    public function testTranslatedPropertiesNotWritableWithoutParentDefinitionPermissions(): void
+    {
+        skipTestNext3722($this);
+
+        $id = Uuid::randomHex();
+
+        $data = ['id' => $id, 'name' => $id];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country/' . $id, $response->headers->get('Location'));
+
+        $browser = $this->getBrowser();
+        $connection = $this->getBrowser()->getContainer()->get(Connection::class);
+        $user = TestUser::createNewTestUser($connection, ['country' => ['create', 'detail']]);
+
+        $user->authorizeBrowser($browser);
+
+        $data = ['name' => 'not in system language'];
+        $languageId = $this->getNonSystemLanguageId();
+        $browser->setServerParameter('HTTP_sw-language-id', $languageId);
+
+        $browser->request(
+            'PATCH',
+            '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id,
+            $data
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
     }
 
     public function testManyToOneInsert(): void
@@ -1945,5 +2019,21 @@ EOF;
         ];
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+    }
+
+    private function getNonSystemLanguageId(): string
+    {
+        /** @var EntityRepositoryInterface $languageRepository */
+        $languageRepository = $this->getContainer()->get('language.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(
+            MultiFilter::CONNECTION_AND,
+            [
+                new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM),
+            ]
+        ));
+        $criteria->setLimit(1);
+
+        return $languageRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 }

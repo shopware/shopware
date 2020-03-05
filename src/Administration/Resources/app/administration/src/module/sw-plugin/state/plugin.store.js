@@ -8,7 +8,7 @@ export default {
         storeAvailable: false,
         availableUpdates: null,
         updates: [],
-        plugins: [],
+        plugins: null,
         totalPlugins: 0
     },
 

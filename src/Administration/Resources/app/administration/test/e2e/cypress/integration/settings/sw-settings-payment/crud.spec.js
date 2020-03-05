@@ -30,7 +30,7 @@ describe('Payment: Test crud operations', () => {
         cy.get('a[href="#/sw/settings/payment/create"]').click();
         cy.get('#sw-field--paymentMethod-name').typeAndCheck('Bar bei Abholung');
         cy.get('#sw-field--paymentMethod-position').type('10');
-        cy.get('#sw-field--paymentMethod-active').click();
+        cy.get('input[name="sw-field--paymentMethod-active"]').click();
         cy.get(page.elements.paymentSaveAction).click();
 
         // Verify and check usage of payment method
@@ -105,6 +105,6 @@ describe('Payment: Test crud operations', () => {
         });
 
         cy.get(page.elements.modal).should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--0`).should('not.exist')
+        cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 });

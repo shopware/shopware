@@ -76,7 +76,7 @@ Component.register('sw-checkbox-field', {
         },
 
         identification() {
-            return this.formFieldName || `sw-field--${this.id}`;
+            return `sw-field--${this.id}`;
         },
 
         hasError() {

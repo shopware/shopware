@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-import ProductStreamObject from "../../../support/pages/module/sw-product-stream.page-object";
+import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Product: Check cross selling integration', () => {
     beforeEach(() => {
@@ -101,7 +101,7 @@ describe('Product: Check cross selling integration', () => {
                 '1st Productstream',
                 '#sw-field--crossSelling-product-group'
             );
-        cy.get('#sw-field--crossSelling-active').click();
+        cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Save and verify cross selling stream
         cy.get(page.elements.primaryButton).click();
@@ -159,7 +159,7 @@ describe('Product: Check cross selling integration', () => {
         // Fill in cross selling form
         cy.get('#sw-field--crossSelling-name').typeAndCheck('Kunden kauften auch');
         cy.get('#sw-field--crossSelling-type').select('Manual selection');
-        cy.get('#sw-field--crossSelling-active').click();
+        cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Save and verify cross selling stream
         cy.get(page.elements.primaryButton).click();

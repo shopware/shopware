@@ -45,8 +45,8 @@ describe('Basic Informaion: Edit assignments', () => {
             ).contains('404 Layout');
         });
 
-        //Request storefront
-        cy.request({ url: '/non-existent/',  failOnStatusCode: false }).then(request => {
+        // Request storefront
+        cy.request({ url: '/non-existent/', failOnStatusCode: false }).then(request => {
             expect(request).to.have.property('status', 404);
         });
 
@@ -96,7 +96,7 @@ describe('Basic Informaion: Edit assignments', () => {
 
         salesChannelPage.openSalesChannel('Storefront', 1);
 
-        cy.get('#sw-field--salesChannel-maintenance').click().should('have.value', 'on');
+        cy.get('input[name="sw-field--salesChannel-maintenance"]').click().should('have.value', 'on');
 
         cy.get('.smart-bar__content .sw-button--primary').click();
         cy.wait('@saveSalesChannel').then((xhr) => {
@@ -120,7 +120,7 @@ describe('Basic Informaion: Edit assignments', () => {
 
         salesChannelPage.openSalesChannel('Storefront', 1);
 
-        cy.get('#sw-field--salesChannel-maintenance').click().should('have.value', 'on');
+        cy.get('input[name="sw-field--salesChannel-maintenance"]').click().should('have.value', 'on');
 
         cy.get('.smart-bar__content .sw-button--primary').click();
         cy.wait('@saveSalesChannel').then((xhr) => {

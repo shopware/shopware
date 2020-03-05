@@ -32,7 +32,7 @@ export default class SnippetPageObject extends GeneralPageObject {
 
     openAllSnippetSets() {
         cy.get(this.elements.editSetAction).should('not.be.enabled');
-        cy.get('input[name=sw-field--allSelectedChecked]').click();
+        cy.get('.sw-grid__header input[type=checkbox]').click();
         cy.get(this.elements.editSetAction).should('be.enabled');
 
         cy.get(this.elements.editSetAction).click();

@@ -66,7 +66,7 @@ describe('Category: Create several categories', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-category-detail-base').should('be.visible');
-        cy.get('#categoryActive').click();
+        cy.get('input[name="categoryActive"]').click();
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@editCategory').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
@@ -76,11 +76,5 @@ describe('Category: Create several categories', () => {
         cy.visit('/');
         cy.contains('Categorian').click();
         cy.get('.main-navigation-link.active').should('be.visible');
-    });
-
-    it('@base @catalogue: update a category', () => {
-    });
-
-    it('@base @catalogue: delete a category', () => {
     });
 });

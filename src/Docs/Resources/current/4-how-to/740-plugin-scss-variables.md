@@ -54,11 +54,11 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
 * The `ThemeCompilerEnrichScssVariablesEvent` provides the `addVariable()` method which takes the following parameters:
   
   1. `$name:` (string)<br>
-     The name of the SCSS variable. The passed string will be exactly in your SCSS so please be careful with special characters. We recommend using kebab-case or camelCase here. The variable prefix `$` will be added automatically. We also recommend prefixing your variable name with your plugin's or company's name to prevent naming conflicts.
+     The name of the SCSS variable. The passed string will be exactly in your SCSS so please be careful with special characters. We recommend using kebab-case here. The variable prefix `$` will be added automatically. We also recommend prefixing your variable name with your plugin's or company's name to prevent naming conflicts.
   2. `$value:` (string)<br>
      The value which should be assigned to the SCSS variable.
-  3. `$useQuotes` (bool - optional)<br>
-     Optional parameter to enforce quotes on the variables value. In most cases quotes are not needed e.g. for color hex values. But there may be situations where you want to pass special strings to your SCSS variable.
+  3. `$sanitize` (bool - optional)<br>
+     Optional parameter to remove special characters from the variables value. The parameter will also add quotes around the variables value. In most cases quotes are not needed e.g. for color hex values. But there may be situations where you want to pass individual strings to your SCSS variable.
 * Please note that plugins are not sales channel specific. Your SCSS variables are directly added in the SCSS compilation process and will be globally available throughout all themes and storefront sales channels. If you want to change a variables value for each sales channel you should use plugin config fields and follow the next example.
 
 ## Plugin config values as SCSS variables
@@ -130,6 +130,7 @@ Adding config fields via `$event->addVariable()` individually for every field ma
 namespace ScssPlugin\Subscriber;
 
 // ...
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class ThemeVariablesSubscriber implements EventSubscriberInterface
 {
@@ -140,9 +141,13 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
         $configFields = $this->systemConfig->get('ScssPlugin.config', $event->getSalesChannelId());
 
         foreach($configFields as $key => $value) {
-            $event->addVariable($key, $value);
+            // Convert `customVariableName` to `custom-variable-name`
+            $variableName = str_replace('_', '-', (new CamelCaseToSnakeCaseNameConverter())->normalize($key));
+
+            $event->addVariable($variableName, $value);
         }
     }
 }
 ```
-* Please be aware that this will give you camelCase variable names since the `config.xml` does not support kebab-case for field names.
+* Please be aware that this will give you camelCase variable names by default since the `config.xml` does not support kebab-case for field names.
+* To avoid this you can format the name using the `CamelCaseToSnakeCaseNameConverter`.

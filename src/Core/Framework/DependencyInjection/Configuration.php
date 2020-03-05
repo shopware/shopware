@@ -48,7 +48,7 @@ class Configuration implements ConfigurationInterface
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
-                ->arrayNode('cache')
+                ->arrayNode('temp')
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()

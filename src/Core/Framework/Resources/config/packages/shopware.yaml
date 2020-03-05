@@ -8,7 +8,7 @@ shopware:
             type: "local"
             config:
                 root: "%kernel.project_dir%/public"
-        cache:
+        temp:
             type: "local"
             config:
                 root: "%kernel.project_dir%/var"

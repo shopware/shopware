@@ -22,10 +22,10 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event
         $this->salesChannelId = $salesChannelId;
     }
 
-    public function addVariable(string $name, string $value, bool $useQuotes = false): void
+    public function addVariable(string $name, string $value, bool $sanitize = false): void
     {
-        if ($useQuotes) {
-            $this->variables[$name] = '\'' . $value . '\'';
+        if ($sanitize) {
+            $this->variables[$name] = '\'' . filter_var($value, FILTER_SANITIZE_STRING) . '\'';
         } else {
             $this->variables[$name] = $value;
         }

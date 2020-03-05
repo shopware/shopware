@@ -52,14 +52,14 @@ class ThemeCompiler
     /**
      * @var FilesystemInterface
      */
-    private $cacheFilesystem;
+    private $tempFilesystem;
 
     /**
      * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
      */
     public function __construct(
         FilesystemInterface $publicFilesystem,
-        FilesystemInterface $cacheFilesystem,
+        FilesystemInterface $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
         string $cacheDir,
         bool $debug,
@@ -67,7 +67,7 @@ class ThemeCompiler
         ?ThemeFileImporterInterface $themeFileImporter = null
     ) {
         $this->publicFilesystem = $publicFilesystem;
-        $this->cacheFilesystem = $cacheFilesystem;
+        $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->cacheDir = $cacheDir;
         $this->themeFileImporter = $themeFileImporter;
@@ -248,7 +248,7 @@ class ThemeCompiler
             $this->getVariableDumpTemplate()
         );
 
-        $this->cacheFilesystem->put('theme-variables.scss', $dump);
+        $this->tempFilesystem->put('theme-variables.scss', $dump);
 
         return $dump;
     }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Cache\CacheStore;
+use Shopware\Storefront\Test\Framework\Cache\EventSubscriber\CacheKeySubscriber;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
@@ -61,6 +62,28 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
     }
 
+    public function testCacheHitWithCacheKeyEvent(): void
+    {
+        $kernel = $this->getCacheKernel();
+
+        $request = $this->createRequest();
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $subscriber = new CacheKeySubscriber();
+        $dispatcher->addSubscriber($subscriber);
+
+        $response = $kernel->handle($request);
+        static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
+
+        $response = $kernel->handle($request);
+        static::assertEquals('GET /: fresh', $response->headers->get('x-symfony-cache'));
+
+        $dispatcher->removeSubscriber($subscriber);
+
+        $response = $kernel->handle($request);
+        static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
+    }
+
     public function testInvalidation(): void
     {
         $kernel = $this->getCacheKernel();
@@ -106,3 +129,4 @@ class HttpCacheIntegrationTest extends TestCase
         return new HttpCache($this->getKernel(), $store, null, ['debug' => true]);
     }
 }
+

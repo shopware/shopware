@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -110,7 +111,7 @@ class CategoryRoute implements CategoryRouteInterface
 
         $pages = $this->cmsPageLoader->load(
             $request,
-            new Criteria([$pageId]),
+            $this->createCriteria($pageId, $request),
             $context,
             $category->getTranslation('slotConfig'),
             $resolverContext
@@ -139,5 +140,24 @@ class CategoryRoute implements CategoryRouteInterface
         }
 
         return $category;
+    }
+
+    private function createCriteria(string $pageId, Request $request): Criteria
+    {
+        $criteria = new Criteria([$pageId]);
+
+        $slots = $request->get('slots');
+
+        if (is_string($slots)) {
+            $slots = explode('|', $slots);
+        }
+
+        if (!empty($slots) && is_array($slots)) {
+            $criteria
+                ->getAssociation('sections.blocks')
+                ->addFilter(new EqualsAnyFilter('slots.id', $slots));
+        }
+
+        return $criteria;
     }
 }

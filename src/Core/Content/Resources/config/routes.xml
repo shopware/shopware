@@ -14,4 +14,5 @@
     <import resource="../../Seo/Api/**/*Controller.php" type="annotation" />
     <import resource="../../Category/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Product/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Cms/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

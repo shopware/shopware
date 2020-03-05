@@ -2,18 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\SalesChannel\CmsRouteInterface;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,28 +23,28 @@ use Symfony\Component\Routing\Annotation\Route;
 class CmsController extends StorefrontController
 {
     /**
-     * @var SalesChannelCmsPageLoaderInterface
-     */
-    private $cmsPageLoader;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $categoryRepository;
-
-    /**
      * @var ProductListingGateway
      */
     private $listingGateway;
 
+    /**
+     * @var CmsRouteInterface
+     */
+    private $cmsRoute;
+
+    /**
+     * @var CategoryRouteInterface
+     */
+    private $categoryRoute;
+
     public function __construct(
-        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        SalesChannelRepositoryInterface $categoryRepository,
-        ProductListingGateway $listingGateway
+        ProductListingGateway $listingGateway,
+        CmsRouteInterface $cmsRoute,
+        CategoryRouteInterface $categoryRoute
     ) {
-        $this->cmsPageLoader = $cmsPageLoader;
-        $this->categoryRepository = $categoryRepository;
         $this->listingGateway = $listingGateway;
+        $this->cmsRoute = $cmsRoute;
+        $this->categoryRoute = $categoryRoute;
     }
 
     /**
@@ -67,7 +63,7 @@ class CmsController extends StorefrontController
             throw new MissingRequestParameterException('Parameter id missing');
         }
 
-        $cmsPage = $this->load($id, $request, $salesChannelContext);
+        $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
         return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
     }
@@ -89,22 +85,13 @@ class CmsController extends StorefrontController
             throw new MissingRequestParameterException('Parameter navigationId missing');
         }
 
-        $categories = $this->categoryRepository->search(new Criteria([$navigationId]), $salesChannelContext);
-
-        if (!$categories->has($navigationId)) {
-            throw new CategoryNotFoundException($navigationId);
-        }
-
-        /** @var CategoryEntity $category */
-        $category = $categories->get($navigationId);
+        $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
         if (!$category->getCmsPageId()) {
             throw new PageNotFoundException('');
         }
 
-        $cmsPage = $this->load($category->getCmsPageId(), $request, $salesChannelContext, $category->getTranslation('slotConfig'));
-
-        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
     }
 
     /**
@@ -137,34 +124,5 @@ class CmsController extends StorefrontController
         }
 
         return new JsonResponse($mapped);
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws PageNotFoundException
-     */
-    private function load(string $id, Request $request, SalesChannelContext $context, ?array $config = null): ?CmsPageEntity
-    {
-        $criteria = new Criteria([$id]);
-
-        $slots = $request->get('slots');
-
-        if (is_string($slots)) {
-            $slots = explode('|', $slots);
-        }
-
-        if (!empty($slots)) {
-            $criteria
-                ->getAssociation('sections.blocks')
-                ->addFilter(new EqualsAnyFilter('slots.id', $slots));
-        }
-
-        $pages = $this->cmsPageLoader->load($request, $criteria, $context, $config);
-
-        if (!$pages->has($id)) {
-            throw new PageNotFoundException($id);
-        }
-
-        return $pages->get($id);
     }
 }

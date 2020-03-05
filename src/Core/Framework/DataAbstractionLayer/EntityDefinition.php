@@ -271,6 +271,9 @@ abstract class EntityDefinition
         return $this->getFields()->getChildrenAssociationField() !== null;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 - Only used in child count indexer to detect indexing requirements. Child count will be indexed by specific entity indexers now
+     */
     public function isChildCountAware(): bool
     {
         return $this->getFields()->get('childCount') instanceof ChildCountField;
@@ -301,6 +304,9 @@ abstract class EntityDefinition
         return $this->getFields()->has('whitelistIds');
     }
 
+    /**
+     * @deprecated tag:v6.3.0 - Only used in tree indexer to detect indexing requirements. Tree will be indexed by specific entity indexers now
+     */
     public function isTreeAware(): bool
     {
         return $this->isParentAware()

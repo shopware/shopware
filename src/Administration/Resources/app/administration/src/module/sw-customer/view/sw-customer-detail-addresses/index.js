@@ -2,7 +2,7 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
-const { Component, Mixin, Entity } = Shopware;
+const { Component, Mixin, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-customer-detail-addresses', {
@@ -212,10 +212,10 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         isValidAddress(address) {
-            const requiredAddressFields = Entity.getRequiredProperties('customer_address');
+            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
             let isValid = true;
 
-            isValid = requiredAddressFields.every((field) => {
+            isValid = requiredAddressFields.every(field => {
                 return required(address[field]);
             });
 

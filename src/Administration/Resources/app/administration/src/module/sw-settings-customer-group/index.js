@@ -46,11 +46,9 @@ Module.register('sw-settings-customer-group', {
         }
     },
 
-    navigation: [{
-        id: 'sw-customer-group',
-        path: 'sw.settings.customer.group.index',
-        label: 'sw-settings-customer-group.general.mainMenuItemGeneral',
-        parent: 'sw-customer',
-        position: 20
-    }]
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.settings.customer.group.index',
+        icon: 'default-avatar-multiple'
+    }
 });

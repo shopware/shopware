@@ -88,5 +88,11 @@ Module.register('sw-customer', {
         path: 'sw.customer.index',
         icon: 'default-avatar-multiple',
         position: 40
+    }, {
+        path: 'sw.customer.index',
+        label: 'sw-customer.general.mainMenuItemList',
+        color: '#F88962',
+        icon: 'default-avatar-multiple',
+        parent: 'sw-customer'
     }]
 });

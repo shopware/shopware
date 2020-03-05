@@ -122,6 +122,24 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-seo-url-template-card').should('be.visible');
     });
 
+    it('@navigation: navigate to salutation module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/salutation',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('#sw-settings-salutation').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-settings-salutation-list-grid').should('be.visible');
+    });
+
     it('@base @navigation: navigate to rule builder module', () => {
         cy.server();
         cy.route({
@@ -283,6 +301,24 @@ describe('Administration: Check module navigation in settings', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-data-grid').should('be.visible');
+    });
+
+    it('@navigation: navigate to customer group module', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/search/customer-group',
+            method: 'post'
+        }).as('getData');
+
+        cy.clickMainMenuItem({
+            targetPath: '#/sw/settings/index',
+            mainMenuId: 'sw-settings'
+        });
+        cy.get('#sw-settings-customer-group').click();
+        cy.wait('@getData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
     });
 
     it('@navigation: navigate to currency module', () => {

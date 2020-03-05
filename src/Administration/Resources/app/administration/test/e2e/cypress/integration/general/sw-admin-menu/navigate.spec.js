@@ -119,42 +119,6 @@ describe('Administration: Check module navigation', () => {
         cy.get('.sw-customer-list__content').should('be.visible');
     });
 
-    it('@base @navigation: navigate to customer group module', () => {
-        cy.server();
-        cy.route({
-            url: '/api/v1/search/customer-group',
-            method: 'post'
-        }).as('getData');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/settings/customer/group/index',
-            mainMenuId: 'sw-customer',
-            subMenuId: 'sw-customer-group'
-        });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
-    });
-
-    it('@base @navigation: navigate to salutation module', () => {
-        cy.server();
-        cy.route({
-            url: '/api/v1/search/salutation',
-            method: 'post'
-        }).as('getData');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/settings/salutation/index',
-            mainMenuId: 'sw-customer',
-            subMenuId: 'sw-salutation'
-        });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-settings-salutation-list-grid').should('be.visible');
-    });
-
     it('@base @navigation: navigate to order module', () => {
         cy.server();
         cy.route({

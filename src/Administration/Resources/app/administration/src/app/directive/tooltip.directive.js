@@ -122,7 +122,7 @@ class Tooltip {
             this._hideDelay = hideDelay;
         }
 
-        if (disabled && this._disabled !== disabled) {
+        if (disabled !== undefined && this._disabled !== disabled) {
             this._disabled = disabled;
         }
 
@@ -132,7 +132,7 @@ class Tooltip {
             this._DOMElement.classList.add(`sw-tooltip--${this._appearance}`);
         }
 
-        if (showOnDisabledElements && this._showOnDisabledElements !== showOnDisabledElements) {
+        if (showOnDisabledElements !== undefined && this._showOnDisabledElements !== showOnDisabledElements) {
             this._showOnDisabledElements = showOnDisabledElements;
         }
     }

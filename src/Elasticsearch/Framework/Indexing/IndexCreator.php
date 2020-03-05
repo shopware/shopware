@@ -39,6 +39,20 @@ class IndexCreator
 
         $mapping = $this->addFullText($mapping);
 
+        $mapping['dynamic_templates'][] = [
+            'keywords' => [
+                'match_mapping_type' => 'string',
+                'mapping' => [
+                    'type' => 'keyword',
+                    'fields' => [
+                        'text' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
         $this->client->indices()->putMapping([
             'index' => $index,
             'type' => $definition->getEntityDefinition()->getEntityName(),

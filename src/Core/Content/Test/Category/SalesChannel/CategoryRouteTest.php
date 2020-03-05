@@ -52,7 +52,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'GET',
-            '/store-api/v2/category/' . $this->ids->get('category')
+            '/store-api/v1/category/' . $this->ids->get('category')
         );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -87,7 +87,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v2/category/' . $this->ids->get('category'),
+            '/store-api/v1/category/' . $this->ids->get('category'),
             [
                 'includes' => [
                     'product_manufacturer' => ['id', 'name', 'options'],
@@ -124,7 +124,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v2/category/' . $this->ids->get('category'),
+            '/store-api/v1/category/' . $this->ids->get('category'),
             [
                 'manufacturer' => $this->ids->get('manufacturer-2'),
                 'reduce-aggregations' => true,
@@ -143,6 +143,43 @@ class CategoryRouteTest extends TestCase
         static::assertEquals($this->ids->get('manufacturer-2'), $listing['elements'][0]['manufacturerId']);
         static::assertCount(1, $listing['aggregations']['manufacturer']['entities']);
         static::assertEquals($this->ids->get('manufacturer-2'), $listing['aggregations']['manufacturer']['entities'][0]['id']);
+    }
+
+    public function testHome(): void
+    {
+        $this->browser->request(
+            'POST',
+            '/store-api/v1/category/home',
+            [
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertEquals($this->ids->get('category'), $response['id']);
+        static::assertIsArray($response['cmsPage']);
+
+        static::assertEquals($this->ids->get('cms-page'), $response['cmsPage']['id']);
+        static::assertCount(1, $response['cmsPage']['sections']);
+
+        static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
+
+        $block = $response['cmsPage']['sections'][0]['blocks'][0];
+
+        static::assertEquals('product-listing', $block['type']);
+
+        static::assertCount(1, $block['slots']);
+
+        $slot = $block['slots'][0];
+        static::assertEquals('product-listing', $slot['type']);
+
+        static::assertArrayHasKey('listing', $slot['data']);
+
+        $listing = $slot['data']['listing'];
+
+        static::assertArrayHasKey('sortings', $listing);
+        static::assertArrayHasKey('aggregations', $listing);
+        static::assertArrayHasKey('elements', $listing);
     }
 
     private function createData(): void

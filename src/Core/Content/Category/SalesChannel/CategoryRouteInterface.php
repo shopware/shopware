@@ -7,5 +7,5 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface CategoryRouteInterface
 {
-    public function load(string $categoryId, Request $request, SalesChannelContext $context): CategoryRouteResponse;
+    public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse;
 }

@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileSaverInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -41,7 +41,7 @@ class ThemeLifecycleService
     private $themeMediaRepository;
 
     /**
-     * @var FileSaver
+     * @var FileSaverInterface
      */
     private $fileSaver;
 
@@ -51,7 +51,7 @@ class ThemeLifecycleService
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $mediaFolderRepository,
         EntityRepositoryInterface $themeMediaRepository,
-        FileSaver $fileSaver
+        FileSaverInterface $fileSaver
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;

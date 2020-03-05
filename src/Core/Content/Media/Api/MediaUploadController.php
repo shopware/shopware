@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Api;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
-use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileSaverInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -28,7 +28,7 @@ class MediaUploadController extends AbstractController
     private $mediaService;
 
     /**
-     * @var FileSaver
+     * @var FileSaverInterface
      */
     private $fileSaver;
 
@@ -44,7 +44,7 @@ class MediaUploadController extends AbstractController
 
     public function __construct(
         MediaService $mediaService,
-        FileSaver $fileSaver,
+        FileSaverInterface $fileSaver,
         FileNameProvider $fileNameProvider,
         MediaDefinition $mediaDefinition
     ) {

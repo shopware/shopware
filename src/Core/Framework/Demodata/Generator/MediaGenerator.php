@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
-use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileSaverInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -26,7 +26,7 @@ class MediaGenerator implements DemodataGeneratorInterface
     private $writer;
 
     /**
-     * @var FileSaver
+     * @var FileSaverInterface
      */
     private $mediaUpdater;
 
@@ -57,7 +57,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     public function __construct(
         EntityWriterInterface $writer,
-        FileSaver $mediaUpdater,
+        FileSaverInterface $mediaUpdater,
         FileNameProvider $fileNameProvider,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $folderRepository,

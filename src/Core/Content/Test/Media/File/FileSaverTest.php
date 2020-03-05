@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\MissingFileException;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileSaverInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
@@ -41,7 +42,7 @@ class FileSaverTest extends TestCase
     private $mediaRepository;
 
     /**
-     * @var FileSaver
+     * @var FileSaverInterface
      */
     private $fileSaver;
 

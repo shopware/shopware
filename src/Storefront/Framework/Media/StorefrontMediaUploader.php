@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\Exception\UploadException;
-use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileSaverInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class StorefrontMediaUploader
 {
     /**
-     * @var FileSaver
+     * @var FileSaverInterface
      */
     private $fileSaver;
 
@@ -31,7 +31,7 @@ class StorefrontMediaUploader
      */
     private $validator;
 
-    public function __construct(MediaService $mediaService, FileSaver $fileSaver, StorefrontMediaValidatorRegistry $validator)
+    public function __construct(MediaService $mediaService, FileSaverInterface $fileSaver, StorefrontMediaValidatorRegistry $validator)
     {
         $this->mediaService = $mediaService;
         $this->fileSaver = $fileSaver;

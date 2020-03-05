@@ -448,6 +448,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * CustomFields are now sorted naturally when custom position is used with customFieldPosition (for example 1,9,10 instead of 1,10,9)
     * Fix endless loading spinner in categories when user changes content language without having a category selected
     * Add `rel="noopener"` to all `target="_blank"` links
+    * Fix wrong behavior of switch fields, checkboxes and radio fields when clicking on the label
 
 * Core
     *

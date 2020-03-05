@@ -15,7 +15,7 @@ describe('Promotion: Test crud operations', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.createCustomerFixture()
+                return cy.createCustomerFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
@@ -41,7 +41,7 @@ describe('Promotion: Test crud operations', () => {
         // Create promotion
         cy.get('.sw-promotion-detail').should('be.visible');
         cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
-        cy.get('#sw-field--promotion-active').click();
+        cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');

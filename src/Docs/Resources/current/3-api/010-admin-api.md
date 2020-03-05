@@ -19,7 +19,7 @@ If you're using a Date field, make sure to use an ISO 8601 compatible date forma
     "name": "Example product",
     "taxId": "792203a53e564e28bcb7ffa1867fb485",
     "stock": 708,
-    "createdAt": "2018-09-13T10:17:05+02:00"
+    "createdAt": "2018-09-13T10:17:05.463+02:00"
 }
 ```
 
@@ -45,7 +45,7 @@ You can see a shortened example response below:
                 "attributes": {
                     "active": true,
                     "stock": 708,
-                    "createdAt": "2018-09-13T10:17:05+02:00",
+                    "createdAt": "2018-09-13T10:17:05.443+02:00",
                     "manufacturerId": "f85bda8491fd4d61bcd2c7982204c638",
                     "taxId": "792203a53e564e28bcb7ffa1867fb485",
                     "price": {
@@ -74,7 +74,7 @@ You can see a shortened example response below:
                 "attributes": {
                     "taxRate": 20,
                     "name": "20%",
-                    "createdAt": "2018-09-13T09:54:01+02:00"
+                    "createdAt": "2018-09-13T09:54:01.341+02:00"
                 },
                 "links": {
                     "self": "http://localhost:8000/api/v1/tax/792203a53e564e28bcb7ffa1867fb485"
@@ -126,13 +126,13 @@ You can see a shortened example below:
                 "tax": {
                     "taxRate": 20,
                     "name": "20%",
-                    "createdAt": "2018-09-13T09:54:01+02:00",
+                    "createdAt": "2018-09-13T09:54:01.212+02:00",
                     "id": "792203a53e564e28bcb7ffa1867fb485"
                 },
                 "manufacturer": {
                     "catalogId": "20080911ffff4fffafffffff19830531",
                     "name": "Arnold",
-                    "createdAt": "2018-09-13T10:17:04+02:00",
+                    "createdAt": "2018-09-13T10:17:04.322+02:00",
                     "products": null,
                     "id": "f85bda8491fd4d61bcd2c7982204c638"
                 },

@@ -9,7 +9,7 @@ trait JsonSerializableTrait
         $vars = get_object_vars($this);
         foreach ($vars as $property => $value) {
             if ($value instanceof \DateTimeInterface) {
-                $value = $value->format(\DateTime::ATOM);
+                $value = $value->format(\DateTime::RFC3339_EXTENDED);
             }
 
             $vars[$property] = $value;

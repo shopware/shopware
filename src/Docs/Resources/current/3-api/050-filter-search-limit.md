@@ -148,7 +148,7 @@ However, it is also possible to minimize the response size by only returning cer
                 "_uniqueIdentifier": "7f33ed96986f4169ac542c3bd9b4da6f",
                 "versionId": null,
                 "translated": [],
-                "createdAt": "2019-12-03T09:41:17+00:00",
+                "createdAt": "2019-12-03T09:41:17.490+00:00",
                 "updatedAt": null,
                 "extensions": {},
                 "id": "7f33ed96986f4169ac542c3bd9b4da6f"

@@ -198,7 +198,7 @@ The following aggregations are currently supported:
                         "description": null,
                         "customFields": []
                     },
-                    "createdAt": "2019-09-16T06:48:31+00:00",
+                    "createdAt": "2019-09-16T06:48:31.334+00:00",
                     "updatedAt": null,
                     "extensions": [],
                     "id": "a22b9ab55e9942e5ace8ad9577b4a3f2"

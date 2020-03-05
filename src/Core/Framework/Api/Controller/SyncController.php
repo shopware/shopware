@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
-use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,11 +27,11 @@ class SyncController extends AbstractController
     private $serializer;
 
     /**
-     * @var SyncService
+     * @var SyncServiceInterface
      */
     private $syncService;
 
-    public function __construct(SyncService $syncService, Serializer $serializer)
+    public function __construct(SyncServiceInterface $syncService, Serializer $serializer)
     {
         $this->serializer = $serializer;
         $this->syncService = $syncService;

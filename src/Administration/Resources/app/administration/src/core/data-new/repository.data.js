@@ -9,8 +9,18 @@ export default class Repository {
      * @param {ChangesetGenerator} changesetGenerator
      * @param {EntityFactory} entityFactory
      * @param {ErrorResolver} errorResolver
+     * @param {Object} options
      */
-    constructor(route, entityName, httpClient, hydrator, changesetGenerator, entityFactory, errorResolver) {
+    constructor(
+        route,
+        entityName,
+        httpClient,
+        hydrator,
+        changesetGenerator,
+        entityFactory,
+        errorResolver,
+        options
+    ) {
         this.route = route;
         this.entityName = entityName;
         this.httpClient = httpClient;
@@ -18,6 +28,7 @@ export default class Repository {
         this.changesetGenerator = changesetGenerator;
         this.entityFactory = entityFactory;
         this.errorResolver = errorResolver;
+        this.options = options;
     }
 
     get schema() {
@@ -36,7 +47,7 @@ export default class Repository {
         const url = `/search-ids${this.route}`;
 
         return this.httpClient
-            .post(url, criteria.parse(), { headers })
+            .post(url, criteria.parse(), { headers, version: this.options.version })
             .then((response) => {
                 return response.data;
             });
@@ -54,7 +65,10 @@ export default class Repository {
         const url = `/search${this.route}`;
 
         return this.httpClient
-            .post(url, criteria.parse(), { headers })
+            .post(url, criteria.parse(), {
+                headers,
+                version: this.options.version
+            })
             .then((response) => {
                 return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
             });
@@ -107,7 +121,8 @@ export default class Repository {
 
         return this.httpClient
             .post(`/_action/clone${this.route}/${entityId}`, null, {
-                headers: this.buildHeaders(context)
+                headers: this.buildHeaders(context),
+                version: this.options.version
             })
             .then((response) => {
                 return response.data;
@@ -206,7 +221,7 @@ export default class Repository {
                     payload
                 }
             },
-            { headers }
+            { headers, version: this.options.version }
         ).then(({ data }) => {
             if (data.success === false) {
                 throw data;
@@ -270,7 +285,7 @@ export default class Repository {
     assign(id, context) {
         const headers = this.buildHeaders(context);
 
-        return this.httpClient.post(`${this.route}`, { id }, { headers });
+        return this.httpClient.post(`${this.route}`, { id }, { headers, version: this.options.version });
     }
 
     /**
@@ -283,7 +298,7 @@ export default class Repository {
         const headers = this.buildHeaders(context);
 
         const url = `${this.route}/${id}`;
-        return this.httpClient.delete(url, { headers })
+        return this.httpClient.delete(url, { headers, version: this.options.version })
             .catch((errorResponse) => {
                 const errors = errorResponse.response.data.errors.map((error) => {
                     return { error, id, entityName: this.entityName };
@@ -316,7 +331,7 @@ export default class Repository {
                     payload
                 }
             },
-            { headers }
+            { headers, version: this.options.version }
         ).then(({ data }) => {
             if (data.success === false) {
                 throw data;
@@ -374,7 +389,7 @@ export default class Repository {
 
         const url = `_action/version/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, params, { headers }).then((response) => {
+        return this.httpClient.post(url, params, { headers, version: this.options.version }).then((response) => {
             return { ...context, ...{ versionId: response.data.versionId } };
         });
     }
@@ -391,7 +406,7 @@ export default class Repository {
 
         const url = `_action/version/merge/${this.entityName.replace(/_/g, '-')}/${versionId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, { headers, version: this.options.version });
     }
 
     /**
@@ -406,7 +421,7 @@ export default class Repository {
 
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return this.httpClient.post(url, {}, { headers });
+        return this.httpClient.post(url, {}, { headers, version: this.options.version });
     }
 
     /**
@@ -423,7 +438,7 @@ export default class Repository {
             changes = changes || {};
             Object.assign(changes, { id: entity.id });
 
-            return this.httpClient.post(`${this.route}`, changes, { headers })
+            return this.httpClient.post(`${this.route}`, changes, { headers, version: this.options.version })
                 .catch((errorResponse) => {
                     this.errorResolver.handleWriteErrors(errorResponse.response.data, [{ entity, changes }]);
                     throw errorResponse;
@@ -434,7 +449,7 @@ export default class Repository {
             return Promise.resolve();
         }
 
-        return this.httpClient.patch(`${this.route}/${entity.id}`, changes, { headers })
+        return this.httpClient.patch(`${this.route}/${entity.id}`, changes, { headers, version: this.options.version })
             .catch((errorResponse) => {
                 this.errorResolver.handleWriteErrors(errorResponse.response.data, [{ entity, changes }]);
                 throw errorResponse;
@@ -450,7 +465,7 @@ export default class Repository {
     sendDeletions(queue, context) {
         const headers = this.buildHeaders(context);
         const requests = queue.map((deletion) => {
-            return this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers })
+            return this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers, version: this.options.version })
                 .catch((errorResponse) => {
                     this.errorResolver.handleDeleteError(errorResponse);
                     throw errorResponse;
@@ -466,10 +481,14 @@ export default class Repository {
      * @returns {Object}
      */
     buildHeaders(context) {
+        const { hasOwnProperty } = Shopware.Utils.object;
+
         let headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${context.authToken.access}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            // TODO: Add real deprecation header for entities
+            'Entity-Deprecation': hasOwnProperty(this.options, 'entityDeprecation') ? this.options.entityDeprecation : true
         };
 
         if (context.languageId) {

@@ -236,12 +236,13 @@ exports.getChunks = function (config) {
  * @param {Object} featureFlags
  * @returns {HtmlWebpackPlugin}
  */
-exports.injectHtmlPlugin = function (config, featureFlags) {
+exports.injectHtmlPlugin = function (config, featureFlags, latestApiVersion) {
     return new HtmlWebpackPlugin({
         filename: 'index.html',
         template: 'index.html.tpl',
         templateParameters: {
-            featureFlags: JSON.stringify(featureFlags)
+            featureFlags: JSON.stringify(featureFlags),
+            apiVersion: latestApiVersion
         },
         inject: false
     });
@@ -399,3 +400,6 @@ exports.loadFeatureFlags = function (envFile) {
     return flagConfig;
 };
 
+exports.getLatestApiVersion = function() {
+    return 1;
+};

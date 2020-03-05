@@ -31,11 +31,14 @@ class AdministrationController extends AbstractController
      */
     private $snippetFinder;
 
-    public function __construct(TemplateFinder $finder, FirstRunWizardClient $firstRunWizardClient, SnippetFinderInterface $snippetFinder)
+    private $supportedApiVersions;
+
+    public function __construct(TemplateFinder $finder, FirstRunWizardClient $firstRunWizardClient, SnippetFinderInterface $snippetFinder, $supportedApiVersions)
     {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
         $this->snippetFinder = $snippetFinder;
+        $this->supportedApiVersions = $supportedApiVersions;
     }
 
     /**
@@ -53,6 +56,7 @@ class AdministrationController extends AbstractController
             'systemCurrencyId' => Defaults::CURRENCY,
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
+            'apiVersion' => $this->getLatestApiVersion(),
         ]);
     }
 
@@ -70,5 +74,13 @@ class AdministrationController extends AbstractController
         }
 
         return new JsonResponse($snippets);
+    }
+
+    /**
+     * @return int
+     */
+    private function getLatestApiVersion()
+    {
+        return max($this->supportedApiVersions);
     }
 }

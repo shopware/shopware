@@ -36,7 +36,8 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
         // https://github.com/ampedandwired/html-webpack-plugin
         utils.injectHtmlPlugin(
             baseWebpackConfig,
-            utils.loadFeatureFlags(process.env.ENV_FILE)
+            utils.loadFeatureFlags(process.env.ENV_FILE),
+            utils.getLatestApiVersion()
         ),
         new FriendlyErrorsPlugin(),
         new AssetsPlugin({

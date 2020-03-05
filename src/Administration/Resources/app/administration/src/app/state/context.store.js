@@ -20,6 +20,7 @@ const storeState = {
         inheritance: null,
         installationPath: null,
         languageId: null,
+        apiVersion: null,
         liveVersionId: null,
         systemLanguageId: null
     }

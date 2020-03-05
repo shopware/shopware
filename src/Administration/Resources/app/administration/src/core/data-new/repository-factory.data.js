@@ -15,9 +15,12 @@ export default class RepositoryFactory {
      *
      * @param {String} entityName
      * @param {String|null} route
+     * @param {Object} options
      * @returns {Repository}
      */
-    create(entityName, route) {
+    create(entityName, route, options = {
+        version: Shopware.Context.api.apiVersion
+    }) {
         if (!route) {
             route = `/${entityName.replace(/_/g, '-')}`;
         }
@@ -30,7 +33,8 @@ export default class RepositoryFactory {
             this.hydrator,
             this.changesetGenerator,
             this.entityFactory,
-            this.errorResolver
+            this.errorResolver,
+            options
         );
     }
 }

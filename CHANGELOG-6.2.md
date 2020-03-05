@@ -356,7 +356,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `\Shopware\Storefront\Theme\ThemeLifecycleHandler` to handle theme lifecycle.
     * `\Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber` now uses `\Shopware\Storefront\Theme\ThemeLifecycleHandler`, constructor arguments changed because of that.
     * Added Twig Filter `replace_recursive` for editing values in nested Arrays
-    * All javascript plugin options can now be overwritten in Twig 
+    * All javascript plugin options can now be overwritten in Twig
+    * Added `Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to be able to add custom SCSS variables.
 
 **Removals**
 

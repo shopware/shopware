@@ -1,9 +1,9 @@
-[titleEn]: <>(Add SCSS variables)
-[metaDescriptionEn]: <>(This HowTo will show you how you can add custom SCSS variables from a plugin.)
+[titleEn]: <>(Add SCSS variables in a plugin)
+[metaDescriptionEn]: <>(This HowTo will show you how you can add custom SCSS variables in a plugin.)
 
 ## Overview
 
-With [themes]() it is possible to add custom SCSS variables through the theme.json config fields. Since there is no theme.json in regular plugins you can use a subscriber class to add custom SCSS variables.
+With [themes](../2-internals/4-plugins/100-plugin-themes.md) it is possible to add custom SCSS variables through the theme.json config fields. Since there is no theme.json in regular plugins you can use a subscriber class to add custom SCSS variables.
 
 Before you start adding your subscriber you should provide a fallback value for your custom SCSS variable in your plugin `base.scss`:
 ```scss
@@ -19,7 +19,7 @@ $sass-plugin-header-bg-color: #ffcc00 !default;
 
 ## Theme variables subscriber
 
-You can add a new subscriber according to the [plugin subscriber documentation](). In this example we name the subscriber `ThemeVariableSubscriber.php`". The subscriber listens to the `ThemeCompilerEnrichScssVariablesEvent`.
+You can add a new subscriber according to the [plugin subscriber documentation](./040-register-subscriber.md). In this example we name the subscriber `ThemeVariableSubscriber.php`". The subscriber listens to the `ThemeCompilerEnrichScssVariablesEvent`.
 
 ```php
 // ScssPlugin/src/Subscriber/ThemeVariablesSubscriber.php
@@ -65,7 +65,7 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
 
 Inside your `ThemeVariablesSubscriber.php` you can also read values from the plugin configuration and assign those to a SCSS variable. This makes it also possible to have different values for each sales channel. Depending on the selected sales channel inside the plugin configuration in the administration.
 
-First of all lets add a new plugin configuration field according to the [plugin configuration documentation]():
+First of all lets add a new plugin configuration field according to the [plugin configuration documentation](../2-internals/4-plugins/070-plugin-config.md):
 
 ```xml
 <!-- ScssPlugin/src/Resources/config/config.xml -->
@@ -118,7 +118,7 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
 }
 ```
 * The `SystemConfigService` provides a `get()` method where you can access the configuration structure in the first parameter with a dot notation syntax like `MyPluginName.config.fieldName`. The second parameter is the sales channel id. With this id the config fields can be accessed for each sales channel.
-* You can get the sales channel id throug the getter `getSalesChannelId()` of the `ThemeCompilerEnrichScssVariablesEvent`.
+* You can get the sales channel id through the getter `getSalesChannelId()` of the `ThemeCompilerEnrichScssVariablesEvent`.
 * Now your sass variables can have different values in each sales channel.
 
 ### All config fields as SCSS variables

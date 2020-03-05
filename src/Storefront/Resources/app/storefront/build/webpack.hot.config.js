@@ -21,26 +21,6 @@ if (!existsSync(themeFilesConfigPath)) {
 // eslint-disable-next-line
 const themeFiles = require(themeFilesConfigPath);
 
-// Search for "overrides.scss" entry point in "theme-files.json" content
-const overridesEntry = utils.getScssEntryByName(themeFiles.style, 'scss/overrides.scss');
-
-/**
- * Additional SCSS resources for "sass-resources-loader"
- * https://www.npmjs.com/package/sass-resources-loader
- * @type {string[]}
- */
-const scssResources = utils.getScssResources(
-    [
-        // Dumped theme variables
-        join(utils.getProjectRootPath(), 'var/theme-variables.scss'),
-
-        // Storefront & vendor variables + mixins + functions
-        join(__dirname, '..', 'src/scss/variables.scss'),
-    ],
-    overridesEntry,
-    'overrides.scss'
-);
-
 /**
  * Webpack module configuration and how them will be treated
  * https://webpack.js.org/configuration/module
@@ -73,13 +53,6 @@ const modules = {
                     loader: 'sass-loader',
                     options: {
                         sourceMap: true,
-                    },
-                },
-                // Provides our theme variables to the hot replacement mode
-                {
-                    loader: 'sass-resources-loader',
-                    options: {
-                        resources: scssResources,
                     },
                 },
             ],
@@ -152,7 +125,13 @@ const config = {
     plugins: plugins,
 };
 
-config.entry.storefront = [...themeFiles.script, ...themeFiles.style].map((file) => {
+const scssEntryFilePath = join(utils.getProjectRootPath(), 'var/theme-entry.scss');
+const scssDumpedVariables = join(utils.getProjectRootPath(), 'var/theme-variables.scss');
+const scssEntryFileContent = utils.getScssEntryContent(scssDumpedVariables, themeFiles.style);
+const scssEntry = utils.writeScssEntryFile(scssEntryFilePath, scssEntryFileContent);
+
+config.entry.storefront = [...themeFiles.script, scssEntry].map((file) => {
+
     return file.filepath;
 });
 

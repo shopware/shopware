@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -100,7 +101,7 @@ class EntityMapper
                 return ['type' => 'long'];
 
             case $field instanceof ObjectField:
-                return ['type' => 'object'];
+                return ['type' => 'object', 'dynamic' => true];
 
             case $field instanceof PriceField:
                 return self::PRICE_FIELD;
@@ -116,9 +117,11 @@ class EntityMapper
                     ],
                 ];
 
+            case $field instanceof CustomFields:
+                return ['type' => 'object', 'dynamic' => true];
             case $field instanceof JsonField:
                 if (empty($field->getPropertyMapping())) {
-                    return ['type' => 'object'];
+                    return ['type' => 'object', 'dynamic' => true];
                 }
                 $properties = [];
                 foreach ($field->getPropertyMapping() as $nested) {

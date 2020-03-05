@@ -555,8 +555,6 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testTermsAggregationWithSorting(TestDataCollection $data): void
     {
-        static::markTestIncomplete('Requires ongr/dsl update. Waiting for https://github.com/ongr-io/ElasticsearchDSL/pull/296');
-
         $aggregator = $this->createEntityAggregator();
 
         // check simple search without any restrictions
@@ -1233,6 +1231,20 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testFilterCustomTextField(TestDataCollection $data): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customFields.testField', 'Silk'));
+
+        $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertTrue($result->has($data->get('p1')));
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testXorQuery(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
@@ -1307,6 +1319,9 @@ class ElasticsearchProductTest extends TestCase
             'manufacturer' => ['id' => $this->ids->create($manufacturerKey), 'name' => $manufacturerKey],
             'tax' => ['id' => $this->ids->create($taxKey),  'name' => 'test', 'taxRate' => 15],
             'releaseDate' => $releaseDate,
+            'customFields' => [
+                'testField' => $name,
+            ],
         ];
 
         if (!empty($categories)) {

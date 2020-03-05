@@ -149,5 +149,4 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
     }
 }
 ```
-* Please be aware that this will give you camelCase variable names by default since the `config.xml` does not support kebab-case for field names.
-* To avoid this you can format the name using the `CamelCaseToSnakeCaseNameConverter`.
+To avoid camelCase variable names when reading from the `config.xml` we recommend to use the `CamelCaseToSnakeCaseNameConverter` to format the variable before adding it.

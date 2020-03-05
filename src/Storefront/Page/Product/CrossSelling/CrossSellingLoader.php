@@ -5,7 +5,9 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -96,7 +98,7 @@ class CrossSellingLoader
 
     private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
     {
-        if ($crossSelling->getType() === 'productStream') {
+        if ($crossSelling->getType() === 'productStream' && $crossSelling->getProductStreamId() !== null) {
             return $this->loadCrossSellingProductStream($crossSelling, $context);
         }
 
@@ -165,7 +167,14 @@ class CrossSellingLoader
             return $entity->getProductId();
         }, $crossSelling->getAssignedProducts()->getElements()));
 
+        $filter = new ProductAvailableFilter(
+            $context->getSalesChannel()->getId(),
+            ProductVisibilityDefinition::VISIBILITY_LINK
+        );
+
         $criteria = new Criteria($assignedProductsIds);
+        $criteria->addAssociation('visibilities');
+        $criteria->addFilter($filter);
 
         if (!count($assignedProductsIds)) {
             return null;
@@ -175,7 +184,9 @@ class CrossSellingLoader
 
         $products = new ProductCollection();
         foreach ($crossSelling->getAssignedProducts()->getElements() as $element) {
-            $products->add($searchResult->get($element->getProductId()));
+            if ($searchResult->get($element->getProductId()) !== null) {
+                $products->add($searchResult->get($element->getProductId()));
+            }
         }
 
         $element = new CrossSellingElement();

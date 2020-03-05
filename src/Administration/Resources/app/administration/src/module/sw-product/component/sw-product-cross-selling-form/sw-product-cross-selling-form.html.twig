@@ -27,10 +27,11 @@
                             </sw-text-field>
                         {% endblock %}
                         {% block sw_prduct_cross_selling_form_active_field %}
-                            <sw-field type="switch"
-                                      class="sw-product-detail-cross-selling__active-switch"
-                                      :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
-                                      v-model="crossSelling.active">
+                            <sw-field
+                                type="switch"
+                                class="sw-product-detail-cross-selling__active-switch"
+                                :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
+                                v-model="crossSelling.active">
                             </sw-field>
                         {% endblock %}
                     </sw-container>
@@ -40,6 +41,7 @@
                             <sw-select-field
                                 :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                                 @change="onTypeChanged"
+                                required
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
                                 v-model="crossSelling.type">
                                 <option v-for="option in crossSellingTypes"
@@ -54,6 +56,7 @@
                                 numberType="int"
                                 :min="1"
                                 :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
+                                required
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingPositionPlaceholder')"
                                 v-model="crossSelling.position">
                             </sw-number-field>

@@ -32,10 +32,10 @@ Component.register('sw-product-cross-selling-form', {
     },
 
     computed: {
-        ...mapPropertyErrors('product.crossSelling', [
+        ...mapPropertyErrors('crossSellings', [
             'name',
-            'displayType',
-            'sortingType'
+            'type',
+            'position'
         ]),
 
         ...mapState('swProductDetail', [

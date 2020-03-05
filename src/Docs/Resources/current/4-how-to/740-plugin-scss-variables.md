@@ -3,7 +3,7 @@
 
 ## Overview
 
-With [themes](../2-internals/4-plugins/100-plugin-themes.md) it is possible to add custom SCSS variables through the theme.json config fields. Since there is no theme.json in regular plugins you can use a subscriber class to add custom SCSS variables.
+With [themes](./../2-internals/4-plugins/100-plugin-themes.md) it is possible to add custom SCSS variables through the theme.json config fields. Since there is no theme.json in regular plugins you can use a subscriber class to add custom SCSS variables.
 
 Before you start adding your subscriber you should provide a fallback value for your custom SCSS variable in your plugin `base.scss`:
 ```scss
@@ -65,7 +65,7 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
 
 Inside your `ThemeVariablesSubscriber.php` you can also read values from the plugin configuration and assign those to a SCSS variable. This makes it also possible to have different values for each sales channel. Depending on the selected sales channel inside the plugin configuration in the administration.
 
-First of all lets add a new plugin configuration field according to the [plugin configuration documentation](../2-internals/4-plugins/070-plugin-config.md):
+First of all lets add a new plugin configuration field according to the [plugin configuration documentation](./../2-internals/4-plugins/070-plugin-config.md):
 
 ```xml
 <!-- ScssPlugin/src/Resources/config/config.xml -->

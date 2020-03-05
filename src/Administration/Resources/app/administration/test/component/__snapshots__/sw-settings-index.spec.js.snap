@@ -32,14 +32,7 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
                                     
         </a>
          
-        <a
-          class="sw-tabs-item sw-settings__tab-plugins"
-          title="sw-settings.index.tabPlugins"
-        >
-          
-                                        sw-settings.index.tabPlugins
-                                    
-        </a>
+        <!---->
          
         <span
           class="sw-tabs__slider"

@@ -50,7 +50,7 @@ Component.register('sw-settings-index', {
         hasPluginConfig() {
             return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0)
                 // @deprecated tag:v6.4.0
-                || (this.$refs.pluginConfig);
+                || (this.$refs.pluginConfig && this.$refs.pluginConfig.childElementCount > 0);
         }
     }
 });

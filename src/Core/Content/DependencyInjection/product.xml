@@ -190,7 +190,6 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway">
             <argument type="service" id="sales_channel.product.repository" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry">
@@ -219,6 +218,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="property_group_option.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway" public="true">

@@ -9,13 +9,10 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\next6025;
 
 class ProductListingGateway implements ProductListingGatewayInterface
 {
@@ -29,19 +26,12 @@ class ProductListingGateway implements ProductListingGatewayInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function search(Request $request, SalesChannelContext $salesChannelContext): EntitySearchResult
@@ -54,23 +44,6 @@ class ProductListingGateway implements ProductListingGatewayInterface
         $criteria->addFilter(
             new EqualsFilter('product.categoriesRo.id', $this->getNavigationId($request, $salesChannelContext))
         );
-
-        if (next6025()) {
-            $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
-            $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-            if ($hideCloseoutProductsWhenOutOfStock) {
-                $criteria->addFilter(
-                    new NotFilter(
-                        NotFilter::CONNECTION_AND,
-                        [
-                            new EqualsFilter('product.isCloseout', true),
-                            new EqualsFilter('product.available', false),
-                        ]
-                    )
-                );
-            }
-        }
 
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)

@@ -19,6 +19,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix gzip unpacking error in sitemap
     * Disabled twig cache warmup on clearing cache
     * Fixed a bug where inactive category pages could be accessed by browsing to the category's SEO URL directly
+    
+* Storefront
+    * Fix using the SCSS `@extend` feature on existing bootstrap classes when running `./psh.phar storefront:hot` or `./psh.phar storefront:hot-proxy`.
 
 ### 6.1.3
 

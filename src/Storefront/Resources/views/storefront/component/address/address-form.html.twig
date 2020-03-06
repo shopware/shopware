@@ -13,7 +13,6 @@
         {% endif %}
 
         {% if shopware.config.core.loginRegistration.showAccountTypeSelection or prefix == "address" or prefix == "shippingAddress" %}
-            {{ dump(data) }}
             <div class="{% if prefix == "shippingAddress" %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
                 {% block component_address_form_company_fields %}
                     <div class="form-row">

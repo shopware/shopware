@@ -89,7 +89,6 @@ export default class DomAccess {
 
         if (typeof attribute === 'undefined') {
             if (strict) {
-                console.log('element', element)
                 throw new Error(`The required data attribute "${key}" does not exist on ${element}!`);
             }
 
@@ -114,9 +113,6 @@ export default class DomAccess {
         const element = parentNode.querySelector(selector) || false;
 
         if (strict && element === false) {
-            console.log('broken parentNode', parentNode);
-            console.log('broken selector', selector);
-            console.log('broken element', element);
             throw new Error(`The required element "${selector}" does not exist in parent node!`);
         }
 
@@ -133,7 +129,6 @@ export default class DomAccess {
      */
     static querySelectorAll(parentNode, selector, strict = true) {
         if (strict && !DomAccess.isNode(parentNode)) {
-            console.log('broken HTML parentNode', parentNode);
             throw new Error('The parent node is not a valid HTML Node!');
         }
 

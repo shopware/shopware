@@ -1,9 +1,6 @@
 {% set defaultBillingAddressId = context.customer.defaultBillingAddressId %}
 {% set defaultShippingAddressId = context.customer.defaultShippingAddressId %}
 
-{% set billingAddressId = defaultBillingAddressId %}
-{% set shippingAddressId = defaultShippingAddressId %}
-
 {% set address = context.customer.defaultBillingAddress %}
 {% if changeShipping %}
     {% set address = context.customer.defaultShippingAddress %}
@@ -25,9 +22,6 @@
 
                     {% block component_address_address_editor_modal_accordion_overview_billing %}
                         {% if changeBilling %}
-                            {% if address %}
-                                {% set billingAddressId = address %}
-                            {% endif %}
                             {% block component_address_address_editor_modal_accordion_overview_billing_card %}
                                 <div class="card">
                                     {% block component_address_address_editor_modal_accordion_overview_billing_card_body %}
@@ -54,9 +48,6 @@
 
                     {% block component_address_address_editor_modal_accordion_overview_shipping %}
                         {% if changeShipping %}
-                            {% if address %}
-                                {% set shippingAddressId = address %}
-                            {% endif %}
                             {% block component_address_address_editor_modal_accordion_overview_shipping_card %}
                                 <div class="card">
                                     {% block component_address_address_editor_modal_accordion_overview_shipping_card_body %}

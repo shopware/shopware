@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\SalesChannel;
+namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-class ProductSuggestRouteResponse extends StoreApiResponse
+class ProductSearchRouteResponse extends StoreApiResponse
 {
     /**
      * @var ProductListingResult

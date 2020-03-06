@@ -460,7 +460,8 @@ SQL;
     {
         $id = Uuid::randomBytes();
 
-        $stmt = $this->connection->prepare('
+        $stmt = $this->connection->prepare(
+            '
             SELECT LOWER (HEX(locale.id))
             FROM `locale`
             WHERE LOWER(locale.code) = LOWER(?)'
@@ -468,7 +469,8 @@ SQL;
         $stmt->execute([$iso]);
         $localeId = $stmt->fetchColumn();
 
-        $stmt = $this->connection->prepare('
+        $stmt = $this->connection->prepare(
+            '
             SELECT LOWER(language.id)
             FROM `language`
             WHERE LOWER(language.name) = LOWER(?)'
@@ -476,7 +478,8 @@ SQL;
         $stmt->execute(['english']);
         $englishId = $stmt->fetchColumn();
 
-        $stmt = $this->connection->prepare('
+        $stmt = $this->connection->prepare(
+            '
             SELECT locale_translation.name
             FROM `locale_translation`
             WHERE LOWER(HEX(locale_id)) = ?
@@ -489,7 +492,8 @@ SQL;
             throw new LanguageNotFoundException("locale_translation.name for iso: '" . $iso . "', localeId: '" . $localeId . "' not found!");
         }
 
-        $stmt = $this->connection->prepare('
+        $stmt = $this->connection->prepare(
+            '
             INSERT INTO `language`
             (id,name,locale_id,translation_code_id)
             VALUES

@@ -69,5 +69,9 @@
             <argument type="service" id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
+        </service>
     </services>
 </container>

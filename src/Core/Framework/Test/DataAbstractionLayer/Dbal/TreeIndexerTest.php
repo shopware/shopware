@@ -5,9 +5,10 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\TreeIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,11 +29,6 @@ class TreeIndexerTest extends TestCase
     private $context;
 
     /**
-     * @var TreeIndexer
-     */
-    private $treeIndexer;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -42,13 +38,18 @@ class TreeIndexerTest extends TestCase
      */
     private $connection;
 
+    /**
+     * @var CategoryIndexer
+     */
+    private $categoryIndexer;
+
     protected function setUp(): void
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext();
-        $this->treeIndexer = $this->getContainer()->get(TreeIndexer::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->categoryIndexer = $this->getContainer()->get(CategoryIndexer::class);
     }
 
     public function testRefreshTree(): void
@@ -272,7 +273,9 @@ class TreeIndexerTest extends TestCase
             static::assertNull($category->getPath());
         }
 
-        $this->treeIndexer->index(new \DateTime());
+        $this->categoryIndexer->handle(
+            new EntityIndexingMessage([$categoryA, $categoryB, $categoryC, $categoryD])
+        );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 

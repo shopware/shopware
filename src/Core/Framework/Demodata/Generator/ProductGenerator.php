@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Util\Random;
@@ -41,16 +40,23 @@ class ProductGenerator implements DemodataGeneratorInterface
      */
     private $productDefinition;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
+
     public function __construct(
         EntityWriterInterface $writer,
         EntityRepositoryInterface $taxRepository,
         Connection $connection,
-        ProductDefinition $productDefinition
+        ProductDefinition $productDefinition,
+        EntityRepositoryInterface $productRepository
     ) {
         $this->writer = $writer;
         $this->taxRepository = $taxRepository;
         $this->connection = $connection;
         $this->productDefinition = $productDefinition;
+        $this->productRepository = $productRepository;
     }
 
     public function getDefinition(): string
@@ -109,27 +115,11 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $this->write($payload, $context);
                 $payload = [];
                 $ids = [];
-
-                // set inherited association fields, normally set in Indexer
-                // these are needed in Order generation
-                $this->connection->executeUpdate(
-                    'UPDATE product SET visibilities = id, prices = id WHERE id IN (:ids);',
-                    ['ids' => Uuid::fromHexToBytesList($ids)],
-                    ['ids' => Connection::PARAM_STR_ARRAY]
-                );
             }
         }
 
         if (!empty($payload)) {
             $this->write($payload, $context);
-
-            // set inherited association fields, normally set in Indexer
-            // these are needed in Order generation
-            $this->connection->executeUpdate(
-                'UPDATE product SET visibilities = id, prices = id WHERE id IN (:ids);',
-                ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
         }
 
         $context->getConsole()->progressFinish();
@@ -137,13 +127,16 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function write(array $payload, DemodataContext $context): void
     {
-        $writeContext = WriteContext::createFromContext($context->getContext());
-
-        $this->writer->upsert($this->productDefinition, $payload, $writeContext);
+        $this->productRepository->upsert($payload, $context->getContext());
     }
 
     private function getTaxes(Context $context)
     {
+        $taxes = $this->taxRepository->search(new Criteria(), $context);
+        if ($taxes->count() > 0) {
+            return $taxes;
+        }
+
         $tax = ['name' => 'High tax', 'taxRate' => 19];
         $this->taxRepository->create([$tax], $context);
 

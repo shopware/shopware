@@ -255,6 +255,26 @@ class Context extends Struct
         return $result;
     }
 
+    public function enableInheritance(callable $function)
+    {
+        $previous = $this->considerInheritance;
+        $this->considerInheritance = true;
+        $result = $function($this);
+        $this->considerInheritance = $previous;
+
+        return $result;
+    }
+
+    public function disableInheritance(callable $function)
+    {
+        $previous = $this->considerInheritance;
+        $this->considerInheritance = false;
+        $result = $function($this);
+        $this->considerInheritance = $previous;
+
+        return $result;
+    }
+
     public function getApiAlias(): string
     {
         return 'context';

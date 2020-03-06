@@ -73,9 +73,9 @@ class SearchKeywordUpdater
     private function updateLanguage(array $ids, Context $context): void
     {
         $products = $context->disableCache(function (Context $context) use ($ids) {
-            $context->setConsiderInheritance(true);
-
-            return $this->productRepository->search(new Criteria($ids), $context);
+            return $context->enableInheritance(function (Context $context) use ($ids) {
+                return $this->productRepository->search(new Criteria($ids), $context);
+            });
         });
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());

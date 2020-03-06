@@ -148,6 +148,10 @@ Component.register('sw-order-create-base', {
             return this.cartLineItems.filter(item => item.hasOwnProperty('id')).length > 0;
         },
 
+        hasAutomaticPromotionItem() {
+            return this.cartAutomaticPromotionItems.length > 0;
+        },
+
         shippingCostsDetail() {
             if (!this.cartDelivery) {
                 return null;

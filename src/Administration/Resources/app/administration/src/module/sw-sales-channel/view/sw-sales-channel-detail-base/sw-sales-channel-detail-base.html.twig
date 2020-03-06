@@ -192,6 +192,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_languages %}
                     <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
                         :salesChannel="salesChannel"
                         propertyName="languages"
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"

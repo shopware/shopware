@@ -123,7 +123,9 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             return new CategoryCollection();
         }
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('category.parentId', $serviceId));
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('category.parentId', $serviceId))
+            ->addFilter(new EqualsFilter('category.active', true));
 
         /** @var CategoryCollection $categories */
         $categories = $this->categoryRepository->search($criteria, $salesChannelContext)->getEntities();

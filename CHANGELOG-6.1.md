@@ -18,6 +18,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix updater language to use the admin user language
     * Fix gzip unpacking error in sitemap
     * Disabled twig cache warmup on clearing cache
+    * Fixed a bug where inactive category pages could be accessed by browsing to the category's SEO URL directly
 
 ### 6.1.3
 

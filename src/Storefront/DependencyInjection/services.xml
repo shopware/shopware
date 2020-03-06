@@ -165,7 +165,7 @@
 
         <service id="Shopware\Storefront\Page\Suggest\SuggestPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductSuggestRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
         </service>
 
@@ -191,7 +191,7 @@
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductSearchRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

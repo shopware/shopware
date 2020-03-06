@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
-use Shopware\Core\Content\Product\SalesChannel\ProductSearchRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @deprecated tag:v6.3.0 use \Shopware\Core\Content\Product\SalesChannel\ProductSearchRoute instead
+ * @deprecated tag:v6.3.0 use \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute instead
  */
 class ProductSearchGateway implements ProductSearchGatewayInterface
 {

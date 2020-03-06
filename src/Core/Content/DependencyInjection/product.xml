@@ -222,11 +222,11 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductSuggestRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway" public="true">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductSearchRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
@@ -302,14 +302,14 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\ProductSuggestRoute" public="true">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\ProductSearchRoute" public="true">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>

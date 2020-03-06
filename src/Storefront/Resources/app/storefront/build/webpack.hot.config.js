@@ -131,7 +131,6 @@ const scssEntryFileContent = utils.getScssEntryContent(scssDumpedVariables, them
 const scssEntry = utils.writeScssEntryFile(scssEntryFilePath, scssEntryFileContent);
 
 config.entry.storefront = [...themeFiles.script, scssEntry].map((file) => {
-
     return file.filepath;
 });
 

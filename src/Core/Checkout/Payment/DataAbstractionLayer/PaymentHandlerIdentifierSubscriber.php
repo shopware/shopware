@@ -22,6 +22,12 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         foreach ($event->getEntities() as $entity) {
             $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
 
+            if (count($explodedHandlerIdentifier) < 2) {
+                $entity->setFormattedHandlerIdentifier($entity->getHandlerIdentifier());
+
+                continue;
+            }
+
             $formattedHandlerIdentifier = 'handler_'
                 . mb_strtolower(array_shift($explodedHandlerIdentifier))
                 . '_'

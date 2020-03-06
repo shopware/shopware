@@ -140,7 +140,8 @@ const config = {
 };
 
 const scssEntryFilePath = join(utils.getProjectRootPath(), 'var/theme-entry.scss');
-const scssEntryFileContent = utils.getScssEntryContent(themeFiles.style);
+const scssDumpedVariables = join(utils.getProjectRootPath(), 'var/theme-variables.scss');
+const scssEntryFileContent = utils.getScssEntryContent(scssDumpedVariables, themeFiles.style);
 const scssEntry = utils.writeScssEntryFile(scssEntryFilePath, scssEntryFileContent);
 
 config.entry.storefront = [...themeFiles.script, scssEntry].map((file) => {

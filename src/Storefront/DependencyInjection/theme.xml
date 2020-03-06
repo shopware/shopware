@@ -15,9 +15,11 @@
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.debug%</argument>
+            <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
         </service>
 

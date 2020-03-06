@@ -39,6 +39,23 @@ Component.register('sw-show-case-list', {
 });
 ```
 
+You can also change some options in the third parameter:
+
+```javascript
+Component.register('sw-show-case-list', {
+    inject: ['repositoryFactory'],
+    
+    created() {
+        const options = {
+            version: 1, // default is the latest api version
+            entityDeprecation: true // default is true
+        };
+
+        this.repository = this.repositoryFactory.create('product', null, options);
+    }
+});
+```
+
 ## How to fetch listings
 
 To fetch data from the server, the repository has a `search` function. Each repository function requires the api `context`. This can be get from the Shopware object:

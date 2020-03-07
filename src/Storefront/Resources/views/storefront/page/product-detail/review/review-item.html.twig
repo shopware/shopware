@@ -61,6 +61,12 @@
 			</p>
 		{% endblock %}
 
+		{% block page_product_detail_review_item_author %}
+			<p class="product-detail-review-item-author font-weight-bold" itemprop="author">
+				{{ review.externalUser }}
+			</p>
+		{% endblock %}
+
 		{% block page_product_detail_review_item_comment %}
 			{% if review.comment %}
 				<div class="product-detail-review-item-comment">

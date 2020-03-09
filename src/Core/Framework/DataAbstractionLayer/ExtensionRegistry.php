@@ -8,7 +8,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 class ExtensionRegistry
 {
     /**
-     * @var EntityExtensionInterface[]
+     * @var EntityExtensionInterface[]|EntityExtension[]
      */
     private $extensions;
 
@@ -18,7 +18,7 @@ class ExtensionRegistry
     }
 
     /**
-     * @return EntityExtensionInterface[]|iterable
+     * @return EntityExtensionInterface[]|EntityExtension[]|iterable
      */
     public function getExtensions(): iterable
     {

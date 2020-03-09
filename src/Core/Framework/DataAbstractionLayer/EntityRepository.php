@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -82,6 +83,9 @@ class EntityRepository implements EntityRepositoryInterface
         }
 
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
+            $this->eventDispatcher->dispatch(
+                new EntitySearchedEvent($criteria, $this->definition, $context)
+            );
             $entities = $this->read($criteria, $context);
 
             return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context);
@@ -131,6 +135,10 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $this->eventDispatcher->dispatch(
+            new EntitySearchedEvent($criteria, $this->definition, $context)
+        );
+
         $result = $this->searcher->search($this->definition, $criteria, $context);
 
         $event = new EntityIdSearchResultLoadedEvent($this->definition, $result);

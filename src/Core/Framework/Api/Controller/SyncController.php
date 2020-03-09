@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -62,7 +63,9 @@ class SyncController extends AbstractController
             $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload'], $version);
         }
 
-        $result = $this->syncService->sync($operations, $context, $behavior);
+        $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($operations, $behavior): SyncResult {
+            return $this->syncService->sync($operations, $context, $behavior);
+        });
 
         if ($failOnError === true && !$result->isSuccess()) {
             return new JsonResponse($result, 400);

@@ -13,7 +13,7 @@ text-field, a number field or the likes.
 ## Extending an entity
 
 Own entities can be integrated into the core via the corresponding entry in the `services.xml`.
-To extend existing entities, the `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` is used.
+To extend existing entities, the abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` is used.
 The EntityExtension must define which entity should be extended in the `getDefinitionClass` method.
 Once this extension is accessed in the system, the extension can add more fields to it:
 
@@ -23,12 +23,12 @@ Once this extension is accessed in the system, the extension can add more fields
 namespace Swag\EntityExtension\Extension\Content\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class CustomExtension implements EntityExtensionInterface
+class CustomExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-/**
- * @deprecated tag:v6.3.0 extend from `EntityExtension` instead
- */
-interface EntityExtensionInterface
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+
+abstract class EntityExtension implements EntityExtensionInterface
 {
     /**
      * Allows to add fields to an entity.
@@ -14,10 +13,21 @@ interface EntityExtensionInterface
      * Added fields should have the \Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension which tells the DAL that this data
      * is not include in the struct and collection classes
      */
-    public function extendFields(FieldCollection $collection): void;
+    public function extendFields(FieldCollection $collection): void
+    {
+    }
+
+    /**
+     * Allows to add protections to an entity
+     *
+     * Add the protections you need to the given `$protections`
+     */
+    public function extendProtections(EntityProtectionCollection $protections): void
+    {
+    }
 
     /**
      * Defines which entity definition should be extended by this class
      */
-    public function getDefinitionClass(): string;
+    abstract public function getDefinitionClass(): string;
 }

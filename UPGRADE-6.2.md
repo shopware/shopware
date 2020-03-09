@@ -49,7 +49,7 @@ Core
 `$connection->executeUpdate()` instead.
 * For the possibility to add individual product to across selling, you need to use a new field for creating a cross selling
     * Please use type `productList` or `productStream` in order to create a corresponding cross selling
-   
+* The `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` will be removed, extend from the abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` instead.
 
 Administration
 --------------

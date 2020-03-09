@@ -97,11 +97,13 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
         settingsGroups.forEach(([, settingsItems]) => {
-            settingsItems.forEach((settingsItem) => {
+            settingsItems.forEach((settingsItem, index) => {
                 let elementsSorted = true;
 
-                if (settingsItems < settingsItems.length - 1) {
-                    elementsSorted = settingsItems[settingsItem].label <= settingsItems[settingsItem + 1].label;
+                if (index < settingsItems.length - 1) {
+                    elementsSorted = (
+                        settingsItems[index].label.localeCompare(settingsItems[index + 1].label) === -1
+                    );
                 }
 
                 expect(elementsSorted).toEqual(true);

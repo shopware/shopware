@@ -11,6 +11,7 @@
         {% block sw_order_product_select_existing_product %}
             <sw-entity-single-select class="sw-order-product-select__single-select"
                                      v-else-if="isShownProductSelect"
+                                     :context="contextWithInheritance"
                                      v-model="product"
                                      entity="product"
                                      @change="onItemChanged"

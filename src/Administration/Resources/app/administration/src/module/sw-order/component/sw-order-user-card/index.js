@@ -87,7 +87,7 @@ Component.register('sw-order-user-card', {
 
         hasDifferentBillingAndShippingAddress() {
             return this.hasDeliveries &&
-                this.billingAddress.id !== this.delivery.shippingOrderAddress.id;
+                this.billingAddress.id !== this.delivery.shippingOrderAddressId;
         },
 
         lastChangedDate() {
@@ -190,7 +190,7 @@ Component.register('sw-order-user-card', {
             }
 
             this.orderAddressRepository.clone(
-                this.delivery.shippingOrderAddress.id,
+                this.delivery.shippingOrderAddressId,
                 this.versionContext
             ).then((response) => {
                 this.delivery.shippingOrderAddressId = response.id;

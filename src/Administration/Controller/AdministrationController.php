@@ -76,11 +76,11 @@ class AdministrationController extends AbstractController
         return new JsonResponse($snippets);
     }
 
-    /**
-     * @return int
-     */
-    private function getLatestApiVersion()
+    private function getLatestApiVersion(): int
     {
-        return max($this->supportedApiVersions);
+        $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
+        usort($sortedSupportedApiVersions, 'version_compare');
+
+        return array_pop($sortedSupportedApiVersions);
     }
 }

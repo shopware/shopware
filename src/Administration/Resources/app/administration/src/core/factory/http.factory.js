@@ -24,9 +24,8 @@ export default function createHTTPClient(context) {
  * @returns {AxiosInstance}
  */
 function createClient() {
-    // TODO: the client needs support for changing the version and the header deprecation tag
     const client = Axios.create({
-        baseURL: getBasePath()
+        baseURL: getBasePath(Shopware.Context.api.apiVersion - 1)
     });
 
     refreshTokenInterceptor(client);
@@ -69,11 +68,26 @@ function wrapMethod(original, functionName, cb) {
  */
 function changeVersion(config) {
     if (!config || !config.version) {
+        checkVersionDeprecation(Shopware.Context.api.apiVersion - 1);
         return;
     }
 
     config.baseURL = getBasePath(config.version);
+
+    checkVersionDeprecation(config.version);
+
     delete config.version;
+}
+
+function checkVersionDeprecation(version) {
+    if (version >= Shopware.Context.api.apiVersion || Shopware.Context.api.apiVersion <= 1) {
+        return;
+    }
+
+    Shopware.Utils.debug.warn(
+        'httpClient',
+        `The request uses a deprecated api version: ${version}. You should upgrade the request to the latest api version.`
+    );
 }
 
 /**
@@ -82,6 +96,10 @@ function changeVersion(config) {
  * @returns {string}
  */
 function getBasePath(version = Shopware.Context.api.apiVersion) {
+    if (version <= 0) {
+        return `${Shopware.Context.api.apiPath}/v1`;
+    }
+
     return `${Shopware.Context.api.apiPath}/v${version}`;
 }
 

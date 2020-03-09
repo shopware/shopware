@@ -37,9 +37,9 @@ You can change several configurations for each request:
 ```javascript
 const config = {
   // Here you can set the version for the api. For backward compatibility we use the latest
-  // supported version. Therefore you have to manually set the latest version if you need the
+  // supported version. Therefore you have to manually set the newest version if you need the
   // latest api features.
-  // default is the last supported version
+  // default is the latest supported version
   version: 2,
 
   // `url` is the server URL that will be used for the request

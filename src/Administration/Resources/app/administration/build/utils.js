@@ -400,6 +400,7 @@ exports.loadFeatureFlags = function (envFile) {
     return flagConfig;
 };
 
-exports.getLatestApiVersion = function() {
+exports.getLatestApiVersion = function () {
+    // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
     return 1;
 };

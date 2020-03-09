@@ -487,7 +487,6 @@ export default class Repository {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${context.authToken.access}`,
             'Content-Type': 'application/json',
-            // TODO: Add real deprecation header for entities
             'Entity-Deprecation': hasOwnProperty(this.options, 'entityDeprecation') ? this.options.entityDeprecation : true
         };
 

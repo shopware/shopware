@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\SwagTest;
 
@@ -29,7 +29,7 @@ class KernelPluginIntegrationTest extends TestCase
     use PluginIntegrationTestBehaviour;
 
     /**
-     * @var \Shopware\Core\Kernel|null
+     * @var Kernel|null
      */
     private $kernel;
 
@@ -275,7 +275,6 @@ class KernelPluginIntegrationTest extends TestCase
             $this->kernel->getPluginLoader()->getPluginInstances(),
             $container,
             $this->createMock(MigrationCollectionLoader::class),
-            $this->connection,
             $this->createMock(AssetService::class),
             $this->createMock(CommandExecutor::class),
             $this->createMock(RequirementsValidator::class),
@@ -285,7 +284,7 @@ class KernelPluginIntegrationTest extends TestCase
         );
     }
 
-    private function makeKernel(KernelPluginLoader $loader): \Shopware\Core\Kernel
+    private function makeKernel(KernelPluginLoader $loader): Kernel
     {
         $kernelClass = KernelLifecycleManager::getKernelClass();
         $version = 'v' . self::getTestVersion() . '@' . self::getTestRevision();

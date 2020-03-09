@@ -65,9 +65,8 @@ class SyncService implements SyncServiceInterface
 
             $results[$operation->getKey()] = $result;
 
-            $hasError = $result->hasError();
-
-            if ($hasError) {
+            if ($result->hasError()) {
+                $hasError = true;
                 if ($behavior->failOnError()) {
                     foreach ($results as $result) {
                         $result->resetEntities();
@@ -85,6 +84,7 @@ class SyncService implements SyncServiceInterface
                 }
             }
         }
+
         if ($behavior->failOnError()) {
             // Only commit if transaction not already marked as rollback
             if ($hasError === false && !$this->connection->isRollbackOnly()) {

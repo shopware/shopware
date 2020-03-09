@@ -53,8 +53,12 @@ class PluginRefreshCommand extends Command
 
         if (\count($errors) !== 0) {
             $io->writeln('Errors occurred while refreshing plugin list');
-            foreach ($errors as $error) {
-                $io->error($error->getMessage());
+            foreach ($errors as $key => $error) {
+                if (\is_int($key)) {
+                    $io->error($error->getMessage());
+                } else {
+                    $io->error($key . ': ' . $error->getMessage());
+                }
             }
         }
 

@@ -24,7 +24,7 @@ class SyncOperationResult extends Struct
     public function hasError(): bool
     {
         foreach ($this->result as $result) {
-            if (count($result['errors']) > 0) {
+            if (\count($result['errors']) > 0) {
                 return true;
             }
         }

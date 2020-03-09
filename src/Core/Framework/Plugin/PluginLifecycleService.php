@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -70,11 +69,6 @@ class PluginLifecycleService
     private $migrationLoader;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var AssetService
      */
     private $assetInstaller;
@@ -110,7 +104,6 @@ class PluginLifecycleService
         KernelPluginCollection $pluginCollection,
         ContainerInterface $container,
         MigrationCollectionLoader $migrationLoader,
-        Connection $connection,
         AssetService $assetInstaller,
         CommandExecutor $executor,
         RequirementsValidator $requirementValidator,
@@ -123,7 +116,6 @@ class PluginLifecycleService
         $this->pluginCollection = $pluginCollection;
         $this->container = $container;
         $this->migrationLoader = $migrationLoader;
-        $this->connection = $connection;
         $this->assetInstaller = $assetInstaller;
         $this->executor = $executor;
         $this->requirementValidator = $requirementValidator;

@@ -1,8 +1,8 @@
 import template from './sw-order-detail-base.html.twig';
 
-const { Component } = Shopware;
+const { Component, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const format = Shopware.Utils.format;
+const { format, array } = Utils;
 
 Component.register('sw-order-detail-base', {
     template,
@@ -64,6 +64,10 @@ Component.register('sw-order-detail-base', {
 
         delivery() {
             return this.order.deliveries[0];
+        },
+
+        deliveryDiscounts() {
+            return array.slice(this.order.deliveries, 1) || [];
         },
 
         transaction() {
@@ -146,6 +150,10 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('currency')
                 .addAssociation('orderCustomer')
                 .addAssociation('language');
+
+            criteria
+                .getAssociation('deliveries')
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
 
             criteria
                 .getAssociation('salesChannel')

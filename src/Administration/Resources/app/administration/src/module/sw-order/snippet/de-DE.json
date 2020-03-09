@@ -162,6 +162,7 @@
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
       "summaryLabelAmountTotal": "Gesamtsumme inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
+      "discountLabelShippingCosts": "Versandkostenrabatt",
       "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
       "labelOrderStatus": "Bestellstatus",
       "labelPaymentStatus": "Zahlungsstatus",

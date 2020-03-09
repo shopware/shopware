@@ -162,6 +162,7 @@
       "summaryLabelAmountWithoutTaxes": "Total excluding VAT",
       "summaryLabelAmountTotal": "Total including VAT",
       "summaryLabelShippingCosts": "plus shipping costs",
+      "discountLabelShippingCosts": "discount shipping costs",
       "summaryLabelTaxes": "plus {taxRate}% VAT",
       "labelOrderStatus": "Order status",
       "labelPaymentStatus": "Payment status",

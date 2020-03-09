@@ -39,6 +39,3 @@ shopware:
         batchsize: 100
         custom_urls:
         excluded_urls:
-
-    dal:
-        indexing_worker: "%env(bool:SHOPWARE_INDEXING_BY_MESSAGE_QUEUE)%"

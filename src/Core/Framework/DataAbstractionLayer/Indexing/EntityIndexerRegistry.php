@@ -9,6 +9,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
+    public const USE_INDEXING_QUEUE = 'use-indexing-queue';
+
     /**
      * @var EntityIndexerInterface[]
      */
@@ -24,16 +26,10 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
      */
     private $working = false;
 
-    /**
-     * @var bool
-     */
-    private $useQueue;
-
-    public function __construct(iterable $indexer, MessageBusInterface $messageBus, bool $useQueue)
+    public function __construct(iterable $indexer, MessageBusInterface $messageBus)
     {
         $this->indexer = $indexer;
         $this->messageBus = $messageBus;
-        $this->useQueue = $useQueue;
     }
 
     public static function getSubscribedEvents(): array
@@ -45,7 +41,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         ];
     }
 
-    public function index(): void
+    public function index(bool $useQueue): void
     {
         foreach ($this->indexer as $indexer) {
             $offset = null;
@@ -53,7 +49,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
             while ($message = $indexer->iterate($offset)) {
                 $message->setIndexer($indexer->getName());
 
-                $this->sendOrHandle($message);
+                $this->sendOrHandle($message, $useQueue);
 
                 $offset = $message->getOffset();
             }
@@ -68,6 +64,8 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
         $this->working = true;
 
+        $useQueue = $event->getContext()->hasExtension(self::USE_INDEXING_QUEUE);
+
         foreach ($this->indexer as $indexer) {
             $message = $indexer->update($event);
 
@@ -77,7 +75,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
             $message->setIndexer($indexer->getName());
 
-            $this->sendOrHandle($message);
+            $this->sendOrHandle($message, $useQueue);
         }
 
         $this->working = false;
@@ -105,9 +103,9 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $indexer->handle($message);
     }
 
-    private function sendOrHandle(EntityIndexingMessage $message): void
+    private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
     {
-        if ($this->useQueue) {
+        if ($useQueue) {
             $this->messageBus->dispatch($message);
 
             return;

@@ -23,7 +23,6 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
                 ->append($this->createSitemapSection())
-                ->append($this->createDalSection())
             ->end();
 
         return $treeBuilder;
@@ -183,18 +182,6 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(100)
                 ->end()
-            ->end();
-
-        return $rootNode;
-    }
-
-    private function createDalSection()
-    {
-        /** @var ArrayNodeDefinition $rootNode */
-        $rootNode = (new TreeBuilder('dal'))->getRootNode();
-        $rootNode
-            ->children()
-                ->booleanNode('indexing_worker')->end()
             ->end();
 
         return $rootNode;

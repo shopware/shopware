@@ -278,6 +278,11 @@ class SalesChannelCartController extends AbstractController
 
         $cart = $this->cartService->recalculate($cart, $context);
 
+        $quantity = $requestDataBag->get('quantity');
+        if ($quantity) {
+            $cart = $this->cartService->changeQuantity($cart, $id, $quantity, $context);
+        }
+
         return new JsonResponse($this->serialize($cart));
     }
 
@@ -327,7 +332,6 @@ class SalesChannelCartController extends AbstractController
      */
     private function updateLineItemByRequest(LineItem $lineItem, RequestDataBag $requestDataBag, Context $context): void
     {
-        $quantity = $requestDataBag->get('quantity');
         $payload = $requestDataBag->get('payload', []);
         $stackable = $requestDataBag->get('stackable');
         $removable = $requestDataBag->get('removable');
@@ -337,10 +341,6 @@ class SalesChannelCartController extends AbstractController
         $referencedId = $requestDataBag->get('referencedId');
 
         $lineItem->setPayload($payload);
-
-        if ($quantity) {
-            $lineItem->setQuantity($quantity);
-        }
 
         if ($referencedId) {
             $lineItem->setReferencedId($referencedId);

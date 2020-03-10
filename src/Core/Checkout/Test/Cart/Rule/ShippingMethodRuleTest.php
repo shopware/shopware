@@ -21,7 +21,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
-use function Flag\skipTestNext6013;
 
 class ShippingMethodRuleTest extends TestCase
 {
@@ -52,8 +51,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testValidateWithMissingShippingMethodIds(): void
     {
-        skipTestNext6013($this);
-
         try {
             $this->conditionRepository->create([
                 [
@@ -75,8 +72,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testValidateWithEmptyShippingMethodIds(): void
     {
-        skipTestNext6013($this);
-
         try {
             $this->conditionRepository->create([
                 [
@@ -99,8 +94,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testValidateWithStringShippingMethodIds(): void
     {
-        skipTestNext6013($this);
-
         try {
             $this->conditionRepository->create([
                 [
@@ -123,8 +116,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testValidateWithInvalidShippingMethodIdsUuid(): void
     {
-        skipTestNext6013($this);
-
         try {
             $this->conditionRepository->create([
                 [
@@ -152,8 +143,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testAvailableOperators(): void
     {
-        skipTestNext6013($this);
-
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
@@ -197,8 +186,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testValidateWithInvalidOperators(): void
     {
-        skipTestNext6013($this);
-
         foreach ([Rule::OPERATOR_LTE, Rule::OPERATOR_GTE, 'Invalid', true, 1.1] as $operator) {
             try {
                 $this->conditionRepository->create([
@@ -223,8 +210,6 @@ class ShippingMethodRuleTest extends TestCase
 
     public function testIfRuleIsConsistent(): void
     {
-        skipTestNext6013($this);
-
         $ruleId = Uuid::randomHex();
         $this->ruleRepository->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],

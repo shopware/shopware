@@ -1,5 +1,3 @@
-import { next6013 } from '../../flag/feature_next6013';
-
 const { Application } = Shopware;
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
@@ -254,19 +252,17 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['lineItem']
     });
 
-    if (next6013()) {
-        ruleConditionService.addCondition('paymentMethod', {
-            component: 'sw-condition-payment-method',
-            label: 'global.sw-condition.condition.paymentMethodRule',
-            scopes: ['cart']
-        });
+    ruleConditionService.addCondition('paymentMethod', {
+        component: 'sw-condition-payment-method',
+        label: 'global.sw-condition.condition.paymentMethodRule',
+        scopes: ['cart']
+    });
 
-        ruleConditionService.addCondition('shippingMethod', {
-            component: 'sw-condition-shipping-method',
-            label: 'global.sw-condition.condition.shippingMethodRule',
-            scopes: ['cart']
-        });
-    }
+    ruleConditionService.addCondition('shippingMethod', {
+        component: 'sw-condition-shipping-method',
+        label: 'global.sw-condition.condition.shippingMethodRule',
+        scopes: ['cart']
+    });
 
     return ruleConditionService;
 });

@@ -24,17 +24,20 @@ class ResponseHeaderListener implements EventSubscriberInterface
 
     public function onResponse(ResponseEvent $event): void
     {
+        $headersBag = $event->getResponse()->headers;
         foreach (self::HEADERS as $header) {
-            $event->getResponse()->headers->set(
+            $headersBag->set(
                 $header,
                 $event->getRequest()->headers->get($header),
                 false
             );
         }
-        $event->getResponse()->headers->set(
-            PlatformRequest::HEADER_FRAME_OPTIONS,
-            'deny',
-            false
-        );
+        if (!$headersBag->has(PlatformRequest::HEADER_FRAME_OPTIONS)) {
+            $headersBag->set(
+                PlatformRequest::HEADER_FRAME_OPTIONS,
+                'deny',
+                false
+            );
+        }
     }
 }

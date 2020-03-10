@@ -15,14 +15,14 @@ describe('Promotion: Test crud operations', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.createCustomerFixture()
+                return cy.createCustomerFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
             });
     });
 
-    it('@p @marketing: create, update and read promotion', () => {
+    it('@base @marketing: create, update and read promotion', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -41,7 +41,7 @@ describe('Promotion: Test crud operations', () => {
         // Create promotion
         cy.get('.sw-promotion-detail').should('be.visible');
         cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
-        cy.get('#sw-field--promotion-active').click();
+        cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');
@@ -120,7 +120,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get('.finish-header').contains('Thank you for your order with Demostore!');
     });
 
-    it('@p @marketing: delete promotion', () => {
+    it('@base @marketing: delete promotion', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

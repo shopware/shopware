@@ -15,14 +15,14 @@ describe('Promotion: Test promotion with codes', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.createCustomerFixture()
+                return cy.createCustomerFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
             });
     });
 
-    it('@p @marketing: use general promotion codes', () => {
+    it('@base @marketing: use general promotion codes', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -38,12 +38,12 @@ describe('Promotion: Test promotion with codes', () => {
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
-        cy.get('#sw-field--promotion-active').should('be.visible');
-        cy.get('#sw-field--promotion-active').click();
+        cy.get('input[name="sw-field--promotion-active"]').should('be.visible');
+        cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');
-        cy.get('#sw-field--promotion-useCodes').click();
+        cy.get('input[name="sw-field--promotion-useCodes"]').click();
         cy.get('#sw-field--promotion-code').should('be.enabled');
         cy.get('#sw-field--promotion-code').type('funicular');
 
@@ -97,12 +97,12 @@ describe('Promotion: Test promotion with codes', () => {
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
-        cy.get('#sw-field--promotion-active').should('be.visible');
-        cy.get('#sw-field--promotion-active').click();
+        cy.get('input[name="sw-field--promotion-active"]').should('be.visible');
+        cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');
-        cy.get('#sw-field--promotion-useCodes').click();
+        cy.get('input[name="sw-field--promotion-useCodes"]').click();
         cy.get('#sw-field--promotion-code').should('be.enabled');
         cy.get('#sw-field--promotion-code').type('funicular');
 

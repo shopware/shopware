@@ -117,7 +117,7 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
 
         $data = $this->completeData($data, $context);
 
-        $this->newsletterRecipientRepository->create([$data], $context->getContext());
+        $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context->getContext());
 

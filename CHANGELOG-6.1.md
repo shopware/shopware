@@ -22,6 +22,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
 * Storefront
     * Fix using the SCSS `@extend` feature on existing bootstrap classes when running `./psh.phar storefront:hot` or `./psh.phar storefront:hot-proxy`.
+    * Changed reviewer mail and name to be private in sales-channel API
 
 ### 6.1.3
 

@@ -124,11 +124,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testInstallPlugin(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+        $this->installPlugin();
 
         $pluginInstalled = $this->getTestPlugin();
 
@@ -175,11 +171,7 @@ class PluginLifecycleServiceTest extends TestCase
     public function testInstallPluginWithUpdate(): void
     {
         $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+        $this->installPlugin();
 
         $pluginInstalled = $this->getTestPlugin();
 
@@ -190,11 +182,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testUninstallPlugin(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+        $this->installPlugin();
 
         $pluginInstalled = $this->getTestPlugin();
         static::assertNotNull($pluginInstalled->getInstalledAt());
@@ -209,9 +197,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testUninstallPluginThrowsException(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
+        $plugin = $this->getPlugin();
 
         $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
@@ -223,9 +209,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
         static::assertSame(0, $this->getMigrationTestKeyCount());
 
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
+        $plugin = $this->getPlugin();
 
         $this->pluginLifecycleService->updatePlugin($plugin, $this->context);
 
@@ -239,11 +223,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testActivatePlugin(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+        $this->installPlugin();
 
         $pluginInstalled = $this->getTestPlugin();
 
@@ -261,9 +241,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testActivatePluginThrowsException(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
+        $plugin = $this->getPlugin();
 
         $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
@@ -272,11 +250,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePlugin(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+        $this->installPlugin();
 
         $pluginInstalled = $this->getTestPlugin();
 
@@ -300,9 +274,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePluginNotInstalledThrowsException(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
+        $plugin = $this->getPlugin();
 
         $this->expectException(PluginNotInstalledException::class);
         $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
@@ -311,11 +283,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePluginNotActivatedThrowsException(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+        $this->installPlugin();
 
         $pluginInstalled = $this->getTestPlugin();
 
@@ -328,48 +296,24 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testRemoveMigrations(): void
     {
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
         $overAllCount = $this->getMigrationCount('');
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
-
-        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
-        static::assertEquals(1, $swagTestCount);
-
-        $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
-
-        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
-        static::assertEquals(0, $swagTestCount);
+        $swagTestCount = $this->prepareRemoveMigrationTest();
+        static::assertSame(0, $swagTestCount);
 
         $newOverAllCount = $this->getMigrationCount('');
-        static::assertEquals($overAllCount, $newOverAllCount);
+        static::assertSame($overAllCount, $newOverAllCount);
     }
 
     public function testDontRemoveMigrations(): void
     {
         $_SERVER['TEST_KEEP_MIGRATIONS'] = true;
 
-        $this->pluginService->refreshPlugins($this->context, new NullIO());
-
-        $plugin = $this->getTestPlugin();
-
         $overAllCount = $this->getMigrationCount('');
-
-        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
-
-        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
-        static::assertEquals(1, $swagTestCount);
-
-        $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
-
-        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
-        static::assertEquals(1, $swagTestCount);
+        $swagTestCount = $this->prepareRemoveMigrationTest();
+        static::assertSame(1, $swagTestCount);
 
         $newOverAllCount = $this->getMigrationCount('');
-        static::assertEquals($overAllCount + $swagTestCount, $newOverAllCount);
+        static::assertSame($overAllCount + $swagTestCount, $newOverAllCount);
     }
 
     public function testRemoveMigrationsCannotRemoveShopwareMigrations(): void
@@ -392,7 +336,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $newOverAllCount = $this->getMigrationCount('');
 
-        static::assertEquals($overAllCount, $newOverAllCount);
+        static::assertSame($overAllCount, $newOverAllCount);
 
         static::assertNotNull($exception, 'Expected exception to be thrown');
     }
@@ -416,7 +360,6 @@ class PluginLifecycleServiceTest extends TestCase
             $this->pluginCollection,
             $this->container->get('service_container'),
             $this->container->get(MigrationCollectionLoader::class),
-            $this->connection,
             $this->container->get(AssetService::class),
             $this->container->get(CommandExecutor::class),
             $this->container->get(RequirementsValidator::class),
@@ -436,8 +379,36 @@ class PluginLifecycleServiceTest extends TestCase
         return (int) $result->fetchColumn();
     }
 
+    private function installPlugin(): void
+    {
+        $plugin = $this->getPlugin();
+
+        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+    }
+
+    private function getPlugin(): PluginEntity
+    {
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        return $this->getTestPlugin();
+    }
+
     private function getTestPlugin(): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
+    }
+
+    private function prepareRemoveMigrationTest(): int
+    {
+        $plugin = $this->getPlugin();
+
+        $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+
+        $swagTestCount = $this->getMigrationCount('SwagTest\\Migration\\');
+        static::assertSame(1, $swagTestCount);
+
+        $this->pluginLifecycleService->uninstallPlugin($plugin, $this->context);
+
+        return $this->getMigrationCount('SwagTest\\Migration\\');
     }
 }

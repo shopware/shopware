@@ -55,7 +55,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator"/>

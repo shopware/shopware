@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageEntity;
 
 class PluginService
@@ -142,8 +143,8 @@ class PluginService
 
                     try {
                         $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);
-                    } catch (PluginChangelogInvalidException $e) {
-                        $errors->add($e);
+                    } catch (PluginChangelogInvalidException $changelogInvalidException) {
+                        $errors->add($changelogInvalidException);
                     }
                 }
             }
@@ -168,8 +169,14 @@ class PluginService
             $plugins[] = $pluginData;
         }
 
-        if ($plugins) {
-            $this->pluginRepo->upsert($plugins, $shopwareContext);
+        if ($plugins !== []) {
+            foreach ($plugins as $plugin) {
+                try {
+                    $this->pluginRepo->upsert([$plugin], $shopwareContext);
+                } catch (ShopwareHttpException $exception) {
+                    $errors->set($plugin['name'], $exception);
+                }
+            }
         }
 
         // delete plugins, which are in storage but not in filesystem anymore
@@ -246,7 +253,7 @@ class PluginService
         $composerAuthors = $info->getAuthors();
 
         if ($composerAuthors !== null) {
-            $manufacturersAuthors = array_filter($composerAuthors, function (array $author): bool {
+            $manufacturersAuthors = array_filter($composerAuthors, static function (array $author): bool {
                 return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
             });
 

@@ -33,9 +33,12 @@ class WriteException extends ShopwareHttpException
         return $this->exceptions;
     }
 
+    /**
+     * @throws WriteException
+     */
     public function tryToThrow(): void
     {
-        if (count($this->exceptions)) {
+        if (\count($this->exceptions)) {
             throw $this;
         }
     }
@@ -76,7 +79,7 @@ class WriteException extends ShopwareHttpException
         $messagesString = implode(PHP_EOL, $messages);
 
         $this->parameters = [
-            'errorCount' => count($this->exceptions),
+            'errorCount' => \count($this->exceptions),
             'messages' => $messages,
             'messagesString' => $messagesString,
         ];

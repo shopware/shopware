@@ -31,6 +31,13 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $this->writeExtractor = $writeExtractor;
     }
 
+    /**
+     * @throws ExpectedArrayException
+     * @throws InvalidSerializerFieldException
+     * @throws LanguageNotFoundException
+     * @throws MissingSystemTranslationException
+     * @throws MissingTranslationLanguageException
+     */
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -83,11 +90,19 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         return $this->map($field, $data, $parameters, $existence);
     }
 
+    /**
+     * @throws DecodeByHydratorException
+     */
     public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }
 
+    /**
+     * @throws ExpectedArrayException
+     * @throws MissingSystemTranslationException
+     * @throws MissingTranslationLanguageException
+     */
     protected function map(
         TranslationsAssociationField $field,
         KeyValuePair $data,
@@ -96,12 +111,13 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
     ): \Generator {
         $key = $data->getKey();
         $value = $data->getValue();
+        $path = $parameters->getPath() . '/' . $key;
 
         /** @var EntityTranslationDefinition $referenceDefinition */
         $referenceDefinition = $field->getReferenceDefinition();
 
         if (!\is_array($value)) {
-            throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
+            throw new ExpectedArrayException($path);
         }
 
         $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
@@ -110,19 +126,19 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $translations = [];
         foreach ($value as $keyValue => $subResources) {
             if (!\is_array($subResources)) {
-                throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
+                throw new ExpectedArrayException($path);
             }
 
             // See above for Supported formats
             $languageId = $keyValue;
-            if (is_numeric($languageId) && $languageId >= 0 && $languageId < count($value)) {
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
                 // languageId is a property of $subResources. Also see formats above
                 if (isset($subResources[$languagePropName])) {
                     $languageId = $subResources[$languagePropName];
                 } elseif (isset($subResources['language']['id'])) {
                     $languageId = $subResources['language']['id'];
                 } else {
-                    throw new MissingTranslationLanguageException($parameters->getPath() . '/' . $key, $keyValue);
+                    throw new MissingTranslationLanguageException($path, $keyValue);
                 }
             } elseif ($languagePropName) {
                 // the key is the language id, also write it into $subResources
@@ -134,7 +150,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         foreach ($translations as $languageId => $translation) {
             $clonedParams = $parameters->cloneForSubresource(
                 $referenceDefinition,
-                $parameters->getPath() . '/' . $key . '/' . $languageId
+                $path . '/' . $languageId
             );
             $clonedParams->setCurrentWriteLanguageId($languageId);
 
@@ -149,12 +165,8 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $languageIds = array_keys($translations);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
-        if ($referenceDefinition->hasRequiredField()
-            && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)
-        ) {
-            $path = $parameters->getPath() . '/' . $key . '/' . Defaults::LANGUAGE_SYSTEM;
-
-            throw new MissingSystemTranslationException($path);
+        if ($referenceDefinition->hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+            throw new MissingSystemTranslationException($path . '/' . Defaults::LANGUAGE_SYSTEM);
         }
 
         yield from [];

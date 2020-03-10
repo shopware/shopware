@@ -83,7 +83,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
 
         $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin SwagTest. Reason: Unable to register plugin "SwagTest\SwagTest" in autoload. Required property `autoload` missing.');
+        $this->expectExceptionMessage('Failed to load plugin "SwagTest". Reason: Unable to register plugin "SwagTest\SwagTest" in autoload. Required property `autoload` missing.');
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -96,7 +96,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
 
         $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin SwagTest. Reason: Unable to register plugin "SwagTest\SwagTest" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.');
+        $this->expectExceptionMessage('Failed to load plugin "SwagTest". Reason: Unable to register plugin "SwagTest\SwagTest" in autoload. Required property `psr-4` or `psr-0` missing in property autoload.');
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -206,7 +206,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader, null, [$fakePluginData]);
 
         $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin SwagTest. Reason: Plugin class "SwagTest\SwagTestFake" must extend "Shopware\Core\Framework\Plugin"');
+        $this->expectExceptionMessage('Failed to load plugin "SwagTest". Reason: Plugin class "SwagTest\SwagTestFake" must extend "Shopware\Core\Framework\Plugin"');
         $loader->initializePlugins(TEST_PROJECT_DIR);
     }
 
@@ -307,7 +307,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         ]);
 
         $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin SwagTest. Reason: Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR);
+        $this->expectExceptionMessage('Failed to load plugin "SwagTest". Reason: Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR);
 
         $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
         $loader->initializePlugins(TEST_PROJECT_DIR);

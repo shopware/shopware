@@ -129,7 +129,7 @@ abstract class KernelPluginLoader extends Bundle
          * Register every plugin in the di container, enable autowire and set public
          */
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            $class = get_class($plugin);
+            $class = \get_class($plugin);
 
             $definition = new Definition();
             if ($container->hasDefinition($class)) {
@@ -198,7 +198,7 @@ abstract class KernelPluginLoader extends Bundle
             }
 
             foreach ($psr4 as $namespace => $paths) {
-                if (is_string($paths)) {
+                if (\is_string($paths)) {
                     $paths = [$paths];
                 }
                 $mappedPaths = $this->mapPsrPaths($pluginName, $paths, $projectDir, $plugin['path']);
@@ -211,7 +211,7 @@ abstract class KernelPluginLoader extends Bundle
             }
 
             foreach ($psr0 as $namespace => $paths) {
-                if (is_string($paths)) {
+                if (\is_string($paths)) {
                     $paths = [$paths];
                 }
                 $mappedPaths = $this->mapPsrPaths($pluginName, $paths, $projectDir, $plugin['path']);
@@ -226,6 +226,9 @@ abstract class KernelPluginLoader extends Bundle
         }
     }
 
+    /**
+     * @throws KernelPluginLoaderException
+     */
     private function mapPsrPaths(string $plugin, array $psr, string $projectDir, string $pluginRootPath): array
     {
         $mappedPaths = [];

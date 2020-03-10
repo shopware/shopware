@@ -95,7 +95,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM plugin WHERE `name` = "SwagTest"');
     }
 
-    public function testInstall()
+    public function testInstall(): MigrationCollection
     {
         static::assertSame(0, $this->connection->getTransactionNestingLevel());
 
@@ -104,7 +104,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
         $this->pluginLifecycleService->installPlugin($migrationPlugin, $this->context);
         $migrationCollection = $this->getMigrationCollection('SwagManualMigrationTest');
-        $this->assertMigrationState($migrationCollection, 4, 1, null);
+        $this->assertMigrationState($migrationCollection, 4, 1);
 
         return $migrationCollection;
     }
@@ -112,11 +112,11 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     /**
      * @depends testInstall
      */
-    public function testActivate(MigrationCollection $migrationCollection)
+    public function testActivate(MigrationCollection $migrationCollection): MigrationCollection
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->activatePlugin($migrationPlugin, $this->context);
-        $this->assertMigrationState($migrationCollection, 4, 2, null);
+        $this->assertMigrationState($migrationCollection, 4, 2);
 
         return $migrationCollection;
     }
@@ -124,7 +124,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     /**
      * @depends testActivate
      */
-    public function testUpdate(MigrationCollection $migrationCollection)
+    public function testUpdate(MigrationCollection $migrationCollection): MigrationCollection
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->updatePlugin($migrationPlugin, $this->context);
@@ -136,7 +136,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     /**
      * @depends testUpdate
      */
-    public function testDeactivate(MigrationCollection $migrationCollection)
+    public function testDeactivate(MigrationCollection $migrationCollection): MigrationCollection
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->deactivatePlugin($migrationPlugin, $this->context);
@@ -152,7 +152,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->uninstallPlugin($migrationPlugin, $this->context);
-        $this->assertMigrationState($migrationCollection, 0, null, null);
+        $this->assertMigrationState($migrationCollection, 0);
     }
 
     private function createPluginLifecycleService(): PluginLifecycleService
@@ -163,7 +163,6 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(KernelPluginCollection::class),
             $this->container->get('service_container'),
             $this->container->get(MigrationCollectionLoader::class),
-            $this->connection,
             $this->container->get(AssetService::class),
             $this->container->get(CommandExecutor::class),
             $this->container->get(RequirementsValidator::class),

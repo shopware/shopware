@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -81,9 +80,6 @@ class ChildCountIndexer implements IndexerInterface
             if (!$definition->isChildrenAware() || !$definition->isChildCountAware()) {
                 continue;
             }
-            if ($definition->getClass() === ProductDefinition::class) {
-                continue;
-            }
 
             $entityName = $definition->getEntityName();
             $iterator = $this->iteratorFactory->createIterator($definition);
@@ -124,10 +120,6 @@ class ChildCountIndexer implements IndexerInterface
         $definitions = array_values(array_filter(
             $this->definitionRegistry->getDefinitions(),
             function (EntityDefinition $definition) {
-                if ($definition->getClass() === ProductDefinition::class) {
-                    return false;
-                }
-
                 return $definition->isChildrenAware() && $definition->isChildCountAware();
             }
         ));
@@ -164,9 +156,6 @@ class ChildCountIndexer implements IndexerInterface
         foreach ($event->getEvents() as $nested) {
             $definition = $this->definitionRegistry->getByEntityName($nested->getEntityName());
 
-            if ($definition->getClass() === ProductDefinition::class) {
-                continue;
-            }
             if ($definition->isChildrenAware() && $definition->isChildCountAware()) {
                 $this->update($nested, $nested->getIds(), $nested->getContext());
             }
@@ -180,10 +169,6 @@ class ChildCountIndexer implements IndexerInterface
 
     private function update(EntityWrittenEvent $event, array $ids, Context $context): void
     {
-        if ($event->getEntityName() === ProductDefinition::ENTITY_NAME) {
-            return;
-        }
-
         $entityParents = array_map(function (EntityExistence $existence) {
             if (!array_key_exists('parent_id', $existence->getState()) || !$existence->getState()['parent_id']) {
                 return null;

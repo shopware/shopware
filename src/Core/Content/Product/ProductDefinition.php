@@ -99,6 +99,11 @@ class ProductDefinition extends EntityDefinition
         ];
     }
 
+    public function isChildCountAware(): bool
+    {
+        return false;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

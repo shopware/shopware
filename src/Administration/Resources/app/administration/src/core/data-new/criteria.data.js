@@ -12,7 +12,7 @@ export default class Criteria {
         this.postFilter = [];
         this.sortings = [];
         this.aggregations = [];
-        this.totalCountMode = null;
+        this.totalCountMode = 1;
     }
 
     static fromCriteria(criteria) {

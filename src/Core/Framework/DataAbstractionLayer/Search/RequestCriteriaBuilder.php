@@ -63,10 +63,6 @@ class RequestCriteriaBuilder
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context, $request->attributes->getInt('version'));
         }
 
-        if (empty($criteria->getIds()) && $criteria->getLimit() === null) {
-            $criteria->setLimit(10);
-        }
-
         return $criteria;
     }
 
@@ -125,8 +121,6 @@ class RequestCriteriaBuilder
             $criteria->setIds($ids);
             $criteria->setLimit(null);
         } else {
-            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
             if (isset($payload['total-count-mode'])) {
                 $criteria->setTotalCountMode((int) $payload['total-count-mode']);
             }

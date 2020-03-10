@@ -216,6 +216,74 @@ class CrossSellingLoaderTest extends TestCase
         static::assertEquals(0, $result->count());
     }
 
+    public function testLoadForProductWithProductCrossSellingAssignedProducts(): void
+    {
+        skipTestNext6025($this);
+
+        // enable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
+
+        $productId = Uuid::randomHex();
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 3,
+            'type' => 'productList',
+            'assignedProducts' => $this->createAssignedProducts(true, true),
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $result = $this->crossSellingLoader->load($product->getId(), $this->salesChannelContext);
+
+        static::assertEquals(1, $result->count());
+
+        $element = $result->first();
+
+        static::assertEquals(5, $element->getProducts()->count());
+        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()->count());
+    }
+
+    public function testLoadForProductWithProductCrossSellingAssignedProductsOutOfStock(): void
+    {
+        skipTestNext6025($this);
+
+        // enable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $productId = Uuid::randomHex();
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 3,
+            'type' => 'productList',
+            'assignedProducts' => $this->createAssignedProducts(true, true),
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $this->salesChannelContext->getContext())->get($productId);
+        $result = $this->crossSellingLoader->load($product->getId(), $this->salesChannelContext);
+
+        static::assertEquals(1, $result->count());
+
+        $element = $result->first();
+
+        static::assertEquals(0, $element->getProducts()->count());
+        static::assertEquals(5, $element->getCrossSelling()->getAssignedProducts()->count());
+    }
+
     /**
      * Shouldn't be necessary to test for loadForProducts() as the caller has to handle sorting of cross sellings
      */
@@ -335,6 +403,21 @@ class CrossSellingLoaderTest extends TestCase
         ], $this->salesChannelContext->getContext());
 
         return $id;
+    }
+
+    private function createAssignedProducts(?bool $includesIsCloseoutProducts = false, ?bool $noStock = false): array
+    {
+        $assignedProducts = [];
+        $randomProductIds = array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id');
+
+        foreach ($randomProductIds as $index => $productId) {
+            $assignedProducts[] = [
+                'productId' => $productId,
+                'position' => $index + 1,
+            ];
+        }
+
+        return $assignedProducts;
     }
 
     private function createProducts(?bool $isCloseout = false, ?bool $noStock = false): array

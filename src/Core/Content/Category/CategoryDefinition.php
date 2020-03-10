@@ -80,6 +80,11 @@ class CategoryDefinition extends EntityDefinition
         return false;
     }
 
+    public function isTreeAware(): bool
+    {
+        return false;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

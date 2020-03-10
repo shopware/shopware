@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -85,10 +84,6 @@ class TreeIndexer implements IndexerInterface
                 continue;
             }
 
-            if ($definition instanceof CategoryDefinition) {
-                continue;
-            }
-
             $entityName = $definition->getEntityName();
             $iterator = $this->iteratorFactory->createIterator($definition);
 
@@ -125,10 +120,6 @@ class TreeIndexer implements IndexerInterface
         $definitions = array_values(array_filter(
             $this->definitionRegistry->getDefinitions(),
             function (EntityDefinition $definition) {
-                if ($definition instanceof CategoryDefinition) {
-                    return false;
-                }
-
                 return $definition->isTreeAware();
             }
         ));
@@ -166,9 +157,6 @@ class TreeIndexer implements IndexerInterface
         /** @var EntityWrittenEvent $nested */
         foreach ($event->getEvents() as $nested) {
             $definition = $this->definitionRegistry->getByEntityName($nested->getEntityName());
-            if ($definition instanceof CategoryDefinition) {
-                continue;
-            }
 
             if ($definition->isTreeAware()) {
                 $this->updateIds($nested->getIds(), $definition, $nested->getContext());
@@ -183,9 +171,6 @@ class TreeIndexer implements IndexerInterface
 
     private function updateIds(array $ids, EntityDefinition $definition, Context $context): void
     {
-        if ($definition instanceof CategoryDefinition) {
-            return;
-        }
         foreach ($ids as $id) {
             $this->update($id, $definition, $context);
         }

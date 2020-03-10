@@ -17,8 +17,11 @@ class TestDataCollection
      */
     protected $ids = [];
 
-    public function __construct(Context $context)
+    public function __construct(?Context $context = null)
     {
+        if (!$context) {
+            $context = Context::createDefaultContext();
+        }
         $this->context = $context;
     }
 

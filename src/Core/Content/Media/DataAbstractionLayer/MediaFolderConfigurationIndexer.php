@@ -48,7 +48,7 @@ class MediaFolderConfigurationIndexer implements EntityIndexerInterface
 
     public function getName(): string
     {
-        return 'media_folder.indexer';
+        return 'media_folder_configuration.indexer';
     }
 
     public function iterate($offset): ?EntityIndexingMessage

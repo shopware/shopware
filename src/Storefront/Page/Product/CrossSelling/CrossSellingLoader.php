@@ -117,22 +117,7 @@ class CrossSellingLoader
             ->setLimit($crossSelling->getLimit())
             ->addSorting($crossSelling->getSorting());
 
-        if (next6025()) {
-            $salesChannelId = $context->getSalesChannel()->getId();
-            $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-            if ($hideCloseoutProductsWhenOutOfStock) {
-                $criteria->addFilter(
-                    new NotFilter(
-                        NotFilter::CONNECTION_AND,
-                        [
-                            new EqualsFilter('product.isCloseout', true),
-                            new EqualsFilter('product.available', false),
-                        ]
-                    )
-                );
-            }
-        }
+        $criteria = $this->handleAvailableStock($criteria, $context);
 
         $searchResult = $this->productRepository->search($criteria, $context);
 
@@ -180,11 +165,13 @@ class CrossSellingLoader
             return null;
         }
 
+        $criteria = $this->handleAvailableStock($criteria, $context);
+
         $searchResult = $this->productRepository->search($criteria, $context);
 
         $products = new ProductCollection();
         foreach ($crossSelling->getAssignedProducts()->getElements() as $element) {
-            if ($searchResult->get($element->getProductId()) !== null) {
+            if ($searchResult->has($element->getProductId())) {
                 $products->add($searchResult->get($element->getProductId()));
             }
         }
@@ -196,5 +183,31 @@ class CrossSellingLoader
         $element->setTotal($crossSelling->getAssignedProducts()->count());
 
         return $element;
+    }
+
+    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): Criteria
+    {
+        if (!next6025()) {
+            return $criteria;
+        }
+
+        $salesChannelId = $context->getSalesChannel()->getId();
+        $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+
+        if (!$hide) {
+            return $criteria;
+        }
+
+        $criteria->addFilter(
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('product.isCloseout', true),
+                    new EqualsFilter('product.available', false),
+                ]
+            )
+        );
+
+        return $criteria;
     }
 }

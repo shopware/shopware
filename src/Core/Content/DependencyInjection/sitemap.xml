@@ -13,13 +13,12 @@
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapExporter">
-            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapWriter"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="tagged" tag="shopware.sitemap_url_provider"/>
             <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
@@ -29,6 +28,8 @@
         <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">
             <argument type="tagged" tag="shopware.sitemap.config_handler"/>
         </service>
+
+        <service id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface" class="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory"/>
 
         <!-- UrlProviders -->
         <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">

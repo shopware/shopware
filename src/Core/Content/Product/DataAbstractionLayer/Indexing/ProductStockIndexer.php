@@ -326,7 +326,8 @@ UPDATE product SET available_stock = stock - (
     AND order_line_item.type = :type
     AND order_line_item.version_id = :version
 )
-WHERE product.id IN (:ids);
+WHERE product.id IN (:ids)
+AND product.version_id = :version
         ';
 
         $this->connection->executeUpdate(
@@ -369,11 +370,11 @@ WHERE product.id IN (:ids);
 
         $sql = '
             UPDATE product
-            LEFT JOIN product parent 
+            LEFT JOIN product parent
                 ON parent.id = product.parent_id AND parent.version_id = product.version_id
-            
+
             SET product.available = IFNULL((
-                IFNULL(product.is_closeout, parent.is_closeout) * product.available_stock 
+                IFNULL(product.is_closeout, parent.is_closeout) * product.available_stock
                 >=
                 IFNULL(product.is_closeout, parent.is_closeout) * IFNULL(product.min_purchase, parent.min_purchase)
             ), 0)

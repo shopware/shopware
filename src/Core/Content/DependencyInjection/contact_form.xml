@@ -10,6 +10,10 @@
         </service>
 
         <service id="Shopware\Core\Content\ContactForm\ContactFormService">
+            <argument type="service" id="Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>

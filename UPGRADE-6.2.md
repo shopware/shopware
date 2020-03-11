@@ -51,6 +51,7 @@ Core
     * Please use type `productList` or `productStream` in order to create a corresponding cross selling
 * The `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` will be removed, extend from the abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` instead.
 * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
+* Deprecated `\Shopware\Core\Content\ContactForm\ContactFormService` use the new service `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` instead
 
 Administration
 --------------

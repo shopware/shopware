@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * This route is used for the product search in the search pages
+ */
 interface ProductSearchRouteInterface
 {
     public function load(Request $request, SalesChannelContext $context): ProductSearchRouteResponse;

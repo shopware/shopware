@@ -12,9 +12,9 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -39,21 +39,14 @@ class ProductSearchRoute implements ProductSearchRouteInterface
      */
     private $searchBuilder;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         ProductSearchBuilderInterface $searchBuilder,
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
         $this->searchBuilder = $searchBuilder;
-        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -78,6 +71,10 @@ class ProductSearchRoute implements ProductSearchRouteInterface
      */
     public function load(Request $request, SalesChannelContext $context): ProductSearchRouteResponse
     {
+        if (!$request->query->has('search')) {
+            throw new MissingRequestParameterException('search');
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)

@@ -79,9 +79,9 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\CmsController">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

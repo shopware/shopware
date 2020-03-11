@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function Flag\skipTestNext6025;
 
 class ProductControllerTest extends TestCase
 {
@@ -147,8 +146,6 @@ class ProductControllerTest extends TestCase
 
     public function testProductDetailWithIsCloseoutProduct(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
@@ -184,8 +181,6 @@ class ProductControllerTest extends TestCase
 
     public function testProductDetailWithIsCloseoutProductOutOfStock(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);

@@ -18,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\skipTestNext6025;
 
 class ProductSearchFilterOutOfStockTest extends TestCase
 {
@@ -64,8 +63,6 @@ class ProductSearchFilterOutOfStockTest extends TestCase
 
     public function testListingWithFilterDisabled(): void
     {
-        skipTestNext6025($this);
-
         $request = new Request();
 
         $request->query->set('search', ['product']);
@@ -107,8 +104,6 @@ class ProductSearchFilterOutOfStockTest extends TestCase
 
     public function testListingWithFilterEnabled(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);

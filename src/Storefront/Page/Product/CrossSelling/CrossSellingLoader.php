@@ -18,7 +18,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use function Flag\next6025;
 
 class CrossSellingLoader
 {
@@ -187,10 +186,6 @@ class CrossSellingLoader
 
     private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): Criteria
     {
-        if (!next6025()) {
-            return $criteria;
-        }
-
         $salesChannelId = $context->getSalesChannel()->getId();
         $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 

@@ -5,8 +5,47 @@ module.exports = (ast) => {
         return {};
     }
 
-    let comment = ast.comments[0].value;
-    comment = `/**\n${comment}\n*/`;
+    let componentDeclaration = null;
+
+    ast.body.forEach((entry) => {
+        if (entry.type !== 'ExpressionStatement') {
+            return;
+        }
+
+        const calleeObject = entry.expression.callee.object;
+
+        // when Component.register
+        if (calleeObject.name === 'Component') {
+            componentDeclaration = entry;
+            return;
+        }
+
+        // when Shopware.Component.register
+        if (calleeObject.object
+            && calleeObject.object.name === 'Shopware'
+            && calleeObject.property
+            && calleeObject.property.name === 'Component'
+        ) {
+            componentDeclaration = entry;
+        }
+    });
+
+    if (!componentDeclaration) {
+        return {};
+    }
+
+    let commentForComponentDeclaration;
+
+    const componentDeclarationStartLine = componentDeclaration.loc.start.line;
+    ast.comments.forEach((comment) => {
+        const commentEndLine = comment.loc.end.line;
+
+        if (commentEndLine + 1 === componentDeclarationStartLine) {
+            commentForComponentDeclaration = comment.value;
+        }
+    });
+
+    commentForComponentDeclaration = `/**\n${commentForComponentDeclaration}\n*/`;
 
     const result = docblockParser({
         tags: {
@@ -16,9 +55,10 @@ module.exports = (ast) => {
             'example-type': docblockParser.singleParameterTag,
             'component-example': docblockParser.multilineTilTag,
             status: docblockParser.singleParameterTag,
-            deprecated: docblockParser.singleParameterTag,
+            deprecated: docblockParser.singleParameterTag
         }
-    }).parse(comment);
+    }).parse(commentForComponentDeclaration);
+
 
     return {
         public: result.tags.public,
@@ -27,6 +67,6 @@ module.exports = (ast) => {
         exampleType: result.tags['example-type'] || 'none',
         status: result.tags.status || 'n/a',
         description: result.tags.description || '',
-        deprecated: ((result.tags || {}).deprecated || '').replace('tag:v', '') || '',
+        deprecated: ((result.tags || {}).deprecated || '').replace('tag:v', '') || ''
     };
 };

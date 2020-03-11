@@ -23,15 +23,84 @@ export default function createHTTPClient(context) {
  * @param {Context} context Information about the environment
  * @returns {AxiosInstance}
  */
-function createClient(context) {
+function createClient() {
     const client = Axios.create({
-        baseURL: context.apiResourcePath
+        baseURL: getBasePath(Shopware.Context.api.apiVersion - 1)
     });
 
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
 
+    wrapMethod(client, 'request', (args) => changeVersion(args[0]));
+    wrapMethod(client, 'get', (args) => changeVersion(args[1]));
+    wrapMethod(client, 'delete', (args) => changeVersion(args[1]));
+    wrapMethod(client, 'head', (args) => changeVersion(args[1]));
+    wrapMethod(client, 'options', (args) => changeVersion(args[1]));
+    wrapMethod(client, 'post', (args) => changeVersion(args[2]));
+    wrapMethod(client, 'put', (args) => changeVersion(args[2]));
+    wrapMethod(client, 'patch', (args) => changeVersion(args[2]));
+
     return client;
+}
+
+/**
+ * Creates a wrapper around a method
+ *
+ * @param original
+ * @param functionName
+ * @param cb {function}
+ */
+function wrapMethod(original, functionName, cb) {
+    (function wrap() {
+        const _original = original[functionName];
+
+        original[functionName] = function wrappedFunction(...args) {
+            cb(args);
+
+            return _original.apply(this, args);
+        };
+    }());
+}
+
+/**
+ * change the request url with the given version in the configuration
+ * @param config
+ */
+function changeVersion(config) {
+    if (!config || !config.version) {
+        checkVersionDeprecation(Shopware.Context.api.apiVersion - 1);
+        return;
+    }
+
+    config.baseURL = getBasePath(config.version);
+
+    checkVersionDeprecation(config.version);
+
+    delete config.version;
+}
+
+function checkVersionDeprecation(version) {
+    if (version >= Shopware.Context.api.apiVersion || Shopware.Context.api.apiVersion <= 1) {
+        return;
+    }
+
+    Shopware.Utils.debug.warn(
+        'httpClient',
+        `The request uses a deprecated api version: ${version}. You should upgrade the request to the latest api version.`
+    );
+}
+
+/**
+ * Returns the base path of the version
+ * @param version
+ * @returns {string}
+ */
+function getBasePath(version = Shopware.Context.api.apiVersion) {
+    if (version <= 0) {
+        return `${Shopware.Context.api.apiPath}/v1`;
+    }
+
+    return `${Shopware.Context.api.apiPath}/v${version}`;
 }
 
 /**

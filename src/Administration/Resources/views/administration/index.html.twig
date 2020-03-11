@@ -68,7 +68,8 @@
             basePath: '{{ app.request.basePath }}',
             pathInfo: '{{ app.request.pathInfo }}',
             liveVersionId: '{{ liveVersionId }}',
-            systemLanguageId: '{{ systemLanguageId }}'
+            systemLanguageId: '{{ systemLanguageId }}',
+            apiVersion: {{ apiVersion }}
         },
         appContext: {
             features: {{ features|json_encode|raw }},

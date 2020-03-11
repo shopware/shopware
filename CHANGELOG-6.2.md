@@ -255,6 +255,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Show error when theme compiling in theme manager throws an error
     * Moved "Customer Group" settings-item from settings-index page to navigation sidebar
     * Moved "Salutation" settings-item from settings-index page to navigation sidebar
+    * Add automatic versions to HttpClient. You can override the default version in the config argument
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 

@@ -8,13 +8,15 @@ export default function createContext(context = {}) {
     const isDevMode = (process.env.NODE_ENV !== 'production');
     const installationPath = getInstallationPath(context, isDevMode);
     const apiPath = `${installationPath}/api`;
+    const apiVersion = `${context.apiVersion}`;
 
     const languageId = localStorage.getItem('sw-admin-current-language') || Defaults.systemLanguageId;
 
     // set initial context
     Shopware.State.commit('context/setApiInstallationPath', installationPath);
     Shopware.State.commit('context/setApiApiPath', apiPath);
-    Shopware.State.commit('context/setApiApiResourcePath', `${apiPath}/v1`);
+    Shopware.State.commit('context/setApiApiResourcePath', `${apiPath}/v${apiVersion}`);
+    Shopware.State.commit('context/setApiApiVersion', apiVersion);
     Shopware.State.commit('context/setApiAssetsPath', getAssetsPath(installationPath, isDevMode));
     Shopware.State.commit('context/setApiLanguageId', languageId);
     Shopware.State.commit('context/setApiInheritance', false);

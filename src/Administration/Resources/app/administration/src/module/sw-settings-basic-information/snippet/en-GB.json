@@ -8,6 +8,11 @@
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Configuration has been saved.",
       "titleSaveError": "Configuration could not be saved."
+    },
+    "captcha": {
+      "label": {
+        "honeypot": "Honeypot Captcha"
+      }
     }
   }
 }

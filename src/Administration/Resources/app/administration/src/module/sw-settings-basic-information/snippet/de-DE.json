@@ -8,6 +8,11 @@
       "titleSaveSuccess": "Konfiguration gespeichert",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
       "titleSaveError": "Konfiguration konnte nicht gespeichert werden."
+    },
+    "captcha": {
+      "label": {
+        "honeypot": "Honeypot Captcha"
+      }
     }
   }
 }

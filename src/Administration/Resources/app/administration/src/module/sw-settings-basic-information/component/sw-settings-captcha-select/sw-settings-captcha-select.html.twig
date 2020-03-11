@@ -1,0 +1,10 @@
+{% block sw_settings_captcha_select %}
+    <div class="sw-settings-captcha-select">
+        <sw-multi-select
+                :options="captchas"
+                ref="component"
+                v-model="currentValue"
+                v-bind="attributes">
+        </sw-multi-select>
+    </div>
+{% endblock %}

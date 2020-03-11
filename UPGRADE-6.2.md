@@ -324,6 +324,13 @@ Now the variable can be overwritten with `replace_recursive`:
 {% endblock %}
 ```
 
+* Added basic captcha support to the storefront
+  * Routes annotated with `@Captcha` will now require all active captchas to be valid
+  * Captchas may be registered using the `shopware.storefront.captcha` tag and need to extend the `AbstractCaptcha` class
+* Added `HoneypotCaptcha`
+  * This captcha checks wether a form field hidden from the user was filled out and stops the request if that's the case
+  * The `HoneypotCaptcha` is active by default
+
 Refactorings
 ------------
 ### DAL Indexer refactoring

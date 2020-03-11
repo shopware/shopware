@@ -124,5 +124,13 @@
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
         </component>
+
+        <component name="sw-settings-captcha-select">
+            <name>activeCaptchas</name>
+            <label>Active captchas</label>
+            <label lang="de-DE">Aktive Captchas</label>
+            <placeholder>None</placeholder>
+            <placeholder lang="de-DE">Keine</placeholder>
+        </component>
     </card>
 </config>

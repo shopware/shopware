@@ -309,6 +309,7 @@
     "promotionModal": {
       "labelTitle": "Disable automatic promotions",
       "message": "The following automatic promotions will be disabled",
+      "messageNoItems": "No automatic promotions yet",
       "buttonDisable": "Disable"
     }
   }

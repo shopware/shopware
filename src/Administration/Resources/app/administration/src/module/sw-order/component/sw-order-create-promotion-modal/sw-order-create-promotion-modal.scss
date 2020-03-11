@@ -4,12 +4,15 @@
     font-size: $font-size-small;
     color: $color-darkgray-200;
 
+    &.sw-modal--default .sw-modal__dialog {
+        min-height: 190px;
+    }
+
     &__promotion {
         padding-top: 22px;
 
         &-name {
             text-transform: uppercase;
-            font-weight: bold;
         }
     }
 }

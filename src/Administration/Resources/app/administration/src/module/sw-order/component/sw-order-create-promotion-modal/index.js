@@ -30,6 +30,10 @@ Component.register('sw-order-create-promotion-modal', {
             return this.cart.lineItems.filter((item) => {
                 return item.type === 'promotion' && item.payload.code === '';
             });
+        },
+
+        hasNoAutomaticPromotions() {
+            return this.cartAutomaticPromotionItems.length === 0;
         }
     },
 

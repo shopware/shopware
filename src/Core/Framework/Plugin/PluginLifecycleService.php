@@ -270,7 +270,19 @@ class PluginLifecycleService
 
         $this->systemConfigService->savePluginConfiguration($pluginBaseClass);
 
-        $pluginBaseClass->update($updateContext);
+        try {
+            $pluginBaseClass->update($updateContext);
+        } catch (\Throwable $updateException) {
+            if ($plugin->getActive()) {
+                try {
+                    $this->deactivatePlugin($plugin, $shopwareContext);
+                } catch (\Throwable $deactivateException) {
+                }
+            }
+
+            throw $updateException;
+        }
+
         if ($plugin->getInstalledAt() && $plugin->getActive()) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
@@ -387,7 +399,20 @@ class PluginLifecycleService
 
         $this->eventDispatcher->dispatch(new PluginPreDeactivateEvent($plugin, $deactivateContext));
 
-        $pluginBaseClass->deactivate($deactivateContext);
+        try {
+            $pluginBaseClass->deactivate($deactivateContext);
+        } catch (\Throwable $exception) {
+            $this->updatePluginData(
+                [
+                    'id' => $plugin->getId(),
+                    'active' => false,
+                ],
+                $shopwareContext
+            );
+
+            throw $exception;
+        }
+
         $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 
         $plugin->setActive(false);

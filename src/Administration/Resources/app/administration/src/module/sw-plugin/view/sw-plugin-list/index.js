@@ -261,14 +261,29 @@ Component.register('sw-plugin-list', {
             }).then(() => {
                 return this.clearCacheAndReloadPage();
             }).catch((e) => {
-                this.isLoading = false;
+                const pluginIsActive = plugin.active;
+                if (!pluginIsActive) {
+                    this.isLoading = false;
+                }
 
-                const context = { message: e.response.data.errors[0].detail };
+                let pluginDeactivatedHint = '';
+                if (pluginIsActive) {
+                    pluginDeactivatedHint = this.$tc('sw-plugin.errors.pluginDeactivatedHint');
+                }
+
+                const context = {
+                    message: e.response.data.errors[0].detail,
+                    pluginDeactivatedHint: pluginDeactivatedHint
+                };
 
                 this.createNotificationError({
                     title: this.$tc('sw-plugin.errors.titlePluginUpdateFailed'),
                     message: this.$tc('sw-plugin.errors.messagePluginUpdateFailed', 0, context)
                 });
+
+                if (pluginIsActive) {
+                    this.clearCacheAndReloadPage();
+                }
             });
         },
 

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -124,9 +125,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testInstallPlugin(): void
     {
-        $this->installPlugin();
-
-        $pluginInstalled = $this->getTestPlugin();
+        $pluginInstalled = $this->installPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
@@ -165,15 +164,16 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginInstalled = $this->getTestPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
-        static::assertSame($installedAt, $pluginInstalled->getInstalledAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame(
+            $installedAt,
+            $pluginInstalled->getInstalledAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
     }
 
     public function testInstallPluginWithUpdate(): void
     {
         $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
-        $this->installPlugin();
-
-        $pluginInstalled = $this->getTestPlugin();
+        $pluginInstalled = $this->installPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
         static::assertNotNull($pluginInstalled->getUpgradedAt());
@@ -182,9 +182,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testUninstallPlugin(): void
     {
-        $this->installPlugin();
-
-        $pluginInstalled = $this->getTestPlugin();
+        $pluginInstalled = $this->installPlugin();
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
         $this->pluginLifecycleService->uninstallPlugin($pluginInstalled, $this->context);
@@ -221,19 +219,61 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertSame(1, $this->getMigrationTestKeyCount());
     }
 
+    public function testUpdateDeactivatedPluginWithException(): void
+    {
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
+
+        $plugin = $this->getPlugin();
+        $context = $this->context;
+        $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Update throws an error');
+        $this->pluginLifecycleService->updatePlugin($plugin, $context);
+    }
+
+    public function testUpdateActivatedPluginWithException(): void
+    {
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
+        $activatedPlugin = $this->installAndActivatePlugin();
+
+        $context = $this->context;
+        $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
+
+        try {
+            $this->pluginLifecycleService->updatePlugin($activatedPlugin, $context);
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(\BadMethodCallException::class, $exception);
+            static::assertStringContainsString('Update throws an error', $exception->getMessage());
+        }
+
+        $plugin = $this->getTestPlugin();
+        static::assertFalse($plugin->getActive());
+    }
+
+    public function testUpdateActivatedPluginWithExceptionOnDeactivation(): void
+    {
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
+        $activatedPlugin = $this->installAndActivatePlugin();
+
+        $context = $this->context;
+        $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
+        $context->addExtension(SwagTest::THROW_ERROR_ON_DEACTIVATE, new ArrayStruct());
+
+        try {
+            $this->pluginLifecycleService->updatePlugin($activatedPlugin, $context);
+        } catch (\Throwable $exception) {
+            static::assertInstanceOf(\BadMethodCallException::class, $exception);
+            static::assertStringContainsString('Update throws an error', $exception->getMessage());
+        }
+
+        $plugin = $this->getTestPlugin();
+        static::assertFalse($plugin->getActive());
+    }
+
     public function testActivatePlugin(): void
     {
-        $this->installPlugin();
-
-        $pluginInstalled = $this->getTestPlugin();
-
-        static::assertNotNull($pluginInstalled->getInstalledAt());
-
-        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $this->context);
-
-        $pluginActivated = $this->getTestPlugin();
-
-        static::assertTrue($pluginActivated->getActive());
+        $this->installAndActivatePlugin();
 
         $filesystem = $this->container->get(Filesystem::class);
         $filesystem->remove(__DIR__ . '/public');
@@ -250,17 +290,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePlugin(): void
     {
-        $this->installPlugin();
-
-        $pluginInstalled = $this->getTestPlugin();
-
-        static::assertNotNull($pluginInstalled->getInstalledAt());
-
-        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $this->context);
-
-        $pluginActivated = $this->getTestPlugin();
-
-        static::assertTrue($pluginActivated->getActive());
+        $pluginActivated = $this->installAndActivatePlugin();
 
         $this->pluginLifecycleService->deactivatePlugin($pluginActivated, $this->context);
 
@@ -283,9 +313,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePluginNotActivatedThrowsException(): void
     {
-        $this->installPlugin();
-
-        $pluginInstalled = $this->getTestPlugin();
+        $pluginInstalled = $this->installPlugin();
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
 
@@ -379,11 +407,25 @@ class PluginLifecycleServiceTest extends TestCase
         return (int) $result->fetchColumn();
     }
 
-    private function installPlugin(): void
+    private function installPlugin(): PluginEntity
     {
         $plugin = $this->getPlugin();
 
         $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+
+        return $this->getTestPlugin();
+    }
+
+    private function installAndActivatePlugin(): PluginEntity
+    {
+        $pluginInstalled = $this->installPlugin();
+        static::assertNotNull($pluginInstalled->getInstalledAt());
+
+        $this->pluginLifecycleService->activatePlugin($pluginInstalled, $this->context);
+        $pluginActivated = $this->getTestPlugin();
+        static::assertTrue($pluginActivated->getActive());
+
+        return $pluginActivated;
     }
 
     private function getPlugin(): PluginEntity

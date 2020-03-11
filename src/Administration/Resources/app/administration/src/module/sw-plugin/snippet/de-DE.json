@@ -48,7 +48,8 @@
       "titlePluginDeactivationFailed": "Plugin Deaktivierung ist fehlgeschlagen",
       "messagePluginDeactivationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht deaktiviert werden",
       "titlePluginUpdateFailed": "Plugin Update ist fehlgeschlagen",
-      "messagePluginUpdateFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktualisiert werden"
+      "messagePluginUpdateFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktualisiert werden. {pluginDeactivatedHint}",
+      "pluginDeactivatedHint": "Plugin wurde deaktiviert."
     },
     "fileUpload":{
       "buttonFileUpload":"Plugin hochladen",

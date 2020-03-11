@@ -48,7 +48,8 @@
       "titlePluginDeactivationFailed": "Plugin deactivation failed",
       "messagePluginDeactivationFailed": "Plugin could not be deactivated due to error message \"{message}\"",
       "titlePluginUpdateFailed": "Plugin update failed",
-      "messagePluginUpdateFailed": "Plugin could not be updated due to error message \"{message}\""
+      "messagePluginUpdateFailed": "Plugin could not be updated due to error message \"{message}\". {pluginDeactivatedHint}",
+      "pluginDeactivatedHint": "Plugin was deactivated."
     },
     "fileUpload":{
       "buttonFileUpload":"Upload plugin",

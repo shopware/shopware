@@ -5,11 +5,12 @@ namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber;
+use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -39,9 +40,9 @@ class RulePayloadSubscriberTest extends TestCase
     private $context;
 
     /**
-     * @var RulePayloadIndexer|MockObject
+     * @var RulePayloadUpdater|MockObject
      */
-    private $indexer;
+    private $updater;
 
     /**
      * @var RuleDefinition
@@ -52,8 +53,13 @@ class RulePayloadSubscriberTest extends TestCase
     {
         $this->context = Context::createDefaultContext();
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->indexer = $this->createMock(RulePayloadIndexer::class);
-        $this->rulePayloadSubscriber = new RulePayloadSubscriber($this->indexer);
+        $this->updater = $this->createMock(RulePayloadUpdater::class);
+
+        $this->rulePayloadSubscriber = new RulePayloadSubscriber(
+            $this->updater,
+            $this->getContainer()->get(CacheClearer::class)
+        );
+
         $this->ruleDefinition = $this->getContainer()->get(RuleDefinition::class);
     }
 
@@ -65,7 +71,12 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects(static::once())->method('update')->with([$id])->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
+        $this->updater
+            ->expects(static::once())
+            ->method('update')
+            ->with([$id])
+            ->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
+
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
@@ -82,7 +93,10 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
 
-        $this->indexer->expects(static::never())->method('update');
+        $this->updater
+            ->expects(static::never())
+            ->method('update');
+
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNull($rule->getPayload());
@@ -97,7 +111,9 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNotNull($rule->getPayload());
 
-        $this->indexer->expects(static::never())->method('update');
+        $this->updater
+            ->expects(static::never())
+            ->method('update');
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
@@ -114,12 +130,16 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects(static::once())->method('update')->with([$id, $id2])->willReturn(
-            [
-                $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
-                $id2 => ['payload' => serialize(new OrRule()), 'invalid' => false],
-            ]
-        );
+        $this->updater
+            ->expects(static::once())
+            ->method('update')
+            ->with([$id, $id2])
+                ->willReturn(
+                    [
+                        $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
+                        $id2 => ['payload' => serialize(new OrRule()), 'invalid' => false],
+                    ]
+                );
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());
@@ -140,11 +160,14 @@ class RulePayloadSubscriberTest extends TestCase
 
         static::assertNull($rule->getPayload());
 
-        $this->indexer->expects(static::once())->method('update')->with([$id])->willReturn(
-            [
-                $id => ['payload' => serialize(new AndRule()), 'invalid' => false],
-            ]
-        );
+        $this->updater
+            ->expects(static::once())
+            ->method('update')
+            ->with([$id])
+            ->willReturn(
+                [$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]
+            );
+
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
         static::assertNotNull($rule->getPayload());

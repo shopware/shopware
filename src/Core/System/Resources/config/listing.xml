@@ -2,27 +2,31 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>Listing</title>
-        <title lang="de-DE">Produktliste</title>
+        <title>Product listings</title>
+        <title lang="de-DE">Produktlisten</title>
 
         <input-field type="bool">
             <name>allowBuyInListing</name>
-            <label>show buy button in listing</label>
-            <label lang="de-DE">Kaufen-Button im Produktlisting anzeigen</label>
+            <label>Buy buttons active</label>
+            <label lang="de-DE">Kaufen-Buttons aktiv</label>
+            <helpText>In product listings, buy buttons are displayed beneath every product. Deactivate to display detail buttons only.</helpText>
+            <helpText lang="de-DE">In Produktlisten wird der Kaufen-Button unter jedem Produkt angezeigt. Deaktivieren, um nur den Detail-Button anzuzeigen.</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>hideCloseoutProductsWhenOutOfStock</name>
-            <label>hide clearance sale products when they are out of stock</label>
-            <label lang="de-DE">Abverkauf-Produkte ohne Lagerbestand ausblenden</label>
+            <label>Hide products after clearance</label>
+            <label lang="de-DE">Produkte nach Abverkaufende ausblenden</label>
+            <helpText>Products marked as on "clearance sale" are hidden, as soon as their stock depletes back to 0.</helpText>
+            <helpText lang="de-DE">Produkte die mit "Abverkauf" markiert sind, werden nicht mehr angezeigt, sobald ihr Lagerbestand 0 erreicht.</helpText>
         </input-field>
 
         <input-field type="int">
             <name>markAsNew</name>
-            <label>mark products as new</label>
-            <label lang="de-DE">Produkte als neu markieren</label>
-            <description>Products are marked as new if their release date is within the specified period (given in days)</description>
-            <description lang="de-DE">Produkte werden als neu markiert, wenn deren Erscheinungsdatum im angegebenen Zeitraum liegt (angegeben in Tagen)</description>
+            <label>Mark products as 'new', for ? days</label>
+            <label lang="de-DE">Markiert Produkte als 'neu' markieren, für ? Tage</label>
+            <helpText>Products are marked as new, if their release date does not date back past the set number of days.</helpText>
+            <helpText lang="de-DE">Produkte werden als neu markiert, wenn ihr Erscheinungsdatum nicht länger als die angegebene Anzahl an Tagen zurückliegt.</helpText>
         </input-field>
     </card>
 </config>

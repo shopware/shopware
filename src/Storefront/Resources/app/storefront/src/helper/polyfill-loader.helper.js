@@ -8,5 +8,6 @@ import 'picturefill/dist/plugins/mutation/pf.mutation';
 import ElementClosestPolyfill from 'element-closest';
 import 'formdata-polyfill';
 import 'object-fit-polyfill';
+import 'intersection-observer';
 
 ElementClosestPolyfill(window);

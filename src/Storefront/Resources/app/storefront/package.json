@@ -36,6 +36,7 @@
     "hammerjs": "2.0.8",
     "history": "4.9.0",
     "imports-loader": "0.8.0",
+    "intersection-observer": "0.7.0",
     "jquery": "3.4.1",
     "mini-css-extract-plugin": "0.8.0",
     "nunito-fontface": "0.7.3",

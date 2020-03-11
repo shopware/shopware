@@ -158,6 +158,23 @@ navigation: [{
 }]
 ```
 
+### Settings
+
+You can provide custom setting cards that are either placed in shop, system or plugin tab.
+This can be easily achieved by adding the key `settingsItem` to your module object:
+
+```js
+settingsItem: [{ /* this can be a single object if no collection is needed */
+    to: 'custom.module.overview', /* route to anything */
+    group: 'system', /* either system, shop or plugin */
+    icon: 'default-object-lab-flask',
+    
+    id: '', /* optional, fallback is taken from module */
+    name: '', /* optional, fallback is taken from module */
+    label: '', /* optional, fallback is taken from module */
+}]
+```
+
 ### Final module
 
 This is how your module should look like now:
@@ -190,6 +207,12 @@ Shopware.Module.register('custom-module', {
         color: '#62ff80',
         path: 'custom.module.overview',
         icon: 'default-object-lab-flask'
+    }],
+
+    settingsItem: [{
+        to: 'custom.module.overview',
+        group: 'system',
+        icon: 'default-object-lab-flask',
     }]
 });
 ```
@@ -199,6 +222,9 @@ Shopware.Module.register('custom-module', {
 As mentioned above, Shopware 6 is looking for a `main.js` file in your plugin.
 Its contents get minified into a new file named after your plugin and will be moved to the `public` directory
 of the Shopware 6 root directory.
+
+Prior to shopware 6.1.3 you need the following steps to make sure everything is loaded properly.
+This file is now loaded automatically after logging into the administration.
 Given this plugin is named "CustomModule", the minified javascript code for this example would be
 located under `<plugin root>/src/Resources/public/administration/js/custom-module.js`, once you run the command `./psh.phar administration:build` in your shopware root directory.
 *Note: Your plugin has to be activated for this to work.*

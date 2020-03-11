@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Sitemap\Service;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/** @deprecated tag:v6.2.0 will be removed in v6.3.0 */
 interface SitemapWriterInterface
 {
     /**

@@ -105,13 +105,13 @@
                                         {% endblock %}
                                         <ul class="sw-search-bar__results-list">
                                             <sw-search-bar-item
-                                                    v-for="(item, key, index) in entity.entities.elements"
+                                                    v-for="item,index in entity.entities"
                                                     :item="item"
                                                     :type="entity.entity"
                                                     :searchTerm="searchTerm"
                                                     :column="column"
                                                     :index="index"
-                                                    :key="key">
+                                                    :key="item.id">
                                             </sw-search-bar-item>
                                         </ul>
                                     {% endblock %}

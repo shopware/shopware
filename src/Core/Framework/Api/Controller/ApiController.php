@@ -174,7 +174,7 @@ class ApiController extends AbstractController
 
         $results = $this->compositeEntitySearcher->search($term, $limit, $context, $version);
 
-        foreach ($results as $result) {
+        foreach ($results as &$result) {
             $definition = $this->definitionRegistry->getByEntityName($result['entity']);
             /** @var EntityCollection $entityCollection */
             $entityCollection = $result['entities'];

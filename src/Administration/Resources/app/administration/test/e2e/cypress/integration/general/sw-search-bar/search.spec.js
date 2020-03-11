@@ -122,7 +122,7 @@ describe('Search bar: Check main functionality', () => {
             .get('.sw-search-bar__types-header-entity')
             .contains('Order');
 
-        cy.get('.sw-search-bar-item.is--active')
+        cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('10000 - Max Mustermann')
             .click();
@@ -132,7 +132,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Order 10000');
     });
 
-    it('@searchBar @search: search for a order', () => {
+    it('@searchBar @search: search for a media', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
@@ -164,7 +164,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
 
-        cy.get('.sw-search-bar-item.is--active')
+        cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('sw-login-background')
             .click();

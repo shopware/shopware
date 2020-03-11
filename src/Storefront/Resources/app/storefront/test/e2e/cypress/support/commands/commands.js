@@ -177,7 +177,7 @@ Cypress.Commands.add('createRuleFixture', (userData, shippingMethodName = 'Stand
     }).then((data) => {
         return fixture.setRuleFixture(data, shippingMethodName);
     })
-})
+});
 
 Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
     return cy.searchViaAdminApi({
@@ -198,3 +198,85 @@ Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
         })
     });
 });
+
+// WaitUntil command is from https://www.npmjs.com/package/cypress-wait-until
+const logCommand = ({ options, originalOptions }) => {
+    if (options.log) {
+        options.logger({
+            name: options.description,
+            message: options.customMessage,
+            consoleProps: () => originalOptions
+        });
+    }
+};
+const logCommandCheck = ({ result, options, originalOptions }) => {
+    if (!options.log || !options.verbose) return;
+
+    const message = [result];
+    if (options.customCheckMessage) {
+        message.unshift(options.customCheckMessage);
+    }
+    options.logger({
+        name: options.description,
+        message,
+        consoleProps: () => originalOptions
+    });
+};
+
+const waitUntil = (subject, checkFunction, originalOptions = {}) => {
+    if (!(checkFunction instanceof Function)) {
+        throw new Error("`checkFunction` parameter should be a function. Found: " + checkFunction);
+    }
+
+    const defaultOptions = {
+        // base options
+        interval: 200,
+        timeout: 5000,
+        errorMsg: "Timed out retrying",
+
+        // log options
+        description: "waitUntil",
+        log: true,
+        customMessage: undefined,
+        logger: Cypress.log,
+        verbose: false,
+        customCheckMessage: undefined
+    };
+    const options = { ...defaultOptions, ...originalOptions };
+
+    // filter out a falsy passed "customMessage" value
+    options.customMessage = [options.customMessage, originalOptions].filter(Boolean);
+
+    let retries = Math.floor(options.timeout / options.interval);
+
+    logCommand({ options, originalOptions });
+
+    const check = result => {
+        logCommandCheck({ result, options, originalOptions });
+        if (result) {
+            return result;
+        }
+        if (retries < 1) {
+            throw new Error(options.errorMsg);
+        }
+        cy.wait(options.interval, { log: false }).then(() => {
+            retries--;
+            return resolveValue();
+        });
+    };
+
+    const resolveValue = () => {
+        const result = checkFunction(subject);
+
+        const isAPromise = Boolean(result && result.then);
+        if (isAPromise) {
+            return result.then(check);
+        } else {
+            return check(result);
+        }
+    };
+
+    return resolveValue();
+};
+
+Cypress.Commands.add("waitUntil", { prevSubject: "optional" }, waitUntil);

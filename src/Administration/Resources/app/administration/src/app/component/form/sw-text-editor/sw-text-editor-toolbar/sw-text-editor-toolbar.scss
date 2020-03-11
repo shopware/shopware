@@ -14,7 +14,7 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
     justify-items: center;
     position: absolute;
     user-select: none;
-    z-index: 1000;
+    z-index: 2000;
 
     &::before {
         content: '';

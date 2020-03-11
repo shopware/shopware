@@ -1,9 +1,10 @@
-const esprima = require('espree');
+const espree = require('espree');
 
 module.exports = (source) => {
-    return esprima.parse(source, {
+    return espree.parse(source, {
         comment: true,
         ecmaVersion: 2019,
-        sourceType: 'module'
+        sourceType: 'module',
+        loc: true
     });
 };

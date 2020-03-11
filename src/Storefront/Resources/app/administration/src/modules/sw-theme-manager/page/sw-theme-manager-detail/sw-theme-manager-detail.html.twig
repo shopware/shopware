@@ -52,7 +52,7 @@
                 <div v-else class="sw-theme-manager-detail__content">
                     <sw-tabs v-if="shouldShowContent" defaultItem="default">
                         <template #default="{ active }" v-if="hasMoreThanOneTab">
-                            <sw-tabs-item v-for="(tab, tabName) in themeFields.tabs"
+                            <sw-tabs-item v-for="(tab, tabName) in structuredThemeFields.tabs"
                                           :key="tabName"
                                           :title="tab.label"
                                           :name="tabName"
@@ -157,7 +157,7 @@
                                 {% endblock %}
                             </template>
 
-                            <template v-for="(tab, tabName) in themeFields.tabs">
+                            <template v-for="(tab, tabName) in structuredThemeFields.tabs">
                                 <template v-if="tabName === active">
                                     {% block sw_theme_manager_detail_content_areas %}
                                         <sw-card v-for="(block, blockName) in tab.blocks"

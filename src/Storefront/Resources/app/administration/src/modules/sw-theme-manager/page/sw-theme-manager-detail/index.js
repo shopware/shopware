@@ -1,7 +1,10 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
-const { Component, Application, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
+/** @deprecated tag:v6.3.0 - use Shopware.Application instead */
+// eslint-disable-next-line no-unused-vars
+const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 
@@ -18,7 +21,9 @@ Component.register('sw-theme-manager-detail', {
             theme: null,
             parentTheme: null,
             defaultMediaFolderId: null,
+            /** @deprecated tag:v6.3.0 - use structuredThemeFields instead */
             themeFields: {},
+            structuredThemeFields: {},
             themeConfig: {},
             showResetModal: false,
             showSaveModal: false,
@@ -76,11 +81,11 @@ Component.register('sw-theme-manager-detail', {
         },
 
         shouldShowContent() {
-            return Object.values(this.themeFields).length > 0;
+            return Object.values(this.structuredThemeFields).length > 0;
         },
 
         hasMoreThanOneTab() {
-            return Object.values(this.themeFields.tabs).length > 1;
+            return Object.values(this.structuredThemeFields.tabs).length > 1;
         }
     },
 
@@ -132,6 +137,11 @@ Component.register('sw-theme-manager-detail', {
             }
 
             this.themeService.getStructuredFields(this.themeId).then((fields) => {
+                this.structuredThemeFields = fields;
+            });
+
+            /** @deprecated tag:v6.4.0 */
+            this.themeService.getFields(this.themeId).then((fields) => {
                 this.themeFields = fields;
             });
 

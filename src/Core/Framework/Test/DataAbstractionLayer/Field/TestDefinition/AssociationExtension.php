@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class AssociationExtension implements EntityExtensionInterface
+class AssociationExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

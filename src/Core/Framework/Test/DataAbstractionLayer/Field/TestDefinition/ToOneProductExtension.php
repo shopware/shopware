@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class ToOneProductExtension implements EntityExtensionInterface
+class ToOneProductExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

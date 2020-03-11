@@ -206,13 +206,13 @@ class BundleEntity extends Entity
 Now it's time to add the new association to the `ProductDefinition`. This is done by writing an `EntityExtension` in your plugin.
 Extensions should be placed into the same directory structure like the extended entity itself.
 In this case this would be `Core/Content/Product` starting from your plugin's base class' directory.
-Create a new file called `ProductExtension.php` in there and have the class implement the interface `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface`.  
+Create a new file called `ProductExtension.php` in there and have the class extend the abstract `Shopware\Core\Framework\DataAbstractionLayer\EntityExtension`.  
 
-This interface will automatically force you to implement the two methods `extendFields` and `getDefinitionClass`, while the latter should be self-explaining again.
+This abstract class will automatically force you to implement `getDefinitionClass`.
 Simply return the FQCN to the extended definition here.
 
-The `extendFields` method though provides you with a `FieldCollection` parameter, which contains all fields from the original definition class.
-Add the `ManyToManyAssociationField` here as well, quite similar to the same field in your `BundleDefinition`, of course with adjusted parameters to be passed to the constructor.
+Additionally you can implement the `extendFields` method, which provides you with a `FieldCollection` parameter.
+Add the `ManyToManyAssociationField` to the `FieldCollection`, quite similar to the same field in your `BundleDefinition`, of course with adjusted parameters to be passed to the constructor.
 Also note that you have to mark the association as an Inherited field, otherwise it would not work for variant products.
 
 ```php
@@ -221,14 +221,14 @@ Also note that you have to mark the association as an Inherited field, otherwise
 namespace Swag\BundleExample\Core\Content\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Swag\BundleExample\Core\Content\Bundle\Aggregate\BundleProduct\BundleProductDefinition;
 use Swag\BundleExample\Core\Content\Bundle\BundleDefinition;
 
-class ProductExtension implements EntityExtensionInterface
+class ProductExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

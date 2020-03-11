@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
@@ -31,7 +32,7 @@ abstract class EntityDefinition
     protected $fields;
 
     /**
-     * @var EntityExtensionInterface[]
+     * @var EntityExtensionInterface|EntityExtension[]
      */
     protected $extensions = [];
 
@@ -82,7 +83,10 @@ abstract class EntityDefinition
         $this->registry = $registry;
     }
 
-    final public function addExtension(EntityExtensionInterface $extension): void
+    /**
+     * @param EntityExtensionInterface|EntityExtension $extension
+     */
+    final public function addExtension($extension): void
     {
         $this->extensions[] = $extension;
         $this->fields = null;
@@ -91,8 +95,10 @@ abstract class EntityDefinition
     /**
      * @internal
      * Use this only for test purposes
+     *
+     * @param EntityExtensionInterface|EntityExtension $toDelete
      */
-    final public function removeExtension(EntityExtensionInterface $toDelete): void
+    final public function removeExtension($toDelete): void
     {
         foreach ($this->extensions as $key => $extension) {
             if (\get_class($extension) === \get_class($toDelete)) {
@@ -175,6 +181,21 @@ abstract class EntityDefinition
         $this->fields = $fields->compile($this->registry);
 
         return $this->fields;
+    }
+
+    final public function getProtections(): EntityProtectionCollection
+    {
+        $protections = $this->defineProtections();
+
+        foreach ($this->extensions as $extension) {
+            if (!$extension instanceof EntityExtension) {
+                continue;
+            }
+
+            $extension->extendProtections($protections);
+        }
+
+        return $protections;
     }
 
     final public function getField(string $propertyName): ?Field
@@ -309,6 +330,11 @@ abstract class EntityDefinition
     }
 
     abstract protected function defineFields(): FieldCollection;
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection();
+    }
 
     protected function getBaseFields(): array
     {

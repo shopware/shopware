@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class ScalarExtension implements EntityExtensionInterface
+class ScalarExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

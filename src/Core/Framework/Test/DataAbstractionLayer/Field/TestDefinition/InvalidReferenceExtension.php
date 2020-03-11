@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-class InvalidReferenceExtension implements EntityExtensionInterface
+class InvalidReferenceExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

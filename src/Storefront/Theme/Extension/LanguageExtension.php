@@ -2,14 +2,14 @@
 
 namespace Shopware\Storefront\Theme\Extension;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
-class LanguageExtension implements EntityExtensionInterface
+class LanguageExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
     {

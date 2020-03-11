@@ -21,4 +21,9 @@ abstract class AbstractRouteScope implements RouteScopeInterface
     abstract public function isAllowed(Request $request): bool;
 
     abstract public function getId(): string;
+
+    public function getRoutePrefixes(): array
+    {
+        return $this->allowedPaths;
+    }
 }

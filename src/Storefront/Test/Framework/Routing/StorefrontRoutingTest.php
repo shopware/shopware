@@ -61,7 +61,8 @@ class StorefrontRoutingTest extends TestCase
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(SeoResolver::class),
             $this->getContainer()->get('cache.object'),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class)
+            $this->getContainer()->get(EntityCacheKeyGenerator::class),
+            $this->getContainer()->getParameter('shopware.routing.registered_api_prefixes')
         );
 
         $this->seoUrlReplacer = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);

@@ -11,6 +11,9 @@
             <parameter key="lowercase">false</parameter>
         </parameter>
 
+        <!-- Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes -->
+        <parameter key="shopware.routing.registered_api_prefixes" type="collection"/>
+
         <!-- Migration config -->
         <parameter key="core.migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>

@@ -49,7 +49,7 @@ Core
 `$connection->executeUpdate()` instead.
 * For the possibility to add individual product to across selling, you need to use a new field for creating a cross selling
     * Please use type `productList` or `productStream` in order to create a corresponding cross selling
-   
+* Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
 
 Administration
 --------------

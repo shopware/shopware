@@ -333,7 +333,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry:__construct()` TypeHint for both parameters will be changed to ServiceProviderInterface 
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry:addHandler()` will be removed in 6.3.0
-    
+    * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
     
 * Storefront	
     * Deprecated `$connection->executeQuery()` for write operations

@@ -40,21 +40,30 @@ Component.register('sw-order-product-select', {
             return Service('cartSalesChannelService').getLineItemTypes();
         },
 
+        lineItemPriceTypes() {
+            return Service('cartSalesChannelService').getLineItemPriceTypes();
+        },
+
         isShownProductSelect() {
             return this.item._isNew && this.item.type === this.lineItemTypes.PRODUCT;
         },
 
         isShownItemLabelInput() {
             return this.item.type !== this.lineItemTypes.PRODUCT;
+        },
+
+        contextWithInheritance() {
+            return { ...Shopware.Context.api, inheritance: true };
         }
     },
+
     methods: {
         onItemChanged(newProductId) {
-            this.productRepository.get(newProductId, Shopware.Context.api).then((newProduct) => {
+            this.productRepository.get(newProductId, this.contextWithInheritance).then((newProduct) => {
                 this.item.identifier = newProduct.id;
                 this.item.label = newProduct.name;
                 this.item.priceDefinition.price = newProduct.price[0].gross;
-                this.item.priceDefinition.type = 'quantity';
+                this.item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
                 this.item.price.unitPrice = newProduct.price[0].gross;
                 this.item.price.totalPrice = 0;
                 this.item.price.quantity = 1;

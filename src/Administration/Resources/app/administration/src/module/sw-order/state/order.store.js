@@ -11,9 +11,9 @@ function reverseLineItems(items) {
 
 function mergeEmptyAndExistingLineItems(emptyLineItems, lineItems) {
     // Reverse the lineItems so the newly added are at the top for better UX
-    const reversedLineItems = reverseLineItems(lineItems);
+    reverseLineItems(lineItems);
 
-    return [...emptyLineItems, ...reversedLineItems];
+    return [...emptyLineItems, ...lineItems];
 }
 
 export default {

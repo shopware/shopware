@@ -62,6 +62,10 @@ class ProductListingFilterOutOfStockTest extends TestCase
 
     public function testListingWithFilterDisabled(): void
     {
+        // disable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
+
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)

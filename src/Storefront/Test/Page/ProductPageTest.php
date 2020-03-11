@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -63,6 +64,49 @@ class ProductPageTest extends TestCase
         static::assertInstanceOf(ProductPage::class, $page);
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
         self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testItDoesLoadACloseProductWithHideCloseEnabled(): void
+    {
+        $context = $this->createSalesChannelContextWithNavigation();
+
+        // enable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $product = $this->getRandomProduct($context, 1, true);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ProductPage::class, $page);
+        static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
+        self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testItDoesFailWithACloseProductWithHideCloseEnabledWhenOutOfStock(): void
+    {
+        $context = $this->createSalesChannelContextWithNavigation();
+
+        // enable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $product = $this->getRandomProduct($context, 0, true);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageLoadedEvent::class, $event);
+
+        $this->expectException(ProductNotFoundException::class);
+        $this->getPageLoader()->load($request, $context);
     }
 
     /**

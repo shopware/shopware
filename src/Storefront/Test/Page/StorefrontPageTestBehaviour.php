@@ -76,7 +76,7 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context);
     }
 
-    protected function getRandomProduct(SalesChannelContext $context): ProductEntity
+    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false): ProductEntity
     {
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
@@ -85,12 +85,13 @@ trait StorefrontPageTestBehaviour
         $data = [
             'id' => $id,
             'productNumber' => $productNumber,
-            'stock' => 1,
+            'stock' => $stock,
             'name' => StorefrontPageTestConstants::PRODUCT_NAME,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 15],
             'active' => true,
+            'isCloseout' => $isCloseout,
             'categories' => [
                 ['id' => Uuid::randomHex(), 'name' => 'asd'],
             ],

@@ -23,6 +23,7 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument>%shopware.routing.registered_api_prefixes%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">

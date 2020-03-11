@@ -336,6 +336,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry:addHandler()` will be removed in 6.3.0
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface`, extend from abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` instead.
     * Added `defineProtections` method on `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition`, which allows to define entity based protections
+    * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
     
 * Storefront	
     * Deprecated `$connection->executeQuery()` for write operations

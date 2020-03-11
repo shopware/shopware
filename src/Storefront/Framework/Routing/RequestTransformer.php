@@ -65,10 +65,6 @@ class RequestTransformer implements RequestTransformerInterface
         '/_wdt/',
         '/_profiler/',
         '/_error/',
-        '/api/',
-        '/sales-channel-api/',
-        '/store-api/',
-        '/admin/',
     ];
 
     /**
@@ -91,12 +87,18 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private $cacheKeyGenerator;
 
+    /**
+     * @var array
+     */
+    private $registeredApiPrefixes;
+
     public function __construct(
         RequestTransformerInterface $decorated,
         Connection $connection,
         SeoResolverInterface $resolver,
         TagAwareAdapterInterface $cache,
-        EntityCacheKeyGenerator $cacheKeyGenerator
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        array $registeredApiPrefixes
     ) {
         $this->connection = $connection;
         $this->decorated = $decorated;
@@ -104,6 +106,7 @@ class RequestTransformer implements RequestTransformerInterface
         $this->punycode = new Punycode();
         $this->cache = $cache;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->registeredApiPrefixes = $registeredApiPrefixes;
     }
 
     public function transform(Request $request): Request
@@ -225,6 +228,12 @@ class RequestTransformer implements RequestTransformerInterface
     private function isSalesChannelRequired(string $pathInfo): bool
     {
         $pathInfo = rtrim($pathInfo, '/') . '/';
+
+        foreach ($this->registeredApiPrefixes as $apiPrefix) {
+            if (mb_strpos($pathInfo, '/' . $apiPrefix . '/') === 0) {
+                return false;
+            }
+        }
 
         foreach ($this->whitelist as $prefix) {
             if (mb_strpos($pathInfo, $prefix) === 0) {

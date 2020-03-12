@@ -79,4 +79,31 @@ class SalesChannelContextPersister
 
         return array_filter(json_decode($parameter, true));
     }
+
+    public function revokeAllCustomerTokens(string $customerId, string ...$preserveTokens): void
+    {
+        $revokeParams = [
+            'customerId' => null,
+            'billingAddressId' => null,
+            'shippingAddressId' => null,
+        ];
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->update('sales_channel_api_context')
+            ->set('payload', ':payload')
+            ->where('JSON_EXTRACT(payload, :customerPath) = :customerId')
+            ->setParameter(':payload', json_encode($revokeParams))
+            ->setParameter(':customerPath', '$.customerId')
+            ->setParameter(':customerId', $customerId);
+
+        // keep tokens valid, which are given in $preserveTokens
+        if ($preserveTokens) {
+            $qb
+                ->andWhere($qb->expr()->notIn('token', ':preserveTokens'))
+                ->setParameter(':preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
+        }
+
+        $qb->execute();
+    }
 }

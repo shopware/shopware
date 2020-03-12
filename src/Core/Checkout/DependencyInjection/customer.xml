@@ -137,5 +137,11 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerTokenSubscriber">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="request_stack"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

@@ -1,4 +1,5 @@
 [titleEn]: <>(SalesChannel-API newsletter endpoint)
+[hash]: <>(article:api_sales_channel_newsletter)
 
 The newsletter endpoint is used to subscribe, confirm and unsubscribe to newsletters. It can also be used to change newsletter recipient related information.
 

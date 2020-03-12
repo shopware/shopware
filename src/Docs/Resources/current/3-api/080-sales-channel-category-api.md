@@ -1,4 +1,5 @@
 [titleEn]: <>(SalesChannel-API category endpoint)
+[hash]: <>(article:api_sales_channel_category)
 
 The category endpoint is used to get category information e.g. for a navigation.
 

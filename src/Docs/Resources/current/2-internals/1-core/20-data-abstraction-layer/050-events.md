@@ -1,4 +1,5 @@
 [titleEn]: <>(Events)
+[hash]: <>(article:dal_events)
 
 Events are the easiest way to extend the DataAbstractionLayer. Every entity comes with a set of events which will
 be dispatched in various situations.

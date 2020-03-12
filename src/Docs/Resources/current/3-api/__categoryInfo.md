@@ -1,5 +1,6 @@
 [titleEn]: <>(API)
 [titleDe]: <>(API)
+[hash]: <>(category:api)
 
 ## Overview
 

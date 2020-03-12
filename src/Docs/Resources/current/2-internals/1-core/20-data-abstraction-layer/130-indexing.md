@@ -1,4 +1,5 @@
 [titleEn]: <>(Indexing)
+[hash]: <>(article:dal_index)
 
 The DataAbstractionLayer provides several indexers to optimize the performance.
 

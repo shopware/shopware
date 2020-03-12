@@ -1,4 +1,5 @@
 [titleEn]: <>(Administration)
+[hash]: <>(category:administration)
 
 * [Repository Link](https://github.com/shopware/platform/tree/master/src/Adminitration/Resources/app/administration/source)
 * [Component library](https://component-library.shopware.com ) 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Types)
+[hash]: <>(article:dal_types)
 
 The field types below are available to build a definition.
 

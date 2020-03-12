@@ -1,5 +1,6 @@
 [titleEn]: <>(Adding a custom CMS block)
 [metaDescriptionEn]: <>(This HowTo will teach you to create a new CMS block via a plugin.)
+[hash]: <>(article:how_to_custom_cms_block)
 
 This HowTo will teach you to create a new CMS block via a plugin.
 

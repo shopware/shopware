@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Base Class)
+[hash]: <>(article:plugin_base)
 
 # Overview
 In this guide, you will learn what a plugin base class is and how to use it.

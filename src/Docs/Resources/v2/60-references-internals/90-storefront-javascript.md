@@ -1,4 +1,5 @@
 [titleEn]: <>(Storefront JavaScript)
+[hash]: <>(article:references_storefront_javascript)
 
 ## Helper
 * viewport-detection.helper.js

@@ -1,4 +1,5 @@
 [titleEn]: <>(Sitemap)
+[hash]: <>(category:sitemap)
 
 Shopware generates a default sitemap which is compressed and cached in the file system. To support shops
 with a lot of products and categories the sitemap is splitted into multiple files and can be generated in the background.

@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Contexts)
+[hash]: <>(article:plugin_contexts)
 
 ## Overview
 In this guide, you will learn which plugin contexts exist and what they are used for.

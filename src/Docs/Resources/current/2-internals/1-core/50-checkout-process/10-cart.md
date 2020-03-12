@@ -1,4 +1,5 @@
 [titleEn]: <>(Cart)
+[hash]: <>(article:checkout_cart)
 
 Repository Link: [`https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart`](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Cart)
 

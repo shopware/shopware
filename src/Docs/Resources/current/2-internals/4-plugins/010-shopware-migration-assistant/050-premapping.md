@@ -1,4 +1,5 @@
 [titleEn]: <>(Premapping)
+[hash]: <>(article:migration_premapping)
 
 The premapping will use the normal [Mapping](./070-converter-and-mapping.md) to store the old identifier with the equivalent new one.
 All premapping readers provide the information for the mapping choices and are registered like this:

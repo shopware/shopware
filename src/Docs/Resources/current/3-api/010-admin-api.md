@@ -1,4 +1,5 @@
 [titleEn]: <>(Admin API)
+[hash]: <>(article:api_admin)
 
 ## Getting started
 

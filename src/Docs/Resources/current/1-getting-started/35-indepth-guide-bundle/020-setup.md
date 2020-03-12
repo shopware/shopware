@@ -1,4 +1,5 @@
 [titleEn]: <>(Step 2: The plugin setup)
+[hash]: <>(article:bundle_setup)
 
 ## Basic structure
 

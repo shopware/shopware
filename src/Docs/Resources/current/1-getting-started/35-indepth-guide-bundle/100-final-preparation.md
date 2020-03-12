@@ -1,4 +1,5 @@
 [titleEn]: <>(Step 10: Final adjustments)
+[hash]: <>(article:bundle_final)
 
 You're almost done with the whole plugin. There's just one more thing to do before being completely done.
 

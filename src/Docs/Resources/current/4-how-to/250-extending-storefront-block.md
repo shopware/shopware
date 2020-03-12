@@ -1,5 +1,6 @@
 [titleEn]: <>(Extending a storefront block)
 [metaDescriptionEn]: <>(This HowTo will give a short example to extend a storefront block.)
+[hash]: <>(article:how_to_extend_storefront_blocks)
 
 ## Overview
 

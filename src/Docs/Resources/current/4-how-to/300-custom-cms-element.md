@@ -1,5 +1,6 @@
 [titleEn]: <>(Adding a custom CMS element)
 [metaDescriptionEn]: <>(This HowTo will teach you to create a new CMS element via a plugin.)
+[hash]: <>(article:how_to_custom_cms_element)
 
 This HowTo will teach you to create a new CMS element via a plugin.
 

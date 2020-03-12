@@ -1,4 +1,5 @@
 [titleEn]: <>(Message Queue)
+[hash]: <>(article:message-queue)
 
 Shopware integrates with the [Symfony Messenger](https://symfony.com/doc/current/components/messenger.html) component 
 and [Enqueue](https://enqueue.forma-pro.com/). This gives you the possibility to send and handle asynchonous messages.

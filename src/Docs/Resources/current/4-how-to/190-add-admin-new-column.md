@@ -1,5 +1,6 @@
 [titleEn]: <>(Add new column to table in administration)
 [metaDescriptionEn]: <>(This article will give a brief explanation on how to add a new column to an existing table in the administration. In this example, the product list table will be extended.)
+[hash]: <>(article:how_to_new_admin_column)
 
 ## Overview
 

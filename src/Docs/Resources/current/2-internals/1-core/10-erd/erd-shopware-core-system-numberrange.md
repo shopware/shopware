@@ -1,4 +1,5 @@
 [titleEn]: <>(Number ranges)
+[hash]: <>(article:internals_core_erd_system_number_range)
 
 [Back to modules](./../10-modules.md)
 

@@ -1,5 +1,6 @@
 [titleEn]: <>(Adding snippets)
 [metaDescriptionEn]: <>(Learn here how to add and extend Shopwares snippet files for the administration and the storefront)
+[hash]: <>(article:how_to_add_snippets)
 
 ## Overview
 

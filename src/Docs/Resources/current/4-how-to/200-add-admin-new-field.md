@@ -1,5 +1,6 @@
 [titleEn]: <>(Add field to module in administration)
 [metaDescriptionEn]: <>(If you were wondering, how you can add a new field to an existing module in the Administration via plugin, then you've found the right HowTo to cover that subject.)
+[hash]: <>(article:how_to_new_admin_field)
 
 ## Overview
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Write Protection)
+[hash]: <>(article:dal_write_protection)
 
 Shopware 6 has a few read optimized fields that should usually not be written by users of the DAL or even the REST-API. But of course there always is a single place where manipulation must be possible. Learn here how.
 

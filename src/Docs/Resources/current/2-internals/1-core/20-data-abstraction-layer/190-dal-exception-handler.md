@@ -1,4 +1,5 @@
 [titleEn]: <>(DAL Exception Handler)
+[hash]: <>(article:dal_exception_handler)
 
 The `ExceptionHandler` is a way to catch defined Database exceptions while perform `writeCommands`
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Checkout Process)
+[hash]: <>(category:checkout)
 
 The checkout process contains two central and business heavy units, the `Cart` and the `Order`. Other modules in the `Checkout` bundle handle cross cutting concerns in support of these modules. `Cart` and `Order` represent two distinct steps in the shopping workflow. The `Cart` represents the *purchase procedure*, while the `Order` represents the *purchase management*. The handover between these components is called *checkout*
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Countries)
+[hash]: <>(article:internals_core_erd_system_country)
 
 [Back to modules](./../10-modules.md)
 

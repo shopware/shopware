@@ -1,4 +1,5 @@
 [titleEn]: <>(Units)
+[hash]: <>(article:internals_core_erd_system_unit)
 
 [Back to modules](./../10-modules.md)
 

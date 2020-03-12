@@ -1,4 +1,5 @@
 [titleEn]: <>(Custom Fields/EAV)
+[hash]: <>(article:internals_core_erd_framework_custom_field)
 
 [Back to modules](./../10-modules.md)
 

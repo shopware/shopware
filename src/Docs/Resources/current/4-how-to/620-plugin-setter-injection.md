@@ -1,5 +1,6 @@
 [titleEn]: <>(Using setter injection in plugins)
 [metaDescriptionEn]: <>(This HowTo will show you how to use setting injection in your plugin class. This allows using private and your own services in the activate and deactivate method.)
+[hash]: <>(article:how_to_setter_injection)
 
 ## Overview
 

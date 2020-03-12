@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin configuration)
+[hash]: <>(article:plugin_config)
 
 The `Shopware plugin system` provides you with the option to create a configuration page for your plugin without any knowledge of templating or the `Shopware Administration`.
 All you need to do is creating a `config.xml` file inside of a `Resources/config` directory in your plugin root.

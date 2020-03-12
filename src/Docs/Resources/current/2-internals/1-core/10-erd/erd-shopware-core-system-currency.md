@@ -1,4 +1,5 @@
 [titleEn]: <>(Currencies)
+[hash]: <>(article:internals_core_erd_system_currency)
 
 [Back to modules](./../10-modules.md)
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(SalesChannel-API)
+[hash]: <>(article:api_sales_channel)
 
 The SalesChannel-API is part of our API family. It allows access to all sales channel operations, such as creating new customers, customer login
 and logout, various cart operations and a lot more.

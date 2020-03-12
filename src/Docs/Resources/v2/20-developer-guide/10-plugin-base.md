@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin base)
+[hash]: <>(article:developer_plugin_base)
 
 * Install / Unistall Lifecycle
 * Composer.json

@@ -1,4 +1,5 @@
 [titleEn]: <>(Commands)
+[hash]: <>(article:e2e_testing_commands)
 
 # Commands
 

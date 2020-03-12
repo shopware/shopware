@@ -1,4 +1,5 @@
 [titleEn]: <>(Translation handling)
+[hash]: <>(article:dal_translation_handling)
 
 The Data abstraction layer supports internationalization of entities as a core concept and obeys the general rules of the [Shopware Core](./../20-internationalization.md). In order to support this, many fields are translatable and many entities have a language relation. There is some special handling present to support this.
 

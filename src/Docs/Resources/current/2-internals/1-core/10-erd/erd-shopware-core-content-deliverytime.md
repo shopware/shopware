@@ -1,4 +1,5 @@
 [titleEn]: <>(Delivery time)
+[hash]: <>(article:internals_core_erd_content_delivery_time)
 
 [Back to modules](./../10-modules.md)
 

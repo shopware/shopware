@@ -1,5 +1,6 @@
 [titleEn]: <>(Add SCSS variables in a plugin)
 [metaDescriptionEn]: <>(This HowTo will show you how you can add custom SCSS variables in a plugin.)
+[hash]: <>(article:how_to_plugin_scss_variables)
 
 ## Overview
 

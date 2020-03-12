@@ -1,4 +1,5 @@
 [titleEn]: <>(UUID)
+[hash]: <>(article:dal_uuid)
 
 The data abstraction layer uses, contrary to many legacy data access implementations, [**universally unique identifiers** (short *UUID*)](https://en.wikipedia.org/wiki/Universally_unique_identifier) as its primary key format. A UUID is a 128-bit wide number represented as a hex value and stored binary in the database. A typical UUID in Shopware 6 will look like this:
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugins)
+[hash]: <>(article:internals_core_erd_framework_plugin)
 
 [Back to modules](./../10-modules.md)
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Converter and mapping)
+[hash]: <>(article:migration_converter)
 
 Data gathered by `Reader` objects is transferred to `Converter` objects that put the data in a format Shopware 6 is able to work with.
 Simultaneously entries in the underlying mapping table are inserted to map the old identifiers to the new ones for future migrations.

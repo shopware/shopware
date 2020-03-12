@@ -1,4 +1,5 @@
 [titleEn]: <>(Writing data)
+[hash]: <>(article:storefront_writing_data)
 
 All routes mutating data are `POST` routes. Contrary to the data loading paradigm of the storefront (a deep nested structure) and the template organization (a deep nested structure) write operations are flat and forwarded directly from the controller to a core service. The whole picture (usually) looks like this:
 

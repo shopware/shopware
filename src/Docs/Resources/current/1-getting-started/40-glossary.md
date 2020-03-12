@@ -1,4 +1,5 @@
 [titleEn]: <>(Glossary)
+[hash]: <>(article:glossary)
 
 eCommerce and Shopware specific terms explained
  

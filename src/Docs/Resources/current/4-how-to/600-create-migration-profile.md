@@ -1,5 +1,6 @@
 [titleEn]: <>(Creating a new migration profile)
 [metaDescriptionEn]: <>(This HowTo will give an example on creating a new migration profile for the Migration Assistant.)
+[hash]: <>(article:how_to_create_migration_profile)
 
 ## Overview
 

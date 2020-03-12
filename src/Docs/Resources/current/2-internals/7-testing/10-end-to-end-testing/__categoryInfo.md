@@ -1,4 +1,5 @@
 [titleEn]: <>(End-to-end testing)
+[hash]: <>(category:e2e_testing)
 
 In end-to-end testing (E2E testing) real user workflows are simulated, whereby as many as possible functional areas and 
 parts of the technology stack used in the application should be included.

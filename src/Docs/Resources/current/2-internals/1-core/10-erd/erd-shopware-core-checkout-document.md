@@ -1,4 +1,5 @@
 [titleEn]: <>(Printed works)
+[hash]: <>(article:internals_core_erd_checkout_document)
 
 [Back to modules](./../10-modules.md)
 

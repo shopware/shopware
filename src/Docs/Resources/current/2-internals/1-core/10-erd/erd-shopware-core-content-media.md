@@ -1,4 +1,5 @@
 [titleEn]: <>(Media/File management)
+[hash]: <>(article:internals_core_erd_content_media)
 
 [Back to modules](./../10-modules.md)
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Migration context)
+[hash]: <>(article:migration_context)
 
 The central data structure of Shopware Migration Assistant is the migration context. The migration context contains following
 information:

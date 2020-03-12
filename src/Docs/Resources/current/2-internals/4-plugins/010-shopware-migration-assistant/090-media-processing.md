@@ -1,4 +1,5 @@
 [titleEn]: <>(Media processing)
+[hash]: <>(article:migration_media)
 
 To import files to Shopware 6 using the migration, two steps are necessary:
 1. Create a media file object (`MediaDefinition` / `media` table)

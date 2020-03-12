@@ -1,4 +1,5 @@
 [titleEn]: <>(Internals)
+[hash]: <>(category:internals)
 
 Shopware 6 is an online eCommerce platform. It provides Services through REST-APIs and rich user interfaces to customers and administrators alike.
 

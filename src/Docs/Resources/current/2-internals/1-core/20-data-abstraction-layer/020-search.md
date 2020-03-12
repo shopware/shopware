@@ -1,4 +1,6 @@
 [titleEn]: <>(Search)
+[hash]: <>(article:dal_search)
+
 # Search
 
 The search is one of the most powerful yet fastest modules in Shopware.

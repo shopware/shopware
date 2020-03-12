@@ -1,5 +1,6 @@
 [titleEn]: <>(Add discount for specific products)
 [metaDescriptionEn]: <>(In this HowTo you will learn to add a discount for specific products.)
+[hash]: <>(article:how_to_cart_add_discount)
 
 ## Overview
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Write)
+[hash]: <>(article:dal_write)
 
 # Write
 

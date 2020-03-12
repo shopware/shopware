@@ -1,4 +1,5 @@
 [titleEn]: <>(Solutations)
+[hash]: <>(article:internals_core_erd_system_salutation)
 
 [Back to modules](./../10-modules.md)
 

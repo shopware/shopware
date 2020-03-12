@@ -1,5 +1,6 @@
 [titleEn]: <>(Change price of item in cart)
 [metaDescriptionEn]: <>(This HowTo will tackle the issue of changing the price of an item itself in the cart dynamically.)
+[hash]: <>(article:how_to_cart_change_price)
 
 ## Overview
 

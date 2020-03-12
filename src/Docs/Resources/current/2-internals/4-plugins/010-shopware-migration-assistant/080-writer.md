@@ -1,4 +1,5 @@
 [titleEn]: <>(Writer)
+[hash]: <>(article:migration_writer)
 
 The `Writer` objects will get the converted data from the `swag_migration_data` table and write it to the right Shopware 6 table.
 Each `Writer` supports only one entity, that is most likely the target table.

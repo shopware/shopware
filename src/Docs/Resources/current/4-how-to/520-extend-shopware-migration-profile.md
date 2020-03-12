@@ -1,5 +1,6 @@
 [titleEn]: <>(Extending a Shopware migration profile)
 [metaDescriptionEn]: <>(This HowTo will give an example on extending a Shopware migration profile.)
+[hash]: <>(article:how_to_extend_migration_profile)
 
 ## Overview
 

@@ -1,5 +1,6 @@
 [titleEn]: <>(Add custom entity to administration search)
 [metaDescriptionEn]: <>(This HowTo will show how to add a tag in the global search bar and use it to search for custom entities)
+[hash]: <>(article:how_to_custom_entity_admin_search)
 
 ## Overview
 

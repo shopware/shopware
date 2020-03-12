@@ -1,5 +1,6 @@
 [titleEn]: <>(Creating a service)
 [metaDescriptionEn]: <>(Creating custom services for your plugin is as simple as it is in Symfony bundles, since Shopware 6 plugins are basically just extended Symfony bundles. This HowTo will cover that subject in short anyway.)
+[hash]: <>(article:how_to_service)
 
 ## Overview
 

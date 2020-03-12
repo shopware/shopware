@@ -1,4 +1,5 @@
 [titleEn]: <>(O-Auth integrations)
+[hash]: <>(article:internals_core_erd_system_integration)
 
 [Back to modules](./../10-modules.md)
 

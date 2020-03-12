@@ -1,4 +1,5 @@
 [titleEn]: <>(Content Management)
+[hash]: <>(article:internals_core_erd_content_cms)
 
 [Back to modules](./../10-modules.md)
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Black-/Whitelisting)
+[hash]: <>(article:dal_black_white_listing)
 
 Black-/Whitelisting is an extension to define the visibility of Entities for certain Rules.
 

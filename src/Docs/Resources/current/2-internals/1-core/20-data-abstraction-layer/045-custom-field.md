@@ -1,4 +1,5 @@
 [titleEn]: <>(Custom field system)
+[hash]: <>(article:dal_custom_field)
 
 The custom field system allows extending existing entities, without creating
 custom extensions for those entities. The data is stored in a JSON field.

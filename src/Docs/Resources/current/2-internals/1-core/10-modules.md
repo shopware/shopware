@@ -1,4 +1,5 @@
 [titleEn]: <>(Core Module List)
+[hash]: <>(article:core_modules)
 
 All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
 

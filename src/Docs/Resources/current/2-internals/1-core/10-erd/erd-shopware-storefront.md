@@ -1,4 +1,5 @@
 [titleEn]: <>(Storefront)
+[hash]: <>(article:internals_core_erd_storefront)
 
 [Back to modules](./../10-modules.md)
 

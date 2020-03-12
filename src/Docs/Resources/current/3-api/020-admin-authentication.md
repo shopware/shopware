@@ -1,4 +1,5 @@
 [titleEn]: <>(Admin API authentication)
+[hash]: <>(article:api_admin_auth)
 
 The Admin API uses the [oauth2](https://oauth.net/2/) standard to authenticate clients.
 

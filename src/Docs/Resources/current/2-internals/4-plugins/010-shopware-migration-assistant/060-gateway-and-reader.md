@@ -1,4 +1,5 @@
 [titleEn]: <>(Gateway and reader)
+[hash]: <>(article:migration_reader)
 
 Users will have to specify a gateway for the connection. The gateway defines the way of communicating with the source system.
 Behind the user interface we use `Reader` objects to read the data from the source system.

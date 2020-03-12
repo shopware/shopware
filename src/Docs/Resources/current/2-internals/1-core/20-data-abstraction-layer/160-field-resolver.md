@@ -1,4 +1,5 @@
 [titleEn]: <>(Field Resolver)
+[hash]: <>(article:dal_field_resolver)
 
 A FieldResolver is a specific implementation for a field, which needs some extra code to be found properly.
 

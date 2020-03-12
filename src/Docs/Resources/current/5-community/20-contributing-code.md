@@ -1,5 +1,6 @@
 [titleEn]: <>(Contributing Code)
 [metaDescriptionEn]: <>(How to contribute code to Shopware Platform)
+[hash]: <>(article:contributing_code)
 
 ## Introduction
 

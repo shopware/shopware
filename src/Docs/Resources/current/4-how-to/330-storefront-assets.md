@@ -1,5 +1,6 @@
 [titleEn]: <>(Using custom CSS and JavaScript in the Storefront)
 [metaDescriptionEn]: <>(Quite often your plugin will have to change a few templates for the Storefront. Those might require custom stylings to look neat and a few lines of javascript, to add special functionality. This How To will explain how this is done.)
+[hash]: <>(article:how_to_storefront_assets)
 
 Quite often your plugin will have to change a few templates for the Storefront.
 Those might require custom stylings to look neat and a few lines of JavaScript, to add special functionality.

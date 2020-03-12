@@ -1,4 +1,5 @@
 [titleEn]: <>(Context and scope)
+[hash]: <>(article:context)
 
 Shopware 6 preprocesses some user-, application- or environment specific information. This data is wrapped into the different context objects and offer a necessary execution context for the various business relevant processes.
 

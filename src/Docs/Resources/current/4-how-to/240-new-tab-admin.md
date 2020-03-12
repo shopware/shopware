@@ -1,5 +1,6 @@
 [titleEn]: <>(Adding a new tab to a module in the administration)
 [metaDescriptionEn]: <>(You want to create a new tab in the administration for the product detail page? This HowTo has you covered on this subject.)
+[hash]: <>(article:how_to_new_tab_admin)
 
 ## Overview
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Scheduled messages)
+[hash]: <>(article:internals_core_erd_framework_scheduled_task)
 
 [Back to modules](./../10-modules.md)
 

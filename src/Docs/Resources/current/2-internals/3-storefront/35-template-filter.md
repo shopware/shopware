@@ -1,4 +1,5 @@
 [titleEn]: <>(Template Filter)
+[hash]: <>(article:storefront_template_filter)
 
 ## sw_sanitize
 Filters tags and attributes from given variable.

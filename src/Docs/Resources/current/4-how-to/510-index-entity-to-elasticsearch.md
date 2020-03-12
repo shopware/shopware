@@ -1,4 +1,5 @@
 [titleEn]: <>(Index entities to elasticsearch)
+[hash]: <>(article:how_to_index_es)
 
 Once you have implemented an entity in the system that has several thousand records in the database, it makes sense to create compatibility with Elasticsearch.
 This requires the `shopware/elasticsearch` bundle. If this is not available in your project, you can simply add it via `composer require shopware/elasticsearch`.

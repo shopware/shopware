@@ -1,5 +1,6 @@
 [titleEn]: <>(Contribution Guideline)
 [metaDescriptionEn]: <>(Contribution guideline for Shopware Platform)
+[hash]: <>(article:contribution_guidelines)
 
 ## Introduction
 First of all, thank you!

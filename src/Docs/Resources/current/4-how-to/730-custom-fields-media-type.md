@@ -1,5 +1,6 @@
 [titleEn]: <>(Use custom fields with media type)
 [metaDescriptionEn]: <>(This HowTo will give an example how you can work with a custom field of type media.)
+[hash]: <>(article:how_to_custom_field_media)
 
 ## Using custom fields of type media
 

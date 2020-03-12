@@ -1,4 +1,5 @@
 [titleEn]: <>(Vagrant VM)
+[hash]: <>(article:vagrant_installation)
 
 If using docker is not an option for you, vagrant is another great technology to quickly get a local Shopware up and running.
 

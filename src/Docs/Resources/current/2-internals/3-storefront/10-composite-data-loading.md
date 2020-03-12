@@ -1,4 +1,5 @@
 [titleEn]: <>(Composite Data Loading)
+[hash]: <>(article:storefront_data_loading)
 
 Composite data loading describes the process of preparing and fetching data for a whole template page worth of content. As a progressive web application the page rendering process is a central concern of the storefront. Contrary to solutions through `postDispatch`-Handling or `lazy loading`  from templates the controller actions of the storefront do a full lookup and handle data loading transparently and fully. The storefront provides a general solution for this problem - the **Page System**
 

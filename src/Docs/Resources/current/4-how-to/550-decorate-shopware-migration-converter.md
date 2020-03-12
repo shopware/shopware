@@ -1,5 +1,6 @@
 [titleEn]: <>(Decorating a Shopware Migration Assistant converter)
 [metaDescriptionEn]: <>(This HowTo will give an example on decorating a Shopware migration converter of the Migration Connector plugin.)
+[hash]: <>(article:how_to_decorate_migration_connector)
 
 ## Overview
 

@@ -27,5 +27,9 @@
         <service id="Shopware\Docs\Command\ConvertMarkdownDocsCommand">
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Docs\Command\RemoveArticlesAndCategoriesCommand">
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

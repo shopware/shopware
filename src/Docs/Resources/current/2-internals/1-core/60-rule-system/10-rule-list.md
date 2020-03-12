@@ -1,4 +1,5 @@
 [titleEn]: <>(Rule classes)
+[hash]: <>(article:rule)
 
 List of all rule classes across Shopware 6.
 

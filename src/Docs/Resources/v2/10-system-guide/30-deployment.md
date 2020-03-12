@@ -1,4 +1,5 @@
 [titleEn]: <>(Deployment)
+[hash]: <>(article:system_deployment)
 
 ## Production Template
 

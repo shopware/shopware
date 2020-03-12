@@ -1,4 +1,5 @@
 [titleEn]: <>(SEO URL FAQ)
+[hash]: <>(article:storefront_seo_urls_faq)
 
 This document was created for Shopware 6.0.0 EA2
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(__EMPTY__)
+[hash]: <>(article:internals_core_erd_framework_logging)
 
 [Back to modules](./../10-modules.md)
 

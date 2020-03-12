@@ -1,4 +1,5 @@
 [titleEn]: <>(Data Abstraction Layer)
+[hash]: <>(category:dal)
 
 The DataAbstractionLayer (DAL) centrally handles data **retrieval**, **modification** and **search** through an object oriented interface. The following diagram illustrates the general architecture of the component.
 

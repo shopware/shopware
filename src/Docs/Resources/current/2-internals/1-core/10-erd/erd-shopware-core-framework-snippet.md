@@ -1,4 +1,5 @@
 [titleEn]: <>(Custom placeholder translations)
+[hash]: <>(article:internals_core_erd_framework_snippet)
 
 [Back to modules](./../10-modules.md)
 

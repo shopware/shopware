@@ -1,5 +1,6 @@
 [titleEn]: <>(Extending the cookie consent manager)
 [metaDescriptionEn]: <>(This HowTo will take a look at extending the cookie consent manager with custom cookies and reacting to your users consent.)
+[hash]: <>(article:how_to_plugin_cookies)
 
 ## Extend the cookie consent manager
 Adding custom cookies basically requires you to decorate a service, so make sure to have a look at the [guide for decorating services](./../4-how-to/080-decorating-a-service.md) first.

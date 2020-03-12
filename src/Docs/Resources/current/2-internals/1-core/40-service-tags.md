@@ -1,4 +1,5 @@
 [titleEn]: <>(Service Tags)
+[hash]: <>(article:service_tags)
 
 Service tags in `Shopware` are the same as [Symfony - Service Tags](https://symfony.com/doc/current/service_container/tags.html).
 They are used to register your service in some special way. 

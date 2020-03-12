@@ -2,8 +2,10 @@
 
 namespace Shopware\Docs\Command;
 
+use Shopware\Docs\Convert\CredentialsService;
 use Shopware\Docs\Convert\Document;
 use Shopware\Docs\Convert\DocumentTree;
+use Shopware\Docs\Convert\DuplicateHashException;
 use Shopware\Docs\Convert\WikiApiService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,9 +21,18 @@ class ConvertMarkdownDocsCommand extends Command
 
     private const BLACKLIST = 'article.blacklist';
 
-    private const CREDENTIAL_PATH = __DIR__ . '/wiki.secret';
-
     protected static $defaultName = 'docs:convert';
+
+    /**
+     * @var string
+     */
+    private $environment;
+
+    public function __construct(?string $name = null)
+    {
+        parent::__construct($name);
+        $this->environment = getenv('APP_ENV');
+    }
 
     protected function configure(): void
     {
@@ -68,36 +79,21 @@ class ConvertMarkdownDocsCommand extends Command
             $fs->dumpFile($phpFile, '<?php return ' . var_export($document->getMetadata()->toArray($tree), true) . ';');
         }
 
-        if (!$isSync || !file_exists(self::CREDENTIAL_PATH)) {
+        $credentialsService = new CredentialsService();
+
+        if (!$isSync || !$credentialsService->credentialsFileExists()) {
             return 0;
         }
 
-        $credentialsContents = file_get_contents(self::CREDENTIAL_PATH);
-        $credentials = json_decode($credentialsContents, true);
-        $token = $credentials['token'];
-        $server = $credentials['url'];
-        $rootCategory = $credentials['rootCategoryId'];
-
-        $syncService = new WikiApiService($token, $server, $rootCategory);
+        $syncService = new WikiApiService($credentialsService->getCredentials(), $this->environment);
         $syncService->syncFilesWithServer($tree);
 
         return 0;
     }
 
-    protected function readAllFiles(array $files): array
-    {
-        $allContents = [];
-        foreach ($files as $file) {
-            $content = file_get_contents($file);
-            if ($content === '') {
-                continue;
-            }
-            $allContents[$file] = $content;
-        }
-
-        return $allContents;
-    }
-
+    /**
+     * @throws DuplicateHashException
+     */
     private function loadDocuments(string $fromPath, string $baseUrl, array $blacklist): DocumentTree
     {
         $files = (new Finder())
@@ -127,6 +123,8 @@ class ConvertMarkdownDocsCommand extends Command
             );
         }
 
+        $hashes = [];
+
         //compile into tree
         $tree = new DocumentTree();
         foreach ($documents as $document) {
@@ -137,6 +135,12 @@ class ConvertMarkdownDocsCommand extends Command
             }
 
             $tree->add($document);
+
+            $hash = $document->getMetadata()->getHash();
+            if (array_key_exists($hash, $hashes)) {
+                throw new DuplicateHashException(sprintf('Hash \'%s\' is duplicated in files \'%s\' and \'%s\'.', $hash, $document->getFile()->getFileInfo(), $hashes[$hash]));
+            }
+            $hashes[$hash] = $document->getFile()->getFileInfo();
 
             //find parent
             if (!isset($documents[$parentPath])) {

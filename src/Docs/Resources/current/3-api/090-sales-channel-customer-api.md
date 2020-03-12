@@ -1,4 +1,5 @@
 [titleEn]: <>(SalesChannel-API customer endpoint)
+[hash]: <>(article:api_sales_channel_customer)
 
 The customer endpoint is used to register and log in customers. It can also be used to change and receive customer related information.
 

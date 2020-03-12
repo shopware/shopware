@@ -1,4 +1,5 @@
 [titleEn]: <>(Step 1: Introduction)
+[hash]: <>(article:bundle_introduction)
 
 There's plenty of explanations about [how to set-up your first plugin](./../../2-internals/4-plugins/010-plugin-quick-start.md), with possibilities of [configuring your plugin](./../../2-internals/4-plugins/070-plugin-config.md)
 and [several smaller examples on how to solve a specific problem](https://docs.shopware.com/en/shopware-platform-dev-en/how-to) with your plugin.

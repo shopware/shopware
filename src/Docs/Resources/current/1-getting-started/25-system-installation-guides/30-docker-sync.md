@@ -1,4 +1,5 @@
 [titleEn]: <>(Using docker-sync)
+[hash]: <>(article:docker_installation)
 
 
 ## Using native mounting with Docker Volumes and docker-sync

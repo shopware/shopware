@@ -1,4 +1,5 @@
 [titleEn]: <>(Storefront)
+[hash]: <>(category:storefront)
 
 * [Repository Link](https://github.com/shopware/platform/tree/master/src/Storefront)
 

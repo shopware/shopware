@@ -1,5 +1,6 @@
 [titleEn]: <>(Using AWS S3 as file storage)
 [metaDescriptionEn]: <>(Cloud solutions are often the preferred way to store large amounts of files. This article shows you how to configure a cloud file storage, in this example two S3 buckets.)
+[hash]: <>(article:how_to_s3)
 
 ## Overview
 

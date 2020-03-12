@@ -1,4 +1,5 @@
 [titleEn]: <>(Newsletter)
+[hash]: <>(article:internals_core_erd_content_newsletter)
 
 [Back to modules](./../10-modules.md)
 

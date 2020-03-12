@@ -1,4 +1,5 @@
 [titleEn]: <>(Asynchronous messaging)
+[hash]: <>(article:internals_core_erd_framework_message_queue)
 
 [Back to modules](./../10-modules.md)
 

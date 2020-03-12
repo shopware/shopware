@@ -20,7 +20,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function Flag\next6025;
 
 class ProductLoader
 {
@@ -67,22 +66,20 @@ class ProductLoader
 
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position'));
 
-        if (next6025()) {
-            $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
-            $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+        $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+        $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
 
-            if ($hideCloseoutProductsWhenOutOfStock) {
-                $criteria->addFilter(
-                    new NotFilter(
-                        NotFilter::CONNECTION_AND,
-                        [
-                            new EqualsFilter('product.isCloseout', true),
-                            new EqualsFilter('product.available', false),
-                            new EqualsFilter('product.parentId', null),
-                        ]
-                    )
-                );
-            }
+        if ($hideCloseoutProductsWhenOutOfStock) {
+            $criteria->addFilter(
+                new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [
+                        new EqualsFilter('product.isCloseout', true),
+                        new EqualsFilter('product.available', false),
+                        new EqualsFilter('product.parentId', null),
+                    ]
+                )
+            );
         }
 
         $this->eventDispatcher->dispatch(

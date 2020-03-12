@@ -7,7 +7,7 @@
       "buttonSave": "Save",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The configuration has been saved.",
-      "titleSaveError": "The configuration could not be saved"
+      "titleSaveError": "Error"
     }
   }
 }

@@ -30,7 +30,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\next6025;
 
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
@@ -193,10 +192,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): void
     {
-        if (!next6025()) {
-            return;
-        }
-
         $salesChannelId = $context->getSalesChannel()->getId();
 
         $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);

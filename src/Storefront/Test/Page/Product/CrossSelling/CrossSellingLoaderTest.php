@@ -17,7 +17,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
-use function Flag\skipTestNext6025;
 
 class CrossSellingLoaderTest extends TestCase
 {
@@ -116,7 +115,9 @@ class CrossSellingLoaderTest extends TestCase
 
     public function testLoadForProductWithCloseoutAndFilterDisabled(): void
     {
-        skipTestNext6025($this);
+        // disable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $productId = Uuid::randomHex();
 
@@ -151,8 +152,6 @@ class CrossSellingLoaderTest extends TestCase
 
     public function testLoadForProductWithCloseoutAndFilterEnabled(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
@@ -190,8 +189,6 @@ class CrossSellingLoaderTest extends TestCase
 
     public function testLoadForProductWithCloseoutAndFilterEnabledAllProductsOfOfStock(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
@@ -218,8 +215,6 @@ class CrossSellingLoaderTest extends TestCase
 
     public function testLoadForProductWithProductCrossSellingAssignedProducts(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
@@ -252,8 +247,6 @@ class CrossSellingLoaderTest extends TestCase
 
     public function testLoadForProductWithProductCrossSellingAssignedProductsOutOfStock(): void
     {
-        skipTestNext6025($this);
-
         // enable hideCloseoutProductsWhenOutOfStock filter
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);

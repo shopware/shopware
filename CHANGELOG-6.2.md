@@ -256,6 +256,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Moved "Customer Group" settings-item from settings-index page to navigation sidebar
     * Moved "Salutation" settings-item from settings-index page to navigation sidebar
     * Add automatic versions to HttpClient. You can override the default version in the config argument
+    * Add `Hide products after clearance` option in `Setting -> Shop -> Listing`
+
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
@@ -366,6 +368,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added Twig Filter `replace_recursive` for editing values in nested Arrays
     * All javascript plugin options can now be overwritten in Twig
     * Added `Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to be able to add custom SCSS variables.
+    * When `Hide products after clearance` is enabled, products marked as on "clearance sale" are hidden, as soon as their stock depletes back to 0
 
 **Removals**
 

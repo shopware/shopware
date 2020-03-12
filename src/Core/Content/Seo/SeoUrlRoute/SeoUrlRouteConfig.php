@@ -26,12 +26,20 @@ class SeoUrlRouteConfig
      */
     private $skipInvalid;
 
-    public function __construct(EntityDefinition $definition, string $routeName, string $defaultTemplate, bool $skipInvalid = true)
+    /**
+     * @deprecated tag:v6.3.0 - Defines if this route uses the new indexer pattern
+     *
+     * @var bool
+     */
+    private $supportsNewIndexer;
+
+    public function __construct(EntityDefinition $definition, string $routeName, string $defaultTemplate, bool $skipInvalid = true, bool $supportsNewIndexer = false)
     {
         $this->definition = $definition;
         $this->routeName = $routeName;
         $this->template = $defaultTemplate;
         $this->skipInvalid = $skipInvalid;
+        $this->supportsNewIndexer = $supportsNewIndexer;
     }
 
     public function getDefinition(): EntityDefinition
@@ -62,5 +70,13 @@ class SeoUrlRouteConfig
     public function setSkipInvalid(bool $skipInvalid): void
     {
         $this->skipInvalid = $skipInvalid;
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 - Defines if this route uses the new indexer pattern
+     */
+    public function supportsNewIndexer(): bool
+    {
+        return $this->supportsNewIndexer;
     }
 }

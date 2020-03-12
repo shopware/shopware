@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductIndexer implements EntityIndexerInterface
 {
@@ -84,6 +85,11 @@ class ProductIndexer implements EntityIndexerInterface
      */
     private $stockUpdater;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -97,7 +103,8 @@ class ProductIndexer implements EntityIndexerInterface
         SearchKeywordUpdater $searchKeywordUpdater,
         ChildCountUpdater $childCountUpdater,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        StockUpdater $stockUpdater
+        StockUpdater $stockUpdater,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -112,6 +119,7 @@ class ProductIndexer implements EntityIndexerInterface
         $this->childCountUpdater = $childCountUpdater;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->stockUpdater = $stockUpdater;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -144,7 +152,7 @@ class ProductIndexer implements EntityIndexerInterface
 
         $this->stockUpdater->update($updates, $event->getContext());
 
-        return new EntityIndexingMessage($updates, null);
+        return new EntityIndexingMessage($updates, null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -159,8 +167,7 @@ class ProductIndexer implements EntityIndexerInterface
 
         $childrenIds = $this->getChildrenIds($ids);
 
-//        $context = $message->getContext();
-        $context = Context::createDefaultContext();
+        $context = $message->getContext();
 
         $this->inheritanceUpdater->update(
             ProductDefinition::ENTITY_NAME,
@@ -184,12 +191,12 @@ class ProductIndexer implements EntityIndexerInterface
 
         $this->searchKeywordUpdater->update($ids, $context);
 
+        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context));
+
         $this->cacheClearer->invalidateIds(
             array_merge($ids, $parentIds, $childrenIds),
             ProductDefinition::ENTITY_NAME
         );
-
-//        $this->eventDispatcher->dispatch()
     }
 
     private function getChildrenIds(array $ids): array
@@ -206,7 +213,7 @@ class ProductIndexer implements EntityIndexerInterface
     /**
      * @return array|mixed[]
      */
-    private function getParentIds(array $ids)
+    private function getParentIds(array $ids): array
     {
         $parentIds = $this->connection->fetchAll(
             'SELECT DISTINCT LOWER(HEX(IFNULL(product.parent_id, id))) as id FROM product WHERE id IN (:ids)',

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Shopware\Core\Framework\Context;
+
 class EntityIndexingMessage
 {
     /**
@@ -19,10 +21,16 @@ class EntityIndexingMessage
      */
     protected $indexer;
 
-    public function __construct(array $data, $offset = null)
+    /**
+     * @var Context
+     */
+    private $context;
+
+    public function __construct(array $data, $offset = null, ?Context $context = null)
     {
         $this->data = $data;
         $this->offset = $offset;
+        $this->context = $context ?? Context::createDefaultContext();
     }
 
     public function getData(): array
@@ -49,5 +57,10 @@ class EntityIndexingMessage
     public function setIndexer(string $indexer): void
     {
         $this->indexer = $indexer;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 }

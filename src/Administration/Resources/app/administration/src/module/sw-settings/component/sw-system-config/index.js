@@ -93,6 +93,11 @@ Component.register('sw-system-config', {
                 return Promise.resolve();
             }
 
+            return this.loadCurrentSalesChannelConfig();
+        },
+        loadCurrentSalesChannelConfig() {
+            this.isLoading = true;
+
             return this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId)
                 .then(values => {
                     this.$set(this.actualConfigData, this.currentSalesChannelId, values);

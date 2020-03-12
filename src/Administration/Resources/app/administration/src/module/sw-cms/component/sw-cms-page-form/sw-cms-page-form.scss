@@ -13,13 +13,17 @@
             transform: initial;
         }
 
-        .sw-cms-page-form__section-name {
+        .sw-cms-page-form__section-actions {
             position: static;
-            width: 800px;
-            margin: 0 auto;
         }
 
-        .sw-cms-page-form__section-name-label {
+        .sw-cms-page-form__section-action {
+            position: static;
+            width: 800px;
+            margin: 9px auto;
+        }
+
+        .sw-cms-page-form__section-action-label {
             width: 100%;
         }
     }
@@ -64,7 +68,7 @@
         &:first-of-type {
             padding-top: 0;
 
-            .sw-cms-page-form__section-name {
+            .sw-cms-page-form__section-action {
                 top: 0;
             }
         }
@@ -74,24 +78,31 @@
         }
     }
 
-    &__section-name {
-        display: flex;
+    &__section-actions {
         position: absolute;
-        top: 73px;
-        left: 0;
     }
 
-    &__section-name + &__section-type {
+    &__section-action {
+        display: flex;
+        position: relative;
+        margin-bottom: 12px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__section-action + &__section-type {
         margin-top: 21px;
     }
 
-    &__section-name-icon {
+    &__section-action-icon {
         display: inline-block;
         margin-right: 10px;
         color: $color-gray-900;
     }
 
-    &__section-name-label {
+    &__section-action-label {
         color: #52667a;
         font-weight: 600;
         line-height: 22px;

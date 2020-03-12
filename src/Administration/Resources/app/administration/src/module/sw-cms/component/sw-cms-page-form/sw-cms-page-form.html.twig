@@ -8,25 +8,26 @@
                 {% block sw_cms_page_form_section %}
                     <div :key="section.id"
                          class="sw-cms-page-form__section">
+                        <div class="sw-cms-page-form__section-actions">
 
-                        {% block sw_cms_page_form_section_name_wrapper %}
-                            <div class="sw-cms-page-form__section-name">
+                            {% block sw_cms_page_form_section_name_wrapper %}
+                                <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
 
-                                {% block sw_cms_page_form_section_name_icon %}
-                                    <sw-icon name="default-web-layout"
-                                             size="20"
-                                             class="sw-cms-page-form__section-name-icon">
-                                    </sw-icon>
-                                {% endblock %}
+                                    {% block sw_cms_page_form_section_name_icon %}
+                                        <sw-icon name="default-web-layout"
+                                                 size="20"
+                                                 class="sw-cms-page-form__section-action-icon sw-cms-page-form__section-name-icon">
+                                        </sw-icon>
+                                    {% endblock %}
 
-                                {% block sw_cms_page_form__section_name %}
-                                    <span class="sw-cms-page-form__section-name-label">
-                                        {{ getSectionName(section) }}
-                                    </span>
-                                {% endblock %}
-
+                                    {% block sw_cms_page_form__section_name %}
+                                        <span class="sw-cms-page-form__section-action-label sw-cms-page-form__section-name-label">
+                                            {{ getSectionName(section) }}
+                                        </span>
+                                    {% endblock %}
                                 </div>
-                        {% endblock %}
+                            {% endblock %}
+                        </div>
 
                         <template v-for="block in section.blocks">
                                                         

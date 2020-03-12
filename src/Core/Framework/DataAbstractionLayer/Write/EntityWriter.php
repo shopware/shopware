@@ -155,12 +155,23 @@ class EntityWriter implements EntityWriterInterface
     {
         $identifiers = [];
 
-        foreach ($queue->getCommands() as $commands) {
+        $order = [];
+        // we have to create the written events in the written order, otherwise the version manager would
+        // trace the change sets in a wrong order
+        foreach ($queue->getCommandsInOrder() as $command) {
+            $class = $command->getDefinition()->getClass();
+            if (isset($order[$class])) {
+                continue;
+            }
+            $order[$class] = $command->getDefinition();
+        }
+
+        foreach ($order as $class => $definition) {
+            $commands = $queue->getCommands()[$class];
+
             if (\count($commands) === 0) {
                 continue;
             }
-
-            $definition = $commands[0]->getDefinition();
 
             $primaryKeys = $definition->getPrimaryKeys()
                 ->filter(static function (Field $field) {

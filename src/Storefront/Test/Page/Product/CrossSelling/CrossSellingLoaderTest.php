@@ -115,6 +115,10 @@ class CrossSellingLoaderTest extends TestCase
 
     public function testLoadForProductWithCloseoutAndFilterDisabled(): void
     {
+        // disable hideCloseoutProductsWhenOutOfStock filter
+        $this->getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
+
         $productId = Uuid::randomHex();
 
         $productData = $this->getProductData($productId);

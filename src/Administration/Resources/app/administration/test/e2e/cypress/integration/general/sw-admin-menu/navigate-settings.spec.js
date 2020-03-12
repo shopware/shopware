@@ -246,7 +246,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-card__title').contains('Listing');
+        cy.get('.sw-card__title').contains('Product listings');
     });
 
     it('@base @navigation: navigate to language module', () => {

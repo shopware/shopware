@@ -309,6 +309,7 @@
     "promotionModal": {
       "labelTitle": "Deaktivieren Sie automatische Werbeaktionen",
       "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert",
+      "messageNoItems": "Noch keine automatischen Werbeaktionen",
       "buttonDisable": "Deaktivieren"
     }
   }

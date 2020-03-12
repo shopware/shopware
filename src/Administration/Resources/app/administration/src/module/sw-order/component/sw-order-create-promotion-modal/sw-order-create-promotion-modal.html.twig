@@ -4,17 +4,17 @@
               class="sw-order-create-promotion-modal">
         {% block sw_order_create_promotion_modal_body %}
             {% block sw_order_create_promotion_modal_message %}
-                <p>{{ $tc('sw-order.promotionModal.message') }}</p>
+                <p>{{ hasNoAutomaticPromotions ? $tc('sw-order.promotionModal.messageNoItems') : $tc('sw-order.promotionModal.message') }}</p>
             {% endblock %}
 
             {% block sw_order_create_promotion_modal_promotions %}
                 <div class="sw-order-create-promotion-modal__promotion" v-for="item in cartAutomaticPromotionItems">
                     {% block sw_order_create_promotion_modal_promotion_name %}
-                        <div class="sw-order-create-promotion-modal__promotion-name">{{ item.label }}</div>
+                        <strong class="sw-order-create-promotion-modal__promotion-name">{{ item.label }}</strong>
                     {% endblock %}
 
                     {% block sw_order_create_promotion_modal_promotion_description %}
-                        {{ getDescription(item) }}
+                        <p>{{ getDescription(item) }}</p>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -32,6 +32,7 @@
                     <sw-button size="small"
                                variant="primary"
                                :isLoading="isLoading"
+                               :disabled="hasNoAutomaticPromotions"
                                @click="onSave">
                         {{ $tc('sw-order.promotionModal.buttonDisable') }}
                     </sw-button>

@@ -1,12 +1,14 @@
-{% set defaultBillingAddress = context.customer.defaultBillingAddressId %}
-{% set defaultShippingAddress = context.customer.defaultShippingAddressId %}
+{% set defaultBillingAddressId = context.customer.defaultBillingAddressId %}
+{% set defaultShippingAddressId = context.customer.defaultShippingAddressId %}
 
-{% set billingAddress = defaultBillingAddress %}
-{% set shippingAddress = defaultShippingAddress %}
+{% set address = context.customer.defaultBillingAddress %}
+{% if changeShipping %}
+    {% set address = context.customer.defaultShippingAddress %}
+{% endif %}
 
 {% set AvailableAddressCount = 0 %}
 {% for address in page.addresses %}
-    {% if (address.id != defaultShippingAddress and changeShipping) or (address.id != defaultBillingAddress and changeBilling) %}
+    {% if (address.id != defaultShippingAddressId and changeShipping) or (address.id != defaultBillingAddressId and changeBilling) %}
         {% set AvailableAddressCount = AvailableAddressCount + 1 %}
     {% endif %}
 {% endfor %}
@@ -20,9 +22,6 @@
 
                     {% block component_address_address_editor_modal_accordion_overview_billing %}
                         {% if changeBilling %}
-                            {% if address %}
-                                {% set billingAddress = address %}
-                            {% endif %}
                             {% block component_address_address_editor_modal_accordion_overview_billing_card %}
                                 <div class="card">
                                     {% block component_address_address_editor_modal_accordion_overview_billing_card_body %}
@@ -37,7 +36,7 @@
 
                                             {% block component_address_address_editor_modal_accordion_overview_billing_card_address %}
                                                 {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                                    'address': billingAddress
+                                                    'address': context.customer.defaultBillingAddress
                                                 } %}
                                             {% endblock %}
                                         </div>
@@ -49,9 +48,6 @@
 
                     {% block component_address_address_editor_modal_accordion_overview_shipping %}
                         {% if changeShipping %}
-                            {% if address %}
-                                {% set shippingAddress = address %}
-                            {% endif %}
                             {% block component_address_address_editor_modal_accordion_overview_shipping_card %}
                                 <div class="card">
                                     {% block component_address_address_editor_modal_accordion_overview_shipping_card_body %}
@@ -66,7 +62,7 @@
 
                                             {% block component_address_address_editor_modal_accordion_overview_shipping_card_address %}
                                                 {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                                    'address': shippingAddress
+                                                    'address': context.customer.defaultShippingAddress
                                                 } %}
                                             {% endblock %}
                                         </div>
@@ -127,8 +123,8 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-editor-modal-list.html.twig' with {
                                     'address': page.address,
                                     'addresses': page.addresses,
-                                    'defaultBillingAddress': defaultBillingAddress,
-                                    'defaultShippingAddress': defaultShippingAddress,
+                                    'defaultBillingAddress': defaultBillingAddressId,
+                                    'defaultShippingAddress': defaultShippingAddressId,
                                     'changeShipping': changeShipping,
                                     'changeBilling': changeBilling
                                 } %}

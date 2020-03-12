@@ -17,13 +17,13 @@
       "placeholderFirstName": "Vorname",
       "placeholderLastName": "Nachname",
       "placeholderCompany": "Firma",
-      "placeholderEmail": "E-Mail",
+      "placeholderEmail": "E-Mail-Adresse",
       "labelSalutation": "Anrede",
       "labelTitle": "Titel",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
       "labelCompany": "Firma",
-      "labelEmail": "E-Mail",
+      "labelEmail": "E-Mail-Adresse",
       "labelTags": "Tags"
     },
     "list": {
@@ -37,7 +37,7 @@
       "columnStreet": "Straße",
       "columnZip": "PLZ",
       "columnCity": "Stadt",
-      "columnEmail": "E-Mail",
+      "columnEmail": "E-Mail-Adresse",
       "columnLastLogin": "Zuletzt eingeloggt",
       "columnActions": "Aktion(en)",
       "columnAffiliateCode": "Affiliate-Code",
@@ -61,7 +61,7 @@
       "labelTitle": "Titel",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
-      "labelEmail": "E-Mail",
+      "labelEmail": "E-Mail-Adresse",
       "labelPhoneNumber": "Telefonnummer",
       "labelCompany": "Firma",
       "labelCustomerGroup": "Kundengruppe",
@@ -78,7 +78,7 @@
       "labelTags": "Tags"
     },
     "baseInfo": {
-      "contactEmail": "E-Mail",
+      "contactEmail": "E-Mail-Adresse",
       "labelCustomerNumber": "Kundennummer",
       "labelCustomerGroup": "Kundengruppe",
       "labelBirthday": "Geburtsdatum",

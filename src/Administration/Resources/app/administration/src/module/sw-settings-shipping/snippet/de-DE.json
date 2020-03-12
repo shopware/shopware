@@ -62,7 +62,7 @@
       "contextMenuDeletePrice": "Preisregel löschen",
       "contextMenuModifyPrice": "Preisregel ändern",
       "selectProperty": "Warenkorb-Eigenschaft wählen",
-      "useRules": "Eigene Regel erstellen",
+      "useRules": "Erstelle eine Regel",
       "emptyText": "Möchtest Du die Preismatrix auf vorgegebenen Warenkorbeigenschaften oder individuell erstellten Regeln basieren lassen? Bitte auswählen:",
       "calculationLineItemCount": "Anzahl Positionen",
       "calculationPrice": "Warenkorb Wert",

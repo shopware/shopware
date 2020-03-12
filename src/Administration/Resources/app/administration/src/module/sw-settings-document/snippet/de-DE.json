@@ -59,28 +59,7 @@
       "labelOptionMedia": "Firmenlogo",
       "placeholderName": "Namen eingeben ...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern",
-      "helpTextDisplayPrices": "Preise der Bestellpositionen werden auf dem Dokument ausgewiesen",
-      "helpTextDisplayFooter": "Fußzeile angezeigen und auf jeder Seite wiederholen",
-      "helpTextDisplayHeader": "Kopfzeile angezeigen und auf jeder Seite wiederholen",
-      "helpTextDisplayLineItems": "Bestellpositionen werden auf dem Dokument einzeln aufgelistet",
-      "helpTextDisplayLineItemPosition": "Bestellpositionen werden durchnummeriert",
-      "helpTextDisplayPageCount": "Jede Seite des Dokuments wird durchnummeriert",
-      "helpTextItemsPerPage": "Anzahl an Bestellpositionen pro Seite",
-      "helpTextDisplayCompanyAddress": "Firmenadresse anzeigen",
-      "helpTextCompanyAddress": "Firmenadresse",
-      "helpTextCompanyName": "Firmenname",
-      "helpTextCompanyEmail": "Firmen-E-Mail-Adresse",
-      "helpTextCompanyUrl": "Firmen-URL",
-      "helpTextTaxNumber": "Steuernummer der Firma",
-      "helpTextTaxOffice": "Finanzamt der Firma",
-      "helpTextVatId": "Umsatzsteuer-Identifikationsnummer",
-      "helpTextBankName": "Bankname",
-      "helpTextBankIban": "IBAN (International Bank Account Number)",
-      "helpTextBankBic": "BIC/SWIFT (Bank Identifier Code)",
-      "helpTextPlaceOfJurisdiction": "Gerichtsstand",
-      "helpTextPlaceOfFulfillment": "Erfüllungsort",
-      "helpTextExecutiveDirector": "Geschäftsführer"
+      "buttonSave": "Speichern"
     }
   }
 }

@@ -28,7 +28,7 @@
       "firstName": "First name",
       "lastName": "Last name",
       "salesChannel": "Sales Channel",
-      "zipCode": "Zip code",
+      "zipCode": "Postal code",
       "city": "City",
       "street": "Street",
       "notSet": "Awaiting activation",

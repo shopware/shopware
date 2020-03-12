@@ -65,7 +65,7 @@ describe('Language: Test crud operations', () => {
 
         productPage.changeTranslation('Japanese', 3);
 
-        cy.get('.sw-language-info').contains('"Product name" displayed in the root language "Japanese".');
+        cy.get('.sw-language-info').contains('"Product name" displayed in the content language "Japanese".');
     });
 
     it('@settings: update and read language', () => {
@@ -115,8 +115,7 @@ describe('Language: Test crud operations', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body')
-            .contains(/Are you sure you want to delete the language ".*"\? This will delete all content in this language and can not be undone!/);
+        cy.get('.sw-modal__body').contains('Are you sure you want to delete the language "Philippine English"? This will delete all content in this language and can not be undone!');
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 

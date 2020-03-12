@@ -4,14 +4,15 @@
       "mainMenuItemGeneral": "Mailer",
       "textHeadline": "Mailer",
       "buttonSave": "Speichern",
-      "helpText": "For more informations look at <a href='https://docs.shopware.com/en/shopware-6-en'>documentation</a>"
+      "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
     },
     "mailer-configuration": {
       "card-title": "Mailer-Konfiguration",
       "agent": "Bevorzugter E-Mail-Agent",
       "local-agent": "Lokaler E-Mail-Agent",
       "local-helptext": "Es wird der Standard-Mailer (Sendmail) Deines Systems verwendet. Stelle sicher, dass Sendmail in Deiner Host-Umgebung verfügbar ist und funktioniert.",
-      "smtp-server": "SMTP-Server"
+      "smtp-server": "SMTP-Server",
+      "env-file": "Umgebungs-Konfiguration benutzen"
     },
     "first-configuration": {
       "headline": "E-Mail-Kommunikation einrichten",
@@ -52,7 +53,7 @@
       "login": "Login",
       "cram-md5": "Cram MD5"
     },
-    "helpText": "Für weitere Informationen besuche bitte die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
+    "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
   }
 }
 

@@ -8,7 +8,7 @@
       "captionMediaUpload": "Upload an image",
       "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
       "titleError": "Error",
-      "messageSaveError": "Theme could not be assigned to the sales channel"
+      "messageSaveError": "Theme could not be assigned to Sales Channel."
     },
     "sorting": {
       "labelSort": "Sort by:",
@@ -26,7 +26,7 @@
       "addPreviewImage": "Add preview",
       "removePreviewImage": "Remove preview",
       "notificationDeleteErrorTitle": "Error",
-      "notificationDeleteErrorMessage": "The Theme you want to delete is still allocated to at least one sales channel."
+      "notificationDeleteErrorMessage": "The theme you want to delete is still allocated to at least one Sales Channel."
     },
     "modal": {
       "modalTitleDelete":  "Delete theme",
@@ -34,7 +34,7 @@
       "buttonCancel":  "Cancel",
       "buttonDelete": "Delete",
       "modalTitleDuplicate": "Create duplicate",
-      "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional sales channels.",
+      "textDuplicateInfo": "If you create a duplicate, you can use the theme with a different colour configuration for additional Sales Channels.",
       "labelDuplicateThemeName": "Name of the duplicate",
       "placeholderDuplicateThemeName": "Enter name",
       "buttonDuplicateTheme": "Create duplicate",
@@ -55,7 +55,7 @@
       "textThemeOverview": "Themes",
       "gridHeaderName": "Name",
       "gridHeaderCreated": "Created",
-      "gridHeaderAssignment": "Assigned sales channels"
+      "gridHeaderAssignment": "Assigned Sales Channels"
     },
     "actions": {
       "edit": "Edit",
@@ -67,11 +67,11 @@
       "buttonReset": "Reset to default",
       "buttonCancel": "Cancel",
       "buttonUseTheme": "Use theme",
-      "deleteDisablesToolTip": "Theme still assigned to a sales channel."
+      "deleteDisabledToolTip": "Theme is still assigned to a Sales Channel."
     },
     "detail": {
       "description": "Description",
-      "salesChannel": "Assigned to the following sales channels",
+      "salesChannel": "Assigned to the following Sales Channels",
       "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" theme.",
       "label": {
         "media": "Media",

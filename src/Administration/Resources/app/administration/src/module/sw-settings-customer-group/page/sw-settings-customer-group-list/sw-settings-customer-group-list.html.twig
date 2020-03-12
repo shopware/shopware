@@ -69,6 +69,14 @@
                                             :sortDirection="sortDirection"
                                             :fullPage="false"
                                             detailRoute="sw.settings.customer.group.detail">
+
+                                        {% block sw_settings_customer_group_list_grid_column_display_gross %}
+                                            <template #column-displayGross="{ item }">
+                                                {% block sw_settings_customer_group_list_grid_column_display_gross_inner %}
+                                                    {{ $tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', item.displayGross) }}
+                                                {% endblock %}
+                                            </template>
+                                        {% endblock %}
                                     </sw-entity-listing>
                                 </template>
                             {% endblock %}

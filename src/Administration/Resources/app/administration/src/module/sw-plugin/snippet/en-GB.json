@@ -20,7 +20,7 @@
       "recommendationsLabel": "Recommendations",
       "storeLink": "https://store.shopware.com/en",
       "storeLabel": "Shopware store",
-      "storeNotAvailable": "Could not connect to the Shopware store",
+      "storeNotAvailable": "Could not connect to the Shopware store.",
       "loggedIn": "Logged in as"
     },
     "errors": {
@@ -36,7 +36,7 @@
       "titleStoreHostMissing": "Error",
       "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct license domain from your Shopware Account in \"Settings/Shopware Account\"?",
       "titleStoreNotAvailable": "Connection refused",
-      "messageStoreNotAvailable": "The Shopware Store is not available.",
+      "messageStoreNotAvailable": "Shopware Store is not available.",
       "titlePluginBaseClassNotFound": "Error on loading the plugin",
       "messagePluginBaseClassNotFound": "The plugin base class could not be loaded. Check your plugin composer.json regarding the class autoloading",
       "titlePluginInstallationFailed": "Plugin installation failed",

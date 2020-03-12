@@ -60,7 +60,7 @@ Component.register('sw-theme-manager-detail', {
         deleteDisabledToolTip() {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-theme-manager.actions.deleteDisablesToolTip'),
+                message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: this.theme.salesChannels.length === 0
             };
         },

@@ -7,16 +7,16 @@
 
         <input-field type="bool">
             <name>allowBuyInListing</name>
-            <label>show buy button in listing</label>
-            <label lang="de-DE">Kaufen-Button im Produktlisting anzeigen</label>
+            <label>Display buy button in listings</label>
+            <label lang="de-DE">Kaufen-Button in Produktlistings anzeigen</label>
         </input-field>
 
         <input-field type="int">
             <name>markAsNew</name>
-            <label>mark products as new</label>
-            <label lang="de-DE">Produkte als neu markieren</label>
-            <description>Products are marked as new if their release date is within the specified period (given in days)</description>
-            <description lang="de-DE">Produkte werden als neu markiert, wenn deren Erscheinungsdatum im angegebenen Zeitraum liegt (angegeben in Tagen)</description>
+            <label>Label products as "new" for x days</label>
+            <label lang="de-DE">Produkte als neu markieren für x Tage</label>
+            <helptext>Products are marked as new if their release date is within the specified period (given in days).</helptext>
+            <helptext lang="de-DE">Produkte werden als neu markiert, wenn deren Erscheinungsdatum im angegebenen Zeitraum liegt (angegeben in Tagen).</helptext>
         </input-field>
     </card>
 </config>

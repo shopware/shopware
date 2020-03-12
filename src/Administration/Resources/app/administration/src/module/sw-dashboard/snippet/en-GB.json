@@ -2,7 +2,7 @@
   "sw-dashboard": {
     "general": {
       "mainMenuItemGeneral": "Dashboard",
-      "descriptionTextModule": "The administration's front page, displaying statistics and system information"
+      "descriptionTextModule": "The Administration's front page, displaying statistics and system information"
     },
     "introduction": {
       "headline": "Welcome to Shopware 6",
@@ -12,13 +12,13 @@
       "developerDocumentationLink": "https://docs.shopware.com/en/shopware-platform-dev-en",
       "migrationDocumentation": "Migration documentation",
       "migrationDocumentationLink": "https://docs.shopware.com/en/migration-en",
-      "roadmap": "Roadmap for Shopware",
+      "roadmap": "Shopware Roadmap",
       "roadmapLink": "https://www.shopware.com/en/roadmap/",
-      "feedback": "Give feedback",
+      "feedback": "Feedback",
       "feedbackLink": "https://issues.shopware.com"
     },
     "todayStats": {
-      "headline": "Statistics today",
+      "headline": "Today's statistics",
       "orders": "Orders",
       "turnover": "Turnover",
       "orderTime": "Time"

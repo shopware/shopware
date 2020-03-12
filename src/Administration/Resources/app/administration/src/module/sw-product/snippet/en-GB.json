@@ -53,7 +53,7 @@
     "seoForm": {
       "labelMetaTitle": "Meta title",
       "labelMetaDescription": "Meta description",
-      "labelKeywords": "SEO Keywords",
+      "labelKeywords": "SEO keywords",
       "placeholderMetaTitle": "Enter meta title...",
       "placeholderMetaDescription": "Enter meta description...",
       "placeholderKeywords": "Enter keywords..."
@@ -74,6 +74,7 @@
       "labelShippingFree": "Free shipping",
       "labelMarkAsTopseller": "Product promotion",
       "labelIsCloseout": "Clearance sale",
+      "isCloseoutHelpText": "Backorders denied.",
       "labelDeliveryTime": "Delivery time",
       "labelRestockTime": "Restock time in days",
       "placeholderDeliveryTime": "Enter a delivery time...",
@@ -97,7 +98,7 @@
       "placeholderUnit": "Select...",
       "labelUnit": "Scale unit",
       "referenceUnitHelpText": "Value used to calculate a base price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the base price for 1 liter of product. '0.1' would calculate the base price for 100 milliliters and so on." ,
-      "packUnitHelpText": "Type of packing: e.g. bottle, crate, skillet...",
+      "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
       "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.33 l = 2 l), put '2'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
     },
     "detailBase": {
@@ -107,7 +108,7 @@
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Labelling",
       "cardTitlePackaging": "Measures & Packaging",
-      "linkAdvancedPrices": "Advanced pricing options",
+      "linkAdvancedPrices": "Advanced pricing",
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
@@ -205,10 +206,10 @@
     },
     "properties": {
       "cardTitleProperties": "Available properties",
-      "emptyStateNoOptionsTitle": "No options available",
-      "emptyStateNoOptionsDescription": "Create properties and property options first, then return here to assign them.",
-      "emptyStateNoSelectedOptionsTitle": "No options selected",
-      "emptyStateNoSelectedOptionsDescription": "Please select options from the search above."
+      "emptyStateNoOptionsTitle": "No values available",
+      "emptyStateNoOptionsDescription": "Create properties and property values first, then return here to assign them.",
+      "emptyStateNoSelectedOptionsTitle": "No values selected",
+      "emptyStateNoSelectedOptionsDescription": "Please select values from the search above."
     },
     "variations": {
       "emptyStateDescription": "This product has no variants yet.",
@@ -255,41 +256,41 @@
       },
       "configuratorModal": {
         "title": "Generate variants",
-        "selectOptions": "Select options",
-        "selectOptionsExplanation": "Select the options to be used when generating variants.",
+        "selectOptions": "Select values",
+        "selectOptionsExplanation": "Select property values in order to generate variants.",
         "priceSurcharges": "Price surcharge",
         "resetSurcharges": "Delete surcharge",
         "defineRestrictions": "Define restriction",
-        "priceOptions": "Options",
-        "restrictedCombinations": "Restricted combination",
-        "searchRestrictions": "Search combinations...",
+        "priceOptions": "Values",
+        "restrictedCombinations": "Restricted property values",
+        "searchRestrictions": "Search properties...",
         "addNewRestriction": "Add restriction",
         "editRestriction": "Edit restriction",
         "deleteRestriction": "Delete restriction",
         "singleRestrictionSeperation": "And",
         "deleteCombination": "Delete combination",
-        "isOneFrom": "Is one of",
+        "isOneFrom": "is one of",
         "cancel": "Cancel",
         "save": "Save",
-        "searchPlaceholder": "Search groups and properties...",
+        "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Add restriction",
-        "surchargeNotice": "Changes to the surcharges won't take affect to already generated variants. Please use the variants detail page to change the price of already generated variants."
+        "surchargeNotice": "Changes to the surcharges won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there."
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",
         "order": "Display sequence",
-        "orderExplanation": "Use drag & drop to alter the display sequence of property options",
+        "orderExplanation": "Use drag & drop to alter the display sequence of property values",
         "media": "Assigned media",
-        "mediaExplanation": "Upload and assign media to each individual property option.",
-        "mediaOptions": "Property option",
+        "mediaExplanation": "Upload and assign media to property values.",
+        "mediaOptions": "Property value",
         "cancel": "Cancel",
         "save": "Save",
-        "useForListing": "Display in listings"
+        "useForListing": "Fan out variants in listings"
       }
     },
     "crossselling": {
-      "cardTitleCrossSelling": "Cross selling",
-      "buttonAddCrossSelling": "Add new cross selling",
+      "cardTitleCrossSelling": "Cross Selling",
+      "buttonAddCrossSelling": "Add new Cross Selling",
       "buttonDeleteCrossSelling": "Delete",
       "inputCrossSellingTitle": "Title",
       "inputCrossSellingActive": "Active",
@@ -299,19 +300,19 @@
       "inputCrossSellingTitlePlaceholder": "Select a title...",
       "inputCrossSellingPositionPlaceholder": "Select a position...",
       "inputCrossSellingProductStreamPlaceholder": "Select a dynamic product group...",
-      "popularitySortingType": "Popularity",
       "inputCrossSellingLimit": "Maximum amount of products",
+      "popularitySortingType": "Popularity",
       "priceAscendingSortingType": "Price, ascending",
       "priceDescendingSortingType": "Price, descending",
       "nameSortingType": "Name",
       "releaseDateAscendingSortingType": "Release date, ascending",
       "releaseDateDescendingSortingType": "Release date, descending",
-      "deleteConfirmTitle": "Delete cross selling",
-      "deleteConfirmText": "Are you sure you want to delete the cross selling configuration?",
+      "deleteConfirmTitle": "Delete Cross Selling",
+      "deleteConfirmText": "Are you sure you want to delete the Cross Selling configuration?",
       "deleteButtonCancel": "Cancel",
       "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
-      "emptyStateDescription": "This product has no cross selling configured yet."
+      "emptyStateDescription": "There is no Cross Selling configured for this product, yet."
     }
   }
 }

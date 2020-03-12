@@ -74,6 +74,7 @@
       "labelShippingFree": "Versandkostenfrei",
       "labelMarkAsTopseller": "Produkt hervorheben",
       "labelIsCloseout": "Abverkauf",
+      "isCloseoutHelpText": "Keine Nachbestellungen möglich.",
       "labelDeliveryTime": "Lieferzeit",
       "labelRestockTime": "Wiederauffüllzeit in Tagen",
       "placeholderDeliveryTime": "Gib die Lieferzeit an ...",
@@ -98,7 +99,7 @@
       "placeholderUnit": "Wähle aus ...",
       "referenceUnitHelpText": "Der Wert, mit dem der Grundpreis eines Produkts berechnet wird. Abhängig von der verwendeten Maßeinheit trägst du hier wahrscheinlich eine '1' ein. Wenn z.B. die Verkaufseinheit in Litern gemessen wird, dann berechnest Du mit der '1' den Grundreis für 1 Liter. Soll der Grundpreis für 100 Milliliter berechnet werden, füge '0,1' ein.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Dosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen!"
+      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen!"
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -204,13 +205,13 @@
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
-      "emptyStateNoOptionsTitle": "Keine Optionen vorhanden.",
-      "emptyStateNoOptionsDescription": "Du musst erst Optionen und Eigenschaften erstellen, um diese hier zuordnen zu können.",
-      "emptyStateNoSelectedOptionsTitle": "Keine Optionen ausgewählt",
-      "emptyStateNoSelectedOptionsDescription": "Bitte wähle Optionen aus der obigen Suche aus."
+      "emptyStateNoOptionsTitle": "Keine Eigenschafts-Ausprägungen vorhanden.",
+      "emptyStateNoOptionsDescription": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
+      "emptyStateNoSelectedOptionsTitle": "Keine Eigenschafts-Ausprägungen ausgewählt",
+      "emptyStateNoSelectedOptionsDescription": "Bitte wähle Ausprägungen aus der Suche aus."
     },
     "variations": {
-      "emptyStateDescription": "Für dieses Produkt existieren noch keine Varianten.",
+      "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",
       "emptyStateButton": "Varianten-Generator starten",
       "generateVariationsButton": "Varianten generieren",
       "deleteVariationsButton": "Alle Produktvarianten löschen",
@@ -250,19 +251,19 @@
         "filterReset": "Zurücksetzen",
         "filter": "Filtern",
         "generateVariants": "Varianten generieren",
-        "storefrontDelivery": "Storefront Darstellung"
+        "storefrontDelivery": "Storefront-Darstellung"
       },
       "configuratorModal": {
         "title": "Varianten generieren",
-        "selectOptions": "Optionen auswählen",
-        "selectOptionsExplanation": "Beginne mit der Auswahl der Optionen, aus denen die Varianten generiert werden sollen.",
+        "selectOptions": "Ausprägungen auswählen",
+        "selectOptionsExplanation": "Beginne mit der Auswahl der Eigenschafts-Ausprägungen, aus denen die Varianten generiert werden sollen.",
         "priceSurcharges": "Preis Auf-/Abschläge",
         "resetSurcharges": "Auf- /Abschläge löschen",
         "defineRestrictions": "Ausschlüsse definieren",
-        "priceOptions": "Optionen",
-        "restrictedCombinations": "Ausgeschlossene Kombinationen",
-        "searchRestrictions": "Suche nach Kombinationen",
-        "addNewRestriction": "Neuen Ausschluss hinzufügen",
+        "priceOptions": "Ausprägungen",
+        "restrictedCombinations": "Ausgeschlossene Eigenschafts-Ausprägungen",
+        "searchRestrictions": "Durchsuche Eigenschaften ...",
+        "addNewRestriction": "Ausschluss hinzufügen",
         "editRestriction": "Ausschluss bearbeiten",
         "deleteRestriction": "Ausschluss löschen",
         "singleRestrictionSeperation": "Und",
@@ -270,20 +271,20 @@
         "isOneFrom": "ist eine von",
         "cancel": "Abbrechen",
         "save": "Speichern",
-        "searchPlaceholder": "Durchsuche alle Gruppen und Eigenschaften ...",
+        "searchPlaceholder": "Durchsuche Ausprägungen ...",
         "singleRestrictionAddTitle": "Ausschluss hinzufügen",
-        "surchargeNotice": "Änderungen an den Aufschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detail Seite um Änderungen an den Preisen vorzunehmen."
+        "surchargeNotice": "Änderungen an den Aufschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen."
       },
       "deliveryModal": {
-        "modalHeadline": "Varianten-Ausspielung",
-        "order": "Reihenfolge",
-        "orderExplanation": "Hier kannst Du die Reihenfolge der Varianten-Eigenschaften und -Optionen im Shop anpassen.",
+        "modalHeadline": "Varianten-Ausspielung in der Storefront",
+        "order": "Anzeige-Reihenfolge",
+        "orderExplanation": "Hier kannst Du die Reihenfolge der Varianten-Eigenschaften und -Ausprägungen in Deinem Shop anpassen.",
         "media": "Medien",
-        "mediaExplanation": "Hier kannst Du für die Eigenschaftsauswahl im Shop Medien hinterlegen.",
-        "mediaOptions": "Optionen",
+        "mediaExplanation": "Hier kannst Du ausschließlich Medien für die Eigenschafts-Auswahl im Shop hinterlegen. (Medien für einzelne Varianten müssen am Varianten-Produkt gepflegt werden.)",
+        "mediaOptions": "Ausprägungen",
         "cancel": "Abbrechen",
         "save": "Speichern",
-        "useForListing": "Im Listing auffächern"
+        "useForListing": "Varianten im Listing auffächern"
       }
     },
     "crossselling": {
@@ -299,16 +300,18 @@
       "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
       "inputCrossSellingLimit": "Maximale Produktanzahl",
+      "popularitySortingType": "Popularität",
       "priceAscendingSortingType": "Preis, aufsteigend",
       "priceDescendingSortingType": "Preis",
       "nameSortingType": "Name",
-      "releaseDateSortingType": "Erscheinungsdatum",
+      "releaseDateAscendingSortingType": "Erscheinungsdatum, aufsteigend",
+      "releaseDateDescendingSortingType": "Erscheinungsdatum, absteigend",
       "deleteConfirmTitle": "Cross Selling löschen",
-      "deleteConfirmText": "Möchtest Du die Cross Selling Konfiguration wirklich löschen?",
+      "deleteConfirmText": "Möchtest Du die Cross Selling-Konfiguration wirklich löschen?",
       "deleteButtonCancel": "Zurück",
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
-      "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling Konfiguration."
+      "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling-Konfiguration."
     }
   }
 }

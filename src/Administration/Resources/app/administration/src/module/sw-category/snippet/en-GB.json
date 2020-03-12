@@ -44,23 +44,23 @@
       "entry-point": {
         "title": "Entry point",
         "navigation": {
-          "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the main navigation:"
+          "descriptionGeneral": "You have assigned this node as an entry point for the main navigation in these Sales Channels:"
         },
         "serviceSales": {
-          "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the service navigation:"
+          "descriptionGeneral": "You have assigned this node as an entry point for the service navigation in these Sales Channels:"
         },
         "footerSales": {
-          "descriptionGeneral": "You have assigned this node in the following sales channels as an entry point for the footer navigation:"
+          "descriptionGeneral": "You have assigned this node as an entry point for the footer navigation in these Sales Channels:"
         }
       },
       "seo": {
         "title": "SEO",
         "labelMetaTitle": "Meta title",
         "labelMetaDescription": "Meta description",
-        "labelKeywords": "SEO Keywords",
-        "placeholderMetaTitle": "Meta title ...",
-        "placeholderMetaDescription": "Meta description ...",
-        "placeholderKeywords": "Keywords ..."
+        "labelKeywords": "SEO keywords",
+        "placeholderMetaTitle": "Enter meta title...",
+        "placeholderMetaDescription": "Enter meta description...",
+        "placeholderKeywords": "Enter keywords..."
       },
       "menu": {
         "title": "Menu settings",

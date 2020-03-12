@@ -2,6 +2,9 @@
 
 {% block component_filter_multi_select_list_item %}
     <li class="filter-multi-select-list-item filter-property-select-list-item">
+        {% if element.displayType %}
+            {% set displayType = element.displayType %}
+        {% endif %}
         {% if displayType == 'color' or displayType == 'media' %}
             {% set color = element.colorHexCode %}
             {% set media = element.media.url %}

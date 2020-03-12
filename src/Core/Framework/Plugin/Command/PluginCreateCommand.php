@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 class PluginCreateCommand extends Command
 {
@@ -93,7 +94,7 @@ EOL;
     protected function configure(): void
     {
         $this
-            ->addArgument('name', InputArgument::REQUIRED)
+            ->addArgument('name', InputArgument::OPTIONAL)
             ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml')
             ->setDescription('Creates a plugin skeleton');
     }
@@ -104,6 +105,12 @@ EOL;
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
+
+        if (!$name) {
+            $question = new Question('Please enter a plugin name: ');
+            $name = $this->getHelper('question')->ask($input, $output, $question);
+        }
+
         $name = ucfirst($name);
 
         $directory = $this->projectDir . '/custom/plugins/' . $name;

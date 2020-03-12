@@ -138,6 +138,47 @@ class AuthControllerTest extends TestCase
         static::assertEquals('Cannot decrypt the refresh token', $response['errors'][0]['detail']);
     }
 
+    public function testRevokedRefreshToken(): void
+    {
+        $client = $this->getBrowser(false);
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scopes' => [],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+        $oldRefreshToken = json_decode($client->getResponse()->getContent(), true)['refresh_token'];
+
+        $refreshPayload = [
+            'grant_type' => 'refresh_token',
+            'client_id' => 'administration',
+            'refresh_token' => $oldRefreshToken,
+        ];
+
+        // old refresh token should be invalidated here, as we issue a new refresh token with it
+        $client->request('POST', '/api/oauth/token', $refreshPayload);
+
+        // try to request a new token with the old refresh token again
+        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertEquals(
+            Response::HTTP_UNAUTHORIZED,
+            $client->getResponse()->getStatusCode(),
+            print_r($client->getResponse()->getContent(), true)
+        );
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals(Response::HTTP_UNAUTHORIZED, $response['errors'][0]['status']);
+        static::assertEquals('The refresh token is invalid.', $response['errors'][0]['title']);
+        static::assertEquals('Token has been revoked', $response['errors'][0]['detail']);
+    }
+
     public function testRefreshToken(): void
     {
         $client = $this->getBrowser(false);

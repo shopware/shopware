@@ -4,8 +4,7 @@ import createId from 'uuid/v4';
 
 let product = {};
 
-// TODO: Re-enable skipped test spec when feature flag epic got merged
-describe.skip('Checkout rule builder handling for shipping and payment methods', () => {
+describe('Checkout rule builder handling for shipping and payment methods', () => {
     beforeEach(() => {
         cy.searchViaAdminApi({
             endpoint: 'payment-method',

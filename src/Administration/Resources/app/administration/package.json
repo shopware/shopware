@@ -13,8 +13,8 @@
         }
     ],
     "scripts": {
-        "dev": "node build/dev-server.js",
-        "build": "node build/build.js",
+        "dev": "mode=development webpack-dev-server",
+        "build": "mode=production webpack",
         "unit": "jest --config jest.config.js --ci",
         "unit-watch": "jest --config jest.config.js --watch",
         "test-debug": "node --inspect node_modules/.bin/jest --watch --config jest.config.js --runInBand --no-cache",
@@ -61,7 +61,7 @@
         "vue-router": "3.0.7",
         "vue-template-compiler": "2.6.10",
         "vuex": "3.1.1",
-        "webpack": "4.38.0",
+        "webpack": "^4.42.1",
         "webpack-bundle-analyzer": "3.4.1",
         "webpack-merge": "4.2.1",
         "worker-loader": "2.0.0"
@@ -134,7 +134,9 @@
         "svg-inline-loader": "0.8.2",
         "url-loader": "2.1.0",
         "vue-style-loader": "4.1.2",
+        "webpack-cli": "^3.3.11",
         "webpack-dev-middleware": "3.7.0",
+        "webpack-dev-server": "3.11.0",
         "webpack-hot-middleware": "2.25.0"
     },
     "engines": {

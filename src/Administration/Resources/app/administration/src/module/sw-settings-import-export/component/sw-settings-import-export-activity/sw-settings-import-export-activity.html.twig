@@ -1,12 +1,29 @@
 <div class="sw-settings-import-export-activity">
     <sw-entity-listing
-        :repository="productRepository" {# TODO: change to activites #}
-        :items="products" {# TODO: change to activites #}
+        :repository="logRepository"
+        :items="logs"
         :isLoading="isLoading"
         :columns="exportActivityColumns"
         :showSettings="false"
         :showSelection="false"
         :allowColumnEdit="false"
         :fullPage="true">
+
+        <template #actions="{ item }">
+            <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.fileId, item.file.accessToken)" target="_blank" download>
+                <sw-context-menu-item >
+                    Download file
+                </sw-context-menu-item>
+            </a>
+            <sw-context-menu-item @click="onOpenProfile(item.profileId)">
+                Show profile
+            </sw-context-menu-item>
+        </template>
     </sw-entity-listing>
+
+    <sw-settings-import-export-edit-profile-modal
+        :profile="selectedProfile"
+        @profile-save="saveSelectedProfile"
+        @profile-close="closeSelectedProfile"
+    ></sw-settings-import-export-edit-profile-modal>
 </div>

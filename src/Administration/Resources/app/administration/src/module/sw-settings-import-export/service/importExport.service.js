@@ -1,6 +1,10 @@
+import ApiService from 'src/core/service/api.service';
+
 // TODO: Bitte die ganze Klasse Unit testen!
-export default class ImportExportService {
-    constructor(httpClient) {
+export default class ImportExportService extends ApiService {
+    constructor(httpClient, loginService, apiEndpoint = 'import-export') {
+        super(httpClient, loginService, apiEndpoint);
+        this.name = 'importExportService';
         this.httpClientMock = new HttpClientMock();
         this.httpClient = httpClient;
     }
@@ -9,45 +13,48 @@ export default class ImportExportService {
      * Export data from the Shop with the given profile. The callback function gets called with progress information
      * and final result data.
      *
-     * @param profile {Entity} Profile entity
+     * @param profileId {Entity} Profile entity
      * @param cb {Function} Callback for progress
      * @returns {Promise<void>}
      */
-    async export(profile, cb) {
-        const profileMock = { ...profile, profileId: profile.id };
+    async export(profileId, cb) {
+        const headers = this.getBasicHeaders();
 
-        // TODO: the implementation could be different when not using the mock
-        const progress = await this.httpClientMock.post('/_action/export', profileMock);
+        const expireDate = new Date();
+        expireDate.setDate(expireDate.getDate() + 30);
 
-        this.handleExportProgress(progress, cb);
+        const createdLog = await this.httpClient.post('/_action/import-export/initiate', {
+            profileId: profileId,
+            expireDate: expireDate.toDateString()
+        }, {
+            headers
+        });
+
+        let data = { data: { offset: 0 } };
+
+        do {
+            var oldOffset = data.data.offset;
+
+            data = await this.httpClient.post('/_action/import-export/process', {
+                logId: createdLog.data.log.id,
+                offset: oldOffset
+            }, {
+                headers
+            });
+        } while (oldOffset !== data.data.offset);
+
+        // this.handleExportProgress(progress, cb);
     }
 
     /**
-     * Recursive function, which requests the new url for fetching progress. The callback get called with every progress
-     * information.
+     * Download the export file
      *
-     * @param progress {Object}
-     * @param cb {Function}
+     * @param fileId {Entity} File entity
+     * @param accessToken
      * @returns {Promise<void>}
      */
-    async handleExportProgress(progress, cb) {
-        // the callback gets the progress information
-        // TODO: an adapter could be needed
-        cb(progress);
-
-        if (progress.status === 'finished') {
-            // stop recursion when exporting is finished
-            return;
-        }
-
-        // fetch new progress information from the given url
-        // TODO: the implementation could be different when not using the mock
-        const newProgress = await this.httpClientMock.post(
-            `/_action/export/${progress.progressUrl}`
-        );
-
-        // handle the progress
-        this.handleExportProgress(newProgress, cb);
+    getDownloadUrl(fileId, accessToken) {
+        return `/api/v1/_action/${this.getApiBasePath()}/file/download?fileId=${fileId}&accessToken=${accessToken}`;
     }
 
     /**

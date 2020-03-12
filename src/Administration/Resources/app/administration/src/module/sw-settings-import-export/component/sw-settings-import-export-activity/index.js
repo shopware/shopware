@@ -1,68 +1,104 @@
 import template from './sw-settings-import-export-activity.html.twig';
 import './sw-settings-import-export-activity.scss';
 
+const { Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
+
 Shopware.Component.register('sw-settings-import-export-activity', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'importExport'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
-        // TODO: it needs an switch for import / export
+        type: {
+            type: String,
+            required: false,
+            default: 'import',
+            validValues: [
+                'import',
+                'export'
+            ],
+            validator(value) {
+                return [
+                    'import',
+                    'export'
+                ].includes(value);
+            }
+        }
     },
 
     data() {
         return {
-            // TODO: change it to export/import activities
-            products: null,
-            isLoading: false
+            logs: null,
+            isLoading: false,
+            selectedProfile: null
         };
     },
 
     computed: {
-        // TODO: change to import/export activities
-        productRepository() {
-            return this.repositoryFactory.create('product');
+        logRepository() {
+            return this.repositoryFactory.create('import_export_log');
+        },
+
+        profileRepository() {
+            return this.repositoryFactory.create('import_export_profile');
         },
 
         activityCriteria() {
             const criteria = new Shopware.Data.Criteria();
 
-            // TODO: here you can change the criteria for fetching the activites
+            if (this.type === "import") {
+                criteria.addFilter(Criteria.equals('activity', 'import'));
+            } else if (this.type === "export") {
+                criteria.addFilter(Criteria.equals('activity', 'export'));
+            }
+
             criteria.setPage(1);
+            criteria.addAssociation('user');
+            criteria.addAssociation('file');
 
             return criteria;
         },
 
-        // TODO: change to activities columns
         exportActivityColumns() {
             return [
                 {
-                    property: 'name',
-                    dataIndex: 'name',
-                    label: 'Name', // TODO: change label to snippet path
+                    property: 'createdAt',
+                    dataIndex: 'createdAt',
+                    label: 'sw-settings-import-export.activity.columns.date',
                     // routerLink: 'sw.order.detail',
                     allowResize: true,
                     primary: true
+                }, {
+                    property: 'profileName',
+                    dataIndex: 'profileName',
+                    label: 'sw-settings-import-export.activity.columns.profile',
+                    allowResize: true,
+                    primary: false
                 },
+
                 {
-                    property: 'id',
-                    dataIndex: 'id',
-                    label: 'Id', // TODO: change label to snippet path
+                    property: 'file.size',
+                    dataIndex: 'file.size',
+                    label: 'sw-settings-import-export.activity.columns.size',
                     allowResize: true,
                     primary: false
                 },
                 {
-                    property: 'description',
-                    dataIndex: 'description',
-                    label: 'Description', // TODO: change label to snippet path
-                    // label: '',
+                    property: 'user.lastName',
+                    dataIndex: 'user.lastName',
+                    label: 'sw-settings-import-export.activity.columns.user',
                     allowResize: true,
                     primary: false
                 },
                 {
-                    property: 'stock',
-                    dataIndex: 'stock',
-                    label: 'Stock', // TODO: change label to snippet path
+                    property: 'state',
+                    dataIndex: 'state',
+                    label: 'sw-settings-import-export.activity.columns.state',
                     allowResize: true,
                     primary: false
                 }
@@ -82,10 +118,40 @@ Shopware.Component.register('sw-settings-import-export-activity', {
         async fetchActivities() {
             this.isLoading = true;
 
-            // TODO: change to activities
-            this.products = await this.productRepository.search(this.activityCriteria, Shopware.Context.api)
+            this.logs = await this.logRepository.search(this.activityCriteria, Shopware.Context.api);
 
             this.isLoading = false;
+        },
+
+        async onOpenProfile(id) {
+            this.selectedProfile = await this.profileRepository.get(id, Shopware.Context.api);
+        },
+
+        closeSelectedProfile() {
+            this.selectedProfile = null;
+        },
+
+        getDownloadUrl(id, accessToken) {
+            return this.importExport.getDownloadUrl(id, accessToken);
+        },
+
+        saveSelectedProfile() {
+            this.isLoading = true;
+            this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
+                this.selectedProfile = null;
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-import-export.profile.titleSaveSuccess'),
+                    message: this.$tc('sw-settings-import-export.profile.messageSaveSuccess', 0)
+                });
+                return this.loadProfiles();
+            }).then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-import-export.profile.titleSaveError'),
+                    message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
+                });
+            });
         }
     }
 });

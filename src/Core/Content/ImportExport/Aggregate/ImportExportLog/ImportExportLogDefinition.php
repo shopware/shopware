@@ -51,7 +51,7 @@ class ImportExportLogDefinition extends EntityDefinition
             (new JsonField('config', 'config', [], []))->setFlags(new Required()),
             (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class))
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            new ManyToOneAssociationField('profile', 'profile_id', ImportExportProfileDefinition::class, 'id', true),
+            new ManyToOneAssociationField('profile', 'profile_id', ImportExportProfileDefinition::class, 'id'),
             new OneToOneAssociationField('file', 'file_id', 'id', ImportExportFileDefinition::class, true),
 
             new OneToOneAssociationField('invalidRecordsLog', 'invalid_records_log_id', 'id', ImportExportLogDefinition::class, false),

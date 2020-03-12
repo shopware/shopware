@@ -12,7 +12,10 @@ import './view/sw-settings-import-export-view-export';
 import './view/sw-settings-import-export-view-profiles';
 
 Shopware.Service().register('importExport', () => {
-    return new ImportExportService(Shopware.Application.getContainer('init').httpClient);
+    return new ImportExportService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service('loginService')
+    );
 });
 
 Shopware.Module.register('sw-settings-import-export', {

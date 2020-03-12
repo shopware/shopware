@@ -23,13 +23,13 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
             return [
                 {
                     property: 'csvName',
-                    label: 'CSV name', // TODO: add translations
+                    label: 'sw-settings-import-export.profile.mapping.fileValueLabel',
                     allowResize: true,
                     primary: true
                 },
                 {
                     property: 'entry',
-                    label: 'Database entry', // TODO: add translations
+                    label: 'sw-settings-import-export.profile.mapping.entityLabel',
                     allowResize: true,
                     width: '250px'
                 }

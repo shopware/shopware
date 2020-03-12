@@ -3,6 +3,38 @@
     "general": {
       "mainMenuItemGeneral": "Import/Export",
       "descriptionTextModule": "Manages the import export of the application"
+    },
+    "activity": {
+      "columns": {
+        "size": "Size",
+        "profile": "Profile",
+        "date": "Date",
+        "user": "User",
+        "state": "State"
+      }
+    },
+    "profile": {
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The profile was saved successfully.",
+      "titleSaveError": "Error",
+      "messageSaveError": "The profile couldnt be saved.",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "The profile was deleted successfully.",
+      "titleDeleteError": "Error",
+      "messageDeleteError": "The profile couldnt be saved. Please make sure that all logs for this profile are deleted.",
+      "titleDuplicateSuccess": "Success",
+      "messageDuplicateSuccess": "The profile was duplicated successfully.",
+      "titleDuplicateError": "Error",
+      "messageDuplicateError": "The profile couldnt be duplicated.",
+      "mapping": {
+        "fileValueLabel": "File value name",
+        "entityLabel": "Database value name"
+      },
+      "sourceEntityLabel": "System default"
+    },
+    "exporter": {
+      "titleExportSuccess": "Success",
+      "messageExportSuccess": "The export was completed successfully."
     }
   }
 }

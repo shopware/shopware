@@ -1,15 +1,21 @@
 import template from './sw-settings-import-export-exporter.html.twig';
 import './sw-settings-import-export-exporter.scss';
 
+const { Mixin } = Shopware;
+
 // TODO: Bitte die ganze Komponente Unit testen!
 Shopware.Component.register('sw-settings-import-export-exporter', {
     template,
 
     inject: ['importExport'],
 
+    mixins: [
+        Mixin.getByName('notification')
+    ],
+
     data() {
         return {
-            selectedProfile: null,
+            selectedProfileId: null,
             progressIndex: 0,
             totalProgress: null,
             statusText: '',
@@ -24,7 +30,7 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
         },
 
         disableExporting() {
-            return this.isLoading || this.selectedProfile === null;
+            return this.isLoading || this.selectedProfileId === null;
         },
 
         progressBarClasses() {
@@ -37,10 +43,20 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
     methods: {
         onStartExport() {
             this.isLoading = true;
-            // TODO: Replace mock with real profile (this.selectedProfile)
-            const profile = {};
 
-            this.importExport.export(profile, this.handleExportProgress);
+            this.importExport.export(this.selectedProfileId, this.handleExportProgress).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-import-export.exporter.titleExportSuccess'),
+                    message: this.$tc('sw-settings-import-export.exporter.messageExportSuccess', 0)
+                });
+            }).catch((error) => {
+                this.createNotificationError({
+                    title: 'Error',
+                    message: error
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         handleExportProgress(progress) {

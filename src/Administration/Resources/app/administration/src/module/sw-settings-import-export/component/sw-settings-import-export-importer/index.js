@@ -39,8 +39,8 @@ Shopware.Component.register('sw-settings-import-export-importer', {
     methods: {
         onStartImport() {
             this.isLoading = true;
-            // TODO: Replace mock with real profile (this.selectedProfile)
-            const profile = {};
+            const profile = this.selectedProfile;
+            // TODO: mockFile ersetzen
             const mockFile = new File(['foobar'], 'test.csv', {
                 type: 'text/csv',
                 lastModified: 1580808218967

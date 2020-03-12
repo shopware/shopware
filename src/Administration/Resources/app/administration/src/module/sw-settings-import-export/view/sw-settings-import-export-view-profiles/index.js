@@ -1,10 +1,16 @@
 import template from './sw-settings-import-export-view-profiles.html.twig';
 import './sw-settings-import-export-view-profiles.scss';
 
+const { Mixin } = Shopware;
+
 Shopware.Component.register('sw-settings-import-export-view-profiles', {
     template,
 
     inject: ['repositoryFactory'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     metaInfo() {
         return {
@@ -23,16 +29,15 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
 
     computed: {
         profileRepository() {
-            // TODO: change to profile entity
-            return this.repositoryFactory.create('product');
+            return this.repositoryFactory.create('import_export_profile');
         },
 
         profileCriteria() {
             const criteria = new Shopware.Data.Criteria();
 
-            // TODO: here you can change the criteria for fetching the activites
             criteria.setPage(1);
             criteria.setTerm(this.searchTerm);
+            criteria.addAssociation('importExportLogs');
 
             return criteria;
         },
@@ -42,30 +47,15 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: 'Name', // TODO: change label to snippet path
+                    label: 'Name',
                     // routerLink: 'sw.order.detail',
                     allowResize: true,
                     primary: true
                 },
                 {
-                    property: 'id',
-                    dataIndex: 'id',
-                    label: 'Id', // TODO: change label to snippet path
-                    allowResize: true,
-                    primary: false
-                },
-                {
-                    property: 'description',
-                    dataIndex: 'description',
-                    label: 'Description', // TODO: change label to snippet path
-                    // label: '',
-                    allowResize: true,
-                    primary: false
-                },
-                {
-                    property: 'stock',
-                    dataIndex: 'stock',
-                    label: 'Stock', // TODO: change label to snippet path
+                    property: 'systemDefault',
+                    dataIndex: 'systemDefault',
+                    label: 'sw-settings-import-export.profile.sourceEntityLabel',
                     allowResize: true,
                     primary: false
                 }
@@ -80,8 +70,6 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
     methods: {
         createdComponent() {
             this.loadProfiles();
-            // TODO: only for easier development
-            // this.selectedProfile = this.mockNewProfile();
         },
 
         async loadProfiles() {
@@ -92,61 +80,50 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
             this.isLoading = false;
         },
 
-        // TODO: remove mock
-        mockNewProfile() {
-            const profileMock = this.profileRepository.create();
-
-            profileMock.name = '';
-            profileMock.objectType = ''; // TODO: naming is not save
-            profileMock.identifier = ''; // TODO: naming is not save
-            profileMock.delimiter = '';
-            profileMock.enclosure = '';
-            profileMock.format = '';
-            profileMock.total = '';
-            profileMock.file = null;
-
-            return profileMock;
-        },
-
-        // TODO: remove mock
-        async mockExistingProfile() {
-            const profiles = await this.profileRepository.search(new Shopware.Data.Criteria(1, 1), Shopware.Context.api);
-            const profileMock = profiles.first();
-
-            profileMock.name = '';
-            profileMock.objectType = ''; // TODO: naming is not save
-            profileMock.identifier = ''; // TODO: naming is not save
-            profileMock.delimiter = '';
-            profileMock.enclosure = '';
-            profileMock.format = '';
-            profileMock.total = '';
-            profileMock.file = null;
-
-            return profileMock;
-        },
-
         onSearch() {
             this.loadProfiles();
         },
 
         onAddNewProfile() {
-            // TODO: change mock to real data
-            this.selectedProfile = this.mockNewProfile();
+            this.selectedProfile = this.profileRepository.create(Shopware.Context.api);
+            this.selectedProfile.fileType = 'text/csv';
         },
 
         async onEditProfile(id) {
-            // TODO: change mock to real data
-            this.selectedProfile = await this.mockExistingProfile();
+            this.selectedProfile = await this.profileRepository.get(id, Shopware.Context.api);
         },
 
         onDuplicateProfile(id) {
-            // TODO: add functionality
-            console.log('Duplicate profile');
+            this.profileRepository.clone(id, Shopware.Context.api).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-import-export.profile.titleDuplicateSuccess'),
+                    message: this.$tc('sw-settings-import-export.profile.messageDuplicateSuccess', 0)
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-import-export.profile.titleDuplicateError'),
+                    message: this.$tc('sw-settings-import-export.profile.messageDuplicateError', 0)
+                });
+            });
+            this.loadProfiles();
         },
 
         onDeleteProfile(id) {
-            // TODO: add functionality
-            console.log('Delete profile');
+            this.isLoading = true;
+            this.profileRepository.delete(id, Shopware.Context.api).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-import-export.profile.titleDeleteSuccess'),
+                    message: this.$tc('sw-settings-import-export.profile.messageDeleteSuccess', 0)
+                });
+                this.loadProfiles();
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-import-export.profile.titleDeleteError'),
+                    message: this.$tc('sw-settings-import-export.profile.messageDeleteError', 0)
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         closeSelectedProfile() {
@@ -154,9 +131,22 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
         },
 
         saveSelectedProfile() {
-            // TODO: add save
-            console.log('Save', this.selectedProfile);
-            this.selectedProfile = null;
+            this.isLoading = true;
+            this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
+                this.selectedProfile = null;
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-import-export.profile.titleSaveSuccess'),
+                    message: this.$tc('sw-settings-import-export.profile.messageSaveSuccess', 0)
+                });
+                return this.loadProfiles();
+            }).then(() => {
+                this.isLoading = false;
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-import-export.profile.titleSaveError'),
+                    message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
+                });
+            });
         }
     }
 });

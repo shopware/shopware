@@ -3,6 +3,38 @@
     "general": {
       "mainMenuItemGeneral": "Import/Export",
       "descriptionTextModule": "Verwaltung von Imports und Exports."
+    },
+    "activity": {
+      "columns": {
+        "size": "Größe",
+        "profile": "Profil",
+        "date": "Datum",
+        "user": "Benutzer",
+        "state": "Status"
+      }
+    },
+    "profile": {
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Das Profil wurde erfolgreich gespeichert.",
+      "titleSaveError": "Fehler",
+      "messageSaveError": "Das Profil konnte nicht gespeichert werden.",
+      "titleDeleteSuccess": "Erfolg",
+      "messageDeleteSuccess": "Das Profil wurde erfolgreich gelöscht.",
+      "titleDeleteError": "Fehler",
+      "messageDeleteError": "Das Profil konnte nicht gelöscht werden. Bitte stelle sicher das keine Logs mehr zu dem Profil existieren.",
+      "titleDuplicateSuccess": "Erfolg",
+      "messageDuplicateSuccess": "Das Profil wurde erfolgreich dupliziert.",
+      "titleDuplicateError": "Fehler",
+      "messageDuplicateError": "Das Profil konnte nicht dupliziert werden.",
+      "mapping": {
+        "fileValueLabel": "Name in der Datei",
+        "entityLabel": "Name in der Datenbank"
+      },
+      "sourceEntityLabel": "System Standard"
+    },
+    "exporter": {
+      "titleExportSuccess": "Erfolg",
+      "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen."
     }
   }
 }

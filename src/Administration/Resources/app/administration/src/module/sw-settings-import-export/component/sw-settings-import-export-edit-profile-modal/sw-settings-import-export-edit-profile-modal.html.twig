@@ -43,14 +43,16 @@
                                       required
                                       :options="[
                                           { value: 'product', label: 'Product' },
-                                          { value: 'manufacturer', label: 'Manufacturer' },
+                                          { value: 'customer', label: 'Customer' },
+                                          { value: 'categories', label: 'Categories' },
                                       ]"
-                                      v-model="profile.objectType">
+                                      v-model="profile.sourceEntity">
                     </sw-single-select>
 
                     {# TODO: change to entity single select #}
                     <sw-single-select label="Identifier"
                                       required
+                                      :disabled="!profile.sourceEntity"
                                       :options="[
                                           { value: 'product', label: 'product.id' },
                                           { value: 'manufacturer', label: 'manufacturer.id' },

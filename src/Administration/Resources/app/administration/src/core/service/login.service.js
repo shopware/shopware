@@ -89,7 +89,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
             setBearerAuthentication({
                 access: response.data.access_token,
                 expiry: response.data.expires_in,
-                refresh: token
+                refresh: response.data.refresh_token
             });
 
             return response.data.access_token;

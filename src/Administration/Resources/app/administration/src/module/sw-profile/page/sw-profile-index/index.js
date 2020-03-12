@@ -253,18 +253,24 @@ Component.register('sw-profile-index', {
 
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
+                if (this.newPassword) {
+                    // re-issue a valid jwt token, as all user tokens were invalidated on password change
+                    this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
+                        this.isLoading = false;
+                        this.isSaveSuccessful = true;
+                    }).catch(() => {
+                        this.handleUserSaveError();
+                    });
+                } else {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                }
+
                 this.oldPassword = '';
                 this.newPassword = '';
                 this.newPasswordConfirm = '';
-
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
             }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
-                });
-                this.isLoading = false;
+                this.handleUserSaveError();
             });
         },
 
@@ -291,6 +297,14 @@ Component.register('sw-profile-index', {
 
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
+        },
+
+        handleUserSaveError() {
+            this.createNotificationError({
+                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
+                message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
+            });
+            this.isLoading = false;
         }
     }
 });

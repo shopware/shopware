@@ -193,7 +193,9 @@
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
-        <service id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
+        <service id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
 
         <service id="Shopware\Core\Framework\Api\OAuth\ScopeRepository">
             <argument type="tagged" tag="shopware.oauth.scope"/>
@@ -262,6 +264,11 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">

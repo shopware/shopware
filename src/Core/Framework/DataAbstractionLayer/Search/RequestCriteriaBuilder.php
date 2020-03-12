@@ -94,14 +94,60 @@ class RequestCriteriaBuilder
             $array['term'] = $criteria->getTerm();
         }
 
+        if ($criteria->getIncludes()) {
+            $array['includes'] = $criteria->getIncludes();
+        }
+
+        if ($criteria->getSource()) {
+            $array['source'] = $criteria->getSource();
+        }
+
         if (count($criteria->getIds())) {
             $array['ids'] = $criteria->getIds();
         }
 
         if (count($criteria->getFilters())) {
-            $array['filter'] = array_map(function (Filter $filter) {
+            $array['filter'] = array_map(static function (Filter $filter) {
                 return QueryStringParser::toArray($filter);
             }, $criteria->getFilters());
+        }
+
+        if (count($criteria->getPostFilters())) {
+            $array['post-filter'] = array_map(static function (Filter $filter) {
+                return QueryStringParser::toArray($filter);
+            }, $criteria->getPostFilters());
+        }
+
+        if (count($criteria->getAssociations())) {
+            $array['associations'] = json_decode(json_encode($criteria->getAssociations()), true);
+        }
+
+        if (count($criteria->getSorting())) {
+            $array['sort'] = json_decode(json_encode($criteria->getSorting()), true);
+
+            foreach ($array['sort'] as &$sort) {
+                $sort['order'] = $sort['direction'];
+                unset($sort['direction']);
+            }
+            unset($sort);
+        }
+
+        if (count($criteria->getQueries())) {
+            $array['query'] = [];
+
+            foreach ($criteria->getQueries() as $query) {
+                $arrayQuery = json_decode(json_encode($query), true);
+                $arrayQuery['query'] = QueryStringParser::toArray($query->getQuery());
+                $array['query'][] = $arrayQuery;
+            }
+        }
+
+        if (count($criteria->getGroupFields())) {
+            $array['grouping'] = [];
+
+            foreach ($criteria->getGroupFields() as $groupField) {
+                $array['grouping'][] = $groupField->getField();
+            }
         }
 
         return $array;

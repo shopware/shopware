@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,13 +26,24 @@ class AccountOrderController extends StorefrontController
      */
     private $orderPageLoader;
 
-    /** @var EntityRepositoryInterface */
-    private $orderRepository;
+    /**
+     * @var AccountOrderRouteInterface
+     */
+    private $orderRoute;
 
-    public function __construct(AccountOrderPageLoader $orderPageLoader, $orderRepository)
-    {
+    /**
+     * @var RequestCriteriaBuilder
+     */
+    private $requestCriteriaBuilder;
+
+    public function __construct(
+        AccountOrderPageLoader $orderPageLoader,
+        AccountOrderRouteInterface $orderRoute,
+        RequestCriteriaBuilder $requestCriteriaBuilder
+    ) {
         $this->orderPageLoader = $orderPageLoader;
-        $this->orderRepository = $orderRepository;
+        $this->orderRoute = $orderRoute;
+        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     /**
@@ -62,17 +73,18 @@ class AccountOrderController extends StorefrontController
             throw new MissingRequestParameterException('id');
         }
 
-        $customerId = $context->getCustomer()->getId();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $orderId))
-            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customerId))
+        $criteria = new Criteria([$orderId]);
+        $criteria
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
+            ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('lineItems.cover');
 
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $orderRequest = new Request();
+        $orderRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
+
+        $order = $this->orderRoute->load($orderRequest, $context)->getOrders()->first();
 
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();

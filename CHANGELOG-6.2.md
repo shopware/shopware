@@ -358,6 +358,20 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute` to provide search suggest results about the new api route `/store-api/v1/search-suggest?term=MyKeyword`
     * Added new `\Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute` to make seo urls available about the new api route `/store-api/v1/seo-url`
     * Added new header `sw-include-seo-urls` for the store-api to enrich the seo urls in the response
+    * Added new `\Shopware\Core\System\Salutation\SalesChannel\SalutationRoute` to provide all available salutations with the new api route `/store-api/v1/account/order`
+    * Added new `\Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute` to provide taken orders of the logged-in customer with the new api route `/store-api/v1/account/order`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute` to allow changing profile information of the logged-in customer with the new api route `/store-api/v1/account/change-profile`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` to allow changing email of the logged-in customer with the new api route `/store-api/v1/account/change-email`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute` to allow changing password of the logged-in customer with the new api route `/store-api/v1/account/change-password`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute` to allow changing payment-method of the logged-in customer with the new api route `/store-api/v1/account/change-payment-method/{uuid}`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute` to provide information about the current logged-in customer with the new api route `/store-api/v1/account/customer`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute` to login as customer and obtain a context-token with the new api route `/store-api/v1/account/login`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` to login as customer and obtain a context-token with the new api route `/store-api/v1/account/logout`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute` to send a new password recovery mail with the new api route `/store-api/v1/account/send-recovery-mail`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to process the reset password form with the new api route `/store-api/v1/account/reset-password`
+    
+* Storefront	
+    * Deprecated `$connection->executeQuery()` for write operations
 
 * Storefront    
     Deprecated `$connection->executeQuery()` for write operations

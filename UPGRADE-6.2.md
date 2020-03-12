@@ -59,6 +59,15 @@ Core
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountService` use one of the following new services
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute`
 
 Administration
 --------------

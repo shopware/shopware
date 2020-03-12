@@ -82,7 +82,7 @@ class DumpClassSchemaCommand extends Command
                 /** @var ClassConstFetch $classConst */
                 $classConst = $returnStatement->expr;
 
-                return (string) $classConst->name;
+                return (string) $classConst->class;
             }
         }
 
@@ -164,6 +164,7 @@ class DumpClassSchemaCommand extends Command
                     $isCollection = $this->getCollectionEntity($type);
 
                     if ($isCollection) {
+                        var_dump($isCollection);
                         $inner = $this->dumpProperties($isCollection, $deep + 1);
                         if ($inner === null) {
                             continue;

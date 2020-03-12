@@ -68,6 +68,10 @@ Component.register('sw-sales-channel-modal-grid', {
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === 'ed535e5722134ac1aa6524f73e26881b';
+        },
+
+        isGoogleShoppingSalesChannelType(salesChannelTypeId) {
+            return salesChannelTypeId === 'eda0a7980ee745fbbb7e58202dcdc04f';
         }
     }
 });

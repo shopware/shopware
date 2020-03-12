@@ -5,7 +5,7 @@
              :selectable="false"
              :header="false"
              :table="true">
-        <template slot="columns" slot-scope="{ item }">
+        <template v-if="!(isGoogleShoppingSalesChannelType(item.id) && !next6050)" slot="columns" slot-scope="{ item }">
             {% block sw_sales_channel_grid_columns %}
                 {% block sw_sales_channel_grid_columns_icon %}
                     <sw-grid-column flex="85px" dataIndex="icon" class="sw-sales-channel-modal-grid__icon-column">

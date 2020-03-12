@@ -45,7 +45,6 @@ class TreeIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
-        $this->folderRepository = $this->getContainer()->get('media_folder.repository');
         $this->context = Context::createDefaultContext();
         $this->treeIndexer = $this->getContainer()->get(TreeIndexer::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');

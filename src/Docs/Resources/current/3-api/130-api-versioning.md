@@ -1,6 +1,6 @@
 [titleEn]: <>(API versioning)
 
-The Admin-API and Sales-Channel-API are versioned. That means whenever a breaking chance to the API occurs we release a new API version.
+The Admin-API and Sales-Channel-API are versioned. That means whenever a breaking change to the API occurs we release a new API version.
 We may release a new API version with every major release, but the old API version stays supported until the next major release, e.g. 6.2.0 or 6.3.0.
 
 The API version you want to use is determined by the API-Route you call, e.g. `/api/v1/...` for version 1 of the Admin-API or `/sales-channel-api/v2` for version 2 of the SalesChannelApi.

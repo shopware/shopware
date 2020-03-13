@@ -81,6 +81,7 @@ class CurlClient implements Client
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_HEADER, true);
+        curl_setopt($curl, CURLOPT_USERAGENT, 'Shopware Installer');
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);

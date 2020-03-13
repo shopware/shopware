@@ -68,10 +68,13 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 $path = ltrim(mb_substr($path, mb_strlen($projectDir)), '/');
             }
 
-            $bundles[$bundle->getName()] = [
+            $bundleName = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
+            $technicalName = str_replace('_', '-', preg_replace('/_?bundle$/', '', $bundle->getContainerPrefix()));
+
+            $bundles[$bundleName] = [
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
-                'technicalName' => str_replace('_', '-', $bundle->getContainerPrefix()),
+                'technicalName' => $technicalName,
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
                     'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/administration/src'),

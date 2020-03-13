@@ -139,7 +139,7 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            $bundleName = mb_strtolower($bundle->getName());
+            $bundleName = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
 
             $styles = array_map(static function (string $filename) use ($package, $bundleName) {
                 $url = 'bundles/' . $bundleName . '/' . $filename;
@@ -182,7 +182,9 @@ class InfoController extends AbstractController
 
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
+        $technicalName = str_replace('_', '-', preg_replace('/_?bundle$/', '', $bundle->getContainerPrefix()));
+
+        $path = 'administration/js/' . str_replace('_', '-', $technicalName) . '.js';
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path)) {

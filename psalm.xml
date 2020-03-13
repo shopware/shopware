@@ -66,6 +66,11 @@
                 <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
             </errorLevel>
         </MissingFile>
+        <AbstractMethodCall>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php"/>
+            </errorLevel>
+        </AbstractMethodCall>
 
         <LessSpecificReturnType errorLevel="info"/>
 

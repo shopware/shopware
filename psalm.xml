@@ -66,8 +66,6 @@
             </errorLevel>
         </MissingFile>
 
-        <LessSpecificReturnType errorLevel="info"/>
-
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
         <DeprecatedMethod errorLevel="info"/>
@@ -86,7 +84,6 @@
         <MissingReturnType errorLevel="info"/>
         <MissingPropertyType errorLevel="info"/>
         <InvalidDocblock errorLevel="info"/>
-        <MisplacedRequiredParam errorLevel="info"/>
 
         <PropertyNotSetInConstructor errorLevel="info"/>
         <MissingConstructor errorLevel="info"/>
@@ -110,53 +107,31 @@
         <LessSpecificReturnStatement errorLevel="info"/>
         <TypeCoercion errorLevel="info"/>
 
-        <PossiblyFalseArgument errorLevel="info"/>
-        <PossiblyFalseIterator errorLevel="info"/>
-        <PossiblyFalseOperand errorLevel="info"/>
-        <PossiblyFalsePropertyAssignmentValue errorLevel="info"/>
         <PossiblyFalseReference errorLevel="info"/>
-        <PossiblyInvalidArgument errorLevel="info"/>
         <PossiblyInvalidArrayAccess errorLevel="info"/>
         <PossiblyInvalidArrayAssignment errorLevel="info"/>
-        <PossiblyInvalidArrayOffset errorLevel="info"/>
         <PossiblyInvalidCast errorLevel="info"/>
         <PossiblyInvalidFunctionCall errorLevel="info"/>
         <PossiblyInvalidIterator errorLevel="info"/>
         <PossiblyInvalidMethodCall errorLevel="info"/>
-        <PossiblyInvalidOperand errorLevel="info"/>
-        <PossiblyInvalidPropertyAssignment errorLevel="info"/>
-        <PossiblyInvalidPropertyAssignmentValue errorLevel="info"/>
-        <PossiblyInvalidPropertyFetch errorLevel="info"/>
-        <PossiblyNullArgument errorLevel="info"/>
         <PossiblyNullArrayAccess errorLevel="info"/>
         <PossiblyNullArrayAssignment errorLevel="info"/>
         <PossiblyNullArrayOffset errorLevel="info"/>
-        <PossiblyNullFunctionCall errorLevel="info"/>
         <PossiblyNullIterator errorLevel="info"/>
-        <PossiblyNullOperand errorLevel="info"/>
-        <PossiblyNullPropertyAssignment errorLevel="info"/>
-        <PossiblyNullPropertyAssignmentValue errorLevel="info"/>
         <PossiblyNullPropertyFetch errorLevel="info"/>
         <PossiblyNullReference errorLevel="info"/>
-        <PossiblyUndefinedGlobalVariable errorLevel="info"/>
         <PossiblyUndefinedVariable errorLevel="info"/>
         <PossiblyUndefinedArrayOffset errorLevel="info"/>
         <PossiblyUndefinedMethod errorLevel="info"/>
 
         <!-- level 5 issues - should be avoided at mosts costs... -->
 
-        <ForbiddenCode errorLevel="info"/>
         <ImplicitToStringCast errorLevel="info"/>
         <InvalidScalarArgument errorLevel="info"/>
-        <InvalidToString errorLevel="info"/>
         <InvalidOperand errorLevel="info"/>
-        <NoInterfaceProperties errorLevel="info"/>
         <TooManyArguments errorLevel="info"/>
         <TypeDoesNotContainType errorLevel="info"/>
-        <TypeDoesNotContainNull errorLevel="info"/>
-        <MissingDocblockType errorLevel="info"/>
         <ImplementedReturnTypeMismatch errorLevel="info"/>
-        <ImplementedParamTypeMismatch errorLevel="info"/>
 
         <!-- level 6 issues - really bad things -->
 
@@ -166,25 +141,19 @@
         <FalsableReturnStatement errorLevel="info"/>
 
         <MoreSpecificImplementedParamType errorLevel="info"/>
-        <LessSpecificImplementedReturnType errorLevel="info"/>
 
         <InvalidReturnStatement errorLevel="info"/>
         <InvalidReturnType errorLevel="info"/>
-        <UndefinedThisPropertyAssignment errorLevel="info"/>
         <UndefinedInterfaceMethod errorLevel="info"/>
 
         <!-- level 7 issues - even worse -->
 
-        <UndefinedThisPropertyAssignment errorLevel="info"/>
         <UndefinedPropertyAssignment errorLevel="info"/>
         <UndefinedThisPropertyFetch errorLevel="info"/>
         <UndefinedPropertyFetch errorLevel="info"/>
 
-        <InvalidReturnStatement errorLevel="info"/>
-        <InvalidReturnType errorLevel="info"/>
         <InvalidArgument errorLevel="info"/>
         <InvalidPropertyAssignmentValue errorLevel="info"/>
         <InvalidArrayOffset errorLevel="info"/>
-        <InvalidArrayAssignment errorLevel="info"/>
     </issueHandlers>
 </psalm>

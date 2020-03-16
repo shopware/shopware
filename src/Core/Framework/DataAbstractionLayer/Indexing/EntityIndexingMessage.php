@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 class EntityIndexingMessage
 {
     /**
-     * @var array
+     * @var mixed
      */
     protected $data;
 
@@ -31,7 +31,7 @@ class EntityIndexingMessage
      */
     private $forceQueue;
 
-    public function __construct(array $data, $offset = null, ?Context $context = null, bool $forceQueue = false)
+    public function __construct($data, $offset = null, ?Context $context = null, bool $forceQueue = false)
     {
         $this->data = $data;
         $this->offset = $offset;
@@ -39,7 +39,7 @@ class EntityIndexingMessage
         $this->forceQueue = $forceQueue;
     }
 
-    public function getData(): array
+    public function getData()
     {
         return $this->data;
     }

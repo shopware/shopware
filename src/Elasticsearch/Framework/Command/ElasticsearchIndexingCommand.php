@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
-use Shopware\Elasticsearch\Framework\Indexing\EntityIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,11 +17,11 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
     protected static $defaultName = 'es:index';
 
     /**
-     * @var EntityIndexer
+     * @var EntityIndexerRegistry
      */
     private $indexer;
 
-    public function __construct(EntityIndexer $indexer)
+    public function __construct(EntityIndexerRegistry $indexer)
     {
         parent::__construct();
         $this->indexer = $indexer;
@@ -40,8 +40,8 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $this->indexer->index(new \DateTime());
+        $this->indexer->sendIndexingMessage(['elasticsearch.indexer']);
 
-        return 0;
+        return 1;
     }
 }

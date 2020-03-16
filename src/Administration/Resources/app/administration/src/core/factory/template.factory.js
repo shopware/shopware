@@ -9,27 +9,29 @@ export default {
     extendComponentTemplate,
     registerTemplateOverride,
     getRenderedTemplate,
-    resolveTemplates,
+    getTemplateOverrides,
+    getTemplateRegistry,
+    findCustomTemplate,
+    findCustomOverride,
     clearTwigCache,
     getTwigCache,
-    disableTwigCache,
-    getTemplateRegistry,
-    getNormalizedTemplateRegistry,
-    getTemplateOverrides
+    disableTwigCache
 };
 
 /**
- * Internal Twig.Templates method
- * @param {null}
+ * Holds a list with all registered component templates.
+ * Including registered overrides.
+ *
+ * @type {Map<any, any>}
  */
-let TwigTemplates = null;
+const templateRegistry = new Map();
 
 /**
  * Extends the Twig core for compatibility.
  */
-Twig.extend(TwigCore => {
+Twig.extend((TwigCore) => {
     /**
-     * Remove tokens 2 (output_whitespace_pre), 3 (output_whitespace_post), 4 (output_whitespace_both) and 8 (output).
+     * Remove tokens 2, 3, 4 and 8.
      * This tokens are used for functions and data output.
      * Since the data binding is done in Vue this could lead to syntax issues.
      * We are only using the block system for template inheritance.
@@ -78,325 +80,189 @@ Twig.extend(TwigCore => {
     TwigCore.exports.clearRegistry = function clearRegistry() {
         TwigCore.Templates.registry = {};
     };
-
-    TwigTemplates = TwigCore.Templates;
-    TwigCore.cache = false;
 });
-
-/**
- * Escaped parent placeholder
- * @type {string}
- */
-const parentPlaceholder = Twig.placeholders.parent.replace(/\|/g, '\\|');
-
-/**
- * Parent placeholder as regular expression
- * @type {RegExp}
- */
-const parentRegExp = new RegExp(parentPlaceholder, 'gm');
-
-/**
- * Holds a list with all registered component templates.
- * Including registered overrides.
- *
- * @type {Map<String, Object>}
- */
-const templateRegistry = new Map();
-
-/**
- * Holds a list with all registered normalized component templates.
- * Including registered overrides.
- *
- * Each template contains the following information
- * - name - name of the component associated with the template
- * - template - Twig.Template which represents the template raw
- * - raw - Raw template string
- * - html - Pre-rendered markup
- * - extends - If a component extends another component, it will be listed here
- *
- * @type {Map<String, Object>}
- */
-const normalizedTemplateRegistry = new Map();
 
 /**
  * Registers the main template for the defined component.
  *
  * @param componentName
  * @param componentTemplate
- * @returns {boolean}
  */
 function registerComponentTemplate(componentName, componentTemplate = null) {
     const template = templateRegistry.get(componentName) || {};
-    const overrides = (template.overrides ? template.overrides : []);
 
-    templateRegistry.set(componentName, {
-        name: componentName,
-        raw: componentTemplate,
-        extend: null,
-        overrides: overrides
-    });
+    /**
+     * If there is no template given, search the DOM.
+     */
+    if (componentTemplate === null) {
+        componentTemplate = findCustomTemplate(componentName);
+    }
 
+    const templateConfig = {
+        id: `${componentName}-baseTemplate`,
+        data: componentTemplate
+    };
+
+    try {
+        template.baseTemplate = Twig.twig(templateConfig);
+    } catch (error) {
+        warn(error.message);
+        return false;
+    }
+
+    templateRegistry.set(componentName, template);
     return true;
 }
+
 /**
  * Registers the main template for the component
  * based on the template of the extended component.
  * If the component comes with an own template extension
  * it will also be registered as an override of the extended template.
  *
- * @param {String} componentName
- * @param {String} extendComponentName
- * @param {String|null} [templateExtension=null]
+ * @param componentName
+ * @param extendComponentName
+ * @param templateExtension
  */
-function extendComponentTemplate(
-    componentName,
-    extendComponentName,
-    templateExtension = null
-) {
-    if (templateRegistry.has(componentName)) {
-        warn('TemplateRegistry', '"componentName" is registered already');
-        return false;
-    }
-
-    // If a component doesn't override the template, provide an empty string
-    if (!templateExtension) {
-        templateExtension = '';
-    }
-
-    templateRegistry.set(componentName, {
-        name: componentName,
-        raw: templateExtension,
-        extend: extendComponentName,
+function extendComponentTemplate(componentName, extendComponentName, templateExtension = null) {
+    const templateConfig = {
+        extendsFrom: extendComponentName,
+        baseTemplate: null,
         overrides: []
-    });
+    };
+    templateRegistry.set(componentName, templateConfig);
 
-    return true;
+    if (templateExtension !== null) {
+        registerTemplateOverride(componentName, templateExtension, 0);
+    }
 }
 
 /**
  * Registers an override of a component template.
  * The override can be registered before the main template is defined.
  *
- * @param {String} componentName
- * @param {String|null} [templateOverride=null]
- * @param {Number} [overrideIndex=0]
+ * @param componentName
+ * @param templateOverride
+ * @param overrideIndex
  */
-function registerTemplateOverride(
-    componentName,
-    templateOverride = null,
-    overrideIndex = 0
-) {
-    const component = templateRegistry.get(componentName) || {
-        name: componentName,
-        raw: null,
-        extend: null,
-        overrides: []
+function registerTemplateOverride(componentName, templateOverride = null, overrideIndex = null) {
+    const template = templateRegistry.get(componentName) || {};
+
+    template.overrides = template.overrides || [];
+
+    if (templateOverride === null) {
+        templateOverride = findCustomOverride(componentName);
+    }
+
+    const templateConfig = {
+        id: `${componentName}-${template.overrides.length}`,
+        data: templateOverride
     };
-    component.overrides.push({
-        index: overrideIndex,
-        raw: templateOverride
-    });
-    templateRegistry.set(componentName, component);
-    return true;
+
+    const override = Twig.twig(templateConfig);
+
+    /**
+     * You can change the inheritance order by defining the override index.
+     */
+    if (overrideIndex !== null) {
+        template.overrides.splice(overrideIndex, 0, override);
+    } else {
+        template.overrides.push(override);
+    }
+
+    templateRegistry.set(componentName, template);
 }
 
 /**
- * Resolves the templates, builds the extend chain, applies overrides, replaces all remaining parent placeholders
- * and updates the item in the registry.
+ * Returns the rendered markup for the component template including all template overrides.
  *
- * @returns {Map<String, Object>}
+ * @param componentName
+ * @returns {string}
  */
-function resolveTemplates() {
-    const componentTemplates = Array.from(templateRegistry.values());
-
-    componentTemplates.forEach(item => {
-        let templateDefinition = resolveExtendsComponent(item);
-
-        templateDefinition = {
-            ...templateDefinition,
-            html: renderExtendedTemplate(templateDefinition)
-        };
-        // Write back built template to the registry
-        normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
-
-        // Apply overrides
-        templateDefinition = applyTemplateOverrides(templateDefinition.name);
-        templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
-
-        // Final template will be written to the registry
-        normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
-    });
-
-    return normalizedTemplateRegistry;
-}
-
-function applyTemplateOverrides(name) {
-    const item = normalizedTemplateRegistry.get(name);
-
-    if (!item.overrides.length) {
-        return item;
+function getRenderedTemplate(componentName) {
+    if (!templateRegistry.has(componentName)) {
+        return '';
     }
 
-    // Iterate the overrides per component
-    let overriddenBlocks = {};
-    item.overrides.forEach(override => {
-        const baseTemplate = normalizedTemplateRegistry.get(item.name);
-        const overrideTemplate = buildTwigTemplateInstance(
-            `${baseTemplate.name}-${override.index}`,
-            override.raw
-        );
+    const template = templateRegistry.get(componentName);
 
-        // Get the rendered blocks
-        const renderedOverride = overrideTemplate.render({}, {
-            output: 'blocks'
-        });
+    if (!template.baseTemplate) {
+        // build baseTemplate form parent component
+        if (template.extendsFrom) {
+            let templateConfig = {};
 
-        // Merge the blocks with the previous blocks
-        Object.keys(baseTemplate.template.blocks).forEach(blockName => {
-            if (renderedOverride[blockName]) {
-                renderedOverride[blockName] = renderedOverride[blockName].replace(
-                    parentRegExp,
-                    baseTemplate.template.blocks[blockName]
-                );
+            if (hasBlocks(template.extendsFrom)) {
+                // use baseTemplate from parent component
+                const extendTemplate = templateRegistry.get(template.extendsFrom);
+
+                templateConfig = {
+                    id: `${componentName}-baseTemplate`,
+                    data: extendTemplate.baseTemplate.tokens
+                };
+
+                template.baseTemplate = Twig.twig(templateConfig);
+            } else if (template.overrides.length > 0) {
+                // use first override as baseTemplate
+                // and remove it from overrides
+                const firstOverride = template.overrides.shift();
+
+                template.baseTemplate = firstOverride;
+            } else {
+                warn(componentName, 'has no overrides or template to extend from!');
+                return '';
             }
+        } else {
+            warn('missing baseTemplate', componentName);
+            return '';
+        }
+    }
+
+    /**
+     * The base template is the main template of the component.
+     */
+    const { baseTemplate, overrides } = template;
+    const parentPlaceholder = Twig.placeholders.parent;
+    const blocks = {};
+
+    /**
+     * Iterate through template extensions and collect all block overrides.
+     */
+    if (overrides) {
+        overrides.forEach((override) => {
+            const templateBlocks = override.render({}, {
+                output: 'blocks'
+            });
+
+            /**
+             * Replace the parent placeholder with the parent block.
+             * This ensures multi level inheritance.
+             */
+            Object.keys(blocks).forEach((blockName) => {
+                if (templateBlocks[blockName]) {
+                    templateBlocks[blockName] = templateBlocks[blockName].replace(
+                        parentPlaceholder,
+                        blocks[blockName]
+                    );
+                }
+            });
+
+            Object.assign(blocks, templateBlocks);
         });
+    }
 
-        // Apply blocks and render the output html
-        overriddenBlocks = { ...baseTemplate.template.blocks, ...renderedOverride };
-        baseTemplate.template.blocks = overriddenBlocks;
-
-        normalizedTemplateRegistry.set(baseTemplate.name, baseTemplate);
+    /**
+     * Render the base template with all collected block overrides.
+     */
+    return baseTemplate.render({}, {
+        blocks
     });
-
-    let updatedTemplate = normalizedTemplateRegistry.get(item.name);
-
-    // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render({}, {
-        blocks: overriddenBlocks
-    });
-
-    // Update item which will written to the registry
-    updatedTemplate = {
-        ...updatedTemplate,
-        html: finalHtml
-    };
-
-    normalizedTemplateRegistry.set(updatedTemplate.name, updatedTemplate);
-    return updatedTemplate;
-}
-
-/**
- * Renders recursively the component templates. The rendering will be skipped when an override was found. The
- * rendering will be skipped
- *
- * @param {Object} item
- * @param {Object|null} [parentTemplate=null]
- * @returns {null|String} Either `null` or the rendered html output
- */
-function renderExtendedTemplate(item, parentTemplate = null) {
-    const params = {};
-
-    // When we're having overrides, we skip the template rendering
-    if ((item.overrides && item.overrides.length) && parentTemplate === null) {
-        return null;
-    }
-
-    if (parentTemplate) {
-        params.blocks = parentTemplate.blocks;
-    }
-
-    const renderedTemplate = item.template.render({}, params);
-
-    if (!item.extend) {
-        return renderedTemplate;
-    }
-
-    return renderExtendedTemplate(item.extend, item.template);
-}
-
-/**
- * Resolves the extend chain for a given component
- * @param {Object} item
- * @returns {Object}
- */
-function resolveExtendsComponent(item) {
-    item = { ...item, template: buildTwigTemplateInstance(item.name, item.raw) };
-
-    if (item.extend) {
-        item = {
-            ...item,
-            extend: resolveExtendsComponent(templateRegistry.get(item.extend))
-        };
-    }
-
-    return item;
-}
-
-/**
- * Creates a new Twig.Template instance which will be later used to render the component template
- * @param {String} name - component name
- * @param {String} template - Template raw string
- * @returns {Twig.Template}
- */
-function buildTwigTemplateInstance(name, template) {
-    return TwigTemplates.parsers.twig({
-        id: `${name}-baseTemplate`,
-        data: template,
-        path: false,
-        options: {}
-    });
-}
-
-/**
- * Clears the twig cache
- * @returns {void}
- */
-function clearTwigCache() {
-    Twig.clearRegistry();
-}
-
-/**
- * Returns the twig cache
- *
- * @returns {Object}
- */
-function getTwigCache() {
-    return Twig.getRegistry();
-}
-
-/**
- * Disables the twig cache
- *
- * @returns {void}
- */
-function disableTwigCache() {
-    Twig.cache(false);
-}
-
-/**
- * Get the complete template registry.
- *
- * @returns {Map}
- */
-function getTemplateRegistry() {
-    return templateRegistry;
-}
-
-/**
- * Get the complete template registry which got normalized including
- * twig templates and the pre-rendered markup
- *
- * @returns {Map}
- */
-function getNormalizedTemplateRegistry() {
-    return normalizedTemplateRegistry;
 }
 
 /**
  * Get all template overrides which are registered for a component.
  *
  * @param componentName
- * @returns {Array}
+ * @returns {*}
  */
 function getTemplateOverrides(componentName) {
     if (!templateRegistry.has(componentName)) {
@@ -409,16 +275,82 @@ function getTemplateOverrides(componentName) {
 }
 
 /**
- * Returns the rendered markup for the component template including all template overrides.
+ * Get the complete template registry.
+ *
+ * @returns {Map}
+ */
+function getTemplateRegistry() {
+    return templateRegistry;
+}
+
+/**
+ * Returns "true" if components baseTemplate contains twig blocks.
  *
  * @param componentName
- * @returns {string}
+ * @returns {Boolean}
  */
-function getRenderedTemplate(componentName) {
-    if (!normalizedTemplateRegistry.has(componentName)) {
-        return '';
+function hasBlocks(componentName) {
+    const { baseTemplate } = templateRegistry.get(componentName);
+
+    if (baseTemplate === null) {
+        return false;
     }
 
-    const componentTemplate = normalizedTemplateRegistry.get(componentName);
-    return componentTemplate.html;
+    const templateBlocks = baseTemplate.render({}, {
+        output: 'blocks'
+    });
+
+    return !isEmptyObject(templateBlocks);
+}
+
+/**
+ * Returns "true" if an object has no properties,
+ * otherwise "false".
+ *
+ * @param {Object} object
+ * @returns {Boolean}
+ */
+function isEmptyObject(object) {
+    return Object.entries(object).length === 0
+        && object.constructor === Object;
+}
+
+/**
+ * Find a component template in the DOM.
+ * You can define component templates by creating a template element with a `component` attribute.
+ * The attribute should contain the name of the component.
+ *
+ * @param componentName
+ * @returns {String}
+ */
+function findCustomTemplate(componentName) {
+    const element = document.querySelector(`template[component="${componentName}"]`);
+
+    return (element !== null) ? element.innerHTML : '';
+}
+
+/**
+ * Find a template override in the DOM.
+ * You can define template overrides by creating a template element with a `override` attribute.
+ * The attribute should contain the name of the component you want to override.
+ *
+ * @param componentName
+ * @returns {String}
+ */
+function findCustomOverride(componentName) {
+    const element = document.querySelector(`template[override="${componentName}"]`);
+
+    return (element !== null) ? element.innerHTML : '';
+}
+
+function clearTwigCache() {
+    Twig.clearRegistry();
+}
+
+function getTwigCache() {
+    return Twig.getRegistry();
+}
+
+function disableTwigCache() {
+    Twig.cache(false);
 }

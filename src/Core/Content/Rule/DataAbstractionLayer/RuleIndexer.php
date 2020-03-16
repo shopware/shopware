@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class RuleIndexer implements EntityIndexerInterface, EventSubscriberInterface
+class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     /**
      * @var IteratorFactory

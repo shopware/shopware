@@ -13,13 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\Serializer;
 
-class ProductStreamIndexer implements EntityIndexerInterface
+class ProductStreamIndexer extends EntityIndexer
 {
     /**
      * @var IteratorFactory

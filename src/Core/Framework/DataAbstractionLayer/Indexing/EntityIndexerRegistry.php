@@ -13,7 +13,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     public const USE_INDEXING_QUEUE = 'use-indexing-queue';
 
     /**
-     * @var EntityIndexerInterface[]
+     * @var EntityIndexer[]
      */
     private $indexer;
 
@@ -118,7 +118,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     public function sendIndexingMessage(array $indexer = []): void
     {
         if (empty($indexer)) {
-            $indexer = array_map(function (EntityIndexerInterface $indexer) {
+            $indexer = array_map(function (EntityIndexer $indexer) {
                 return $indexer->getName();
             }, $this->indexer);
         }
@@ -143,7 +143,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $this->handle($message);
     }
 
-    private function getIndexer(string $name): ?EntityIndexerInterface
+    private function getIndexer(string $name): ?EntityIndexer
     {
         foreach ($this->indexer as $indexer) {
             if ($indexer->getName() === $name) {
@@ -158,7 +158,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     {
         $indexer = $this->getIndexer($name);
 
-        if (!$indexer instanceof EntityIndexerInterface) {
+        if (!$indexer instanceof EntityIndexer) {
             throw new \RuntimeException(sprintf('Entity indexer with name %s not found', $name));
         }
 

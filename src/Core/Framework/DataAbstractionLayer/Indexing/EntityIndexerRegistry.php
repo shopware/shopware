@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -38,6 +39,14 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
             EntityWrittenContainerEvent::class => [
                 ['refresh', 1000],
             ],
+        ];
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            EntityIndexingMessage::class,
+            IterateEntityIndexerMessage::class,
         ];
     }
 
@@ -81,31 +90,51 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         $this->working = false;
     }
 
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            EntityIndexingMessage::class,
-        ];
-    }
-
     public function handle($message): void
     {
-        if (!$message instanceof EntityIndexingMessage) {
+        if ($message instanceof EntityIndexingMessage) {
+            $indexer = $this->getIndexer($message->getIndexer());
+
+            if ($indexer) {
+                $indexer->handle($message);
+            }
+
             return;
         }
 
-        $indexer = $this->getIndexer($message->getIndexer());
+        if ($message instanceof IterateEntityIndexerMessage) {
+            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true);
 
-        if (!$indexer) {
+            if (!$next) {
+                return;
+            }
+
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset()));
+
+            return;
+        }
+    }
+
+    public function sendIndexingMessage(array $indexer = []): void
+    {
+        if (empty($indexer)) {
+            $indexer = array_map(function (EntityIndexerInterface $indexer) {
+                return $indexer->getName();
+            }, $this->indexer);
+        }
+
+        if (empty($indexer)) {
             return;
         }
 
-        $indexer->handle($message);
+        foreach ($indexer as $name) {
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($name, null));
+        }
     }
 
     private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
     {
-        if ($useQueue) {
+        if ($useQueue || $message->forceQueue()) {
             $this->messageBus->dispatch($message);
 
             return;
@@ -123,5 +152,25 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         return null;
+    }
+
+    private function iterateIndexer(string $name, $offset, bool $useQueue): ?EntityIndexingMessage
+    {
+        $indexer = $this->getIndexer($name);
+
+        if (!$indexer instanceof EntityIndexerInterface) {
+            throw new \RuntimeException(sprintf('Entity indexer with name %s not found', $name));
+        }
+
+        $message = $indexer->iterate($offset);
+        if (!$message) {
+            return null;
+        }
+
+        $message->setIndexer($indexer->getName());
+
+        $this->sendOrHandle($message, $useQueue);
+
+        return $message;
     }
 }

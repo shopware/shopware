@@ -26,11 +26,17 @@ class EntityIndexingMessage
      */
     private $context;
 
-    public function __construct(array $data, $offset = null, ?Context $context = null)
+    /**
+     * @var bool
+     */
+    private $forceQueue;
+
+    public function __construct(array $data, $offset = null, ?Context $context = null, bool $forceQueue = false)
     {
         $this->data = $data;
         $this->offset = $offset;
         $this->context = $context ?? Context::createDefaultContext();
+        $this->forceQueue = $forceQueue;
     }
 
     public function getData(): array
@@ -62,5 +68,10 @@ class EntityIndexingMessage
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function forceQueue(): bool
+    {
+        return $this->forceQueue;
     }
 }

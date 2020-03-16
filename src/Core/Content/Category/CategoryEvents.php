@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Category;
 
+use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+
 class CategoryEvents
 {
     /**
@@ -63,4 +65,9 @@ class CategoryEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const CATEGORY_TRANSLATION_ID_SEARCH_RESULT_LOADED_EVENT = 'category_translation.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Content\Category\Event\CategoryIndexerEvent")
+     */
+    public const CATEGORY_INDEXER_EVENT = CategoryIndexerEvent::class;
 }

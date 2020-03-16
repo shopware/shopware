@@ -220,8 +220,7 @@ class ProductIndexer implements EntityIndexerInterface
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $parentIds = array_column($parentIds, 'id');
 
-        return $parentIds;
+        return array_column($parentIds, 'id');
     }
 }

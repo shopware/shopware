@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerInterface
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CategoryIndexer implements EntityIndexerInterface
 {
@@ -52,6 +54,11 @@ class CategoryIndexer implements EntityIndexerInterface
      */
     private $cacheClearer;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
@@ -59,7 +66,8 @@ class CategoryIndexer implements EntityIndexerInterface
         ChildCountUpdater $childCountUpdater,
         TreeUpdater $treeUpdater,
         CategoryBreadcrumbUpdater $breadcrumbUpdater,
-        CacheClearer $cacheClearer
+        CacheClearer $cacheClearer,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -68,6 +76,7 @@ class CategoryIndexer implements EntityIndexerInterface
         $this->breadcrumbUpdater = $breadcrumbUpdater;
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -124,7 +133,9 @@ class CategoryIndexer implements EntityIndexerInterface
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
 
-        return new EntityIndexingMessage(array_unique(array_merge($ids, $children)), null);
+        $ids = array_unique(array_merge($ids, $children));
+
+        return new EntityIndexingMessage($ids, null, $event->getContext(), \count($ids) > 20);
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -152,6 +163,8 @@ class CategoryIndexer implements EntityIndexerInterface
         $this->breadcrumbUpdater->update($ids, $context);
 
         $this->connection->commit();
+
+        $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context));
 
         $this->cacheClearer->invalidateIds($ids, CategoryDefinition::ENTITY_NAME);
     }

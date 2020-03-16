@@ -49,7 +49,7 @@ Component.register('sw-show-case-list', {
     created() {
         const options = {
             version: 1, // default is the latest api version
-            entityDeprecation: true // default is true
+            compatibility: true // default is true
         };
 
         this.repository = this.repositoryFactory.create('product', null, options);

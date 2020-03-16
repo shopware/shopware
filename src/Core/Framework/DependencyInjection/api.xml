@@ -123,10 +123,16 @@
         <!-- Converter -->
         <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
             <argument type="tagged" tag="shopware.api.converter"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <!-- Api version -->

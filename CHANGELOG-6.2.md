@@ -378,6 +378,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to register a new customer with the new api route `/store-api/v1/account/register`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute` to confirm a double optin registration with the new api route `/store-api/v1/account/register-confirm`
+    * Added `\Shopware\Core\Framework\Api\Converter\DefaultApiConverter` to handle deprecated fields from DAL in the api versions
+        * When the new field and the old field is send, the converter will prefer the new field
+        * Added new header `sw-ignore-deprecations` to ignore deprecations and receive all fields
+        * This header is used now in all api calls in the administration
     
     
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry` use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry` instead

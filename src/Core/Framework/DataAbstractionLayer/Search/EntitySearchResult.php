@@ -106,13 +106,7 @@ class EntitySearchResult extends EntityCollection
         unset($vars['context']);
         unset($vars['entities']);
 
-        foreach ($vars as $property => $value) {
-            if ($value instanceof \DateTimeInterface) {
-                $value = $value->format(\DateTime::ATOM);
-            }
-
-            $vars[$property] = $value;
-        }
+        $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
 
         return $vars;
     }

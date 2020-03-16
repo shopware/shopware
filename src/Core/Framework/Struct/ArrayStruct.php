@@ -63,17 +63,15 @@ class ArrayStruct extends Struct implements \ArrayAccess
 
     public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize();
-        unset($data['data']);
+        $jsonArray = parent::jsonSerialize();
 
-        foreach ($this->data as $property => $value) {
-            if ($value instanceof \DateTimeInterface) {
-                $value = $value->format(\DateTime::ATOM);
-            }
+        // The key-values pairs from the property $data are now serialized in the JSON property "data". But the
+        // key-value pairs from data should appear in the serialization as they were properties of the ArrayStruct
+        // itself. Therefore the key-values moved one level up.
+        unset($jsonArray['data']);
+        $data = $this->data;
+        $this->convertDateTimePropertiesToJsonStringRepresentation($data);
 
-            $data[$property] = $value;
-        }
-
-        return $data;
+        return array_merge($jsonArray, $data);
     }
 }

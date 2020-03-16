@@ -7,14 +7,17 @@ trait JsonSerializableTrait
     public function jsonSerialize(): array
     {
         $vars = get_object_vars($this);
-        foreach ($vars as $property => $value) {
+        $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
+
+        return $vars;
+    }
+
+    protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
+    {
+        foreach ($array as $property => &$value) {
             if ($value instanceof \DateTimeInterface) {
                 $value = $value->format(\DateTime::RFC3339_EXTENDED);
             }
-
-            $vars[$property] = $value;
         }
-
-        return $vars;
     }
 }

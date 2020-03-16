@@ -11,7 +11,7 @@ class TestBasicWithExtension extends SerializationFixture
     {
         $extendable = new ArrayEntity([
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
-            'createdAt' => new \DateTime('2018-01-15T08:01:16+00:00'),
+            'createdAt' => new \DateTime('2018-01-15T08:01:16.000+00:00'),
         ]);
 
         $extendable->addExtension('toOne', new ArrayEntity([
@@ -46,7 +46,7 @@ class TestBasicWithExtension extends SerializationFixture
                 'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
                 'type' => 'extendable',
                 'attributes' => [
-                    'createdAt' => '2018-01-15T08:01:16+00:00',
+                    'createdAt' => '2018-01-15T08:01:16.000+00:00',
                     'updatedAt' => null,
                 ],
                 'links' => [
@@ -198,7 +198,7 @@ class TestBasicWithExtension extends SerializationFixture
     {
         return [
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
-            'createdAt' => '2018-01-15T08:01:16+00:00',
+            'createdAt' => '2018-01-15T08:01:16.000+00:00',
             '_uniqueIdentifier' => null,
             'versionId' => null,
             'translated' => [],

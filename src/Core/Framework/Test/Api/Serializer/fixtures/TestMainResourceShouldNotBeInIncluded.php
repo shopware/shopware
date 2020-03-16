@@ -22,7 +22,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $user->setActive(true);
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
-        $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16.000+00:00'));
         $user->internalSetEntityName('user');
 
         $media = new MediaEntity();
@@ -32,8 +32,8 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $media->setMimeType('image/jpg');
         $media->setFileExtension('jpg');
         $media->setFileSize(18921);
-        $media->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
-        $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
+        $media->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
+        $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media->setTitle('Lagerkorn-5,0klein');
         $media->internalSetEntityName('media');
 
@@ -58,7 +58,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'email' => 'user1@shop.de',
                     'active' => true,
                     'customFields' => null,
-                    'createdAt' => '2018-01-15T08:01:16+00:00',
+                    'createdAt' => '2018-01-15T08:01:16.000+00:00',
                     'updatedAt' => null,
                     'admin' => true,
                     'title' => null,
@@ -137,8 +137,8 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'fileSize' => 18921,
                         'metaData' => null,
                         'mediaType' => null,
-                        'createdAt' => '2012-08-15T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'alt' => null,
                         'title' => 'Lagerkorn-5,0klein',
                         'url' => '',
@@ -329,7 +329,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         '_uniqueIdentifier' => 'f343a3c119cf42a7841aa0ac5094908c',
                         'versionId' => null,
                         'translated' => [],
-                        'createdAt' => '2018-01-15T08:01:16+00:00',
+                        'createdAt' => '2018-01-15T08:01:16.000+00:00',
                         'updatedAt' => null,
                         'extensions' => [],
                         'admin' => true,
@@ -363,8 +363,8 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     '_uniqueIdentifier' => '3e352be2d85846dd97529c0f6b544870',
                     'versionId' => null,
                     'translated' => [],
-                    'createdAt' => '2012-08-15T00:00:00+00:00',
-                    'updatedAt' => '2017-11-21T11:25:34+00:00',
+                    'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                    'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                     'extensions' => [],
                     'apiAlias' => 'media',
                 ],
@@ -377,7 +377,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
             '_uniqueIdentifier' => 'f343a3c119cf42a7841aa0ac5094908c',
             'versionId' => null,
             'translated' => [],
-            'createdAt' => '2018-01-15T08:01:16+00:00',
+            'createdAt' => '2018-01-15T08:01:16.000+00:00',
             'updatedAt' => null,
             'extensions' => [],
             'admin' => true,

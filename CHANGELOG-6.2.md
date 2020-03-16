@@ -341,10 +341,23 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
     * Changed `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder` to not set default limit for the api listing
     
-* Storefront	
-    * Deprecated `$connection->executeQuery()` for write operations
+    * Added new `\Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute` to provide payment methods about the new api route `/store-api/v1/payment-method`
+    * Added new `\Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute` to provide shipping methods about the new api route `/store-api/v1/shipping-method`
+    * Added new `\Shopware\Core\System\Currency\SalesChannel\CurrencyRoute` to provide currencies about the new api route `/store-api/v1/currency`
+    * Added new `\Shopware\Core\System\Language\SalesChannel\LanguageRoute` to provide languages about the new api route `/store-api/v1/language`
+    * Added new `\Shopware\Core\Content\Category\SalesChannel\CategoryRoute` to provide category page with resolved cms about the new api route `/store-api/v1/category/{categoryId}`
+    * Added new `\Shopware\Core\Content\Cms\SalesChannel\CmsRoute` to provide resolved cms page about the new api route `/store-api/v1/cms/{uuid}`
+    * Added new `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute` to provide navigation tree of a category about the new api route `/store-api/v1/navigation/{categoryId}`
+        * Following alias can be used instead the uuid
+            * `main-navigation`
+            * `service-navigation`
+            * `footer-navigation`
+    * Added new `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` to provide listing results about the new api route `/store-api/v1/product-listing/{categoryId}`
+    * Added new `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute` to provide search page results about the new api route `/store-api/v1/search?term=MyKeyword`
+    * Added new `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute` to provide search suggest results about the new api route `/store-api/v1/search-suggest?term=MyKeyword`
 
 * Storefront    
+    Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json
         {

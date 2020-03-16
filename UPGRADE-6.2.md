@@ -52,6 +52,13 @@ Core
 * The `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` will be removed, extend from the abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` instead.
 * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
 
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway` use `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteInterface` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteInterface` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
+
 Administration
 --------------
 

@@ -27,9 +27,8 @@ export default class ViewItemListEvent extends AnalyticsEvent
         }
 
         productBoxes.forEach(item => {
-            const form = DomAccessHelper.querySelector(item, '.buy-widget');
-            const id = this.fetchProductId(DomAccessHelper.querySelectorAll(form, 'input'));
-            const name = DomAccessHelper.querySelector(form, 'input[name=product-name]').value;
+            const id = DomAccessHelper.querySelector(item, 'input[name=product-id]').value;
+            const name = DomAccessHelper.querySelector(item, 'input[name=product-name]').value;
 
             if (!id || !name) {
                 return;

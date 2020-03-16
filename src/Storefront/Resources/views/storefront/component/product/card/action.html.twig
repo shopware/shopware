@@ -73,4 +73,14 @@
             {% endif %}
         </div>
     {% endif %}
+
+    {% block component_product_box_action_meta %}
+        <input type="hidden"
+               name="product-name"
+               value="{{ product.translated.name }}">
+
+        <input type="hidden"
+               name="product-id"
+               value="{{ id }}">
+    {% endblock %}
 {% endblock %}

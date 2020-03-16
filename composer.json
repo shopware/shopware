@@ -118,7 +118,8 @@
         "twig/intl-extra": "2.12.3",
         "twig/string-extra": "2.12.3",
         "twig/twig": "2.12.3",
-        "zircote/swagger-php": "3.0.3"
+        "zircote/swagger-php": "3.0.3",
+        "stecman/symfony-console-completion": "^0.11.0"
     },
     "require-dev": {
         "ext-tokenizer": "*",

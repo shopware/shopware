@@ -340,6 +340,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `defineProtections` method on `\Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition`, which allows to define entity based protections
     * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
     * Changed `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder` to not set default limit for the api listing
+    * Added new `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` route to make the contact form available using the Store-API
     
 * Storefront	
     * Deprecated `$connection->executeQuery()` for write operations

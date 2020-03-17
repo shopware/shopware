@@ -15,4 +15,6 @@
     <import resource="../../Category/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Product/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Cms/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../ContactForm/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Newsletter/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

@@ -64,7 +64,7 @@
                         {% endblock %}
 
                         {%  block sw_sales_channel_detail_content_tab_analytics %}
-                            <sw-tabs-item v-if="isStoreFront && next6008" :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
+                            <sw-tabs-item v-if="isStoreFront" :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
                                           :title="$tc('sw-sales-channel.detail.tabAnalytics')">
                                 {{ $tc('sw-sales-channel.detail.tabAnalytics') }}
                             </sw-tabs-item>

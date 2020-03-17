@@ -16,7 +16,7 @@
             {% endblock %}
 
             {% block sw_order_create_details_body_billing_address %}
-                <div v-if="isCustomerActive" class="sw-order-create-details-body__item">
+                <div v-if="isCustomerActive" class="sw-order-create-details-body__item is-billing">
                     <p class="sw-order-create-details-body__item-label">
                         {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
                         <sw-button
@@ -50,7 +50,7 @@
             {% endblock %}
 
             {% block sw_order_create_details_body_shipping_address %}
-                <div v-if="isCustomerActive" class="sw-order-create-details-body__item">
+                <div v-if="isCustomerActive" class="sw-order-create-details-body__item is-shipping">
                     <template v-if="isAddressIdentical">
                         {% block sw_order_create_details_body_shipping_address_identical %}
                             <p class="sw-order-create-details-body__item-label">

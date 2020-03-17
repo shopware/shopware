@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer instead
+ */
 class RulePayloadIndexer implements IndexerInterface, EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -25,6 +25,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Content\Seo\SeoUrlUpdater instead
+ */
 class SeoUrlIndexer implements IndexerInterface
 {
     /**

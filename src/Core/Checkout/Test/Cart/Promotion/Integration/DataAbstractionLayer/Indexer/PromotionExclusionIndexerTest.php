@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\DataAbstraction
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionExclusionIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,11 +26,6 @@ class PromotionExclusionIndexerTest extends TestCase
     private $context;
 
     /**
-     * @var PromotionExclusionIndexer
-     */
-    private $promotionExclusionsIndexer;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -45,7 +39,6 @@ class PromotionExclusionIndexerTest extends TestCase
     {
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->context = Context::createDefaultContext();
-        $this->promotionExclusionsIndexer = $this->getContainer()->get(PromotionExclusionIndexer::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
     }

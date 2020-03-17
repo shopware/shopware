@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer instead
+ */
 class ProductStreamIndexer implements IndexerInterface
 {
     public function index(\DateTimeInterface $timestamp): void

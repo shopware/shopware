@@ -225,11 +225,11 @@ class ElasticsearchProductTest extends TestCase
         $context = Context::createDefaultContext();
 
         $this->productRepository->upsert([
-            $this->createProduct('p7', 'update', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('u7', 'update', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
         ], $context);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('productNumber', 'p7'));
+        $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
         // indexing message is still in queue, search should not match
         $result = $this->productRepository->searchIds($criteria, $context);
@@ -240,7 +240,7 @@ class ElasticsearchProductTest extends TestCase
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(1, $result->getIds());
 
-        $this->productRepository->delete([['id' => $ids->get('p7')]], $context);
+        $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(1, $result->getIds());
 

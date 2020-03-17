@@ -356,6 +356,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` to provide listing results about the new api route `/store-api/v1/product-listing/{categoryId}`
     * Added new `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute` to provide search page results about the new api route `/store-api/v1/search?term=MyKeyword`
     * Added new `\Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute` to provide search suggest results about the new api route `/store-api/v1/search-suggest?term=MyKeyword`
+    * Added new `\Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute` to make seo urls available about the new api route `/store-api/v1/seo-url`
+    * Added new header `sw-include-seo-urls` for the store-api to enrich the seo urls in the response
 
 * Storefront    
     Deprecated `$connection->executeQuery()` for write operations

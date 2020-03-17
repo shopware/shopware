@@ -188,7 +188,7 @@ class StructEncoder
                 continue;
             }
 
-            $value[$name] = $this->encodeStruct($struct->getExtension($name), $apiVersion, $fields);
+            $value[$name] = $this->encode($struct->getExtension($name), $apiVersion, $fields);
         }
 
         return $value;

@@ -108,7 +108,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
             return null;
         }
 
-        $this->handle(new EntityIndexingMessage($updates, null));
+        $this->handle(new EntityIndexingMessage($updates, null, $event->getContext()));
 
         return null;
     }

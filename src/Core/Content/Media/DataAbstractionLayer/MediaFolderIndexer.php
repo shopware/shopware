@@ -71,7 +71,7 @@ class MediaFolderIndexer extends EntityIndexer
 
         $updates = array_merge($updates, $this->fetchChildren($updates));
 
-        return new EntityIndexingMessage($updates, null);
+        return new EntityIndexingMessage($updates, null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

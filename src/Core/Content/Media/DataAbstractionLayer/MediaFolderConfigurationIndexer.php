@@ -72,7 +72,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage($updates, null);
+        return new EntityIndexingMessage($updates, null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

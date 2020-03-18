@@ -73,6 +73,14 @@ class GoogleShoppingMerchantControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+
+        static::assertNotEmpty($response['data']);
+        static::assertArrayHasKey('adultContent', $response['data']);
+        static::assertArrayHasKey('id', $response['data']);
+        static::assertArrayHasKey('kind', $response['data']);
+        static::assertArrayHasKey('name', $response['data']);
+        static::assertArrayHasKey('websiteUrl', $response['data']);
     }
 
     public function testGetMerchantListSuccess(): void
@@ -84,7 +92,15 @@ class GoogleShoppingMerchantControllerTest extends TestCase
             '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/list'
         );
 
-        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['data']);
+        static::assertArrayHasKey('id', $content['data'][0]);
+        static::assertArrayHasKey('name', $content['data'][0]);
     }
 
     public function testAssignMerchantAccountFails(): void
@@ -144,7 +160,13 @@ class GoogleShoppingMerchantControllerTest extends TestCase
             ['merchantId' => $merchantId]
         );
 
-        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['data']);
     }
 
     public function testUnAssignMerchantAccountSuccess(): void
@@ -160,7 +182,13 @@ class GoogleShoppingMerchantControllerTest extends TestCase
             '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/unassign'
         );
 
-        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['data']);
     }
 
     public function testGetMerchantAccountStatusSuccess(): void
@@ -176,7 +204,13 @@ class GoogleShoppingMerchantControllerTest extends TestCase
             '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/status'
         );
 
-        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['data']);
     }
 
     public function testUpdateMerchantAccountWithoutDataFailure(): void
@@ -360,6 +394,100 @@ class GoogleShoppingMerchantControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSearchProductGoogleStatusFails(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $merchantDbId = $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+        $this->updatetDatafeedtoMerchantAccount(Uuid::randomHex(), $merchantDbId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/search-product-google-status'
+        );
+
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['errors']);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $content['errors'][0]['code']);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/search-product-google-status',
+            ['productNumbers' => 'string']
+        );
+
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['errors']);
+        static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $content['errors'][0]['code']);
+    }
+
+    public function testSearchProductGoogleStatusFailsWithoutDatafeedId(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $merchantDbId = $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+        $this->updatetDatafeedtoMerchantAccount(null, $merchantDbId);
+
+        $productNumber = Uuid::randomHex();
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/search-product-google-status',
+            ['productNumbers' => [$productNumber]]
+        );
+
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['errors']);
+        static::assertEquals('Datafeed not found', $content['errors'][0]['detail']);
+        static::assertSame('CONTENT__GOOGLE_SHOPPING_DATA_FEED_NOT_FOUND', $content['errors'][0]['code']);
+    }
+
+    public function testSearchProductGoogleStatusSuccess(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $merchantDbId = $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+        $this->updatetDatafeedtoMerchantAccount(Uuid::randomHex(), $merchantDbId);
+
+        $productNumber = Uuid::randomHex();
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/search-product-google-status',
+            ['productNumbers' => [$productNumber]]
+        );
+
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($content['data']);
+        static::assertArrayHasKey($productNumber, $content['data']);
     }
 
     private function getUpdatingMerchantData(array $data = []): array

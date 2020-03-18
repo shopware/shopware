@@ -122,7 +122,21 @@ class GoogleShoppingAccountControllerTest extends TestCase
             '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/profile'
         );
 
-        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals([
+            'verified_email' => true,
+            'given_name' => 'John',
+            'family_name' => 'Joe',
+            'email' => 'john.doe@example.com',
+            'id' => '1234567890',
+            'locale' => 'en',
+            'name' => 'John Doe',
+            'picture' => 'https://lh3.googleusercontent.com/a-/AOh14Ghvc3v9xTUIDTCW67gcdolbfBlHMoHYSFLc6hglZA', ], $content['data']);
     }
 
     public function testAccountAgreeTermOfServiceWithoutAcceptanceFailure(): void

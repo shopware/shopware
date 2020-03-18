@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\GoogleShopping;
 
 use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountEntity;
-use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -44,7 +43,7 @@ trait GoogleShoppingIntegration
         return $id;
     }
 
-    public function updatetDatafeedtoMerchantAccount(string $datafeedId, string $id)
+    public function updatetDatafeedtoMerchantAccount(?string $datafeedId, string $id)
     {
         $merchantRepository = $this->getContainer()->get('google_shopping_merchant_account.repository');
 
@@ -90,29 +89,6 @@ trait GoogleShoppingIntegration
         $this->createProductExport($id, $this->createStorefrontSalesChannel($maintenance));
 
         return $id;
-    }
-
-    public function createGoogleShoppingRequest(?string $salesChannelId)
-    {
-        if (empty($salesChannelId)) {
-            $salesChannelId = $this->createSalesChannelGoogleShopping();
-        }
-
-        $salesChannelEntity = $this->getContainer()->get('sales_channel.repository')->search(new Criteria([$salesChannelId]), $this->context)->first();
-
-        return new GoogleShoppingRequest($this->context, $salesChannelEntity);
-    }
-
-    public function getMockGoogleClient(): void
-    {
-        if ($this->getContainer()->initialized('google_shopping_client')) {
-            return;
-        }
-
-        $this->getContainer()->set(
-            'google_shopping_client',
-            new GoogleShoppingClientMock('clientId', 'clientSecret', 'redirectUrl')
-        );
     }
 
     public function createStorefrontSalesChannel(bool $maintenance = false): string
@@ -162,6 +138,18 @@ trait GoogleShoppingIntegration
         return $merchantAccount;
     }
 
+    public function getMockGoogleClient(): void
+    {
+        if ($this->getContainer()->initialized('google_shopping_client')) {
+            return;
+        }
+
+        $this->getContainer()->set(
+            'google_shopping_client',
+            new GoogleShoppingClientMock('clientId', 'clientSecret', 'redirectUrl')
+        );
+    }
+
     protected function getSalesChannelDomainId(): string
     {
         /** @var EntityRepositoryInterface $repository */
@@ -207,30 +195,6 @@ trait GoogleShoppingIntegration
         return $salesChannelId;
     }
 
-    private function createProductStream($salesChannelId): string
-    {
-        /** @var EntityRepositoryInterface $streamRepository */
-        $streamRepository = $this->getContainer()->get('product_stream.repository');
-        $id = Uuid::randomHex();
-        $randomProductIds = implode('|', array_column($this->createProducts($salesChannelId), 'id'));
-
-        $streamRepository->create([
-            [
-                'id' => $id,
-                'filters' => [
-                    [
-                        'type' => 'equalsAny',
-                        'field' => 'id',
-                        'value' => $randomProductIds,
-                    ],
-                ],
-                'name' => 'testStream',
-            ],
-        ], Context::createDefaultContext());
-
-        return $id;
-    }
-
     private function createProducts($salesChannelId): array
     {
         $products = [];
@@ -260,6 +224,30 @@ trait GoogleShoppingIntegration
                 ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+    }
+
+    private function createProductStream($salesChannelId): string
+    {
+        /** @var EntityRepositoryInterface $streamRepository */
+        $streamRepository = $this->getContainer()->get('product_stream.repository');
+        $id = Uuid::randomHex();
+        $randomProductIds = implode('|', array_column($this->createProducts($salesChannelId), 'id'));
+
+        $streamRepository->create([
+            [
+                'id' => $id,
+                'filters' => [
+                    [
+                        'type' => 'equalsAny',
+                        'field' => 'id',
+                        'value' => $randomProductIds,
+                    ],
+                ],
+                'name' => 'testStream',
+            ],
+        ], Context::createDefaultContext());
+
+        return $id;
     }
 
     private function initGoogleAccountData(string $id, array $credential, ?string $salesChannelId): array

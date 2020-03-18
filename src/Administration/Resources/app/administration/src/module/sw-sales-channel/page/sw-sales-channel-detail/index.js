@@ -227,8 +227,7 @@ Component.register('sw-sales-channel-detail', {
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
 
             if (this.next6050) {
-                criteria.addAssociation('googleShoppingAccount');
-                criteria.addAssociation(('googleShoppingAccount.googleShoppingMerchantAccount'));
+                criteria.addAssociation('googleShoppingAccount.googleShoppingMerchantAccount');
             }
 
             criteria.addAssociation('domains.language');

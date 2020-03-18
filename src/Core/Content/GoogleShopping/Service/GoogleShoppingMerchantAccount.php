@@ -65,6 +65,7 @@ class GoogleShoppingMerchantAccount
     public function getStatus(string $merchantId): array
     {
         $status = $this->contentAccountResource->getStatus($merchantId, $merchantId);
+
         $status['isSuspended'] = array_key_exists('accountLevelIssues', $status)
             ? $this->isAccountSuspended(json_decode(json_encode($status['accountLevelIssues']), true))
             : false;
@@ -122,7 +123,11 @@ class GoogleShoppingMerchantAccount
     public function getStorefrontSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
     {
         $criteria = new Criteria([$salesChannelId]);
-        $criteria->addAssociation('productExports.storefrontSalesChannel');
+
+        $criteria->addAssociations([
+            'productExports.storefrontSalesChannel.language.locale',
+            'productExports.storefrontSalesChannel.country',
+        ]);
 
         $productExport = $this->getProductExportsByCriteria($criteria, $salesChannelId, $context);
 

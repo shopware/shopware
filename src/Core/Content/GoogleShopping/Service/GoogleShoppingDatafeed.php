@@ -95,9 +95,12 @@ class GoogleShoppingDatafeed
     private function getProductExports(string $salesChannelId, Context $context): ProductExportEntity
     {
         $criteria = new Criteria([$salesChannelId]);
-        $criteria->addAssociation('productExports.salesChannelDomain');
-        $criteria->addAssociation('productExports.storefrontSalesChannel.country');
-        $criteria->addAssociation('productExports.storefrontSalesChannel.language.locale');
+
+        $criteria->addAssociations([
+            'productExports.salesChannelDomain',
+            'productExports.storefrontSalesChannel.country',
+            'productExports.storefrontSalesChannel.language.locale',
+        ]);
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\ProductStream\Event\ProductStreamIndexerEvent;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamIndexer extends EntityIndexer
 {
@@ -51,13 +53,19 @@ class ProductStreamIndexer extends EntityIndexer
      */
     private $productDefinition;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         CacheClearer $cacheClearer,
         Serializer $serializer,
-        ProductDefinition $productDefinition
+        ProductDefinition $productDefinition,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -65,6 +73,7 @@ class ProductStreamIndexer extends EntityIndexer
         $this->cacheClearer = $cacheClearer;
         $this->serializer = $serializer;
         $this->productDefinition = $productDefinition;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -138,6 +147,8 @@ class ProductStreamIndexer extends EntityIndexer
                 ]);
             }
         }
+
+        $this->eventDispatcher->dispatch(new ProductStreamIndexerEvent($ids, $message->getContext()));
 
         $this->cacheClearer->invalidateIds($ids, ProductStreamDefinition::ENTITY_NAME);
     }

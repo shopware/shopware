@@ -29,6 +29,7 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

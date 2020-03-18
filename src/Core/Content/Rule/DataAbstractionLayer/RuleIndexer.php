@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
@@ -45,18 +47,25 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
      */
     private $payloadUpdater;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         CacheClearer $cacheClearer,
-        RulePayloadUpdater $payloadUpdater
+        RulePayloadUpdater $payloadUpdater,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
         $this->payloadUpdater = $payloadUpdater;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -123,6 +132,8 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         }
 
         $this->payloadUpdater->update($ids);
+
+        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext()));
 
         $this->cacheClearer->invalidateIds($ids, RuleDefinition::ENTITY_NAME);
     }

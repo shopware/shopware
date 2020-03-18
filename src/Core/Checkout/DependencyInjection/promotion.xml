@@ -190,6 +190,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater"/>
             <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater">

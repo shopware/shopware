@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
+use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MediaFolderIndexer extends EntityIndexer
 {
@@ -35,12 +37,23 @@ class MediaFolderIndexer extends EntityIndexer
      */
     private $cacheClearer;
 
-    public function __construct(IteratorFactory $iteratorFactory, EntityRepositoryInterface $repository, Connection $connection, CacheClearer $cacheClearer)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $repository,
+        Connection $connection,
+        CacheClearer $cacheClearer,
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->folderRepository = $repository;
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -115,6 +128,8 @@ class MediaFolderIndexer extends EntityIndexer
                 'configId' => Uuid::fromHexToBytes($configId),
             ]);
         }
+
+        $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext()));
 
         $this->cacheClearer->invalidateIds($ids, MediaFolderDefinition::ENTITY_NAME);
     }

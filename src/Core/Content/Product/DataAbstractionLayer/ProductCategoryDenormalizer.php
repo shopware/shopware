@@ -48,7 +48,7 @@ class ProductCategoryDenormalizer
         );
 
         $delete = new RetryableQuery(
-            $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id')
+            $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id AND `product_version_id` = :version')
         );
 
         foreach ($categories as $productId => $mapping) {
@@ -65,7 +65,7 @@ class ProductCategoryDenormalizer
 
             $update->execute($params);
 
-            $delete->execute(['id' => $productId]);
+            $delete->execute(['id' => $productId, 'version' => $versionId]);
 
             if (empty($categoryIds)) {
                 continue;

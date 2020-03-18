@@ -69,7 +69,7 @@ class VariantListingUpdater
             $query->from('(SELECT 1)', 'root');
 
             $fields = [];
-            $params = ['parentId' => $parentId];
+            $params = ['parentId' => $parentId, 'versionId' => $versionBytes];
             foreach ($groups as $groupId) {
                 $mappingAlias = 'mapping' . $groupId;
                 $optionAlias = 'option' . $groupId;
@@ -91,7 +91,7 @@ class VariantListingUpdater
                     LOWER(HEX(product.parent_id)),
                     (' . $query->getSQL() . ')
                 )
-            ) WHERE parent_id = :parentId';
+            ) WHERE parent_id = :parentId AND version_id = :versionId';
 
             RetryableQuery::retryable(function () use ($sql, $params): void {
                 $this->connection->executeUpdate($sql, $params);

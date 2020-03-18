@@ -56,13 +56,18 @@ class ChildCountUpdater
         $totals = $query->execute()->fetchAll();
 
         $sql = sprintf('UPDATE %s SET child_count = :count WHERE id = :id', EntityDefinitionQueryHelper::escape($entityName));
+        $params = [];
+        if ($definition->isVersionAware()) {
+            $sql = sprintf('UPDATE %s SET child_count = :count WHERE id = :id AND version_id = :versionId', EntityDefinitionQueryHelper::escape($entityName));
+            $params = ['versionId' => Uuid::fromHexToBytes($context->getVersionId())];
+        }
 
         $update = new RetryableQuery($this->connection->prepare($sql));
 
         $totals = FetchModeHelper::keyPair($totals);
 
         foreach ($totals as $id => $total) {
-            $update->execute(['id' => Uuid::fromHexToBytes($id), 'count' => (int) $total]);
+            $update->execute(array_merge($params, ['id' => Uuid::fromHexToBytes($id), 'count' => (int) $total]));
         }
 
         $parentIds = array_flip($parentIds);
@@ -71,7 +76,7 @@ class ChildCountUpdater
         $without = array_keys($without);
 
         foreach ($without as $id) {
-            $update->execute(['id' => Uuid::fromHexToBytes($id), 'count' => 0]);
+            $update->execute(array_merge($params, ['id' => Uuid::fromHexToBytes($id), 'count' => 0]));
         }
     }
 }

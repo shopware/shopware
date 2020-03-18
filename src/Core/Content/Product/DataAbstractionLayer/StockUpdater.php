@@ -75,6 +75,10 @@ class StockUpdater implements EventSubscriberInterface
 
     public function triggerChangeSet(PreWriteValidationEvent $event): void
     {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         foreach ($event->getCommands() as $command) {
             if (!$command instanceof ChangeSetAware) {
                 continue;
@@ -140,6 +144,10 @@ class StockUpdater implements EventSubscriberInterface
 
     public function stateChanged(StateMachineTransitionEvent $event): void
     {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         if ($event->getEntityName() !== 'order') {
             return;
         }
@@ -173,6 +181,10 @@ class StockUpdater implements EventSubscriberInterface
 
     public function update(array $ids, Context $context): void
     {
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
         $this->updateAvailableStock($ids, $context);
 
         $this->updateAvailableFlag($ids, $context);
@@ -249,7 +261,7 @@ UPDATE product SET available_stock = stock - (
     AND order_line_item.type = :type
     AND order_line_item.version_id = :version
 )
-WHERE product.id IN (:ids);
+WHERE product.id IN (:ids) AND product.version_id = :version;
         ';
 
         RetryableQuery::retryable(function () use ($sql, $bytes, $context): void {
@@ -282,7 +294,8 @@ WHERE product.id IN (:ids);
         $sql = '
             UPDATE product
             LEFT JOIN product parent
-                ON parent.id = product.parent_id AND parent.version_id = product.version_id
+                ON parent.id = product.parent_id
+                AND parent.version_id = product.version_id
 
             SET product.available = IFNULL((
                 IFNULL(product.is_closeout, parent.is_closeout) * product.available_stock

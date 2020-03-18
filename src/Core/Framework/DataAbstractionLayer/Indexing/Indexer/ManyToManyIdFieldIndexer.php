@@ -64,7 +64,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         $context = Context::createDefaultContext();
 
         foreach ($this->registry->getDefinitions() as $definition) {
-            if (!$definition->hasManyToManyFields()) {
+            if (!$definition->hasManyToManyIdFields()) {
                 continue;
             }
 
@@ -109,11 +109,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         $definitions = array_values(array_filter(
             $this->registry->getDefinitions(),
             function (EntityDefinition $definition) {
-                if (!$definition->hasManyToManyFields()) {
-                    return false;
-                }
-
-                return $definition->getFields()->filterInstance(ManyToManyIdField::class)->count() > 0;
+                return $definition->hasManyToManyIdFields();
             }
         ));
 
@@ -168,9 +164,6 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         if (empty($ids)) {
             return;
         }
-        if (!$definition->hasManyToManyFields()) {
-            return;
-        }
 
         if ($definition instanceof MappingEntityDefinition) {
             $fkFields = $definition->getFields()->filterInstance(FkField::class);
@@ -181,6 +174,10 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
                 $this->update($field->getReferenceDefinition(), $foreignKeys, $context);
             }
 
+            return;
+        }
+
+        if (!$definition->hasManyToManyIdFields()) {
             return;
         }
 

@@ -465,7 +465,7 @@ However, we have adapted the previous indexers so that they will continue to upd
 
 * `\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField` 
     * Can be updated by `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater`
-    * Old indexing can be disabled by `public function hasManyToManyFields(): bool { return false; }` in your entity definition
+    * Old indexing can be disabled by `public function hasManyToManyIdFields(): bool { return false; }` in your entity definition
  
 * `\Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField` and `\Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField` 
     * can be updated by `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater`

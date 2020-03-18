@@ -393,9 +393,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\TreeIndexer`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater` instead
     * Deprecated `\Shopware\Elasticsearch\Framework\Indexing\EntityIndexer`, use `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer` instead
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` instead
-* Storefront	
-    * Deprecated `$connection->executeQuery()` for write operations
-
 * Storefront    
     Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

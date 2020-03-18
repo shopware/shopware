@@ -104,7 +104,7 @@ class ProductDefinition extends EntityDefinition
         return false;
     }
 
-    public function hasManyToManyFields(): bool
+    public function hasManyToManyIdFields(): bool
     {
         return false;
     }

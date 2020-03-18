@@ -318,9 +318,9 @@ abstract class EntityDefinition
     /**
      * @deprecated tag:v6.3.0 - Only used to disable old indexing process
      */
-    public function hasManyToManyFields(): bool
+    public function hasManyToManyIdFields(): bool
     {
-        return $this->fields->filterInstance(ManyToManyIdField::class)->count() > 0;
+        return $this->getFields()->filterInstance(ManyToManyIdField::class)->count() > 0;
     }
 
     public function isLockAware(): bool

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -312,6 +313,14 @@ abstract class EntityDefinition
         return $this->isParentAware()
             && ($this->getFields()->filterInstance(TreePathField::class)->count() > 0
                 || $this->getFields()->filterInstance(TreeLevelField::class)->count() > 0);
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 - Only used to disable old indexing process
+     */
+    public function hasManyToManyFields(): bool
+    {
+        return $this->fields->filterInstance(ManyToManyIdField::class)->count() > 0;
     }
 
     public function isLockAware(): bool

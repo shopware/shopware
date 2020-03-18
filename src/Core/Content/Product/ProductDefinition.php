@@ -104,6 +104,11 @@ class ProductDefinition extends EntityDefinition
         return false;
     }
 
+    public function hasManyToManyFields(): bool
+    {
+        return false;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

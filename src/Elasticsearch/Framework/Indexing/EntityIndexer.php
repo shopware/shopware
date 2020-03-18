@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface;
 
 /**
- * @deprecated tag:v6.3.0 - Use ElasticsearchIndexer instead
+ * @deprecated tag:v6.3.0 - Use \Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer instead
  */
 class EntityIndexer implements IndexerInterface
 {

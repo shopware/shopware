@@ -59,7 +59,7 @@ class GoogleShoppingAccountControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         static::assertStringContainsString('CONTENT__GOOGLE_SHOPPING_INVALID_AUTHORIZATION_CODE', $response->getContent());
 
-        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
 
         $this->client->request(
             'POST',
@@ -108,6 +108,18 @@ class GoogleShoppingAccountControllerTest extends TestCase
         $this->client->request(
             'POST',
             '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/disconnect'
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testGetAccountUserProfileSuccess(): void
+    {
+        $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $this->client->request(
+            'GET',
+            '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/profile'
         );
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());

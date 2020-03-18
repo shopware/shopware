@@ -28,9 +28,14 @@ class GoogleShoppingClientMock extends GoogleShoppingClient
         return false;
     }
 
+    /**
+     * @param string $expectedClass
+     *
+     * @return \Google_Collection|mixed|object
+     */
     public function execute(RequestInterface $request, $expectedClass = null)
     {
-        if (class_exists($expectedClass)) {
+        if (!empty($expectedClass) && class_exists($expectedClass)) {
             return new $expectedClass();
         }
 

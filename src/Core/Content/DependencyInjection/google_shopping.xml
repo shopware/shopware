@@ -36,8 +36,24 @@
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingSiteVerificationFactory">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingUserProfileFactory">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
+        </service>
+
         <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource">
-            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createShoppingContentAccountResource" />
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createContentAccountResource" />
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\SiteVerificationResource">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingSiteVerificationFactory" method="createSiteVerificationResource" />
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\UserProfileResource">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingUserProfileFactory" method="createUserProfileResource" />
         </service>
 
         <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource">
@@ -51,12 +67,14 @@
 
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount">
             <argument type="service" id="google_shopping_account.repository"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\UserProfileResource"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount">
             <argument type="service" id="google_shopping_merchant_account.repository"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\SiteVerificationResource"/>
         </service>
 
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting">
@@ -73,17 +91,18 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingMerchantController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount"/>
-            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting"/>
+        <service id="Shopware\Core\Content\GoogleShopping\Controller\EligibilityRequirementController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\Content\GoogleShopping\Controller\EligibilityRequirementController" public="true">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingMerchantController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -95,12 +114,6 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount"/>
-        </service>
-
-        <!-- event exception listener -->
-        <service id="Shopware\Core\Content\GoogleShopping\GoogleShoppingExceptionListener">
-            <tag name="kernel.event_listener" event="kernel.exception"/>
-            <argument>%kernel.debug%</argument>
         </service>
     </services>
 </container>

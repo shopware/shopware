@@ -49,6 +49,20 @@ class GoogleShoppingAccountController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/account/profile", name="api.google-shopping.auth.profile", methods={"GET"})
+     */
+    public function getProfile(GoogleShoppingRequest $googleShoppingRequest): JsonResponse
+    {
+        if (!$googleShoppingRequest->getGoogleShoppingAccount()) {
+            throw new AlreadyConnectedGoogleAccountException();
+        }
+
+        return new JsonResponse([
+            'data' => $this->shoppingAccountService->getProfile(),
+        ]);
+    }
+
+    /**
      * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/account/connect", name="api.google-shopping.auth.connect", methods={"POST"})
      */
     public function connect(string $salesChannelId, Request $request, GoogleShoppingRequest $googleShoppingRequest): JsonResponse

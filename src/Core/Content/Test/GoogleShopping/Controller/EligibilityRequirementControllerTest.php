@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\GoogleShopping\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,8 +37,11 @@ class EligibilityRequirementControllerTest extends TestCase
 
     public function testGetEligibilityRequirementListWithSalesChannelIsNotConnectedProductExportFailure(): void
     {
-        $salesChannelId = $this->createSalesChannelGoogleShopping();
-        $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
+        $salesChannelId = Uuid::randomHex();
+
+        $this->createSalesChannel(Defaults::SALES_CHANNEL_TYPE_GOOGLE_SHOPPING, $salesChannelId);
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], Uuid::randomHex());
 
         $this->client->request(
             'GET',
@@ -52,9 +56,8 @@ class EligibilityRequirementControllerTest extends TestCase
     public function testGetEligibilityRequirementListSuccess(): void
     {
         $salesChannelId = $this->createSalesChannelGoogleShopping();
-        $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
-        $storefrontSalesChannelId = $this->createStorefrontSalesChannel();
-        $this->createProductExport($salesChannelId, $storefrontSalesChannelId);
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], Uuid::randomHex());
 
         $this->client->request(
             'GET',
@@ -73,7 +76,7 @@ class EligibilityRequirementControllerTest extends TestCase
         static::assertTrue($response['data']['contactPage']);
 
         static::assertArrayHasKey('secureCheckoutProcess', $response['data']);
-        static::assertTrue($response['data']['secureCheckoutProcess']);
+        static::assertFalse($response['data']['secureCheckoutProcess']);
 
         static::assertArrayHasKey('revocationPage', $response['data']);
         static::assertTrue($response['data']['revocationPage']);
@@ -83,14 +86,16 @@ class EligibilityRequirementControllerTest extends TestCase
 
         static::assertArrayHasKey('completeCheckoutProcess', $response['data']);
         static::assertTrue($response['data']['completeCheckoutProcess']);
+
+        static::assertArrayHasKey('siteIsVerified', $response['data']);
+        static::assertFalse($response['data']['siteIsVerified']);
     }
 
     public function testGetEligibilityRequirementListWithStorefrontSalesChannelOnMaintenanceModeSuccess(): void
     {
-        $salesChannelId = $this->createSalesChannelGoogleShopping();
-        $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
-        $storefrontSalesChannelId = $this->createStorefrontSalesChannel(true);
-        $this->createProductExport($salesChannelId, $storefrontSalesChannelId);
+        $salesChannelId = $this->createSalesChannelGoogleShopping(true);
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], Uuid::randomHex());
 
         $this->client->request(
             'GET',
@@ -108,7 +113,7 @@ class EligibilityRequirementControllerTest extends TestCase
         static::assertTrue($response['data']['contactPage']);
 
         static::assertArrayHasKey('secureCheckoutProcess', $response['data']);
-        static::assertTrue($response['data']['secureCheckoutProcess']);
+        static::assertFalse($response['data']['secureCheckoutProcess']);
 
         static::assertArrayHasKey('revocationPage', $response['data']);
         static::assertTrue($response['data']['revocationPage']);
@@ -118,5 +123,8 @@ class EligibilityRequirementControllerTest extends TestCase
 
         static::assertArrayHasKey('completeCheckoutProcess', $response['data']);
         static::assertFalse($response['data']['completeCheckoutProcess']);
+
+        static::assertArrayHasKey('siteIsVerified', $response['data']);
+        static::assertFalse($response['data']['siteIsVerified']);
     }
 }

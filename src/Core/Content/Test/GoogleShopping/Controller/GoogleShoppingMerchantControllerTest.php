@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\GoogleShopping\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -47,7 +48,7 @@ class GoogleShoppingMerchantControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         static::assertStringContainsString('CONTENT__GOOGLE_SHOPPING_CONNECTED_ACCOUNT_NOT_FOUND', $response->getContent());
 
-        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
 
         $this->client->request(
             'GET',
@@ -157,6 +158,22 @@ class GoogleShoppingMerchantControllerTest extends TestCase
         $this->client->request(
             'POST',
             '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/unassign'
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testGetMerchantAccountStatusSuccess(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'GET',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/status'
         );
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
@@ -308,7 +325,8 @@ class GoogleShoppingMerchantControllerTest extends TestCase
 
     public function testSetupShippingWithSalesChannelIsNotConnectedProductExportFailure(): void
     {
-        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+        $salesChannelId = $this->createSalesChannel(Defaults::SALES_CHANNEL_TYPE_GOOGLE_SHOPPING);
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
 
         $merchantId = Uuid::randomHex();
 
@@ -321,6 +339,7 @@ class GoogleShoppingMerchantControllerTest extends TestCase
         );
 
         $response = json_decode($this->client->getResponse()->getContent(), true);
+
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('CONTENT__GOOGLE_SHOPPING_SALES_CHANNEL_IS_NOT_LINKED_TO_PRODUCT_EXPORT', $response['errors'][0]['code']);
     }

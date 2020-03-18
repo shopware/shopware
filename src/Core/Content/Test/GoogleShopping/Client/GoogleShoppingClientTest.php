@@ -9,7 +9,10 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient;
+use Shopware\Core\Content\GoogleShopping\Exception\GoogleShoppingException;
+use Shopware\Core\Content\GoogleShopping\Exception\GoogleShoppingServiceException;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use function Flag\skipTestNext6050;
@@ -122,5 +125,43 @@ class GoogleShoppingClientTest extends TestCase
         $skipErrors = false;
 
         $googleShoppingClient->asyncRequests($requests, $skipErrors);
+    }
+
+    public function testExecuteThrowGoogleException(): void
+    {
+        $this->expectException(GoogleShoppingException::class);
+        $this->expectExceptionMessage('Google Client Error');
+
+        $googleShoppingClient = $this->getMockBuilder(GoogleShoppingClient::class)
+            ->onlyMethods(['authorize'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $googleShoppingClient->expects(static::once())->method('authorize')->willThrowException(new \Google_Exception('Google Client Error'));
+
+        $request = $this->getMockBuilder(RequestInterface::class)->getMock();
+
+        $request->expects(static::any())->method('withHeader')->willReturn($request);
+
+        $googleShoppingClient->execute($request);
+    }
+
+    public function testExecuteThrowGoogleServiceException(): void
+    {
+        $this->expectException(GoogleShoppingServiceException::class);
+        $this->expectExceptionMessage('Google Service Error');
+
+        $googleShoppingClient = $this->getMockBuilder(GoogleShoppingClient::class)
+            ->onlyMethods(['authorize'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $googleShoppingClient->expects(static::once())->method('authorize')->willThrowException(new \Google_Service_Exception('Google Service Error'));
+
+        $request = $this->getMockBuilder(RequestInterface::class)->getMock();
+
+        $request->expects(static::any())->method('withHeader')->willReturn($request);
+
+        $googleShoppingClient->execute($request);
     }
 }

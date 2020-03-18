@@ -37,12 +37,10 @@ class GoogleShoppingAccountEntityTest extends TestCase
         $id = $result['id'];
         $credential = $result['credential'];
 
-        $salesChannelId = $this->createSalesChannelGoogleShopping();
-
         $googleAccount = [
             [
                 'id' => $id,
-                'salesChannelId' => $salesChannelId,
+                'salesChannelId' => $result['googleAccount']['salesChannelId'],
                 'email' => 'fooedited@test.co',
                 'name' => 'edited',
                 'credential' => $credential,

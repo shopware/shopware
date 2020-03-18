@@ -24,9 +24,13 @@ class GoogleShoppingContentFactory
         $this->shoppingContentService = new \Google_Service_ShoppingContent($googleShoppingClient);
     }
 
-    public function createShoppingContentAccountResource(): GoogleShoppingContentAccountResource
+    public function createContentAccountResource(): GoogleShoppingContentAccountResource
     {
-        return new GoogleShoppingContentAccountResource($this->shoppingContentService->accounts, $this->googleShoppingClient);
+        return new GoogleShoppingContentAccountResource(
+            $this->shoppingContentService->accounts,
+            $this->shoppingContentService->accountstatuses,
+            $this->googleShoppingClient
+        );
     }
 
     public function createShoppingContentShippingSettingResource(): GoogleShoppingContentShippingSettingResource

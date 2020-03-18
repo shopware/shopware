@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Content\GoogleShopping\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-class GoogleShoppingServiceException extends ShopwareHttpException
+class GoogleShoppingServiceException extends GoogleShoppingException
 {
     /**
      * @var int
@@ -17,17 +16,10 @@ class GoogleShoppingServiceException extends ShopwareHttpException
      */
     private $errors;
 
-    /**
-     * @var array
-     */
-    private $detail;
-
-    public function __construct(?\Google_Service_Exception $exception = null)
+    public function __construct(string $message, int $statusCode, array $errors = [])
     {
-        $this->detail = json_decode($exception->getMessage(), true)['error'];
-        $this->errors = $exception->getErrors();
-        $this->statusCode = $exception->getCode();
-        parent::__construct($exception->getMessage(), [], $exception);
+        $this->errors = $errors;
+        parent::__construct($message, $statusCode);
     }
 
     public function getErrors(bool $withTrace = false): \Generator
@@ -43,11 +35,6 @@ class GoogleShoppingServiceException extends ShopwareHttpException
 
             yield $error;
         }
-    }
-
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
     }
 
     public function getErrorCode(): string

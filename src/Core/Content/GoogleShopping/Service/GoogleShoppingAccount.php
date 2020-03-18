@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\GoogleShopping\Service;
 
+use Shopware\Core\Content\GoogleShopping\Client\Adapter\UserProfileResource;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\GoogleAccountCredential;
 use Shopware\Core\Content\GoogleShopping\Event\GoogleAccountCredentialCreatedEvent;
 use Shopware\Core\Content\GoogleShopping\Event\GoogleAccountCredentialDeletedEvent;
@@ -22,12 +23,24 @@ class GoogleShoppingAccount
      */
     private $eventDispatcher;
 
+    /**
+     * @var UserProfileResource
+     */
+    private $userProfileResource;
+
     public function __construct(
         EntityRepositoryInterface $googleShoppingAccountRepository,
+        UserProfileResource $userProfileResource,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->googleShoppingAccountRepository = $googleShoppingAccountRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->userProfileResource = $userProfileResource;
+    }
+
+    public function getProfile(): array
+    {
+        return $this->userProfileResource->get();
     }
 
     public function create(GoogleAccountCredential $credential, string $salesChannelId, GoogleShoppingRequest $context): void

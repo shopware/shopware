@@ -7,6 +7,7 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class PromotionExclusionUpdater
@@ -148,14 +149,15 @@ class PromotionExclusionUpdater
             $tags[] = Uuid::fromBytesToHex($row['id']);
         }
 
-        $sqlStatement = "UPDATE promotion SET promotion.exclusion_ids=JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,'one', :value)))
-                        WHERE id IN(:affectedIds)";
+        RetryableQuery::retryable(function () use ($affectedIds, $deleteId): void {
+            $sqlStatement = "
+                UPDATE promotion
+                SET promotion.exclusion_ids = JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,'one', :value)))
+                WHERE id IN(:affectedIds)
+            ";
 
-        $params = ['value' => $deleteId, 'affectedIds' => $affectedIds];
-
-        $types['affectedIds'] = Connection::PARAM_STR_ARRAY;
-
-        $this->connection->executeUpdate($sqlStatement, $params, $types);
+            $this->connection->executeUpdate($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
+        });
 
         return $tags;
     }
@@ -171,19 +173,21 @@ class PromotionExclusionUpdater
             return;
         }
 
-        $this->connection->executeUpdate(
-            'UPDATE promotion
-             SET promotion.exclusion_ids=(JSON_ARRAY_APPEND(IFNULL(promotion.exclusion_ids,JSON_ARRAY()), \'$\', :value))
-             WHERE id IN (:addToTheseIds)
-              and NOT JSON_CONTAINS(IFNULL(promotion.exclusion_ids, JSON_ARRAY()), JSON_ARRAY(:value))',
-            [
-                'value' => $addId,
-                'addToTheseIds' => $this->convertHexArrayToByteArray($ids),
-            ],
-            [
-                'addToTheseIds' => Connection::PARAM_STR_ARRAY,
-            ]
-        );
+        RetryableQuery::retryable(function () use ($addId, $ids): void {
+            $this->connection->executeUpdate(
+                'UPDATE promotion
+                 SET promotion.exclusion_ids = (JSON_ARRAY_APPEND(IFNULL(promotion.exclusion_ids,JSON_ARRAY()), \'$\', :value))
+                 WHERE id IN (:addToTheseIds)
+                 AND NOT JSON_CONTAINS(IFNULL(promotion.exclusion_ids, JSON_ARRAY()), JSON_ARRAY(:value))',
+                [
+                    'value' => $addId,
+                    'addToTheseIds' => $this->convertHexArrayToByteArray($ids),
+                ],
+                [
+                    'addToTheseIds' => Connection::PARAM_STR_ARRAY,
+                ]
+            );
+        });
     }
 
     /**
@@ -198,13 +202,15 @@ class PromotionExclusionUpdater
         if (count($onlyAddThisExistingIds) > 0) {
             $value = json_encode($onlyAddThisExistingIds);
         }
-        $this->connection->executeUpdate(
-            'UPDATE promotion SET promotion.exclusion_ids=:value WHERE id=:id',
-            [
-                'value' => $value,
-                'id' => Uuid::fromHexToBytes($id),
-            ]
+
+        $query = new RetryableQuery(
+            $this->connection->prepare('UPDATE promotion SET promotion.exclusion_ids=:value WHERE id=:id')
         );
+
+        $query->execute([
+            'value' => $value,
+            'id' => Uuid::fromHexToBytes($id),
+        ]);
     }
 
     /**
@@ -220,7 +226,9 @@ class PromotionExclusionUpdater
 
         $type = ['ids' => Connection::PARAM_STR_ARRAY];
 
-        $rows = $this->connection->executeQuery($sqlStatement, $params, $type)->fetchAll(FetchMode::ASSOCIATIVE);
+        $rows = $this->connection
+            ->executeQuery($sqlStatement, $params, $type)
+            ->fetchAll(FetchMode::ASSOCIATIVE);
 
         $results = [];
         foreach ($rows as $row) {

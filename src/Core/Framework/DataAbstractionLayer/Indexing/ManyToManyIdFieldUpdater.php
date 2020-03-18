@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -126,17 +127,21 @@ SQL;
                 $resetTemplate
             );
 
-            $this->connection->executeUpdate(
-                $resetSql,
-                $parameters,
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
+            RetryableQuery::retryable(function () use ($resetSql, $parameters): void {
+                $this->connection->executeUpdate(
+                    $resetSql,
+                    $parameters,
+                    ['ids' => Connection::PARAM_STR_ARRAY]
+                );
+            });
 
-            $this->connection->executeUpdate(
-                $sql,
-                $parameters,
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
+            RetryableQuery::retryable(function () use ($sql, $parameters): void {
+                $this->connection->executeUpdate(
+                    $sql,
+                    $parameters,
+                    ['ids' => Connection::PARAM_STR_ARRAY]
+                );
+            });
         }
     }
 }

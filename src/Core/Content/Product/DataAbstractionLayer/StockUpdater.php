@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
@@ -251,19 +252,21 @@ UPDATE product SET available_stock = stock - (
 WHERE product.id IN (:ids);
         ';
 
-        $this->connection->executeUpdate(
-            $sql,
-            [
-                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                'version' => Uuid::fromHexToBytes($context->getVersionId()),
-                'states' => [OrderStates::STATE_COMPLETED, OrderStates::STATE_CANCELLED],
-                'ids' => $bytes,
-            ],
-            [
-                'ids' => Connection::PARAM_STR_ARRAY,
-                'states' => Connection::PARAM_STR_ARRAY,
-            ]
-        );
+        RetryableQuery::retryable(function () use ($sql, $bytes, $context): void {
+            $this->connection->executeUpdate(
+                $sql,
+                [
+                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                    'version' => Uuid::fromHexToBytes($context->getVersionId()),
+                    'states' => [OrderStates::STATE_COMPLETED, OrderStates::STATE_CANCELLED],
+                    'ids' => $bytes,
+                ],
+                [
+                    'ids' => Connection::PARAM_STR_ARRAY,
+                    'states' => Connection::PARAM_STR_ARRAY,
+                ]
+            );
+        });
     }
 
     private function updateAvailableFlag(array $ids, Context $context): void
@@ -290,16 +293,20 @@ WHERE product.id IN (:ids);
             AND product.version_id = :version
         ';
 
-        $this->connection->executeUpdate(
-            $sql,
-            ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        RetryableQuery::retryable(function () use ($sql, $context, $bytes): void {
+            $this->connection->executeUpdate(
+                $sql,
+                ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        });
     }
 
     private function updateStock(array $products, int $multiplier): void
     {
-        $query = $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version');
+        $query = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version')
+        );
 
         foreach ($products as $product) {
             $query->execute([

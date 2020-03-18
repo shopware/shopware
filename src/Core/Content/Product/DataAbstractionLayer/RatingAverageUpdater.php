@@ -27,11 +27,13 @@ class RatingAverageUpdater
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        $this->connection->executeUpdate(
-            'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        RetryableQuery::retryable(function () use ($ids, $versionId): void {
+            $this->connection->executeUpdate(
+                'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
+                ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        });
 
         $query = $this->connection->createQueryBuilder();
         $query->select([

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class VariantListingUpdater
@@ -32,27 +33,33 @@ class VariantListingUpdater
 
         $listingConfiguration = $this->getListingConfiguration($ids, $context);
 
+        $displayParent = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET display_group = MD5(HEX(product.id)) WHERE product.id = :id AND product.version_id = :versionId')
+        );
+
+        $hideParent = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET display_group = NULL WHERE product.id = :id AND product.version_id = :versionId')
+        );
+
+        $singleVariant = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET display_group = MD5(HEX(product.parent_id)) WHERE product.parent_id = :id AND product.version_id = :versionId')
+        );
+
         foreach ($listingConfiguration as $parentId => $config) {
             $childCount = (int) $config['child_count'];
             $groups = $config['groups'];
 
             if ($childCount <= 0) {
-                $this->connection->executeUpdate(
-                    'UPDATE product SET display_group = MD5(HEX(product.id)) WHERE product.id = :id AND product.version_id = :versionId',
-                    ['id' => $parentId, 'versionId' => $versionBytes]
-                );
+                // display parent in listing
+                $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
             } else {
-                $this->connection->executeUpdate(
-                    'UPDATE product SET display_group = NULL WHERE product.id = :id AND product.version_id = :versionId',
-                    ['id' => $parentId, 'versionId' => $versionBytes]
-                );
+                // hide parent
+                $hideParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
             }
 
             if (empty($groups)) {
-                $this->connection->executeUpdate(
-                    'UPDATE product SET display_group = MD5(HEX(product.parent_id)) WHERE product.parent_id = :id AND product.version_id = :versionId',
-                    ['id' => $parentId, 'versionId' => $versionBytes]
-                );
+                // display single variant in listing
+                $singleVariant->execute(['id' => $parentId, 'versionId' => $versionBytes]);
 
                 continue;
             }
@@ -86,7 +93,9 @@ class VariantListingUpdater
                 )
             ) WHERE parent_id = :parentId';
 
-            $this->connection->executeUpdate($sql, $params);
+            RetryableQuery::retryable(function () use ($sql, $params): void {
+                $this->connection->executeUpdate($sql, $params);
+            });
         }
     }
 

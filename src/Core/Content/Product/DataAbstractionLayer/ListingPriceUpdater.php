@@ -57,11 +57,14 @@ class ListingPriceUpdater
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        $this->connection->executeUpdate(
-            'UPDATE product SET listing_prices = NULL WHERE id IN (:ids) AND version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        RetryableQuery::retryable(function () use ($ids, $versionId): void {
+            $this->connection->executeUpdate(
+                'UPDATE product SET listing_prices = NULL WHERE id IN (:ids) AND version_id = :version',
+                ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        });
+
         $query = new RetryableQuery(
             $this->connection->prepare('UPDATE product SET listing_prices = :price WHERE id = :id AND version_id = :version')
         );

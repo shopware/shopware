@@ -2,7 +2,7 @@
     <div class="sw-sales-channel-detail-base">
 
         {% block sw_sales_channel_detail_base_general %}
-            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')">
+            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
                     <sw-select-field
                         v-if="isProductComparison"
@@ -228,6 +228,84 @@
             </sw-sales-channel-detail-domains>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_google_shopping_general %}
+            <sw-card v-if="salesChannel && isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralInformation')">
+                {% block sw_sales_channel_detail_base_google_shopping_general_name %}
+                    <sw-field
+                        required
+                        v-model="salesChannel.name"
+                        :label="$tc('sw-sales-channel.detail.labelInputName')"
+                        :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
+                        type="text"
+                        validation="required">
+                    </sw-field>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_google_shopping_general_crossbar %}
+                    <div class="google-shopping-crossbar"></div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_google_shopping_general_instruction %}
+                    <div class="google-shopping">
+                        {% block sw_sales_channel_detail_base_google_shopping_general_instruction_title %}
+                            <h4 class="google-shopping__instruction-title">
+                                <span class="google-shopping__instruction-title-inner">
+                                    {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.title') }}
+                                </span>
+                            </h4>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_base_google_shopping_general_instruction_description %}
+                            <p class="google-shopping__instruction-description">
+                                {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.description') }}
+                            </p>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_google_shopping_general_storefront %}
+                    <sw-entity-single-select
+                        @input="onStorefrontSelectionChange"
+                        :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
+                        :criteria="storefrontSalesChannelCriteria"
+                        labelProperty="name"
+                        valueProperty="id"
+                        entity="sales_channel"
+                        required
+                        v-model="productExport.storefrontSalesChannelId">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_google_shopping_general_storefront_domain %}
+                    <sw-entity-single-select
+                        @input="onStorefrontDomainSelectionChange"
+                        :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
+                        :criteria="storefrontSalesChannelDomainCriteria"
+                        labelProperty="url"
+                        valueProperty="id"
+                        entity="sales_channel_domain"
+                        required
+                        :disabled="!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId"
+                        v-model="productExport.salesChannelDomainId">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_google_shopping_general_storefront_domain_currency %}
+                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
+                        <sw-entity-single-select
+                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
+                            :criteria="storefrontSalesChannelCurrencyCriteria"
+                            labelProperty="name"
+                            valueProperty="id"
+                            required
+                            entity="currency"
+                            v-model="productExport.currencyId">
+                        </sw-entity-single-select>
+                    </div>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
             <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.productComparison.storefront')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
@@ -306,6 +384,43 @@
                         </sw-help-text>
                     </div>
                 {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_base_google_shopping_account %}
+            <sw-card v-if="salesChannel && isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleAccount')">
+                <div class="google-shopping">
+                    {% block sw_sales_channel_detail_base_google_shopping_account_title %}
+                        <h4 class="google-shopping__instruction-title">
+                            <span class="google-shopping__instruction-title-inner">
+                                {{ $tc('sw-sales-channel.detail.googleShoppingAccount.title') }}
+                            </span>
+                        </h4>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_google_shopping_account_description %}
+                        <p class="google-shopping__instruction-description">
+                            {{ $tc('sw-sales-channel.detail.googleShoppingAccount.description') }}
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_base_google_shopping_account_connection %}
+                        <div class="google-shopping__connection">
+                            {% block sw_sales_channel_detail_base_google_shopping_account_connection_image %}
+                                <div class="google-shopping__connection-image"></div>
+                            {% endblock %}
+
+                            {% block sw_sales_channel_detail_base_google_shopping_account_connection_button %}
+                                <sw-button
+                                    :disabled="isGoogleShoppingCreate"
+                                    @click="onConnectToGoogle"
+                                    variant="ghost" >
+                                    {{ $tc('sw-sales-channel.detail.googleShoppingAccount.textConnectionButton') }}
+                                </sw-button>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
             </sw-card>
         {% endblock %}
 
@@ -397,8 +512,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_api %}
-            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')">
-
+            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')">
                 {% block sw_sales_channel_detail_base_options_api_description %}
                     <div class="sw-sales-channel-detail-base__description-text" v-html="$tc('sw-sales-channel.detail.textApiAccessDescription')"></div>
                 {% endblock %}
@@ -467,8 +581,28 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_google_shopping_status %}
+            <sw-card v-if="isGoogleShopping" :title="$tc('sw-sales-channel.detail.titleStatus')" :isLoading="isLoading">
+                {% block sw_sales_channel_detail_base_google_shopping_status_text %}
+                    <div class="sw-sales-channel-detail-base__description-text">
+                        {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_base_google_shopping_status_input %}
+                    <sw-field
+                        type="switch"
+                        v-model="salesChannel.active"
+                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
+                        @change="onToggleActive"
+                        class="google-shopping-switcher">
+                    </sw-field>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_options_status %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleStatus')" v-if="salesChannel" :isLoading="isLoading">
+            <sw-card v-if="salesChannel && !isGoogleShopping" :title="$tc('sw-sales-channel.detail.titleStatus')" :isLoading="isLoading">
                 {% block sw_sales_channel_detail_base_options_status_description %}
                     <div class="sw-sales-channel-detail-base__description-text">
                         {{ $tc('sw-sales-channel.detail.textActiveDescription') }}

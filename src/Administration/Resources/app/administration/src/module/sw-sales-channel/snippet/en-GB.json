@@ -27,6 +27,7 @@
       "tabTheme": "Theme",
       "tabAnalytics": "Analytics",
       "tabProductComparison": "Template",
+      "tabProducts": "Products",
       "titleProductComparisonTemplate": "Template",
       "titleProductComparisonPreview": "Preview",
       "titleProductComparisonPreviewErrors": "Errors during generation",
@@ -83,6 +84,13 @@
       "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
       "buttonCopyApiKeyButton": "Copy API key",
       "titleStatus": "Status",
+      "titleGeneralInformation": "General Information",
+      "titleAccount": "Account",
+      "titleDeleteSalesChannel": "Delete Sales Channel",
+      "titleProductSync": "Product Sync",
+      "titleProducts": "Products",
+      "titleCategoryMapping": "Category Mapping",
+      "titleTemplate": "Template",
       "titleDomainHeadline": "Create domain URLs",
       "buttonEditDomain": "Edit domain",
       "titleCreateDomain": "Create domain",
@@ -214,6 +222,15 @@
             "label": "Bestellungen tracken"
           }
         }
+      },
+      "googleShoppingGeneral": {
+        "title": "Select a Storefront for the Checkout Proccess",
+        "description": "Sales channels that don’t have a storefront require a linked storefront that will be used to complete the checkout procces."
+      },
+      "googleShoppingAccount": {
+        "title": "Connect your Google Account to use Google Programs",
+        "description": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
+        "textConnectionButton": "Connect"
       }
     },
     "sw-sales-channel-defaults-select": {

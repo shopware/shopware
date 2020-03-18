@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,18 +43,25 @@ class MediaFolderIndexer extends EntityIndexer
      */
     private $eventDispatcher;
 
+    /**
+     * @var ChildCountUpdater
+     */
+    private $childCountUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
         CacheClearer $cacheClearer,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ChildCountUpdater $childCountUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->folderRepository = $repository;
         $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
         $this->eventDispatcher = $eventDispatcher;
+        $this->childCountUpdater = $childCountUpdater;
     }
 
     public function getName(): string
@@ -128,6 +136,8 @@ class MediaFolderIndexer extends EntityIndexer
                 'configId' => Uuid::fromHexToBytes($configId),
             ]);
         }
+
+        $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
 
         $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext()));
 

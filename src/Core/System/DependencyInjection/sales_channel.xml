@@ -143,5 +143,16 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="serializer"/>
         </service>
+
+        <service id="Shopware\Core\System\SalesChannel\DataAbstractionLayer\SalesChannelIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <tag name="shopware.entity_indexer"/>
+        </service>
+
     </services>
 </container>

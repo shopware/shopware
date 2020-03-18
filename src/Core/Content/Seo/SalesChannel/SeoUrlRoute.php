@@ -40,48 +40,7 @@ class SeoUrlRoute implements SeoUrlRouteInterface
      *      description="Loads seo urls",
      *      operationId="readSeoUrl",
      *      tags={"Store API"},
-     *      @OA\Parameter(
-     *          parameter="limit",
-     *          name="limit",
-     *          in="query",
-     *          description="Limit",
-     *          @OA\Schema(type="integer"),
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="offset",
-     *          name="offset",
-     *          in="query",
-     *          description="Offset",
-     *          @OA\Schema(type="integer"),
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="term",
-     *          name="term",
-     *          in="query",
-     *          description="The term to search for",
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="filter",
-     *          name="filter",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="aggregations",
-     *          name="aggregations",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="associations",
-     *          name="associations",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="string")
-     *      ),
+     *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
      *          description="Found seo urls",

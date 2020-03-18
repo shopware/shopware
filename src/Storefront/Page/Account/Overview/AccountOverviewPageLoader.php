@@ -5,11 +5,11 @@ namespace Shopware\Storefront\Page\Account\Overview;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRouteInterface;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -30,18 +30,25 @@ class AccountOverviewPageLoader
     private $eventDispatcher;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var AccountOrderRouteInterface
      */
-    private $repository;
+    private $orderRoute;
+
+    /**
+     * @var RequestCriteriaBuilder
+     */
+    private $requestCriteriaBuilder;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $repository
+        AccountOrderRouteInterface $orderRoute,
+        RequestCriteriaBuilder $requestCriteriaBuilder
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->repository = $repository;
+        $this->orderRoute = $orderRoute;
+        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     /**
@@ -52,7 +59,7 @@ class AccountOverviewPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOverviewPage
     {
-        if (!($customer = $salesChannelContext->getCustomer()) instanceof CustomerEntity) {
+        if (!$salesChannelContext->getCustomer() instanceof CustomerEntity) {
             throw new CustomerNotLoggedInException();
         }
 
@@ -60,7 +67,7 @@ class AccountOverviewPageLoader
 
         $page = AccountOverviewPage::createFrom($page);
 
-        $order = $this->loadNewestOrder($salesChannelContext, $customer);
+        $order = $this->loadNewestOrder($salesChannelContext);
 
         if ($order !== null) {
             $page->setNewestOrder($order);
@@ -76,19 +83,18 @@ class AccountOverviewPageLoader
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    private function loadNewestOrder(SalesChannelContext $salesChannelContext, CustomerEntity $customer): ?OrderEntity
+    private function loadNewestOrder(SalesChannelContext $salesChannelContext): ?OrderEntity
     {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 
-        /** @var OrderEntity|null $order */
-        $order = $this->repository->search($criteria, $salesChannelContext->getContext())->first();
+        $request = new Request();
+        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
 
-        return $order;
+        return $this->orderRoute->load($request, $salesChannelContext)->getOrders()->first();
     }
 }

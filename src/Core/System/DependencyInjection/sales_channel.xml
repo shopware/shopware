@@ -97,6 +97,10 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute" public="true">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>

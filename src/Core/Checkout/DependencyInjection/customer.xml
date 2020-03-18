@@ -36,12 +36,15 @@
             <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
@@ -136,6 +139,65 @@
             <argument type="service" id="request_stack"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_recovery.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_recovery.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="payment_method.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
     </services>
 </container>

@@ -1,0 +1,349 @@
+{
+    "type": "object",
+    "properties": {
+        "token": {
+            "type": "string"
+        },
+        "currentCustomerGroup": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "displayGross": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "fallbackCustomerGroup": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "displayGross": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "currency": {
+            "type": "object",
+            "properties": {
+                "isoCode": {
+                    "type": "string"
+                },
+                "factor": {
+                    "type": "integer"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "shortName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "decimalPrecision": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "isSystemDefault": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "salesChannel": {
+            "type": "object",
+            "properties": {
+                "typeId": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "string"
+                },
+                "currencyId": {
+                    "type": "string"
+                },
+                "paymentMethodId": {
+                    "type": "string"
+                },
+                "shippingMethodId": {
+                    "type": "string"
+                },
+                "countryId": {
+                    "type": "string"
+                },
+                "navigationCategoryId": {
+                    "type": "string"
+                },
+                "navigationCategoryDepth": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "footerCategoryId": {
+                    "type": "string"
+                },
+                "serviceCategoryId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shortName": {
+                    "type": "string"
+                },
+                "accessKey": {
+                    "type": "string"
+                },
+                "active": {
+                    "type": "boolean"
+                },
+                "maintenance": {
+                    "type": "boolean"
+                },
+                "maintenanceIpWhitelist": {
+                    "type": "string"
+                },
+                "mailHeaderFooterId": {
+                    "type": "string"
+                },
+                "customerGroupId": {
+                    "type": "string"
+                },
+                "hreflangActive": {
+                    "type": "boolean"
+                },
+                "hreflangDefaultDomainId": {
+                    "type": "string"
+                },
+                "analyticsId": {
+                    "type": "string"
+                }
+            }
+        },
+        "taxRules": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "taxRate": {
+                        "type": "float"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "customer": {
+            "type": "object",
+            "properties": {
+                "groupId": {
+                    "type": "string"
+                },
+                "defaultPaymentMethodId": {
+                    "type": "string"
+                },
+                "salesChannelId": {
+                    "type": "string"
+                },
+                "languageId": {
+                    "type": "string"
+                },
+                "lastPaymentMethodId": {
+                    "type": "string"
+                },
+                "defaultBillingAddressId": {
+                    "type": "string"
+                },
+                "defaultShippingAddressId": {
+                    "type": "string"
+                },
+                "customerNumber": {
+                    "type": "string"
+                },
+                "salutationId": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "company": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "affiliateCode": {
+                    "type": "string"
+                },
+                "campaignCode": {
+                    "type": "string"
+                },
+                "active": {
+                    "type": "boolean"
+                },
+                "doubleOptInRegistration": {
+                    "type": "boolean"
+                },
+                "doubleOptInEmailSentDate": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "doubleOptInConfirmDate": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "guest": {
+                    "type": "boolean"
+                },
+                "firstLogin": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "lastLogin": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "newsletter": {
+                    "type": "boolean"
+                },
+                "birthday": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "lastOrderDate": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "orderCount": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "legacyEncoder": {
+                    "type": "string"
+                },
+                "legacyPassword": {
+                    "type": "string"
+                },
+                "autoIncrement": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "remoteAddress": {
+                    "type": "string"
+                }
+            }
+        },
+        "paymentMethod": {
+            "type": "object",
+            "properties": {
+                "pluginId": {
+                    "type": "string"
+                },
+                "handlerIdentifier": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "active": {
+                    "type": "boolean"
+                },
+                "availabilityRuleId": {
+                    "type": "string"
+                },
+                "mediaId": {
+                    "type": "string"
+                },
+                "formattedHandlerIdentifier": {
+                    "type": "string"
+                }
+            }
+        },
+        "shippingMethod": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "active": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "trackingUrl": {
+                    "type": "string"
+                },
+                "deliveryTimeId": {
+                    "type": "string"
+                },
+                "availabilityRuleId": {
+                    "type": "string"
+                },
+                "mediaId": {
+                    "type": "string"
+                }
+            }
+        },
+        "shippingLocation": {
+            "type": "object",
+            "properties": []
+        },
+        "context": {
+            "type": "object",
+            "properties": {
+                "versionId": {
+                    "type": "string"
+                },
+                "currencyId": {
+                    "type": "string"
+                },
+                "currencyFactor": {
+                    "type": "integer"
+                },
+                "currencyPrecision": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "taxState": {
+                    "type": "string"
+                },
+                "useCache": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

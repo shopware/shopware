@@ -16,5 +16,10 @@
         <service id="Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute" public="true">
+            <argument type="service" id="sales_channel.salutation.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+        </service>
     </services>
 </container>

@@ -5,10 +5,9 @@ namespace Shopware\Storefront\Page\Account\Profile;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteInterface;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -28,18 +27,18 @@ class AccountProfilePageLoader
     private $eventDispatcher;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var SalutationRouteInterface
      */
-    private $salutationRepository;
+    private $salutationRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelRepositoryInterface $salutationRepository
+        SalutationRouteInterface $salutationRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->salutationRepository = $salutationRepository;
+        $this->salutationRoute = $salutationRoute;
     }
 
     /**
@@ -72,10 +71,9 @@ class AccountProfilePageLoader
      */
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository->search(new Criteria(), $salesChannelContext)->getEntities();
+        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext)->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
+        $salutations->sort(static function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();
         });
 

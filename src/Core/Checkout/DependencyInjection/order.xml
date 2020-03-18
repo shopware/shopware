@@ -88,6 +88,12 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute" public="true">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
+        </service>
+
         <!-- events -->
         <service id="Shopware\Core\Checkout\Order\Listener\OrderStateChangeEventListener">
             <argument type="service" id="order.repository"/>

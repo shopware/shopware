@@ -9,7 +9,8 @@
 
         <service id="Shopware\Storefront\Controller\AccountOrderController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
-            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

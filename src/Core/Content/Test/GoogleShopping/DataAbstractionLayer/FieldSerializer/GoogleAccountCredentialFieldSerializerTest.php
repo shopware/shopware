@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\Field\GoogleAccountCredentialField;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\FieldSerializer\GoogleAccountCredentialFieldSerializer;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\GoogleAccountCredential;
+use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
+use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -26,6 +28,8 @@ class GoogleAccountCredentialFieldSerializerTest extends TestCase
     use KernelTestBehaviour;
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use BasicTestDataBehaviour;
+    use GoogleShoppingIntegration;
 
     /**
      * @var GoogleAccountCredentialFieldSerializer
@@ -68,7 +72,7 @@ class GoogleAccountCredentialFieldSerializerTest extends TestCase
 
     public function testEncodeWithApiParam(): void
     {
-        $credential = $this->initCredential();
+        $credential = $this->getSampleCredential();
 
         $kvPair = new KeyValuePair('data', $credential, true);
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
@@ -78,7 +82,7 @@ class GoogleAccountCredentialFieldSerializerTest extends TestCase
 
     public function testEncodeDecoceWithInstanceObject(): void
     {
-        $credential = $this->initCredential();
+        $credential = $this->getSampleCredential();
 
         $googleShoppingAccountCredential = new GoogleAccountCredential($credential);
 
@@ -98,19 +102,5 @@ class GoogleAccountCredentialFieldSerializerTest extends TestCase
         $kvPair = new KeyValuePair('data', [], true);
 
         $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
-    }
-
-    private function initCredential(): array
-    {
-        $credential = [
-            'access_token' => 'ya29.a0Adw1xeW4xei7do9ByIQaiPkxjw617yU1pAvYXRn',
-            'refresh_token' => '1//0gTTgzGwplfyTCgYIARAAGBASNwF-L9Ir_K8q5k3l5M0ouz4hdlQ4hoE2vrqejreIjA',
-            'created' => 1585199421,
-            'id_token' => 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjUzYzY2YWFiNTBjZmRkOTFhMTQzNTBhNjY0ODJkYjM4MDBj',
-            'scope' => 'https://www.googleapis.com/auth/content https://www.googleapis.com/auth/adwords',
-            'expires_in' => 3599,
-        ];
-
-        return $credential;
     }
 }

@@ -4,7 +4,12 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <!-- Entity Definitions-->
         <service id="Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -16,8 +21,68 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountDefinition">
-            <tag name="shopware.entity.definition"/>
+        <!-- Clients-->
+        <service id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClientFactory">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClientFactory" method="createClient" />
+        </service>
+
+        <service id="google_shopping_client" alias="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient" public="true" />
+
+        <service id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createShoppingContentAccountResource" />
+        </service>
+
+        <!-- Services-->
+        <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAuthenticator">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount">
+            <argument type="service" id="google_shopping_account.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount">
+            <argument type="service" id="google_shopping_merchant_account.repository"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource"/>
+        </service>
+
+        <!-- Controllers-->
+        <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingAccountController" public="true">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAuthenticator"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingMerchantController" public="true">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <!-- argument_resolver -->
+        <service id="Shopware\Core\Content\GoogleShopping\GoogleShoppingRequestValueResolver">
+            <tag name="controller.argument_value_resolver" priority="1002"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount"/>
+        </service>
+
+        <!-- event exception listener -->
+        <service id="Shopware\Core\Content\GoogleShopping\GoogleShoppingExceptionListener">
+            <tag name="kernel.event_listener" event="kernel.exception"/>
+            <argument>%kernel.debug%</argument>
         </service>
     </services>
 </container>

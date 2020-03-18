@@ -1,0 +1,13 @@
+{
+  "sw-settings-google-shopping": {
+    "general": {
+      "mainMenuItemGeneral": "Google Shopping",
+      "textHeadline": "Google Einkaufseinstellungen",
+      "description": "Manage Google shopping settings here.",
+      "buttonSave": "Speichern",
+      "titleSaveSuccess": "Konfiguration gespeichert",
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
+      "titleSaveError": "Fehler beim Speichern der Konfiguration"
+    }
+  }
+}

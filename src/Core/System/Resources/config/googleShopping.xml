@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Google Credentials</title>
+        <title lang="de-DE">Google-Anmeldeinformationen</title>
+
+        <input-field>
+            <name>clientId</name>
+            <label>Client ID</label>
+            <label lang="de-DE">Client ID</label>
+            <placeholder>Enter Google Client ID...</placeholder>
+            <placeholder lang="de-DE">Geben Sie die Google Client ID ein ...</placeholder>
+        </input-field>
+
+        <input-field type="password">
+            <name>clientSecret</name>
+            <label>Client Secret</label>
+            <label lang="de-DE">Client Secret</label>
+            <placeholder>Enter Google Client secret...</placeholder>
+            <placeholder lang="de-DE">Geben Sie das Google Client-Geheimnis ein ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>redirectUri</name>
+            <label>Redirect URI</label>
+            <label lang="de-DE">Redirect URI</label>
+            <placeholder>Enter Google Redirect URI...</placeholder>
+            <placeholder lang="de-DE">Geben Sie den Google Redirect-URI ein ...</placeholder>
+        </input-field>
+
+    </card>
+</config>

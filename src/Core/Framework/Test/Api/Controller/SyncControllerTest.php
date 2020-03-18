@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -520,5 +521,82 @@ class SyncControllerTest extends TestCase
             static::assertEmpty($result['entities']);
             static::assertCount(1, $result['errors']);
         }
+    }
+
+    public function testIndexingByQueueHeader(): void
+    {
+        $product = Uuid::randomHex();
+
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductDefinition::ENTITY_NAME,
+                'payload' => [
+                    [
+                        'id' => $product,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'name' => 'PROD-1',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->connection->executeUpdate('DELETE FROM enqueue;');
+        $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
+
+        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_message-queue-indexing' => 'true'], json_encode($data));
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product WHERE id IN(:id)',
+            ['id' => [Uuid::fromHexToBytes($product)]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        static::assertNotEmpty($exists);
+
+        $messages = $this->connection->fetchAssoc('SELECT * FROM message_queue_stats WHERE name = :name', ['name' => EntityIndexingMessage::class]);
+        static::assertNotEmpty($messages);
+        static::assertEquals(1, $messages['size']);
+    }
+
+    public function testDirectInexing(): void
+    {
+        $product = Uuid::randomHex();
+
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductDefinition::ENTITY_NAME,
+                'payload' => [
+                    [
+                        'id' => $product,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'name' => 'PROD-1',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->connection->executeUpdate('DELETE FROM enqueue;');
+        $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
+
+        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+
+        $exists = $this->connection->fetchAll(
+            'SELECT * FROM product WHERE id IN(:id)',
+            ['id' => [Uuid::fromHexToBytes($product)]],
+            ['id' => Connection::PARAM_STR_ARRAY]
+        );
+
+        static::assertNotEmpty($exists);
+
+        $messages = $this->connection->fetchAssoc('SELECT * FROM message_queue_stats WHERE name = :name', ['name' => EntityIndexingMessage::class]);
+        static::assertEmpty($messages);
     }
 }

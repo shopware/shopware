@@ -190,13 +190,17 @@ class SalesChannelProxyController extends AbstractController
      * @throws InvalidSalesChannelIdException
      * @throws MissingRequestParameterException
      */
-    public function modifyShippingCosts(Request $request): JsonResponse
+    public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
             throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
         }
 
         $salesChannelId = $request->request->get('salesChannelId');
+
+        $this->fetchSalesChannel($salesChannelId, $context);
+
+        $this->adminOrderCartService->addPermission($this->getContextToken($request), DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION);
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
 

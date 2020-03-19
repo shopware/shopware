@@ -24,11 +24,14 @@
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\NewsletterSubscriptionService">
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute" />
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute" />
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute" />
             <argument type="service" id="newsletter_recipient.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="sales_channel_domain.repository" />
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController" public="true">
@@ -40,6 +43,24 @@
 
         <service id="Shopware\Core\Content\Newsletter\NewsletterExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute" public="true">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute" public="true">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute" public="true">
+            <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

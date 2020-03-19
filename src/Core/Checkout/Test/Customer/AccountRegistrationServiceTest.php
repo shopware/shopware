@@ -323,6 +323,7 @@ class AccountRegistrationServiceTest extends TestCase
             'birthdayYear' => 2000,
             'birthdayMonth' => 1,
             'birthdayDay' => 22,
+            'storefrontUrl' => 'http://localhost',
             'billingAddress' => new DataBag([
                 'countryId' => $this->getValidCountryId(),
                 'street' => 'Examplestreet 11',

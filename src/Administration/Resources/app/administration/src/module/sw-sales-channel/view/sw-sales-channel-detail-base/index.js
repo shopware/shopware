@@ -99,12 +99,17 @@ Component.register('sw-sales-channel-detail-base', {
             return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
+        isDomainAware() {
+            const domainAware = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
+            return domainAware.includes(this.salesChannel.typeId);
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
 
         isProductComparison() {
-            return this.salesChannel.typeId === 'ed535e5722134ac1aa6524f73e26881b';
+            return this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
         storefrontSalesChannelDomainCriteria() {

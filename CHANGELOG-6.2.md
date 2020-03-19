@@ -369,6 +369,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` to login as customer and obtain a context-token with the new api route `/store-api/v1/account/logout`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute` to send a new password recovery mail with the new api route `/store-api/v1/account/send-recovery-mail`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to process the reset password form with the new api route `/store-api/v1/account/reset-password`
+    * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute` to subscribe to the newsletter with the new api route `/store-api/v1/newsletter/subscribe`
+    * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute` to unsubscribe to the newsletter with the new api route `/store-api/v1/newsletter/unsubscribe`
+    * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
+    * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to register a new customer with the new api route `/store-api/v1/account/register`
+    * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute` to confirm a double optin registration with the new api route `/store-api/v1/account/register-confirm`
     
 * Storefront	
     * Deprecated `$connection->executeQuery()` for write operations

@@ -147,6 +147,9 @@ class RegisterController extends StorefrontController
             if (!$data->has('differentShippingAddress')) {
                 $data->remove('shippingAddress');
             }
+
+            $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
+
             $data = $this->prepareAffiliateTracking($data, $request);
             $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data, $context));
         } catch (ConstraintViolationException $formViolations) {

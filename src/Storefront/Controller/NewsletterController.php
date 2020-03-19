@@ -13,7 +13,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -38,11 +37,6 @@ class NewsletterController extends StorefrontController
     private $newsletterService;
 
     /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
@@ -51,13 +45,11 @@ class NewsletterController extends StorefrontController
         NewsletterRegisterPageLoader $newsletterRegisterPageLoader,
         NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
         NewsletterSubscriptionServiceInterface $newsletterService,
-        RequestStack $requestStack,
         EntityRepositoryInterface $customerRepository
     ) {
         $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
         $this->newsletterService = $newsletterService;
-        $this->requestStack = $requestStack;
         $this->customerRepository = $customerRepository;
     }
 
@@ -91,6 +83,8 @@ class NewsletterController extends StorefrontController
         if (!$subscribed) {
             $dataBag->set('option', 'unsubscribe');
         }
+
+        $dataBag->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
 
         $messages = [];
         $success = null;

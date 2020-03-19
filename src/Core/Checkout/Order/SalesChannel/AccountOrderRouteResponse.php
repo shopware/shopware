@@ -12,6 +12,11 @@ class AccountOrderRouteResponse extends StoreApiResponse
      */
     protected $object;
 
+    public function __construct(EntitySearchResult $object)
+    {
+        parent::__construct($object);
+    }
+
     public function getOrders(): EntitySearchResult
     {
         return $this->object;

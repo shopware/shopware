@@ -53,7 +53,7 @@ class ProductSearchRoute implements ProductSearchRouteInterface
      * @OA\Get(
      *      path="/search",
      *      description="Search",
-     *      operationId="searchSuggest",
+     *      operationId="searchPage",
      *      tags={"Store API","Search"},
      *      @OA\Parameter(
      *          name="search",

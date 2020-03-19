@@ -17,10 +17,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class NewsletterRecipientServiceTest extends TestCase
 {
@@ -211,31 +209,6 @@ class NewsletterRecipientServiceTest extends TestCase
         $this->getService()->unsubscribe($dataBag, $context);
     }
 
-    /**
-     * @dataProvider dataProviderTestUnsubscribeNewsletterExpectsConstraintViolationException
-     */
-    public function testUnsubscribeNewsletterExpectsConstraintViolationException(array $testData): void
-    {
-        $this->installTestData();
-        $dataBag = new RequestDataBag($testData);
-
-        self::expectException(ConstraintViolationException::class);
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->getService()->unsubscribe($dataBag, $context);
-    }
-
-    public function dataProviderTestUnsubscribeNewsletterExpectsConstraintViolationException(): array
-    {
-        // Option is not valid
-        return [
-            [['option' => 'direct', 'email' => 'unit@test.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339']],
-            [['option' => 'subscribe', 'email' => 'unit@test.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339']],
-            [['option' => 'confirmSubscribe', 'email' => 'unit@test.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339']],
-        ];
-    }
-
     public function testConfirmSubscribeNewsletterExpectsUpdatedDatabaseRow(): void
     {
         $this->installTestData();
@@ -286,12 +259,6 @@ class NewsletterRecipientServiceTest extends TestCase
 
     private function getService(): NewsletterSubscriptionService
     {
-        return new NewsletterSubscriptionService(
-            $this->getContainer()->get('newsletter_recipient.repository'),
-            $this->getContainer()->get(DataValidator::class),
-            $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(SystemConfigService::class),
-            $this->getContainer()->get('sales_channel_domain.repository')
-        );
+        return $this->getContainer()->get(NewsletterSubscriptionService::class);
     }
 }

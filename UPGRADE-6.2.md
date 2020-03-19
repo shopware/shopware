@@ -68,6 +68,13 @@ Core
     * `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute`
     * `\Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute`
     * `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute`
+* Deprecated `\Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface` and `\Shopware\Core\Content\Newsletter\NewsletterSubscriptionService` use one of the following new services
+    * `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute`
+    * `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute`
+    * `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute`
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use one of the following new services
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRouteInterface`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRouteInterface`
 
 Administration
 --------------

@@ -34,4 +34,9 @@ class DataBag extends ParameterBag
     {
         return array_intersect_key($this->parameters, array_flip($keys));
     }
+
+    public function toRequestDataBag(): RequestDataBag
+    {
+        return new RequestDataBag(self::all());
+    }
 }

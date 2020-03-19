@@ -1,4 +1,3 @@
-import { NEXT6008 } from 'src/flag/feature_next6008';
 import template from './sw-sales-channel-detail-analytics.html.twig';
 
 import './sw-sales-channel-detail-analytics.scss';
@@ -7,8 +6,6 @@ const { Component, Context } = Shopware;
 
 Component.register('sw-sales-channel-detail-analytics', {
     template,
-
-    flag: NEXT6008,
 
     inject: [
         'repositoryFactory'

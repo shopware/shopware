@@ -118,9 +118,10 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     public function sendIndexingMessage(array $indexer = []): void
     {
         if (empty($indexer)) {
-            $indexer = array_map(function (EntityIndexer $indexer) {
-                return $indexer->getName();
-            }, $this->indexer);
+            $indexer = [];
+            foreach ($this->indexer as $loop) {
+                $indexer[] = $loop->getName();
+            }
         }
 
         if (empty($indexer)) {

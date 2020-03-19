@@ -48,6 +48,51 @@
         "warmupIndexing": {
           "message": "Cache warmed-up. | One page remaining. | Approximately {n} pages remaining..",
           "messageSuccess": "Cache successfully warmed-up."
+        },
+        "mediaFolder":  {
+          "title": "Indexing media folders",
+          "message": "Media folders indexed. | Indexing media folders | {n} media remaining",
+          "messageSuccess": "Media folders indexed successfully"
+        },
+        "productStream": {
+          "title": "Indexing product streams",
+          "message": "Product streams indexed. | Indexing product streams | {n} product streams remaining",
+          "messageSuccess": "Product streams indexed successfully"
+        },
+        "category":  {
+          "title": "Indexing categories",
+          "message": "Categories indexed. | Indexing categories | {n} categories remaining",
+          "messageSuccess": "Categories indexed successfully"
+        },
+        "media": {
+          "title": "Indexing media",
+          "message": "Media indexed. | Indexing media | {n} media remaining",
+          "messageSuccess": "Media indexed successfully"
+        },
+        "mediaFolderConfiguration":  {
+          "title": "Indexing media folder configurations",
+          "message": "Media folder configurations. | Indexing media folder configurations | {n} media folder configurations remaining",
+          "messageSuccess": "Media folder configurations indexed successfully"
+        },
+        "salesChannel": {
+          "title": "Indexing sales channels",
+          "message": "Sales channel indexed. | Indexing sales channel | {n} sales channel remaining",
+          "messageSuccess": "Sales channel indexed successfully"
+        },
+        "rule":  {
+          "title": "Indexing rules",
+          "message": "Rules indexed. | Indexing rules | {n} rules remaining",
+          "messageSuccess": "Rules indexed successfully"
+        },
+        "product": {
+          "title": "Indexing products",
+          "message": "Products indexed. | Indexing products | {n} products remaining",
+          "messageSuccess": "Products indexed successfully"
+        },
+        "promotion": {
+          "title": "Indexing promotions",
+          "message": "Promotions indexed. | Indexing promotions | {n} promotions remaining",
+          "messageSuccess": "Promotions indexed successfully"
         }
       },
       "plugin-updates-listener": {

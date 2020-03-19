@@ -201,6 +201,7 @@
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

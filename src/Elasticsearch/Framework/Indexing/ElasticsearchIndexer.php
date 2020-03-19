@@ -281,7 +281,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             $index = $alias . '_' . $offset->getTimestamp();
 
             // return indexing message for current offset
-            return new EntityIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, $context);
+            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, $context);
         }
 
         if ($offset->hasNextDefinition()) {

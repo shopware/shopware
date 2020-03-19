@@ -94,7 +94,7 @@ class CategoryIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new CategoryIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -135,7 +135,7 @@ class CategoryIndexer extends EntityIndexer
 
         $ids = array_unique(array_merge($ids, $children));
 
-        return new EntityIndexingMessage(array_values($ids), null, $event->getContext(), \count($ids) > 20);
+        return new CategoryIndexingMessage(array_values($ids), null, $event->getContext(), \count($ids) > 20);
     }
 
     public function handle(EntityIndexingMessage $message): void

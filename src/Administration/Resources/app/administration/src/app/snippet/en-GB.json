@@ -53,7 +53,7 @@
       "plugin-updates-listener": {
         "updatesAvailableTitle": "Update(s) available",
         "updatesAvailableMessage": "Download the latest versions of your plugins now."
-       },
+      },
       "shopware-updates-listener": {
         "updatesAvailableTitle": "A new Shopware version {version} is available",
         "updatesAvailableMessage": "Start the auto-updater to begin the update",
@@ -90,7 +90,7 @@
     "sw-field-copyable": {
       "tooltip": {
         "wasCopied": "Copied to clipboard.",
-        "canCopy": "Copy to clipboard"
+        "canCopy": "Copy to clipboard."
       }
     },
     "sw-file-input": {
@@ -118,7 +118,7 @@
     "sw-text-editor": {
       "labelTextLength": "{count} character | {count} characters"
     },
-    "sw-tag-field":{
+    "sw-tag-field": {
       "title": "Tags",
       "listItemAdd": "Add \"{term}\"",
       "placeholder": "Search tags..."
@@ -214,7 +214,7 @@
     },
     "sw-media-modal-folder-dissolve": {
       "titleModal": "Dissolve folder",
-      "dissolveMessage":"Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
+      "dissolveMessage": "Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
       "buttonDissolve": "Dissolve",
       "notification": {
         "successSingle": {
@@ -433,7 +433,7 @@
     },
     "sw-condition": {
       "operator": {
-        "lowerThanEquals": "Lower than / equals",
+        "lowerThanEquals": "Is lower than / equal to",
         "equals": "Is equal to",
         "greaterThanEquals": "Is greater than / equal to",
         "lowerThan": "Is less than",
@@ -672,7 +672,7 @@
   "sw-inheritance-warning": {
     "infoTextInheritedField": "{moduleName} has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back."
   },
-  "sw-license-violation":{
+  "sw-license-violation": {
     "title": "Plugin warning(s)",
     "reload": "Reload",
     "alert-text": "We have detected a license violation for at least one of your plugins in this installation. To fix the license violation and avoid legal consequences, book the plugin subscription after or buy/rent the plugin (depending on the type of violation). You are not using the plugin anymore? Then delete it completely from the Plugin Manager. If none of these measure are taken, shopware AG reserves the right to charge for the license violation.",

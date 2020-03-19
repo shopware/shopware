@@ -51,7 +51,7 @@
         }
       },
       "plugin-updates-listener": {
-        "updatesAvailableTitle": "Plugin-Updates verfügbar.",
+        "updatesAvailableTitle": "Updates verfügbar.",
         "updatesAvailableMessage": "Für einige Plugins stehen Updates bereit."
       },
       "shopware-updates-listener": {
@@ -118,7 +118,7 @@
     "sw-text-editor": {
       "labelTextLength": "{count} Zeichen | {count} Zeichen"
     },
-    "sw-tag-field":{
+    "sw-tag-field": {
       "title": "Tags",
       "listItemAdd": "\"{term}\" hinzufügen",
       "placeholder": "Tags durchsuchen ..."
@@ -137,7 +137,7 @@
       "labelClose": "Schließen"
     },
     "sw-media-field": {
-      "labelToggleSearchExisting": "Medien durchsuchen",
+      "labelToggleSearchExisting": "Medien durchsuchen ...",
       "labelToggleUploadNew": "Neue Medien hochladen",
       "labelUnlink": "Verknüpfung aufheben"
     },
@@ -237,7 +237,7 @@
       "buttonReplace": "Datei ersetzen",
       "buttonRename": "Datei umbennen",
       "buttonSkip": "Datei überspringen",
-      "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden",
+      "labelSaveSelection": "Auswahl merken und für {count} weitere anwenden.",
       "labelOptionReplace": "Hochladen und ersetzen",
       "labelOptionRename": "Hochladen und umbenennen",
       "labelOptionSkip": "Datei überspringen",
@@ -384,7 +384,7 @@
     },
     "sw-single-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
-      "valuePlaceholder": "Bitte auswählen"
+      "valuePlaceholder": "Bitte auswählen ..."
     },
     "sw-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
@@ -415,7 +415,7 @@
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
       "placeholderTypeSearchField": "Durchsuche alle {entity} ...",
-      "placeholderShortcutInfo": "Tipp: Über die \"f\" Taste, kannst Du die Suche schneller öffnen."
+      "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -426,7 +426,7 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-        "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})"
+      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})"
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
@@ -446,10 +446,10 @@
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
       "condition": {
         "dateRangeRule": {
-          "label":  "Datumsbereich",
+          "label": "Datumsbereich",
           "useTime": "Zeit verwenden"
         },
-        "placeholder": "Bedingung wählen",
+        "placeholder": "Bedingungen durchsuchen ...",
         "orderCountRule": "Anzahl Bestellungen",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
@@ -660,8 +660,8 @@
     "messageEmptySubline": "Zum Anlegen von Gruppen gehe ins Eigenschaften-Modul."
   },
   "sw-language-info": {
-    "infoTextChildLanguage": "Darstellung von \"{entityDescription}\" in der Sprache \"{language}\". Diese erbt von",
-    "infoTextRootLanguage": "Darstellung von \"{entityDescription}\" in der Sprache \"{language}\". Der Fallback ist die Systemstandardsprache",
+    "infoTextChildLanguage": "Darstellung von \"{entityDescription}\" in der Sprache <span>\"{language}\"</span>. Diese erbt von",
+    "infoTextRootLanguage": "Darstellung von \"{entityDescription}\" in der Sprache <span>\"{language}\"</span>. Der Fallback ist die System-Standardsprache.",
     "infoTextNewEntity": "\"{entityDescription}\" wird in der Systemstandardsprache angezeigt. Neue Daten müssen in der Standardsprache immer gepflegt sein."
   },
   "sw-language-switch": {
@@ -672,7 +672,7 @@
   "sw-inheritance-warning": {
     "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
   },
-  "sw-license-violation":{
+  "sw-license-violation": {
     "title": "Plugin Warnungen",
     "reload": "Neu laden",
     "alert-text": "Für mindestens eines Deiner installierten Plugins in dieser Installation liegt eine Lizenzverletzung vor. Buche die Plugin-Subscription nach oder Kaufe/Miete das Plugin (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du das Plugin nicht mehr? Dann lösche es vollständig aus dem Plugin-Manager. Falls keiner dieser Schritte vorgenommen wird, behält die Shopware AG sich vor, die Lizenzverletzung zu berechnen.",
@@ -713,7 +713,8 @@
     "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
     "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
     "ruleCard": "Bedingungen",
-    "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten."
+    "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
+    "modalTitleModify": "Globale Regel anpassen"
   },
   "sw-select-rule-create": {
     "addNewRule": "Neue Regel erstellen..."
@@ -800,7 +801,7 @@
   },
   "sw-discard-changes-modal": {
     "title": "Ungespeicherte Änderungen verwerfen?",
-    "message": "Es gibt ungespeicherte Änderungen, möchtest Du die Seite verlassen und die Änderungen verwerfen?",
+    "message": "Es gibt ungespeicherte Änderungen. Möchtest Du die Seite verlassen und die Änderungen verwerfen?",
     "actions": {
       "discard": "Änderungen verwerfen",
       "keepEditing": "Weiter bearbeiten"

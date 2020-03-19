@@ -137,7 +137,7 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage($ids, $iterator->getOffset());
+        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -152,7 +152,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->stockUpdater->update($updates, $event->getContext());
 
-        return new EntityIndexingMessage($updates, null, $event->getContext());
+        return new EntityIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

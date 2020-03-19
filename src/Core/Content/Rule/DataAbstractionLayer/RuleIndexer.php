@@ -106,7 +106,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
             return null;
         }
 
-        return new EntityIndexingMessage($ids, $iterator->getOffset());
+        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -117,7 +117,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
             return null;
         }
 
-        $this->handle(new EntityIndexingMessage($updates, null, $event->getContext()));
+        $this->handle(new EntityIndexingMessage(array_values($updates), null, $event->getContext()));
 
         return null;
     }

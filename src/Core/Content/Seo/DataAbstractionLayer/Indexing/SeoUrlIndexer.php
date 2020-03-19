@@ -126,6 +126,10 @@ class SeoUrlIndexer implements IndexerInterface
 
             $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
+            if ($route->getConfig()->supportsNewIndexer()) {
+                continue;
+            }
+
             $iterator = $this->iteratorFactory->createIterator($route->getConfig()->getDefinition());
 
             $this->eventDispatcher->dispatch(
@@ -178,6 +182,14 @@ class SeoUrlIndexer implements IndexerInterface
         /** @var SeoUrlRouteInterface $route */
         $route = $routes[$routeOffset];
 
+        if ($route->getConfig()->supportsNewIndexer()) {
+            ++$routeOffset;
+
+            return [
+                'dataOffset' => null,
+                'routeOffset' => $routeOffset,
+            ];
+        }
         $templates = $this->loadTemplates([$route->getConfig()->getRouteName()]);
 
         $iterator = $this->iteratorFactory->createIterator($route->getConfig()->getDefinition(), $dataOffset);

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -27,11 +26,6 @@ class SalesChannelIndexer extends EntityIndexer
     private $repository;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var CacheClearer
      */
     private $cacheClearer;
@@ -49,14 +43,12 @@ class SalesChannelIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        Connection $connection,
         CacheClearer $cacheClearer,
         EventDispatcherInterface $eventDispatcher,
         ManyToManyIdFieldUpdater $manyToManyUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
         $this->eventDispatcher = $eventDispatcher;
         $this->manyToManyUpdater = $manyToManyUpdater;
@@ -77,7 +69,7 @@ class SalesChannelIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage($ids, $iterator->getOffset());
+        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -88,7 +80,7 @@ class SalesChannelIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage($updates, null, $event->getContext());
+        return new EntityIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

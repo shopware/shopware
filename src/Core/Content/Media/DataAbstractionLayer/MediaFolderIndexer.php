@@ -79,7 +79,7 @@ class MediaFolderIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage($ids, $iterator->getOffset());
+        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -92,7 +92,7 @@ class MediaFolderIndexer extends EntityIndexer
 
         $updates = array_merge($updates, $this->fetchChildren($updates));
 
-        return new EntityIndexingMessage($updates, null, $event->getContext());
+        return new EntityIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

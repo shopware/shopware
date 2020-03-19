@@ -340,7 +340,7 @@ The new indexers work as follows:
 1. each indexer extends abstract `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer`
 2. each indexer takes care of indexing a whole entity
 3. if several data on an entity need to be indexed, a single indexer takes care of the successive updating of the data
-4. an event is thrown at the end of the indexer so that plugin developers listen to the event to index additional data for this entity
+4. an event is thrown at the end of the indexer so that plugins can subscribe to the event to index additional data for this entity
 5. finally, the updated ids are passed to the `CacheClearer` to invalidate the corresponding caches
 
 #### The new base class

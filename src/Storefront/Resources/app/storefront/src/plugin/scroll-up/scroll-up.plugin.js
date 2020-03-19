@@ -26,8 +26,10 @@ export default class ScrollUpPlugin extends Plugin {
 
     init() {
         this._button = this.el.querySelector(this.options.buttonSelector);
+        this._defaultPadding = window.getComputedStyle(this._button).getPropertyValue('bottom');
 
         this._assignDebouncedOnScrollEvent();
+        this._addBodyPadding();
         this._registerEvents();
     }
 
@@ -50,6 +52,11 @@ export default class ScrollUpPlugin extends Plugin {
         }
 
         document.addEventListener('scroll', this._debouncedOnScroll, false);
+        const observer = new MutationObserver(this._addBodyPadding.bind(this));
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['style']
+        })
     }
 
     /**
@@ -89,5 +96,9 @@ export default class ScrollUpPlugin extends Plugin {
         }
 
         this.$emitter.publish('toggleVisibility');
+    }
+
+    _addBodyPadding() {
+        this._button.style.bottom = `calc(${this._defaultPadding} + ${document.body.style.paddingBottom})`;
     }
 }

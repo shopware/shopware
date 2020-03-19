@@ -20,6 +20,10 @@
             "placeholderNewCustomerGroup": "New customer group",
             "notificationErrorTitle": "Error",
             "notificationErrorMessage": "An error occured while saving your customer group."
+        },
+        "notification": {
+            "errorTitleCannotDeleteCustomerGroup": "Error",
+            "errorMessageCannotDeleteCustomerGroup": "There are still Sales Channels and/or customers assigned to this customer group, therefore it cannot be deleted."
         }
     }
 }

@@ -18,13 +18,17 @@
         </p>
 
         <template #modal-footer>
-            <sw-button @click="showBulkDeleteModal = false" size="small">
-                {{ $tc('global.default.cancel') }}
-            </sw-button>
+            <slot name="bulk-modal-cancel">
+                <sw-button @click="showBulkDeleteModal = false" size="small">
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+            </slot>
 
-            <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
-                {{ $tc('global.default.delete') }}
-            </sw-button>
+            <slot name="bulk-modal-delete-items">
+                <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
+                    {{ $tc('global.default.delete') }}
+                </sw-button>
+            </slot>
         </template>
     </sw-modal>
 {% endblock %}
@@ -55,13 +59,17 @@
 
         <template #modal-footer>
             <slot name="delete-modal-footer" v-bind="{ item }">
-                <sw-button @click="closeModal" size="small">
-                    {{ $tc('global.default.cancel') }}
-                </sw-button>
+                <slot name="delete-modal-cancel" v-bind="{ item }">
+                    <sw-button @click="closeModal" size="small">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                </slot>
 
-                <sw-button @click="deleteItem(item.id)" variant="primary" size="small">
-                    {{ $tc('global.default.delete') }}
-                </sw-button>
+                <slot name="delete-modal-delete-item" v-bind="{ item }">
+                    <sw-button @click="deleteItem(item.id)" variant="primary" size="small">
+                        {{ $tc('global.default.delete') }}
+                    </sw-button>
+                </slot>
             </slot>
         </template>
     </sw-modal>

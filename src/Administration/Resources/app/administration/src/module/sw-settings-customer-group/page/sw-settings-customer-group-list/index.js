@@ -10,7 +10,8 @@ Component.register('sw-settings-customer-group-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -36,6 +37,18 @@ Component.register('sw-settings-customer-group-list', {
 
         customerGroupRepository() {
             return this.repositoryFactory.create('customer_group');
+        },
+
+        allCustomerGroupsCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.addAssociation('salesChannels')
+                .addAssociation('customers');
+
+            criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            return criteria;
         }
     },
 
@@ -50,15 +63,14 @@ Component.register('sw-settings-customer-group-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            this.customerGroupRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
-                this.total = searchResult.total;
-                this.customerGroups = searchResult;
-                this.isLoading = false;
-            });
+            this.customerGroupRepository
+                .search(this.allCustomerGroupsCriteria, Shopware.Context.api)
+                .then((searchResult) => {
+                    this.total = searchResult.total;
+                    this.customerGroups = searchResult;
+                    this.isLoading = false;
+                });
         },
 
         getColumns() {
@@ -73,6 +85,76 @@ Component.register('sw-settings-customer-group-list', {
                 label: 'sw-settings-customer-group.list.columnDisplayGross',
                 inlineEdit: 'boolean'
             }];
+        },
+
+        customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {
+            const criteria = new Criteria();
+
+            criteria.addFilter(
+                Criteria.equalsAny('id', idsOfSelectedCustomerGroups)
+            );
+
+            criteria.addAssociation('salesChannels')
+                .addAssociation('customers');
+
+            return criteria;
+        },
+
+        createErrorNotification() {
+            return this.createNotificationError({
+                title: this.$tc('sw-settings-customer-group.notification.errorTitleCannotDeleteCustomerGroup'),
+                message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup')
+            });
+        },
+
+        customerGroupCanBeDeleted(customerGroup) {
+            const hasNoCustomers = customerGroup.customers.length === 0;
+            const hasNoSalesChannel = customerGroup.salesChannels.length === 0;
+
+            return hasNoCustomers && hasNoSalesChannel;
+        },
+
+        deleteCustomerGroup(customerGroup) {
+            this.$refs.listing.deleteId = null;
+
+            if (!this.customerGroupCanBeDeleted(customerGroup)) {
+                this.createErrorNotification();
+            }
+
+            this.customerGroupRepository.delete(customerGroup.id, Shopware.Context.api)
+                .then(() => {
+                    this.$refs.listing.resetSelection();
+                    this.$refs.listing.doSearch();
+                });
+        },
+
+        deleteCustomerGroups() {
+            const selectedCustomerGroups = Object.values(this.$refs.listing.selection).map(currentProxy => {
+                return currentProxy.id;
+            });
+
+            this.customerGroupRepository
+                .search(this.customerGroupCriteriaWithFilter(selectedCustomerGroups), Shopware.Context.api)
+                .then(response => {
+                    const hasError = response.reduce((accumulator, customerGroup) => {
+                        if (accumulator) {
+                            return accumulator;
+                        }
+
+                        accumulator = !this.customerGroupCanBeDeleted(customerGroup);
+                        return accumulator;
+                    }, false);
+
+                    if (hasError) {
+                        this.createErrorNotification();
+                    }
+
+                    this.$refs.listing.deleteItems();
+                });
+        },
+
+        onContextMenuDelete(customerGroup) {
+            this.$refs.listing.deleteId = customerGroup.id;
         }
     }
 });

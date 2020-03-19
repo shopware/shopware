@@ -52,7 +52,7 @@ describe('Customer group: Test crud operations', () => {
         cy.get('.sw-customer-list__content').should('be.visible');
         cy.get('a[href="#/sw/customer/create"]').click();
         cy.get('.sw-customer-base-form__customer-group-select')
-            .typeSingleSelectAndCheck('E2E Merchant', '.sw-customer-base-form__customer-group-select')
+            .typeSingleSelectAndCheck('E2E Merchant', '.sw-customer-base-form__customer-group-select');
 
         // Check usage of customer group in sales channel
         salesChannelPage.openSalesChannel('Headless');
@@ -120,6 +120,38 @@ describe('Customer group: Test crud operations', () => {
         // Verify deletion
         cy.wait('@deleteData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
+        });
+    });
+
+    it('@settings: throw error when deleting standard customer group', () => {
+        const page = new SettingsPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v1/customer-group/*',
+            method: 'delete'
+        }).as('deleteData');
+
+        cy.get('.sw-settings-customer-group-list').should('be.visible');
+        cy.clickContextMenuItem(
+            `${page.elements.contextMenu}-item--danger`,
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--1`
+        );
+
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__body')
+            .contains('Are you sure you want to delete this item?');
+        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(page.elements.modal).should('not.exist');
+
+        // Verify that notification is visible to user
+        cy.get('.sw-alert--error').should('be.visible');
+
+        // Verify that api blocks delete
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 409);
         });
     });
 });

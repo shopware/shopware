@@ -59,6 +59,7 @@
                             {% block sw_settings_customer_group_list_grid %}
                                 <template slot="grid">
                                     <sw-entity-listing
+                                            ref="listing"
                                             class="sw-settings-customer-group-list-grid"
                                             :repository="customerGroupRepository"
                                             :isLoading="isLoading"
@@ -69,6 +70,24 @@
                                             :sortDirection="sortDirection"
                                             :fullPage="false"
                                             detailRoute="sw.settings.customer.group.detail">
+
+                                        <template #bulk-modal-delete-items>
+                                            <sw-button @click="deleteCustomerGroups" variant="primary" size="small">
+                                                {{ $tc('global.default.delete') }}
+                                            </sw-button>
+                                        </template>
+
+                                        <template #delete-action="{ item }">
+                                            <sw-context-menu-item @click="onContextMenuDelete(item)" variant="danger">
+                                                {{ $tc('global.default.delete') }}
+                                            </sw-context-menu-item>
+                                        </template>
+                                        
+                                        <template #delete-modal-delete-item="{ item }">
+                                            <sw-button @click="deleteCustomerGroup(item)" variant="primary" size="small">
+                                                {{ $tc('global.default.delete') }}
+                                            </sw-button>
+                                        </template>
 
                                         {% block sw_settings_customer_group_list_grid_column_display_gross %}
                                             <template #column-displayGross="{ item }">

@@ -42,7 +42,10 @@ Component.register('sw-select-rule-create', {
             type: Object,
             required: false,
             default() {
-                return new Criteria(1, Shopware.Context.api);
+                const criteria = new Criteria(1, Shopware.Context.api);
+                criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+                return criteria;
             }
         }
     },

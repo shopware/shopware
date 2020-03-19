@@ -385,7 +385,7 @@ function updateSuperRegistry(superRegistry, methodName, method, methodOrComputed
  */
 function addSuperBehaviour(inheritedFrom, superRegistry) {
     return {
-        $super(name, args) {
+        $super(name, ...args) {
             this._initVirtualCallStack(name);
 
             const superStack = this._findInSuperRegister(name);
@@ -393,7 +393,7 @@ function addSuperBehaviour(inheritedFrom, superRegistry) {
 
             this._virtualCallStack[name] = superFuncObject.parent;
 
-            const result = superFuncObject.func.bind(this)(args);
+            const result = superFuncObject.func.bind(this)(...args);
 
             // reset the virtual call-stack
             if (superFuncObject.parent) {

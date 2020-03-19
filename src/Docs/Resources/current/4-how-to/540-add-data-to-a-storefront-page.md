@@ -66,14 +66,13 @@ Now that we have registered our Subscriber to the right event we first need to f
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.active', true));
-        $criteria->addAggregation(new CountAggregation('product.id', 'productCount'));
+        $criteria->addAggregation(new CountAggregation('productCount', 'product.id'));
 
         /** @var CountResult $productCountResult */
         $productCountResult = $this->productRepository
-            ->aggregate($criteria, $event->getContext())
+            ->search($criteria, $event->getContext())
             ->getAggregations()
-            ->get('productCount')
-            ->getResult()[0];
+            ->get('productCount');
 
         $event->getPagelet()->addExtension('product_count', $productCountResult);
     }
@@ -127,14 +126,13 @@ class FooterSubscriber implements EventSubscriberInterface
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.active', true));
-        $criteria->addAggregation(new CountAggregation('product.id', 'productCount'));
+        $criteria->addAggregation(new CountAggregation('productCount', 'product.id'));
 
         /** @var CountResult $productCountResult */
         $productCountResult = $this->productRepository
-            ->aggregate($criteria, $event->getContext())
+            ->search($criteria, $event->getContext())
             ->getAggregations()
-            ->get('productCount')
-            ->getResult()[0];
+            ->get('productCount');
 
         $event->getPagelet()->addExtension('product_count', $productCountResult);
     }

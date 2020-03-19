@@ -19,8 +19,8 @@
       "titleSaveError": "Error",
       "titleActivateError": "Activation error",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
-      "messageActivateWithoutThemeError": "The Sales Channel \"{name}\" could not yet activated. Activated Sales Channels need to have a theme associated.",
-      "activateDisable": "Please save the Sales Channel and assign a theme to it before activating.",
+      "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
+      "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
       "buttonSave": "Save",
       "buttonCreateNewApiKeys": "Create new API key",
       "tabBase": "General",
@@ -73,31 +73,31 @@
       "buttonConfirmDeleteDomain": "Delete",
       "customerGroup": "Customer group",
       "navigation": "Navigation",
-      "navigationCategoryId": "Starting point main navigation",
+      "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",
       "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
-      "footerCategory": "Starting point footer navigation",
-      "serviceCategory": "Starting point service navigation",
+      "footerCategory": "Entry point footer navigation",
+      "serviceCategory": "Entry point service navigation",
       "titleOptionsApiKey": "API access",
       "titleDeleteSalesChannelWarning": "Warning:",
-      "textDeleteSalesChannelWarning": "Removing this Sales Channel cannot be undone.",
+      "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
       "buttonCopyApiKeyButton": "Copy API key",
       "titleStatus": "Status",
       "titleDomainHeadline": "Create domain URLs",
       "buttonEditDomain": "Edit domain",
       "titleCreateDomain": "Create domain",
       "titleEditDomain": "Edit \"{name}\" domain",
-      "textDomainDescription": "Each selected language must have it's own domain in order to work in your online Sales Channel. You can also add custom domains here.",
+      "textDomainDescription": "Each selected language must have its own domain, in order to work in your online Sales Channel. You can also add custom domains here.",
       "textApiAccessDescription": "In order to get API access, you need the API key shown below. Generating the key anew will overwrite the old key and by that terminate all existing access routes that were set up with it. <strong>This action cannot be undone.</strong>",
-      "textActiveDescription": "Switching off a Sales Channel will make it inaccessible to visitors and API connections.",
+      "textActiveDescription": "Switching off a Sales Channel will make it inaccessible to visitors as well as API connections.",
       "columnDomainUrl": "URL",
       "columnDomainLanguage": "Language",
       "columnDomainSnippetSet": "Snippet set",
       "maintenanceModeTitle": "Maintenance mode",
-      "maintenanceModeDescription": "Maintenance mode sets the Sales Channel invisible to visitors. However white listed/labelled IPs may still access it. This way you can safely work on the sales channel data, while blocking out visitors with a maintenance mode screen.",
+      "maintenanceModeDescription": "In maintenance mode the Sales Channel will be invisible to visitors. However, you will be able to access it, using white listed IPs. This way you can safely work on the Sales Channel data, while blocking visitors at a maintenance mode screen.",
       "labelMaintenanceActive": "Maintenance",
       "ipAddressWhitleList": "IP addresses whitelist",
-      "ipAddressWhitleListHelpText": "Add IP-addresses to the white list in order to allow selective access to your shop. You may add IPv4- and IPv6-addresses as needed.",
+      "ipAddressWhitleListHelpText": "Add IP addresses to the white list in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
       "productComparison": {
@@ -112,18 +112,18 @@
         "lastGenerationLabel": "Last generated at: ",
         "notYetGenerated": "This export has not been generated yet.",
         "encoding": "Encoding",
-        "placeholderSelectEncoding": "Please select an encoding...",
+        "placeholderSelectEncoding": "Please select an encoding format...",
         "fileFormat": "File format",
         "placeholderSelectFileFormat": "Please select a file format...",
         "accessKey": "Access key",
         "accessUrl": "Export URL",
-        "buttonCreateNewAccessKey": "Create new access key",
+        "buttonCreateNewAccessKey": "Create a new access key",
         "productStream": "Dynamic product group",
         "fileFormatLabels": {
           "csv": "CSV",
           "xml": "XML"
         },
-        "includeVariants": "Include variants",
+        "includeVariants": "Export variants as discrete products",
         "interval": "Interval",
         "generateByCronjob": "Generate via scheduler",
         "notificationTitleValidateSuccessful": "Validation successful",
@@ -154,17 +154,17 @@
         "storefrontDomain": "Storefront domain",
         "storefrontDomainLanguage": {
           "label": "Language",
-          "help": "Automatically selected from sales channel domain"
+          "help": "Automatically selected by Sales Channel domain"
         },
         "storefrontDomainCurrency": {
           "label": "Currency"
         },
         "storefrontSalesChannelCustomerGroup": {
           "label": "Customer Group",
-          "help": "Automatically selected from sales channel"
+          "help": "Automatically selected by Sales Channel"
         },
         "titleAccessKeyChanged": "Access key changed",
-        "messageAccessKeyChanged": "The access key and the changed export URL are only active after saving the sales channel.",
+        "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
         "templates": {
           "label": "Template",
           "placeholderSelectTemplate": "Do not use a template",
@@ -174,12 +174,12 @@
             "google-product-search-de": "Google Shopping (XML)"
           },
           "modal-title": "Apply template",
-          "modal-message": "When you apply the template, existing data in this sales channel will be overwritten. Both the settings and the template tabs will be adjusted.",
+          "modal-message": "If you apply the template, existing data in this Sales Channel will be overwritten. Settings and template tabs will be subject to these changes.",
           "modal-confirm": "Apply template",
           "modal-cancel": "Cancel",
           "message": {
-            "template-applied-title": "Template applied",
-            "template-applied-message": "The data from the template has been applied. Please save the sales channel to save the changes."
+            "template-applied-title": "Info",
+            "template-applied-message": "Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes."
           }
         }
       },
@@ -217,7 +217,7 @@
       }
     },
     "sw-sales-channel-defaults-select": {
-      "messageError": "The value is in use by domain: \"%{url}\"."
+      "messageError": "The value is in use by this domain: \"%{url}\"."
     }
   }
 }

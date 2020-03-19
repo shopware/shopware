@@ -10,8 +10,8 @@
       "headlineForm": "Log in to your Shopware store",
       "labelUsername": "Username",
       "labelPassword": "Password",
-      "placeholderUsername": "Enter your username",
-      "placeholderPassword": "Enter your password",
+      "placeholderUsername": "Enter your username...",
+      "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
       "titleErrorMessage": "Error",
       "messageUnsupportedGrantType": "Authorization grant type not supported by authorization server.",
@@ -24,7 +24,7 @@
       "messageAccessDenied": "Request denied by authorization server.",
       "messageInvalidGrant": "Invalid authorization grant or refresh token.",
       "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
-      "forgottenPasswordLink": "Forgot your password?"
+      "forgottenPasswordLink": "Did you forget your password?"
     },
     "recovery" : {
       "info": {
@@ -35,10 +35,10 @@
       "recovery": {
         "headline": "Password recovery",
         "newPasswordField": {
-          "label": "Enter your new password"
+          "label": "Enter your new password..."
         },
         "passwordConfirmField": {
-          "label": "Repeat your new password"
+          "label": "Repeat your new password..."
         },
         "submit": {
           "label": "Update password"
@@ -46,15 +46,15 @@
         "errorMessage": "Your recovery link has expired or is invalid!"
       },
       "headline": "Password recovery",
-      "text": "Enter the email address thats's linked to your account.",
+      "text": "Enter the email address linked to your account.",
       "email": {
         "label": "Email address:",
-        "placeholder": "you@example.com"
+        "placeholder": "shop@example.com"
       },
       "error": {
         "passwordUpdateTitle": "There was an error updating your password:"
       },
-      "submit": "Send recovery mail"
+      "submit": "Send recovery link"
     }
   }
 }

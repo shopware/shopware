@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -46,6 +47,10 @@ class NavigationPageLoader
         $category = $this->cmsPageRoute
             ->load($navigationId, $request, $context)
             ->getCategory();
+
+        if (!$category->getActive()) {
+            throw new CategoryNotFoundException($category->getId());
+        }
 
         if ($category->getCmsPage()) {
             $this->loadMetaData($category, $page);

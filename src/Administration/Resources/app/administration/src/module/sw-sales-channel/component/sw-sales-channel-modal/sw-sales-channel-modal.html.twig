@@ -50,7 +50,7 @@
                                 variant="primary"
                                 size="small"
                                 @click="onAddChannel(detailType.id)"
-                                :isLoading="isProductComparisonSalesChannelType(detailType.id) && productStreamsLoading"
+                                :isLoading="isProductComparisonSalesChannelType(detailType.id) && !productStreamsLoading"
                                 :disabled="isProductComparisonSalesChannelType(detailType.id) && !productStreamsExist"
                                 v-tooltip="{
                                     message: $tc('sw-sales-channel.modal.messageNoProductStreams'),

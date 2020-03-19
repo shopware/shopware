@@ -1,13 +1,13 @@
 {
   "sw-settings-listing": {
     "general": {
-      "mainMenuItemGeneral": "Listing settings",
-      "textHeadline": "Listing settings",
-      "description": "Manage listing settings here.",
+      "mainMenuItemGeneral": "Product listings",
+      "textHeadline": "Product listings",
+      "description": "Manage the display of product listings here.",
       "buttonSave": "Save",
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The configuration has been saved.",
-      "titleSaveError": "Error"
+      "titleSaveError": "The configuration could not be saved."
     }
   }
 }

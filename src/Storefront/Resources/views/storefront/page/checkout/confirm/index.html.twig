@@ -32,14 +32,7 @@
             {% endblock %}
 
             {% block page_checkout_confirm_errors %}
-                {% for error in page.cart.errors %}
-                    {% set snippetName = "error.#{error.messageKey}" %}
-
-                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                        type: "danger",
-                        content: snippetName|trans({'%name%': error.name})|sw_sanitize
-                    } %}
-                {% endfor %}
+                {%  sw_include '@Storefront/storefront/component/checkout/cart-alerts.html.twig' %}
             {% endblock %}
         {% endblock %}
 

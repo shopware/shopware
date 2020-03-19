@@ -30,7 +30,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
         $file = file_get_contents(UPDATE_META_FILE);
         $updateConfig = json_decode($file, true);
         $container->setParameter('update.config', $updateConfig);
-        $lang = mb_substr($updateConfig['locale'], 0, 2);
+        $lang = $updateConfig['locale'] ? mb_substr($updateConfig['locale'], 0, 2) : null;
     }
 
     session_set_cookie_params(7200, $baseUrl);

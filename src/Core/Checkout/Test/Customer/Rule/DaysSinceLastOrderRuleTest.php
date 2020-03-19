@@ -142,7 +142,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
     public function testRuleDoesNotMatchWithWrongScope(): void
     {
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
         $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
@@ -158,9 +158,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((new \DateTime())->modify('-1 day'));
+            ->willReturn((self::getTestTimestamp())->modify('-1 day'));
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertTrue($rule->match(new CheckoutRuleScope($checkoutContext)));
@@ -171,7 +171,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext = $this->createMock(SalesChannelContext::class);
         $customer = $this->createMock(CustomerEntity::class);
 
-        $dateTime = (new \DateTime())->setTime(11, 59);
+        $dateTime = (self::getTestTimestamp())->setTime(11, 59);
         $orderDate = clone $dateTime;
         $orderDate->modify('-1 day +1 minute');
 
@@ -194,9 +194,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((new \DateTime())->setTime(0, 0));
+            ->willReturn((self::getTestTimestamp())->setTime(0, 0));
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($rule->match(new CheckoutRuleScope($checkoutContext)));
@@ -210,9 +210,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((new \DateTime())->setTime(23, 59));
+            ->willReturn((self::getTestTimestamp())->setTime(23, 59));
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($rule->match(new CheckoutRuleScope($checkoutContext)));
@@ -226,9 +226,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((new \DateTime())->modify('-1 day')->modify('+1 minute'));
+            ->willReturn((self::getTestTimestamp())->modify('-1 day')->modify('+1 minute'));
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertTrue($rule->match(new CheckoutRuleScope($checkoutContext)));
@@ -242,9 +242,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((new \DateTime())->modify('-1 day')->modify('-1 minute'));
+            ->willReturn((self::getTestTimestamp())->modify('-1 day')->modify('-1 minute'));
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertTrue($rule->match(new CheckoutRuleScope($checkoutContext)));
@@ -258,9 +258,9 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $checkoutContext->method('getCustomer')
             ->willReturn($customer);
         $customer->method('getLastOrderDate')
-            ->willReturn((new \DateTime())->modify('-30 minutes'));
+            ->willReturn((self::getTestTimestamp())->modify('-30 minutes'));
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($rule->match(new CheckoutRuleScope($checkoutContext)));
@@ -274,7 +274,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
     {
         $scope = $this->createRealTestScope();
 
-        $rule = new DaysSinceLastOrderRule();
+        $rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
         $rule->assign(['daysPassed' => 1, 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($rule->match($scope));
@@ -321,7 +321,12 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
-        $orderData = $this->getOrderData($orderId, $defaultContext);
+
+        $orderData = array_map(static function (array $order): array {
+            $order['orderDateTime'] = self::getTestTimestamp();
+
+            return $order;
+        }, $this->getOrderData($orderId, $defaultContext));
 
         $orderRepository->create($orderData, $defaultContext);
         $criteria = new Criteria([$orderData[0]['orderCustomer']['customer']['id']]);
@@ -329,5 +334,10 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $result = $customerRepository->search($criteria, $defaultContext);
 
         return $result->first();
+    }
+
+    private static function getTestTimestamp(): \DateTimeInterface
+    {
+        return new \DateTime('2020-03-10T15:00:00+00:00');
     }
 }

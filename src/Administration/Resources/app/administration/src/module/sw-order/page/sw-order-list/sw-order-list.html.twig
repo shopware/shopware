@@ -101,7 +101,7 @@
                                             <sw-label v-if="item.transactions && item.transactions[0]"
                                                       :variant="getVariantFromPaymentState(item)"
                                                       appearance="pill">
-                                                {{ item.transactions[0].stateMachineState.name }}
+                                                {{ item.transactions[0].stateMachineState.translated.name }}
                                             </sw-label>
                                         </template>
                                     {% endblock %}
@@ -111,7 +111,7 @@
                                         <sw-label v-if="item.deliveries && item.deliveries[0]"
                                                   :variant="getVariantFromDeliveryState(item)"
                                                   appearance="pill">
-                                            {{ item.deliveries[0].stateMachineState.name }}
+                                            {{ item.deliveries[0].stateMachineState.translated.name }}
                                         </sw-label>
                                     </template>
                                 {% endblock %}
@@ -125,22 +125,22 @@
 
                                 {% block sw_order_list_grid_columns_actions %}
                                     <template #actions="{ item }">
-                                        {% block sw_customer_list_grid_columns_actions_view %}
-                                            <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
-                                                {{ $tc('sw-order.list.contextMenuView') }}
-                                            </sw-context-menu-item>
+
+                                        {% block sw_order_list_grid_columns_actions_view %}
+                                            {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` instead #}
+                                            {% block sw_customer_list_grid_columns_actions_view %}
+                                                <sw-context-menu-item class="sw-order-list__order-view-action" :routerLink="{ name: 'sw.order.detail', params: { id: item.id } }">
+                                                    {{ $tc('sw-order.list.contextMenuView') }}
+                                                </sw-context-menu-item>
+                                            {% endblock %}
                                         {% endblock %}
 
+                                        {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` with parent instead #}
                                         {% block sw_customer_list_grid_columns_actions_confirm_payment %}
-                                            <sw-context-menu-item disabled>
-                                                {{ $tc('sw-order.list.contextMenuConfirmPayment') }}
-                                            </sw-context-menu-item>
                                         {% endblock %}
 
+                                        {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` with parent instead #}
                                         {% block sw_customer_list_grid_columns_actions_delete %}
-                                            <sw-context-menu-item variant="danger" disabled>
-                                                {{ $tc('sw-order.list.contextMenuDelete') }}
-                                            </sw-context-menu-item>
                                         {% endblock %}
                                     </template>
                                 {% endblock %}

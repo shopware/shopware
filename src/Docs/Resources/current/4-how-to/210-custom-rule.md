@@ -85,7 +85,7 @@ As you might have noticed, there's already several methods implemented:
 Time to register it in the DI container via the `services.xml` of your plugin.
 If your plugin does not have a `services.xml` file yet, make sure to read [here](./../2-internals/4-plugins/010-plugin-quick-start.md#The services.xml) to understand how it can be created in the first place.
 
-Your rule has to be defined as a service together with the tag `rule.definition`:
+Your rule has to be defined as a service together with the tag `shopware.rule.definition`:
 ```xml
 <?xml version="1.0" ?>
 
@@ -95,7 +95,7 @@ Your rule has to be defined as a service together with the tag `rule.definition`
 
     <services>
         <service id="Swag\CustomRule\Core\Rule\LunarEclipseRule">
-            <tag name="rule.definition"/>
+            <tag name="shopware.rule.definition"/>
         </service>
     </services>
 </container>

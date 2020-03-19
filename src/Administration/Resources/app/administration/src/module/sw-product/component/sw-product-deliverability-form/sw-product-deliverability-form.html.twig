@@ -46,6 +46,7 @@
                                   :error="productIsCloseoutError"
                                   :mapInheritance="props"
                                   :label="$tc('sw-product.settingsForm.labelIsCloseout')"
+                                  :helpText="$tc('sw-product.settingsForm.isCloseoutHelpText')"
                                   :disabled="props.isInherited"
                                   :value="props.currentValue"
                                   @change="props.updateCurrentValue">

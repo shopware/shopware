@@ -226,30 +226,31 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
             return;
         }
 
-        $multiplier = null;
         if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
-            $multiplier = -1;
-        }
+            $this->decreaseStock($event);
 
-        if ($event->getFromPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
-            $multiplier = +1;
-        }
-
-        if ($multiplier === null) {
             return;
         }
 
-        $products = $this->getProductsOfOrder($event->getEntityId());
+        if ($event->getFromPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
+            $this->increaseStock($event);
 
-        $ids = array_column($products, 'referenced_id');
+            return;
+        }
 
-        $this->updateStock($products, $multiplier);
+        if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_CANCELLED || $event->getFromPlace()->getTechnicalName() === OrderStates::STATE_CANCELLED) {
+            $products = $this->getProductsOfOrder($event->getEntityId());
 
-        $this->updateAvailableStock($ids, $event->getContext());
+            $ids = array_column($products, 'referenced_id');
 
-        $this->updateAvailableFlag($ids, $event->getContext());
+            $this->updateAvailableStock($ids, $event->getContext());
 
-        $this->clearCache($ids);
+            $this->updateAvailableFlag($ids, $event->getContext());
+
+            $this->clearCache($ids);
+
+            return;
+        }
     }
 
     public function orderPlaced(CheckoutOrderPlacedEvent $event): void
@@ -261,6 +262,36 @@ class ProductStockIndexer implements IndexerInterface, EventSubscriberInterface
             }
             $ids[] = $lineItem->getReferencedId();
         }
+
+        $this->updateAvailableStock($ids, $event->getContext());
+
+        $this->updateAvailableFlag($ids, $event->getContext());
+
+        $this->clearCache($ids);
+    }
+
+    private function increaseStock(StateMachineTransitionEvent $event): void
+    {
+        $products = $this->getProductsOfOrder($event->getEntityId());
+
+        $ids = array_column($products, 'referenced_id');
+
+        $this->updateStock($products, +1);
+
+        $this->updateAvailableStock($ids, $event->getContext());
+
+        $this->updateAvailableFlag($ids, $event->getContext());
+
+        $this->clearCache($ids);
+    }
+
+    private function decreaseStock(StateMachineTransitionEvent $event): void
+    {
+        $products = $this->getProductsOfOrder($event->getEntityId());
+
+        $ids = array_column($products, 'referenced_id');
+
+        $this->updateStock($products, -1);
 
         $this->updateAvailableStock($ids, $event->getContext());
 
@@ -295,7 +326,8 @@ UPDATE product SET available_stock = stock - (
     AND order_line_item.type = :type
     AND order_line_item.version_id = :version
 )
-WHERE product.id IN (:ids);
+WHERE product.id IN (:ids)
+AND product.version_id = :version
         ';
 
         $this->connection->executeUpdate(
@@ -338,11 +370,11 @@ WHERE product.id IN (:ids);
 
         $sql = '
             UPDATE product
-            LEFT JOIN product parent 
+            LEFT JOIN product parent
                 ON parent.id = product.parent_id AND parent.version_id = product.version_id
-            
+
             SET product.available = IFNULL((
-                IFNULL(product.is_closeout, parent.is_closeout) * product.available_stock 
+                IFNULL(product.is_closeout, parent.is_closeout) * product.available_stock
                 >=
                 IFNULL(product.is_closeout, parent.is_closeout) * IFNULL(product.min_purchase, parent.min_purchase)
             ), 0)

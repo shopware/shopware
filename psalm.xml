@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <psalm
+    cacheDirectory="var/cache/psalm"
     ensureArrayStringOffsetsExist="true"
     findUnusedVariablesAndParams="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -7,10 +8,11 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="vendor/shopware/platform/src"/>
+        <directory name="platform/src"/>
+        <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="vendor/shopware/platform/src/Recovery" />
+            <directory name="platform/src/Recovery" />
         </ignoreFiles>
     </projectFiles>
 
@@ -23,7 +25,7 @@
         </UnusedMethodCall>
         <UnusedVariable>
             <errorLevel type="info">
-                <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
+                <file name="platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UnusedVariable>
         <UnusedFunctionCall>
@@ -38,29 +40,29 @@
         </UndefinedDocblockClass>
         <InvalidCast>
             <errorLevel type="info">
-                <file name="vendor/shopware/platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
+                <file name="platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
             </errorLevel>
         </InvalidCast>
         <UndefinedConstant>
             <errorLevel type="info">
-                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
-                <file name="vendor/shopware/platform/src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
-                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
-                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
-                <file name="vendor/shopware/platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
-                <file name="vendor/shopware/platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
-                <file name="vendor/shopware/platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
+                <file name="platform/src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
+                <file name="platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
+                <file name="platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UndefinedConstant>
         <InvalidScope>
             <errorLevel type="info">
-                <directory name="vendor/shopware/platform/src/Core/Flag"/>
-                <directory name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag"/>
+                <directory name="platform/src/Core/Flag"/>
+                <directory name="platform/src/Core/Framework/Test/FeatureFlag"/>
             </errorLevel>
         </InvalidScope>
         <MissingFile>
             <errorLevel type="info">
-                <file name="vendor/shopware/platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
+                <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
             </errorLevel>
         </MissingFile>
 
@@ -91,7 +93,6 @@
         <MissingReturnType errorLevel="info"/>
         <MissingPropertyType errorLevel="info"/>
         <InvalidDocblock errorLevel="info"/>
-        <MisplacedRequiredParam errorLevel="info"/>
 
         <PropertyNotSetInConstructor errorLevel="info"/>
         <MissingConstructor errorLevel="info"/>
@@ -115,53 +116,31 @@
         <LessSpecificReturnStatement errorLevel="info"/>
         <TypeCoercion errorLevel="info"/>
 
-        <PossiblyFalseArgument errorLevel="info"/>
-        <PossiblyFalseIterator errorLevel="info"/>
-        <PossiblyFalseOperand errorLevel="info"/>
-        <PossiblyFalsePropertyAssignmentValue errorLevel="info"/>
         <PossiblyFalseReference errorLevel="info"/>
-        <PossiblyInvalidArgument errorLevel="info"/>
         <PossiblyInvalidArrayAccess errorLevel="info"/>
         <PossiblyInvalidArrayAssignment errorLevel="info"/>
-        <PossiblyInvalidArrayOffset errorLevel="info"/>
         <PossiblyInvalidCast errorLevel="info"/>
         <PossiblyInvalidFunctionCall errorLevel="info"/>
         <PossiblyInvalidIterator errorLevel="info"/>
         <PossiblyInvalidMethodCall errorLevel="info"/>
-        <PossiblyInvalidOperand errorLevel="info"/>
-        <PossiblyInvalidPropertyAssignment errorLevel="info"/>
-        <PossiblyInvalidPropertyAssignmentValue errorLevel="info"/>
-        <PossiblyInvalidPropertyFetch errorLevel="info"/>
-        <PossiblyNullArgument errorLevel="info"/>
         <PossiblyNullArrayAccess errorLevel="info"/>
         <PossiblyNullArrayAssignment errorLevel="info"/>
         <PossiblyNullArrayOffset errorLevel="info"/>
-        <PossiblyNullFunctionCall errorLevel="info"/>
         <PossiblyNullIterator errorLevel="info"/>
-        <PossiblyNullOperand errorLevel="info"/>
-        <PossiblyNullPropertyAssignment errorLevel="info"/>
-        <PossiblyNullPropertyAssignmentValue errorLevel="info"/>
         <PossiblyNullPropertyFetch errorLevel="info"/>
         <PossiblyNullReference errorLevel="info"/>
-        <PossiblyUndefinedGlobalVariable errorLevel="info"/>
         <PossiblyUndefinedVariable errorLevel="info"/>
         <PossiblyUndefinedArrayOffset errorLevel="info"/>
         <PossiblyUndefinedMethod errorLevel="info"/>
 
         <!-- level 5 issues - should be avoided at mosts costs... -->
 
-        <ForbiddenCode errorLevel="info"/>
         <ImplicitToStringCast errorLevel="info"/>
         <InvalidScalarArgument errorLevel="info"/>
-        <InvalidToString errorLevel="info"/>
         <InvalidOperand errorLevel="info"/>
-        <NoInterfaceProperties errorLevel="info"/>
         <TooManyArguments errorLevel="info"/>
         <TypeDoesNotContainType errorLevel="info"/>
-        <TypeDoesNotContainNull errorLevel="info"/>
-        <MissingDocblockType errorLevel="info"/>
         <ImplementedReturnTypeMismatch errorLevel="info"/>
-        <ImplementedParamTypeMismatch errorLevel="info"/>
 
         <!-- level 6 issues - really bad things -->
 
@@ -171,25 +150,19 @@
         <FalsableReturnStatement errorLevel="info"/>
 
         <MoreSpecificImplementedParamType errorLevel="info"/>
-        <LessSpecificImplementedReturnType errorLevel="info"/>
 
         <InvalidReturnStatement errorLevel="info"/>
         <InvalidReturnType errorLevel="info"/>
-        <UndefinedThisPropertyAssignment errorLevel="info"/>
         <UndefinedInterfaceMethod errorLevel="info"/>
 
         <!-- level 7 issues - even worse -->
 
-        <UndefinedThisPropertyAssignment errorLevel="info"/>
         <UndefinedPropertyAssignment errorLevel="info"/>
         <UndefinedThisPropertyFetch errorLevel="info"/>
         <UndefinedPropertyFetch errorLevel="info"/>
 
-        <InvalidReturnStatement errorLevel="info"/>
-        <InvalidReturnType errorLevel="info"/>
         <InvalidArgument errorLevel="info"/>
         <InvalidPropertyAssignmentValue errorLevel="info"/>
         <InvalidArrayOffset errorLevel="info"/>
-        <InvalidArrayAssignment errorLevel="info"/>
     </issueHandlers>
 </psalm>

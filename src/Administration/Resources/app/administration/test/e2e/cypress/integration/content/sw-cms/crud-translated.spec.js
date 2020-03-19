@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it('@base @content: create, translate and read layout', () => {
+    it.skip('@base @content: create, translate and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();
@@ -151,7 +151,7 @@ describe('CMS: Test crud operations of layouts', () => {
 
             cy.get('.sw-text-editor__content-editor')
                 .then($target => {
-                    let coords = $target[0].getBoundingClientRect();
+                    const coords = $target[0].getBoundingClientRect();
 
                     cy.get('.sw-text-editor__content-editor').clear();
                     cy.get('.sw-text-editor__content-editor').type('Deutsch');

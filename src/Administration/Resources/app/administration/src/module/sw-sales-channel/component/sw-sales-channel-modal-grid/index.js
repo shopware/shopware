@@ -67,6 +67,7 @@ Component.register('sw-sales-channel-modal-grid', {
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
+            console.log(salesChannelTypeId);
             return salesChannelTypeId === 'ed535e5722134ac1aa6524f73e26881b';
         },
 

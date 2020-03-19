@@ -94,3 +94,5 @@ phpstan.neon
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+.gitkeep

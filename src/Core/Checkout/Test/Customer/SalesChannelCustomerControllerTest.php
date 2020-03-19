@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,6 +75,11 @@ class SalesChannelCustomerControllerTest extends TestCase
      */
     private $browser;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get('serializer');
@@ -83,6 +90,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         $this->countryStateRepository = $this->getContainer()->get('country_state.repository');
         $this->context = Context::createDefaultContext();
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->connection = $this->getContainer()->get('Doctrine\DBAL\Connection');
 
         // reset rules
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
@@ -459,6 +467,44 @@ class SalesChannelCustomerControllerTest extends TestCase
         $hash = $this->readCustomer($customerId)->getPassword();
 
         static::assertTrue(password_verify($password, $hash));
+    }
+
+    public function testChangePasswordTokenInvalidation(): void
+    {
+        $customerId = $this->createCustomerAndLogin();
+        $oldTokenId = Random::getAlphanumericString(32);
+
+        // insert another token for the same customer to simulate a second active session
+        $this->getContainer()
+            ->get(SalesChannelContextPersister::class)
+            ->save($oldTokenId, [
+                'customerId' => $customerId,
+            ]);
+
+        $password = '12345678';
+
+        $payload = [
+            'password' => 'shopware',
+            'newPassword' => $password,
+            'newPasswordConfirm' => $password,
+        ];
+
+        // change password, the token with $oldTokenId should be revoked
+        $this->browser->request('PATCH', '/sales-channel-api/v1/customer/password', $payload);
+
+        // get the invalidated token from the second active session
+        $result = $this->connection->createQueryBuilder()
+            ->select(['token', 'payload'])
+            ->from('sales_channel_api_context')
+            ->where('token = :token')
+            ->setParameter(':token', $oldTokenId)
+            ->execute()
+            ->fetch();
+
+        $payload = json_decode($result['payload'], true);
+
+        // customer id in the token should be set to null, which invalidates the token
+        static::assertNull($payload['customerId']);
     }
 
     public function testChangeProfile(): void

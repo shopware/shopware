@@ -120,7 +120,7 @@
                         propertyName="paymentMethods"
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
                         defaultPropertyName="paymentMethodId"
-                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputPaymentMethods')">
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')">
                     </sw-sales-channel-defaults-select>
 
                     {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
@@ -192,6 +192,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_languages %}
                     <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
                         :salesChannel="salesChannel"
                         propertyName="languages"
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"

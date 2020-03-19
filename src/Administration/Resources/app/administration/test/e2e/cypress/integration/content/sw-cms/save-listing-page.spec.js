@@ -17,7 +17,7 @@ describe('CMS: check validation of product list page', () => {
             });
     });
 
-    it('@content: create product list page and try to save with deleted listing block', () => {
+    it.skip('@content: create product list page and try to save with deleted listing block', () => {
         cy.server();
         cy.route({
             url: '/api/v1/cms-page',

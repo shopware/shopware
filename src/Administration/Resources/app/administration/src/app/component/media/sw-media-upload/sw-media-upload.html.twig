@@ -42,7 +42,7 @@
                 {% block sw_media_upload_regular_header %}
                     <div class="sw-media-upload__header">
                         {% block sw_media_upload_regular_header_label %}
-                            <label v-if="label" class="sw-media-upload__label">
+                            <label v-if="label" class="sw-media-upload__label" :class="swMediaUploadLabelClasses">
                                 {{ label }}
                             </label>
                         {% endblock %}
@@ -160,6 +160,7 @@
                             </div>
                         {% endblock %}
                     </div>
+                    <sw-field-error :error="error"></sw-field-error>
                 {% endblock %}
             </div>
         {% endblock %}

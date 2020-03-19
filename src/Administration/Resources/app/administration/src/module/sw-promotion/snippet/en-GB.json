@@ -2,12 +2,12 @@
   "global": {
     "error-codes": {
       "PROMOTION_VALID_UNTIL_VIOLATION": "The promotion's expiry date must be set after the start of the promotion.",
-      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "The discount value must not be bigger than {value}.",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "The discount value must not be more than {value}.",
       "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "The discount value must not be less than {value}.",
-      "PROMOTION_DUPLICATED_CODE_VIOLATION": "The code has been used by another promotion already.",
-      "PROMOTION_CODE_WHITESPACE_VIOLATION": "The code must not start nor end with a whitespace.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "This code has been used before.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "A code must not start nor end with a whitespace.",
       "PROMOTION_EMPTY_CODE_VIOLATION": "The code field must not be empty.",
-      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "The code pattern has already been used in another promotion."
+      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "This code pattern has already been used in another promotion."
     }
   },
   "sw-promotion": {
@@ -83,8 +83,8 @@
           "labelTitle": "Name",
           "placeholderName": "Enter name...",
           "labelActive": "Active",
-          "labelSalesChannels": "Sales channels",
-          "placeholderSalesChannels": "Add sales channel...",
+          "labelSalesChannels": "Sales Channels",
+          "placeholderSalesChannels": "Add Sales Channel...",
           "labelValidFrom": "Valid from:",
           "labelValidUntil": "Valid until:",
           "labelMaxRedemptionsGlobal": "Total possible redemptions",
@@ -102,7 +102,7 @@
             "individual": {
               "title": "Individual promotion codes",
               "labelPattern": "Pattern",
-              "helpTextPattern": "Create your custom code pattern. Use placeholders like %s for characters and %d for digits. Example: code-%s%s%d',",
+              "helpTextPattern": "Create a custom code pattern. Use placeholders like %s for characters and %d for digits. Example: code-%s%s%d',",
               "labelCount": "Count",
               "buttonGenerate": "Save and generate codes",
               "labelNoCodesExist": "No individual codes",
@@ -113,10 +113,10 @@
               "buttonOpenCustomer": "Open customer",
               "alerts": {
                 "errorNoPatternTitle": "No code pattern",
-                "errorNoPatternMessage": "Please assign a code pattern!",
-                "successGeneratedTitle": "Generation complete.",
-                "successGeneratedMessage": "Generated {count} new codes!",
-                "successDeletedTitle": "Code deleted",
+                "errorNoPatternMessage": "Please assign a code pattern.",
+                "successGeneratedTitle": "Success.",
+                "successGeneratedMessage": "Generated {count} new codes.",
+                "successDeletedTitle": "Code deleted.",
                 "errorDeletedTitle": "Error while deleting code."
               }
             }
@@ -127,7 +127,7 @@
           "persona": {
             "card": "Target group",
             "title": "Determine which customers may benefit from this promotion.",
-            "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers have access to this action.",
+            "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers will have access to this action.",
             "labelRules": "Customer rules",
             "placeholderRules": "Assign customer rule...",
             "switchAssignCustomers": "Assign individual customers",
@@ -143,7 +143,7 @@
           "order": {
             "card": "Qualified orders",
             "title": "Define order properties required for this promotion to become applicable.",
-            "text": "Use the rule builder to determine qualified orders. Without a set limitation, the promotion will be applied to all orders.",
+            "text": "Use the rule builder to determine qualified orders. Without a given limitation, the promotion will be applied to all orders.",
             "rulesModuleLink": "Open rule builder",
             "rulesCaption": "Order rules",
             "rulesPlaceholder": "Assign order rule..."

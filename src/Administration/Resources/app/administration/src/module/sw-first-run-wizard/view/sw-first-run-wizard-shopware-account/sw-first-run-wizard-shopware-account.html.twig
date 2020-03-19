@@ -16,19 +16,21 @@
                     </a>.
                 </p>
                 <div class="input-fields">
-                    <sw-field type="text"
+                    <sw-field v-model="shopwareId"
+                              type="text"
                               name="shopwareId"
                               validation="required"
-                              :label="'Shopware ID'"
-                              v-model="shopwareId">
+                              label="Shopware ID"
+                              :placeholder="$tc('sw-first-run-wizard.shopwareAccount.idPlaceholder')">
                     </sw-field>
                 </div>
 
                 <div class="input-fields">
-                    <sw-password-field v-model="password"
+                    <sw-password-field
+                        v-model="password"
                         type="password"
                         label="Password"
-                        placeholder="">
+                        :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')">
                     </sw-password-field>
                 </div>
                 <p class="forgot-password">

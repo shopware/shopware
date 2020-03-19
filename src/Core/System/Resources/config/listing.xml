@@ -7,8 +7,8 @@
 
         <input-field type="bool">
             <name>allowBuyInListing</name>
-            <label>Buy buttons active</label>
-            <label lang="de-DE">Kaufen-Buttons aktiv</label>
+            <label>Display buy button in listings</label>
+            <label lang="de-DE">Kaufen-Button in Produktlistings anzeigen</label>
             <helpText>In product listings, buy buttons are displayed beneath every product. Deactivate to display detail buttons only.</helpText>
             <helpText lang="de-DE">In Produktlisten wird der Kaufen-Button unter jedem Produkt angezeigt. Deaktivieren, um nur den Detail-Button anzuzeigen.</helpText>
         </input-field>

@@ -55,6 +55,7 @@ Javascript analysis:
             - master
             - "6.1"
     stage: unit
+    timeout: 1h 00m
     before_script: []
     script:
         - cd src/Administration/Resources
@@ -79,19 +80,20 @@ PHP analysis:
     retry:
         max: 2
         when: runner_system_failure
+    timeout: 1h 00m
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - php dev-ops/analyze/generate-composer.php
-        - php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
+        - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.yml
         - php dev-ops/analyze/phpstan-config-generator.php
-        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration vendor/shopware/platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
+        - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
         - >
             for module in $(ls vendor/shopware/platform/src/); do
                 echo "[PSALM: scan $module]"
-                php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false vendor/shopware/platform/src/$module;
+                php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --show-info=false platform/src/$module;
             done
-        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=2 --show-info=false src
+        - php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=$(nproc) --show-info=false src
     artifacts:
         reports:
             codequality: development/phpstan-report.json
@@ -108,6 +110,7 @@ PHP analysis:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     variables:
         TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
+    timeout: 1h 00m
     script:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
@@ -143,6 +146,7 @@ PHP 7.2:
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
+    timeout: 1h 00m
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -156,10 +160,26 @@ PHP 7.3:
             - merge_requests
             - master
             - "6.1"
+    except:
+        - schedules
     extends: .phpunit_base
     image: shopware/development:7.3
     stage: unit
     when: manual
+    timeout: 1h 00m
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+PHP 7.3 (Schedule):
+    only:
+        - schedules
+    extends: .phpunit_base
+    image: shopware/development:7.3
+    stage: unit
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -173,10 +193,26 @@ PHP 7.4:
             - merge_requests
             - master
             - "6.1"
+    except:
+        - schedules
     extends: .phpunit_base
     image: shopware/development:7.4
     stage: unit
     when: manual
+    timeout: 1h 00m
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+PHP 7.4 (Schedule):
+    only:
+        - schedules
+    extends: .phpunit_base
+    image: shopware/development:7.4
+    stage: unit
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -190,9 +226,24 @@ MySQL 5.7:
             - merge_requests
             - master
             - "6.1"
+    except:
+        - schedules
     extends: .phpunit_base
     stage: unit
     when: manual
+    timeout: 1h 00m
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+MySQL 5.7 (Schedule):
+    only:
+        - schedules
+    extends: .phpunit_base
+    stage: unit
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -206,9 +257,12 @@ MySQL 8.0:
             - merge_requests
             - master
             - "6.1"
+    except:
+        - schedules
     extends: .phpunit_base
     stage: unit
     when: manual
+    timeout: 1h 00m
     services:
         -   name: mysql:8.0
             alias: mysql
@@ -217,6 +271,18 @@ MySQL 8.0:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
+MySQL 8.0 (Schedule):
+    only:
+        - schedules
+    extends: .phpunit_base
+    stage: unit
+    services:
+        -   name: mysql:8.0
+            alias: mysql
+            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 MariaDB 10.4:
     only:
@@ -224,9 +290,25 @@ MariaDB 10.4:
             - merge_requests
             - master
             - "6.1"
+    except:
+        - schedules
     extends: .phpunit_base
     stage: unit
     when: manual
+    timeout: 1h 00m
+    services:
+        -   name: mariadb:10.4
+            alias: mysql
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+
+MariaDB 10.4 (Schedule):
+    only:
+        - schedules
+    extends: .phpunit_base
+    stage: unit
+    allow_failure: true
     services:
         -   name: mariadb:10.4
             alias: mysql
@@ -242,6 +324,7 @@ Administration (Jest):
             - master
             - "6.1"
     stage: unit
+    timeout: 1h 00m
     services:
         -   name: mariadb:10.3
             alias: mysql
@@ -261,6 +344,7 @@ Storefront (Jest):
             - master
             - "6.1"
     stage: unit
+    timeout: 1h 00m
     variables:
         PROJECT_ROOT: $CI_PROJECT_DIR/development
     services:
@@ -333,6 +417,7 @@ General (Storefront):
     needs: [Storefront (Jest)]
     script: *mixed_definition
     after_script: *mochawesome_report_definition
+    timeout: 1h 00m
     variables:
         BROWSER: 'chrome'
         SECTION: 'Storefront'
@@ -347,6 +432,7 @@ Content (Mixed):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -363,6 +449,7 @@ Catalogues (Mixed):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -379,6 +466,7 @@ Customers (Mixed):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -396,6 +484,7 @@ Media and Marketing (Mixed):
     <<: *e2e_definition
     needs: [Administration (Jest)]
     script: *mixed_definition
+    timeout: 1h 00m
     after_script: *mochawesome_report_definition
     variables:
         BROWSER: 'chrome'
@@ -411,6 +500,7 @@ General (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -427,6 +517,7 @@ Orders (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -443,6 +534,7 @@ Rules and Product Groups (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:
@@ -459,6 +551,7 @@ Settings (Administration):
         - schedules
     <<: *e2e_definition
     needs: [Administration (Jest)]
+    timeout: 1h 00m
     script: *mixed_definition
     after_script: *mochawesome_report_definition
     variables:

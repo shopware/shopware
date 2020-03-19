@@ -20,7 +20,7 @@
       "recommendationsLabel": "Empfehlungen",
       "storeLink": "https://store.shopware.com/",
       "storeLabel": "Shopware Store",
-      "storeNotAvailable": "Es konnte keine Verbindung zum Shopware Store hergestellt werden",
+      "storeNotAvailable": "Es konnte keine Verbindung zum Shopware Store hergestellt werden.",
       "loggedIn": "Angemeldet als"
     },
     "errors": {

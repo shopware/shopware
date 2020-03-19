@@ -602,9 +602,9 @@ The `sort` parameter controls the sorting of the result. Several sorts can be pa
 ```json
 {
     "sort": [
-        { "field": "stock", "direction": "DESC" },
-        { "field": "price", "direction": "ASC" },
-        { "field": "productNumber", "direction": "asc", "naturalSorting":  true}
+        { "field": "stock", "order": "DESC" },
+        { "field": "price", "order": "ASC" },
+        { "field": "productNumber", "order": "asc", "naturalSorting":  true}
     ]
 }
 ```

@@ -155,5 +155,30 @@ You can now access your Shopware 6 installation using the following urls:
 * Storefront: http://shopware:8000
 * Admin: http://shopware:8000/admin (User: admin, password: shopware)
 
+### Trouble shooting
+
+There are cases when the administration is not build correctly and having error messages similar to these:
+
+> ERROR in foobar/vendor/shopware/storefront/Resources/app/administration/src/main.js
+> Module Error (from ./node_modules/eslint-loader/index.js):
+>
+>   ✘  https://google.com/#q=import%2Fno-unresolved  Casing of ./modules/sw-theme-manager does not match the underlying filesystem                                       
+>   foobar/vendor/shopware/storefront/Resources/app/administration/src/main.js:1:8
+>
+>   ✘  https://google.com/#q=import%2Fno-unresolved  Casing of ./extension/sw-sales-channel/page/sw-sales-channel-detail does not match the underlying filesystem        
+>   foobar/vendor/shopware/storefront/Resources/app/administration/src/main.js:3:8
+>
+>   ✘  https://google.com/#q=import%2Fno-unresolved  Casing of ./extension/sw-sales-channel/view/sw-sales-channel-detail-theme does not match the underlying filesystem  
+>   foobar/vendor/shopware/storefront/Resources/app/administration/src/main.js:4:8
+>
+>   ✘  https://google.com/#q=import%2Fno-unresolved  Casing of ./init/api-service.init does not match the underlying filesystem                                          
+>   foobar/vendor/shopware/storefront/Resources/app/administration/src/main.js:6:8
+
+The underlying problem is that Mac supports case insensitive paths but not the tools that build the administration. Therefore make sure to execute the commands in an context where the `pwd` is written in the correct case.
+
+Ok: `/Users/shopware/Code/shopware-platform`
+Not ok: `/users/shopware/code/Shopware-Platform`
+
+
 ### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
 

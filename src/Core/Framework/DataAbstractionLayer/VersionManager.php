@@ -46,6 +46,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
+/**
+ * @internal
+ */
 class VersionManager
 {
     /**
@@ -216,7 +219,7 @@ class VersionManager
             $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
         });
 
-        $affected = $this->clone($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false);
+        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false, false);
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -237,6 +240,11 @@ class VersionManager
 
         $readCriteria = new Criteria($commitIds->getIds());
         $readCriteria->addAssociation('data');
+
+        $readCriteria
+            ->getAssociation('data')
+            ->addSorting(new FieldSorting('autoIncrement'));
+
         $commits = $this->entityReader->read($this->versionCommitDefinition, $readCriteria, $writeContext->getContext());
 
         $allChanges = [];
@@ -354,13 +362,19 @@ class VersionManager
         }
     }
 
-    public function clone(
+    public function clone(EntityDefinition $definition, string $id, string $newId, string $versionId, WriteContext $context, bool $cloneChildren = true): array
+    {
+        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $cloneChildren, true);
+    }
+
+    private function cloneEntity(
         EntityDefinition $definition,
         string $id,
         string $newId,
         string $versionId,
         WriteContext $context,
-        bool $cloneChildren = true
+        bool $cloneChildren = true,
+        bool $writeAuditLog = false
     ): array {
         $criteria = new Criteria([$id]);
         $this->addCloneAssociations($definition, $criteria, $cloneChildren);
@@ -383,6 +397,10 @@ class VersionManager
         $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);
         });
+
+        if ($writeAuditLog) {
+            $this->writeAuditLog($result, $versionContext);
+        }
 
         return $result;
     }

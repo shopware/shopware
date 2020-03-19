@@ -5,7 +5,6 @@ return [
         '.',
         'var/log/',
         'var/cache/',
-        'var/queue/',
         'public/',
         'config/jwt/',
     ],

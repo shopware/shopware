@@ -89,8 +89,8 @@
     },
     "sw-field-copyable": {
       "tooltip": {
-        "wasCopied": "wurde kopiert",
-        "canCopy": "in Zwischenablage kopieren"
+        "wasCopied": "In Zwischenablage kopiert.",
+        "canCopy": "In Zwischenablage kopieren."
       }
     },
     "sw-file-input": {
@@ -413,9 +413,9 @@
     "sw-search-bar": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
-      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen",
+      "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
       "placeholderTypeSearchField": "Durchsuche alle {entity} ...",
-      "placeholderShortcutInfo": "Tipp: Nutze die \"f\" Taste, um die Suche schneller zu öffnen."
+      "placeholderShortcutInfo": "Tipp: Über die \"f\" Taste, kannst Du die Suche schneller öffnen."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -426,10 +426,10 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-        "labelShowResultsInModule": "Ergebnisse im Modul anzeigen({count})"
+        "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})"
     },
     "sw-tagged-field": {
-      "text-default-placeholder": "Enter Taste benutzen um die Werte einzufügen."
+      "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
     },
     "sw-condition": {
       "operator": {
@@ -499,11 +499,12 @@
         "deleteAllConditions": "Alle entfernen",
         "createBefore": "Davor erstellen",
         "createAfter": "Danach erstellen",
-        "hasDeliveryFreeItemRule": "Versandfreie Artikel",
+        "hasDeliveryFreeItemRule": "Versandkostenfrei",
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Warenkorb Gewicht",
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Positionen mit Tag",
+        "alwaysValidRule": "Immer zutreffend",
         "lineItemPropertyRule": "Positionen mit Eigenschaften",
         "lineItemIsNewRule": "Neuheiten",
         "lineItemOfManufacturerRule": "Hersteller",
@@ -518,9 +519,6 @@
         "lineItemDimensionHeightRule": "Positionen mit Höhe",
         "lineItemDimensionLengthRule": "Positionen mit Länge",
         "lineItemDimensionWeightRule": "Positionen mit Gewicht",
-        "lineItemOfManufacturerRule": "Hersteller",
-        "lineItemPurchasePriceRule": "Positionen Einkaufspreis",
-        "lineItemCreationDateRule": "Positionen mit Erstelldatum",
         "lineItemListPriceRule": "Positionen mit Streichpreis",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart"
@@ -611,7 +609,7 @@
       "buttonVariantSecondary": "Sekundär",
       "buttonVariantPrimarySmall": "Primär (klein)",
       "buttonVariantSecondarySmall": "Sekundär (klein)",
-      "placeholder": "URL eingeben",
+      "placeholder": "URL eingeben ...",
       "linkTo": "Link zu",
       "insert": "Einfügen"
     },
@@ -657,7 +655,7 @@
   },
   "sw-property-assignment": {
     "columnGroup": "Eigenschaft",
-    "columnOptions": "Optionen",
+    "columnOptions": "Ausprägungen",
     "messageEmptyTitle": "Noch keine Eigenschaften",
     "messageEmptySubline": "Zum Anlegen von Gruppen gehe ins Eigenschaften-Modul."
   },
@@ -706,7 +704,7 @@
     "en-GB": "Englisch"
   },
   "sw-rule-modal": {
-    "modalTitleNew": "Neue Globale Regel erstellen",
+    "modalTitleNew": "Neue globale Regel erstellen",
     "labelDescription": "Beschreibung",
     "placeholderDescription": "Lege eine Beschreibung für diese Regel fest ...",
     "labelName": "Name",
@@ -802,7 +800,7 @@
   },
   "sw-discard-changes-modal": {
     "title": "Ungespeicherte Änderungen verwerfen?",
-    "message": "Du hast ungespeicherte Änderungen, möchtest Du die Seite verlassen und diese verwerfen?",
+    "message": "Es gibt ungespeicherte Änderungen, möchtest Du die Seite verlassen und die Änderungen verwerfen?",
     "actions": {
       "discard": "Änderungen verwerfen",
       "keepEditing": "Weiter bearbeiten"

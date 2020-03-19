@@ -28,12 +28,6 @@ class SitemapWriter implements SitemapWriterInterface
             unlink($filePath);
         }
 
-        $fileHandle = gzopen($filePath, 'ab');
-
-        if ($fileHandle === false) {
-            throw new FileNotReadableException($filePath);
-        }
-
         $fileHandle = $this->openFile($fileName);
 
         gzwrite($fileHandle, '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');

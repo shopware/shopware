@@ -37,7 +37,7 @@ return [
     'language-selection_select_language' => 'Sprache des Installations-Assistenten',
     'language-selection_header' => 'Deine Shopware-Installation',
     'language-selection_info_message' => 'Diese Auswahl bezieht sich nur auf die Sprache des Installations-Assistenten. Die Systemstandard-Sprache Deines Shops kannst Du später noch definieren.',
-    'language-selection_welcome_message' => 'Wir freuen uns, dass Du Teil unserer großartigen, weltweiten Shopware Community werden möchtest! Jetzt begleiten wir Dich Schritt für Schritt durch den Installationsprozess. Sollten sich Fragen ergeben, schaue bitte zuerst in unser <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontaktiere uns telefonisch unter <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> oder per schreibe uns eine <a class="is--nowrap" href="mailto:info@shopware.com">E-Mail</a>.',
+    'language-selection_welcome_message' => 'Wir freuen uns, dass Du Teil unserer großartigen, weltweiten Shopware-Community werden möchtest! Jetzt begleiten wir Dich Schritt für Schritt durch den Installationsprozess. Sollten sich Fragen ergeben, schaue bitte zuerst in unser <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontaktiere uns telefonisch unter <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> oder per schreibe uns eine <a class="is--nowrap" href="mailto:info@shopware.com">E-Mail</a>.',
     'requirements_header' => 'Systemvoraussetzungen',
     'requirements_header_files' => 'Dateien und Verzeichnisse',
     'requirements_header_system' => 'System',
@@ -122,7 +122,7 @@ return [
     'configuration_admin_mail' => 'Admin-E-Mail-Adresse:',
     'configuration_admin_firstName' => 'Admin-Vorname:',
     'configuration_admin_lastName' => 'Admin-Nachname:',
-    'configuration_defaults_warning' => 'Die System-Standardsprache und -Standardwährung können nachträglich nicht geändert werden.',
+    'configuration_defaults_warning' => 'Die System-Standardsprache und System-Standardwährung können nachträglich nicht geändert werden.',
     'configuration_email_help_text' => 'Diese E-Mail-Adresse wird für ausgehende Shop-E-Mails genutzt.',
 
     'configuration_admin_language_de' => 'Deutsch',

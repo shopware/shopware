@@ -79,7 +79,7 @@ $taxRepository->upsert(
 /** @var EntityRepositoryInterface $taxRepository */
 $taxRepository = $this->container->get('tax.repository');
 
-$repository->upsert(
+$taxRepository->upsert(
     [
         [ 'id' => 'e163778197a24b61bd2ae72d006a6d3c', 'name' => 'I will have an updated name' ],
         [ 'name' => 'I am a new record' ],
@@ -102,7 +102,7 @@ $repository->upsert(
  For example, you can create a product including all relations and even create them in place, without having to create the related records beforehand:
  
  ```php
-/** @var EntityRepositoryInterface $taxRepository */
+/** @var EntityRepositoryInterface $productRepository */
 $productRepository = $this->container->get('product.repository');
 
 $productRepository->upsert(

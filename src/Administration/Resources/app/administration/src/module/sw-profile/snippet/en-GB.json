@@ -13,7 +13,7 @@
       "labelFirstNameField": "First name",
       "labelLastNameField": "Last name",
       "labelUsernameField": "Username",
-      "labelEmailField": "Email",
+      "labelEmailField": "Email address",
       "labelOldPassword": "Old password",
       "placeholderOldPassword": "Enter old password...",
       "labelNewPassword": "New password",

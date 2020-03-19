@@ -49,6 +49,7 @@ class UpdateControllerTest extends TestCase
             $eventDispatcher,
             $systemConfigService,
             $this->getContainer()->get(PluginLifecycleService::class),
+            $this->getContainer()->get('user.repository'),
             $this->getContainer()->getParameter('kernel.shopware_version')
         );
         $updateController->setContainer($this->getContainer());
@@ -119,6 +120,7 @@ class UpdateControllerTest extends TestCase
             $eventDispatcherWithoutPlugins,
             $systemConfigService,
             $this->getContainer()->get(PluginLifecycleService::class),
+            $this->getContainer()->get('user.repository'),
             $version
         );
         $updateController->setContainer($containerWithoutPlugins);

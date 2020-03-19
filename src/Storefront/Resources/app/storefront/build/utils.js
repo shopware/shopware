@@ -171,3 +171,4 @@ function writeScssEntryFile(filepath, fileContent) {
 
     return { filepath }
 }
+

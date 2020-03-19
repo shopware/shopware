@@ -35,7 +35,7 @@
             "tax": "plus %taxRate%% VAT:",
             "total": "Total:",
             "totalNet": "Net total:",
-            "shippingCosts": "Shipping costs:"
+            "shippingCosts": "Shipping costs"
         },
         "paymentShippingInfo": {
             "paymentMethod": "Payment method: %paymentMethod%",

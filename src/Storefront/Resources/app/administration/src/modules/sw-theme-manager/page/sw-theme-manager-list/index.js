@@ -190,7 +190,7 @@ Component.register('sw-theme-manager-list', {
         deleteDisabledToolTip(theme) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-theme-manager.actions.deleteDisablesToolTip'),
+                message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: theme.salesChannels.length === 0
             };
         }

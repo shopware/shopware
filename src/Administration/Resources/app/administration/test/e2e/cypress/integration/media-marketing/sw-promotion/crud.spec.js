@@ -22,7 +22,7 @@ describe('Promotion: Test crud operations', () => {
             });
     });
 
-    it('@p @marketing: create, update and read promotion', () => {
+    it('@base @marketing: create, update and read promotion', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -120,7 +120,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get('.finish-header').contains('Thank you for your order with Demostore!');
     });
 
-    it('@p @marketing: delete promotion', () => {
+    it('@base @marketing: delete promotion', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

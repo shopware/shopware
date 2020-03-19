@@ -63,6 +63,8 @@ class Processor
 
         $cart->addErrors(...array_values($original->getErrors()->getElements()));
 
+        $cart->setExtensions($original->getExtensions());
+
         $this->calculateAmount($context, $cart);
 
         /** @var CartProcessorInterface $processor */
@@ -82,8 +84,6 @@ class Processor
         $cart->setTransactions(
             $this->transactionProcessor->process($cart, $context)
         );
-
-        $cart->setExtensions($original->getExtensions());
 
         return $cart;
     }

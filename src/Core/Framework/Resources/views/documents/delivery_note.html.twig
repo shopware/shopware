@@ -8,9 +8,30 @@
     <h1>{% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}</h1>
 {% endblock %}
 
+{% block document_recipient %}
+    {% set firstDelivery = order.deliveries|first %}
+    {% set deliveryAddressId = firstDelivery.shippingOrderAddressId %}
+    {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
+    <span class="sender-address-small">
+        {% block document_recipient_sender %}
+            {{ config.companyAddress }}<br><br>
+        {% endblock %}
+    </span>
+    {% if deliveryAddress.company %}
+        {{ deliveryAddress.company }}<br>
+    {% endif %}
+    {{ deliveryAddress.firstName }} {{ deliveryAddress.lastName }}<br>
+    {{ deliveryAddress.street }}<br>
+    {{ deliveryAddress.zipcode }} {{ deliveryAddress.city }}<br>
+    {{ deliveryAddress.country.name }}<br>
+{% endblock %}
+
 {% block document_side_info_contents %}
     {{ parent() }}
     <tr><td>{% trans with {'%deliveryDate%': config.custom.deliveryDate|format_date('medium', locale=order.saleschannel.language.locale.code)} %}document.deliveryDate{% endtrans %}</td></tr>
+{% endblock %}
+
+{% block document_line_item_table_shipping %}
 {% endblock %}
 
 {% block document_sum %}

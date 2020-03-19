@@ -75,6 +75,8 @@
     },
     "shopwareAccount": {
       "headline": "Shopware Account",
+      "passwordPlaceholder": "Passwort eingeben ...",
+      "idPlaceholder": "Shopware ID eingeben ...",
       "modalTitle": "Shopware",
       "message": "Melde Dich jetzt mit Deiner Shopware ID an. Dadurch erhälst Du Zugriff auf Deine gekauften Plugins und Lizenzen.<br><br>Mit Deiner Shopware ID kannst Du Dich in weitere Shopware-Plattformen wie z. B. den <a href=\"https://store.shopware.com/\" class=\"external-link\" target=\"_blank\">Community Store</a>, <a href=\"https://forum.shopware.com\" class=\"external-link\" target=\"_blank\">das Forum</a> oder Deinen persönlichen <a href=\"https://account.shopware.com\" class=\"external-link\" target=\"_blank\">Shopware-Account</a> einloggen.",
       "registerAccountText": "Du hast noch keine Shopware ID? Dann registriere Dich direkt",
@@ -82,6 +84,9 @@
       "registerAccountUrl": "https://account.shopware.com/register?lang=de",
       "forgotPasswordText": "Passwort vergessen?",
       "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=de"
+    },
+    "error": {
+      "messageLoginDataInvalid": "Falsche Login-Daten, bitte versuche es nochmal."
     },
     "shopwareDomain": {
       "headline": "Verifiziere Deine Domain",

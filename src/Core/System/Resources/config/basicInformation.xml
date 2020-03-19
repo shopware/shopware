@@ -15,7 +15,7 @@
 
         <input-field>
             <name>email</name>
-            <label>Shop owner email address</label>
+            <label>Shop owner's email address</label>
             <label lang="de-DE">Shopbetreiber-E-Mail-Adresse</label>
             <placeholder>Enter email address...</placeholder>
             <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
@@ -26,7 +26,7 @@
             <label>Family friendly shop</label>
             <label lang="de-DE">Familienfreundlicher Shop</label>
             <helpText>Sets meta tag "isFamilyFriendly" for search engines</helpText>
-            <helpText lang="de-DE">Setzt den Metatag "isFamiliyFriendly" für Suchmaschinen</helpText>
+            <helpText lang="de-DE">Setzt den Metatag "isFamilyFriendly" für Suchmaschinen</helpText>
         </input-field>
 
     </card>
@@ -39,7 +39,7 @@
             <name>tosPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout for terms of service pages</label>
+            <label>Layout for ToS pages</label>
             <label lang="de-DE">Shopseiten-Layout für AGB-Seiten</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
@@ -49,7 +49,7 @@
             <name>revocationPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout for revocation notices</label>
+            <label>Layout for revocation notices</label>
             <label lang="de-DE">Shopseiten-Layout für Widerrufsbelehrungen</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
@@ -59,7 +59,7 @@
             <name>shippingPaymentInfoPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout for payment and shipping information</label>
+            <label>Layout for payment and shipping information</label>
             <label lang="de-DE">Shopseiten-Layout für Versand- und Zahlungsarten</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
@@ -69,7 +69,7 @@
             <name>privacyPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout for privacy pages</label>
+            <label>Layout for privacy pages</label>
             <label lang="de-DE">Shopseiten-Layout für Datenschutz-Seiten</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
@@ -79,8 +79,8 @@
             <name>imprintPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout assignment for imprint</label>
-            <label lang="de-DE">Shopseiten-Layout Zuweisung für Impressum</label>
+            <label>Layout for an imprint</label>
+            <label lang="de-DE">Shopseiten-Layout für ein Impressum</label>
             <placeholder>Select layout</placeholder>
             <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>
@@ -89,8 +89,8 @@
             <name>404Page</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout for missing pages (404: page not found)</label>
-            <label lang="de-DE">Shopseiten-Layout für fehlende Seiten (404: Seite nicht gefunden)</label>
+            <label>Layout for 404 pages</label>
+            <label lang="de-DE">Shopseiten-Layout für 404-Seiten</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
         </component>
@@ -99,8 +99,8 @@
             <name>maintenancePage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Shop page layout assignment for maintenance</label>
-            <label lang="de-DE">Shopseiten-Layout Zuweisung für Wartungen</label>
+            <label>Shop page layout for maintenance pages</label>
+            <label lang="de-DE">Shopseiten-Layout für Wartungsseiten</label>
             <placeholder>Select layout</placeholder>
             <placeholder lang="de-DE">Layout auswählen</placeholder>
         </component>

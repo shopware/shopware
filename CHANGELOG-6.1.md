@@ -17,6 +17,29 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
 * Storefront
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
+### 6.1.4
+
+**Addition / Changes**
+
+* Administration
+    * Fixed VAT Information in default order confirmation mail templates
+
+* Core
+    * Fix updater language to use the admin user language
+    * Fix gzip unpacking error in sitemap
+    * Disabled twig cache warmup on clearing cache
+    * Fixed a bug where inactive category pages could be accessed by browsing to the category's SEO URL directly
+    
+* Storefront
+    * Fix using the SCSS `@extend` feature on existing bootstrap classes when running `./psh.phar storefront:hot` or `./psh.phar storefront:hot-proxy`.
+    * Changed reviewer mail and name to be private in sales-channel API
+
+### 6.1.3
+
+**Addition / Changes**
+
+* Core
+    * Moved cart extension takeover earlier in `\Shopware\Core\Checkout\Cart\Processor::process` so that custom implementations can now access all extensions of the cart. 
 
 ### 6.1.2
 
@@ -28,6 +51,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
     * Added `Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php` to ensure the DAL for custom Field updates via repositories is working correctly.
     * Added file extension whitelist for media manager file upload. Can be configured in the `shopware.yaml`or with the `MediaFileExtensionWhitelistEvent`event
+    * Added `Shopware\Core\Checkout\Cart\Event\CartCreatedEvent` which is dispatched when a cart is created in the `Shopware\Core\Checkout\Cart\SalesChannel\CartService`. 
 
     * Added `Shopware\Core\Migration\Test\DateTimeTest` to ensure usage of (new \DateTime())->format(STORAGE_DATE_TIME_FORMAT) instead of date(Defaults::STORAGE_DATE_TIME_FORMAT) since date only supports seconds and no milliseconds.
     * Added `Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php` to ensure the DAL for custom Field updates via repositories is working correctly.

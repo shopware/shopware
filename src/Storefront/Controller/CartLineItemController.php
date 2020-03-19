@@ -309,13 +309,21 @@ class CartLineItemController extends StorefrontController
             return false;
         }
 
-        foreach ($cart->getErrors() as $error) {
-            $type = 'danger';
+        $this->addCartErrorsToFlashBag($cart->getErrors()->getNotices(), 'info');
+        $this->addCartErrorsToFlashBag($cart->getErrors()->getWarnings(), 'warning');
+        $this->addCartErrorsToFlashBag($cart->getErrors()->getErrors(), 'danger');
 
-            if ($error->getLevel() === Error::LEVEL_NOTICE) {
-                $type = 'info';
-            }
+        $cart->getErrors()->clear();
 
+        return true;
+    }
+
+    /**
+     * @param Error[] $errors
+     */
+    private function addCartErrorsToFlashBag(array $errors, string $type): void
+    {
+        foreach ($errors as $error) {
             $parameters = [];
             foreach ($error->getParameters() as $key => $value) {
                 $parameters['%' . $key . '%'] = $value;
@@ -325,9 +333,5 @@ class CartLineItemController extends StorefrontController
 
             $this->addFlash($type, $message);
         }
-
-        $cart->getErrors()->clear();
-
-        return true;
     }
 }

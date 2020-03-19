@@ -1,0 +1,32 @@
+{% block component_checkout_cart_alerts %}
+    {% block component_checkout_cart_alerts_notices %}
+        {% for error in page.cart.errors.notices %}
+            {% set snippetName = "error.#{error.messageKey}" %}
+
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: "info",
+                content: snippetName|trans({'%name%': error.name})|sw_sanitize
+            } %}
+        {% endfor %}
+    {% endblock %}
+    {% block component_checkout_cart_alerts_warnings %}
+        {% for error in page.cart.errors.warnings %}
+            {% set snippetName = "error.#{error.messageKey}" %}
+
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: "warning",
+                content: snippetName|trans({'%name%': error.name})|sw_sanitize
+            } %}
+        {% endfor %}
+    {% endblock %}
+    {% block component_checkout_cart_alerts_errors %}
+        {% for error in page.cart.errors.errors %}
+            {% set snippetName = "error.#{error.messageKey}" %}
+
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: "danger",
+                content: snippetName|trans({'%name%': error.name})|sw_sanitize
+            } %}
+        {% endfor %}
+    {% endblock %}
+{% endblock %}

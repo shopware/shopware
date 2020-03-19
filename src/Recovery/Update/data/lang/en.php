@@ -46,14 +46,14 @@ return [
     'migration_progress_text' => 'Please start the database migration process by clicking the "Start" button',
     'migration_header' => 'Database migration',
     'migration_counter_text_migrations' => 'Database migration in progress',
-    'migration_counter_text_snippets' => 'Update snippets',
-    'migration_counter_text_unpack' => 'Update files',
+    'migration_counter_text_snippets' => 'Updating snippets',
+    'migration_counter_text_unpack' => 'Updating files',
     'migration_update_success' => 'Update complete',
 
     'cleanup_header' => 'File cleanup',
     'cleanup_dir_table_header' => 'Directory / File',
     'cleanup_disclaimer' => 'The following files belong to your previous Shopware version, but are no longer necessary after this update. Press "Forward" to remove them automatically and finish the update process. We recommend performing a backup before proceeding. <strong>Depending on the amount of files this process may take some time.</strong>',
-    'cleanup_error' => 'The following files could not be deleted. Please delete them manually or ensure that your web server user has enough permissions to do so, and press "Forward" to resume the update process.',
+    'cleanup_error' => 'The following files could not be deleted. Please delete them manually or ensure that your web server\'s user profile has sufficient permissions to do so. Click "Forward" to resume the update process.',
 
     'done_title' => 'The update was successful!',
     'done_info' => 'Your Shopware installation has been successfully updated.',
@@ -61,7 +61,7 @@ return [
     'done_frontend' => 'Open shop storefront',
     'done_backend' => 'Open shop administration',
     'deleted_files' => '&nbsp;deleted files from %d directories',
-    'cache_clear_error' => 'An error has occurred. Please delete the cache after update manually.',
+    'cache_clear_error' => 'An error occurred. Please delete the cache manually after finishing the update.',
 
     'finish_update' => 'Finish update',
 ];

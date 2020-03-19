@@ -74,7 +74,7 @@ describe('Seo: Test crud operations on templates', () => {
         });
     });
 
-    it('@base @settings: update template for a saleschannel', () => {
+    it('@base @settings: update template for a sales channel', () => {
         cy.route({
             url: '/api/v1/_action/sync',
             method: 'post'
@@ -111,14 +111,14 @@ describe('Seo: Test crud operations on templates', () => {
         cy.wait('@templateCreateCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.awaitAndCheckNotification('SEO url templates have been saved.');
+        cy.awaitAndCheckNotification('SEO URL templates have been saved.');
     });
 
-    it('@base @settings: cannot edit templates for headless saleschannels', () => {
+    it('@base @settings: cannot edit templates for headless sales channels', () => {
         cy.get('.sw-sales-channel-switch')
             .typeSingleSelectAndCheck('Headless', '.sw-entity-single-select');
 
-        cy.get('.sw-card__content').contains('SEO URLs cannot be assigned to headless sales channels.');
+        cy.get('.sw-card__content').contains('SEO URLs cannot be assigned to a headless Sales Channel.');
     });
 
     it('@base @settings: cannot save when the first template is empty', () => {

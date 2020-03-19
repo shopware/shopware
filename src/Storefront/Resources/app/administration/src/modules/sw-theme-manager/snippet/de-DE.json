@@ -27,7 +27,7 @@
       "addPreviewImage": "Vorschau hinzufügen",
       "removePreviewImage": "Vorschau entfernen",
       "notificationDeleteErrorTitle": "Fehler",
-      "notificationDeleteErrorMessage": "Das Theme ist noch mindestens einem Saleschannel zugewiesen."
+      "notificationDeleteErrorMessage": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
     },
     "modal": {
       "modalTitleDelete":  "Theme Löschen",
@@ -70,7 +70,7 @@
       "buttonReset": "Theme zurücksetzen",
       "buttonCancel": "Abbrechen",
       "buttonUseTheme": "Theme benutzen",
-      "deleteDisablesToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen"
+      "deleteDisabledToolTip": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
     },
     "detail": {
       "description": "Beschreibung",

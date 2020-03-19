@@ -227,6 +227,9 @@ Component.register('sw-category-detail', {
                         section.blocks.forEach((block) => {
                             block.slots.forEach((slot) => {
                                 if (this.category.slotConfig[slot.id]) {
+                                    if (slot.config === null) {
+                                        slot.config = {};
+                                    }
                                     merge(slot.config, cloneDeep(this.category.slotConfig[slot.id]));
                                 }
                             });

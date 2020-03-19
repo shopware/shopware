@@ -20,7 +20,7 @@ class PromotionExclusionUpdater
     /**
      * @var CacheClearer
      */
-    private $cache;
+    private $cacheClearer;
 
     /**
      * @var Connection
@@ -30,7 +30,7 @@ class PromotionExclusionUpdater
     public function __construct(EntityCacheKeyGenerator $cacheKeyGenerator, CacheClearer $cache, Connection $connection)
     {
         $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->cache = $cache;
+        $this->cacheClearer = $cache;
         $this->connection = $connection;
     }
 
@@ -112,7 +112,7 @@ class PromotionExclusionUpdater
             $this->addToJSON($id, $onlyAddThisExistingIds);
         }
 
-        $this->cache->invalidateTags($tags);
+        $this->cacheClearer->invalidateTags($tags);
     }
 
     /**

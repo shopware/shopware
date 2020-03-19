@@ -460,7 +460,7 @@ class ProductIndexer extends EntityIndexer
 ```
 
 #### DAL fields with indexing
-In case you have used fields from the DAL, which filled automatically by an indexer, you have now to trigger the data indexing for this fields by yourself. We have provided updater classes which you only have to call from your indexer.
+In case you have used fields from the DAL, which filled automatically by an indexer, you have now to trigger the data indexing for this fields by yourself. We provide updater classes which you call from your indexer.
 However, we have adapted the previous indexers so that they will continue to update your entities automatically during the 6.2 version. If you have started the indexing process yourself, you can set a flag to prevent the old indexing process from working for your entity.
 
 * `\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField` 

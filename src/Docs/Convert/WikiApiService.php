@@ -535,14 +535,14 @@ class WikiApiService
         )->getBody()->getContents();
         $responseJson = json_decode($response, true);
 
-        if (!\array_key_exists('localizations', $responseJson) && $responseJson['localizations'] === null) {
+        if (!\array_key_exists('localizations', $responseJson) || $responseJson['localizations'] === null) {
             return;
         }
 
         foreach ($responseJson['localizations'] as $locale) {
             $localId = $locale['id'];
 
-            if (!\array_key_exists('versions', $locale) && $locale['versions'] === null) {
+            if (!\array_key_exists('versions', $locale) || $locale['versions'] === null) {
                 continue;
             }
 

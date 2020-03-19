@@ -64,14 +64,14 @@ class NavigationPageLoader
     {
         $metaInformation = $page->getMetaInformation();
 
-        $metaDescription = $category->getMetaDescription()
-            ?? $category->getDescription();
-        $metaInformation->setMetaDescription((string) $metaDescription);
+        $metaDescription = $category->getTranslation('metaDescription')
+            ?? $category->getTranslation('description');
+        $metaInformation->setMetaDescription((string)$metaDescription);
 
-        $metaTitle = $category->getMetaTitle()
+        $metaTitle = $category->getTranslation('metaTitle')
             ?? $category->getTranslation('name');
         $metaInformation->setMetaTitle((string) $metaTitle);
 
-        $metaInformation->setMetaKeywords((string) $category->getKeywords());
+        $metaInformation->setMetaKeywords((string) $category->getTranslation('keywords'));
     }
 }

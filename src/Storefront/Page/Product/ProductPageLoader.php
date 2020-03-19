@@ -174,14 +174,14 @@ class ProductPageLoader
     {
         $metaInformation = $page->getMetaInformation();
 
-        $metaDescription = $page->getProduct()->getMetaDescription()
-            ?? $page->getProduct()->getDescription();
+        $metaDescription = $page->getProduct()->getTranslation('metaDescription')
+            ?? $page->getProduct()->getTranslation('description');
         $metaInformation->setMetaDescription((string) $metaDescription);
 
-        $metaInformation->setMetaKeywords((string) $page->getProduct()->getKeywords());
+        $metaInformation->setMetaKeywords((string) $page->getProduct()->getTranslation('keywords'));
 
-        if ((string) $page->getProduct()->getMetaTitle() !== '') {
-            $metaInformation->setMetaTitle((string) $page->getProduct()->getMetaTitle());
+        if ((string) $page->getProduct()->getTranslation('metaTitle') !== '') {
+            $metaInformation->setMetaTitle((string) $page->getProduct()->getTranslation('metaTitle'));
 
             return;
         }
@@ -189,7 +189,7 @@ class ProductPageLoader
         $metaTitleParts = [$page->getProduct()->getTranslation('name')];
 
         foreach ($page->getSelectedOptions() as $option) {
-            $metaTitleParts[] = $option->getName();
+            $metaTitleParts[] = $option->getTranslation('name');
         }
 
         $metaTitleParts[] = $page->getProduct()->getProductNumber();

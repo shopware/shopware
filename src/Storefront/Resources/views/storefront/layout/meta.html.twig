@@ -1,7 +1,7 @@
 {% block layout_head_inner %}
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = shopware.config.core.basicInformation %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(shopware.config.seo.descriptionMaxLength ?? 160) %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(shopware.config.seo.descriptionMaxLength ?? 160, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
 

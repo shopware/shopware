@@ -30,4 +30,9 @@ class AccessTokenStruct extends Struct
     {
         return $this->shopSecret;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_access_token';
+    }
 }

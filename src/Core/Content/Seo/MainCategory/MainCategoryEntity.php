@@ -101,4 +101,9 @@ class MainCategoryEntity extends Entity
     {
         $this->product = $product;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'seo_main_category';
+    }
 }

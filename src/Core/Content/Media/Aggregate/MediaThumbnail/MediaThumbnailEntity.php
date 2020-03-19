@@ -106,4 +106,9 @@ class MediaThumbnailEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'media_thumbnail';
+    }
 }

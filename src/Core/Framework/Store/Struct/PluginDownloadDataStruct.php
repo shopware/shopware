@@ -15,4 +15,9 @@ class PluginDownloadDataStruct extends Struct
     {
         return $this->location;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_download_data';
+    }
 }

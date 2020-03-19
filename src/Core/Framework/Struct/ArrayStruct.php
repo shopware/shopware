@@ -76,4 +76,9 @@ class ArrayStruct extends Struct implements \ArrayAccess
 
         return $data;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'array_struct';
+    }
 }

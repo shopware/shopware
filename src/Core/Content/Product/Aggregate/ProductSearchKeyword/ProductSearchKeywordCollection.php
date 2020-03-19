@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class ProductSearchKeywordCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'product_search_keyword_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductSearchKeywordEntity::class;

@@ -22,6 +22,11 @@ class MainCategoryCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'seo_main_category_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MainCategoryEntity::class;

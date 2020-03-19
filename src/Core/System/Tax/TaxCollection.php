@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class TaxCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'tax_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return TaxEntity::class;

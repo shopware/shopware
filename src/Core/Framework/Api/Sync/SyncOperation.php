@@ -67,4 +67,9 @@ class SyncOperation extends Struct
     {
         return $this->apiVersion;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'api_sync_operation';
+    }
 }

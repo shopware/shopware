@@ -518,6 +518,11 @@ class OrderEntity extends Entity
         $this->campaignCode = $campaignCode;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'order';
+    }
+
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void
     {
         foreach ($parents as $parent) {

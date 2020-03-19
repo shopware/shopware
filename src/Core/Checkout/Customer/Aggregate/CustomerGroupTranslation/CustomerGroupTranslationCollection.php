@@ -43,6 +43,11 @@ class CustomerGroupTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'customer_group_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CustomerGroupTranslationEntity::class;

@@ -32,6 +32,11 @@ class CmsSectionCollection extends EntityCollection
         return $blocks;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cms_page_section_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CmsSectionEntity::class;

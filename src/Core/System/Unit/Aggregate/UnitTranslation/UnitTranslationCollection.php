@@ -43,6 +43,11 @@ class UnitTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'unit_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return UnitTranslationEntity::class;

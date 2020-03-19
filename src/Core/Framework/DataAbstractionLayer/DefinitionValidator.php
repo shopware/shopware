@@ -444,6 +444,11 @@ class DefinitionValidator
                 continue;
             }
 
+            // Is not a getter
+            if ($method->getName() === 'getApiAlias') {
+                continue;
+            }
+
             if (!$method->hasReturnType()) {
                 $violations[$translationDefinition->getClass()][] = sprintf('No return type is declared in `%s` for method `%s`', $translationDefinition->getClass(), $method->getName());
 

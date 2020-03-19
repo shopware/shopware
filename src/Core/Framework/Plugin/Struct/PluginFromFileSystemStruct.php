@@ -55,4 +55,9 @@ class PluginFromFileSystemStruct extends Struct
 
         return $pos === false ? $this->baseClass : mb_substr($this->baseClass, $pos + 1);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'plugin_from_file_system';
+    }
 }

@@ -39,4 +39,9 @@ class StoreLicenseViolationTypeStruct extends Struct
     {
         return $this->label;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_license_violation_type';
+    }
 }

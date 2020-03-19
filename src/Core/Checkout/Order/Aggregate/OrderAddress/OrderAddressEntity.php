@@ -343,4 +343,9 @@ class OrderAddressEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'order_address';
+    }
 }

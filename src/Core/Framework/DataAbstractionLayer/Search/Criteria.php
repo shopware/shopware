@@ -501,6 +501,11 @@ class Criteria extends Struct
         return $this->includes;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_criteria';
+    }
+
     private function collectFields(array $parts): array
     {
         $fields = [];

@@ -30,6 +30,11 @@ class FieldDefinitionCollection extends Collection
         return null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'import_export_field_definition_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return FieldDefinition::class;

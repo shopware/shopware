@@ -42,4 +42,9 @@ class PluginRegionStruct extends Struct
     {
         return $this->categories;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_plugin_region';
+    }
 }

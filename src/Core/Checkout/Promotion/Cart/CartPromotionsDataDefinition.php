@@ -119,4 +119,9 @@ class CartPromotionsDataDefinition extends Struct
     {
         return array_keys($this->codePromotions);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_promotions_data_definition';
+    }
 }

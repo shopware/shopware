@@ -64,4 +64,9 @@ class SitemapGenerationResult extends Struct
     {
         return $this->lastLanguageId;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sitemap_generation_result';
+    }
 }

@@ -45,4 +45,9 @@ class LicenseDomainStruct extends Struct
     {
         return $this->active;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_license_domain';
+    }
 }

@@ -96,4 +96,9 @@ class PropertyGroupTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_group_translation';
+    }
 }

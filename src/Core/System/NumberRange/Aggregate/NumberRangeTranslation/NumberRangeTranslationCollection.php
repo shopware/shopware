@@ -42,6 +42,11 @@ class NumberRangeTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'number_range_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return NumberRangeTranslationEntity::class;

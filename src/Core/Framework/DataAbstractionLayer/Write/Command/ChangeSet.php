@@ -68,4 +68,9 @@ class ChangeSet extends Struct
     {
         return array_key_exists($property, $this->after) || $this->isDelete;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_change_set';
+    }
 }

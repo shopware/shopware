@@ -29,6 +29,11 @@ class ProductManufacturerCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_manufacturer_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductManufacturerEntity::class;

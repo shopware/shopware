@@ -104,4 +104,9 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     {
         $this->salesChannel = $salesChannel;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'document_base_config_sales_channel';
+    }
 }

@@ -20,4 +20,9 @@ class ReferencePrice extends ReferencePriceDefinition
     {
         return $this->price;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_price_reference';
+    }
 }

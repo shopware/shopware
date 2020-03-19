@@ -42,6 +42,11 @@ class PriceCollection extends Collection
         return $this->get(Defaults::CURRENCY);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'price_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Price::class;

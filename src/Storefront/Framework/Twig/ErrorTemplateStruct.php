@@ -58,4 +58,9 @@ class ErrorTemplateStruct extends Struct
     {
         $this->header = $header;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'twig_error_template';
+    }
 }

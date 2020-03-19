@@ -31,4 +31,9 @@ class IndexerRegistryPartialResult extends Struct
     {
         return $this->offset;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_indexer_registry_partial_result';
+    }
 }

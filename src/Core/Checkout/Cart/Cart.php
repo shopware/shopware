@@ -248,4 +248,9 @@ class Cart extends Struct
     {
         $this->modified = false;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart';
+    }
 }

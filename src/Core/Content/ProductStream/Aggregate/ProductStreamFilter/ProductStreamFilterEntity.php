@@ -189,4 +189,9 @@ class ProductStreamFilterEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_stream_filter';
+    }
 }

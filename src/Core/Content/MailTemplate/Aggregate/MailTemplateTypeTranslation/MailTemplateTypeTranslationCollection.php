@@ -43,6 +43,11 @@ class MailTemplateTypeTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'mail_template_type_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MailTemplateTypeTranslationEntity::class;

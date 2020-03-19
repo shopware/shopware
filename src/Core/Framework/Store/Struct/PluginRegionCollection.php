@@ -19,4 +19,9 @@ final class PluginRegionCollection extends Collection
     {
         return PluginRegionStruct::class;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_plugin_region_collection';
+    }
 }

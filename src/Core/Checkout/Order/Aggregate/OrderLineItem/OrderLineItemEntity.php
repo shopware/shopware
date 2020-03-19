@@ -391,4 +391,9 @@ class OrderLineItemEntity extends Entity
     {
         $this->product = $product;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'order_line_item';
+    }
 }

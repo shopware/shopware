@@ -51,4 +51,9 @@ class ListPrice extends Struct
     {
         return $this->percentage;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_list_price';
+    }
 }

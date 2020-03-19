@@ -21,4 +21,9 @@ class EntityProtectionCollection extends Collection
     {
         $this->set(get_class($element), $element);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_protection_collection';
+    }
 }

@@ -49,4 +49,9 @@ class TreeItem extends Struct
     {
         $this->children = $children;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'category_tree_item';
+    }
 }

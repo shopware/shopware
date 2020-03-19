@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class MessageQueueStatsCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_message_queue_stats_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MessageQueueStatsEntity::class;

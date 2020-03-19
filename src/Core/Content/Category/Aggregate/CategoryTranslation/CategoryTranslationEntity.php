@@ -177,4 +177,9 @@ class CategoryTranslationEntity extends TranslationEntity
     {
         $this->keywords = $keywords;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'category_translation';
+    }
 }

@@ -91,6 +91,11 @@ class ProductConfiguratorSettingCollection extends EntityCollection
         return null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_configurator_settings_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductConfiguratorSettingEntity::class;

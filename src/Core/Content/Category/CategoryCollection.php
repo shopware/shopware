@@ -60,6 +60,11 @@ class CategoryCollection extends EntityCollection
         return $this;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'category_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CategoryEntity::class;

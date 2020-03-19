@@ -100,4 +100,9 @@ class PromotionSetGroupEntity extends Entity
     {
         $this->setGroupRules = $setGroupRules;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'promotion_set_group';
+    }
 }

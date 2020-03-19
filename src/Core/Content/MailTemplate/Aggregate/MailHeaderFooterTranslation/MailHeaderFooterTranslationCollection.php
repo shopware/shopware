@@ -29,6 +29,11 @@ class MailHeaderFooterTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'mail_template_header_footer_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MailHeaderFooterTranslationEntity::class;

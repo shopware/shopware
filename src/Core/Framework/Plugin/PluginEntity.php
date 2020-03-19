@@ -378,4 +378,9 @@ class PluginEntity extends Entity
 
         return $serializedData;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'plugin';
+    }
 }

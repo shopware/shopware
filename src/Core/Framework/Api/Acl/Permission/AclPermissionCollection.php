@@ -31,4 +31,9 @@ class AclPermissionCollection extends Collection
     {
         return $this->has($resource . $privilege);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_acl_permission_collection';
+    }
 }

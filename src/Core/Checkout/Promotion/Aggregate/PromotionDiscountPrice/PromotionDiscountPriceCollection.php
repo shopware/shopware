@@ -19,4 +19,9 @@ class PromotionDiscountPriceCollection extends EntityCollection
     {
         return PromotionDiscountPriceEntity::class;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'promotion_discount_price_collection';
+    }
 }

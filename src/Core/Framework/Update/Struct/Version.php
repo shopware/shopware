@@ -45,4 +45,9 @@ class Version extends Struct
      * @var array
      */
     public $checks;
+
+    public function getApiAlias(): string
+    {
+        return 'update_api_version';
+    }
 }

@@ -21,4 +21,9 @@ class ProductListingStruct extends Struct
     {
         $this->listing = $listing;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_product_listing';
+    }
 }

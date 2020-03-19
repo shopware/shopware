@@ -15,4 +15,9 @@ class StoreActionStruct extends Struct
      * @var string
      */
     protected $externalLink;
+
+    public function getApiAlias(): string
+    {
+        return 'store_action';
+    }
 }

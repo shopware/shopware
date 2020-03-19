@@ -31,4 +31,9 @@ class ContextTokenStruct extends Struct
 
         return $data;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'context_token';
+    }
 }

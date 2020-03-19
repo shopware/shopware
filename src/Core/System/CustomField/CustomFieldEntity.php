@@ -99,4 +99,9 @@ class CustomFieldEntity extends Entity
     {
         $this->customFieldSet = $attributeSet;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'custom_field';
+    }
 }

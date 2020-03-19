@@ -164,6 +164,11 @@ class LineItemCollection extends Collection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_line_item_collection';
+    }
+
     protected function getKey(LineItem $element): string
     {
         return $element->getId();

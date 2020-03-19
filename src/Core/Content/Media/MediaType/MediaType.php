@@ -57,4 +57,9 @@ abstract class MediaType extends Struct
     {
         return $this->flags;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'media_type_' . $this->name;
+    }
 }

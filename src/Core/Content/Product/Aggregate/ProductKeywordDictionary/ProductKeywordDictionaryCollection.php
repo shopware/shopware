@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class ProductKeywordDictionaryCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'product_keyword_dictionary_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductKeywordDictionaryEntity::class;

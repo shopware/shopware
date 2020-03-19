@@ -85,6 +85,11 @@ class DeliveryPositionCollection extends Collection
         return array_sum($quantities);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_position_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return DeliveryPosition::class;

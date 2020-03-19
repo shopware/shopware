@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class MailHeaderFooterCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'mail_template_header_footer_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MailHeaderFooterEntity::class;

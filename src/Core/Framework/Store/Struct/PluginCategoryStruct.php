@@ -31,4 +31,9 @@ class PluginCategoryStruct extends Struct
     {
         return $this->label;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_category';
+    }
 }

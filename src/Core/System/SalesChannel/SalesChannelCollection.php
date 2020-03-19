@@ -129,6 +129,11 @@ class SalesChannelCollection extends EntityCollection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'sales_channel_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return SalesChannelEntity::class;

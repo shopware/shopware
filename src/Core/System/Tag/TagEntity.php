@@ -135,4 +135,9 @@ class TagEntity extends Entity
     {
         $this->newsletterRecipients = $newsletterRecipients;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'tag';
+    }
 }

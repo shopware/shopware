@@ -77,4 +77,9 @@ class DeliveryTime extends Struct
     {
         $this->unit = $unit;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_time';
+    }
 }

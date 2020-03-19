@@ -102,4 +102,9 @@ class GeneratedDocument extends Struct
     {
         $this->contentType = $contentType;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'document_generated';
+    }
 }

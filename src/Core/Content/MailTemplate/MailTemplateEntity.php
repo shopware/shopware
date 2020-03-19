@@ -192,4 +192,9 @@ class MailTemplateEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'mail_template';
+    }
 }

@@ -20,6 +20,11 @@ class ProductVisibilityCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_visibility_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductVisibilityEntity::class;

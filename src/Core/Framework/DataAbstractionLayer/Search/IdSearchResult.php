@@ -119,4 +119,9 @@ class IdSearchResult extends Struct
 
         return false;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_id_search_result';
+    }
 }

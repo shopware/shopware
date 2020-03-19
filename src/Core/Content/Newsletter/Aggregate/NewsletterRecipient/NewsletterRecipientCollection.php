@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class NewsletterRecipientCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'newsletter_recipient_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return NewsletterRecipientEntity::class;

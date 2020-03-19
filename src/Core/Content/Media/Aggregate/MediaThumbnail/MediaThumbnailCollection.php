@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class MediaThumbnailCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'media_thumbnail_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MediaThumbnailEntity::class;

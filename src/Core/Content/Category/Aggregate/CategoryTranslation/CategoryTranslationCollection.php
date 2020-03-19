@@ -43,6 +43,11 @@ class CategoryTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'category_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CategoryTranslationEntity::class;

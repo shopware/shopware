@@ -69,4 +69,9 @@ class SystemConfigEntity extends Entity
     {
         $this->salesChannel = $salesChannel;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'system_config';
+    }
 }

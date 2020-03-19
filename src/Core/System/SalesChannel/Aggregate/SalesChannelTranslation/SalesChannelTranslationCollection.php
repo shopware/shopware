@@ -43,6 +43,11 @@ class SalesChannelTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'sales_channel_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return SalesChannelTranslationEntity::class;

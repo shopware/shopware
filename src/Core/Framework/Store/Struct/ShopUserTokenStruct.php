@@ -20,4 +20,9 @@ class ShopUserTokenStruct extends Struct
     {
         return $this->token;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_shop_user_token';
+    }
 }

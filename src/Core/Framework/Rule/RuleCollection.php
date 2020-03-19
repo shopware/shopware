@@ -52,6 +52,11 @@ class RuleCollection extends Collection
         return array_key_exists($class, $this->classes);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_rule_collection';
+    }
+
     private function addMeta(Rule $rule): void
     {
         $this->classes[\get_class($rule)] = true;

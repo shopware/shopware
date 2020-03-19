@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class ProductReviewCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'product_review_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductReviewEntity::class;

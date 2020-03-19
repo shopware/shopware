@@ -56,4 +56,9 @@ abstract class Rule extends Struct
 
         return $data;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'rule_' . $this->getName();
+    }
 }

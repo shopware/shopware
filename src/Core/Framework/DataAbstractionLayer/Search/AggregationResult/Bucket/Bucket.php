@@ -64,4 +64,9 @@ class Bucket extends Struct
     {
         $this->count += $count;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_aggregator_result_bucket';
+    }
 }

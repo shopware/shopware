@@ -69,4 +69,9 @@ class UserRecoveryEntity extends Entity
     {
         $this->user = $user;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'user_recovery';
+    }
 }

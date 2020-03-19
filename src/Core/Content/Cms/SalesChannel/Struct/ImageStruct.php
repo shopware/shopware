@@ -66,4 +66,9 @@ class ImageStruct extends Struct
     {
         $this->newTab = $newTab;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_image';
+    }
 }

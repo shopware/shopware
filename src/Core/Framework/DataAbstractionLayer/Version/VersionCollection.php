@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class VersionCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_version_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return VersionEntity::class;

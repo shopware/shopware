@@ -77,6 +77,11 @@ class OrderDeliveryCollection extends EntityCollection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'order_delivery_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderDeliveryEntity::class;

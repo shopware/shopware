@@ -66,6 +66,11 @@ class OrderCustomerCollection extends EntityCollection
         return $orders;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'order_customer_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderCustomerEntity::class;

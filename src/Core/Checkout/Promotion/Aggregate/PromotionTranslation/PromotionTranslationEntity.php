@@ -52,4 +52,9 @@ class PromotionTranslationEntity extends TranslationEntity
     {
         $this->promotion = $promotion;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'promotion_translation';
+    }
 }

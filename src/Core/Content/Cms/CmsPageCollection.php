@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class CmsPageCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'cms_page_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CmsPageEntity::class;

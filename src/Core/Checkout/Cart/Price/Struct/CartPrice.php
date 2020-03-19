@@ -102,4 +102,9 @@ class CartPrice extends Struct
     {
         return new self(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), $taxState);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_price';
+    }
 }

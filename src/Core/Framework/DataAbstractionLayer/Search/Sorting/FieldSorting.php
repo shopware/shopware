@@ -54,4 +54,9 @@ class FieldSorting extends Struct implements CriteriaPartInterface
     {
         return $this->naturalSorting;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_field_sorting';
+    }
 }

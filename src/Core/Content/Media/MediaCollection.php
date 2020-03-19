@@ -29,6 +29,11 @@ class MediaCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'media_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MediaEntity::class;

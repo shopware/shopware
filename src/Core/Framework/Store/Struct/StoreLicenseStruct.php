@@ -100,4 +100,9 @@ class StoreLicenseStruct extends Struct
     {
         $this->updateAvailable = $updateAvailable;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_license';
+    }
 }

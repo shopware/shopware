@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class ProductCrossSellingTranslationCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'product_cross_selling_assigned_products_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductCrossSellingTranslationEntity::class;

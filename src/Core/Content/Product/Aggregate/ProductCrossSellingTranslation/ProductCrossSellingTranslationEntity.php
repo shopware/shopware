@@ -51,4 +51,9 @@ class ProductCrossSellingTranslationEntity extends TranslationEntity
     {
         $this->productCrossSelling = $productCrossSelling;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_cross_selling_assigned_products_translation';
+    }
 }

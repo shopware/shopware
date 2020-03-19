@@ -10,4 +10,9 @@ class StoreLicenseTypeStruct extends Struct
      * @var string
      */
     protected $name;
+
+    public function getApiAlias(): string
+    {
+        return 'store_license_type';
+    }
 }

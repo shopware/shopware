@@ -567,6 +567,11 @@ class CategoryEntity extends Entity
         $this->seoUrls = $seoUrls;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'category';
+    }
+
     private function getBreadcrumbMapping(): array
     {
         $breadcrumb = $this->getTranslation('breadcrumb');

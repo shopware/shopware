@@ -75,6 +75,11 @@ class DiscountPackageCollection extends Collection
         return new self($tmpPackages);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'promotion_cart_discount_package_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return DiscountPackage::class;

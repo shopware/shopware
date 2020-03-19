@@ -84,4 +84,9 @@ class ProductKeywordDictionaryEntity extends Entity
     {
         $this->language = $language;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_keyword_dictionary';
+    }
 }

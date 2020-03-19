@@ -132,4 +132,9 @@ class OrderTransactionEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'order_transaction';
+    }
 }

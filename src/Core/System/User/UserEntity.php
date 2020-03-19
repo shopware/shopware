@@ -301,4 +301,9 @@ class UserEntity extends Entity
     {
         $this->aclRoles = $aclRoles;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'user';
+    }
 }

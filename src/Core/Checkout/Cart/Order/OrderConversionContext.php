@@ -73,4 +73,9 @@ class OrderConversionContext extends Struct
 
         return $this;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_order_conversion_context';
+    }
 }

@@ -116,4 +116,9 @@ class LocaleEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'locale';
+    }
 }

@@ -101,4 +101,9 @@ class NumberRangeSalesChannelEntity extends Entity
     {
         $this->numberRangeType = $numberRangeType;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'number_range_sales_channel';
+    }
 }

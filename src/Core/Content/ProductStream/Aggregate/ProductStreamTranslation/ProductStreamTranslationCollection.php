@@ -43,6 +43,11 @@ class ProductStreamTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_stream_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductStreamTranslationEntity::class;

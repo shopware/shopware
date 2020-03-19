@@ -66,4 +66,9 @@ class NumberRangeTypeTranslationEntity extends TranslationEntity
     {
         $this->numberRangeType = $numberRangeType;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'number_range_type_translation';
+    }
 }

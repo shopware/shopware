@@ -43,6 +43,11 @@ class CurrencyTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'currency_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CurrencyTranslationEntity::class;

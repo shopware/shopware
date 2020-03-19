@@ -182,4 +182,9 @@ class DocumentBaseConfigEntity extends Entity
     {
         $this->filenameSuffix = $filenameSuffix;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'document_base_config';
+    }
 }

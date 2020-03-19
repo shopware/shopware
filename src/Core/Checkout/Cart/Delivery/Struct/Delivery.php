@@ -76,4 +76,9 @@ class Delivery extends Struct
     {
         $this->shippingCosts = $shippingCosts;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery';
+    }
 }

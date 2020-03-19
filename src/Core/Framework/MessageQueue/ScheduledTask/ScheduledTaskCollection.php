@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class ScheduledTaskCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_scheduled_task_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ScheduledTaskEntity::class;

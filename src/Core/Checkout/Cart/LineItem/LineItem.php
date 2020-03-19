@@ -464,6 +464,11 @@ class LineItem extends Struct
         $this->modified = false;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_line_item';
+    }
+
     /**
      * @throws InvalidQuantityException
      */

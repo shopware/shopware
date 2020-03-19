@@ -117,6 +117,11 @@ class EntitySearchResult extends EntityCollection
         return $vars;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_entity_search_result';
+    }
+
     protected function createNew(iterable $elements = [])
     {
         return new static(

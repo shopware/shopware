@@ -43,6 +43,11 @@ class PropertyGroupTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_group_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return PropertyGroupTranslationEntity::class;

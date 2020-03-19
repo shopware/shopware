@@ -53,6 +53,11 @@ class MailTemplateMediaCollection extends EntityCollection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'mail_template_media_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MailTemplateMediaEntity::class;

@@ -270,4 +270,9 @@ class CurrencyEntity extends Entity
     {
         $this->productExports = $productExports;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'currency';
+    }
 }

@@ -22,6 +22,11 @@ class TaxRuleCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'tax_rule_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return TaxRuleEntity::class;

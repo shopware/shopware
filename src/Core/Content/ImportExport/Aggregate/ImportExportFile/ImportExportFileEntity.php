@@ -115,4 +115,9 @@ class ImportExportFileEntity extends Entity
     {
         return implode('/', str_split($id, 8));
     }
+
+    public function getApiAlias(): string
+    {
+        return 'import_export_profile_file';
+    }
 }

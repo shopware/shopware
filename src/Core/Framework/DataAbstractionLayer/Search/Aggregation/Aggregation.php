@@ -37,4 +37,9 @@ abstract class Aggregation extends Struct implements CriteriaPartInterface
     {
         return [$this->field];
     }
+
+    public function getApiAlias(): string
+    {
+        return 'aggregation-' . $this->name;
+    }
 }

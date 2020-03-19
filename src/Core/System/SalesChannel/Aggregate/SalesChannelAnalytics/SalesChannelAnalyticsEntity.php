@@ -69,4 +69,9 @@ class SalesChannelAnalyticsEntity extends Entity
     {
         $this->salesChannel = $salesChannel;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sales_channel_analytics';
+    }
 }

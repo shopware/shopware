@@ -139,4 +139,9 @@ class ImportExportProfileEntity extends Entity
     {
         $this->importExportLogs = $importExportLogs;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'import_export_profile';
+    }
 }

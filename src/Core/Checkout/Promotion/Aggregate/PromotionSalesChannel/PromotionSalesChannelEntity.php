@@ -86,4 +86,9 @@ class PromotionSalesChannelEntity extends Entity
     {
         $this->salesChannel = $salesChannel;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'promotion_sales_channel';
+    }
 }

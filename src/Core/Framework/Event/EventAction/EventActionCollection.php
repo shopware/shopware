@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class EventActionCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_event_action_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return EventActionEntity::class;

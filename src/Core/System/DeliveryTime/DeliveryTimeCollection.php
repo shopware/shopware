@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class DeliveryTimeCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'delivery_time_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return DeliveryTimeEntity::class;

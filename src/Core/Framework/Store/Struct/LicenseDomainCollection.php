@@ -25,4 +25,9 @@ class LicenseDomainCollection extends Collection
         /* @var LicenseDomainStruct $element */
         $this->elements[$element->getDomain()] = $element;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_license_domain_collection';
+    }
 }

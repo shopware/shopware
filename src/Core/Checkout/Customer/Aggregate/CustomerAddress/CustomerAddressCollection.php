@@ -109,6 +109,11 @@ class CustomerAddressCollection extends EntityCollection
         return $this;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'customer_address_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CustomerAddressEntity::class;

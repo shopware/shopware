@@ -71,4 +71,9 @@ class DeliveryPosition extends Struct
     {
         return $this->deliveryDate;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_position';
+    }
 }

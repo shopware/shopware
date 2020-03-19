@@ -29,6 +29,11 @@ class ShippingMethodPriceCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'shipping_method_price_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ShippingMethodPriceEntity::class;

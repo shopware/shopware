@@ -43,6 +43,11 @@ class CountryStateTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'country_state_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CountryStateTranslationEntity::class;

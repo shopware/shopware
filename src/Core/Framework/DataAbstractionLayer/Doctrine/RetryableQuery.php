@@ -53,7 +53,8 @@ class RetryableQuery
                 throw $e;
             }
 
-            usleep(5);
+            // randomize sleep to prevent same execution delay for multiple statements
+            usleep(random_int(2, 10));
 
             return self::retry($closure, $counter);
         }

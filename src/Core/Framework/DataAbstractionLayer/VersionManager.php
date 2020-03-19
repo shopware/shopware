@@ -136,9 +136,9 @@ class VersionManager
     {
         $writeResults = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        $parents = $this->resolveParents($definition, $rawData);
+        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $parents);
+        $writeResults = $this->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 

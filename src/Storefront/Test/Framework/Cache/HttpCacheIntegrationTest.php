@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Cache\CacheStore;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 
@@ -18,15 +18,7 @@ class HttpCacheIntegrationTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        /** @var TagAwareAdapterInterface $cache */
-        $cache = $this->getContainer()->get('cache.http');
-        $cache->clear();
-    }
+    use CacheTestBehaviour;
 
     public function testCacheHit(): void
     {

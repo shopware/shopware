@@ -133,7 +133,7 @@
                                                        id="personalPassword"
                                                        placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                        name="password"
-                                                       minlength="shopware.config.core.loginRegistration.passwordMinLength"
+                                                       minlength="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
                                                        {% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
                                                        data-form-validation-equal="newPassword"
                                                        {% endif %}

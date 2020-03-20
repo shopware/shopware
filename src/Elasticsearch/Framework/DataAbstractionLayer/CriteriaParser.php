@@ -65,12 +65,16 @@ class CriteriaParser
             array_shift($parts);
         }
 
-        $field = $this->helper->getField($fieldName, $definition, $root);
-
+        $field = $this->helper->getField($fieldName, $definition, $root, false);
         if ($field instanceof TranslatedField) {
-            array_pop($parts);
-            $parts[] = 'translated';
-            $parts[] = $field->getPropertyName();
+            $ordered = [];
+            foreach ($parts as $part) {
+                if ($part === $field->getPropertyName()) {
+                    $ordered[] = 'translated';
+                }
+                $ordered[] = $part;
+            }
+            $parts = $ordered;
         }
 
         if ($field instanceof PriceField) {

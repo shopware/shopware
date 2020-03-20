@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Symfony\Component\DependencyInjection\Container;
 
 class SalesChannelDefinitionInstanceRegistryTest extends TestCase
@@ -28,5 +29,18 @@ class SalesChannelDefinitionInstanceRegistryTest extends TestCase
         static::assertTrue($registry->has(ProductDefinition::ENTITY_NAME));
         static::assertInstanceOf(ProductDefinition::class, $registry->getByEntityName(ProductDefinition::ENTITY_NAME));
         static::assertInstanceOf(ProductDefinition::class, $registry->getByEntityClass(new ProductEntity()));
+    }
+
+    public function testItThrowsExceptionWhenSalesChannelRepositoryWasNotFoundByEntityName(): void
+    {
+        $registry = new SalesChannelDefinitionInstanceRegistry(
+            'sales_channel_definition.',
+            new Container(),
+            [],
+            []
+        );
+
+        $this->expectException(SalesChannelRepositoryNotFoundException::class);
+        $registry->getSalesChannelRepository('fooBar');
     }
 }

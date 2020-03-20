@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\FieldAccessorBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\FieldResolverInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -43,10 +44,15 @@ class DefinitionInstanceRegistry
         $this->repositoryMap = $repositoryMap;
     }
 
+    /**
+     * @throws EntityRepositoryNotFoundException
+     */
     public function getRepository(string $entityName): EntityRepositoryInterface
     {
+        $entityRepositoryClass = $this->getEntityRepositoryClassByEntityName($entityName);
+
         /** @var EntityRepositoryInterface $entityRepository */
-        $entityRepository = $this->container->get($this->repositoryMap[$entityName]);
+        $entityRepository = $this->container->get($entityRepositoryClass);
 
         return $entityRepository;
     }
@@ -67,12 +73,14 @@ class DefinitionInstanceRegistry
     /**
      * @throws DefinitionNotFoundException
      */
-    public function getByEntityName(string $name): EntityDefinition
+    public function getByEntityName(string $entityName): EntityDefinition
     {
+        $definitionClass = $this->getDefinitionClassByEntityName($entityName);
+
         try {
-            return $this->get($this->definitions[$name]);
+            return $this->get($definitionClass);
         } catch (ServiceNotFoundException $e) {
-            throw new DefinitionNotFoundException($name);
+            throw new DefinitionNotFoundException($entityName);
         }
     }
 
@@ -163,5 +171,29 @@ class DefinitionInstanceRegistry
         }
 
         return $this->entityClassMapping;
+    }
+
+    /**
+     * @throws DefinitionNotFoundException
+     */
+    private function getDefinitionClassByEntityName(string $entityName): string
+    {
+        if (!isset($this->definitions[$entityName])) {
+            throw new DefinitionNotFoundException($entityName);
+        }
+
+        return $this->definitions[$entityName];
+    }
+
+    /**
+     * @throws EntityRepositoryNotFoundException
+     */
+    private function getEntityRepositoryClassByEntityName(string $entityName): string
+    {
+        if (!isset($this->repositoryMap[$entityName])) {
+            throw new EntityRepositoryNotFoundException($entityName);
+        }
+
+        return $this->repositoryMap[$entityName];
     }
 }

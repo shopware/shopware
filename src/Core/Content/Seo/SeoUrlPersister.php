@@ -234,7 +234,9 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', $salesChannelId);
         }
 
-        RetryableQuery::executeBuilder($query);
+        RetryableQuery::retryable(function () use ($query): void {
+            $query->execute();
+        });
     }
 
     private function invalidateEntityCache(array $seoUrlIds = []): void

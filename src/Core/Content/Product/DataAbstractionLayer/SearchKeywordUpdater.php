@@ -3,11 +3,13 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -83,18 +85,13 @@ class SearchKeywordUpdater
 
         $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $keywordInsert = new RetryableQuery(
-            $this->connection->prepare('
-                INSERT IGNORE INTO `product_search_keyword` (`id`, `version_id`, `product_version_id`, `language_id`, `product_id`, `keyword`, `ranking`, `created_at`)
-                VALUES (:id, :version_id, :product_version_id, :language_id, :product_id, :keyword, :ranking, :created_at)
-            ')
-        );
-
         $dictionaryInsert = new RetryableQuery(
             $this->connection->prepare('INSERT IGNORE INTO `product_keyword_dictionary` (`id`, `language_id`, `keyword`) VALUES (:id, :language_id, :keyword)')
         );
 
         $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
+
+        $insert = new MultiInsertQueryQueue($this->connection, 50, false, true);
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
@@ -103,16 +100,19 @@ class SearchKeywordUpdater
             $productId = Uuid::fromHexToBytes($product->getId());
 
             foreach ($analyzed as $keyword) {
-                $keywordInsert->execute([
-                    'id' => Uuid::randomBytes(),
-                    'version_id' => $versionId,
-                    'product_version_id' => $versionId,
-                    'language_id' => $languageId,
-                    'product_id' => $productId,
-                    'keyword' => $keyword->getKeyword(),
-                    'ranking' => $keyword->getRanking(),
-                    'created_at' => $now,
-                ]);
+                $insert->addInsert(
+                    ProductSearchKeywordDefinition::ENTITY_NAME,
+                    [
+                        'id' => Uuid::randomBytes(),
+                        'version_id' => $versionId,
+                        'product_version_id' => $versionId,
+                        'language_id' => $languageId,
+                        'product_id' => $productId,
+                        'keyword' => $keyword->getKeyword(),
+                        'ranking' => $keyword->getRanking(),
+                        'created_at' => $now,
+                    ]
+                );
 
                 $dictionaryInsert->execute([
                     'id' => Uuid::randomBytes(),
@@ -121,6 +121,8 @@ class SearchKeywordUpdater
                 ]);
             }
         }
+
+        $insert->execute();
     }
 
     private function delete(array $ids, string $languageId, string $versionId): void

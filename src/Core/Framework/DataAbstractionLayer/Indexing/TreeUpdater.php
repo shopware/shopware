@@ -108,7 +108,9 @@ class TreeUpdater
         $query->setParameter('id', $entity['id']);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
-        RetryableQuery::executeBuilder($query);
+        RetryableQuery::retryable(function () use ($query): void {
+            $query->execute();
+        });
 
         return Uuid::fromBytesToHex($entity['id']);
     }

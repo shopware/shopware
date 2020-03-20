@@ -81,7 +81,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaThumbnailIndexer">
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!--Repository Decorators-->

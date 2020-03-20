@@ -104,24 +104,9 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductRatingAverageIndexer">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <tag name="shopware.dal_indexing.indexer" priority="900"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <tag name="shopware.dal_indexing.indexer" priority="300"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
@@ -129,15 +114,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer" public="true">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition"/>
-            <tag name="shopware.dal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
@@ -148,27 +124,9 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer"/>
-
-            <tag name="shopware.dal_indexing.indexer" priority="500"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductStockIndexer">
-            <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.dal_indexing.indexer" priority="600"/>
-
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">

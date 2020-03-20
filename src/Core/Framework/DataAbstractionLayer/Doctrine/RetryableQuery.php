@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception\RetryableException;
-use Doctrine\DBAL\Query\QueryBuilder;
 
 class RetryableQuery
 {
@@ -30,13 +29,6 @@ class RetryableQuery
         return self::retry($closure, 0);
     }
 
-    public static function executeBuilder(QueryBuilder $builder)
-    {
-        return self::retry(function () use ($builder) {
-            return $builder->execute();
-        }, 1);
-    }
-
     public function getQuery(): Statement
     {
         return $this->query;
@@ -54,7 +46,7 @@ class RetryableQuery
             }
 
             // randomize sleep to prevent same execution delay for multiple statements
-            usleep(random_int(2, 10));
+            usleep(random_int(10, 20));
 
             return self::retry($closure, $counter);
         }

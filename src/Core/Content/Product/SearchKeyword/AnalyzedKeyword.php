@@ -36,4 +36,9 @@ class AnalyzedKeyword extends Struct
     {
         $this->ranking = $ranking;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_search_keyword_analyzed';
+    }
 }

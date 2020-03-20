@@ -41,6 +41,11 @@ class CountryCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'country_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CountryEntity::class;

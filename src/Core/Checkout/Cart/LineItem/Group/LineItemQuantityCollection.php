@@ -48,6 +48,11 @@ class LineItemQuantityCollection extends Collection
         $this->elements = array_values($tmpItems);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_line_item_quantity_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return LineItemQuantity::class;

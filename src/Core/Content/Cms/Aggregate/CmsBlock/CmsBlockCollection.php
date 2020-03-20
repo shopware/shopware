@@ -52,6 +52,11 @@ class CmsBlockCollection extends EntityCollection
         }
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cms_page_block_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CmsBlockEntity::class;

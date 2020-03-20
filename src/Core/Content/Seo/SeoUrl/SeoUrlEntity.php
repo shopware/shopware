@@ -225,4 +225,9 @@ class SeoUrlEntity extends Entity
     {
         $this->error = $error;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'seo_url';
+    }
 }

@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class DocumentTypeTranslationCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'document_type_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return DocumentTypeTranslationEntity::class;

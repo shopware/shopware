@@ -16,6 +16,11 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class ExceptionCollection extends Collection
 {
+    public function getApiAlias(): string
+    {
+        return 'plugin_exception_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return ShopwareHttpException::class;

@@ -69,4 +69,9 @@ class CustomerGroupTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'customer_group_translation';
+    }
 }

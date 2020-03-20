@@ -29,4 +29,9 @@ class ErrorMessage extends Struct
     {
         return $this->column;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_export_error_message';
+    }
 }

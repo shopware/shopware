@@ -66,6 +66,11 @@ class ErrorCollection extends Collection
         return false;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_error_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Error::class;

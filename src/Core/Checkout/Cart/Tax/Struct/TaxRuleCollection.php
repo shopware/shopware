@@ -54,6 +54,11 @@ class TaxRuleCollection extends Collection
         return $new;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_tax_rule_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return TaxRule::class;

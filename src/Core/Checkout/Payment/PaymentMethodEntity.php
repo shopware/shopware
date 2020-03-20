@@ -285,4 +285,9 @@ class PaymentMethodEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'payment_method';
+    }
 }

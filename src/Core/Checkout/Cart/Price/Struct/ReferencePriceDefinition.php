@@ -42,4 +42,9 @@ class ReferencePriceDefinition extends Struct
     {
         return $this->unitName;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_price_reference_definition';
+    }
 }

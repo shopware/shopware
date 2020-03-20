@@ -44,4 +44,9 @@ class AggregatorResult extends Struct
     {
         return $this->criteria;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_aggregator_result';
+    }
 }

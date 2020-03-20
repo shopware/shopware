@@ -131,4 +131,9 @@ class ProductManufacturerEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_manufacturer';
+    }
 }

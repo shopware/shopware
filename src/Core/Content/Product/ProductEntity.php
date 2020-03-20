@@ -1173,4 +1173,9 @@ class ProductEntity extends Entity
     {
         $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product';
+    }
 }

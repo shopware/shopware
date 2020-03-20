@@ -916,4 +916,9 @@ class SalesChannelEntity extends Entity
     {
         $this->analytics = $analytics;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sales_channel';
+    }
 }

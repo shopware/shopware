@@ -43,6 +43,11 @@ class LocaleTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'locale_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return LocaleTranslationEntity::class;

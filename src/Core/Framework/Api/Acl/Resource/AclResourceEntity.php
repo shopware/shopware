@@ -72,4 +72,9 @@ class AclResourceEntity extends Entity
     {
         return new AclPermission($this->resource, $this->privilege);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_acl_resource';
+    }
 }

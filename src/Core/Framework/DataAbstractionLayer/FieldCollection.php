@@ -22,6 +22,11 @@ class FieldCollection extends Collection
         return new CompiledFieldCollection($registry, $this->elements);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_field_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Field::class;

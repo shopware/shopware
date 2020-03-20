@@ -47,4 +47,9 @@ class CalculatedListingPrice extends Struct
     {
         return $this->getFrom()->getTotalPrice() !== $this->getTo()->getTotalPrice();
     }
+
+    public function getApiAlias(): string
+    {
+        return 'calculated_listing_price';
+    }
 }

@@ -98,4 +98,9 @@ class IntegrationEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'integration';
+    }
 }

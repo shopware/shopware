@@ -101,6 +101,11 @@ class SnippetFileCollection extends Collection
         throw new InvalidSnippetFileException($iso);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'snippet_file_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return SnippetFileInterface::class;

@@ -29,6 +29,11 @@ class UserAccessKeyCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'user_access_key_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return UserAccessKeyEntity::class;

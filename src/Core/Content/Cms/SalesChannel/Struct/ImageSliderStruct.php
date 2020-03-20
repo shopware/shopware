@@ -46,4 +46,9 @@ class ImageSliderStruct extends Struct
     {
         $this->navigation = $navigation;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_image_slider';
+    }
 }

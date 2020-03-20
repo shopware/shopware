@@ -14,6 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class UserRecoveryCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'user_recovery_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return UserRecoveryEntity::class;

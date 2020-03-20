@@ -236,4 +236,9 @@ class CmsSectionEntity extends Entity
     {
         $this->locked = $locked;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_page_section';
+    }
 }

@@ -20,4 +20,9 @@ class TextStruct extends Struct
     {
         $this->content = $content;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_text';
+    }
 }

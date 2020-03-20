@@ -114,4 +114,9 @@ class UserAccessKeyEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'user_access_key';
+    }
 }

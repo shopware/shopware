@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class SalutationTranslationCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'salutation_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return SalutationTranslationEntity::class;

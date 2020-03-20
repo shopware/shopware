@@ -114,4 +114,9 @@ class ScheduledTaskEntity extends Entity
     {
         $this->nextExecutionTime = $nextExecutionTime;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_scheduled_task';
+    }
 }

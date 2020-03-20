@@ -41,4 +41,9 @@ class TaxRule extends Struct
             'percentage' => [new Type('numeric')],
         ];
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_tax_rule';
+    }
 }

@@ -22,6 +22,11 @@ class ErrorCollection extends Collection
         $this->set($error->getId(), $error);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_export_error';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Error::class;

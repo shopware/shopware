@@ -60,4 +60,9 @@ class Sitemap extends Struct
     {
         $this->created = $created;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sitemap';
+    }
 }

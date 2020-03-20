@@ -828,4 +828,9 @@ class LanguageEntity extends Entity
     {
         $this->productCrossSellingTranslations = $productCrossSellingTranslations;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'language';
+    }
 }

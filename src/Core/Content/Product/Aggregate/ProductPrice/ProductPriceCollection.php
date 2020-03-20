@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleCollection;
  */
 class ProductPriceCollection extends PriceRuleCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'product_price_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductPriceEntity::class;

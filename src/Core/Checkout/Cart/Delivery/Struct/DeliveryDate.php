@@ -82,6 +82,11 @@ class DeliveryDate extends Struct
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_date';
+    }
+
     private static function create(string $interval): \DateTime
     {
         return (new \DateTime())->add(new \DateInterval($interval));

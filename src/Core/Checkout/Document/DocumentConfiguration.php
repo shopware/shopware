@@ -217,4 +217,9 @@ class DocumentConfiguration extends Struct
     {
         $this->pageSize = $pageSize;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'document_configuration';
+    }
 }

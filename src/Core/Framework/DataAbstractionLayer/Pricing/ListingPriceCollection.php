@@ -22,6 +22,11 @@ class ListingPriceCollection extends Collection
         return null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'listing_price_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return ListingPrice::class;

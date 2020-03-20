@@ -125,6 +125,11 @@ class CompiledFieldCollection extends FieldCollection
         return $this->childrenAssociationField;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_compiled_field_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Field::class;

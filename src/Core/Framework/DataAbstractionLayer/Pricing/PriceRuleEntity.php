@@ -38,4 +38,9 @@ class PriceRuleEntity extends Entity
     {
         $this->price = $price;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_price_rule';
+    }
 }

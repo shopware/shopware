@@ -74,6 +74,11 @@ class PropertyGroupOptionCollection extends EntityCollection
         return $groups;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_group_option_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return PropertyGroupOptionEntity::class;

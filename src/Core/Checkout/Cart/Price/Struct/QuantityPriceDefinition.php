@@ -171,4 +171,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     {
         $this->listPrice = $listPrice;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_price_quantity';
+    }
 }

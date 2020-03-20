@@ -100,4 +100,9 @@ class ProductSearchKeywordEntity extends Entity
     {
         $this->language = $language;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_search_keyword';
+    }
 }

@@ -6,4 +6,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class CartDataCollection extends Collection
 {
+    public function getApiAlias(): string
+    {
+        return 'cart_data_collection';
+    }
 }

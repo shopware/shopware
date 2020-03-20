@@ -250,4 +250,9 @@ class SalesChannelContext extends Struct
 
         $this->permissions = array_filter($permissions);
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sales_channel_context';
+    }
 }

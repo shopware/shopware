@@ -66,4 +66,9 @@ class SalutationTranslationEntity extends TranslationEntity
     {
         $this->salutation = $salutation;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'salutation_translation';
+    }
 }

@@ -26,6 +26,11 @@ class AggregationResultCollection extends Collection
         return $this->elements[$name] ?? null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_aggregation_result_cache';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return AggregationResult::class;

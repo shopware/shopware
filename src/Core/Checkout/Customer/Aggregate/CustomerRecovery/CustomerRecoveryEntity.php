@@ -69,4 +69,9 @@ class CustomerRecoveryEntity extends Entity
     {
         $this->customer = $customer;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'customer_recovery';
+    }
 }

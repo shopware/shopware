@@ -64,6 +64,11 @@ class PriceCollection extends Collection
         return new self(array_merge($this->elements, $prices->getElements()));
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_price_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return CalculatedPrice::class;

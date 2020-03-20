@@ -46,4 +46,9 @@ class SyncResult extends Struct
     {
         $this->success = $success;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'api_sync_result';
+    }
 }

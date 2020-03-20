@@ -25,4 +25,9 @@ class IdStruct extends Struct
     {
         $this->id = $id;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_order_id';
+    }
 }

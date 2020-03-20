@@ -809,4 +809,9 @@ class CustomerEntity extends Entity
     {
         $this->remoteAddress = $remoteAddress;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'customer';
+    }
 }

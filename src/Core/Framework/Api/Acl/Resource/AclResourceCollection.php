@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class AclResourceCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_acl_resource_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return AclResourceEntity::class;

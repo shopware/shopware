@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class PriceRuleCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_price_rule_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return PriceRuleEntity::class;

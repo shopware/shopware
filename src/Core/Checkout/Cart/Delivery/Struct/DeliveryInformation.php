@@ -145,4 +145,9 @@ class DeliveryInformation extends Struct
     {
         $this->length = $length;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_information';
+    }
 }

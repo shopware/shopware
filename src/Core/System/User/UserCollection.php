@@ -29,6 +29,11 @@ class UserCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'user_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return UserEntity::class;

@@ -58,4 +58,9 @@ class CalculatedTax extends Struct
     {
         $this->price = $price;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_tax_calculated';
+    }
 }

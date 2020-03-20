@@ -96,4 +96,9 @@ class ShippingMethodTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'shipping_method_translation';
+    }
 }

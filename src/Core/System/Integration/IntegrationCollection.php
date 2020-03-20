@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class IntegrationCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'integration_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return IntegrationEntity::class;

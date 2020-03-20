@@ -221,4 +221,9 @@ class OrderCustomerEntity extends Entity
     {
         $this->remoteAddress = $remoteAddress;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'order_customer';
+    }
 }

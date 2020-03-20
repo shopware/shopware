@@ -85,4 +85,9 @@ class TaxRuleTypeEntity extends Entity
     {
         $this->position = $position;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'tax_rule_type';
+    }
 }

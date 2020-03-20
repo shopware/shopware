@@ -211,4 +211,9 @@ class DeadMessageEntity extends Entity
     {
         $this->scheduledTask = $scheduledTask;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'dal_dead_message';
+    }
 }

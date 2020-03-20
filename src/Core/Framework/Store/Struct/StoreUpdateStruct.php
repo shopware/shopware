@@ -40,4 +40,9 @@ class StoreUpdateStruct extends Struct
      * @var bool
      */
     protected $integrated;
+
+    public function getApiAlias(): string
+    {
+        return 'store_update';
+    }
 }

@@ -311,4 +311,9 @@ class RuleEntity extends Entity
     {
         $this->cartPromotions = $cartPromotions;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'rule';
+    }
 }

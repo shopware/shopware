@@ -72,6 +72,11 @@ class CalculatedTaxCollection extends Collection
         return $new;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_tax_calculated_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return CalculatedTax::class;

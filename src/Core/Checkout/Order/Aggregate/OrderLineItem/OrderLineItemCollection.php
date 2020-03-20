@@ -48,6 +48,11 @@ class OrderLineItemCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'order_line_item_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderLineItemEntity::class;

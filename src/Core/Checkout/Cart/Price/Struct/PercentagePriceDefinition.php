@@ -79,4 +79,9 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
             'percentage' => [new NotBlank(), new Type('numeric')],
         ];
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_price_percentage';
+    }
 }

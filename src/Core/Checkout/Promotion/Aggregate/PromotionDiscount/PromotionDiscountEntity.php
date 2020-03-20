@@ -307,4 +307,9 @@ class PromotionDiscountEntity extends Entity
     {
         $this->usageKey = $usageKey;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'promotion_discount';
+    }
 }

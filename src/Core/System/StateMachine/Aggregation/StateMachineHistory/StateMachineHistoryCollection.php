@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class StateMachineHistoryCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'state_machine_history_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return StateMachineHistoryEntity::class;

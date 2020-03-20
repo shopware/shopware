@@ -244,4 +244,9 @@ class Context extends Struct
     {
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
+
+    public function getApiAlias(): string
+    {
+        return 'context';
+    }
 }

@@ -83,6 +83,11 @@ class OrderCollection extends EntityCollection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'order_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderEntity::class;

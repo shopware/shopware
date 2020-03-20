@@ -29,6 +29,11 @@ class StateMachineTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'state_machine_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return StateMachineTranslationEntity::class;

@@ -29,6 +29,11 @@ class VersionCommitCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'dal_version_commit_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return VersionCommitEntity::class;

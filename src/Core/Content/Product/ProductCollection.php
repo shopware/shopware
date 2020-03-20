@@ -144,6 +144,11 @@ class ProductCollection extends EntityCollection
         }));
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductEntity::class;

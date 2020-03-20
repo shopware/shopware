@@ -25,6 +25,11 @@ class PriceDefinitionCollection extends Collection
         return null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_price_definition_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return PriceDefinitionInterface::class;

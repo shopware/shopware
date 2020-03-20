@@ -45,4 +45,9 @@ class CartBehavior extends Struct
 
         return $this;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_behavior';
+    }
 }

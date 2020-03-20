@@ -31,4 +31,9 @@ class DomainVerificationRequestStruct extends Struct
     {
         return $this->fileName;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_domain_verification_request';
+    }
 }

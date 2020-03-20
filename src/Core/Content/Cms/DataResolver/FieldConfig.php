@@ -55,4 +55,9 @@ class FieldConfig extends Struct
     {
         return $this->source === self::SOURCE_MAPPED;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_data_resolver_field_config';
+    }
 }

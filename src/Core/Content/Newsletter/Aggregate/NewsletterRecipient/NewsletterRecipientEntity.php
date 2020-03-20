@@ -292,4 +292,9 @@ class NewsletterRecipientEntity extends Entity
     {
         $this->tags = $tags;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'newsletter_recipient';
+    }
 }

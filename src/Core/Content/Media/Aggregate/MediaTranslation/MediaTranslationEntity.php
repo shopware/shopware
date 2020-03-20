@@ -81,4 +81,9 @@ class MediaTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'media_translation';
+    }
 }

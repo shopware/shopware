@@ -53,6 +53,11 @@ class LanguageCollection extends EntityCollection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'language_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return LanguageEntity::class;

@@ -251,4 +251,9 @@ class DocumentEntity extends Entity
     {
         $this->documentMediaFileId = $documentMediaFileId;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'document';
+    }
 }

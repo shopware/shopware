@@ -59,6 +59,11 @@ class ApiAliasTest extends TestCase
             }
 
             $alias = $instance->getApiAlias();
+
+            if ($alias === 'aggregation-' || $alias === 'dal_entity_search_result') {
+                continue;
+            }
+
             static::assertArrayNotHasKey($alias, $aliases);
             $aliases[$alias] = true;
         }

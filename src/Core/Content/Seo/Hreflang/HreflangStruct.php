@@ -35,4 +35,9 @@ class HreflangStruct extends Struct
     {
         $this->locale = $locale;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'seo_hreflang';
+    }
 }

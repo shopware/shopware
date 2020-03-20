@@ -67,4 +67,9 @@ class ShippingLocation extends Struct
     {
         return $this->address;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_shipping_location';
+    }
 }

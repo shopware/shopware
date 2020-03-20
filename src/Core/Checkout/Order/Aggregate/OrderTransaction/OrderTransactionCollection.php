@@ -57,6 +57,11 @@ class OrderTransactionCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'order_transaction_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return OrderTransactionEntity::class;

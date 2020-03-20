@@ -43,6 +43,11 @@ class PaymentMethodTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'payment_method_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return PaymentMethodTranslationEntity::class;

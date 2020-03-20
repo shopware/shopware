@@ -80,4 +80,9 @@ class FieldDefinition extends Struct
     {
         $this->isIdentifier = $isIdentifier;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'import_export_field_definition';
+    }
 }

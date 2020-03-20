@@ -51,4 +51,9 @@ class TaxRuleTypeTranslationEntity extends TranslationEntity
     {
         $this->taxRuleType = $taxRuleType;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'tax_rule_type_translation';
+    }
 }

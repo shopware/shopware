@@ -86,4 +86,9 @@ class TokenStruct extends Struct
     {
         return $this->expires < time();
     }
+
+    public function getApiAlias(): string
+    {
+        return 'payment_token';
+    }
 }

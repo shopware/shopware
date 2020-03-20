@@ -22,6 +22,11 @@ class SeoUrlCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'seo_url_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return SeoUrlEntity::class;

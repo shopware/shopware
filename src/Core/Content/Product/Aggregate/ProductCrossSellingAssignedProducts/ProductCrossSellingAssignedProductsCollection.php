@@ -19,4 +19,9 @@ class ProductCrossSellingAssignedProductsCollection extends EntityCollection
     {
         return ProductCrossSellingAssignedProductsEntity::class;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_cross_selling_assigned_products_collection';
+    }
 }

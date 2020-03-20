@@ -14,6 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class TaxRuleTypeTranslationCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'tax_rule_type_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return TaxRuleTypeTranslationEntity::class;

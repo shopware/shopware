@@ -69,4 +69,9 @@ class MediaThumbnailSizeEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'media_thumbnail_size';
+    }
 }

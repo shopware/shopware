@@ -22,6 +22,11 @@ class CustomFieldCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'custom_field_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CustomFieldEntity::class;

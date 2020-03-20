@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class DocumentBaseConfigCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'document_base_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return DocumentBaseConfigEntity::class;

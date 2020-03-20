@@ -117,4 +117,9 @@ class Url extends Struct
     {
         return $this->identifier;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sitemap_url';
+    }
 }

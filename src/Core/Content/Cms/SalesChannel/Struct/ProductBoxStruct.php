@@ -36,4 +36,9 @@ class ProductBoxStruct extends Struct
     {
         $this->productId = $productId;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_product_box';
+    }
 }

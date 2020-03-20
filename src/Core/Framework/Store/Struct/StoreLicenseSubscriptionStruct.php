@@ -10,4 +10,9 @@ class StoreLicenseSubscriptionStruct extends Struct
      * @var \DateTimeInterface
      */
     protected $expirationDate;
+
+    public function getApiAlias(): string
+    {
+        return 'store_license_subscription';
+    }
 }

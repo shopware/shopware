@@ -41,4 +41,9 @@ class DocumentIdStruct extends Struct
     {
         $this->id = $id;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'document_id';
+    }
 }

@@ -165,4 +165,9 @@ class StorePluginStruct extends Struct
     {
         return $this->isCategoryLead;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_plugin';
+    }
 }

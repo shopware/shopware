@@ -206,4 +206,9 @@ class ShippingMethodPriceEntity extends Entity
     {
         $this->calculationRule = $calculationRule;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'shipping_method_price';
+    }
 }

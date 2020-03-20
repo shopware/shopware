@@ -50,6 +50,11 @@ class ShippingMethodCollection extends EntityCollection
         return new ShippingMethodPriceCollection($prices);
     }
 
+    public function getApiAlias(): string
+    {
+        return 'shipping_method_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ShippingMethodEntity::class;

@@ -19,4 +19,9 @@ final class PluginCategoryCollection extends Collection
     {
         return PluginCategoryStruct::class;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_category_collection';
+    }
 }

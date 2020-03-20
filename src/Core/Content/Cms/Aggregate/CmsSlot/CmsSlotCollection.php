@@ -46,6 +46,11 @@ class CmsSlotCollection extends EntityCollection
         return $this->slotCache[$slot] ?? null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cms_page_slot_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CmsSlotEntity::class;

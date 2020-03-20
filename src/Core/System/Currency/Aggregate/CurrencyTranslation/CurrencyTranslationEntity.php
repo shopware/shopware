@@ -81,4 +81,9 @@ class CurrencyTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'currency_translation';
+    }
 }

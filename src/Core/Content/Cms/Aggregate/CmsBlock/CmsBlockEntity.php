@@ -281,4 +281,9 @@ class CmsBlockEntity extends Entity
     {
         $this->locked = $locked;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_page_block';
+    }
 }

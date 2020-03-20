@@ -53,6 +53,11 @@ class ProductMediaCollection extends EntityCollection
         );
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_media_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductMediaEntity::class;

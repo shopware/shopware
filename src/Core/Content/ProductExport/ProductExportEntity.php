@@ -290,4 +290,9 @@ class ProductExportEntity extends Entity
     {
         $this->footerTemplate = $footerTemplate;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_export';
+    }
 }

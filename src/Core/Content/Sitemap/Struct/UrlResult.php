@@ -34,4 +34,9 @@ class UrlResult extends Struct
     {
         return $this->nextOffset;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'sitemap_url_result';
+    }
 }

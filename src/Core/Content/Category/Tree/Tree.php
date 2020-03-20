@@ -70,6 +70,11 @@ class Tree extends Struct
         return null;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'category_tree';
+    }
+
     /**
      * @param TreeItem[] $tree
      */

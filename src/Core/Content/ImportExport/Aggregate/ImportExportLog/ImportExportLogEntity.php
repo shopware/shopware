@@ -194,4 +194,9 @@ class ImportExportLogEntity extends Entity
     {
         $this->fileId = $fileId;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'import_export_profile_log';
+    }
 }

@@ -144,4 +144,9 @@ class RuleConditionEntity extends Entity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'rule_condition';
+    }
 }

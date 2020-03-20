@@ -32,6 +32,11 @@ class AnalyzedKeywordCollection extends Collection
         $this->elements[$keyword] = $element;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'product_search_keyword_analyzed_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return AnalyzedKeyword::class;

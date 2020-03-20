@@ -13,6 +13,11 @@ namespace Shopware\Core\Framework\Struct;
  */
 class StructCollection extends Collection
 {
+    public function getApiAlias(): string
+    {
+        return 'dal_struct_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Struct::class;

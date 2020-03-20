@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class SnippetCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'snippet_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return SnippetEntity::class;

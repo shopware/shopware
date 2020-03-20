@@ -88,6 +88,11 @@ class DeliveryCollection extends Collection
         return $addresses;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'cart_delivery_collection';
+    }
+
     protected function getExpectedClass(): ?string
     {
         return Delivery::class;

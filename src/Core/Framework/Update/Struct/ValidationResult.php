@@ -33,4 +33,9 @@ class ValidationResult extends Struct
         $this->message = $message;
         $this->vars = $vars;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'update_api_validation_result';
+    }
 }

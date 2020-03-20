@@ -87,4 +87,9 @@ class ProductListingSorting extends Struct
 
         return $sortings;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_listing_sorting';
+    }
 }

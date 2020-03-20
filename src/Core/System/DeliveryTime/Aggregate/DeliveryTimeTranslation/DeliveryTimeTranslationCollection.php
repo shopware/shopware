@@ -34,6 +34,11 @@ class DeliveryTimeTranslationCollection extends EntityCollection
         });
     }
 
+    public function getApiAlias(): string
+    {
+        return 'delivery_time_translation_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return DeliveryTimeTranslationEntity::class;

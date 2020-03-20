@@ -21,4 +21,9 @@ class ProductSliderStruct extends Struct
     {
         $this->products = $products;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cms_product_slider';
+    }
 }

@@ -48,4 +48,9 @@ class SyncOperationResult extends Struct
             $this->result[$index]['entities'] = [];
         }
     }
+
+    public function getApiAlias(): string
+    {
+        return 'api_sync_operation_result';
+    }
 }

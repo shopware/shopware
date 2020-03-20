@@ -26,6 +26,11 @@ class SystemConfigCollection extends EntityCollection
         return false;
     }
 
+    public function getApiAlias(): string
+    {
+        return 'system_config_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return SystemConfigEntity::class;

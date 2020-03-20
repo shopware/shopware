@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class PromotionSetGroupCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'promotion_set_group_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return PromotionSetGroupEntity::class;

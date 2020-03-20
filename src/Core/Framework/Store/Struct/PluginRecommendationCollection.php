@@ -45,4 +45,9 @@ final class PluginRecommendationCollection extends Collection
     {
         // disallow sorting
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_plugin_recommendation_collection';
+    }
 }

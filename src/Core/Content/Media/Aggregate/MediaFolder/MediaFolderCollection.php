@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class MediaFolderCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'media_folder_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MediaFolderEntity::class;

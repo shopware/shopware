@@ -74,4 +74,9 @@ final class FrwState
 
         return 0;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'store_frw_state';
+    }
 }

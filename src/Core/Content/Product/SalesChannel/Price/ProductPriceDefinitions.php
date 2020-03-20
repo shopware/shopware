@@ -96,4 +96,9 @@ class ProductPriceDefinitions extends Struct
     {
         $this->quantityPrice = $quantityPrice;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'product_price_definitions';
+    }
 }

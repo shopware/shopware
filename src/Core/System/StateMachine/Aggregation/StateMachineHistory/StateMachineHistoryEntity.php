@@ -176,4 +176,9 @@ class StateMachineHistoryEntity extends Entity
     {
         $this->fromStateMachineState = $fromStateMachineState;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'state_machine_history';
+    }
 }

@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class CustomFieldSetCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'custom_field_set_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return CustomFieldSetEntity::class;

@@ -79,4 +79,9 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
             'price' => [new NotBlank(), new Type('numeric')],
         ];
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_price_absolute';
+    }
 }

@@ -38,4 +38,9 @@ class Transaction extends Struct
     {
         $this->paymentMethodId = $paymentMethodId;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cart_transaction';
+    }
 }

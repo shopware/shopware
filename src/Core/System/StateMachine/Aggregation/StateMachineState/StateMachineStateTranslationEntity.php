@@ -65,4 +65,9 @@ class StateMachineStateTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'state_machine_state_translation';
+    }
 }

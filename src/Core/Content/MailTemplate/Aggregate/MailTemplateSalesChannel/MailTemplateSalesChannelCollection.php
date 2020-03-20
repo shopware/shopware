@@ -15,6 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class MailTemplateSalesChannelCollection extends EntityCollection
 {
+    public function getApiAlias(): string
+    {
+        return 'mail_template_sales_channel_collection';
+    }
+
     protected function getExpectedClass(): string
     {
         return MailTemplateSalesChannelEntity::class;

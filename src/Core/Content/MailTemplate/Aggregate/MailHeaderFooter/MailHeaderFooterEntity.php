@@ -145,4 +145,9 @@ class MailHeaderFooterEntity extends Entity
     {
         $this->systemDefault = $systemDefault;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'mail_template_header_footer';
+    }
 }

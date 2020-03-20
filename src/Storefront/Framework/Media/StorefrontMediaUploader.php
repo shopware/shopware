@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -45,23 +46,25 @@ class StorefrontMediaUploader
      * @throws DuplicatedMediaFileNameException
      * @throws EmptyMediaFilenameException
      */
-    public function upload(UploadedFile $file, string $folder, string $type, Context $context): string
+    public function upload(UploadedFile $file, string $folder, string $type, Context $context, bool $isPrivate = false): string
     {
         $this->checkValidFile($file);
 
         $this->validator->validate($file, $type);
 
-        $mediaFile = new MediaFile($file->getPathname(), $file->getMimeType(), $file->getExtension(), $file->getSize());
+        $mediaFile = new MediaFile($file->getPathname(), $file->getMimeType(), $file->getClientOriginalExtension(), $file->getSize());
 
-        $mediaId = $this->mediaService->createMediaInFolder($folder, $context, false);
+        $mediaId = $this->mediaService->createMediaInFolder($folder, $context, $isPrivate);
 
         try {
-            $this->fileSaver->persistFileToMedia(
-                $mediaFile,
-                pathinfo($file->getFilename(), PATHINFO_FILENAME),
-                $mediaId,
-                $context
-            );
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaFile, $mediaId): void {
+                $this->fileSaver->persistFileToMedia(
+                    $mediaFile,
+                    pathinfo(Uuid::randomHex(), PATHINFO_FILENAME),
+                    $mediaId,
+                    $context
+                );
+            });
         } catch (MediaNotFoundException $e) {
             throw new UploadException($e->getMessage());
         }
@@ -71,7 +74,7 @@ class StorefrontMediaUploader
 
     private function checkValidFile(UploadedFile $file): void
     {
-        if ($file->isValid()) {
+        if (!$file->isValid()) {
             throw new UploadException($file->getErrorMessage());
         }
 

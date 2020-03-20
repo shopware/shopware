@@ -23,7 +23,7 @@
     "uuid": "3.3.3"
   },
   "devDependencies": {
-    "cypress": "^4.0.0",
+    "cypress": "^4.1.0",
     "mochawesome-merge": "^4.0.0",
     "mochawesome-report-generator": "^4.1.0"
   }

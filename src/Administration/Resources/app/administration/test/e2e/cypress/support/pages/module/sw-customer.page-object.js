@@ -1,18 +1,16 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class CustomerPageObject extends GeneralPageObject {
+export default class CustomerPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 customerForm: '.sw-customer-base-form',
                 customerMailInput: 'input[name=sw-field--customer-email]',
                 customerMetaData: '.sw-customer-card__metadata',
                 customerSaveAction: '.smart-bar__actions button.sw-button--primary',
-                columnName: `${this.elements.dataGridColumn}--firstName`
+                columnName: `${elements.dataGridColumn}--firstName`
             }
         };
     }

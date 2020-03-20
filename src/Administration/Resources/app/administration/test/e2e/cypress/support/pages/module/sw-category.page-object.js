@@ -1,14 +1,12 @@
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class CategoryPageObject extends GeneralPageObject {
+export default class CategoryPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 categorySaveAction: '.sw-product-detail__save-action',
-                categoryListName: `${this.elements.dataGridColumn}--name`,
+                categoryListName: `${elements.dataGridColumn}--name`,
                 categoryTreeItem: '.sw-tree-item'
             }
         };

@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class OrderPageObject extends GeneralPageObject {
+export default class OrderPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 userMetadata: '.sw-order-user-card__metadata'
             }

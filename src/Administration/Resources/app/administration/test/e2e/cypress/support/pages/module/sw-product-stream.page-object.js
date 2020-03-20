@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class ProductStreamPageObject extends GeneralPageObject {
+export default class ProductStreamPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 columnName: '.sw-product-stream-list__column-name',
                 streamSaveAction: '.sw-product-stream-detail__save-action'

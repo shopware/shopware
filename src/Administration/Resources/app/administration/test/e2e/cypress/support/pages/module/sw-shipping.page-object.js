@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class ShippingMethodPageObject extends GeneralPageObject {
+export default class ShippingMethodPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 shippingSaveAction: '.sw-settings-shipping-method-detail__save-action',
                 shippingBackToListViewAction: '.sw-icon.icon--default-action-settings.sw-icon--small'

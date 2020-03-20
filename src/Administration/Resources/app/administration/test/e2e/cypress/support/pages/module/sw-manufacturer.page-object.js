@@ -1,11 +1,9 @@
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class ManufacturerPageObject extends GeneralPageObject {
+export default class ManufacturerPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 manufacturerSave: '.sw-manufacturer-detail__save-action'
             }

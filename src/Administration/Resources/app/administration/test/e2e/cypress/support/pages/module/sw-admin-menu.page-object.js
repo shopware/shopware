@@ -1,11 +1,9 @@
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class MenuPageObject extends GeneralPageObject {
+export default class MenuPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 menuToggleAction: '.sw-admin-menu__toggle',
                 languageAction: '.sw-admin-menu__change-language-action'

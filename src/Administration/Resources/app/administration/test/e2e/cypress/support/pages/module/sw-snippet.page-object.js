@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class SnippetPageObject extends GeneralPageObject {
+export default class SnippetPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 editSetAction: '.sw-settings-snippet-set-list__edit-set-action',
                 snippetSaveAction: '.sw-snippet-detail__save-action',

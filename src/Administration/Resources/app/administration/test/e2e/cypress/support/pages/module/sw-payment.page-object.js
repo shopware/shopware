@@ -1,11 +1,9 @@
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class PaymentPageObject extends GeneralPageObject {
+export default class PaymentPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 paymentSaveAction: '.sw-payment-detail__save-action',
                 shippingBackToListViewAction: '.sw-icon.icon--default-action-settings.sw-icon--small'

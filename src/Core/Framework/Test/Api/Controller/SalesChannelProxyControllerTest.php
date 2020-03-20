@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -376,9 +378,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     public function testModifyShippingCosts(): void
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
         $productId = Uuid::randomHex();
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
@@ -408,6 +408,104 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+    }
+
+    public function testDisableAutomaticPromotions(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $this->createTestFixtureFixedDiscountPromotion(Uuid::randomHex(), 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+
+        //There are 2 line items in cart including 1 product and 1 automatic promotion
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(2, $cart['lineItems']);
+        static::assertSame('product', $cart['lineItems'][0]['type']);
+        static::assertSame('promotion', $cart['lineItems'][1]['type']);
+
+        //Call to disable automatic promotions
+        $browser->request('PATCH', $this->getRootProxyUrl('/disable-automatic-promotions'));
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        //There is 1 line item in cart. It is product
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(1, $cart['lineItems']);
+        static::assertNotSame('promotion', $cart['lineItems'][0]['type']);
+    }
+
+    public function testDisableAutomaticPromotionDoesNotAffectPromotionCodes(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $this->createTestFixtureFixedDiscountPromotion(Uuid::randomHex(), 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+
+        // Add promotion code into cart
+        $promotionCode = Random::getAlphanumericString(5);
+        $this->createTestFixtureAbsolutePromotion(Uuid::randomHex(), $promotionCode, 100, $this->getContainer());
+        $browser->request('POST', $this->getUrl(Defaults::SALES_CHANNEL, 'checkout/cart/code/' . $promotionCode));
+
+        // Check there are automatic promotion and promotion code in cart
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(3, $cart['lineItems']);
+        static::assertSame('product', $cart['lineItems'][0]['type']);
+        static::assertSame('promotion', $cart['lineItems'][1]['type']);
+        static::assertSame('promotion', $cart['lineItems'][2]['type']);
+        static::assertSame($promotionCode, $cart['lineItems'][2]['referencedId']);
+
+        // Call to disable automatic promotion
+        $browser->request('PATCH', $this->getRootProxyUrl('/disable-automatic-promotions'));
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        // Check automatic promotion code is disabled and exist the promotion code in cart
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(2, $cart['lineItems']);
+        static::assertSame($promotionCode, $cart['lineItems'][1]['referencedId']);
+    }
+
+    public function testEnableAutomaticPromotions(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $this->createTestFixtureFixedDiscountPromotion(Uuid::randomHex(), 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+
+        static::assertCount(2, $cart['lineItems']);
+        static::assertSame('product', $cart['lineItems'][0]['type']);
+        static::assertSame('promotion', $cart['lineItems'][1]['type']);
+
+        // Call to disable automatic promotion
+        $browser->request('PATCH', $this->getRootProxyUrl('/disable-automatic-promotions'));
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        // Check automatic promotion is disabled
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(1, $cart['lineItems']);
+        static::assertNotSame('promotion', $cart['lineItems'][0]['type']);
+
+        // Call to enable automatic promotion
+        $browser->request('PATCH', $this->getRootProxyUrl('/enable-automatic-promotions'));
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        // Check automatic promotion is enabled
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        static::assertCount(2, $cart['lineItems']);
+        static::assertSame('product', $cart['lineItems'][0]['type']);
+        static::assertSame('promotion', $cart['lineItems'][1]['type']);
     }
 
     private function getLangHeaderName(): string
@@ -574,8 +672,12 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
-    private function updateLineItemQuantity(KernelBrowser $browser, string $salesChannelId, string $lineItemId, int $quantity): void
-    {
+    private function updateLineItemQuantity(
+        KernelBrowser $browser,
+        string $salesChannelId,
+        string $lineItemId,
+        int $quantity
+    ): void {
         $browser->request(
             'PATCH',
             $this->getUrl($salesChannelId, 'checkout/cart/line-item/' . $lineItemId),
@@ -640,5 +742,12 @@ class SalesChannelProxyControllerTest extends TestCase
     private function getContextTokenHeaderName(): string
     {
         return 'HTTP_' . mb_strtoupper(str_replace('-', '_', PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    private function createDefaultSalesChannelContext(): SalesChannelContext
+    {
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+
+        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 }

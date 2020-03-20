@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class RuleBuilderPageObject extends GeneralPageObject {
+export default class RuleBuilderPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 columnName: '.sw-settings-rule-list__column-name',
                 ruleSaveAction: '.sw-settings-rule-detail__save-action',

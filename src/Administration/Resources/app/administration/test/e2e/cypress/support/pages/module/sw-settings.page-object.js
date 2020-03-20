@@ -1,11 +1,9 @@
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class SettingsPageObject extends GeneralPageObject {
+export default class SettingsPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 countrySaveAction: '.sw-settings-country-detail__save-action',
                 countryColumnName: '.sw-data-grid__cell--name',

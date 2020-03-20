@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class SalesChannelPageObject extends GeneralPageObject {
+export default class SalesChannelPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
                 salesChannelModal: '.sw-sales-channel-modal',

@@ -1,15 +1,13 @@
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class PropertyPageObject extends GeneralPageObject {
+export default class PropertyPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 mediaForm: '.sw-product-media-form',
                 propertySaveAction: '.sw-property-detail__save-action',
-                productListName: `${this.elements.dataGridColumn}--name`
+                productListName: `${elements.dataGridColumn}--name`
             }
         };
     }

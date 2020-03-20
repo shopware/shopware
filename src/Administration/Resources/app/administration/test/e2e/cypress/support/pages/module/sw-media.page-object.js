@@ -1,12 +1,10 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class MediaPageObject extends GeneralPageObject {
+export default class MediaPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 uploadInput: '#files',
                 previewItem: '.sw-media-preview-v2__item',

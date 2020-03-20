@@ -1,15 +1,13 @@
 /* global cy */
-import GeneralPageObject from '../sw-general.page-object';
+import elements from '../sw-general.page-object';
 
-export default class ProductPageObject extends GeneralPageObject {
+export default class ProductPageObject {
     constructor() {
-        super();
-
         this.elements = {
-            ...this.elements,
+            ...elements,
             ...{
                 productSaveAction: '.sw-product-detail__save-action',
-                productListName: `${this.elements.dataGridColumn}--name`
+                productListName: `${elements.dataGridColumn}--name`
             }
         };
     }

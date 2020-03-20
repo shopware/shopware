@@ -133,7 +133,7 @@
                                                        id="personalPassword"
                                                        placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                        name="password"
-                                                       minlength="shopware.config.core.loginRegistration.passwordMinLength"
+                                                       minlength="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
                                                        {% if shopware.config.core.loginRegistration.requirePasswordConfirmation %}
                                                        data-form-validation-equal="newPassword"
                                                        {% endif %}
@@ -185,7 +185,7 @@
                                                        id="personalPasswordConfirmation"
                                                        placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                                        name="passwordConfirmation"
-                                                       minlength="shopware.config.core.loginRegistration.passwordMinLength"
+                                                       minlength="{{ shopware.config.core.loginRegistration.passwordMinLength }}"
                                                        data-form-validation-equal="newPassword"
                                                        data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans|striptags }}"
                                                        required="required">

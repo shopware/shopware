@@ -254,7 +254,9 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
         didSendForegroundMessage = ids[key].didSendForegroundMessage;
     }
 
-    entry.size *= multiplier;
+    if (entry.size) {
+        entry.size *= multiplier;
+    }
 
     const config = {
         title: $root.$tc(messages.title),

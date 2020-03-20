@@ -49,11 +49,6 @@
           "message": "Cache wurde aufgewärmt. | Eine Seite übrig. | Circa {n} Seiten übrig.",
           "messageSuccess": "Cache-Aufwärmen wurde beendet."
         },
-        "mediaFolder":  {
-          "title": "Medien Ordner Indexierung",
-          "message": "Medien Ordner indexiert. | Ein Media Ordner übrig | Circa {n} Medien Ordner übrig",
-          "messageSuccess": "Medien Indexierung wurde beendet"
-        },
         "productStream": {
           "title": "Dynamische Produktgruppen Indexierung",
           "message": "Dynamische Produktgruppen indexiert. | Ein dynamische Produktgruppe übrig | Circa {n} dynamische Produktgruppe übrig",
@@ -67,11 +62,6 @@
         "media": {
           "title": "Medien Indexierung",
           "message": "Medien indexiert. | Ein Media übrig | Circa {n} Medien übrig",
-          "messageSuccess": "Medien Indexierung wurde beendet"
-        },
-        "mediaFolderConfiguration":  {
-          "title": "Medien Konfiguration Indexierung",
-          "message": "Medien Konfiguration indexiert. | Ein Medien Konfiguration übrig | Circa {n} Medien Konfiguration übrig",
           "messageSuccess": "Medien Indexierung wurde beendet"
         },
         "salesChannel": {

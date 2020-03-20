@@ -73,7 +73,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaFolderConfigurationIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new MediaIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -84,7 +84,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaFolderConfigurationIndexingMessage(array_values($updates), null, $event->getContext());
+        return new MediaIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

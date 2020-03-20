@@ -164,17 +164,6 @@ function registerThumbnailMiddleware(factory) {
         }
     });
 
-    factory.register('MediaFolderConfigurationIndexingMessage', {
-        name: 'Shopware\\Core\\Content\\Media\\DataAbstractionLayer\\MediaFolderConfigurationIndexingMessage',
-        fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('mediaFolderConfiguration', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.mediaFolderConfiguration.title',
-                message: 'global.notification-center.worker-listener.mediaFolderConfiguration.message',
-                success: 'global.notification-center.worker-listener.mediaFolderConfiguration.messageSuccess'
-            }, 50);
-        }
-    });
-
     factory.register('ProductStreamIndexingMessage', {
         name: 'Shopware\\Core\\Content\\ProductStream\\DataAbstractionLayer\\ProductStreamIndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {
@@ -204,17 +193,6 @@ function registerThumbnailMiddleware(factory) {
                 title: 'global.notification-center.worker-listener.media.title',
                 message: 'global.notification-center.worker-listener.media.message',
                 success: 'global.notification-center.worker-listener.media.messageSuccess'
-            }, 50);
-        }
-    });
-
-    factory.register('MediaFolderIndexingMessage', {
-        name: 'Shopware\\Core\\Content\\Media\\DataAbstractionLayer\\MediaFolderIndexingMessage',
-        fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('mediaFolder', ids, next, entry, $root, notification, {
-                title: 'global.notification-center.worker-listener.mediaFolder.title',
-                message: 'global.notification-center.worker-listener.mediaFolder.message',
-                success: 'global.notification-center.worker-listener.mediaFolder.messageSuccess'
             }, 50);
         }
     });

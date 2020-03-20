@@ -49,11 +49,6 @@
           "message": "Cache warmed-up. | One page remaining. | Approximately {n} pages remaining..",
           "messageSuccess": "Cache successfully warmed-up."
         },
-        "mediaFolder":  {
-          "title": "Indexing media folders",
-          "message": "Media folders indexed. | Indexing media folders | {n} media remaining",
-          "messageSuccess": "Media folders indexed successfully"
-        },
         "productStream": {
           "title": "Indexing product streams",
           "message": "Product streams indexed. | Indexing product streams | {n} product streams remaining",
@@ -68,11 +63,6 @@
           "title": "Indexing media",
           "message": "Media indexed. | Indexing media | {n} media remaining",
           "messageSuccess": "Media indexed successfully"
-        },
-        "mediaFolderConfiguration":  {
-          "title": "Indexing media folder configurations",
-          "message": "Media folder configurations. | Indexing media folder configurations | {n} media folder configurations remaining",
-          "messageSuccess": "Media folder configurations indexed successfully"
         },
         "salesChannel": {
           "title": "Indexing sales channels",

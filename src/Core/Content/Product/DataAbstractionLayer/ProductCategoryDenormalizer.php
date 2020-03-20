@@ -40,7 +40,7 @@ class ProductCategoryDenormalizer
 
         $insert = new RetryableQuery(
             $this->connection->prepare('
-                INSERT INTO product_category_tree
+                INSERT IGNORE INTO product_category_tree
                     (`product_id`, `product_version_id`, `category_id`, `category_version_id`)
                 VALUES
                     (:product_id, :product_version_id, :category_id, :category_version_id)

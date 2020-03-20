@@ -11,6 +11,7 @@ use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class CsrfRouteListenerTest extends TestCase
@@ -43,10 +44,12 @@ class CsrfRouteListenerTest extends TestCase
         // Kernel has to be rebooted every time, because the route listener keeps track, if it has already checked
         // the csrf token for a request and then stops execution if the check has already been done.
         $this->client = $this->createSalesChannelBrowser($this->kernel, true);
+        $this->getFlashBag()->clear();
     }
 
     public function tearDown(): void
     {
+        $this->getFlashBag()->clear();
         $this->connection->rollBack();
     }
 
@@ -54,7 +57,8 @@ class CsrfRouteListenerTest extends TestCase
     {
         $this->client->request('POST', 'http://localhost/widgets/account/newsletter');
         $statusCode = $this->client->getResponse()->getStatusCode();
-        static::assertSame(Response::HTTP_FORBIDDEN, $statusCode);
+        static::assertSame(Response::HTTP_FORBIDDEN, $statusCode, $this->client->getResponse()->getContent());
+        static::assertSame(['danger' => ['Your session has expired. Please return to the last page and try again.']], $this->getFlashBag()->all());
     }
 
     public function testPostRequestWithValidCsrfToken(): void
@@ -68,6 +72,7 @@ class CsrfRouteListenerTest extends TestCase
         $statusCode = $this->client->getResponse()->getStatusCode();
 
         static::assertSame(Response::HTTP_FOUND, $statusCode);
+        static::assertSame([], $this->getFlashBag()->all());
     }
 
     protected function getContainer(): ContainerInterface
@@ -78,5 +83,10 @@ class CsrfRouteListenerTest extends TestCase
     protected function getKernel(): KernelInterface
     {
         return $this->kernel;
+    }
+
+    private function getFlashBag(): FlashBagInterface
+    {
+        return $this->getContainer()->get('session')->getFlashBag();
     }
 }

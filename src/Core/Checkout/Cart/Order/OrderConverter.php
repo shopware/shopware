@@ -210,7 +210,7 @@ class OrderConverter
     public function convertToCart(OrderEntity $order, Context $context): Cart
     {
         if ($order->getLineItems() === null) {
-            throw new MissingOrderRelationException('lineItem');
+            throw new MissingOrderRelationException('lineItems');
         }
 
         if ($order->getDeliveries() === null) {

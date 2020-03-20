@@ -13,7 +13,7 @@
 
         {% sw_include '@Storefront/storefront/component/product/listing.html.twig' with {
             searchResult: page.listing,
-            dataUrl: url('widgets.search.pagelet', { search: page.searchTerm }),
+            dataUrl: url('widgets.search.pagelet', { search: page.searchTerm|url_encode }),
             filterUrl: '',
             params: { search: page.searchTerm },
             sidebar: 0,

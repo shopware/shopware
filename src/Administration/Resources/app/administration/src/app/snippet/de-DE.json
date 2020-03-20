@@ -673,14 +673,14 @@
   "sw-tree": {
     "general": {
       "placeholderSearch": "Suche ...",
-      "treeHeadSelected": "{count} selektiert",
+      "treeHeadSelected": "{count} ausgewählt",
       "treeHeadline": "Baumstruktur",
       "buttonCreate": "Element erstellen",
       "actions": {
         "createSub": "Neues Unterlement",
         "createBefore": "Neues Element davor",
         "createAfter": "Neues Element danach",
-        "actionsDisabledInLanguage": "Elemente können nur in der Systemstandardsprache erstellt werden"
+        "actionsDisabledInLanguage": "Elemente können nur in der System-Standardsprache erstellt werden."
       }
     },
     "modal": {

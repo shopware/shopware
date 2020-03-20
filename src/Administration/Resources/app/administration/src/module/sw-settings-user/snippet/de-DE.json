@@ -57,7 +57,7 @@
       "readAccess": "Lesen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
+      "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
       "addAccessKey": "Neuer Zugangsschlüssel",
       "labelAccessKey": "Zugangsschlüssel",
       "labelPermissions": "Berechtigungen",

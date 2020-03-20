@@ -61,7 +61,8 @@
       "messageSaveError": "Eigenschaft \"{name}\" konnte nicht gespeichert werden",
       "messageOptionsEmpty": "Noch keine Eigenschaft-Ausprägungen",
       "messageOptionsEmptySubline": "Füge hier Eigenschaften hinzu.",
-      "optionEmptyStateSubline": "Pflege die Basisinformationen, speichere die Eigenschaft und füge dann individuelle Ausprägungen hinzu."
+      "optionEmptyStateSubline": "Pflege die Basisinformationen, speichere die Eigenschaft und füge dann individuelle Ausprägungen hinzu.",
+      "labelMediaUpload": "Standardbild"
     }
   }
 }

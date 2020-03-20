@@ -44,7 +44,9 @@
       "labelReferenceUnit": "Basic unit",
       "labelPackUnit": "Packaging unit",
       "placeholderTaxRate": "Select tax rate...",
-      "placeholderPurchasePriceGross": "Enter purchasing price (gross)...",
+      "placeholderPurchasePriceGross": "Enter purchasing price...",
+      "placeholderPriceGross": "Enter gross price...",
+      "placeholderPriceNet": "Enter net price...",
       "placeholderPurchaseUnit": "Enter selling unit...",
       "placeholderReferenceUnit": "Enter basic unit...",
       "placeholderPackUnit": "Enter packaging unit...",
@@ -58,7 +60,7 @@
       "labelKeywords": "SEO keywords",
       "placeholderMetaTitle": "Enter meta title...",
       "placeholderMetaDescription": "Enter meta description...",
-      "placeholderKeywords": "Enter keywords..."
+      "placeholderKeywords": "Enter one or more keywords ..."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",

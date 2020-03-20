@@ -45,10 +45,12 @@
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
       "placeholderTaxRate": "Wähle einen Steuersatz aus ...",
-      "placeholderPurchasePriceGross": "Gib den Einkaufspreis (Brutto) ein ...",
-      "placeholderPurchaseUnit": "Gib die Verkaufseinheit an ...",
-      "placeholderReferenceUnit": "Gib die Grundeinheit an ...",
-      "placeholderPackUnit": "Gib die Verpackungseinheit an ...",
+      "placeholderPurchasePriceGross": "Einkaufspreis eingeben ...",
+      "placeholderPriceGross": "Bruttopreis eingeben ...",
+      "placeholderPriceNet": "Nettopreis eingeben ...",
+      "placeholderPurchaseUnit": "Verkaufseinheit eingeben ...",
+      "placeholderReferenceUnit": "Grundeinheit eingeben ...",
+      "placeholderPackUnit": "Verpackungseinheit eingeben ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter"
@@ -59,7 +61,7 @@
       "labelKeywords": "Schlüsselwörter",
       "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
       "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
-      "placeholderKeywords": "Gib Schlüsselwörter ein ..."
+      "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",

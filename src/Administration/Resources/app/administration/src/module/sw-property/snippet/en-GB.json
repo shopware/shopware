@@ -61,7 +61,8 @@
       "messageSaveError": "Property \"{name}\" could not be saved",
       "messageOptionsEmpty": "No property values yet",
       "messageOptionsEmptySubline": "Add property values here.",
-      "optionEmptyStateSubline": "Fill in basic information, save the property - then add values."
+      "optionEmptyStateSubline": "Fill in basic information, save the property - then add values.",
+      "labelMediaUpload": "Default image"
     }
   }
 }

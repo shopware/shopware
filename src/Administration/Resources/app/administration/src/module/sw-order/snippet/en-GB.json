@@ -15,8 +15,8 @@
       "columnDeliveryState": "Delivery status",
       "columnOrderNumber": "Order number",
       "columnSalesChannel": "Sales channel",
-      "columnAffiliateCode": "Affiliate-Code",
-      "columnCampaignCode": "Campaign-Code",
+      "columnAffiliateCode": "Affiliate code",
+      "columnCampaignCode": "Campaign code",
       "orderDate": "Order date",
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
@@ -27,8 +27,8 @@
       "messageEmpty": "No orders yet",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
-      "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
-      "titleSidebarItemFilterCampaignCode": "Campaign-Code"
+      "titleSidebarItemFilterAffiliateCode": "Affiliate code",
+      "titleSidebarItemFilterCampaignCode": "Campaign code"
     },
     "detail": {
       "buttonCancel": "Discard changes",

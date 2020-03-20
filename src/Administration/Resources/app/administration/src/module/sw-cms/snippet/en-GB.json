@@ -37,7 +37,7 @@
       "layoutSection": "Layout section",
       "isSidebar": "Layout section - Sidebar",
       "isDefault": "Layout section - Default",
-      "sectionEmptyState": "No blocks and elements in here"
+      "sectionEmptyState": "Nothing here. Add blocks and elements."
     },
     "sidebar": {
       "contentMenu": {
@@ -87,6 +87,7 @@
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",
+        "blockNameFieldPlaceholder": "Enter name...",
         "blockSizingField": "Sizing mode",
         "blockSizingOptionBoxed": "Boxed content",
         "blockSizingOptionFull": "Full width",

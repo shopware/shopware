@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -557,7 +557,11 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $messages = $this->connection->fetchAssoc('SELECT * FROM message_queue_stats WHERE name = :name', ['name' => EntityIndexingMessage::class]);
+        $messages = $this->connection->fetchAssoc(
+            'SELECT * FROM message_queue_stats WHERE name = :name',
+            ['name' => ProductIndexingMessage::class]
+        );
+
         static::assertNotEmpty($messages);
         static::assertEquals(1, $messages['size']);
     }
@@ -596,7 +600,10 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $messages = $this->connection->fetchAssoc('SELECT * FROM message_queue_stats WHERE name = :name', ['name' => EntityIndexingMessage::class]);
+        $messages = $this->connection->fetchAssoc(
+            'SELECT * FROM message_queue_stats WHERE name = :name',
+            ['name' => ProductIndexingMessage::class]
+        );
         static::assertEmpty($messages);
     }
 }

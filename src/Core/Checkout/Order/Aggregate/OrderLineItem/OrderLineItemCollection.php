@@ -48,6 +48,24 @@ class OrderLineItemCollection extends EntityCollection
         });
     }
 
+    public function getPayloadsProperty(string $property): array
+    {
+        return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
+            if (array_key_exists($property, $lineItem->getPayload())) {
+                return $lineItem->getPayload()[$property];
+            }
+
+            return null;
+        });
+    }
+
+    public function filterByType(string $type): self
+    {
+        return $this->filter(function (OrderLineItemEntity $lineItem) use ($type) {
+            return $lineItem->getType() === $type;
+        });
+    }
+
     public function getApiAlias(): string
     {
         return 'order_line_item_collection';

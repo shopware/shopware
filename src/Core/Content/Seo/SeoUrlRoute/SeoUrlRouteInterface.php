@@ -13,9 +13,15 @@ interface SeoUrlRouteInterface
 
     public function prepareCriteria(Criteria $criteria): void;
 
-    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult;
-
     public function getMapping(Entity $entity, ?SalesChannelEntity $salesChannel): SeoUrlMapping;
 
+    /**
+     * @deprecated tag:v6.3.0 - The update detection is moved to the corresponding indexer classes
+     */
+    public function extractIdsToUpdate(EntityWrittenContainerEvent $event): SeoUrlExtractIdResult;
+
+    /**
+     * @deprecated tag:v6.3.0 - Has no more usage
+     */
     public function getSeoVariables(): array;
 }

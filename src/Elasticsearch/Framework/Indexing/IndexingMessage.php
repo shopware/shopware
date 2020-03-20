@@ -4,6 +4,9 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage instead
+ */
 class IndexingMessage
 {
     /**

@@ -4,10 +4,11 @@ namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
+use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
@@ -47,7 +48,7 @@ class RulePayloadIndexerTest extends TestCase
     private $repository;
 
     /**
-     * @var RulePayloadIndexer
+     * @var RuleIndexer
      */
     private $indexer;
 
@@ -64,7 +65,7 @@ class RulePayloadIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('rule.repository');
-        $this->indexer = $this->getContainer()->get(RulePayloadIndexer::class);
+        $this->indexer = $this->getContainer()->get(RuleIndexer::class);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
@@ -104,7 +105,9 @@ class RulePayloadIndexerTest extends TestCase
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
-        $this->indexer->index(new \DateTime());
+
+        $this->indexer->handle(new EntityIndexingMessage([$id]));
+
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
@@ -210,7 +213,9 @@ class RulePayloadIndexerTest extends TestCase
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
-        $this->indexer->index(new \DateTime());
+
+        $this->indexer->handle(new EntityIndexingMessage([$id, $rule2Id]));
+
         $rules = $this->repository->search(new Criteria([$id, $rule2Id]), $this->context);
         $rule = $rules->get($id);
         static::assertNotNull($rule->getPayload());
@@ -338,7 +343,8 @@ class RulePayloadIndexerTest extends TestCase
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
-        $this->indexer->index(new \DateTime());
+        $this->indexer->handle(new EntityIndexingMessage([$id]));
+
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
@@ -376,7 +382,9 @@ class RulePayloadIndexerTest extends TestCase
         $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
-        $this->indexer->index(new \DateTime());
+
+        $this->indexer->handle(new EntityIndexingMessage([$id]));
+
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(Rule::class, $rule->getPayload());
@@ -441,7 +449,11 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->eventDispatcher->dispatch($event);
 
-        $rules = $this->connection->createQueryBuilder()->select(['id', 'payload', 'invalid'])->from('rule')->execute()->fetchAll();
+        $rules = $this->connection->createQueryBuilder()
+            ->select(['id', 'payload', 'invalid'])
+            ->from('rule')
+            ->execute()
+            ->fetchAll();
 
         foreach ($rules as $rule) {
             static::assertEquals(0, $rule['invalid']);

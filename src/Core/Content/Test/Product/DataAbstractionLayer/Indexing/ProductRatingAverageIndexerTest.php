@@ -6,10 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductRatingAverageIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,11 +25,6 @@ class ProductRatingAverageIndexerTest extends TestCase
      * @var EntityRepositoryInterface
      */
     private $reviewRepository;
-
-    /**
-     * @var ProductRatingAverageIndexer
-     */
-    private $reviewsIndexer;
 
     /**
      * @var EntityRepositoryInterface
@@ -46,14 +42,14 @@ class ProductRatingAverageIndexerTest extends TestCase
     private $customerRepository;
 
     /**
-     * @var ProductRatingAverageIndexer
-     */
-    private $productRatingAvgIndexer;
-
-    /**
      * @var Connection
      */
     private $connection;
+
+    /**
+     * @var ProductIndexer
+     */
+    private $productIndexer;
 
     public function setUp(): void
     {
@@ -61,9 +57,8 @@ class ProductRatingAverageIndexerTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->reviewsIndexer = $this->getContainer()->get(ProductRatingAverageIndexer::class);
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->productRatingAvgIndexer = $this->getContainer()->get(ProductRatingAverageIndexer::class);
+        $this->productIndexer = $this->getContainer()->get(ProductIndexer::class);
     }
 
     /**
@@ -286,7 +281,7 @@ SQL;
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
         static::assertEquals(0, $products->get($productId)->getRatingAverage());
 
-        $this->productRatingAvgIndexer->index(new \DateTime());
+        $this->productIndexer->handle(new EntityIndexingMessage([$productId]));
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
         static::assertEquals(3, $products->get($productId)->getRatingAverage());

@@ -136,5 +136,14 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\Seo\SeoUrlUpdater">
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlGenerator"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="sales_channel.repository"/>
+        </service>
     </services>
 </container>

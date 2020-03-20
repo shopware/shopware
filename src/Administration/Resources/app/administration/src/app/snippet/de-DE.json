@@ -48,6 +48,41 @@
         "warmupIndexing": {
           "message": "Cache wurde aufgewärmt. | Eine Seite übrig. | Circa {n} Seiten übrig.",
           "messageSuccess": "Cache-Aufwärmen wurde beendet."
+        },
+        "productStream": {
+          "title": "Dynamische Produktgruppen Indexierung",
+          "message": "Dynamische Produktgruppen indexiert. | Ein dynamische Produktgruppe übrig | Circa {n} dynamische Produktgruppe übrig",
+          "messageSuccess": "Dynamische Produktgruppen Indexierung wurde beendet"
+        },
+        "category":  {
+          "title": "Kategorie Indexierung",
+          "message": "Kategorien indexiert. | Ein Kategorie übrig | Circa {n} Kategorien übrig",
+          "messageSuccess": "Kategorie Indexierung wurde beendet"
+        },
+        "media": {
+          "title": "Medien Indexierung",
+          "message": "Medien indexiert. | Ein Media übrig | Circa {n} Medien übrig",
+          "messageSuccess": "Medien Indexierung wurde beendet"
+        },
+        "salesChannel": {
+          "title": "Sales Channel Indexierung",
+          "message": "Sales Channel indexiert. | Ein Sales Channel übrig | Circa {n} Sales Channel übrig",
+          "messageSuccess": "Sales Channel Indexierung wurde beendet"
+        },
+        "rule":  {
+          "title": "Regel Indexierung",
+          "message": "Regeln indexiert. | Ein Regel übrig | Circa {n} Regeln übrig",
+          "messageSuccess": "Regel Indexierung wurde beendet"
+        },
+        "product": {
+          "title": "Produkt Indexierung",
+          "message": "Produkte indexiert. | Ein Produkt übrig | Circa {n} Produkte übrig",
+          "messageSuccess": "Produkt Indexierung wurde beendet"
+        },
+        "promotion": {
+          "title": "Promotion Indexierung",
+          "message": "Promotions indexiert. | Ein Promotion übrig | Circa {n} Promotions übrig",
+          "messageSuccess": "Promotions Indexierung wurde beendet"
         }
       },
       "plugin-updates-listener": {

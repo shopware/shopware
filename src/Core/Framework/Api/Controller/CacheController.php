@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Util\Random;
@@ -39,16 +40,23 @@ class CacheController extends AbstractController
      */
     private $cacheWarmer;
 
+    /**
+     * @var EntityIndexerRegistry
+     */
+    private $indexerRegistry;
+
     public function __construct(
         CacheClearer $cache,
         AdapterInterface $adapter,
         IndexerMessageSender $indexerMessageSender,
-        CacheWarmer $cacheWarmer
+        CacheWarmer $cacheWarmer,
+        EntityIndexerRegistry $indexerRegistry
     ) {
         $this->cache = $cache;
         $this->adapter = $adapter;
         $this->indexerMessageSender = $indexerMessageSender;
         $this->cacheWarmer = $cacheWarmer;
+        $this->indexerRegistry = $indexerRegistry;
     }
 
     /**
@@ -69,6 +77,8 @@ class CacheController extends AbstractController
     public function index(): JsonResponse
     {
         $this->indexerMessageSender->partial(new \DateTime());
+
+        $this->indexerRegistry->sendIndexingMessage();
 
         return new JsonResponse();
     }

@@ -5,19 +5,16 @@ namespace Shopware\Core\Content\Test\ProductStream\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -25,7 +22,6 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductStreamIndexerTest extends TestCase
 {
@@ -64,16 +60,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
 
-        $this->indexer = new ProductStreamIndexer(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->productStreamRepository,
-            $this->connection,
-            $this->getContainer()->get('serializer'),
-            $this->getContainer()->get(EntityCacheKeyGenerator::class),
-            $this->getContainer()->get(CacheClearer::class),
-            $this->getContainer()->get(IteratorFactory::class),
-            $this->getContainer()->get(ProductDefinition::class)
-        );
+        $this->indexer = $this->getContainer()->get(ProductStreamIndexer::class);
     }
 
     public function testValidRefresh(): void
@@ -128,7 +115,9 @@ class ProductStreamIndexerTest extends TestCase
             ]
         );
 
-        $this->indexer->refresh($this->createWrittenEvent($id));
+        $message = $this->indexer->update($this->createWrittenEvent($id));
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
@@ -206,9 +195,9 @@ class ProductStreamIndexerTest extends TestCase
             ]
         );
 
-        $this->indexer->refresh(
-            $this->createWrittenEvent($id)
-        );
+        $message = $this->indexer->update($this->createWrittenEvent($id));
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
@@ -276,9 +265,9 @@ class ProductStreamIndexerTest extends TestCase
             ]
         );
 
-        $this->indexer->refresh(
-            $this->createWrittenEvent($id)
-        );
+        $message = $this->indexer->update($this->createWrittenEvent($id));
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
@@ -338,9 +327,9 @@ class ProductStreamIndexerTest extends TestCase
             ]
         );
 
-        $this->indexer->refresh(
-            $this->createWrittenEvent($id)
-        );
+        $message = $this->indexer->update($this->createWrittenEvent($id));
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
@@ -400,9 +389,9 @@ class ProductStreamIndexerTest extends TestCase
             ]
         );
 
-        $this->indexer->refresh(
-            $this->createWrittenEvent($id)
-        );
+        $message = $this->indexer->update($this->createWrittenEvent($id));
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
@@ -461,9 +450,9 @@ class ProductStreamIndexerTest extends TestCase
             ]
         );
 
-        $this->indexer->refresh(
-            $this->createWrittenEvent($id)
-        );
+        $message = $this->indexer->update($this->createWrittenEvent($id));
+        static::assertInstanceOf(EntityIndexingMessage::class, $message);
+        $this->indexer->handle($message);
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);

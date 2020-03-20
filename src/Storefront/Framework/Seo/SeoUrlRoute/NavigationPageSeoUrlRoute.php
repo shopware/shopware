@@ -46,7 +46,9 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         return new SeoUrlRouteConfig(
             $this->categoryDefinition,
             self::ROUTE_NAME,
-            self::DEFAULT_TEMPLATE
+            self::DEFAULT_TEMPLATE,
+            true,
+            true
         );
     }
 

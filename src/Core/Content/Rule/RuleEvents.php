@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Rule;
 
+use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
+
 class RuleEvents
 {
     /**
@@ -33,4 +35,9 @@ class RuleEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const RULE_ID_SEARCH_RESULT_LOADED_EVENT = 'rule.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Content\Rule\Event\RuleIndexerEvent")
+     */
+    public const RULE_INDEXER_EVENT = RuleIndexerEvent::class;
 }

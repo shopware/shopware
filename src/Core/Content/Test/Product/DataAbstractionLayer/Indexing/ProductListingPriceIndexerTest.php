@@ -27,6 +27,8 @@ class ProductListingPriceIndexerTest extends TestCase
             ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 1],
         ], $ids->context);
 
+        $ids->context->setConsiderInheritance(true);
+
         $products = [
             [
                 'id' => $ids->create('simple-1'),

@@ -219,6 +219,39 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testUpdate(TestDataCollection $ids): void
+    {
+        $this->ids = $ids;
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->upsert([
+            $this->createProduct('u7', 'update', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+        ], $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
+
+        // indexing message is still in queue, search should not match
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(0, $result->getIds());
+
+        // handle indexing message, afterwards the search should match
+        $this->runWorker();
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(1, $result->getIds());
+
+        $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(1, $result->getIds());
+
+        $this->runWorker();
+        $result = $this->productRepository->searchIds($criteria, $context);
+        static::assertCount(0, $result->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testEmptySearch(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();

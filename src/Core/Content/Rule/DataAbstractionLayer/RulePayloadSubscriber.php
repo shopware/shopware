@@ -2,22 +2,29 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
-use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer;
+use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Content\Rule\RuleEvents;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RulePayloadSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var RulePayloadIndexer
+     * @var CacheClearer
      */
-    private $indexer;
+    private $cacheClearer;
 
-    public function __construct(RulePayloadIndexer $indexer)
+    /**
+     * @var RulePayloadUpdater
+     */
+    private $updater;
+
+    public function __construct(RulePayloadUpdater $updater, CacheClearer $cacheClearer)
     {
-        $this->indexer = $indexer;
+        $this->updater = $updater;
+        $this->cacheClearer = $cacheClearer;
     }
 
     public static function getSubscribedEvents(): array
@@ -58,10 +65,12 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $updated = $this->indexer->update(array_keys($rules));
+        $updated = $this->updater->update(array_keys($rules));
 
         foreach ($updated as $id => $entity) {
             $rules[$id]->assign($entity);
         }
+
+        $this->cacheClearer->invalidateIds(array_keys($updated), RuleDefinition::ENTITY_NAME);
     }
 }

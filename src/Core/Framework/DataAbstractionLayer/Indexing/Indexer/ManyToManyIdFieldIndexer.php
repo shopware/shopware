@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater instead
+ */
 class ManyToManyIdFieldIndexer implements IndexerInterface
 {
     /**
@@ -61,9 +64,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         $context = Context::createDefaultContext();
 
         foreach ($this->registry->getDefinitions() as $definition) {
-            $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
-
-            if ($fields->count() <= 0) {
+            if (!$definition->hasManyToManyIdFields()) {
                 continue;
             }
 
@@ -108,7 +109,7 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
         $definitions = array_values(array_filter(
             $this->registry->getDefinitions(),
             function (EntityDefinition $definition) {
-                return $definition->getFields()->filterInstance(ManyToManyIdField::class)->count() > 0;
+                return $definition->hasManyToManyIdFields();
             }
         ));
 
@@ -173,6 +174,10 @@ class ManyToManyIdFieldIndexer implements IndexerInterface
                 $this->update($field->getReferenceDefinition(), $foreignKeys, $context);
             }
 
+            return;
+        }
+
+        if (!$definition->hasManyToManyIdFields()) {
             return;
         }
 

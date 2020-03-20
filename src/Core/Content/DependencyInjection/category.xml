@@ -41,5 +41,28 @@
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.entity_indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="language.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
     </services>
 </container>

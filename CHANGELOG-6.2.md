@@ -332,7 +332,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Framework\Plugin\BundleConfigGenerator` to generate webpack bundle config and moved the according logic from `\Shopware\Core\Framework\Plugin\BundleConfigDumper` to the new class
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
-    
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry:__construct()` TypeHint for both parameters will be changed to ServiceProviderInterface 
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry:addHandler()` will be removed in 6.3.0
@@ -341,7 +340,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
     * Changed `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder` to not set default limit for the api listing
     * Added new `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` route to make the contact form available using the Store-API
-    
     * Added new `\Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute` to provide payment methods about the new api route `/store-api/v1/payment-method`
     * Added new `\Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute` to provide shipping methods about the new api route `/store-api/v1/shipping-method`
     * Added new `\Shopware\Core\System\Currency\SalesChannel\CurrencyRoute` to provide currencies about the new api route `/store-api/v1/currency`
@@ -370,9 +368,31 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute` to send a new password recovery mail with the new api route `/store-api/v1/account/send-recovery-mail`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to process the reset password form with the new api route `/store-api/v1/account/reset-password`
     
-* Storefront	
-    * Deprecated `$connection->executeQuery()` for write operations
-
+    
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry` use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry` instead
+    * Added `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection::getPayloadsProperty` function which allows to extract a property value of all line item payloads.
+    * Added `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection::filterByType` function which allows to filter the line item collection by the provided line item type
+    * Deprecated `\Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionExclusionIndexer`, use \Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater instead
+    * Deprecated `\Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionRedemptionIndexer`, use \Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater instead
+    * Deprecated `\Shopware\Core\Content\Category\DataAbstractionLayer\Indexing\BreadcrumbIndexer`, use `\Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater` instead
+    * Deprecated `\Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer`, use `\Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer` instead
+    * Deprecated `\Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderSizeIndexer`, use `\Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer` instead
+    * Deprecated `\Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaThumbnailIndexer`, use `\Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer` instead
+    * Deprecated `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer`, use `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer` instead
+    * Deprecated `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer`, use `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater` instead
+    * Deprecated `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductRatingAverageIndexer`, use `\Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater` instead
+    * Deprecated `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductStockIndexer`, use `\Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater` instead
+    * Deprecated `\Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\VariantListingIndexer`, use `\Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater` instead
+    * Deprecated `\Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer`, use `\Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater` instead
+    * Deprecated `\Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer`, use `\Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer` instead
+    * Deprecated `\Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer`, use `\Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer` instead
+    * Deprecated `\Shopware\Core\Content\Seo\DataAbstractionLayer\Indexing\SeoUrlIndexer`, use `\Shopware\Core\Content\Seo\SeoUrlUpdater` instead
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ChildCountIndexer`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater` instead
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater` instead
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ManyToManyIdFieldIndexer`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater` instead
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\TreeIndexer`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater` instead
+    * Deprecated `\Shopware\Elasticsearch\Framework\Indexing\EntityIndexer`, use `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer` instead
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` instead
 * Storefront    
     Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":

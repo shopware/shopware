@@ -39,14 +39,6 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
-            <tag name="shopware.dal_indexing.indexer" priority="-50000"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
@@ -55,20 +47,17 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchTestAnalyzerCommand">
-            <argument id="Elasticsearch\Client" type="service"/>
+            <argument type="service" id="Elasticsearch\Client"/>
 
             <tag name="console.command"/>
         </service>
@@ -93,11 +82,11 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\ProductKeywordIndexer"
-                 decorates="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer"
+        <service id="Shopware\Elasticsearch\Product\SearchKeywordReplacement"
+                 decorates="Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater"
                  decoration-priority="-50000">
 
-            <argument type="service" id="Shopware\Elasticsearch\Product\ProductKeywordIndexer.inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\SearchKeywordReplacement.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
 
@@ -111,11 +100,6 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
-            <argument type="service" id="Elasticsearch\Client"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="logger"/>
-
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -162,5 +146,21 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
+
+        <service id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer">
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Elasticsearch\Client"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+        </service>
+
     </services>
 </container>

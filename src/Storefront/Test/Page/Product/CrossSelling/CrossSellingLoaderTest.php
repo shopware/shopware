@@ -364,6 +364,7 @@ class CrossSellingLoaderTest extends TestCase
             ],
         ]];
 
+        $this->salesChannelContext->getContext()->setConsiderInheritance(true);
         $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
 
         $result = $this->crossSellingLoader->load($variantId, $this->salesChannelContext);

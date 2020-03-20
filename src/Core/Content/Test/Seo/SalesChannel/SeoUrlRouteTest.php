@@ -28,13 +28,7 @@ class SeoUrlRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
-
         $this->createData();
-
-        $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
-            'navigationCategoryId' => $this->ids->get('category'),
-        ]);
     }
 
     public function testRequest(): void
@@ -121,20 +115,29 @@ class SeoUrlRouteTest extends TestCase
     {
         $data = [
             'id' => $this->ids->create('category'),
+            'active' => true,
             'name' => 'Test',
-            'seoUrls' => [
-                [
-                    'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
-                    'salesChannelId' => $this->ids->get('sales-channel'),
-                    'pathInfo' => 'foo',
-                    'seoPathInfo' => 'foo',
-                    'isCanonical' => true,
-                ],
-            ],
         ];
 
         $this->getContainer()->get('category.repository')
+            ->create([$data], $this->ids->context);
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'navigationCategoryId' => $this->ids->get('category'),
+        ]);
+
+        $data = [
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'pathInfo' => 'foo',
+            'seoPathInfo' => 'foo',
+            'isCanonical' => true,
+            'foreignKey' => $this->ids->get('category'),
+        ];
+
+        $this->getContainer()->get('seo_url.repository')
             ->create([$data], $this->ids->context);
     }
 }

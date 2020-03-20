@@ -75,34 +75,13 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="media_folder.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <tag name="shopware.dal_indexing.indexer" priority="500"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderSizeIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="media_folder_configuration.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <tag name="shopware.dal_indexing.indexer" priority="500"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaThumbnailIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="media.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>
-            <tag name="shopware.dal_indexing.indexer"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
-
 
         <!--Repository Decorators-->
 
@@ -307,6 +286,34 @@
 
         <service id="Shopware\Core\Content\Media\Cms\Type\ImageGalleryTypeDataResolver">
             <tag name="shopware.cms.data_resolver" />
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="media_folder_configuration.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
         </service>
     </services>
 </container>

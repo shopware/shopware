@@ -489,6 +489,32 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(4, $product->getStock());
     }
 
+    public function testOrderCanceled(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $orderId = $this->orderProduct($productId, 1);
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(5, $product->getStock());
+        static::assertSame(4, $product->getAvailableStock());
+
+        $this->transitionOrder($orderId, 'cancel');
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(5, $product->getStock());
+        static::assertSame(5, $product->getAvailableStock());
+
+        $this->transitionOrder($orderId, 'reopen');
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+        static::assertSame(5, $product->getStock());
+        static::assertSame(4, $product->getAvailableStock());
+    }
+
     private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();

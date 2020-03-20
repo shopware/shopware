@@ -17,8 +17,11 @@ class TestDataCollection
      */
     protected $ids = [];
 
-    public function __construct(Context $context)
+    public function __construct(?Context $context = null)
     {
+        if (!$context) {
+            $context = Context::createDefaultContext();
+        }
         $this->context = $context;
     }
 
@@ -33,7 +36,11 @@ class TestDataCollection
 
     public function get(string $key): ?string
     {
-        return $this->ids[$key] ?? null;
+        if (!isset($this->ids[$key])) {
+            throw new \RuntimeException(sprintf('Key %s does not exist', $key));
+        }
+
+        return $this->ids[$key];
     }
 
     public function getList(array $keys): array

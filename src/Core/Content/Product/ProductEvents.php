@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
@@ -40,6 +41,11 @@ class ProductEvents
      * @Event("Shopware\Core\Content\Product\Events\ProductSearchResultEvent")
      */
     public const PRODUCT_SEARCH_RESULT = ProductSearchResultEvent::class;
+
+    /**
+     * @Event("Shopware\Core\Content\Product\Events\ProductIndexerEvent")
+     */
+    public const PRODUCT_INDEXER_EVENT = ProductIndexerEvent::class;
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")

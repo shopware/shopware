@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
+
 class SalesChannelEvents
 {
     /**
@@ -18,6 +20,11 @@ class SalesChannelEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
     public const SALES_CHANNEL_LOADED = 'sales_channel.loaded';
+
+    /**
+     * @Event("Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent")
+     */
+    public const SALES_CHANNEL_INDEXER_EVENT = SalesChannelIndexerEvent::class;
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")

@@ -136,9 +136,9 @@ class VersionManager
     {
         $writeResults = $this->entityWriter->upsert($definition, $rawData, $writeContext);
 
-        $parents = $this->resolveParents($definition, $rawData);
+        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $parents);
+        $writeResults = $this->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -150,9 +150,9 @@ class VersionManager
         /** @var EntityWriteResult[] $writeResults */
         $writeResults = $this->entityWriter->insert($definition, $rawData, $writeContext);
 
-        $parents = $this->resolveParents($definition, $rawData);
+        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $parents);
+        $writeResults = $this->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -163,9 +163,9 @@ class VersionManager
     {
         $writeResults = $this->entityWriter->update($definition, $rawData, $writeContext);
 
-        $parents = $this->resolveParents($definition, $rawData);
+        $mappings = $this->resolveRelations($definition, $rawData, $writeResults);
 
-        $writeResults = $this->addParentResults($writeResults, $parents);
+        $writeResults = $this->addParentResults($writeResults, $mappings);
 
         $this->writeAuditLog($writeResults, $writeContext);
 
@@ -710,12 +710,8 @@ class VersionManager
         }
     }
 
-    private function addParentResults(array $writeResults, ?array $parents): array
+    private function addParentResults(array $writeResults, array $parents): array
     {
-        if (!$parents) {
-            return $writeResults;
-        }
-
         foreach ($parents as $entity => $primaryKeys) {
             if (!isset($writeResults[$entity])) {
                 $writeResults[$entity] = [];
@@ -729,7 +725,7 @@ class VersionManager
         return $writeResults;
     }
 
-    private function resolveParents(EntityDefinition $definition, array $rawData): ?array
+    private function resolveParents(EntityDefinition $definition, array $rawData): array
     {
         if ($definition instanceof MappingEntityDefinition) {
             return $this->resolveMappingParents($definition, $rawData);
@@ -738,7 +734,7 @@ class VersionManager
         $parent = $definition->getParentDefinition();
 
         if (!$parent) {
-            return null;
+            return [];
         }
 
         $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
@@ -938,5 +934,42 @@ class VersionManager
         $parentPropertyName = \array_map('ucfirst', $parentPropertyName);
 
         return \lcfirst(\implode($parentPropertyName)) . 'Id';
+    }
+
+    private function resolveRelations(EntityDefinition $definition, array $rawData, array $writeResults): array
+    {
+        $parents = $this->resolveParents($definition, $rawData);
+
+        /** @var EntityWriteResult[] $result */
+        foreach ($writeResults as $entity => $result) {
+            $definition = $this->registry->getByEntityName($entity);
+
+            if (!$definition instanceof MappingEntityDefinition) {
+                continue;
+            }
+
+            $ids = array_map(function (EntityWriteResult $result) {
+                return $result->getPrimaryKey();
+            }, $result);
+
+            if (empty($ids)) {
+                continue;
+            }
+
+            $fkFields = $definition->getFields()->filterInstance(FkField::class);
+
+            if ($fkFields->count() <= 0) {
+                continue;
+            }
+
+            /** @var FkField $field */
+            foreach ($fkFields as $field) {
+                $reference = $field->getReferenceDefinition()->getEntityName();
+
+                $parents[$reference] = array_merge($parents[$reference] ?? [], array_column($ids, $field->getPropertyName()));
+            }
+        }
+
+        return $parents;
     }
 }

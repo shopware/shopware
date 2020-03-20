@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Seo\DataAbstractionLayer\Indexing\SeoUrlIndexer;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -531,8 +531,9 @@ class SeoUrlIndexerTest extends TestCase
         // the writer does not fire events, so seo urls are not created automatically
         $writer->insert($productDefinition, $products, WriteContext::createFromContext(Context::createDefaultContext()));
 
-        $indexer = $this->getContainer()->get(SeoUrlIndexer::class);
-        $indexer->index(new \DateTimeImmutable());
+        $this->getContainer()
+            ->get(SeoUrlUpdater::class)
+            ->update(ProductPageSeoUrlRoute::ROUTE_NAME, [$id]);
 
         /** @var EntityRepositoryInterface $productRepo */
         $productRepo = $this->getContainer()->get('product.repository');

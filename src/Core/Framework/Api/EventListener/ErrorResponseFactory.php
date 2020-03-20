@@ -12,11 +12,16 @@ class ErrorResponseFactory
 {
     public function getResponseFromException(\Throwable $exception, bool $debug = false): Response
     {
-        return new JsonResponse(
-            ['errors' => $this->getErrorsFromException($exception, $debug)],
+        $response = new JsonResponse(
+            null,
             $this->getStatusCodeFromException($exception),
             $this->getHeadersFromException($exception)
         );
+
+        $response->setEncodingOptions($response->getEncodingOptions() | JSON_INVALID_UTF8_SUBSTITUTE);
+        $response->setData(['errors' => $this->getErrorsFromException($exception, $debug)]);
+
+        return $response;
     }
 
     public function getErrorsFromException(\Throwable $exception, bool $debug = false): array

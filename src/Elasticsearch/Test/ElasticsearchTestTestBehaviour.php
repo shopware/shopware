@@ -6,12 +6,12 @@ use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
-use Shopware\Elasticsearch\Framework\Indexing\EntityIndexer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait ElasticsearchTestTestBehaviour
@@ -39,8 +39,8 @@ trait ElasticsearchTestTestBehaviour
     public function indexElasticSearch(): void
     {
         $this->getDiContainer()
-            ->get(EntityIndexer::class)
-            ->index(new \DateTime());
+            ->get(EntityIndexerRegistry::class)
+            ->sendIndexingMessage(['elasticsearch.indexer']);
 
         $this->runWorker();
 
@@ -53,8 +53,14 @@ trait ElasticsearchTestTestBehaviour
             ->get(CreateAliasTaskHandler::class)
             ->run();
 
-        $client = $this->getDiContainer()->get(Client::class);
-        $client->indices()->refresh();
+        $this->refreshIndex();
+    }
+
+    public function refreshIndex(): void
+    {
+        $this->getDiContainer()->get(Client::class)
+            ->indices()
+            ->refresh();
     }
 
     protected function createEntityAggregator(): ElasticsearchEntityAggregator

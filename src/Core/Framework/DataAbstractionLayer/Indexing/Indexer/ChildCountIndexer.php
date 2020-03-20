@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater instead
+ */
 class ChildCountIndexer implements IndexerInterface
 {
     /**

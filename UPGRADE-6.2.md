@@ -8,6 +8,15 @@ Table of content
 * [Administration](#administration)
 * [Storefront](#storefront)
 * [Refactorings](#refactorings)
+  + [DAL Indexer refactoring](#dal-indexer-refactoring)
+    - [Consequences](#consequences)
+    - [Function of an indexer](#function-of-an-indexer)
+    - [The new base class](#the-new-base-class)
+    - [Example indexer](#example-indexer)
+    - [DAL fields with indexing](#dal-fields-with-indexing)
+    - [Seo Urls](#seo-urls)
+    - [MySQL Deadlocks](#mysql-deadlocks)
+
 
 Core
 ----
@@ -309,6 +318,239 @@ Now the variable can be overwritten with `replace_recursive`:
 
 Refactorings
 ------------
+### DAL Indexer refactoring
 
+With 6.2 we have refactored the implementation of the indexers. We had to make this decision because of two problems:
+1. the indexers were interdependent so that they always had to be executed one after the other and never in parallel. 
+2. many indexers were not designed to be triggered by message queue and therefore ran into mysql deadlocks or indexed wrong data.
 
+#### Consequences
+This now has the following consequences:
+1. all indexers in the shopware core have been marked as deprecated and will be removed in 6.3. Accordingly, new indexers have been implemented.
+2. if you have called the indexers, please use the new indexers. The old indexers are still available in the system, but without source code. 
+3. if you have implemented your own indexer, you have to adapt it to the new system - as described below.
+4. if you are using DAL fields, which were previously filled automatically by an indexer, you will now have to write your own indexer - we have provided classes for this purpose. The following DAL fields are affected:
+    4.1 `\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField`
+    4.2 `\Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField`
+    4.3 `\Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField`
+    4.4 `\Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField`
 
+#### Function of an indexer
+The new indexers work as follows:
+1. each indexer extends abstract `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer`
+2. each indexer takes care of indexing a whole entity
+3. if several data on an entity need to be indexed, a single indexer takes care of the successive updating of the data
+4. an event is thrown at the end of the indexer so that plugins can subscribe to the event to index additional data for this entity
+5. finally, the updated ids are passed to the `CacheClearer` to invalidate the corresponding caches
+
+#### The new base class
+The base `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` class looks as follows:
+```php
+
+abstract class EntityIndexer
+{
+    /**
+     * Returns a unique name for this indexer. This function is used for core updates
+     * if a indexer has to run after an update.
+     */
+    abstract public function getName(): string;
+
+    /**
+     * Called when a full entity index is required. This function should generate a list of message for all records which
+     * are indexed by this indexer.
+     */
+    abstract public function iterate($offset): ?EntityIndexingMessage;
+
+    /**
+     * Called when entities are updated over the DAL. This function should react to the provided entity written events
+     * and generate a list of messages which has to be processed by the `handle` function over the message queue workers.
+     */
+    abstract public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage;
+
+    /**
+     * Called over the message queue workers. The messages are the generated messages
+     * of the `self::iterate` or `self::update` functions.
+     */
+    abstract public function handle(EntityIndexingMessage $message): void;
+}
+```
+
+The `iterate` and `update` functions are intended to trigger indexing. The `iterate` is triggered on a full index and the `update` when an entity is written in the system.
+In both cases, an `EntityIndexingMessage` can be returned which is then either handled by the message queue or directly. 
+
+#### Example indexer
+The following `ProductIndexer` is intended to illustrate once again how such an indexer works. This indexer can be used as a template. Only the entity that is handled must be exchanged here.
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\DataAbstractionLayer;
+
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
+class ProductIndexer extends EntityIndexer
+{
+    /** @var IteratorFactory */
+    private $iteratorFactory;
+
+    /** @var EntityRepositoryInterface */
+    private $repository;
+
+    /** @var CacheClearer */
+    private $cacheClearer;
+
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
+    public function getName(): string
+    {
+        return 'product.indexer';
+    }
+
+    public function iterate($offset): ?EntityIndexingMessage
+    {
+        $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
+
+        $ids = $iterator->fetch();
+
+        // loop end? return null 
+        if (empty($ids)) {
+            return null;
+        }
+
+        return new EntityIndexingMessage($ids, $iterator->getOffset());
+    }
+
+    public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
+    {
+        $updates = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
+
+        if (empty($updates)) {
+            return null;
+        }
+
+        // update essential data immediately - one example can be the available stock of an product
+
+        return new EntityIndexingMessage($updates, null, $event->getContext());
+    }
+
+    public function handle(EntityIndexingMessage $message): void
+    {
+        $ids = $message->getData();
+
+        if (empty($ids)) {
+            return;
+        }
+    
+        // update all required data
+
+        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $message->getContext()));
+
+        $this->cacheClearer->invalidateIds($ids, ProductDefinition::ENTITY_NAME);
+    }
+}
+```
+
+#### DAL fields with indexing
+In case you have used fields from the DAL, which filled automatically by an indexer, you have now to trigger the data indexing for this fields by yourself. We provide updater classes which you call from your indexer.
+However, we have adapted the previous indexers so that they will continue to update your entities automatically during the 6.2 version. If you have started the indexing process yourself, you can set a flag to prevent the old indexing process from working for your entity.
+
+* `\Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField` 
+    * Can be updated by `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater`
+    * Old indexing can be disabled by `public function hasManyToManyIdFields(): bool { return false; }` in your entity definition
+ 
+* `\Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField` and `\Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField` 
+    * can be updated by `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater`
+    * Old indexing can be disabled by `public function isTreeAware(): bool { return false; }` in your entity definition
+    
+* `\Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField` 
+    * can be updated by `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater`
+    * Old indexing can be disabled by `public function isChildCountAware(): bool { return false; }` in your entity definition
+
+Simply create an indexer as above, inject the service and call it when your entity is updated.
+
+#### Seo Urls
+If you have implemented your own seo urls in the system, you will have to initiate the indexing of these urls yourself in the future. For the 6.2 version we have implemented a flag which defines whether the old indexing process should continue to work.
+To update the seo urls correctly you need an indexer which indexes the entity behind the seo url. If there is already an indexer for the entity in the core you can register yourself on the indexer event, otherwise you have to write your own indexer.
+In the indexer you can use the `\Shopware\Core\Content\Seo\SeoUrlUpdater` service to generate the seo urls. Here is an example how to call it:
+
+```php
+
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
+
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
+use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Seo\SeoUrlUpdater;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class SeoUrlUpdateListener implements EventSubscriberInterface
+{
+    /**
+     * @var SeoUrlUpdater
+     */
+    private $seoUrlUpdater;
+
+    public function __construct(SeoUrlUpdater $seoUrlUpdater)
+    {
+        $this->seoUrlUpdater = $seoUrlUpdater;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            ProductEvents::PRODUCT_INDEXER_EVENT => 'updateProductUrls',
+        ];
+    }
+
+    public function updateProductUrls(ProductIndexerEvent $event): void
+    {
+        $this->seoUrlUpdater->update('frontend.detail.page', $event->getIds());
+    }
+}
+``` 
+
+To disable the old indexing process for a seo url route you have to set the flag `\Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig::$supportsNewIndexer`. This is easily done in the `getConfig` method of your `SeoUrlRoute` class.
+
+```php
+public function getConfig(): SeoUrlRouteConfig
+{
+    return new SeoUrlRouteConfig(
+        $this->productDefinition,
+        self::ROUTE_NAME,
+        self::DEFAULT_TEMPLATE,
+        true,
+        true // disable old indexing
+    );
+}
+```
+
+#### MySQL Deadlocks
+Since the new indexers are now designed to be processed in parallel via the message queue, MySQL deadlocks can quickly occur when the same table is written by different processes. For this we have provided the helper class `\Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery`.
+This offers various possibilities to avoid a MySQL deadlock:
+
+```php
+
+$query = new RetryableQuery(
+    $this->connection->prepare('UPDATE product SET active = :active WHERE id = :id')
+);
+
+$query->execute(['id' => $id, 'active' => 1]);
+
+$query = $this->connection->createQueryBuilder();
+$query->update('...');
+RetryableQuery::executeBuilder($query);
+
+RetryableQuery::retryable(function() {
+    $this->connection->executeUpdate('...');
+});
+```

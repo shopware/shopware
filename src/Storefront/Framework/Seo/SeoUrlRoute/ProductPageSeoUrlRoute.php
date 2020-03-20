@@ -47,7 +47,9 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         return new SeoUrlRouteConfig(
             $this->productDefinition,
             self::ROUTE_NAME,
-            self::DEFAULT_TEMPLATE
+            self::DEFAULT_TEMPLATE,
+            true,
+            true
         );
     }
 

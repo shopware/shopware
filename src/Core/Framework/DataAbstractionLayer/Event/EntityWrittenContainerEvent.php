@@ -117,4 +117,50 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         return $this->errors;
     }
+
+    public function getPrimaryKeys(string $entity): array
+    {
+        return $this->findPrimaryKeys($entity);
+    }
+
+    public function getPrimaryKeysWithPropertyChange(string $entity, array $properties): array
+    {
+        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) use ($properties) {
+            $payload = $result->getPayload();
+
+            foreach ($properties as $property) {
+                if (array_key_exists($property, $payload)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+
+    private function findPrimaryKeys(string $entity, ?\Closure $closure = null): array
+    {
+        $ids = [];
+
+        /** @var EntityWrittenEvent $event */
+        foreach ($this->events as $event) {
+            if ($event->getEntityName() !== $entity) {
+                continue;
+            }
+
+            if (!$closure) {
+                $ids = array_merge($ids, $event->getIds());
+
+                continue;
+            }
+
+            foreach ($event->getWriteResults() as $result) {
+                if ($closure($result)) {
+                    $ids[] = $result->getPrimaryKey();
+                }
+            }
+        }
+
+        return $ids;
+    }
 }

@@ -77,6 +77,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
 
             <tag name="shopware.demodata_generator"/>
+            <argument type="service" id="product.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\MediaGenerator">

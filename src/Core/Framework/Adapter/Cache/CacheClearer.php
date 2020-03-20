@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -36,18 +37,25 @@ class CacheClearer
      */
     protected $environment;
 
+    /**
+     * @var EntityCacheKeyGenerator
+     */
+    private $cacheKeyGenerator;
+
     public function __construct(
         array $adapters,
         CacheClearerInterface $cacheClearer,
         Filesystem $filesystem,
         string $cacheDir,
-        string $environment
+        string $environment,
+        EntityCacheKeyGenerator $cacheKeyGenerator
     ) {
         $this->adapters = $adapters;
         $this->cacheClearer = $cacheClearer;
         $this->cacheDir = $cacheDir;
         $this->filesystem = $filesystem;
         $this->environment = $environment;
+        $this->cacheKeyGenerator = $cacheKeyGenerator;
     }
 
     public function invalidateTags(array $tags): void
@@ -57,6 +65,20 @@ class CacheClearer
                 $adapter->invalidateTags($tags);
             }
         }
+    }
+
+    public function invalidateIds(array $ids, string $entity): void
+    {
+        $ids = array_filter($ids);
+        if (empty($ids)) {
+            return;
+        }
+
+        $tags = array_map(function ($id) use ($entity) {
+            return $this->cacheKeyGenerator->getEntityTag($id, $entity);
+        }, $ids);
+
+        $this->invalidateTags($tags);
     }
 
     public function clear(): void

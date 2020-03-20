@@ -4,9 +4,10 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ChildCountIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,7 +28,7 @@ class ChildCountIndexerTest extends TestCase
     private $context;
 
     /**
-     * @var ChildCountIndexer
+     * @var ChildCountUpdater
      */
     private $childCountIndexer;
 
@@ -45,7 +46,7 @@ class ChildCountIndexerTest extends TestCase
     {
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->context = Context::createDefaultContext();
-        $this->childCountIndexer = $this->getContainer()->get(ChildCountIndexer::class);
+        $this->childCountIndexer = $this->getContainer()->get(ChildCountUpdater::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->connection = $this->getContainer()->get(Connection::class);
     }
@@ -169,24 +170,27 @@ class ChildCountIndexerTest extends TestCase
         $categoryD = $this->createCategory($categoryC);
 
         $this->connection->executeUpdate(
-            'UPDATE category SET child_count = 0 WHERE HEX(id) IN (:ids)',
+            'UPDATE category SET child_count = 0 WHERE id IN (:ids)',
             [
-                'ids' => [
+                'ids' => Uuid::fromHexToBytesList([
                     $categoryA,
                     $categoryB,
                     $categoryC,
                     $categoryD,
-                ],
+                ]),
             ],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        $categories = $this->context->disableCache(function () use ($categoryA, $categoryB, $categoryC, $categoryD) {
+            return $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
+        });
+
         foreach ($categories as $category) {
             static::assertEquals(0, $category->getChildCount());
         }
 
-        $this->childCountIndexer->index(new \DateTime());
+        $this->childCountIndexer->update(CategoryDefinition::ENTITY_NAME, [$categoryA, $categoryB, $categoryC, $categoryD], $this->context);
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);
 

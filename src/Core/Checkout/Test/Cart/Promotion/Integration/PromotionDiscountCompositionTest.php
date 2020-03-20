@@ -6,13 +6,18 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionDiscountCompositionTest extends TestCase
 {
@@ -48,7 +53,9 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }
 
     /**
@@ -150,6 +157,85 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(100 * 0.25, $composition[1]['discount']);
     }
 
+    public function testPromotionRedemption(): void
+    {
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
+            );
+
+        $productId1 = Uuid::randomHex();
+        $productId2 = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId1, 50, 19, $this->getContainer(), $context);
+        $this->createTestFixtureProduct($productId2, 100, 19, $this->getContainer(), $context);
+
+        // add a new promotion
+        $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, $this->getContainer(), PromotionDiscountEntity::SCOPE_CART);
+
+        // order promotion with two products
+        $this->orderWithPromotion($code, [$productId1, $productId2], $context);
+
+        $promotion = $this->promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->get($promotionId);
+
+        /** @var PromotionEntity $promotion */
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
+
+        // verify that the promotion has an total order count of 1 and the current customer is although tracked
+        static::assertEquals(1, $promotion->getOrderCount());
+        static::assertEquals(
+            [$context->getCustomer()->getId() => 1],
+            $promotion->getOrdersPerCustomerCount()
+        );
+
+        // order promotion with two products
+        $this->orderWithPromotion($code, [$productId1, $productId2], $context);
+
+        $promotion = $this->promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->get($promotionId);
+
+        // verify that the promotion has an total order count of 1 and the current customer is although tracked
+        static::assertEquals(2, $promotion->getOrderCount());
+        static::assertEquals(
+            [$context->getCustomer()->getId() => 2],
+            $promotion->getOrdersPerCustomerCount()
+        );
+
+        $customerId1 = $context->getCustomer()->getId();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
+            );
+
+        // order promotion with two products and another customer
+        $this->orderWithPromotion($code, [$productId1, $productId2], $context);
+
+        $promotion = $this->promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->get($promotionId);
+
+        static::assertEquals(3, $promotion->getOrderCount());
+        $expected = [
+            $context->getCustomer()->getId() => 1,
+            $customerId1 => 2,
+        ];
+
+        $actual = $promotion->getOrdersPerCustomerCount();
+
+        static::assertEquals(ksort($expected), ksort($actual));
+    }
+
     /**
      * This test verifies that our composition data is correct.
      * We apply a discount that sells every item for 10 EUR.
@@ -248,5 +334,62 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals($productId2, $composition[1]['id']);
         static::assertEquals(1, $composition[1]['quantity']);
         static::assertEquals(72, $composition[1]['discount']);
+    }
+
+    private function orderWithPromotion(string $code, array $productIds, SalesChannelContext $context): string
+    {
+        $cart = $this->cartService->createNew($context->getToken());
+
+        foreach ($productIds as $productId) {
+            $cart = $this->addProduct($productId, 3, $cart, $this->cartService, $context);
+        }
+
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
+
+        $promotions = $cart->getLineItems()->filterType('promotion');
+        static::assertCount(1, $promotions);
+
+        return $this->cartService->order($cart, $context);
+    }
+
+    private function createCustomer(): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->getContainer()
+            ->get('customer.repository')
+            ->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
     }
 }

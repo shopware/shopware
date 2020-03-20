@@ -25,6 +25,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @deprecated tag:v6.3.0 - Use \Shopware\Core\Content\Seo\SeoUrlUpdater instead
+ */
 class SeoUrlIndexer implements IndexerInterface
 {
     /**
@@ -123,6 +126,10 @@ class SeoUrlIndexer implements IndexerInterface
 
             $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
+            if ($route->getConfig()->supportsNewIndexer()) {
+                continue;
+            }
+
             $iterator = $this->iteratorFactory->createIterator($route->getConfig()->getDefinition());
 
             $this->eventDispatcher->dispatch(
@@ -175,6 +182,14 @@ class SeoUrlIndexer implements IndexerInterface
         /** @var SeoUrlRouteInterface $route */
         $route = $routes[$routeOffset];
 
+        if ($route->getConfig()->supportsNewIndexer()) {
+            ++$routeOffset;
+
+            return [
+                'dataOffset' => null,
+                'routeOffset' => $routeOffset,
+            ];
+        }
         $templates = $this->loadTemplates([$route->getConfig()->getRouteName()]);
 
         $iterator = $this->iteratorFactory->createIterator($route->getConfig()->getDefinition(), $dataOffset);
@@ -218,6 +233,9 @@ class SeoUrlIndexer implements IndexerInterface
         $total = 0;
         /** @var SeoUrlRouteInterface $seoUrlRoute */
         foreach ($this->seoUrlRouteRegistry->getSeoUrlRoutes() as $seoUrlRoute) {
+            if ($seoUrlRoute->getConfig()->supportsNewIndexer()) {
+                continue;
+            }
             $extractResult = $seoUrlRoute->extractIdsToUpdate($event);
 
             $total += count($extractResult->getIds());
@@ -271,6 +289,9 @@ class SeoUrlIndexer implements IndexerInterface
             $template = $config['template'];
 
             $ids = $updates[$routeName];
+            if (empty($ids)) {
+                continue;
+            }
 
             $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
@@ -348,7 +369,7 @@ class SeoUrlIndexer implements IndexerInterface
 
         $modified = $this->connection->fetchAll(
             'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, route_name, template
-             FROM seo_url_template 
+             FROM seo_url_template
              WHERE route_name IN (:routes)',
             ['routes' => $routes],
             ['routes' => Connection::PARAM_STR_ARRAY]

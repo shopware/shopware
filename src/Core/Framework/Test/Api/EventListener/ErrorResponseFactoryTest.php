@@ -199,4 +199,38 @@ class ErrorResponseFactoryTest extends TestCase
             $convertedShopwareHttpException,
         ], $responseBody['errors']);
     }
+
+    public function invalidUtf8SequencesProvider(): array
+    {
+        return [
+            ['Invalid 2 Octet Sequence' => "\xc3\x28"],
+            ['Invalid Sequence Identifier' => "\xa0\xa1"],
+            ['Invalid 3 Octet Sequence (in 2nd Octet)' => "\xe2\x28\xa1"],
+            ['Invalid 3 Octet Sequence (in 3rd Octet)' => "\xe2\x82\x28"],
+            ['Invalid 4 Octet Sequence (in 2nd Octet)' => "\xf0\x28\x8c\xbc"],
+            ['Invalid 4 Octet Sequence (in 3rd Octet)' => "\xf0\x90\x28\xbc"],
+            ['Invalid 4 Octet Sequence (in 4th Octet)' => "\xf0\x28\x8c\x28"],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidUtf8SequencesProvider
+     */
+    public function testInvalidUtf8CharactersShouldNotThrow(string $invalid): void
+    {
+        $prefix = 'valid prefix';
+        $suffix = 'valid suffix';
+        $exception = new \RuntimeException($prefix . $invalid . $suffix);
+
+        $factory = new ErrorResponseFactory();
+        $response = $factory->getResponseFromException($exception);
+        $json = json_decode($response->getContent(), true);
+
+        static::assertArrayHasKey('errors', $json);
+        static::assertArrayHasKey(0, $json['errors']);
+        static::assertArrayHasKey('detail', $json['errors'][0]);
+
+        static::assertStringStartsWith($prefix, $json['errors'][0]['detail']);
+        static::assertStringEndsWith($suffix, $json['errors'][0]['detail']);
+    }
 }

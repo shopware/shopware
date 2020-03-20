@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -125,7 +126,10 @@ class SeoUrlPersister
 
         try {
             $this->obsoleteIds($obsoleted, $dateTime);
-            $insertQuery->execute();
+
+            RetryableQuery::retryable(function () use ($insertQuery): void {
+                $insertQuery->execute();
+            });
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
             $this->markAsDeleted($deletedIds, $dateTime, $salesChannelId);
@@ -230,7 +234,9 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', $salesChannelId);
         }
 
-        $query->execute();
+        RetryableQuery::retryable(function () use ($query): void {
+            $query->execute();
+        });
     }
 
     private function invalidateEntityCache(array $seoUrlIds = []): void

@@ -73,21 +73,27 @@ class RetryMiddleware implements MiddlewareInterface
             }
 
             $id = Uuid::randomHex();
-            $this->deadMessageRepository->create([
-                [
-                    'id' => $id,
-                    'originalMessageClass' => get_class($envelope->getMessage()),
-                    'serializedOriginalMessage' => serialize($envelope->getMessage()),
-                    'handlerClass' => $e->getHandlerClass(),
-                    'encrypted' => $encrypted,
-                    'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
-                    'exception' => get_class($e->getException()),
-                    'exceptionMessage' => $e->getException()->getMessage(),
-                    'exceptionFile' => $e->getException()->getFile(),
-                    'exceptionLine' => $e->getException()->getLine(),
-                    'scheduledTaskId' => $scheduledTaskId,
-                ],
-            ], $this->context);
+
+            $params = [
+                'id' => $id,
+                'originalMessageClass' => get_class($envelope->getMessage()),
+                'serializedOriginalMessage' => serialize($envelope->getMessage()),
+                'handlerClass' => $e->getHandlerClass(),
+                'encrypted' => $encrypted,
+                'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
+                'exception' => get_class($e->getException()),
+                'exceptionMessage' => $e->getException()->getMessage(),
+                'exceptionFile' => $e->getException()->getFile(),
+                'exceptionLine' => $e->getException()->getLine(),
+                'scheduledTaskId' => $scheduledTaskId,
+            ];
+
+            try {
+                $this->deadMessageRepository->create([$params], $this->context);
+            } catch (\Throwable $e) {
+                $params['exceptionMessage'] = ' ';
+                $this->deadMessageRepository->create([$params], $this->context);
+            }
         });
     }
 

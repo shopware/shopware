@@ -102,7 +102,7 @@ class EntityDefinitionQueryHelper
      * fieldName => 'category.products.name'
      * Returns as well the above field definition
      */
-    public function getField(string $fieldName, EntityDefinition $definition, string $root): ?Field
+    public function getField(string $fieldName, EntityDefinition $definition, string $root, bool $resolveTranslated = true): ?Field
     {
         $original = $fieldName;
         $prefix = $root . '.';
@@ -125,8 +125,11 @@ class EntityDefinitionQueryHelper
 
         $field = $fields->get($associationKey);
 
-        if ($field instanceof TranslatedField) {
+        if ($field instanceof TranslatedField && $resolveTranslated) {
             return self::getTranslatedField($definition, $field);
+        }
+        if ($field instanceof TranslatedField) {
+            return $field;
         }
 
         if (!$field instanceof AssociationField) {

@@ -129,5 +129,9 @@ class LineItemTransformer
         if ($entity->getPriceDefinition() !== null) {
             $lineItem->setPriceDefinition($entity->getPriceDefinition());
         }
+        
+        if ($entity->getCover() !== null) {
+            $lineItem->setCover($entity->getCover());
+        }
     }
 }

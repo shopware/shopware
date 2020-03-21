@@ -18,7 +18,7 @@
       "placeholderLastName": "Last name",
       "placeholderCompany": "Company",
       "placeholderEmail": "Email address",
-      "labelSalutation": "Anrede",
+      "labelSalutation": "Salutation",
       "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
@@ -111,7 +111,7 @@
       "buttonTitleEditAddress": "Edit address",
       "buttonSave": "Save",
       "buttonEdit": "Edit customer",
-      "buttonChangePassword" : "Change password",
+      "buttonChangePassword": "Change password",
       "labelAccountActiveField": "Account is active"
     },
     "detailAddresses": {

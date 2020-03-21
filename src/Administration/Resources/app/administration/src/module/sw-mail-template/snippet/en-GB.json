@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemList": "Overview",
       "mainMenuItemGeneral": "Email templates",
-      "placeholderSearchBar": "Search email templates",
+      "placeholderSearchBar": "Search email templates...",
       "notificationTestMailErrorTitle": "Error",
       "notificationTestMailSalesChannelErrorMessage": "Please choose a sales channel",
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
@@ -12,8 +12,8 @@
     },
     "list": {
       "textMailTemplateOverview": "Email templates",
-      "titleMailTemplateList" : "Templates",
-      "titleMailFooterList" : "Footer",
+      "titleMailTemplateList": "Templates",
+      "titleMailFooterList": "Footer",
       "buttonAddMailTemplate": "Add email template",
       "buttonAdd": "Add",
       "columnMailType": "Type",

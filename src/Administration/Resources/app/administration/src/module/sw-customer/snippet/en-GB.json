@@ -111,7 +111,7 @@
       "buttonTitleEditAddress": "Edit address",
       "buttonSave": "Save",
       "buttonEdit": "Edit customer",
-      "buttonChangePassword" : "Change password",
+      "buttonChangePassword": "Change password",
       "labelAccountActiveField": "Account is active"
     },
     "detailAddresses": {

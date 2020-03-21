@@ -1,10 +1,10 @@
 {
   "sw-settings-custom-field": {
     "general": {
-      "description": "Zusatzfelder",
+      "description": "Zusatzfelder hier verwalten.",
       "mainMenuItemGeneral": "Zusatzfelder",
       "placeholderSearchBar": "Durchsuche alle Zusatzfelder ...",
-      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann nach dem Speichern nicht mehr verändert werden"
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden."
     },
     "set": {
       "list": {
@@ -18,7 +18,7 @@
         "buttonDelete": "Löschen",
         "titleDeleteSuccess": "Erfolg",
         "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
-        "messageEmpty": "Noch keine Zusatzfelder"
+        "messageEmpty": "Noch keine Zusatzfelder."
       },
       "detail": {
         "labelTechnicalName": "Technischer Name",
@@ -34,21 +34,21 @@
         "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
         "addCustomField": "Neues Zusatzfeld",
         "buttonApply": "Speichern",
-        "labelEntities": "Verwenden für:",
+        "labelEntities": "Verwenden für",
         "placeholderEntities": "Verwendung hinzufügen ...",
         "titleNameNotUnique": "Fehler",
         "messageNameNotUnique": "Der technische Name existiert bereits."
       }
     },
     "customField": {
-      "detail":{
+      "detail": {
         "titleNewCustomField": "Neues Zusatzfeld anlegen",
         "titleEditCustomField": "Zusatzfeld bearbeiten",
         "buttonSaveApply": "Hinzufügen",
         "buttonEditApply": "Änderungen übernehmen",
         "buttonCancel": "Abbrechen",
         "labelCustomFieldType": "Typ",
-        "placeholderCustomFieldType":"Wähle aus ...",
+        "placeholderCustomFieldType": "Wähle aus ...",
         "labelRequired": "Pflichtfeld",
         "labelTechnicalName": "Technischer Name",
         "labelLabel": "Label",
@@ -73,7 +73,8 @@
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Mehrfachauswahl",
         "tooltipCustomFieldPosition": "Steuert die Position des Zusatzfeldes auf den Detailseiten.",
-        "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten."
+        "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten.",
+        "placeholderCustomFieldType": "Wähle aus ..."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

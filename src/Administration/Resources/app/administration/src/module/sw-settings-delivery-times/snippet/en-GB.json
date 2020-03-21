@@ -11,7 +11,7 @@
       "buttonCancel": "Cancel",
       "buttonCreate": "Add delivery time",
       "buttonSave": "Save",
-      "placeholder": "Search all delivery times"
+      "placeholder": "Search all delivery times..."
     },
     "list": {
       "textHeadline": "Delivery times",

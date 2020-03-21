@@ -99,7 +99,7 @@
       "placeholderUnit": "Wähle aus ...",
       "referenceUnitHelpText": "Der Wert, mit dem der Grundpreis eines Produkts berechnet wird. Abhängig von der verwendeten Maßeinheit trägst du hier wahrscheinlich eine '1' ein. Wenn z.B. die Verkaufseinheit in Litern gemessen wird, dann berechnest Du mit der '1' den Grundreis für 1 Liter. Soll der Grundpreis für 100 Milliliter berechnet werden, füge '0,1' ein.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen!"
+      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -110,7 +110,7 @@
       "cardTitlePackaging": "Maße & Verpackung",
       "linkAdvancedPrices": "Erweiterte Preisansicht",
       "linkMaintainCurrencyPrices": "Währungsabhängige Preise",
-      "cardTitleReviews": "Reviews",
+      "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
       "cardTitleSeo": "SEO"
@@ -134,7 +134,7 @@
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",
       "placeholderRule": "Bitte wählen ...",
-      "placeholderQuantityEnd": "unendlich",
+      "placeholderQuantityEnd": "unendlich ...",
       "buttonPriceRuleDelete": "Preisregel löschen",
       "buttonPriceRuleDuplicate": "Preisregel duplizieren",
       "buttonPriceRuleCurrencyAdd": "Währung hinzufügen",
@@ -142,8 +142,8 @@
       "buttonAddAdditionalPriceRuleGroup": "Preisregel hinzufügen",
       "textCurrencyDefault": "(Standard)",
       "textPriceRuleForCurrency": "Preisregel für Währung",
-      "columnQuantityStart": "Menge von",
-      "columnQuantityEnd": "Menge bis",
+      "columnQuantityStart": "Menge von ...",
+      "columnQuantityEnd": "bis ...",
       "columnPrice": "Preis (brutto / netto)",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
@@ -199,8 +199,8 @@
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "newRuleWarning": "Um eine neue Preisregel anzulegen, musst du erst eine Bedingungs-Regel auswählen.",
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
-      "columnFrom": "Von",
-      "columnTo": "Bis",
+      "columnFrom": "Menge von ...",
+      "columnTo": "bis ...",
       "selectRule": "Bedingungs-Regel auswählen ..."
     },
     "properties": {
@@ -278,7 +278,7 @@
       "deliveryModal": {
         "modalHeadline": "Varianten-Ausspielung in der Storefront",
         "order": "Anzeige-Reihenfolge",
-        "orderExplanation": "Hier kannst Du die Reihenfolge der Varianten-Eigenschaften und -Ausprägungen in Deinem Shop anpassen.",
+        "orderExplanation": "Ändere die Anzeigereihenfolge der Varianten-Eigenschaften per Drag & Drop",
         "media": "Medien",
         "mediaExplanation": "Hier kannst Du ausschließlich Medien für die Eigenschafts-Auswahl im Shop hinterlegen. (Medien für einzelne Varianten müssen am Varianten-Produkt gepflegt werden.)",
         "mediaOptions": "Ausprägungen",
@@ -302,7 +302,7 @@
       "inputCrossSellingPositionPlaceholder": "Wähle eine Position ...",
       "inputCrossSellingProductStreamPlaceholder": "Wähle eine Produktgruppe ...",
       "inputCrossSellingLimit": "Maximale Produktanzahl",
-      "popularitySortingType": "Popularität",
+      "popularitySortingType": "Beliebtheit",
       "priceAscendingSortingType": "Preis, aufsteigend",
       "priceDescendingSortingType": "Preis",
       "nameSortingType": "Name",

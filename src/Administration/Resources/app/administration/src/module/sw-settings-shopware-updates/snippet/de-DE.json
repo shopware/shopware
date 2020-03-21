@@ -42,7 +42,7 @@
         "mysqlVersion": "Erforderliche MySQL Version: {minVersion}. Installierte MySQL Version: {currentVersion}.",
         "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
         "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind nicht beschreibbar:<br>{failedDirectories}",
-        "validShopwareLicense": "Die eingesetzte Shopware-Version erlaubt ein Update",
+        "validShopwareLicense": "Deine Shopware-Version ist veraltet. Du solltest ein Update in Betracht ziehen.",
         "invalidShopwareLicense": "Für die eingesetzte Shopware-Version konnte keine aktive Software-Subscription ermittelt werden.<br>Das automatische Update kann aktuell so nicht durchgeführt werden.<br>Eine gültige Shopware-Subscription kannst Du über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
       },
       "ready": "Bereit",
@@ -60,7 +60,7 @@
         "deactivateNone": "Ich bin mir der potentiellen Gefahren bewusst und möchte trotzdem ein Update durchführen, ohne die entsprechenden Plugins vorher zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einem inkompatiblen Update geben kann.",
         "recommended": "(Empfohlen)"
       },
-      "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktiere den Plugin-Autor.",
+      "pluginNotInStore": "Dieses Plugin ist im Store nicht verfügbar. Bitte kontaktiere den Plugin-Hersteller.",
       "pluginWillBeDeactivatedHint": "(Wird im Updateprozess deaktiviert)"
     },
     "updateModal": {
@@ -69,10 +69,10 @@
         "install": "Installieren",
         "goToUpdate": "Jetzt zum Update"
       },
-      "messageIncompatible":"Einige der überprüften Plugins sind nicht mit der neuen Version kompatibel. Wenn Du mit dem Update fortfährst, könnte es zu Fehlern kommen, die Dein System nachhaltig schädigen könnten. Wir können für Dich inkompatible Plugins für den Update-Prozess deaktivieren, um die Funktion Deiner Installation sicherzustellen. Du hast die Möglichkeit diese Plugins zu aktivieren, nachdem Du sie entsprechend aktualisiert hast.",
-      "messageNotInStore": "Es sind Plugins vorhanden, die nicht auf Kompatiblität geprüft werden konnten. Kontaktiere die Plugin-Autoren für weitere Informationen und stelle sicher, dass Du ein Backup erstellt hast, bevor Du fortfährst.",
-      "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du ein aktuelles Backup gemacht hast.",
-      "messageUpdateCheck": "Die zur Zeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
+      "messageIncompatible": "Einige der überprüften Plugins sind nicht mit der neuen Version kompatibel. Wenn Du mit dem Update fortfährst, könnte es zu Fehlern kommen, die Dein System nachhaltig schädigen könnten. Wir können für Dich inkompatible Plugins für den Update-Prozess deaktivieren, um die Funktion Deiner Installation sicherzustellen. Du hast die Möglichkeit diese Plugins zu aktivieren, nachdem Du sie entsprechend aktualisiert hast.",
+      "messageNotInStore": "Es sind Plugins vorhanden, die nicht auf Kompatibilität geprüft werden konnten. Kontaktiere die Plugin-Hersteller für weitere Informationen und stelle sicher, dass Du ein Backup erstellt hast, bevor Du fortfährst.",
+      "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du ein aktuelles Backup erstellt hast.",
+      "messageUpdateCheck": "Die zurzeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
       "backupLabel": "Ja, ich habe ein Backup erstellt."
     }
   }

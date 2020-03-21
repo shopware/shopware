@@ -1,25 +1,25 @@
 {
-    "sw-settings-customer-group": {
-        "general": {
-            "mainMenuItemGeneral": "Customer groups",
-            "buttonCancel": "Cancel",
-            "buttonCreate": "Add customer group",
-            "buttonSave": "Save",
-            "placeholderSearchBar": "Search customer groups..."
-        },
-        "list": {
-            "columnName": "Name",
-            "columnDisplayGross": "Tax display"
-        },
-        "detail": {
-            "cardTitle": "Customer group",
-            "fieldNameLabel": "Name",
-            "fieldDisplayGrossLabel": "Tax display",
-            "fieldDisplayGrossValues": "Gross | Net",
-            "placeholderName": "Enter a name...",
-            "placeholderNewCustomerGroup": "New customer group",
-            "notificationErrorTitle": "Error",
-            "notificationErrorMessage": "An error occured while saving your customer group."
-        }
+  "sw-settings-customer-group": {
+    "general": {
+      "mainMenuItemGeneral": "Customer groups",
+      "buttonCancel": "Cancel",
+      "buttonCreate": "Add customer group",
+      "buttonSave": "Save",
+      "placeholderSearchBar": "Search customer groups..."
+    },
+    "list": {
+      "columnName": "Name",
+      "columnDisplayGross": "Tax display"
+    },
+    "detail": {
+      "cardTitle": "Customer group",
+      "fieldNameLabel": "Name",
+      "fieldDisplayGrossLabel": "Tax display",
+      "fieldDisplayGrossValues": "Gross | Net",
+      "placeholderName": "Enter a name...",
+      "placeholderNewCustomerGroup": "New customer group...",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occured while saving your customer group."
     }
+  }
 }

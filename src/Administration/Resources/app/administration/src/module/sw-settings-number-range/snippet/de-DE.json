@@ -2,7 +2,7 @@
   "sw-settings-number-range": {
     "general": {
       "mainMenuItemGeneral": "Nummernkreise",
-      "placeholderSearchBar": "Nummernkreise durchsuchen"
+      "placeholderSearchBar": "Nummernkreise durchsuchen ..."
     },
     "list": {
       "textHeadline": "Nummernkreise",

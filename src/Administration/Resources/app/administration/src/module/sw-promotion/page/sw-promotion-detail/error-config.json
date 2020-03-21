@@ -1,8 +1,8 @@
 {
-    "sw.promotion.detail.base": {
-        "promotion": [
-            "name",
-            "validUntil"
-        ]
-    }
+  "sw.promotion.detail.base": {
+    "promotion": [
+      "name",
+      "validUntil"
+    ]
+  }
 }

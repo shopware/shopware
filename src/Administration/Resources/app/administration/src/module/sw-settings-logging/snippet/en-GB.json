@@ -2,7 +2,7 @@
   "sw-settings-logging": {
     "general": {
       "mainMenuItemGeneral": "Logging",
-      "placeholderSearchBar": "Search logs"
+      "placeholderSearchBar": "Search logs..."
     },
     "list": {
       "title": "Logs",
@@ -11,14 +11,14 @@
       "columnLevel": "Priority",
       "columnContent": "Contents",
       "actionShowInfo": "View details...",
-      "levelDebug":"Debug",
-      "levelInfo":"Info",
-      "levelNotice":"Notice",
-      "levelWarning":"Warning",
-      "levelError":"Error",
-      "levelCritical":"Critical",
-      "levelAlert":"Alert",
-      "levelEmergency":"Emergency"
+      "levelDebug": "Debug",
+      "levelInfo": "Info",
+      "levelNotice": "Notice",
+      "levelWarning": "Warning",
+      "levelError": "Error",
+      "levelCritical": "Critical",
+      "levelAlert": "Alert",
+      "levelEmergency": "Emergency"
     },
     "entryInfo": {
       "title": "Log information",

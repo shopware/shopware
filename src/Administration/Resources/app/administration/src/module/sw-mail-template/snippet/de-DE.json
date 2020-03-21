@@ -3,17 +3,17 @@
     "general": {
       "mainMenuItemList": "Übersicht",
       "mainMenuItemGeneral": "E-Mail-Vorlagen",
-      "placeholderSearchBar": "Durchsuchen aller E-Mail-Vorlagen",
+      "placeholderSearchBar": "Durchsuche E-Mail-Vorlagen ...",
       "notificationTestMailErrorTitle": "Fehler",
-      "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus.",
+      "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus",
       "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
       "notificationTestMailSuccessTitle": "Erfolg",
       "notificationTestMailSuccessMessage": "Die Test-Mail wurde erfolgreich versendet."
     },
     "list": {
       "textMailTemplateOverview": "E-Mail-Vorlagen",
-      "titleMailTemplateList" : "Vorlagen",
-      "titleMailFooterList" : "Fußzeilen",
+      "titleMailTemplateList": "Vorlagen",
+      "titleMailFooterList": "Fußzeilen",
       "buttonAddMailTemplate": "E-Mail-Vorlage hinzufügen",
       "buttonAdd": "Erstellen",
       "columnMailType": "Typ",
@@ -32,12 +32,12 @@
     },
     "detail": {
       "basic": {
-        "titleCard": "Informationen",
+        "titleCard": "Information",
         "labelMailType": "Typ",
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanal",
         "placeholderMailType": "Wähle einen Typ ...",
-        "placeholderDescription": "Gib eine kurze Beschreibung an ...",
+        "placeholderDescription": "Beschreibung für E-Mail-Vorlage eingeben ...",
         "placeholderSalesChannels": "Wähle eine Zuweisung ..."
       },
       "options": {
@@ -45,7 +45,7 @@
         "labelSenderMail": "Absender-Mail",
         "labelSenderName": "Absender",
         "labelSubject": "Betreff",
-        "placeholderSenderMail": "shop@beispiel.com",
+        "placeholderSenderMail": "shop@beispiel.com ...",
         "placeholderSenderName": "Shopnamen eingeben ...",
         "placeholderSubject": "Betreff eingeben ..."
       },
@@ -53,12 +53,12 @@
         "titleCard": "Mail-Text",
         "labelContentPlain": "Text",
         "labelContentHtml": "HTML",
-        "placeholderPlain": "Definiere den Inhalt in Text ...",
-        "placeholderHtml": "Definiere den Inhalt in HTML ..."
+        "placeholderPlain": "Text-Inhalt eingeben ...",
+        "placeholderHtml": "HTML-Inhalt eingeben ..."
       },
       "media": {
         "titleCard": "Anhänge",
-        "buttonDelete": "Anhang löschen"
+        "buttonDelete": "Löschen"
       },
       "sidebar": {
         "labelContextMenuAddToMailTemplate": "Als Anhang hinzufügen",
@@ -80,58 +80,58 @@
   },
   "sw-mail-header-footer": {
     "general": {
-      "mainMenuItemList": "Header & Footer",
-      "placeholderSearchBar": "Suche nach Header & Footer",
-      "mainMenuItemGeneral": "Header & Footer"
+      "mainMenuItemList": "Kopf- und Fußzeilen",
+      "placeholderSearchBar": "E-Mail-Kopf- und Fußzeilen durchsuchen ...",
+      "mainMenuItemGeneral": "Kopf- & Fußzeilen"
     },
     "list": {
-      "textMailHeaderFooterOverview": "Header & Footer",
-      "buttonAddMailHeaderFooter": "Header & Footer hinzufügen",
+      "textMailHeaderFooterOverview": "Kopf- und Fußzeilen",
+      "buttonAddMailHeaderFooter": "Kopf- und Fußzeile hinzufügen",
       "columnName": "Name",
       "columnDescription": "Beschreibung",
       "columnSalesChannels": "Verkaufskanal",
       "contextMenuDelete": "Löschen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDuplicate": "Duplizieren",
-      "textDeleteConfirm": "Möchtest Du den E-Mail Header/Footer \"{name}\" wirklich löschen?",
-      "modalTitleDelete": "Header/Footer löschen",
+      "textDeleteConfirm": "Möchtest Du die Kopf- und Fußzeile \"{name}\" wirklich löschen?",
+      "modalTitleDelete": "Kopf- und Fußzeile löschen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "messageEmpty": "Noch keine Header/Footer",
+      "messageEmpty": "Noch keine Kopf- und Fußzeile",
       "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "basic": {
-        "titleCard": "Informationen",
+        "titleCard": "Information",
         "labelName": "Name",
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanäle",
-        "placeholderName": "Gib einen Namen ein ...",
-        "placeholderDescription": "Gib eine Beschreibung ein ...",
-        "placeholderSalesChannels": "Wähle zutreffende Verkaufskanäle"
+        "placeholderName": "Namen eingeben ...",
+        "placeholderDescription": "Beschreibung eingeben ...",
+        "placeholderSalesChannels": "Wähle zutreffende Verkaufskanäle ..."
       },
       "header": {
-        "titleCard": "Mail-Header",
+        "titleCard": "Mail-Kopfzeile",
         "labelPlain": "Text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Definiere den Header in Text ...",
-        "placeholderHtml": "Definiere den Header in HTML ..."
+        "placeholderPlain": "Kopfzeile als Text eingeben ...",
+        "placeholderHtml": "Kopfzeile als HTML eingeben ..."
       },
       "footer": {
-        "titleCard": "Mail Footer",
+        "titleCard": "Mail-Fußzeile",
         "labelPlain": "Text",
         "labelHtml": "HTML",
-        "placeholderPlain": "Definiere den Footer in Text ...",
-        "placeholderHtml": "Definiere den Footer in HTML ..."
+        "placeholderPlain": "Fußzeile als Text eingeben ...",
+        "placeholderHtml": "Fußzeile als HTML eingeben ..."
       },
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "textHeadline": "Neuer E-Mail-Header/Footer",
-      "titleResult": "E-Mail-Header/Footer",
+      "textHeadline": "Neue E-Mail-Kopf- und Fußzeile",
+      "titleResult": "E-Mail-Kopf- und Fußzeile",
       "titleSaveSuccess": "Erfolgreich",
       "titleSaveError": "Fehler",
-      "messageSaveSuccess": "Der E-Mail-Header/Footer \"{name}\" wurde erfolgreich gespeichert.",
-      "messageSaveError": "Der E-Mail-Header/Footer \"{name}\" konnte nicht gespeichert werden."
+      "messageSaveSuccess": "Die E-Mail-Kopf- und Fußzeile \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die E-Mail-Kopf- und Fußzeile \"{name}\" konnte nicht gespeichert werden."
     }
   }
 }

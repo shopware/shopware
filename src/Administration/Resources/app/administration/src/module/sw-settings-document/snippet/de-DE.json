@@ -10,7 +10,7 @@
       "textDeleteConfirm": "Bist Du sicher, dass Du das Dokument \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnType": "Typ",
-      "columnUsedIn": "Verwendet für:",
+      "columnUsedIn": "Verwendet für",
       "columnAssignment": "Zuweisung",
       "buttonAddDocument": "Dokument anlegen",
       "contextMenuEdit": "Bearbeiten",

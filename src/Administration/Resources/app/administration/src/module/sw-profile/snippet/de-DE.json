@@ -28,7 +28,10 @@
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
       "notificationSaveErrorMessage": "Deine Profilinformationen konnten nicht gespeichert werden.",
       "labelUploadAvatar": "Lade ein Profilbild hoch",
-      "labelUseAsAvatar": "Als Profilbild nutzen"
+      "labelUseAsAvatar": "Als Profilbild nutzen",
+      "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
+      "placeholderNewPassword": "Gib ein neues Passwort ein ...",
+      "placeholderOldPassword": "Gib Dein altes Passwort ein ..."
     }
   }
 }

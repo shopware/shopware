@@ -11,7 +11,7 @@
       "buttonCancel": "Abbrechen",
       "buttonCreate": "Lieferzeit anlegen",
       "buttonSave": "Speichern",
-      "placeholder": "Durchsuche alle Lieferzeiten"
+      "placeholder": "Durchsuche alle Lieferzeiten ..."
     },
     "list": {
       "textHeadline": "Lieferzeiten",

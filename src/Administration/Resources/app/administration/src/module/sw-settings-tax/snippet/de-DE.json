@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Steuern",
       "taxRateSymbol": "&#037;",
-      "placeholderSearchBar": "Durchsuche alle Steuern ..."
+      "placeholderSearchBar": "Durchsuche Steuern ..."
     },
     "list": {
       "textHeadline": "Steuern",
@@ -30,24 +30,24 @@
       "buttonSave": "Speichern",
       "notificationErrorTitle": "Fehler",
       "notificationErrorMessage": "Fehler beim Speichern des Steuersatzes."
-    },
-    "taxRuleCard": {
-      "labelTaxRate": "Steuersatz",
-      "labelAppliesOn": "Gilt für",
-      "labelCountryName": "Land",
-      "cardTitle": "Länder-Steuersätze",
-      "searchBarPlaceholder": "Suche Länder",
-      "labelCreateNew": "Land hinzufügen",
-      "labelCancel": "Abbrechen",
-      "labelStates": "Staaten",
-      "labelZipCode": "Postleitzahl",
-      "labelFromZipCode": "Bis ...",
-      "labelToZipCode": "Von ...",
-      "emptyStateDescription": "Füge weitere Steuerraten für verschiedene Länder hinzu.",
-      "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
-      "modalTitleDelete": "Land löschen",
-      "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
-      "placeholderStates": "Staaten hinzufügen"
     }
+  },
+  "taxRuleCard": {
+    "labelTaxRate": "Steuersatz",
+    "labelAppliesOn": "Gilt für",
+    "labelCountryName": "Land",
+    "cardTitle": "Länder-Steuersätze",
+    "searchBarPlaceholder": "Suche Länder",
+    "labelCreateNew": "Land hinzufügen",
+    "labelCancel": "Abbrechen",
+    "labelStates": "Staaten",
+    "labelZipCode": "Postleitzahl",
+    "labelFromZipCode": "Bis ...",
+    "labelToZipCode": "Von ...",
+    "emptyStateDescription": "Füge weitere Steuerraten für verschiedene Länder hinzu.",
+    "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
+    "modalTitleDelete": "Land löschen",
+    "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
+    "placeholderStates": "Staaten hinzufügen"
   }
 }

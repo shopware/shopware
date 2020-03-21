@@ -1,34 +1,34 @@
 {
-    "global": {
-        "error-codes": {
-            "DUPLICATED_SALUTATION_KEY": "Technical name already in use. Please choose a different one."
-        }
-    },
-    "sw-settings-salutation": {
-        "general": {
-            "mainMenuItemGeneral": "Salutations",
-            "buttonCancel": "Cancel",
-            "buttonCreate": "Add salutation",
-            "buttonSave": "Save",
-            "placeholderSearchBar": "Search salutations"
-        },
-        "list": {
-            "columnSalutationKey": "Technical name",
-            "columnDisplayName": "Salutation",
-            "columnLetterName": "Letter salutation"
-        },
-        "detail": {
-            "cardTitle": "Salutation",
-            "fieldDisplayNameLabel": "Salutation",
-            "fieldDisplayNamePlaceholder": "Enter a salutation...",
-            "fieldLetterNameLabel": "Letter salutation",
-            "fieldLetterNamePlaceholder": "Enter a letter salutation...",
-            "fieldSalutationKeyTooltip": "Choose a unique technical name that is required to include the salutations, e.g. in email templates.",
-            "fieldSalutationKeyLabel": "Technical name",
-            "fieldSalutationKeyPlaceholder": "Enter a technical name...",
-            "placeholderNewSalutation": "New salutation",
-            "notificationErrorTitle": "Error",
-            "notificationErrorMessage": "An error occured while saving your salutation."
-        }
+  "global": {
+    "error-codes": {
+      "DUPLICATED_SALUTATION_KEY": "Technical name already in use. Please choose a different one."
     }
+  },
+  "sw-settings-salutation": {
+    "general": {
+      "mainMenuItemGeneral": "Salutations",
+      "buttonCancel": "Cancel",
+      "buttonCreate": "Add salutation",
+      "buttonSave": "Save",
+      "placeholderSearchBar": "Search salutations..."
+    },
+    "list": {
+      "columnSalutationKey": "Technical name",
+      "columnDisplayName": "Salutation",
+      "columnLetterName": "Letter salutation"
+    },
+    "detail": {
+      "cardTitle": "Salutation",
+      "fieldDisplayNameLabel": "Salutation",
+      "fieldDisplayNamePlaceholder": "Enter a salutation...",
+      "fieldLetterNameLabel": "Letter salutation",
+      "fieldLetterNamePlaceholder": "Enter a letter salutation...",
+      "fieldSalutationKeyTooltip": "Choose a unique technical name that is required to include the salutations, e.g. in email templates.",
+      "fieldSalutationKeyLabel": "Technical name",
+      "fieldSalutationKeyPlaceholder": "Enter a technical name...",
+      "placeholderNewSalutation": "New salutation...",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occured while saving your salutation."
+    }
+  }
 }

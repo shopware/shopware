@@ -48,7 +48,7 @@
       "emptyStateHeadLine": "No snippets yet.",
       "messageDeleteSuccess": "Snippet \"{key}\" has been reset.",
       "messageSaveError": "Snippet \"{key}\" could not be saved. | Snippets for \"{key}\" could not be saved.",
-      "messageSaveSuccess":  "Snippet \"{key}\" has been saved. | Snippets for \"{key}\" have been saved.",
+      "messageSaveSuccess": "Snippet \"{key}\" has been saved. | Snippets for \"{key}\" have been saved.",
       "modalTitleDelete": "Snippets",
       "textDeleteConfirm": "Are you sure you want to delete the snippets for \"{key}\"?",
       "textResetConfirm": "Are you sure you want to reset the snippet \"{key}\" for this set? | Are you sure you want to reset the snippets for \"{key}\"?",
@@ -65,7 +65,7 @@
     "setList": {
       "title": "Manage snippets",
       "description": "This is an overview of your snippet sets. Select a set and edit individual snippets to your liking. It will also be possible to import snippets, create new ones and export existing ones to local CSV files.",
-      "cardTitle" : "Snippet sets",
+      "cardTitle": "Snippet sets",
       "buttonAddSet": "Add snippet set",
       "buttonCancel": "Cancel",
       "buttonClone": "Copy",

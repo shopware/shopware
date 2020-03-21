@@ -13,7 +13,7 @@
       "errorBackRoutingMessage": "Die aufgerufene Seite konnte nicht verarbeitet werden. Du wurdest zurückgeleitet.",
       "placeholderSearchBarSets": "Durchsuche alle Textbaustein-Sets ...",
       "placeholderSearchBarSnippets": "Durchsuche alle Textbausteine ...",
-      "placeholderValue": "Inhalt definieren",
+      "placeholderValue": "Inhalt definieren ...",
       "searchBarTitleSets": "Textbaustein-Sets",
       "searchBarTitleSnippets": "Textbausteine"
     },
@@ -48,7 +48,7 @@
       "emptyStateHeadLine": "Noch keine Textbausteine.",
       "messageDeleteSuccess": "Der Textbaustein \"{key}\" wurde erfolgreich zurückgesetzt.",
       "messageSaveError": "Der Textbaustein \"{key}\" konnte nicht gespeichert werden. | Die Textbausteine für \"{key}\" konnten nicht gespeichert werden.",
-      "messageSaveSuccess":  "Der Textbaustein \"{key}\" wurde erfolgreich gespeichert. | Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
+      "messageSaveSuccess": "Der Textbaustein \"{key}\" wurde erfolgreich gespeichert. | Die Textbausteine für \"{key}\" wurden erfolgreich gespeichert.",
       "modalTitleDelete": "Textbausteine",
       "textDeleteConfirm": "Möchtest Du die Textbausteine für \"{key}\" wirklich löschen?",
       "textResetConfirm": "Möchtest Du den Textbaustein \"{key}\" für dieses Textbaustein-Set wirklich zurücksetzen? | Möchtest Du die Textbausteine für \"{key}\" wirklich zurücksetzen?",
@@ -65,7 +65,7 @@
     "setList": {
       "title": "Textbaustein-Sets verwalten & bearbeiten",
       "description": "Dies ist eine Übersicht Deiner Textbaustein-Sets. Wähle ein Set aus, dessen Textbausteine Du bearbeiten möchtest und wechsle über den Button in die Bearbeitungstabelle. Ebenso kannst Du hier Textbaustein-Sets importieren, neue anlegen und bestehende Sets als CSV-Datei exportieren.",
-      "cardTitle" : "Testbaustein-Sets",
+      "cardTitle": "Testbaustein-Sets",
       "buttonAddSet": "Textbaustein-Set hinzufügen",
       "buttonCancel": "Abbrechen",
       "buttonClone": "Kopieren",
@@ -95,7 +95,7 @@
       "modalTitleDelete": "Textbaustein-Sets",
       "notEditableNoteErrorTitle": "Fehler",
       "notEditableNoteErrorMessage": "Die Textbausteine konnten nicht bearbeitet werden.",
-      "placeholderName": "Set benennen",
+      "placeholderName": "Set benennen ...",
       "splitButtonDuplicateContent": "Duplizieren von",
       "textCloneConfirm": "Möchtest Du von dem Textbaustein-Set \"{name}\" eine Kopie erstellen?",
       "textDeleteConfirm": "Möchtest Du das Textbaustein-Set \"{name}\" wirklich löschen?"

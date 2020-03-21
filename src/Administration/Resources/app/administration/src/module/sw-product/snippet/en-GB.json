@@ -97,7 +97,7 @@
     "packagingForm": {
       "placeholderUnit": "Select...",
       "labelUnit": "Scale unit",
-      "referenceUnitHelpText": "Value used to calculate a base price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the base price for 1 liter of product. '0.1' would calculate the base price for 100 milliliters and so on." ,
+      "referenceUnitHelpText": "Value used to calculate a base price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the base price for 1 liter of product. '0.1' would calculate the base price for 100 milliliters and so on.",
       "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
       "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.33 l = 2 l), put '2'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
     },
@@ -133,8 +133,8 @@
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",
-      "placeholderRule": "Select",
-      "placeholderQuantityEnd": "Infinite",
+      "placeholderRule": "Select...",
+      "placeholderQuantityEnd": "Infinite...",
       "buttonPriceRuleDelete": "Delete pricing rule",
       "buttonPriceRuleDuplicate": "Duplicate pricing rule",
       "buttonPriceRuleCurrencyAdd": "Add currency",
@@ -188,7 +188,6 @@
       "titleSaveWarning": "Info",
       "messageSaveWarning": "No changes detected."
     },
-
     "mediaForm": {
       "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",

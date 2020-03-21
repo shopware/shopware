@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Tax",
       "taxRateSymbol": "&#037;",
-      "placeholderSearchBar": "Search tax rates"
+      "placeholderSearchBar": "Search tax rates..."
     },
     "list": {
       "textHeadline": "Tax",
@@ -36,7 +36,7 @@
       "labelAppliesOn": "Applies to",
       "labelCountryName": "Country",
       "cardTitle": "Countries",
-      "searchBarPlaceholder": "Search countries",
+      "searchBarPlaceholder": "Search countries...",
       "labelCreateNew": "Add country",
       "labelCancel": "Cancel",
       "labelStates": "States",
@@ -47,7 +47,7 @@
       "createStateDescription": "Save this tax rate first, then add more countries.",
       "modalTitleDelete": "Delete country",
       "textDeleteConfirm": "Are you sure you want to delete this country: \"{name}\"?",
-      "placeholderStates": "Add states"
+      "placeholderStates": "Add states..."
     }
   }
 }

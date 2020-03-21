@@ -2,7 +2,7 @@
   "sw-settings-user": {
     "general": {
       "mainMenuItemGeneral": "Users & permissions",
-      "placeholderSearchBar": "Find users",
+      "placeholderSearchBar": "Find users...",
       "labelUserList": "Users & permissions",
       "labelCreateNewUser": "Create new user"
     },
@@ -49,7 +49,7 @@
       "labelChangePassword": "Change password",
       "labelNewPassword": "New password",
       "labelNewUser": "New user",
-      "placeholderNewPassword": "Enter new password",
+      "placeholderNewPassword": "Enter new password...",
       "labelButtonCancel": "Cancel",
       "labelButtonChangePassword": "Change",
       "labelButtonSave": "Save",
@@ -65,7 +65,7 @@
         "deleteModalTitle": "Delete",
         "detailModalTitle": "Create integration",
         "detailModalTitleEdit": "Edit",
-        "confirmDelete" : "Are you sure you want to delete this integration?",
+        "confirmDelete": "Are you sure you want to delete this integration?",
         "buttonApply": "Save integration",
         "buttonApplyEdit": "Save changes",
         "buttonCancel": "Cancel",

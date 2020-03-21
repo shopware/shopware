@@ -64,7 +64,7 @@
       "buttonConfirmDelete": "Löschen",
       "textHeadline": "Neuer Verkaufskanal",
       "placeholderName": "Gib einen Namen für den Verkaufskanal ein ...",
-      "placeholderInputCategories": "Kategorien hinzufügen",
+      "placeholderInputCategories": "Kategorien hinzufügen ...",
       "titleDomains": "Domänen",
       "titleDomainItem": "URL {index}",
       "labelInputCurrency": "Währung",
@@ -73,7 +73,7 @@
       "buttonDeleteDomain": "Domäne löschen",
       "buttonAddDomain": "Domäne hinzufügen",
       "deleteDomainModalTitle": "Domäne löschen",
-      "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich!",
+      "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
       "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
@@ -118,7 +118,7 @@
         "lastGenerationLabel": "Zeitpunkt der letzten Generierung: ",
         "notYetGenerated": "Dieser Export wurde bisher noch nicht generiert.",
         "encoding": "Encoding",
-        "placeholderSelectEncoding": "Wähle ein Encoding aus... ",
+        "placeholderSelectEncoding": "Wähle ein Encoding aus ...",
         "fileFormat": "Dateiformat",
         "placeholderSelectFileFormat": "Wähle ein Dateiformat aus...",
         "accessKey": "Zugangsschlüssel",
@@ -187,6 +187,10 @@
             "template-applied-title": "Template übernommen",
             "template-applied-message": "Die Daten aus dem Template wurden übernommen. Bitte speichere den Verkaufskanal, um die Änderungen dauerhaft zu übernehmen."
           }
+        },
+        "fileFormatLabels": {
+          "xml": "XML",
+          "csv": "CSV"
         }
       },
       "hreflang": {
@@ -220,10 +224,11 @@
             "label": "Bestellungen tracken"
           }
         }
-      }
+      },
+      "titleDomainItem": "URL {index}"
     },
     "sw-sales-channel-defaults-select": {
-      "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet"
+      "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet."
     }
   }
 }

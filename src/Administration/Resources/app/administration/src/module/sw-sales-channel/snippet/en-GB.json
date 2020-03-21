@@ -167,7 +167,7 @@
         "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
         "templates": {
           "label": "Template",
-          "placeholderSelectTemplate": "Do not use a template",
+          "placeholderSelectTemplate": "Do not use a template...",
           "template-label": {
             "billiger-de": "billiger.de (CSV)",
             "idealo": "idealo.de (CSV)",

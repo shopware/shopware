@@ -35,9 +35,9 @@
         "labelUseAsLogo": "Use as logo"
       },
       "topRule": "Availability rule",
-      "placeholderName": "Enter name",
-      "placeholderPosition": "Enter position",
-      "placeholderDescription": "Enter description",
+      "placeholderName": "Enter name...",
+      "placeholderPosition": "Enter position...",
+      "placeholderDescription": "Enter description...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
     }

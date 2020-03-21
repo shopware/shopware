@@ -7,7 +7,7 @@
       "greeting": "Layouts",
       "createNewLayout": "Neues Layout anlegen",
       "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
-      "disabledAddingBlocksToolTip": "Blöcke können nur in der Systemstandardsprache hinzugefügt werden.",
+      "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
       "buttonDelete": "Löschen"
     },
     "sorting": {
@@ -35,7 +35,8 @@
       "fullWidth": "Volle Breite",
       "sidebar": "Sidebar",
       "isSidebar": "Layout-Sektion - Sidebar",
-      "isDefault": "Layout-Sektion - Standard"
+      "isDefault": "Layout-Sektion - Standard",
+      "layoutSection": "Layout-Sektion"
     },
     "sidebar": {
       "contentMenu": {
@@ -51,7 +52,7 @@
       "choosePageTypeTitle": "Was für eine Seite möchtest Du gestalten?",
       "choosePageTypeHelpText": "Die verschiedenen Layout-Typen helfen Dir, Dein Layout in der Administration schneller wiederzufinden. Du kannst den Layout-Typ jederzeit in den Layout-Einstellungen ändern, falls Du Dich umentscheidest.",
       "chooseSectionTitle": "Mit welcher Sektion möchtest Du starten?",
-      "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ werden kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
+      "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ sein kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
       "chooseNameTitle": "Wie soll Dein Layout heißen?",
       "createLayout": "Layout erstellen",
       "abortCreation": "Abbrechen",
@@ -63,7 +64,7 @@
         "contentTranslations": "Ein Layout kann aktuell nur in der Systemstandardsprache bearbeitet werden."
       },
       "helpText": {
-        "cssClassField": "Du kannst eine, oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen"
+        "cssClassField": "Du kannst eine oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen"
       },
       "label": {
         "buttonSave": "Speichern",
@@ -111,7 +112,7 @@
         "mappingEmptyPreview": "Für diese Datenzuordnung liegen leider keine Vorschaudaten vor.",
         "addBlocks": "Füge Blöcke per Drag & Drop hinzu",
         "labelNavigation": "Navigation",
-        "lockedNotification": "Dieses Layout ist eine gesperrte Standard Vorlage die du nutzen kannst. Dieses Vorlage kann nicht angepasst werden. Wenn du diese Vorlage für eigene Bedürfnisse anpassen möchtest, kannst du es duplizieren und das Duplikat anpassen.",
+        "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
       },
@@ -121,10 +122,10 @@
         "titleMissingBlockFields": "Fehlende Konfiguration",
         "messageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
         "titleMissingProductListing": "Fehler",
-        "messageMissingProductListing": "Speichern nicht möglich. Bitte füge einen Produktlisting-Block hinzu oder änderen den Layout-Typ.",
+        "messageMissingProductListing": "Speichern nicht möglich. Bitte füge einen Produktlisting-Block hinzu oder ändere den Layout-Typ.",
         "titlePageError": "Layout konnte nicht gespeichert werden!",
         "titleMissingSections": "Fehlende Konfiguration",
-        "messageMissingSections": "Du kannst keine leere Seite speichern. Bitte füge eine Sektion hinzu.",
+        "messageMissingSections": "Du kannst leere Seiten nicht speichern. Bitte füge zuerst eine Sektion hinzu.",
         "titleMissingBlocks": "Fehlende Konfiguration",
         "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge Blöcke hinzu.",
         "titleMissingElements": "Fehlende Elementkonfiguration!",
@@ -150,8 +151,8 @@
         "elementChangeModal": "Element austauschen"
       },
       "tooltip": {
-        "blockNameField": "Vergib einen aussagekräfitgen Namen für diesen Block.",
-        "sectionNameField": "Vergib einen aussagekräftigen Namen für diese Sektion."
+        "blockNameField": "Benenne jeden Block individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu behalten.",
+        "sectionNameField": "Benenne jede Sektion individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu erhalten."
       }
     },
     "elements": {
@@ -226,7 +227,11 @@
             "badgeTopseller": "Topseller",
             "badgeNew": "Neu",
             "priceUnitContent": "Inhalt:"
-          }
+          },
+          "actionBuy": "In den Warenkorb",
+          "badgeTopseller": "Topseller",
+          "priceUnitContent": "Inhalt:",
+          "badgeNew": "Neu"
         },
         "config": {
           "label": {
@@ -258,7 +263,7 @@
           "placeholder": {
             "title": "Slider-Titel",
             "selection": "Produkte auswählen",
-            "minWidth": "Minimale Weite"
+            "minWidth": "Minimale Breite"
           }
         }
       },
@@ -299,8 +304,8 @@
             "videoId": "Video-Link",
             "autoPlay": "Automatisch abspielen",
             "loop": "Video wiederholen",
-            "showControls": "Video-Navigation anzeigen",
-            "controlsColor": "Farbe der Video-Navigation ändern",
+            "showControls": "Video-Steuerung anzeigen",
+            "controlsColor": "Farbe der Video-Steuerung ändern",
             "byLine": "Namen des Video-Erstellers anzeigen",
             "showPortrait": "Profilbild des Video-Erstellers anzeigen",
             "showTitle": "Titel des Videos anzeigen",
@@ -309,11 +314,11 @@
             "end": "Video abspielen bis"
           },
           "placeholder": {
-            "videoId": "Video Link eingeben ..."
+            "videoId": "Video-Link eingeben ..."
           },
           "helpText": {
-            "autoPlay": "Einige Browser verhindern das automatische Abspielen von Videos",
-            "advancedPrivacy": "Wenn du den erweiterten Datenschutzmodus aktivierst, werden von der Video-Plattform keine Informationen über die Besucher Deiner Website gespeichert, bis sie sich das Video ansehen."
+            "autoPlay": "Achtung, einige Browser verhindern das automatische Abspielen von Videos.",
+            "advancedPrivacy": "Wenn Du den erweiterten Datenschutzmodus aktivierst, werden von der Video-Plattform keine Informationen über die Besucher Deiner Website gespeichert, bis sie sich das Video ansehen."
           }
         }
       },
@@ -324,7 +329,7 @@
         "label": "Formular",
         "config": {
           "label": {
-            "receiverEmail": "Empfängeraddressen",
+            "receiverEmail": "Empfänger-Adressen",
             "title": "Titel",
             "type": "Formulartyp",
             "typeContact": "Kontakt",
@@ -338,15 +343,15 @@
         "element": {
           "label": {
             "action": "Aktion",
-            "email": "Email Adresse*",
+            "email": "E-Mail-Adresse*",
             "firstName": "Vorname*",
-            "lastName" : "Nachname*",
+            "lastName": "Nachname*",
             "message": "Ihre Nachricht*",
             "newsletterSubmit": "Weiter",
-            "phone": "Telefon",
+            "phone": "Telefonnummer",
             "privacy": "Datenschutz",
             "salutation": "Anrede*",
-            "salutationUndisclosed" : "Keine Angabe",
+            "salutationUndisclosed": "Keine Angabe",
             "send": "Senden",
             "subject": "Betreff*",
             "subscribeToNewsletter": "Newsletter abonnieren"

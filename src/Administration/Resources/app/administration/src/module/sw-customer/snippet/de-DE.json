@@ -30,7 +30,7 @@
       "textCustomers": "Kunden",
       "textCustomersTotal": "Kein Kunde | Ein Kunde | {count} Kunden",
       "buttonAddCustomer": "Kunden anlegen",
-      "columnCustomerNumber": "Kunden-Nr.",
+      "columnCustomerNumber": "Kundennummer",
       "columnName": "Name",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
@@ -38,7 +38,7 @@
       "columnZip": "PLZ",
       "columnCity": "Stadt",
       "columnEmail": "E-Mail-Adresse",
-      "columnLastLogin": "Zuletzt eingeloggt",
+      "columnLastLogin": "Zuletzt angemeldet",
       "columnActions": "Aktion(en)",
       "columnAffiliateCode": "Affiliate-Code",
       "columnCampaignCode": "Kampagnen-Code",
@@ -89,7 +89,7 @@
       "labelCustomerNumber": "Kundennummer",
       "labelCustomerGroup": "Kundengruppe",
       "labelBirthday": "Geburtsdatum",
-      "labelLastLogin": "Letzter Login",
+      "labelLastLogin": "Letzte Anmeldung",
       "labelLanguage": "Sprache",
       "labelOrders": "Anzahl Bestellungen",
       "labelTurnover": "Umsatz",
@@ -98,7 +98,7 @@
       "labelAffiliateCode": "Affiliate-Code",
       "labelCampaignCode": "Kampagnen-Code",
       "contentActive": "Aktiv | Inaktiv",
-      "emptyTextLogin": "noch kein Login",
+      "emptyTextLogin": "Noch keine Anmeldung",
       "emptyTextBirthday": "keine Angabe"
     },
     "detailBase": {
@@ -111,7 +111,7 @@
       "buttonTitleEditAddress": "Adresse bearbeiten",
       "buttonSave": "Speichern",
       "buttonEdit": "Kunden bearbeiten",
-      "buttonChangePassword" : "Passwort ändern",
+      "buttonChangePassword": "Passwort ändern",
       "labelAccountActiveField": "Konto ist aktiv"
     },
     "detailAddresses": {
@@ -152,7 +152,7 @@
       "columnContextOpenOrder": "Bestellung öffnen",
       "emptyTitle": "Noch keine Bestellungen",
       "emptySearchTitle": "Keine Suchergebnisse",
-      "emptySubline": "Verwalte die Bestellungen dieses Kunden."
+      "emptySubline": "Hier kannst Du die Bestellungen Deiner Kunden verwalten"
     },
     "addressForm": {
       "labelCompany": "Firma",
@@ -169,7 +169,7 @@
       "labelAdditionalAddressLine1": "Adresszusatz 1",
       "labelAdditionalAddressLine2": "Adresszusatz 2",
       "labelPhoneNumber": "Telefonnummer",
-      "labelVatId": "USt-ID",
+      "labelVatId": "USt-IdNr.",
       "labelSameBillingAddress": "Entspricht Rechnungsadresse",
       "placeholderCompany": "Gib einen Firmennamen ein ...",
       "placeholderDepartment": "Gib die Abteilung ein ...",
@@ -185,7 +185,7 @@
       "placeholderAdditionalAddressLine1": "Gib eine zusätzliche Adresszeile 1 ein ...",
       "placeholderAdditionalAddressLine2": "Gib eine zusätzliche Adresszeile 2 ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
-      "placeholderVatId": "Gib Deine USt-ID ein ..."
+      "placeholderVatId": "Gib Deine USt-IdNr. ein ..."
     },
     "detail": {
       "buttonSave": "Speichern",

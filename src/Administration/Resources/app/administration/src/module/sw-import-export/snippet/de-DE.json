@@ -4,7 +4,7 @@
       "mainMenuItemGeneral": "Import/Export",
       "mainMenuItemProfiles": "Profile",
       "mainMenuItemLogs": "Protokoll",
-      "descriptionTextModule": "Verwaltung von Imports und Exports."
+      "descriptionTextModule": "Verwaltung von Im- und Exporten"
     }
   },
   "sw-import-export-progress": {
@@ -17,9 +17,9 @@
       "export": "Export"
     },
     "messages": {
-      "progress": "Daten werden verarbeitet ...",
-      "failed": "Daten konnten nicht vollständig verarbeitet werden. Bitte prüfen sie die Log-Dateien für Fehlerdetails.",
-      "succeeded": "Daten erfolgreich verarbeitet",
+      "progress": "Deine Daten werden verarbeitet ...",
+      "failed": "Deine Daten konnten nicht vollständig verarbeitet werden. Bitte prüfe die Log-Dateien für weitere Details.",
+      "succeeded": "Deine Daten wurden erfolgreich verarbeitet.",
       "aborted": "Datenverarbeitung durch Benutzer abgebrochen."
     }
   },
@@ -59,7 +59,7 @@
           },
           "initFailed": {
             "title": "Export konnte nicht gestartet werden",
-            "message": "Beim Start des Exports ist ein Fehler aufgetreten"
+            "message": "Beim Start des Exports ist ein Fehler aufgetreten."
           },
           "error": {
             "title": "Export konnte nicht gestartet werden",
@@ -100,8 +100,8 @@
         "labelDelimiter": "Trennzeichen",
         "labelEnclosure": "Maskierungszeichen",
         "placeholderName": "Gib einen Namen ein",
-        "placeholderDelimiter": "Wähle ein Trennzeichen...",
-        "placeholderEnclosure": "Wähle ein Maskierungszeichen...",
+        "placeholderDelimiter": "Wähle ein Trennzeichen ...",
+        "placeholderEnclosure": "Wähle ein Maskierungszeichen ...",
         "fieldMappingButton": "Felder zuordnen"
       },
       "buttonCancel": "Abbrechen",

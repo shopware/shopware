@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -1963,18 +1962,6 @@ class VersioningTest extends TestCase
         }, $data);
 
         return $data;
-    }
-
-    private function dumpHistory(): void
-    {
-        $criteria = new Criteria();
-        $criteria->getAssociation('data')
-            ->addSorting(new FieldSorting('autoIncrement'));
-
-        $criteria->addSorting(new FieldSorting('autoIncrement'));
-        $commits = $this->getContainer()->get('version_commit.repository')->search($criteria, Context::createDefaultContext());
-
-        dump(json_encode($commits));
     }
 
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId): array

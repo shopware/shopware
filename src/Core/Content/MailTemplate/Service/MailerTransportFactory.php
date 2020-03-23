@@ -42,8 +42,8 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
         switch ($encryption) {
             case 'ssl':
                 return 'ssl';
-            case 'tsl':
-                return 'tsl';
+            case 'tls':
+                return 'tls';
             default:
                 return null;
         }

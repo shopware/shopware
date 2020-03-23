@@ -99,9 +99,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand">
-            <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+
+            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand">

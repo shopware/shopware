@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
@@ -24,10 +25,15 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
         $this->prefix = $prefix;
     }
 
+    /**
+     * @throws SalesChannelRepositoryNotFoundException
+     */
     public function getSalesChannelRepository(string $entityName): SalesChannelRepositoryInterface
     {
+        $salesChannelRepositoryClass = $this->getSalesChannelRepositoryClassByEntityName($entityName);
+
         /** @var SalesChannelRepositoryInterface $salesChannelRepository */
-        $salesChannelRepository = $this->container->get($this->repositoryMap[$entityName]);
+        $salesChannelRepository = $this->container->get($salesChannelRepositoryClass);
 
         return $salesChannelRepository;
     }
@@ -58,5 +64,17 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
         }
 
         parent::register($definition, $serviceId);
+    }
+
+    /**
+     * @throws SalesChannelRepositoryNotFoundException
+     */
+    private function getSalesChannelRepositoryClassByEntityName(string $entityMame): string
+    {
+        if (!isset($this->repositoryMap[$entityMame])) {
+            throw new SalesChannelRepositoryNotFoundException($entityMame);
+        }
+
+        return $this->repositoryMap[$entityMame];
     }
 }

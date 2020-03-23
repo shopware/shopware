@@ -8,6 +8,8 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -65,5 +67,29 @@ class DefinitionInstanceRegistryTest extends TestCase
         static::assertTrue($registry->has(ProductDefinition::ENTITY_NAME));
         static::assertInstanceOf(ProductDefinition::class, $registry->getByEntityName(ProductDefinition::ENTITY_NAME));
         static::assertInstanceOf(ProductDefinition::class, $registry->getByEntityClass(new ProductEntity()));
+    }
+
+    public function testItThrowsExceptionWhenDefinitionWasNotFoundByEntityName(): void
+    {
+        $registry = new DefinitionInstanceRegistry(
+            new Container(),
+            [],
+            []
+        );
+
+        $this->expectException(DefinitionNotFoundException::class);
+        $registry->getByEntityName('NotExistingDefinition');
+    }
+
+    public function testItThrowsExceptionWhenEntityRepositoryWasNotFoundByEntityName(): void
+    {
+        $registry = new DefinitionInstanceRegistry(
+            new Container(),
+            [],
+            []
+        );
+
+        $this->expectException(EntityRepositoryNotFoundException::class);
+        $registry->getRepository('NotExistingEntityRepository');
     }
 }

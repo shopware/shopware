@@ -241,8 +241,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added method `runUploads`
         * Added method `_startUpload`
       * Added possibility to add tabs to Theme Manager
-      * Deprecated method `getFields`, use `getStructuredFields` instead
-      * Added method `getStructuredFields` to themeApiService
+          * Deprecated method `getFields`, use `getStructuredFields` instead
+          * Deprecated data `themeFields`, use `structuredThemeFields` instead
+          * Added method `getStructuredFields` to themeApiService
     * Added new component `sw-order-create-promotion-modal` which can be used to display the automatic promotions will be disabled before click to the button disable
 
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`

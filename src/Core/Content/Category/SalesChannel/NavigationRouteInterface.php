@@ -16,7 +16,6 @@ interface NavigationRouteInterface
     public function load(
         string $requestActiveId,
         string $requestRootId,
-        int $depth = 2,
         Request $request,
         SalesChannelContext $context
     ): NavigationRouteResponse;

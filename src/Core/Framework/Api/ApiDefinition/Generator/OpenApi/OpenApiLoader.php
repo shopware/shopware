@@ -51,6 +51,17 @@ class OpenApiLoader
                 if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
+
+                if ($operation instanceof Operation && \count($operation->tags) > 1) {
+                    foreach ($operation->tags as $tKey => $tag) {
+                        if ($tag === OpenApiSchemaBuilder::API[$api]['name']) {
+                            unset($operation->tags[$tKey]);
+                        }
+                    }
+
+                    $operation->tags = array_values($operation->tags);
+                }
+
                 $allUndefined = ($pathItem->$key === UNDEFINED && $allUndefined === true);
             }
 

@@ -48,7 +48,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/send-recovery-mail',
+                '/store-api/v1/account/recovery-password',
                 [
                     'email' => 'lol@lol.de',
                     'storefrontUrl' => 'http://localhost',
@@ -66,7 +66,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/send-recovery-mail',
+                '/store-api/v1/account/recovery-password',
                 [
                     'email' => 'lol@lol.de',
                     'storefrontUrl' => 'http://aaaa.de',
@@ -86,7 +86,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/send-recovery-mail?validateStorefrontUrl=false',
+                '/store-api/v1/account/recovery-password?validateStorefrontUrl=false',
                 [
                     'email' => 'foo-test@test.de',
                     'storefrontUrl' => 'http://my-evil-page',

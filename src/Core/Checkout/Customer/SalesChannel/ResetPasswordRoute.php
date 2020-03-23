@@ -75,7 +75,7 @@ class ResetPasswordRoute implements ResetPasswordRouteInterface
 
     /**
      * @OA\Post(
-     *      path="/account/recovery-password",
+     *      path="/account/recovery-password-confirm",
      *      description="Resets password using recovery hash",
      *      operationId="recoveryPassword",
      *      tags={"Store API", "Account"},
@@ -88,16 +88,27 @@ class ResetPasswordRoute implements ResetPasswordRouteInterface
      *      @OA\Parameter(
      *        name="newPassword",
      *        in="body",
-     *        description="Email",
+     *        description="new password",
+     *        @OA\Schema(type="string"),
+     *      ),
+     *      @OA\Parameter(
+     *        name="newPasswordConfirm",
+     *        in="body",
+     *        description="new password",
+     *        @OA\Schema(type="string"),
+     *      ),
+     *      @OA\Parameter(
+     *        name="storefrontUrl",
+     *        in="body",
+     *        description="baseurl for the url in mail",
      *        @OA\Schema(type="string"),
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          description=""
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/recovery-password", name="store-api.account.recovery.password", methods={"POST"})
+     * @Route(path="/store-api/v{version}/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})
      */
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {

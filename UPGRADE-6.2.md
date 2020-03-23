@@ -202,6 +202,7 @@ Administration
         * Method `handleError` is now async
     * sw-media-compact-upload is deprecated and replaced by sw-media-compact-upload-v2
 * Deprecated method `getFields`, use `getStructuredFields` instead
+* Removed module `sw-settings-newsletter-config` and component `sw-settings-newsletter-config`
 
 * Refactored settings items list
     * Deprecated `sw_settings_content_card_slot_plugins` twig block with version 6.4

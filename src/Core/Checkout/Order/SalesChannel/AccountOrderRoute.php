@@ -53,7 +53,7 @@ class AccountOrderRoute implements AccountOrderRouteInterface
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          @OA\JsonContent(ref="#/components/schemas/order_flat")
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/order_flat"))
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/order", name="store-api.account.order", methods={"GET", "POST"})

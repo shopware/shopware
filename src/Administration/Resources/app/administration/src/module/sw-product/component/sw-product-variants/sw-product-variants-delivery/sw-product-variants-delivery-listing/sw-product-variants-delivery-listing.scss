@@ -1,0 +1,50 @@
+@import "~scss/variables";
+
+.sw-product-variants-delivery-listing {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .sw-product-variants-delivery-listing-mode {
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
+
+        .sw-field.sw-field--radio {
+            margin: 0;
+        }
+
+        .sw-field__radio-group {
+            display: flex;
+            align-items: stretch;
+
+            .sw-field__radio-option {
+                width: 50%;
+                padding: 25px 35px;
+                margin: 0;
+
+                &:nth-child(2) {
+                    border-left: 1px solid $color-gray-300;
+                }
+            }
+        }
+    }
+
+    .sw-product-variants-delivery-listing-config {
+        display: flex;
+        padding: 0;
+        height: 100%;
+
+        .sw-product-variants-delivery-listing-config-options {
+            width: 50%;
+            padding: 30px;
+
+            &:nth-child(2) {
+                border-left: 1px solid $color-gray-300;
+            }
+
+            &.is--disabled {
+                background-color: $color-gray-100;
+            }
+        }
+    }
+}

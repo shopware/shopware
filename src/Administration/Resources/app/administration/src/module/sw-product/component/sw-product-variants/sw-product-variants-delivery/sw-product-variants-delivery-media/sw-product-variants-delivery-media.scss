@@ -12,6 +12,7 @@
         overflow: auto;
         border-right: 1px solid $color-steam-cloud;
         padding: 20px 0;
+
         .sw-icon {
             margin-right: 8px;
         }
@@ -29,6 +30,7 @@
         &:hover {
             background-color: lighten($color-cadet-blue, 2.5);
         }
+
         &.is--selected {
             background-color: #f8f9fa;
         }
@@ -40,6 +42,7 @@
     }
 
     .sw-product-variants-delivery-media__listing {
+        // TODO: remove with feature-flag next6000
         padding: 20px;
         border-bottom: 1px solid $color-steam-cloud;
 

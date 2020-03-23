@@ -23,7 +23,7 @@ Component.register('sw-product-variants-delivery-media', {
     data() {
         return {
             activeGroup: {},
-            isActiveGroupInListing: false,
+            isActiveGroupInListing: false, // TODO: remove with feature-flag next6000
             isLoading: false
         };
     },
@@ -91,6 +91,7 @@ Component.register('sw-product-variants-delivery-media', {
 
         activeGroup: {
             handler() {
+                // TODO: remove with feature-flag next6000
                 if (!this.product.configuratorGroupConfig) {
                     return;
                 }
@@ -138,6 +139,7 @@ Component.register('sw-product-variants-delivery-media', {
         },
 
         onChangeGroupListing(value) {
+            // TODO: remove with feature-flag next6000
             let configuratorGroupConfig = this.product.configuratorGroupConfig;
 
             if (!configuratorGroupConfig) {
@@ -164,6 +166,5 @@ Component.register('sw-product-variants-delivery-media', {
 
             this.isActiveGroupInListing = value;
         }
-
     }
 });

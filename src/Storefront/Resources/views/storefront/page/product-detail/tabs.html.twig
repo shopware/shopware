@@ -22,7 +22,7 @@
                                     </span>
                                     {% if page.product.translated.description|length > 0 %}
                                         <span class="product-detail-tab-preview">
-                                            {{ page.product.translated.description|raw|striptags|u.truncate(125) }}
+                                            {{ page.product.translated.description|raw|striptags|u.truncate(125, '…') }}
 
                                             {# truncate always cuts down the length to 125 characters.
                                                So it will only shorten the string if it exceeds 125 chars.

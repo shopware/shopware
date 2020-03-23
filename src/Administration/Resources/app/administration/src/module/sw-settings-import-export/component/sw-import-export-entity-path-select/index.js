@@ -84,7 +84,10 @@ Component.register('sw-import-export-entity-path-select', {
             actualSearch: '',
             isExpanded: false,
             // used to track if an item was selected before closing the result list
-            itemRecentlySelected: false
+            itemRecentlySelected: false,
+            languages: [{ locale: 'DEFAULT' }, { locale: 'de-DE' }, { locale: 'en-GB' }],
+            currencies: [{ isoCode: 'DEFAULT' }, { isoCode: 'EUR' }, { isoCode: 'USD' }],
+            priceProperties: ['net', 'gross', 'currencyId', 'linked', 'listPrice']
         };
     },
 
@@ -162,7 +165,10 @@ Component.register('sw-import-export-entity-path-select', {
             // remove last element of path which is the user search input
             pathParts.splice(-1, 1);
 
-            // Todo special case for ignoring translations
+            // Remove special cases for prices and translations
+            pathParts = pathParts.filter(part => {
+                return !(this.availableIsoCodes.includes(part) || this.availableLocales.includes(part));
+            });
 
             return pathParts;
         },
@@ -188,18 +194,34 @@ Component.register('sw-import-export-entity-path-select', {
                 }
             });
 
+            // Special case for prices
+            if (pathParts[pathParts.length - 1] === 'price' && actualDefinition.properties.price.type === 'json_object') {
+                return 'price';
+            }
+
             return actualDefinition.entity;
         },
 
         options() {
             const options = [];
 
-            const definition = Shopware.EntityDefinition.get(this.currentEntity);
-            const properties = Object.keys(definition.properties);
             let path = this.actualPathPrefix;
             if (path.length > 0) {
                 path = path.replace(/\.?$/, '.');
             }
+            // Special case for prices
+            if (this.currentEntity === 'price') {
+                return this.getPriceProperties(path);
+            }
+
+            const definition = Shopware.EntityDefinition.get(this.currentEntity);
+            const properties = Object.keys(definition.properties);
+
+            // Special case for translations
+            if (this.actualPathParts[this.actualPathParts.length - 1] === 'translations') {
+                return this.getTranslationProperties(this.currentEntity, path, properties);
+            }
+
             properties.forEach((propertyName) => {
                 const name = `${path}${propertyName}`;
                 const property = definition.properties[propertyName];
@@ -210,6 +232,7 @@ Component.register('sw-import-export-entity-path-select', {
                         return;
                     }
 
+                    // Only translation one to many associations are allowed
                     if (property.relation === 'one_to_many' && propertyName !== 'translations') {
                         return;
                     }
@@ -229,6 +252,24 @@ Component.register('sw-import-export-entity-path-select', {
                     searchTerm: this.actualSearch
                 }
             );
+        },
+
+        availableIsoCodes() {
+            const isoCodes = [];
+            this.currencies.forEach(currency => {
+                isoCodes.push(currency.isoCode);
+            });
+
+            return isoCodes;
+        },
+
+        availableLocales() {
+            const locales = [];
+            this.languages.forEach(language => {
+                locales.push(language.locale);
+            });
+
+            return locales;
         }
     },
 
@@ -323,15 +364,25 @@ Component.register('sw-import-export-entity-path-select', {
             return get(object, keyPath, defaultValue);
         },
 
-        getTranslationProperties(entity, path) {
-            const definition = Shopware.EntityDefinition.get(entity);
-            const properties = Object.keys(definition.properties);
-            const languages = [{ locale: 'DEFAULT' }, { locale: 'de-DE' }, { locale: 'en-GB' }];
+        getTranslationProperties(entity, path, properties) {
             const options = [];
 
-            languages.forEach((language) => {
+            this.languages.forEach((language) => {
                 properties.forEach(propertyName => {
-                    const name = `${path}translations.${language.locale}.${propertyName}`;
+                    const name = `${path}${language.locale}.${propertyName}`;
+                    options.push({ label: name, value: name });
+                });
+            });
+
+            return options;
+        },
+
+        getPriceProperties(path) {
+            const options = [];
+
+            this.currencies.forEach((currency) => {
+                this.priceProperties.forEach(propertyName => {
+                    const name = `${path}${currency.isoCode}.${propertyName}`;
                     options.push({ label: name, value: name });
                 });
             });

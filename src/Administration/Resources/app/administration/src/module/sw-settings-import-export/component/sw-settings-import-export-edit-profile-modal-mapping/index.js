@@ -1,6 +1,8 @@
 import template from './sw-settings-import-export-edit-profile-modal-mapping.html.twig';
 import './sw-settings-import-export-edit-profile-modal-mapping.scss';
 
+const { debounce } = Shopware.Utils;
+
 Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mapping', {
     template,
 
@@ -15,7 +17,10 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
     },
 
     data() {
-        return {};
+        return {
+            searchTerm: null,
+            mappings: this.profile.mapping
+        };
     },
 
     computed: {
@@ -43,6 +48,27 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         onDeleteMapping(key) {
             this.profile.mapping = this.profile.mapping.filter((mapping) => {
                 return mapping.key !== key;
+            });
+        },
+
+        onAddMapping() {
+            this.profile.mapping.unshift({ key: '', mappedKey: '' });
+        },
+
+        onSearch() {
+            this.debouncedSearch();
+        },
+
+        debouncedSearch: debounce(function updateSearchTerm() {
+            this.search();
+        }, 100),
+
+        search() {
+            const searchTerm = this.searchTerm.toLowerCase();
+            this.mappings = this.profile.mapping.filter(mapping => {
+                const key = mapping.key.toLowerCase();
+                const mappedKey = mapping.mappedKey.toLowerCase();
+                return !!(key.includes(searchTerm) || mappedKey.includes(searchTerm));
             });
         }
     }

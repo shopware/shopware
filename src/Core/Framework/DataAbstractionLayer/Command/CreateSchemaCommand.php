@@ -36,7 +36,7 @@ class CreateSchemaCommand extends Command
         parent::__construct();
         $this->schemaGenerator = $generator;
         $this->registry = $registry;
-        $this->dir = $rootDir . '/../schema/';
+        $this->dir = $rootDir . '/schema/';
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

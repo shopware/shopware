@@ -11,7 +11,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument>%kernel.root_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
         </service>

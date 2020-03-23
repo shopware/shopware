@@ -75,13 +75,16 @@ First you should create the migration class with `bin/console database:create-mi
 This command will create a class with a unique timestamp and the two update methods.
 
 ### SQL schema
-After that you could execute the following command: `bin/console dal:create:schema`
-This command selects all active entity definitions known to Shopware and tries to create SQL queries on base of the fields.
+After that you could execute the following command: `bin/console dal:create:schema`.
+
+This command selects **all active entity definitions** known to Shopware and tries to create SQL queries on base of the fields.
 *Note: Your plugin has to be activated, otherwise your custom entity definition will not be considered.*
-The queries are outputted into `/schema`.
+
+The `*.sql` files with the SQL queries are saved into the `/schema` folder within your project root directory where your `composer.json` lives.
 Search for the correct SQL file and copy the query to your migration file. 
+
 *Note: This command is in beta state and should not be used blindly*
-Double check if the generated SQL query really fits your needs.
+Double check if the generated SQL query really fits your needs. Keep in mind that you should delete the generated folder after you copied your necessary files.
 
 ## Source
 

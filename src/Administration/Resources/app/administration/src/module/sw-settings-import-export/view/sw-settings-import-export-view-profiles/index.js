@@ -87,6 +87,9 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
         onAddNewProfile() {
             this.selectedProfile = this.profileRepository.create(Shopware.Context.api);
             this.selectedProfile.fileType = 'text/csv';
+            this.selectedProfile.mapping = [];
+            this.selectedProfile.delimiter = ';';
+            this.selectedProfile.enclosure = '"';
         },
 
         async onEditProfile(id) {
@@ -104,8 +107,9 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
                     title: this.$tc('sw-settings-import-export.profile.titleDuplicateError'),
                     message: this.$tc('sw-settings-import-export.profile.messageDuplicateError', 0)
                 });
+            }).finally(() => {
+                this.loadProfiles();
             });
-            this.loadProfiles();
         },
 
         onDeleteProfile(id) {

@@ -41,11 +41,7 @@
                     {# TODO: change to entity single select #}
                     <sw-single-select label="Object type"
                                       required
-                                      :options="[
-                                          { value: 'product', label: 'Product' },
-                                          { value: 'customer', label: 'Customer' },
-                                          { value: 'categories', label: 'Categories' },
-                                      ]"
+                                      :options="supportedEntities"
                                       v-model="profile.sourceEntity">
                     </sw-single-select>
 
@@ -65,12 +61,8 @@
                     Use the table below to map CSV fields to their respective database counterparts.
                 </p>
 
-                {#
-                    TODO: Tabelle vll. in eine neue Komponente auslagern? Enthält bisschen mehr Logik.
-                     Als Prop wieder `profile` benutzen (oder direkt das Mapping)? Muss man vll. nachher mal schauen,
-                     was am meisten Sinn macht.
-                #}
-                <sw-settings-import-export-edit-profile-modal-mapping :profile="profile">
+                <sw-settings-import-export-edit-profile-modal-mapping
+                    :profile="profile">
                 </sw-settings-import-export-edit-profile-modal-mapping>
 
             </template>
@@ -82,25 +74,16 @@
                 </p>
 
                 <sw-container columns="repeat(1fr, 1fr)">
-                    {# TODO: change to entity single select #}
                     <sw-single-select
                         v-model="profile.delimiter"
                         label="Seperator character"
-                        :options="[
-                        { value: 'carets', label: 'Carets (^)' },
-                        { value: 'commas', label: 'Commas (,)' },
-                        { value: 'pipes', label: 'Pipes (|)' },
-                        { value: 'semicolons', label: 'Commas (;)' },
-                        { value: 'tabs', label: 'Tabs   ' },
-                    ]"></sw-single-select>
+                        :options="supportedDelimiter"></sw-single-select>
 
-                    {# TODO: change to entity single select #}
                     <sw-single-select
                         v-model="profile.enclosure"
                         label="Enclosure character"
-                        :options="[
-                        { value: 'doubleQuote', label: 'Double quote' },
-                    ]"></sw-single-select>
+                        :options="supportedEnclosures">
+                    </sw-single-select>
                 </sw-container>
             </template>
         </template>

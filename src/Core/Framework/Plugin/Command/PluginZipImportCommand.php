@@ -43,7 +43,8 @@ class PluginZipImportCommand extends Command
     {
         $this->setDescription('Import plugin zip file.')
             ->addArgument('zip-file', InputArgument::REQUIRED, 'Zip file that contains a shopware platform plugin.')
-            ->addOption('no-refresh', null, InputOption::VALUE_OPTIONAL, 'Do not refresh plugin list.');
+            ->addOption('no-refresh', null, InputOption::VALUE_OPTIONAL, 'Do not refresh plugin list.')
+            ->addOption('delete', null, InputOption::VALUE_OPTIONAL, 'Delete the zip file after importing successfully.');
     }
 
     /**
@@ -56,7 +57,7 @@ class PluginZipImportCommand extends Command
         $io->title('Shopware Plugin Zip Import');
 
         try {
-            $this->pluginManagementService->extractPluginZip($zipFile, false);
+            $this->pluginManagementService->extractPluginZip($zipFile, (bool) $input->getOption('delete'));
         } catch (NoPluginFoundInZipException $e) {
             $io->error($e->getMessage());
 

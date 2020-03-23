@@ -176,9 +176,7 @@ class AccountService
      */
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-        $this->changeCustomerProfileRoute->change($requestDataBag, $context);
+        $this->changeCustomerProfileRoute->change($data->toRequestDataBag(), $context);
     }
 
     /**
@@ -186,9 +184,7 @@ class AccountService
      */
     public function savePassword(DataBag $data, SalesChannelContext $context): void
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-        $this->changePasswordRoute->change($requestDataBag, $context);
+        $this->changePasswordRoute->change($data->toRequestDataBag(), $context);
     }
 
     /**
@@ -196,9 +192,7 @@ class AccountService
      */
     public function saveEmail(DataBag $data, SalesChannelContext $context): void
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-        $this->changeEmailRoute->change($requestDataBag, $context);
+        $this->changeEmailRoute->change($data->toRequestDataBag(), $context);
     }
 
     /**
@@ -206,9 +200,11 @@ class AccountService
      */
     public function generateAccountRecovery(DataBag $data, SalesChannelContext $context): void
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-        $this->sendPasswordRecoveryMailRoute->sendRecoveryMail($requestDataBag, $context);
+        if (!$data->has('storefrontUrl')) {
+            $data->set('storefrontUrl', $context->getSalesChannel()->getDomains()->first()->getUrl());
+        }
+
+        $this->sendPasswordRecoveryMailRoute->sendRecoveryMail($data->toRequestDataBag(), $context, false);
     }
 
     /**
@@ -216,9 +212,7 @@ class AccountService
      */
     public function resetPassword(DataBag $data, SalesChannelContext $context): bool
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-        $this->resetPasswordRoute->resetPassword($requestDataBag, $context);
+        $this->resetPasswordRoute->resetPassword($data->toRequestDataBag(), $context);
 
         return true;
     }
@@ -314,10 +308,7 @@ class AccountService
      */
     public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-
-        return $this->loginRoute->login($requestDataBag, $context)->getToken();
+        return $this->loginRoute->login($data->toRequestDataBag(), $context)->getToken();
     }
 
     /**

@@ -47,16 +47,6 @@
             <helpText lang="de-DE">Aktiviert Double-Opt-In für Gast-Bestellungen.</helpText>
         </input-field>
 
-        <input-field>
-            <name>doubleOptInDomain</name>
-            <label>Double opt in register domain</label>
-            <label lang="de-DE">Double-Opt-In-Anmeldedomain</label>
-            <placeholder>Enter register domain...</placeholder>
-            <placeholder lang="de-DE">Anmeldedomain eingeben...</placeholder>
-            <helpText>Set the domain for the double opt in registration or guest order (example domain: http://localhost:8000)</helpText>
-            <helpText lang="de-DE">Setze die Domain für die Double-Opt-In-Registrierung oder Gastbestellung (Beispiel-Domain: http://localhost:8000)</helpText>
-        </input-field>
-
         <input-field type="bool">
             <name>requirePasswordConfirmation</name>
             <label>Password must be entered twice</label>
@@ -118,6 +108,5 @@
             <label>Additional address 2 field required</label>
             <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
         </input-field>
-
     </card>
 </config>

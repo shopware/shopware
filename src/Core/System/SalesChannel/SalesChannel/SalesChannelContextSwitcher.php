@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelContextSwitcher
@@ -20,8 +19,6 @@ class SalesChannelContextSwitcher
 
     public function update(DataBag $data, SalesChannelContext $context): void
     {
-        $requestDataBag = new RequestDataBag();
-        $requestDataBag->replace($data->all());
-        $this->contextSwitchRoute->switchContext($requestDataBag, $context);
+        $this->contextSwitchRoute->switchContext($data->toRequestDataBag(), $context);
     }
 }

@@ -10,5 +10,5 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface CustomerRouteInterface
 {
-    public function load(Request $request, SalesChannelContext $context): CustomerRouteResponse;
+    public function load(Request $request, SalesChannelContext $context): CustomerResponse;
 }

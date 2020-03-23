@@ -62,14 +62,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService">
-            <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventDispatcher"/>
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute"/>
             <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
@@ -204,6 +200,22 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="customer.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
     </services>
 </container>

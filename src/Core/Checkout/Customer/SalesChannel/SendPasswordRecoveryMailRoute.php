@@ -20,11 +20,14 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -86,16 +89,11 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
      * )
      * @Route(path="/store-api/v{version}/account/send-recovery-mail", name="store-api.account.recovery.send.mail", methods={"POST"})
      */
-    public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
+    public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {
         $this->validateRecoverEmail($data, $context);
 
-        try {
-            $customer = $this->getCustomerByEmail($data->get('email'), $context);
-        } catch (CustomerNotFoundException $exception) {
-            throw new CustomerNotFoundException($exception->getMessage());
-        }
-
+        $customer = $this->getCustomerByEmail($data->get('email'), $context);
         $customerId = $customer->getId();
 
         $customerIdCriteria = new Criteria();
@@ -118,7 +116,7 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
 
         $hash = $customerRecovery->getHash();
-        $recoverUrl = $context->getSalesChannel()->getDomains()->first()->getUrl() . '/account/recover/password?hash=' . $hash;
+        $recoverUrl = $data->get('storefrontUrl') . '/account/recover/password?hash=' . $hash;
 
         $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
         $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);
@@ -126,7 +124,7 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
         return new SuccessResponse();
     }
 
-    private function validateRecoverEmail(DataBag $data, SalesChannelContext $context): void
+    private function validateRecoverEmail(DataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): void
     {
         $validation = new DataValidationDefinition('customer.email.recover');
 
@@ -136,11 +134,23 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
                 new Email()
             );
 
+        if ($validateStorefrontUrl) {
+            $validation
+                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+        }
+
         $this->dispatchValidationEvent($validation, $context->getContext());
 
         $this->validator->validate($data->all(), $validation);
 
         $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
+    }
+
+    private function getDomainUrls(SalesChannelContext $context): array
+    {
+        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
+            return $domainEntity->getUrl();
+        }, $context->getSalesChannel()->getDomains()->getElements());
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void

@@ -8,10 +8,10 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 
 /**
  * This route is used to send a password recovery mail
- * The required parameters are: "email"
+ * The required parameters are: "email" and "storefrontUrl"
  * The process can be completed with the hash in the Route Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRouteInterface
  */
 interface SendPasswordRecoveryMailRouteInterface
 {
-    public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context): SuccessResponse;
+    public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse;
 }

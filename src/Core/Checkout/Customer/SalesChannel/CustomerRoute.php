@@ -58,7 +58,7 @@ class CustomerRoute implements CustomerRouteInterface
      * )
      * @Route("/store-api/v{version}/account/customer", name="shop-api.account.customer", methods={"GET"})
      */
-    public function load(Request $request, SalesChannelContext $context): CustomerRouteResponse
+    public function load(Request $request, SalesChannelContext $context): CustomerResponse
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
@@ -74,6 +74,6 @@ class CustomerRoute implements CustomerRouteInterface
 
         $customer = $this->customerRepository->search($criteria, $context->getContext())->first();
 
-        return new CustomerRouteResponse($customer);
+        return new CustomerResponse($customer);
     }
 }

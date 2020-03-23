@@ -6,6 +6,13 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.3.0 use one of services:
+ * \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
+ * \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute
+ * \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUpdateRoute
+ * \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute
+ */
 interface NewsletterSubscriptionServiceInterface
 {
     public const MAIL_TYPE_OPT_IN = 'newsletterDoubleOptIn';

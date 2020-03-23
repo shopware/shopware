@@ -28,6 +28,7 @@ class SalesChannelNewsletterController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.3.0 use subscribe method to update newsletter subscription
      * @Route("/sales-channel-api/v{version}/newsletter", name="sales-channel-api.newsletter.update", methods={"PATCH"})
      */
     public function update(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse

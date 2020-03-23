@@ -166,6 +166,7 @@ class AccountRegistrationServiceTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
+            'storefrontUrl' => 'http://localhost',
 
             'billingAddress' => [
                 'countryId' => $this->getValidCountryId(),

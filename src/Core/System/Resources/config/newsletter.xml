@@ -4,14 +4,5 @@
     <card>
         <title>Newsletter configuration</title>
         <title lang="de-DE">Newsletter-Konfiguration</title>
-
-
-        <input-field>
-            <name>subscribeDomain</name>
-            <label>Subscription domain</label>
-            <label lang="de-DE">Anmeldedomain</label>
-            <placeholder>Enter subscription domain...</placeholder>
-            <placeholder lang="de-DE">Anmeldedomain eingeben ...</placeholder>
-        </input-field>
     </card>
 </config>

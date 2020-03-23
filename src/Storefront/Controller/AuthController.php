@@ -140,9 +140,10 @@ class AuthController extends StorefrontController
     /**
      * @Route("/account/recover", name="frontend.account.recover.request", methods={"POST"})
      */
-    public function generateAccountRecovery(RequestDataBag $data, SalesChannelContext $context): Response
+    public function generateAccountRecovery(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         try {
+            $data->get('email')->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
             $this->accountService->generateAccountRecovery($data->get('email'), $context);
 
             $this->addFlash('success', $this->trans('account.recoveryMailSend'));

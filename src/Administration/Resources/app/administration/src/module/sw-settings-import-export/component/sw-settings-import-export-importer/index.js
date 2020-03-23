@@ -1,12 +1,18 @@
 import template from './sw-settings-import-export-importer.html.twig';
 import './sw-settings-import-export-importer.scss';
 
+const { Mixin } = Shopware;
+
 // TODO: Bitte die ganze Komponente Unit testen!
 // TODO: Upload der Datei bitte E2E testen, ob alles korrekt importiert wird (inkl. UI)
 Shopware.Component.register('sw-settings-import-export-importer', {
     template,
 
     inject: ['importExport'],
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     data() {
         return {
@@ -40,13 +46,16 @@ Shopware.Component.register('sw-settings-import-export-importer', {
         onStartImport() {
             this.isLoading = true;
             const profile = this.selectedProfile;
-            // TODO: mockFile ersetzen
-            const mockFile = new File(['foobar'], 'test.csv', {
-                type: 'text/csv',
-                lastModified: 1580808218967
-            });
+            const file = this.importFile;
 
-            this.importExport.import(profile, mockFile, this.handleImportProgress);
+            this.importExport.import(profile, file, this.handleImportProgress).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-settings-import-export.importer.titleExportSuccess'),
+                    message: this.$tc('sw-settings-import-export.importer.messageExportSuccess')
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         handleImportProgress(progress) {

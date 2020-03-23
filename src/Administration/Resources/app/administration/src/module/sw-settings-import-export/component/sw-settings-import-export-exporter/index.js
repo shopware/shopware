@@ -49,11 +49,6 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
                     title: this.$tc('sw-settings-import-export.exporter.titleExportSuccess'),
                     message: this.$tc('sw-settings-import-export.exporter.messageExportSuccess', 0)
                 });
-            }).catch((error) => {
-                this.createNotificationError({
-                    title: 'Error',
-                    message: error
-                });
             }).finally(() => {
                 this.isLoading = false;
             });

@@ -35,6 +35,10 @@
     "exporter": {
       "titleExportSuccess": "Success",
       "messageExportSuccess": "The export was completed successfully."
+    },
+    "importer": {
+      "titleExportSuccess": "Success",
+      "messageExportSuccess": "The import was completed successfully."
     }
   }
 }

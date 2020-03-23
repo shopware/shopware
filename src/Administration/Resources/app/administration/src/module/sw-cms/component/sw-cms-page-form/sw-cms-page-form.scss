@@ -58,11 +58,23 @@
     .sw-cms-page-form__block-card + .sw-cms-page-form__block-card {
         margin-top: 60px;
     }
+    
+    .sw-cms-page-form__block-card.is--empty {
+        box-sizing: border-box;
+        height: 230px;
+    }
+    
+    .sw-cms-page-form__empty-state-text {
+        text-align: center;
+        height: 20px;
+        margin: 85px 0;
+        color: $color-gray-500;
+    }
 
     &__section {
         position: relative;
         padding: 50px 30px 70px 30px;
-        border-bottom: 2px solid rgb(209, 217, 224);
+        border-bottom: 2px solid $color-gray-300;
         width: 100%;
 
         &:first-of-type {

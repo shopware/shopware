@@ -88,7 +88,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     private function getUploadFixture(string $filename): UploadedFile
     {
-        return new UploadedFile(self::FIXTURE_DIR . '/' . $filename, $filename);
+        return new UploadedFile(self::FIXTURE_DIR . '/' . $filename, $filename, null, null, true);
     }
 
     private function getUploadService(): StorefrontMediaUploader

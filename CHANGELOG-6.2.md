@@ -245,6 +245,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
           * Deprecated data `themeFields`, use `structuredThemeFields` instead
           * Added method `getStructuredFields` to themeApiService
     * Added new component `sw-order-create-promotion-modal` which can be used to display the automatic promotions will be disabled before click to the button disable
+    * Added an error notification for user when he deletes a customer group that has a SalesChannel and/or a customer assigned to it.
+    * Added `bulk-modal-cancel`, `bulk-modal-delete-items`, `delete-modal-cancel` and `delete-modal-delete-item` slots to `sw-entity-listing.html.twig`
 
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
     * The `fixed` directive is now deprecated and will be removed with version 6.4

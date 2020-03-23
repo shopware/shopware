@@ -20,6 +20,10 @@
             "placeholderNewCustomerGroup": "Neue Kundengruppe",
             "notificationErrorTitle": "Fehler",
             "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe."
+        },
+        "notification": {
+            "errorTitleCannotDeleteCustomerGroup": "Fehler",
+            "errorMessageCannotDeleteCustomerGroup": "Dieser Kundengruppe sind noch Verkaufskanäle und/oder Kunden zugewiesen, daher kann sie nicht gelöscht werden."
         }
     }
 }

@@ -130,9 +130,9 @@ class MailService implements MailServiceInterface
             $templateData['salesChannel'] = $salesChannel;
         }
 
-        $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress');
 
-        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.mailerSettings.senderAddress');
+        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
 
         if ($senderEmail === null) {
             $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');

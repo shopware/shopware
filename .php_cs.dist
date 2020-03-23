@@ -65,11 +65,11 @@ return Config::create()
         Fixer\NoImportFromGlobalNamespaceFixer::name() => true,
         Fixer\OperatorLinebreakFixer::name() => true,
         Fixer\PhpdocNoIncorrectVarAnnotationFixer::name() => true,
-        Fixer\NoUnneededConcatenationFixer::name() => true,
-        Fixer\NullableParamStyleFixer::name() => true,
+        Fixer\NoSuperfluousConcatenationFixer::name() => true,
         'general_phpdoc_annotation_remove' => [
             'annotations' => ['copyright', 'category'],
         ],
         'single_line_throw' => false,
+        'nullable_type_declaration_for_default_null_value' => true,
     ])
     ->setFinder($finder);

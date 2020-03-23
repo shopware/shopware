@@ -28,7 +28,6 @@ class DownloadTest extends TestCase
         }
 
         foreach ($this->testFiles as $testFile) {
-            echo 'Unlink ' . $testFile;
             unlink($testFile);
             @unlink($testFile . '.part');
         }

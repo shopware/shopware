@@ -32,7 +32,7 @@ const optimization = {
     minimizer: [
         new TerserPlugin({
             terserOptions: {
-                ecma: 6,
+                ecma: 5,
                 warnings: false,
             },
             cache: true,

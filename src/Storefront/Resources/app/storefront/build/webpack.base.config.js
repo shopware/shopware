@@ -40,7 +40,7 @@ const { ESLINT_DISABLE = 'false', MODE = 'dev' } = process.env;
 
 const jsRules = {
     test: /\.m?js$/,
-    exclude: /(node_modules|bower_components|vendors)/,
+    exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|eslint-plugin-cypress|fs-extra|nunito-fontface|query-string|split-on-first)\/).*/,
     use: [
         {
             loader: 'babel-loader',

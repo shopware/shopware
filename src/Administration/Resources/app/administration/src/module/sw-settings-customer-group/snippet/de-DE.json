@@ -16,8 +16,8 @@
             "fieldNameLabel": "Name",
             "fieldDisplayGrossLabel": "Steuerdarstellung",
             "fieldDisplayGrossValues": "Brutto | Netto",
-            "placeholderName": "Bitte gib einen Namen an ...",
-            "placeholderNewCustomerGroup": "Neue Kundengruppe",
+            "placeholderName": "Einen Namen eingeben ...",
+            "placeholderNewCustomerGroup": "Neue Kundengruppe ...",
             "notificationErrorTitle": "Fehler",
             "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe."
         },

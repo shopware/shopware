@@ -174,7 +174,7 @@
           "labelValue": "Value",
           "labelMaxValue": "Maximum discount value",
           "helpTextMaxValueAdvancedPrices": "Largest discount possible (absolute monetary value).",
-          "placeholderValue": "Enter either a percentage or an absolute value.",
+          "placeholderValue": "Enter either a percentage or an absolute value...",
           "labelScope": "Apply to:",
           "flagProductScopeLabel": "Apply to a specific range of products only.",
           "labelRules": "Product rules",

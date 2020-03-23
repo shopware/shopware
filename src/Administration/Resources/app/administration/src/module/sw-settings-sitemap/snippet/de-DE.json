@@ -1,13 +1,13 @@
 {
-    "sw-settings-sitemap": {
-        "general": {
-            "mainMenuItemGeneral": "Sitemap",
-            "description": "Hier können Einstellungen an der Sitemap vorgenommen werden.",
-            "textHeadline": "Sitemap",
-            "buttonSave": "Speichern",
-            "titleSaveSuccess": "Erfolg",
-            "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
-            "titleSaveError": "Fehler beim Speichern der Konfiguration"
-        }
+  "sw-settings-sitemap": {
+    "general": {
+      "mainMenuItemGeneral": "Sitemap",
+      "description": "Hier können Einstellungen an der Sitemap vorgenommen werden.",
+      "textHeadline": "Sitemap",
+      "buttonSave": "Speichern",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
+      "titleSaveError": "Fehler beim Speichern der Konfiguration"
     }
+  }
 }

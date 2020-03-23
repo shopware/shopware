@@ -41,14 +41,14 @@
       }
     },
     "customField": {
-      "detail":{
+      "detail": {
         "titleNewCustomField": "New custom field",
         "titleEditCustomField": "Edit custom field",
         "buttonSaveApply": "Add",
         "buttonEditApply": "Apply changes",
         "buttonCancel": "Cancel",
         "labelCustomFieldType": "Type",
-        "placeholderCustomFieldType":"Select...",
+        "placeholderCustomFieldType": "Select...",
         "labelRequired": "Required",
         "labelTechnicalName": "Technical name",
         "labelLabel": "Label",

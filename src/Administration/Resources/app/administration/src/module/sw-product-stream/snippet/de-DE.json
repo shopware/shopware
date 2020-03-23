@@ -11,7 +11,7 @@
       "columnDescription": "Beschreibung",
       "columnDateUpdated": "Änderungsdatum",
       "columnStatus": "Status",
-      "titleSidebarItemRefresh": "Refresh",
+      "titleSidebarItemRefresh": "Aktualisieren",
       "buttonAddProductStream": "Produktgruppe anlegen",
       "status": {
         "valid": "Valide",
@@ -20,8 +20,8 @@
       "messageEmpty": "Noch keine Produktgruppen"
     },
     "filter": {
-      "placeholderFieldSelect": "Wähle eine Eigenschaft",
-      "placeholderOperatorSelect": "Wähle einen Operator",
+      "placeholderFieldSelect": "Wähle eine Eigenschaft ...",
+      "placeholderOperatorSelect": "Wähle einen Operator ...",
       "valid": "Nur valide Produktgruppen anzeigen",
       "type": {
         "equals": "Gleich",

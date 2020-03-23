@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "SEO",
       "descriptionTextModule": "Verwaltung von SEO Einstellungen.",
-      "textHeadline" : "SEO",
+      "textHeadline": "SEO",
       "buttonSave": "Speichern"
     }
   },

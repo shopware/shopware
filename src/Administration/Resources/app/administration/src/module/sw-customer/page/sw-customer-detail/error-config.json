@@ -1,8 +1,8 @@
 {
-    "sw.customer.detail.base": {
-        "customer": [
-            "firstName",
-            "lastName"
-        ]
-    }
+  "sw.customer.detail.base": {
+    "customer": [
+      "firstName",
+      "lastName"
+    ]
+  }
 }

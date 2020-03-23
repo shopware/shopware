@@ -17,7 +17,7 @@
             "fieldDisplayGrossLabel": "Tax display",
             "fieldDisplayGrossValues": "Gross | Net",
             "placeholderName": "Enter a name...",
-            "placeholderNewCustomerGroup": "New customer group",
+            "placeholderNewCustomerGroup": "New customer group...",
             "notificationErrorTitle": "Error",
             "notificationErrorMessage": "An error occured while saving your customer group."
         },
@@ -27,3 +27,4 @@
         }
     }
 }
+

@@ -2,7 +2,7 @@
   "sw-settings-number-range": {
     "general": {
       "mainMenuItemGeneral": "Number ranges",
-      "placeholderSearchBar": "Search number ranges"
+      "placeholderSearchBar": "Search number ranges..."
     },
     "list": {
       "textHeadline": "Number ranges",
@@ -44,7 +44,7 @@
       "placeholderPrefix": "Enter prefix...",
       "placeholderSuffix": "Enter suffix...",
       "placeholderPattern": "Enter pattern... \"prefix_{n}_suffix\"",
-      "placeholderStart": "Enter start number",
+      "placeholderStart": "Enter start number...",
       "placeholderPleaseSelect": "Please select...",
       "placeholderSimpleModeImpossible": "Advanced mode active",
       "buttonCancel": "Cancel",

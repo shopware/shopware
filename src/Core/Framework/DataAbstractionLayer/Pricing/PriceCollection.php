@@ -15,6 +15,16 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class PriceCollection extends Collection
 {
+    public function __construct(iterable $elements = [])
+    {
+        parent::__construct([]);
+
+        /* @var Price $element */
+        foreach ($elements as $element) {
+            $this->set($element->getCurrencyId(), $element);
+        }
+    }
+
     public function add($element): void
     {
         $this->validateType($element);

@@ -40,9 +40,10 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
     created() {},
 
     methods: {
-        onDeleteMapping(id) {
-            // TODO: Implement deletion
-            console.log('Delete ', id);
+        onDeleteMapping(key) {
+            this.profile.mapping = this.profile.mapping.filter((mapping) => {
+                return mapping.key !== key;
+            });
         }
     }
 });

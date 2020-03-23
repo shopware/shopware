@@ -48,26 +48,6 @@
         </sw-entity-listing>
     </sw-card>
 
-    {# TODO: This ist just for testing the modal: #}
-    <sw-card title="Profiles">
-        <p>
-            TODO: Hier kommt das Modul hin, womit man die Profile pflegen kann. Das Data Grid erst wieder später bauen.
-            Das Modal zum Erstellen von neuen Profilen kann jedoch schon erstellt werden.
-        </p>
-
-        <p>
-            Die Funktionen, Computed und Data in dieser Komponente kannst du frei verändern. Hab nur was kurz erstellt,
-            damit es funktional ist.
-        </p>
-
-        <p>
-            <br>
-        </p>
-
-        <sw-button @click="onAddNewProfile">Add new profile</sw-button>
-        <sw-button @click="onEditProfile">Edit profile</sw-button>
-    </sw-card>
-
     <sw-settings-import-export-edit-profile-modal
         :profile="selectedProfile"
         @profile-save="saveSelectedProfile"

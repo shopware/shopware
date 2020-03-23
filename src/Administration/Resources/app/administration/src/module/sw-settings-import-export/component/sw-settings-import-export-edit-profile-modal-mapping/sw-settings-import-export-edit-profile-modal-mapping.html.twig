@@ -22,34 +22,25 @@
 
     {# TODO: add context menu and change to profiles #}
     <sw-data-grid
-        :dataSource="[
-            { id: '123', csvName: 'Gross price', entry: 'prices.id'},
-            { id: '456', csvName: 'Product name', entry: 'name'},
-            { id: '789', csvName: 'Categories', entry: 'categories.id'},
-            { id: '112', csvName: 'Manufacturer', entry: 'manufacturer.id'},
-        ]"
+        :dataSource="profile.mapping"
         :compactMode="false"
         :showSelection="false"
         :columns="mappingColumns">
 
         <template slot="column-csvName" slot-scope="{ item }">
-            <sw-field type="text" v-model="item.csvName"></sw-field>
+            <sw-field type="text" v-model="item.mappedKey"></sw-field>
         </template>
 
         <template slot="column-entry" slot-scope="{ item }">
-            <sw-single-select
-                v-model="item.entry"
-                :options="[
-                    { value: 'prices.id', label: 'prices.id' },
-                    { value: 'name', label: 'name' },
-                    { value: 'categories.id', label: 'categories.id' },
-                    { value: 'manufacturer.id', label: 'manufacturer.id' },
-                ]"
-            ></sw-single-select>
+            <sw-import-export-entity-path-select
+                :entityType="profile.sourceEntity"
+                v-model="item.key">
+
+            </sw-import-export-entity-path-select>
         </template>
 
         <template #actions="{ item }">
-            <sw-context-menu-item variant="danger" @click="onDeleteMapping(item.id)">
+            <sw-context-menu-item variant="danger" @click="onDeleteMapping(item.key)">
                 Delete
             </sw-context-menu-item>
         </template>

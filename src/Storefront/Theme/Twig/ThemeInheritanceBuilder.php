@@ -31,13 +31,6 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
      */
     public function build(array $bundles, array $themes): array
     {
-        $bundles = $this->filterThemes($bundles, $themes);
-
-        return $this->sortBundles($bundles, $themes);
-    }
-
-    private function sortBundles(array $bundles, array $themes): array
-    {
         $keys = array_keys($themes);
 
         $theme = array_shift($keys);
@@ -53,9 +46,14 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
             if (isset($inheritance[$key])) {
                 $inheritance[$key][] = $bundle;
-            } else {
-                $inheritance['@Plugins'][] = $bundle;
+
+                continue;
             }
+            if ($this->isTheme($bundle)) {
+                continue;
+            }
+
+            $inheritance['@Plugins'][] = $bundle;
         }
 
         $flat = [];
@@ -119,62 +117,12 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             return $default;
         }
 
-        // ensure storefront is included
-        if (!in_array('@Storefront', $inheritance, true)) {
-            $inheritance = array_merge(['@Storefront'], $inheritance);
-        }
-
         $tree = [];
         foreach ($inheritance as $name) {
             $tree[$name] = [];
         }
 
         return $this->injectPluginWildcard($tree);
-    }
-
-    private function filterThemes(array $bundles, array $themes): array
-    {
-        $filtered = [];
-
-        foreach ($bundles as $bundle) {
-            if ($this->themeRegistry) {
-                $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
-
-                if (
-                    $themeConfig === null
-
-                    // add all plugins
-                    || !$themeConfig->getIsTheme()
-
-                    // always add storefront for new routes and templates fallback
-                    || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
-
-                    // filter all none active themes
-                    || isset($themes[$bundle])
-                ) {
-                    $filtered[] = $bundle;
-                }
-            } else {
-                $bundleClass = $this->getBundle($bundle);
-
-                if (
-                    $bundleClass === null
-
-                    // add all plugins
-                    || !($bundleClass instanceof ThemeInterface)
-
-                    // always add storefront for new routes and templates fallback
-                    || $bundle === StorefrontPluginRegistry::BASE_THEME_NAME
-
-                    // filter all none active themes
-                    || isset($themes[$bundle])
-                ) {
-                    $filtered[] = $bundle;
-                }
-            }
-        }
-
-        return $filtered;
     }
 
     private function getBundle(string $name): ?BundleInterface
@@ -205,5 +153,42 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         }
 
         return $sorted;
+    }
+
+    private function isTheme(string $bundle): bool
+    {
+        if ($this->themeRegistry) {
+            $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
+
+            if ($themeConfig === null) {
+                return false;
+            }
+
+            if ($themeConfig->getIsTheme()) {
+                return true;
+            }
+
+            if ($bundle === StorefrontPluginRegistry::BASE_THEME_NAME) {
+                return true;
+            }
+
+            return false;
+        }
+
+        $bundleClass = $this->getBundle($bundle);
+
+        if ($bundleClass === null) {
+            return false;
+        }
+
+        if ($bundleClass instanceof ThemeInterface) {
+            return true;
+        }
+
+        if ($bundle === StorefrontPluginRegistry::BASE_THEME_NAME) {
+            return true;
+        }
+
+        return false;
     }
 }

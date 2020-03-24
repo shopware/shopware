@@ -70,10 +70,6 @@ class ThemeTemplateFinder extends TemplateFinder implements EventSubscriberInter
             $themes[$theme] = true;
         }
 
-        if (!isset($themes['Storefront'])) {
-            $themes['Storefront'] = true;
-        }
-
         return $themes;
     }
 }

@@ -13,10 +13,10 @@ export default class ImportExportService extends ApiService {
      * and final result data.
      *
      * @param profileId {Entity} Profile entity
-     * @param cb {Function} Callback for progress
+     * @param callback {Function} Callback for progress
      * @returns {Promise<void>}
      */
-    async export(profileId, cb) {
+    async export(profileId, callback) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -25,19 +25,7 @@ export default class ImportExportService extends ApiService {
             expireDate: expireDate.toDateString()
         }, { headers: this.getBasicHeaders() });
 
-        let data = { data: { offset: 0, total: 1 } };
-
-        while (data.data.offset < data.data.total) {
-            const oldOffset = data.data.offset;
-
-            // eslint-disable-next-line no-await-in-loop
-            data = await this.httpClient.post('/_action/import-export/process', {
-                logId: createdLog.data.log.id,
-                offset: oldOffset
-            }, { headers: this.getBasicHeaders() });
-
-            cb.call(this, data.data);
-        }
+        this.trackProgress(createdLog, callback);
 
         return createdLog;
     }
@@ -62,7 +50,7 @@ export default class ImportExportService extends ApiService {
      * @param cb {Function} Callback for progress
      * @returns {Promise<void>}
      */
-    async import(profileId, file, cb) {
+    async import(profileId, file, callback) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -78,35 +66,34 @@ export default class ImportExportService extends ApiService {
             headers: this.getBasicHeaders()
         });
 
+        this.trackProgress(createdLog, callback);
+
+        return createdLog;
+    }
+
+    async trackProgress(logEntry, callback) {
         let data = { data: { offset: 0, total: 1 } };
+        let noProgressCounter = 0;
 
         while (data.data.offset < data.data.total) {
             const oldOffset = data.data.offset;
 
             // eslint-disable-next-line no-await-in-loop
             data = await this.httpClient.post('/_action/import-export/process', {
-                logId: createdLog.data.log.id,
+                logId: logEntry.data.log.id,
                 offset: oldOffset
             }, { headers: this.getBasicHeaders() });
 
-            cb.call(this, data.data);
+            // Track if no progress was made
+            if (oldOffset === data.data.offset) {
+                noProgressCounter += 1;
+            }
+            if (noProgressCounter >= 3) {
+                throw new Error('ImportExportService - Process failed. ' +
+                    'The offset did not change over within three requests');
+            }
+            callback.call(this, data.data);
         }
-
-        return createdLog;
-        // while (data.data.offset < data.data.total) {
-
-        // do {
-        //     var oldOffset = data.data.offset;
-        //
-        //     data = await this.httpClient.post('/_action/import-export/process', {
-        //         logId: createdLog.data.log.id,
-        //         offset: oldOffset
-        //     }, {
-        //         headers: this.getBasicHeaders()
-        //     });
-        // } while (oldOffset !== data.data.offset);
-
-        // this.handleImportProgress(progress, cb);
     }
 
     /**

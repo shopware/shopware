@@ -1,6 +1,6 @@
 <div class="sw-settings-import-export-exporter">
     <h3>
-        <strong>{{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}</strong>
+        {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
     </h3>
 
     <sw-entity-single-select
@@ -13,10 +13,10 @@
 
     <sw-settings-import-export-progress
         activityType="export"
-        :offset="this.progressOffset"
-        :total="this.progressTotal"
-        :logEntry="this.progressLogEntry"
-        :state="this.progressState"
+        :offset="progressOffset"
+        :total="progressTotal"
+        :logEntry="progressLogEntry"
+        :state="progressState"
         :isLoading="isLoading"
         :disableButton="disableExporting"
         @process-start="onStartProcess">

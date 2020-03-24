@@ -1,27 +1,18 @@
 <div class="sw-settings-import-export-importer">
     <h3>
-        <strong>{{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}</strong>
+        {{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}
     </h3>
     <p>
         <span v-html="$tc('sw-settings-import-export.importer.warningBlock')"></span>
     </p>
 
-    {#
-        TODO: Die Komponente müsste noch ausgearbeitet werden. Sie ist aktuell nur sehr rudimentär.
-         Bitte auch hier gegen testen: "sw-order-document-settings-modal". Dort wird sie auch verwendet.
-         Folgende Features sollten noch hinzu kommen:
-         - Upload from URL
-         - Drag & Drop Support
-         - Anpassung wie im Screendesign (Keine Datei hochgeladen, Vorschau der Datei)
-         - Restriktionen von Dateiendungen (via Prop)
-    #}
     <sw-file-input
         v-model="importFile"
         :allowedMimeTypes="['text/csv']">
     </sw-file-input>
 
     <h3>
-        <strong>{{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}</strong>
+        {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
     </h3>
 
     <sw-entity-single-select
@@ -34,10 +25,10 @@
 
     <sw-settings-import-export-progress
         activityType="import"
-        :offset="this.progressOffset"
-        :total="this.progressTotal"
-        :logEntry="this.progressLogEntry"
-        :state="this.progressState"
+        :offset="progressOffset"
+        :total="progressTotal"
+        :logEntry="progressLogEntry"
+        :state="progressState"
         :isLoading="isLoading"
         :disableButton="disableImporting"
         @process-start="onStartProcess">

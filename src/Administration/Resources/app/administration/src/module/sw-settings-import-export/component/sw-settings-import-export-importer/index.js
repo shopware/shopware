@@ -50,8 +50,8 @@ Shopware.Component.register('sw-settings-import-export-importer', {
 
             this.importExport.import(profile, file, this.handleImportProgress).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-import-export.importer.titleExportSuccess'),
-                    message: this.$tc('sw-settings-import-export.importer.messageExportSuccess')
+                    title: this.$tc('sw-settings-import-export.importer.titleImportSuccess'),
+                    message: this.$tc('sw-settings-import-export.importer.messageImportSuccess')
                 });
             }).finally(() => {
                 this.isLoading = false;

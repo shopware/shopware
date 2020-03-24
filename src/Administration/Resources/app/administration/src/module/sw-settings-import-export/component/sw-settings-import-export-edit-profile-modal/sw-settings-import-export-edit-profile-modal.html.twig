@@ -9,13 +9,13 @@
             <sw-tabs-item title="General"
                           name="general"
                           :activeTab="active">
-                General
+                {{ $tc('sw-settings-import-export.profile.generalTab') }}
             </sw-tabs-item>
 
             <sw-tabs-item title="Field indicators"
                           name="fieldIndicators"
                           :activeTab="active">
-                Field indicators
+                {{ $tc('sw-settings-import-export.profile.fieldIndicatorsTab') }}
             </sw-tabs-item>
         </template>
 
@@ -23,9 +23,7 @@
             <template v-if="active === 'general'">
 
                 <p>
-                    Object types define a certain mode for importing and exporting data. This will additionally
-                    lessen the mapping options below. Note that you cannot change the object type after
-                    mapping options have been introduced.
+                    {{ $tc('sw-settings-import-export.profile.descriptionBlock') }}
                     <br>
                     <br>
                 </p>
@@ -58,7 +56,7 @@
                 </sw-container>
 
                 <p>
-                    Use the table below to map CSV fields to their respective database counterparts.
+                    {{ $tc('sw-settings-import-export.profile.mappingDescriptionBlock') }}
                 </p>
 
                 <sw-settings-import-export-edit-profile-modal-mapping
@@ -69,7 +67,7 @@
 
             <template v-if="active === 'fieldIndicators'">
                 <p>
-                    Separators and enclosure characters are used to indicate separate field within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.
+                    {{ $tc('sw-settings-import-export.profile.csvDescriptionBlock') }}
                     <br><br>
                 </p>
 
@@ -91,7 +89,7 @@
     </sw-tabs>
 
     <template slot="modal-footer">
-        <sw-button @click="$emit('profile-close')">Cancel</sw-button>
+        <sw-button @click="$emit('profile-close')">{{ $tc('sw-settings-import-export.profile.cancelLabel') }}</sw-button>
         <sw-button @click="$emit('profile-save')" variant="primary">{{ saveLabelSnippet }}</sw-button>
     </template>
 </sw-modal>

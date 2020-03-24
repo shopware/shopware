@@ -1,15 +1,9 @@
 <div class="sw-settings-import-export-importer">
-
-    {# TODO: Implement file upload #}
-
     <h3>
-        <strong>Upload CSV file</strong>
+        <strong>{{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}</strong>
     </h3>
     <p>
-        <strong>Warning:</strong>
-        Imported data sets may conflict with already existing database entries and potentially overwrite them.
-        The changes introduced with this import will be permanent. So be sure to have a database backup
-        at hand before proceeding.
+        <span v-html="$tc('sw-settings-import-export.importer.warningBlock')"></span>
     </p>
 
     {#
@@ -27,12 +21,12 @@
     </sw-file-input>
 
     <h3>
-        <strong>Select a profile</strong>
+        <strong>{{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}</strong>
     </h3>
 
     <sw-entity-single-select
         :disabled="isLoading"
-        label="Profile"
+        :label="$tc('sw-settings-import-export.importer.profileLabel')"
         entity="import_export_profile"
         v-model="selectedProfile"
         required>
@@ -57,7 +51,7 @@
         <sw-button :disabled="disableImporting"
                    variant="primary"
                    @click="onStartImport">
-            Start import
+            {{  $tc('sw-settings-import-export.importer.startImportLabel')  }}
         </sw-button>
 
         <div class="sw-settings-import-export-importer__progress-bar"
@@ -103,8 +97,8 @@
         </div>
 
         <div>
-            <sw-button variant="primary" :link="stats.fileUrl">Download file</sw-button>
-            <sw-button :link="stats.logfileUrl">Show log file</sw-button>
+            <sw-button variant="primary" :link="stats.fileUrl">{{  $tc('sw-settings-import-export.activity.contextMenu.downloadFile')  }}</sw-button>
+            <sw-button :link="stats.logfileUrl">{{  $tc('sw-settings-import-export.exporter.showLogLabel')  }}</sw-button>
         </div>
     </template>
 

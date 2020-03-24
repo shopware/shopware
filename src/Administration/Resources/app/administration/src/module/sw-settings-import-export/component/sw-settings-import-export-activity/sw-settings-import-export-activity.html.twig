@@ -18,11 +18,11 @@
         <template #actions="{ item }">
             <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.fileId, item.file.accessToken)" target="_blank" download>
                 <sw-context-menu-item >
-                    Download file
+                    {{ $tc('sw-settings-import-export.activity.contextMenu.downloadFile') }}
                 </sw-context-menu-item>
             </a>
             <sw-context-menu-item @click="onOpenProfile(item.profileId)">
-                Show profile
+                {{ $tc('sw-settings-import-export.activity.contextMenu.showProfile') }}
             </sw-context-menu-item>
         </template>
     </sw-entity-listing>

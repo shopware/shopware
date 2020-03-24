@@ -21,7 +21,6 @@ Shopware.Component.register('sw-settings-import-export-view-export', {
 
     methods: {
         onExportFinish() {
-            console.log('export dfinish : ');
             this.$refs.activityGrid.fetchActivities();
         }
     }

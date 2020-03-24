@@ -11,6 +11,10 @@
         "date": "Date",
         "user": "User",
         "state": "State"
+      },
+      "contextMenu": {
+        "downloadFile": "Download file",
+        "showProfile": "Show profile"
       }
     },
     "profile": {
@@ -26,19 +30,54 @@
       "messageDuplicateSuccess": "The profile was duplicated successfully.",
       "titleDuplicateError": "Error",
       "messageDuplicateError": "The profile couldnt be duplicated.",
+      "productLabel": "Product",
+      "customerLabel": "Customer",
+      "categoriesLabel": "Categories",
+      "mediaLabel": "Media",
+      "newsletterRecipientLabel": "Newsletter recipient",
+      "caretsLabel": "Carets (^)",
+      "commasLabel": "Comma (,)",
+      "pipesLabel": "Pipes (|)",
+      "semicolonLabel": "Semicolon (;)",
+      "doubleQuoteLabel": "Double quotes (\")",
+      "newProfileLabel": "New profile",
+      "editProfileLabel": "Edit profile",
+      "addProfileLabel": "Add profile",
+      "saveProfileLabel": "Save profile",
+      "generalTab": "General",
+      "fieldIndicatorsTab": "Field indicator",
+      "descriptionBlock": "Object types define a certain mode for importing and exporting data. This will additionally lessen the mapping options below. Note that you cannot change the object type after mapping options have been introduced.",
+      "mappingDescriptionBlock": "Use the table below to map CSV fields to their respective database counterparts.",
+      "csvDescriptionBlock": "Separators and enclosure characters are used to indicate separate field within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
+      "cancelLabel": "Cancel",
+      "addMappingLabel": "Add new mapping",
+      "deleteLabel": "Delete",
       "mapping": {
-        "fileValueLabel": "File value name",
-        "entityLabel": "Database value name"
+        "fileValueLabel": "CSV name",
+        "entityLabel": "Database entry"
       },
       "sourceEntityLabel": "System default"
     },
     "exporter": {
       "titleExportSuccess": "Success",
-      "messageExportSuccess": "The export was completed successfully."
+      "messageExportSuccess": "The export was completed successfully.",
+      "startExportLabel": "Start export",
+      "showLogLabel": "Show log file",
+      "exportActivityLabel": "Export activity",
+      "exportActivityDescription": "Activity older then 30 days will automatically be removed."
     },
     "importer": {
-      "titleExportSuccess": "Success",
-      "messageExportSuccess": "The import was completed successfully."
+      "titleImportSuccess": "Success",
+      "messageImportSuccess": "The import was completed successfully.",
+      "uploadCsvLabel": "Upload CSV file",
+      "startImportLabel": "Start import",
+      "selectProfileLabel": "Select profile",
+      "profileLabel": "Profile",
+      "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
+      "importActivityLabel": "Import activity"
+    },
+    "page": {
+      "profileTab": "Profiles"
     }
   }
 }

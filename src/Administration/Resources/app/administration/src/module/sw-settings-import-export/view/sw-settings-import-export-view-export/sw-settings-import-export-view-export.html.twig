@@ -10,9 +10,9 @@
     <sw-card class="sw-settings-import-export-view-export__activity">
         <template #title>
             <div class="sw-card__title">
-                Export activity
+                {{ $tc('sw-settings-import-export.exporter.exportActivityLabel') }}
                 <p class="sw-settings-import-export__card-subtitle">
-                    Activity older then 30 days will automatically be removed.
+                    {{ $tc('sw-settings-import-export.exporter.exportActivityDescription') }}
                 </p>
             </div>
         </template>

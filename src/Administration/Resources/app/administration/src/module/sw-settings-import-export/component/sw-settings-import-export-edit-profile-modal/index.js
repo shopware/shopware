@@ -16,22 +16,21 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
 
     data() {
         return {
-            // ToDo Snippets
             supportedEntities: [
-                { value: 'product', label: 'Product' },
-                { value: 'customer', label: 'Customer' },
-                { value: 'categories', label: 'Categories' },
-                { value: 'media', label: 'Media' },
-                { value: 'newsletter_recipient', label: 'Newsletter recipient' }
+                { value: 'product', label: this.$tc('sw-settings-import-export.profile.productLabel') },
+                { value: 'customer', label: this.$tc('sw-settings-import-export.profile.customerLabel') },
+                { value: 'categories', label: this.$tc('sw-settings-import-export.profile.categoriesLabel') },
+                { value: 'media', label: this.$tc('sw-settings-import-export.profile.mediaLabel') },
+                { value: 'newsletter_recipient', label: this.$tc('sw-settings-import-export.profile.newsletterRecipientLabel') }
             ],
             supportedDelimiter: [
-                { value: '^', label: 'Carets (^)' },
-                { value: ',', label: 'Commas (,)' },
-                { value: '|', label: 'Pipes (|)' },
-                { value: ';', label: 'Commas (;)' }
+                { value: '^', label: this.$tc('sw-settings-import-export.profile.caretsLabel') },
+                { value: ',', label: this.$tc('sw-settings-import-export.profile.commasLabel') },
+                { value: '|', label: this.$tc('sw-settings-import-export.profile.pipesLabel') },
+                { value: ';', label: this.$tc('sw-settings-import-export.profile.semicolonLabel') }
             ],
             supportedEnclosures: [
-                { value: '"', label: 'Double quote' }
+                { value: '"', label: this.$tc('sw-settings-import-export.profile.doubleQuoteLabel') }
             ]
         };
     },
@@ -46,11 +45,11 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
         },
 
         modalTitle() {
-            return this.isNew ? 'New profile' : 'Edit profile';
+            return this.isNew ? this.$tc('sw-settings-import-export.profile.newProfileLabel') : this.$tc('sw-settings-import-export.profile.editProfileLabel');
         },
 
         saveLabelSnippet() {
-            return this.isNew ? 'Add profile' : 'Save profile';
+            return this.isNew ? this.$tc('sw-settings-import-export.profile.addProfileLabel') : this.$tc('sw-settings-import-export.profile.saveProfileLabel');
         }
     },
 

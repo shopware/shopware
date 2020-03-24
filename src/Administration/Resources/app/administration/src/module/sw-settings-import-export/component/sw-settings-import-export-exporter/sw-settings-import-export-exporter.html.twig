@@ -1,11 +1,11 @@
 <div class="sw-settings-import-export-exporter">
     <h3>
-        <strong>Select a profile</strong>
+        <strong>{{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}</strong>
     </h3>
 
     <sw-entity-single-select
         :disabled="isLoading"
-        label="Profile"
+        :label="$tc('sw-settings-import-export.importer.profileLabel')"
         entity="import_export_profile"
         v-model="selectedProfileId"
         required>
@@ -18,7 +18,7 @@
         <sw-button :disabled="disableExporting"
                    variant="primary"
                    @click="onStartExport">
-            Start export
+            {{  $tc('sw-settings-import-export.exporter.startExportLabel')  }}
         </sw-button>
 
         <div class="sw-settings-import-export-exporter__progress-bar"
@@ -64,8 +64,8 @@
         </div>
 
         <div>
-            <sw-button variant="primary" :link="stats.fileUrl">Download file</sw-button>
-            <sw-button :link="stats.logfileUrl">Show log file</sw-button>
+            <sw-button variant="primary" :link="stats.fileUrl">{{  $tc('sw-settings-import-export.activity.contextMenu.downloadFile')  }}</sw-button>
+            <sw-button :link="stats.logfileUrl">{{  $tc('sw-settings-import-export.exporter.showLogLabel')  }}</sw-button>
         </div>
     </template>
 

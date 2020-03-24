@@ -14,7 +14,7 @@
             @click="onAddMapping"
             size="small"
         >
-            Add new mapping
+            {{ $tc('sw-settings-import-export.profile.addMappingLabel') }}
         </sw-button>
     </div>
 
@@ -38,7 +38,7 @@
 
         <template #actions="{ item }">
             <sw-context-menu-item variant="danger" @click="onDeleteMapping(item.key)">
-                Delete
+                {{ $tc('sw-settings-import-export.profile.deleteLabel') }}
             </sw-context-menu-item>
         </template>
 

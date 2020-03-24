@@ -93,8 +93,7 @@ export default class ImportExportService extends ApiService {
         } while (oldOffset !== data.data.offset);
 
 
-
-        //this.handleImportProgress(progress, cb);
+        // this.handleImportProgress(progress, cb);
     }
 
     /**

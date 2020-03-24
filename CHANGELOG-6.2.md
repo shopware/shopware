@@ -544,6 +544,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix endless loading spinner in categories when user changes content language without having a category selected
     * Add `rel="noopener"` to all `target="_blank"` links
     * Fix wrong behavior of switch fields, checkboxes and radio fields when clicking on the label
+    * Moved bearerAuth location from localStorage to Cookies 
 
 * Core
     *

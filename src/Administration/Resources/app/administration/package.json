@@ -41,6 +41,7 @@
         "babel-jest": "24.8.0",
         "babel-plugin-require-context-hook": "1.0.0",
         "bottlejs": "1.7.2",
+        "cookie-storage": "^6.0.0",
         "copy-webpack-plugin": "5.1.1",
         "dompurify": "2.0.7",
         "eslint-friendly-formatter": "4.0.1",

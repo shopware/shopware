@@ -49,7 +49,7 @@ class LanguageRoute implements LanguageRouteInterface
      *      @OA\Response(
      *          response="200",
      *          description="All available languages",
-     *          @OA\JsonContent(ref="#/components/schemas/language_flat")
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/language_flat"))
      *     )
      * )
      * @Route("/store-api/v{version}/language", name="shop-api.language", methods={"GET", "POST"})

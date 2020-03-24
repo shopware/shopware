@@ -42,7 +42,7 @@ class SalutationRoute implements SalutationRouteInterface
      *      @OA\Response(
      *          response="200",
      *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/salutation_flat")
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/salutation_flat"))
      *     )
      * )
      * @Route(path="/store-api/v{version}/salutation", name="store-api.salutation", methods={"GET", "POST"})

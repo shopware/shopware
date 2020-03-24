@@ -8,7 +8,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -30,7 +30,7 @@ class CategoryRoute implements CategoryRouteInterface
     private $categoryRepository;
 
     /**
-     * @var SalesChannelCmsPageLoader
+     * @var SalesChannelCmsPageLoaderInterface
      */
     private $cmsPageLoader;
 
@@ -41,7 +41,7 @@ class CategoryRoute implements CategoryRouteInterface
 
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
-        SalesChannelCmsPageLoader $cmsPageLoader,
+        SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         CategoryDefinition $definition
     ) {
         $this->categoryRepository = $categoryRepository;
@@ -54,21 +54,7 @@ class CategoryRoute implements CategoryRouteInterface
      *      path="/category/{categoryId}",
      *      description="Loads a category with the resolved cms page",
      *      operationId="readCategory",
-     *      tags={"Store API"},
-     *      @OA\Parameter(
-     *          parameter="filter",
-     *          name="filter",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="string")
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="associations",
-     *          name="associations",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="string")
-     *      ),
+     *      tags={"Store API", "Content"},
      *      @OA\Parameter(
      *          parameter="categoryId",
      *          name="categoryId",
@@ -76,6 +62,7 @@ class CategoryRoute implements CategoryRouteInterface
      *          description="Id of the category",
      *          @OA\Schema(type="string", format="uuid"),
      *      ),
+     *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded category with cms page",

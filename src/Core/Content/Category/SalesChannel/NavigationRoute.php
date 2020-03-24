@@ -58,7 +58,7 @@ class NavigationRoute implements NavigationRouteInterface
 
     /**
      * @OA\Get(
-     *      path="/navigation",
+     *      path="/navigation/{requestActiveId}/{requestRootId}",
      *      description="Loads all available navigations",
      *      operationId="readNavigation",
      *      tags={"Store API", "Navigation"},
@@ -81,11 +81,11 @@ class NavigationRoute implements NavigationRouteInterface
     public function load(
         string $requestActiveId,
         string $requestRootId,
-        int $depth = 2,
         Request $request,
         SalesChannelContext $context
     ): NavigationRouteResponse {
         $buildTree = $request->query->getBoolean('buildTree', true);
+        $depth = $request->query->getInt('depth', 2);
         $activeId = $this->resolveAliasId($requestActiveId, $context->getSalesChannel());
         $rootId = $this->resolveAliasId($requestRootId, $context->getSalesChannel());
 

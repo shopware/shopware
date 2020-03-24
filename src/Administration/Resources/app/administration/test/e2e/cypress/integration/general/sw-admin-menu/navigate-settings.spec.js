@@ -195,24 +195,6 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
     });
 
-    it('@navigation: navigate to newsletter configuration module', () => {
-        cy.server();
-        cy.route({
-            url: '/api/v1/_action/system-config?domain=core.newsletter',
-            method: 'get'
-        }).as('getData');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
-        });
-        cy.contains('Newsletter configuration').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-card__title').contains('Newsletter configuration');
-    });
-
     it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({

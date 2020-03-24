@@ -71,7 +71,7 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
 
     /**
      * @OA\Post(
-     *      path="/account/send-recovery-mail",
+     *      path="/account/recovery-password",
      *      description="Sends a recovery email for password recovery",
      *      operationId="sendRecoveryMail",
      *      tags={"Store API", "Account"},
@@ -81,13 +81,19 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
      *        description="Email",
      *        @OA\Schema(type="string"),
      *      ),
+     *      @OA\Parameter(
+     *        name="storefrontUrl",
+     *        in="body",
+     *        description="baseurl for the url in mail",
+     *        @OA\Schema(type="string"),
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="",
      *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/send-recovery-mail", name="store-api.account.recovery.send.mail", methods={"POST"})
+     * @Route(path="/store-api/v{version}/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})
      */
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {

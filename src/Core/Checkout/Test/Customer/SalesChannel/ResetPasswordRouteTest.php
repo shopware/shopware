@@ -51,7 +51,7 @@ class ResetPasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/recovery-password',
+                '/store-api/v1/account/recovery-password-confirm',
                 [
                     'hash' => 'lol@lol.de',
                     'newPassword' => 'password123456',
@@ -72,7 +72,7 @@ class ResetPasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/send-recovery-mail',
+                '/store-api/v1/account/recovery-password',
                 [
                     'email' => 'foo-test@test.de',
                     'storefrontUrl' => 'http://localhost',
@@ -95,7 +95,7 @@ class ResetPasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/recovery-password',
+                '/store-api/v1/account/recovery-password-confirm',
                 [
                     'hash' => $recovery->getHash(),
                     'newPassword' => 'password123456',

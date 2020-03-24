@@ -39,7 +39,7 @@ class SeoUrlRoute implements SeoUrlRouteInterface
      *      path="/seo-url",
      *      description="Loads seo urls",
      *      operationId="readSeoUrl",
-     *      tags={"Store API"},
+     *      tags={"Store API", "Seo"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",

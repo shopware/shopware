@@ -31,7 +31,8 @@ class CmsRoute implements CmsRouteInterface
      *      path="/cms/{id}",
      *      description="Resolves a cms page",
      *      operationId="readCms",
-     *      tags={"Store API"},
+     *      tags={"Store API", "Content"},
+     *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded cms page",

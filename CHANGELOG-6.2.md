@@ -261,6 +261,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add automatic versions to HttpClient. You can override the default version in the config argument
     * Add `Hide products after clearance` option in `Setting -> Shop -> Listing`
     * Add `Listing` tab in the `Storefront presentation` modal to configure the variant preselection
+    * Updated Node Dependencies
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

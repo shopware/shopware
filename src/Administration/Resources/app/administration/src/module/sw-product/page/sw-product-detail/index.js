@@ -78,7 +78,7 @@ Component.register('sw-product-detail', {
         },
 
         productRepository() {
-            return this.repositoryFactory.create('product', null, { entityDeprecation: false });
+            return this.repositoryFactory.create('product', null, { compatibility: false });
         },
 
         currencyRepository() {

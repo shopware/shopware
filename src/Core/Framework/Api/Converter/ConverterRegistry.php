@@ -9,8 +9,15 @@ class ConverterRegistry
      */
     private $converters;
 
-    public function __construct(iterable $converters)
+    /**
+     * @var DefaultApiConverter
+     */
+    private $defaultApiConverter;
+
+    public function __construct(iterable $converters, DefaultApiConverter $defaultApiConverter)
     {
+        $this->defaultApiConverter = $defaultApiConverter;
+
         /** @var ApiConverter $converter */
         foreach ($converters as $converter) {
             $this->converters[$converter->getApiVersion()][] = $converter;
@@ -19,6 +26,10 @@ class ConverterRegistry
 
     public function isDeprecated(int $apiVersion, string $entityName, ?string $fieldName = null): bool
     {
+        if ($this->defaultApiConverter->isDeprecated($apiVersion, $entityName, $fieldName)) {
+            return true;
+        }
+
         /** @var ApiConverter $converter */
         foreach ($this->converters[$apiVersion] ?? [] as $converter) {
             if ($converter->isDeprecated($entityName, $fieldName)) {
@@ -43,6 +54,8 @@ class ConverterRegistry
 
     public function convert(int $apiVersion, string $entityName, array $payload): array
     {
+        $payload = $this->defaultApiConverter->convert($apiVersion, $entityName, $payload);
+
         /** @var ApiConverter $converter */
         foreach ($this->converters[$apiVersion + 1] ?? [] as $converter) {
             $payload = $converter->convert($entityName, $payload);

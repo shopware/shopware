@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
+use Shopware\Core\Framework\Api\Converter\DefaultApiConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureEntityException;
 use Shopware\Core\Framework\Api\Converter\Exceptions\QueryFutureFieldException;
@@ -46,9 +47,16 @@ class ApiVersionConverterTest extends TestCase
 
     public function setUp(): void
     {
-        $this->converterRegistry = new ConverterRegistry([
-            new DeprecatedConverter(),
-        ]);
+        $converter = $this->createMock(DefaultApiConverter::class);
+        $converter->method('isDeprecated')->willReturn(false);
+        $converter->method('convert')->willReturnArgument(2);
+
+        $this->converterRegistry = new ConverterRegistry(
+            [
+                new DeprecatedConverter(),
+            ],
+            $converter
+        );
 
         $this->apiVersionConverter = new ApiVersionConverter($this->converterRegistry);
     }

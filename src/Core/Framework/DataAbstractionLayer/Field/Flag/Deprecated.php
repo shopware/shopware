@@ -35,6 +35,11 @@ class Deprecated extends Flag
         ];
     }
 
+    public function getReplaceBy(): ?string
+    {
+        return $this->replacedBy;
+    }
+
     public function isRemovedInVersion(int $version): bool
     {
         $removedVersion = (int) str_replace('v', '', $this->willBeRemovedIn);

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
+use Shopware\Core\Framework\Api\Converter\DefaultApiConverter;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncOperationResult;
@@ -274,10 +275,17 @@ class SyncServiceTest extends TestCase
             ->with($deprecatedDefinition->getEntityName())
             ->willReturn($repoMock);
 
+        $defaultConverter = $this->createMock(DefaultApiConverter::class);
+        $defaultConverter->method('isDeprecated')->willReturn(false);
+        $defaultConverter->method('convert')->willReturnArgument(2);
+
         $apiVersionConverter = new ApiVersionConverter(
-            new ConverterRegistry([
-                new DeprecatedConverter(),
-            ])
+            new ConverterRegistry(
+                [
+                    new DeprecatedConverter(),
+                ],
+                $defaultConverter
+            )
         );
 
         $syncService = new SyncService(
@@ -323,10 +331,17 @@ class SyncServiceTest extends TestCase
             ->with($deprecatedEntityDefinition->getEntityName())
             ->willReturn($repositoryMock);
 
+        $defaultConverter = $this->createMock(DefaultApiConverter::class);
+        $defaultConverter->method('isDeprecated')->willReturn(false);
+        $defaultConverter->method('convert')->willReturnArgument(2);
+
         $apiVersionConverter = new ApiVersionConverter(
-            new ConverterRegistry([
-                new DeprecatedConverter(),
-            ])
+            new ConverterRegistry(
+                [
+                    new DeprecatedConverter(),
+                ],
+                $defaultConverter
+            )
         );
 
         $syncService = new SyncService(
@@ -382,10 +397,17 @@ class SyncServiceTest extends TestCase
             ->with($deprecatedDefinition->getEntityName())
             ->willReturn($repoMock);
 
+        $defaultConverter = $this->createMock(DefaultApiConverter::class);
+        $defaultConverter->method('isDeprecated')->willReturn(false);
+        $defaultConverter->method('convert')->willReturnArgument(2);
+
         $versionConverter = new ApiVersionConverter(
-            new ConverterRegistry([
-                new DeprecatedConverter(),
-            ])
+            new ConverterRegistry(
+                [
+                    new DeprecatedConverter(),
+                ],
+                $defaultConverter
+            )
         );
 
         $syncService = new SyncService(

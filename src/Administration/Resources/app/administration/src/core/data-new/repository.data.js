@@ -482,12 +482,13 @@ export default class Repository {
      */
     buildHeaders(context) {
         const { hasOwnProperty } = Shopware.Utils.object;
+        const compatibility = hasOwnProperty(this.options, 'compatibility') ? this.options.compatibility : true;
 
         let headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${context.authToken.access}`,
             'Content-Type': 'application/json',
-            'Entity-Deprecation': hasOwnProperty(this.options, 'entityDeprecation') ? this.options.entityDeprecation : true
+            'sw-api-compatibility': compatibility
         };
 
         if (context.languageId) {

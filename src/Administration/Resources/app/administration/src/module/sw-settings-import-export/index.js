@@ -1,4 +1,3 @@
-import { NEXT6009 } from 'src/flag/feature_next6009';
 import ImportExportService from './service/importExport.service';
 import './extension/sw-settings-index';
 import './page/sw-settings-import-export';
@@ -23,7 +22,6 @@ Shopware.Service().register('importExport', () => {
 Shopware.Module.register('sw-settings-import-export', {
     type: 'core',
     name: 'Import/Export',
-    flag: NEXT6009,
     title: 'sw-settings-import-export.general.mainMenuItemGeneral',
     description: 'sw-settings-import-export.general.descriptionTextModule',
     version: '1.0.0',

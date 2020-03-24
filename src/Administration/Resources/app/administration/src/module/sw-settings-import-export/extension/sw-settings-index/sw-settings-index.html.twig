@@ -2,8 +2,7 @@
     {% parent %}
 
     {% block sw_settings_import_export_item %}
-        <sw-settings-item v-if="next6009"
-                          id="sw-settings-import-export"
+        <sw-settings-item id="sw-settings-import-export"
                           :label="$tc('sw-settings-import-export.general.mainMenuItemGeneral')"
                           :to="{ name: 'sw.settings.import.export.index' }">
             <template slot="icon">

@@ -16,6 +16,7 @@ git:
     depth: false
 
 before_install:
+    - if [[ "$(php --version | grep -cim1 xdebug)" -ge 1 ]]; then phpenv config-rm xdebug.ini; fi
     - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.1.1-amd64.deb
     - sudo dpkg -i --force-confnew elasticsearch-7.1.1-amd64.deb
     - sudo chmod 777 /etc/default/elasticsearch
@@ -37,7 +38,7 @@ script:
     - nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
     - PHP_SERVER_PID=$!
     - ./psh.phar init
-    - php -d memory_limit=2G vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist
+    - php -d memory_limit=-1 vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --exclude-group needsWebserver
     - kill -3 $PHP_SERVER_PID
 
 jobs:
@@ -57,7 +58,7 @@ jobs:
                 - php dev-ops/analyze/generate-composer.php
                 - php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
                 - php dev-ops/analyze/phpstan-config-generator.php
-                - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration vendor/shopware/platform/phpstan.neon
+                - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon
                 - >
                     for module in $(ls platform/src/); do
                         echo "[PSALM: scan $module]"

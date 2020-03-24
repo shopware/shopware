@@ -1,0 +1,70 @@
+{% block sw_product_variants_delivery_listing %}
+    <div class="sw-product-variants-delivery-listing">
+        {% block sw_product_variants_delivery_listing_mode %}
+            <div class="sw-product-variants-delivery-listing-mode">
+                {% block sw_product_variants_delivery_listing_mode_selection %}
+                    <sw-radio-field
+                        :value="product.listingMode"
+                        :options="listingModeOptions"
+                        @change="updateListingMode">
+                    </sw-radio-field>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_product_variants_delivery_listing_config %}
+            <div class="sw-product-variants-delivery-listing-config">
+                {% block sw_product_variants_delivery_listing_config_single %}
+                    <div class="sw-product-variants-delivery-listing-config-options"
+                         :class="{ 'is--disabled': isDisabledListingMode('single') }">
+                        {% block sw_product_variants_delivery_listing_config_single_main_variant_label %}
+                            <p>{{ $tc('sw-product.variations.deliveryModal.listingLabelMainVariant') }}</p>
+                        {% endblock %}
+
+                        {% block sw_product_variants_delivery_listing_config_single_main_variant_select %}
+                            <sw-entity-single-select :value="mainVariant"
+                                                     entity="product"
+                                                     labelProperty="productNumber"
+                                                     :criteria="variantCriteria"
+                                                     :context="context"
+                                                     id="mainVariant"
+                                                     :key="product.id"
+                                                     :disabled="isDisabledListingMode('single')"
+                                                     :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
+                                                     @change="updateMainVariant">
+                            </sw-entity-single-select>
+                        {% endblock %}
+
+                        {% block sw_product_variants_delivery_listing_config_single_main_variant_explanation %}
+                            <p>{{ $tc('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}</p>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_product_variants_delivery_listing_config_expanded %}
+                    <div class="sw-product-variants-delivery-listing-config-options"
+                         :class="{ 'is--disabled': isDisabledListingMode('expanded') }">
+                        {% block sw_product_variants_delivery_listing_config_expanded_group_list %}
+                            <dl>
+                                {% block sw_product_variants_delivery_listing_config_expanded_group_list_items %}
+                                    <dd v-for="group in selectedGroupsSorted"
+                                        :key="group.id"
+                                        :disabled="isDisabledListingMode('expanded')"
+                                        class="sw-product-variants-delivery-listing__groupElement">
+                                        {% block sw_product_variants_delivery_listing_config_expanded_group_list_item %}
+                                            <sw-field type="checkbox"
+                                                      :value="isActiveGroupInListing(group.id)"
+                                                      :disabled="isDisabledListingMode('expanded')"
+                                                      :label="group.translated.name"
+                                                      @change="onChangeGroupListing($event, group.id)"></sw-field>
+                                        {% endblock %}
+                                    </dd>
+                                {% endblock %}
+                            </dl>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

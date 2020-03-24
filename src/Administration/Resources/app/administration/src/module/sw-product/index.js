@@ -16,6 +16,7 @@ import './component/sw-product-variants/sw-product-variants-configurator/sw-prod
 import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions';
 import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order';
 import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media';
+import './component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing';
 import './component/sw-product-variants/sw-product-variants-overview';
 import './component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field';
 import './component/sw-product-cross-selling-form';

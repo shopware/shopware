@@ -37,6 +37,9 @@ Component.register('sw-product-modal-delivery', {
         saveDeliveryConfiguration() {
             this.isLoading = true;
 
+            // Handle variant listing modes (single, expanded) if exists
+            this.product = this.handleExpandedListing(this.product);
+
             // Save the product after generating
             this.productRepository.save(this.product, Shopware.Context.api).then(() => {
                 this.$emit('configuration-close');
@@ -45,6 +48,16 @@ Component.register('sw-product-modal-delivery', {
 
         cancelDeliveryConfiguration() {
             this.$emit('configuration-close');
+        },
+
+        handleExpandedListing(product) {
+            if (product && product.listingMode !== 'single') {
+                product.mainVariant = null;
+            }
+
+            delete product.listingMode;
+
+            return product;
         }
     }
 });

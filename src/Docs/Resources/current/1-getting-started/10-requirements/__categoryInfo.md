@@ -1,4 +1,5 @@
 [titleEn]: <>(Requirements)
+[hash]: <>(category:requirements)
 
 Before installing Shopware 6, you should take a quick look at the requirements to check if your local environment is capable of running it.
 

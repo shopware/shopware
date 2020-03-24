@@ -1,4 +1,5 @@
 [titleEn]: <>(Write Command Validation)
+[hash]: <>(article:dal_write_command_validation)
 
 The `WriteCommand` validation is used to validate data at the lowest level. It runs just before and after the data has been written to the database.
 

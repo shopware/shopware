@@ -1,4 +1,5 @@
 [titleEn]: <>(Test data handling)
+[hash]: <>(article:e2e_testing_data)
 
 # Test data handling
 

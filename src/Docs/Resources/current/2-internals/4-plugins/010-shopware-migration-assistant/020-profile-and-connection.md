@@ -1,4 +1,5 @@
 [titleEn]: <>(Profile and Connection)
+[hash]: <>(article:migration_profile_connection)
 
 Users of the plugin can create connections to different source systems.
 A connection is used to allow multiple migrations from the same source and update the right data (mapping).

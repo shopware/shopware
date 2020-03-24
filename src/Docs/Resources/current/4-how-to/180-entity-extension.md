@@ -1,5 +1,6 @@
 [titleEn]: <>(Entity extension)
 [metaDescriptionEn]: <>(If you're wondering how to extend existing core entities, this HowTo will have you covered.)
+[hash]: <>(article:how_to_entity_extension)
 
 ## Overview
 

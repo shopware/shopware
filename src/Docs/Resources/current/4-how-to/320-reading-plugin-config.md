@@ -1,5 +1,6 @@
 [titleEn]: <>(Reading the plugin configuration)
 [metaDescriptionEn]: <>(This HowTo will provide a brief explanation about reading your plugin configuration values.)
+[hash]: <>(article:how_to_read_plugin_config)
 
 ## Setup
 

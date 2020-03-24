@@ -1,4 +1,5 @@
 [titleEn]: <>(Testing)
+[hash]: <>(article:references_testing)
 
 ## PHPUnit
 

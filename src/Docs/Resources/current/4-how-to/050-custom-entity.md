@@ -1,5 +1,6 @@
 [titleEn]: <>(Creating a custom entity)
 [metaDescriptionEn]: <>(Quite often, your plugin has to save data into a custom database table. Shopware 6's data abstraction layer fully supports custom entities, so you don't have to take care of the data handling at all.)
+[hash]: <>(article:how_to_custom_entity)
 
 ## Overview
 

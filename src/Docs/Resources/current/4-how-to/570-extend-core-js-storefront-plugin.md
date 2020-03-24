@@ -1,5 +1,6 @@
 [titleEn]: <>(Extend an existing JavaScript plugin)
 [metaDescriptionEn]: <>(This HowTo will give an example of extending core JavaScript plugins and overriding the core logic.)
+[hash]: <>(article:how_to_extend_js_plugin)
 
 ## Overview
 

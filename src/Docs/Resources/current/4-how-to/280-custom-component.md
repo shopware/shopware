@@ -1,5 +1,6 @@
 [titleEn]: <>(Creating a custom component)
 [metaDescriptionEn]: <>(Since Shopware 6's Administration is using VueJS as its framework, it also supports creating custom components. This How-to will teach you real quick how to register your own custom component with your plugin.)
+[hash]: <>(article:how_to_custom_component)
 
 ## Overview
 

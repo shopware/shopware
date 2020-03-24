@@ -1,4 +1,5 @@
 [titleEn]: <>(DAL request change set)
+[hash]: <>(article:dal_change_set)
 
 To ensure the best possible write performance, the DAL does not generate change sets by default when writing data and only returns the data that was written. 
 In certain cases, however, it is necessary to react to a specific change. An example is when the product of an order changes. 

@@ -1,5 +1,6 @@
 [titleEn]: <>(Custom storefront controller)
 [metaDescriptionEn]: <>(This HowTo will give an example on writing and calling your own storefront controller.)
+[hash]: <>(article:how_to_storefront_controller)
 
 ## Overview
 

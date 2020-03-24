@@ -1,4 +1,5 @@
 [titleEn]: <>(Step 4: Creating an entity)
+[hash]: <>(article:bundle_entity)
 
 While it's good to have the database tables running already, Shopware 6 does not know your new table yet.
 

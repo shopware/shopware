@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin - Commands)
+[hash]: <>(article:plugin_commands)
 
 ## Listing
 In this guide, you'll learn which `Plugin Commands` come with `Shopware` and what they are used for.

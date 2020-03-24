@@ -1,5 +1,6 @@
 [titleEn]: <>(Register a custom rule via plugin)
 [metaDescriptionEn]: <>(Shopware 6 comes with a new rule system. This HowTo comes with an example, which integrates a fully working custom rule.)
+[hash]: <>(article:how_to_custom_rule)
 
 ## Overview
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Orders)
+[hash]: <>(article:internals_core_erd_checkout_order)
 
 [Back to modules](./../10-modules.md)
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Startup guide)
+[hash]: <>(category:startup_guide)
 
 Now that you have Shopware 6 up and running, what can you do with it?
 

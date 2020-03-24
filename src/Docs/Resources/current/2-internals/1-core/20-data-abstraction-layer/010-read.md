@@ -1,4 +1,5 @@
 [titleEn]: <>(Read)
+[hash]: <>(article:dal_read)
 
 Reading entities from the storage is pretty straight-forward and does not require any special criteria object unless
 you already know what you are looking for.

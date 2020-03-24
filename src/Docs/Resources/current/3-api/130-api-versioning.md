@@ -1,4 +1,5 @@
 [titleEn]: <>(API versioning)
+[hash]: <>(article:api_versioning)
 
 The Admin-API and Sales-Channel-API are versioned. That means whenever a breaking change to the API occurs we release a new API version.
 We may release a new API version with every major release, but the old API version stays supported until the next major release, e.g. 6.2.0 or 6.3.0.

@@ -1,4 +1,5 @@
 [titleEn]: <>(Magento profile)
+[hash]: <>(article:migration_magento)
 
 To migrate the data from a Magento 1.9.x system, Shopware has created a [Magento migration profile plugin](https://github.com/shopwareLabs/SwagMigrationMagento) for this case.
 This profile is currently migrates following data:

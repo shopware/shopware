@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin quick start)
+[hash]: <>(article:plugin_quick_start)
 
 To be able to introduce extensions into the system, the core comes with an integrated plugin system.
 Plugins are [Symfony Bundles](https://symfony.com/doc/current/bundles.html) which can be activated and deactivated via the [plugin commands](./030-plugin-commands.md).

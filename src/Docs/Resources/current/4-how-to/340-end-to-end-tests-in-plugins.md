@@ -1,5 +1,6 @@
 [titleEn]: <>(End-to-end testing in plugins)
 [metaDescriptionEn]: <>(To ensure the main functionality on workflow level, it's useful to write some end-to-end tests for your plugin. Here you can find a starting point for such an end-to-end testing environment for plugins.)
+[hash]: <>(article:how_to_e2e_tests_plugins)
 
 ## Overview
 

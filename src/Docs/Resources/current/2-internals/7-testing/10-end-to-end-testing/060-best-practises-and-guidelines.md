@@ -1,4 +1,5 @@
 [titleEn]: <>(How do I write a good test?)
+[hash]: <>(article:e2e_testing_guidelines)
 
 # How do I write a good test?
 

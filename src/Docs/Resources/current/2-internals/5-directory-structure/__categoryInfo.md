@@ -1,4 +1,5 @@
 [titleEn]: <>(Directory Structure)
+[hash]: <>(category:directory_structure)
  
 After setting up Shopware 6 you should import the project into your favorite IDE and take a deeper look into the directory structure of the application.
 

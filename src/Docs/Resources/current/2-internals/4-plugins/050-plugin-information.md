@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin meta information)
+[hash]: <>(article:plugin_meta)
 
 To provide Shopware and the shop owner with information about your plugin, you have to supply a `composer.json` with your plugin.
 Some information are gathered through the default properties of a `composer.json`.

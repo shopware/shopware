@@ -1,4 +1,5 @@
 [titleEn]: <>(Storefront Themes)
+[hash]: <>(article:plugin_themes)
 
 This guide is about theme plugins which change the appearance or the behavior of the storefront.
 

@@ -1,5 +1,6 @@
 [titleEn]: <>(Extending the Migration Connector)
 [metaDescriptionEn]: <>(This HowTo will give an example on extending the Migration Connector to migrate plugin data via API.)
+[hash]: <>(article:how_to_extend_migration_connector)
 
 ## Overview
 

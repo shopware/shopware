@@ -1,5 +1,6 @@
 [titleEn]: <>(Optional requirements of a plugin)
 [metaDescriptionEn]: <>(This HowTo will give an example on handle optional requirements of your plugin.)
+[hash]: <>(article:how_to_plugin_requirements)
 
 ## Overview
 

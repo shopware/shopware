@@ -1,4 +1,5 @@
 [titleEn]: <>(Webpack)
+[hash]: <>(article:references_webpack)
 
 ## Webpack setup
 

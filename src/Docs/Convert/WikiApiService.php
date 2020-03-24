@@ -24,29 +24,50 @@ class WikiApiService
      */
     private $client;
 
-    public function __construct(string $sbpToken, string $serverAddress, int $rootCategoryId)
-    {
-        $this->sbpToken = $sbpToken;
-        $this->rootCategoryId = $rootCategoryId;
+    /**
+     * @var EntityHandler
+     */
+    private $articleHandler;
 
-        $this->client = new Client(['base_uri' => $serverAddress]);
+    /**
+     * @var EntityHandler
+     */
+    private $categoryHandler;
+
+    public function __construct(CredentialsStruct $credentialsStruct, string $environment)
+    {
+        $this->sbpToken = $credentialsStruct->getToken();
+        $this->rootCategoryId = $credentialsStruct->getRootCategoryId();
+
+        $this->client = new Client(['base_uri' => $credentialsStruct->getSbpServerUrl()]);
+        $idMapperClient = new Client(['base_uri' => $credentialsStruct->getIdMapperUrl()]);
+
+        $this->articleHandler = new EntityHandler('article', $idMapperClient, $environment);
+        $this->categoryHandler = new EntityHandler('category', $idMapperClient, $environment);
     }
 
-    public function syncFilesWithServer(DocumentTree $tree): void
+    public function removeAllFromServer(): void
     {
-        echo 'Syncing markdown files ...' . PHP_EOL;
         [$_globalCategoryList, $articleList] = $this->gatherCategoryChildrenAndArticles(
             $this->rootCategoryId,
             $this->getAllCategories()
         );
 
-        echo 'Deleting ' . \count($articleList) . ' old articles ...' . PHP_EOL;
+        echo 'Deleting ' . \count($articleList) . ' articles ...' . PHP_EOL;
         foreach ($articleList as $article) {
             $this->disableArticle($article);
             $this->deleteArticle($article);
+            $this->articleHandler->deleteById($article);
         }
 
+        echo 'Deleting categories...' . PHP_EOL;
         $this->deleteCategoryChildren();
+    }
+
+    public function syncFilesWithServer(DocumentTree $tree): void
+    {
+        echo 'Remove deleted articles and categories...' . PHP_EOL;
+        $this->removeDeletedEntities($tree);
 
         $this->syncArticles($tree);
         $this->syncCategories($tree);
@@ -270,8 +291,10 @@ class WikiApiService
         return ['X-Shopware-Token' => $this->sbpToken];
     }
 
-    private function addArticleToCategory(array $articleInfo, int $categoryId): void
+    private function replaceCategoryForArticle(array $articleInfo, int $categoryId): void
     {
+        $this->removeAllPreviousCategories($articleInfo['articleId']);
+
         $this->client->post(
             vsprintf('/wiki/categories/%s/entries', [$categoryId]),
             [
@@ -302,13 +325,21 @@ class WikiApiService
                 continue;
             }
 
-            $prevEntryId = $this->createCategory(
-                $parentCategory->getMetadata()->getTitleEn(),
-                $parentCategory->getMetadata()->getUrlEn(),
-                $parentCategory->getMetadata()->getTitleDe(),
-                $parentCategory->getMetadata()->getUrlDe(),
-                $prevEntryId
-            );
+            $categoryHash = $parentCategory->getMetadata()->getHash();
+            if ($mappedCategoryId = $this->categoryHandler->getEntityForHash($categoryHash)) {
+                $prevEntryId = $mappedCategoryId;
+            } else {
+                $prevEntryId = $this->createCategory(
+                    $parentCategory->getMetadata()->getTitleEn(),
+                    $parentCategory->getMetadata()->getUrlEn(),
+                    $parentCategory->getMetadata()->getTitleDe(),
+                    $parentCategory->getMetadata()->getUrlDe(),
+                    $prevEntryId
+                );
+
+                $this->categoryHandler->addEntryToMap($categoryHash, $prevEntryId);
+            }
+
             $parentCategory->setCategoryId($prevEntryId);
         }
 
@@ -474,6 +505,7 @@ class WikiApiService
 
         foreach (array_keys($categoriesToDelete) as $category) {
             $this->deleteCategory($category);
+            $this->categoryHandler->deleteById($category);
         }
     }
 
@@ -519,10 +551,10 @@ class WikiApiService
         return [$categoryList, $articleList];
     }
 
-    private function deleteArticle($articleId): void
+    private function deleteArticle(int $articleId): void
     {
         $this->client->delete(
-            vsprintf('/wiki/entries/%s', [$articleId]),
+            vsprintf('/wiki/entries/%d', [$articleId]),
             ['headers' => $this->getBasicHeaders()]
         );
     }
@@ -573,12 +605,21 @@ class WikiApiService
             echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . PHP_EOL;
 
             $documentMetadata = $document->getMetadata();
-            $articleInfo = $this->createLocalizedVersionedArticle(
-                $documentMetadata->getUrlEn(),
-                $documentMetadata->getUrlDe()
-            );
+
+            $hash = $documentMetadata->getHash();
+            if ($articleId = $this->articleHandler->getEntityForHash($hash)) {
+                $articleInfo = $this->getArticleInfo($articleId);
+            } else {
+                $articleInfo = $this->createLocalizedVersionedArticle(
+                    $documentMetadata->getUrlEn(),
+                    $documentMetadata->getUrlDe()
+                )['en_GB'];
+
+                $this->articleHandler->addEntryToMap($hash, $articleInfo['articleId']);
+            }
+
             $categoryId = $this->getOrCreateMissingCategoryTree($document);
-            $this->addArticleToCategory($articleInfo['en_GB'], $categoryId);
+            $this->replaceCategoryForArticle($articleInfo, $categoryId);
 
             // handle media files for articles
             $images = $document->getHtml()->render($tree)->getImages();
@@ -586,19 +627,19 @@ class WikiApiService
             if (\count($images)) {
                 echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
                 foreach ($images as $key => $mediaFile) {
-                    $imageMap[$key] = $this->uploadArticleMedia($articleInfo['en_GB'], $mediaFile);
+                    $imageMap[$key] = $this->uploadArticleMedia($articleInfo, $mediaFile);
                 }
             }
 
             $this->updateArticleLocale(
-                $articleInfo['en_GB'],
+                $articleInfo,
                 [
                     'seoUrl' => $documentMetadata->getUrlEn(),
                     'searchableInAllLanguages' => true,
                 ]
             );
             $this->updateArticleVersion(
-                $articleInfo['en_GB'],
+                $articleInfo,
                 [
                     'content' => $document->getHtml()->render($tree)->getContents($imageMap),
                     'title' => $documentMetadata->getTitleEn(),
@@ -611,7 +652,7 @@ class WikiApiService
                 ]
             );
 
-            $this->updateArticlePriority($articleInfo['en_GB'], $document->getPriority());
+            $this->updateArticlePriority($articleInfo, $document->getPriority());
         }
     }
 
@@ -704,5 +745,111 @@ class WikiApiService
                 'headers' => $this->getBasicHeaders(),
             ]
         );
+    }
+
+    private function getArticleInfo(int $articleId): array
+    {
+        $response = $this->client->get(
+            sprintf('/wiki/entries/%d', $articleId),
+            [
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
+
+        $responseJson = json_decode($response->getBody()->getContents(), true);
+
+        return [
+            'articleId' => $articleId,
+            'localeId' => $responseJson['localizations'][0]['id'],
+            'versionId' => $responseJson['localizations'][0]['versions'][0]['id'],
+        ];
+    }
+
+    private function removeAllPreviousCategories(int $articleId): void
+    {
+        $response = $this->client->get(
+            sprintf('/wiki/entries/%d', $articleId),
+            [
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
+        $body = json_decode($response->getBody()->getContents(), true);
+
+        foreach ($body['categories'] as $category) {
+            $this->client->delete(
+                vsprintf(
+                    '/wiki/categories/%d/entries/%d',
+                    [
+                        $category['id'],
+                        $articleId,
+                    ]
+                ),
+                [
+                    'headers' => $this->getBasicHeaders(),
+                ]
+            );
+        }
+    }
+
+    /**
+     * Removes categories and articles that apparently got deleted.
+     */
+    private function removeDeletedEntities(DocumentTree $tree): void
+    {
+        $this->removeDeletedArticles($tree->getArticles());
+        $this->removeDeletedCategories($tree->getCategories());
+    }
+
+    /**
+     * @param Document[] $articles
+     */
+    private function removeDeletedArticles(array $articles): void
+    {
+        $hashesOnServer = $this->buildAssocArray($this->articleHandler->getAllEntityHashes());
+
+        foreach ($articles as $article) {
+            unset($hashesOnServer[$article->getMetadata()->getHash()]);
+        }
+
+        if (!$hashesOnServer) {
+            return;
+        }
+
+        foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
+            $this->articleHandler->deleteEntityHash($hashToBeDeleted);
+            $this->deleteArticle($mappedId);
+        }
+    }
+
+    /**
+     * @param Document[] $categories
+     */
+    private function removeDeletedCategories(array $categories): void
+    {
+        $hashesOnServer = $this->buildAssocArray($this->categoryHandler->getAllEntityHashes());
+
+        foreach ($categories as $category) {
+            unset($hashesOnServer[$category->getMetadata()->getHash()]);
+        }
+
+        if (!$hashesOnServer) {
+            return;
+        }
+
+        foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
+            $this->categoryHandler->deleteEntityHash($hashToBeDeleted);
+            $this->deleteCategory($mappedId);
+        }
+    }
+
+    private function buildAssocArray(array $entities): array
+    {
+        $rebuiltArray = [];
+
+        foreach ($entities as $entity) {
+            $rebuiltArray[$entity['hash']] = $entity['mapped_id'];
+        }
+
+        return $rebuiltArray;
     }
 }

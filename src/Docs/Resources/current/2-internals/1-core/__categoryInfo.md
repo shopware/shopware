@@ -1,4 +1,5 @@
 [titleEn]: <>(Core)
+[hash]: <>(category:core)
 
 Repository Link: [`https://github.com/shopware/platform/tree/master/src/Core`](https://github.com/shopware/platform/tree/master/src/Core)
 

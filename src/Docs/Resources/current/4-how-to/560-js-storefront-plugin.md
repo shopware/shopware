@@ -1,5 +1,6 @@
 [titleEn]: <>(Write your own storefront JavaScript plugin)
 [metaDescriptionEn]: <>(This HowTo will give an example of writing an own JavaScript plugin for the storefront.)
+[hash]: <>(article:how_to_storefront_js_plugin)
 
 ## Overview
 

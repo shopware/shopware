@@ -1,4 +1,5 @@
 [titleEn]: <>(Admin API usage)
+[hash]: <>(article:api_admin_usage)
 
 This guide describes the default usage with the default schema, which almost all resources are using.
 There are extended read possibilities for a few entities. Read [here](./040-admin-extended-read.md) for more information about that.

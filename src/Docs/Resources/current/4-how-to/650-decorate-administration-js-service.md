@@ -1,5 +1,6 @@
 [titleEn]: <>(Basic handling of js services in the administration)
 [metaDescriptionEn]: <>(This HowTo will teach you how to register a new service and decorate an existing service via a plugin.)
+[hash]: <>(article:how_to_admin_decorate_js)
 
 ## Overview
 

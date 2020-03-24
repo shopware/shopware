@@ -1,4 +1,5 @@
 [titleEn]: <>(Migration assistant introduction)
+[hash]: <>(article:migration_introduction)
 
 [Shopware Migration Assistant](https://github.com/shopware/SwagMigrationAssistant) was built with simple but powerful concepts in mind.
 These enable you to extend the plugin in various ways and migrate data into the Shopware 6 environment.

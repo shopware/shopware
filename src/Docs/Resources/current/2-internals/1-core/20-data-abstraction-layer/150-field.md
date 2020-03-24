@@ -1,4 +1,5 @@
 [titleEn]: <>(Field)
+[hash]: <>(article:dal_field)
 
 The data abstraction layer supports fields as its most atomar extension point. Usually a field represents a single column in the database. You need a custom field for 
 

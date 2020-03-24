@@ -1,4 +1,5 @@
 [titleEn]: <>(Extensions)
+[hash]: <>(article:dal_extensions)
 
 # Extensions
 

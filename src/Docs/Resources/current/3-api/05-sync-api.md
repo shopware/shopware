@@ -1,4 +1,5 @@
 [titleEn]: <>(Sync API)
+[hash]: <>(article:api_sync)
 
 The Sync API allows you to perform multiple write operations in one request. This is available at the URL `POST /api/v{version}/_action/sync`.
 As request body several operations can be sent which can be of type `upsert` or `delete`.

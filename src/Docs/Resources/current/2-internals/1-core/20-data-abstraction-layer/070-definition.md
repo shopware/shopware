@@ -1,4 +1,5 @@
 [titleEn]: <>(Definition)
+[hash]: <>(article:dal_definition)
 
 A definition is the configuration of storage data in an object, so-called: an entity or model. In terms of relational databases, it's a representation of a table.
 

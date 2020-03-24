@@ -1,4 +1,5 @@
 [titleEn]: <>(Template structure)
+[hash]: <>(article:storefront_template)
 
 The storefront theme is implemented as a skin on top of the [Boostrap toolkit](https://getbootstrap.com/). Therefore the template structure is a derivate of the [bootstrap starter template](https://getbootstrap.com/docs/4.3/getting-started/introduction/#starter-template). 
 The templating engine used is [Twig](https://twig.symfony.com/).

@@ -1,5 +1,6 @@
 [titleEn]: <>(Decorating a service)
 [metaDescriptionEn]: <>(The decorator pattern became more and more popular in PHP recently. This HowTo will teach you how to decorate an existing service via your plugin.)
+[hash]: <>(article:how_to_service_decoration)
 
 ## Overview
 

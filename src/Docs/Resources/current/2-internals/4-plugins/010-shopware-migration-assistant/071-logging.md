@@ -1,4 +1,5 @@
 [titleEn]: <>(Logging)
+[hash]: <>(article:migration_logging)
 
 Logging is essential for anyone using the Shopware Migration Assistant. In case of failure it enables users to find out
 why part of their data might be missing. Most of the logging takes place in the `Converter` classes, each time they detect

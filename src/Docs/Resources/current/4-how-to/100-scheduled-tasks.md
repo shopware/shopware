@@ -1,5 +1,6 @@
 [titleEn]: <>(Setting up a scheduled task)
 [metaDescriptionEn]: <>(A scheduled task in Shopware 6 is mainly what people know as a 'cronjob'. If you were wondering how to set up such a scheduled task, then you've found the right article.)
+[hash]: <>(article:how_to_scheduled_tasks)
 
 ## Overview
 

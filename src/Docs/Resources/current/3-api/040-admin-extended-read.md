@@ -1,4 +1,5 @@
 [titleEn]: <>(Admin API extended read)
+[hash]: <>(article:api_admin_extended_read)
 
 ## Overview
 

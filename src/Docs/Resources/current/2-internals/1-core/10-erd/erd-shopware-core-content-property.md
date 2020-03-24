@@ -1,4 +1,5 @@
 [titleEn]: <>(Property)
+[hash]: <>(article:internals_core_erd_content_property)
 
 [Back to modules](./../10-modules.md)
 

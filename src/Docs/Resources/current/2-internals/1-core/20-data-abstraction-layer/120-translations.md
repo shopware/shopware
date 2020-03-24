@@ -1,4 +1,5 @@
 [titleEn]: <>(Translations)
+[hash]: <>(article:dal_translations)
 
 The data abstraction layer supports translations out of the box. In order to do so it uses `EntityTranslationDefinition` as an association.
 

@@ -1,5 +1,6 @@
 [titleEn]: <>(Automated tests in plugins)
 [metaDescriptionEn]: <>(To ensure your plugin's functionality, it's highly recommended to automatically test your source code. For this purpose, you can easily setup a PHPUnit testing environment for plugins.)
+[hash]: <>(article:how_to_plugin_testing)
 
 ## Overview
 

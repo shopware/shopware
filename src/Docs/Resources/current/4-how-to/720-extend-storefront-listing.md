@@ -1,5 +1,6 @@
 [titleEn]: <>(Extending the storefront listing)
 [metaDescriptionEn]: <>(This HowTo will give an example on creating a new filter and sorting for the storefront product listing.)
+[hash]: <>(article:how_to_extend_storefront_listing)
 
 ## Adding new Filter
 New product listing filters can be registered via the event `\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent`.

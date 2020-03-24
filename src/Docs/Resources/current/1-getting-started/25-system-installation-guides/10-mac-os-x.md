@@ -1,4 +1,5 @@
 [titleEn]: <>(MacOS X using MAMP)
+[hash]: <>(article:mac_installation)
 
 
 ## Local installation on mac (MAMP)

@@ -1,4 +1,5 @@
 [titleEn]: <>(Number Range)
+[hash]: <>(article:number-range)
 
 Shopware 6 integrates a configurable number range generator and manager. Numberranges are defined unique identifiers for specific entities.
 

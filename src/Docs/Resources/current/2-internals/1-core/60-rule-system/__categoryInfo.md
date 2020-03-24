@@ -1,4 +1,5 @@
 [titleEn]: <>(Rule system)
+[hash]: <>(category:rule)
 
 *It is highly recommended to - first - read the [cart documentation](./../50-checkout-process/10-cart.md)*
 

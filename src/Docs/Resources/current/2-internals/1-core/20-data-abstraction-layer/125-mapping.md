@@ -1,4 +1,5 @@
 [titleEn]: <>(M:N mapping)
+[hash]: <>(article:dal_mapping)
 
 M:N mapping represents a special case for the Data Abstraction Layer. If a table just represents the connection of two Entities and does not contain custom data your definition should extend `\Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition`. If you use this there are several advantages:
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(System Requirements)
+[hash]: <>(article:system_requirements)
 
 # TODO: Refactor internal links
 

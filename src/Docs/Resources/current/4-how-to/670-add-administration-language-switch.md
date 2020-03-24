@@ -1,5 +1,6 @@
 [titleEn]: <>(Switching content language in administration)
 [metaDescriptionEn]: <>(This HowTo will teach you how the content language is changed and what impacts these changes have.)
+[hash]: <>(article:how_to_admin_language_switch)
 
 ## Overview
 

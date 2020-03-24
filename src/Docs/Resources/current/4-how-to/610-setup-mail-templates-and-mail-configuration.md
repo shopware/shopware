@@ -1,5 +1,6 @@
 [titleEn]: <>(Setup mail templates and mail configuration)
 [metaDescriptionEn]: <>(This HowTo will give an example on setting up the mail templates and the mail configuration.)
+[hash]: <>(article:how_to_mail_templates)
 
 ## Overview
 

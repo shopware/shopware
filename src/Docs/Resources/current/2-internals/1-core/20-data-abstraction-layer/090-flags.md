@@ -1,4 +1,5 @@
 [titleEn]: <>(Flags)
+[hash]: <>(article:dal_flags)
 
 Flags are attributes to a field in a definition. They provide additional information, which is not field type specific.
 

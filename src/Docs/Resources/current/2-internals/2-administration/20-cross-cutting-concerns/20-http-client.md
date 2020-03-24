@@ -1,4 +1,5 @@
 [titleEn]: <>(HttpClient)
+[hash]: <>(article:administration_http_client)
 
 We provide the HttpClient for fetching and sending data to the Api and external services. It is an
 wrapper around the popular HTTP client Axios.

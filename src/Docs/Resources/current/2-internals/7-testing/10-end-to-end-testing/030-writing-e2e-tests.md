@@ -1,4 +1,5 @@
 [titleEn]: <>(Writing End-to-End Tests)
+[hash]: <>(article:e2e_testing_writing)
 
 # Writing End-to-End Tests
 

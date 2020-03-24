@@ -1,4 +1,5 @@
 [titleEn]: <>(Installation guide)
+[hash]: <>(category:installation_guide)
 
 Before digging deeper into Shopware 6 we recommend creating a local installation.
 You should have chosen if you want to install it on your local host or with docker by now and have your system already set up to fulfill the [requirements](./../10-requirements/__categoryInfo.md). 

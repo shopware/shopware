@@ -1,4 +1,5 @@
 [titleEn]: <>(Scheduled Tasks)
+[hash]: <>(article:scheduled_tasks)
 
 Scheduled Tasks are a way to to add recurring tasks to the systems. These tasks will run in an defined interval. Scheduled Tasks work asynchronously over the message queue.
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(Running End-to-End Tests)
+[hash]: <>(article:e2e_testing_running)
 
 # Running End-to-End Tests
 

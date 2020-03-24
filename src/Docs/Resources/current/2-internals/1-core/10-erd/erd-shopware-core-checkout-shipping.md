@@ -1,4 +1,5 @@
 [titleEn]: <>(Shipping)
+[hash]: <>(article:internals_core_erd_checkout_shipping)
 
 [Back to modules](./../10-modules.md)
 

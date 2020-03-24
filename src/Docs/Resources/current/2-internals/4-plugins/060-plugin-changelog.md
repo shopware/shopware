@@ -1,4 +1,5 @@
 [titleEn]: <>(Plugin changelog)
+[hash]: <>(article:plugin_changelog)
 
 ## Overview
 In this guide, you'll learn how to maintain local changelogs for your plugin.

@@ -1,4 +1,5 @@
 [titleEn]: <>(Order)
+[hash]: <>(article:checkout_order)
 
 Once a cart is checked out an `Order` is created. The whole structure of the cart is stored [to the database](./../10-erd/erd-shopware-core-checkout-order.md). Contrary to the cart, a structure that allows a great degree of freedom and is *calculation optimized*, the order is **workflow optimized**.  
 

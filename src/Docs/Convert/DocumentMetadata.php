@@ -78,6 +78,11 @@ class DocumentMetadata
         return $this->document->getBaseUrl() . '-en' . $this->getUrl();
     }
 
+    public function getHash(): string
+    {
+        return $this->requireMetadata('hash');
+    }
+
     public function isActive(): bool
     {
         try {

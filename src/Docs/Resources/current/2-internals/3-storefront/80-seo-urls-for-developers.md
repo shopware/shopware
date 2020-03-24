@@ -1,4 +1,5 @@
 [titleEn]: <>(SEO URLs for developers)
+[hash]: <>(article:storefront_seo_urls_devs)
 
 This document aims to provide a broad overview of how SEO URLs in Shopware 6 work from a developers perspective.
  

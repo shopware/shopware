@@ -1,4 +1,5 @@
 [titleEn]: <>(Languages)
+[hash]: <>(article:internals_core_erd_framework_language)
 
 [Back to modules](./../10-modules.md)
 

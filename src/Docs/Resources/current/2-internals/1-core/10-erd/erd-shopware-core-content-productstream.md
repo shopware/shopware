@@ -1,4 +1,5 @@
 [titleEn]: <>(Product streams)
+[hash]: <>(article:internals_core_erd_content_product_stream)
 
 [Back to modules](./../10-modules.md)
 

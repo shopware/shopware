@@ -1,4 +1,5 @@
 [titleEn]: <>(Field Accessor)
+[hash]: <>(article:dal_field_accessor)
 
 A FieldAccessor is a selector for the data in your storage.
 

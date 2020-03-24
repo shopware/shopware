@@ -1,5 +1,6 @@
 [titleEn]: <>(Creating commands via plugin)
 [metaDescriptionEn]: <>(Sometimes you want to bring some helper commands with your plugin. Here you'll learn how that's done.)
+[hash]: <>(article:how_to_plugin_commands)
 
 ## Overview
 

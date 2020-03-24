@@ -1,4 +1,5 @@
 [titleEn]: <>(Business events)
+[hash]: <>(article:internals_core_erd_framework_event)
 
 [Back to modules](./../10-modules.md)
 

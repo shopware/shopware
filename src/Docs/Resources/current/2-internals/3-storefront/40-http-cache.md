@@ -1,4 +1,5 @@
 [titleEn]: <>(Http cache)
+[hash]: <>(article:storefront_http_cache)
 
 ## How to configure the http cache
 The HTTP cache configuration takes place completely in the .env file. The following configurations are available here:

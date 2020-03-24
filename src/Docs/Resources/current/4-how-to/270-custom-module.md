@@ -1,5 +1,6 @@
 [titleEn]: <>(Add new module to administration)
 [metaDescriptionEn]: <>(When dealing with a whole lot of plugin configuration possibilites, you might want to create your plugin's custom module. How this can be done, is explained in short in this article.)
+[hash]: <>(article:how_to_custom_module)
 
 ## Overview
 

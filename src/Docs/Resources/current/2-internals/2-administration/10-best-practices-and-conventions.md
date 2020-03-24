@@ -1,4 +1,5 @@
 [titleEn]: <>(Administration Best Practices and Conventions)
+[hash]: <>(article:administration_conventions)
 
 # Best practices and conventions
 This guide contains best practices and conventions for building an administration extension.

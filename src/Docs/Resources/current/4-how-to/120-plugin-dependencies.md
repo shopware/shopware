@@ -1,5 +1,6 @@
 [titleEn]: <>(Depending on other plugins)
 [metaDescriptionEn]: <>(New in Shopware 6 is the possibility to properly require on other plugins to be in the system. This HowTo will cover that subject.)
+[hash]: <>(article:how_to_plugin_dependency)
 
 ## Overview
 

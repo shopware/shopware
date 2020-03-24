@@ -1,5 +1,6 @@
 [titleEn]: <>(Working with the Rest-API and an HTTP Client)
 [metaDescriptionEn]: <>(One of the big advantages of working with Shopware 6 is the Rest-API it comes with. Learn how to work with this API in a PHP context here)
+[hash]: <>(article:how_to_api_http_client)
 
 Some things are not easy to solve without an API. For these cases Shopware 6 has a REST-API!
 

@@ -1,5 +1,6 @@
 [titleEn]: <>(Translating a custom entity)
 [metaDescriptionEn]: <>(This HowTo will handle how to properly translate your plugin's custom entities.)
+[hash]: <>(article:how_to_custom_entity_translations)
 
 ## Overview
 

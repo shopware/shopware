@@ -1,5 +1,6 @@
 [titleEn]: <>(Add data to a storefront page)
 [metaDescriptionEn]: <>(This HowTo will give an example on adding data to a storefront page.)
+[hash]: <>(article:how_to_add_storefront_data)
 
 ## Overview
 

@@ -1,4 +1,5 @@
 [titleEn]: <>(State machine)
+[hash]: <>(article:internals_core_erd_system_state_machine)
 
 [Back to modules](./../10-modules.md)
 

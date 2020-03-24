@@ -1,4 +1,5 @@
 [titleEn]: <>(Coding standards)
+[hash]: <>(article:references_coding_standards)
 
 ## Core
 

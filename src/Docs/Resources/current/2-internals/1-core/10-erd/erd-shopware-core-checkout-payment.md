@@ -1,4 +1,5 @@
 [titleEn]: <>(Payments)
+[hash]: <>(article:internals_core_erd_checkout_payment)
 
 [Back to modules](./../10-modules.md)
 

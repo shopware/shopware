@@ -1,4 +1,5 @@
 [titleEn]: <>(Internationalization)
+[hash]: <>(article:internationalization)
 
 Shopware 6 supports internationalization as a core concept. The translation System supports three levels. 
 

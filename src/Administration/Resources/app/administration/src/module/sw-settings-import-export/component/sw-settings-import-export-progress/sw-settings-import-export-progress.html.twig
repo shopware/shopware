@@ -3,14 +3,14 @@
         <sw-button :disabled="disableButton"
                    variant="primary"
                    @click="$emit('process-start')">
-            Start Process
+            {{  $tc('sw-settings-import-export.progress.startProcessLabel')  }}
         </sw-button>
 
         <div class="sw-settings-import-export-progress__progress-bar"
              v-if="total !== null">
             <div class="sw-settings-import-export-progress__progress-bar-stats">
                 <p>{{ text }}</p> {# TODO: Status #}
-                <p>{{ offset }} / {{ total }} Entries</p>
+                <p>{{ offset }} / {{ total }} {{  $tc('sw-settings-import-export.progress.entriesLabel')  }}</p>
             </div>
 
             <sw-progress-bar :value="percentageProgress"
@@ -22,28 +22,27 @@
 
     <template v-if="!isLoading && logEntry">
         <div class="sw-settings-import-export-progress__stats">
-             Texte werden wahrscheinlich vom Server kommen
             <ul>
                 <li class="sw-settings-import-export-progress__stats-list-success">
                     <sw-icon name="default-basic-checkmark-line"
                              size="14px"
                              color="#758ca3">
                     </sw-icon>
-                     products successfully imported
+                     {{  $tc('sw-settings-import-export.progress.successTitle')  }}
                 </li>
                 <li class="sw-settings-import-export-progress__stats-list-success">
                     <sw-icon name="default-basic-checkmark-line"
                              size="14px"
                              color="#758ca3">
                     </sw-icon>
-                    File imported
+                    {{  $tc('sw-settings-import-export.progress.fileSuccessTitle')  }}
                 </li>
                 <li class="sw-settings-import-export-progress__stats-list-failure">
                     <sw-icon name="default-basic-x-line"
                              size="14px"
                              color="#de294c">
                     </sw-icon>
-                    Errors occured
+                    {{  $tc('sw-settings-import-export.progress.errorTitle')  }}
                 </li>
             </ul>
         </div>
@@ -51,7 +50,7 @@
         <div>
             <sw-button variant="primary"
                        :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
-                Download file
+                {{  $tc('sw-settings-import-export.activity.contextMenu.DownloadFile')  }}
             </sw-button>
         </div>
     </template>

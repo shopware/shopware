@@ -79,6 +79,13 @@
     },
     "page": {
       "profileTab": "Profile"
+    },
+    "progress": {
+      "startProcessLabel": "Prozess starten",
+      "entriesLabel": "Einträge",
+      "successTitle": "Produkte erfolgreich importiert",
+      "fileSuccessTitle": "Datei importiert",
+      "errorTitle": "Fehler aufgetreten"
     }
   }
 }

@@ -78,6 +78,13 @@
     },
     "page": {
       "profileTab": "Profiles"
+    },
+    "progress": {
+      "startProcessLabel": "Start process",
+      "entriesLabel": "Entries",
+      "successTitle": "Products successfully imported",
+      "fileSuccessTitle": "File imported",
+      "errorTitle": "Errors occurred"
     }
   }
 }

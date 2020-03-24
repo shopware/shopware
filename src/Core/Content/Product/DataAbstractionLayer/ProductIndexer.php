@@ -185,7 +185,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->categoryDenormalizer->update($ids, $context);
 
-        $this->listingPriceUpdater->update($ids, $context);
+        $this->listingPriceUpdater->update($parentIds, $context);
 
         $this->ratingAverageUpdater->update($parentIds, $context);
 

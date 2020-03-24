@@ -109,8 +109,8 @@ class CartRuleLoader
         $index = 0;
         foreach ($rules as $rule) {
             ++$index;
-            $this->logger->debug(
-                sprintf('#%s Rule detection: %s with priority %s', $index, $rule->getName(), $rule->getPriority())
+            $this->logger->info(
+                sprintf('#%s Rule detection: %s with priority %s (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
             );
         }
 

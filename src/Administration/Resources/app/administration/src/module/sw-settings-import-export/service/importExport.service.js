@@ -17,30 +17,29 @@ export default class ImportExportService extends ApiService {
      * @returns {Promise<void>}
      */
     async export(profileId, cb) {
-        const headers = this.getBasicHeaders();
-
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
         const createdLog = await this.httpClient.post('/_action/import-export/initiate', {
             profileId: profileId,
             expireDate: expireDate.toDateString()
-        }, {
-            headers
-        });
+        }, { headers: this.getBasicHeaders() });
 
-        let data = { data: { offset: 0 } };
+        let data = { data: { offset: 0, total: 1 } };
 
-        do {
-            var oldOffset = data.data.offset;
+        while (data.data.offset < data.data.total) {
+            const oldOffset = data.data.offset;
 
+            // eslint-disable-next-line no-await-in-loop
             data = await this.httpClient.post('/_action/import-export/process', {
                 logId: createdLog.data.log.id,
                 offset: oldOffset
-            }, {
-                headers
-            });
-        } while (oldOffset !== data.data.offset);
+            }, { headers: this.getBasicHeaders() });
+
+            cb.call(this, data.data);
+        }
+
+        return createdLog;
     }
 
     /**
@@ -79,19 +78,33 @@ export default class ImportExportService extends ApiService {
             headers: this.getBasicHeaders()
         });
 
-        let data = { data: { offset: 0 } };
+        let data = { data: { offset: 0, total: 1 } };
 
-        do {
-            var oldOffset = data.data.offset;
+        while (data.data.offset < data.data.total) {
+            const oldOffset = data.data.offset;
 
+            // eslint-disable-next-line no-await-in-loop
             data = await this.httpClient.post('/_action/import-export/process', {
                 logId: createdLog.data.log.id,
                 offset: oldOffset
-            }, {
-                headers: this.getBasicHeaders()
-            });
-        } while (oldOffset !== data.data.offset);
+            }, { headers: this.getBasicHeaders() });
 
+            cb.call(this, data.data);
+        }
+
+        return createdLog;
+        // while (data.data.offset < data.data.total) {
+
+        // do {
+        //     var oldOffset = data.data.offset;
+        //
+        //     data = await this.httpClient.post('/_action/import-export/process', {
+        //         logId: createdLog.data.log.id,
+        //         offset: oldOffset
+        //     }, {
+        //         headers: this.getBasicHeaders()
+        //     });
+        // } while (oldOffset !== data.data.offset);
 
         // this.handleImportProgress(progress, cb);
     }

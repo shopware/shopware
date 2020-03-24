@@ -17,57 +17,58 @@ Shopware.Component.register('sw-settings-import-export-importer', {
     data() {
         return {
             selectedProfile: null,
-            importFile: null,
-            progressIndex: 0,
-            totalProgress: null,
-            statusText: '',
-            stats: null,
-            isLoading: false
+            progressOffset: 0,
+            progressTotal: null,
+            progressText: '',
+            progressState: '',
+            progressLogEntry: null,
+            isLoading: false,
+            importFile: null
         };
     },
 
     computed: {
-        percentageImportProgress() {
-            return this.progressIndex / this.totalProgress * 100;
-        },
-
         disableImporting() {
             return this.isLoading || this.selectedProfile === null || this.importFile === null;
-        },
-
-        progressBarClasses() {
-            return {
-                'sw-settings-import-export-importer__progress-bar-bar--finished': this.percentageImportProgress >= 100
-            };
         }
     },
 
     methods: {
-        onStartImport() {
+        onStartProcess() {
             this.isLoading = true;
             const profile = this.selectedProfile;
-            const file = this.importFile;
 
-            this.importExport.import(profile, file, this.handleImportProgress).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-import-export.importer.titleImportSuccess'),
-                    message: this.$tc('sw-settings-import-export.importer.messageImportSuccess')
+            this.importExport.import(profile, this.importFile, this.handleProgress).then((result) => {
+                const logEntry = result.data.log;
+
+                this.logRepository.get(logEntry.id, Shopware.Context.api).then((entry) => {
+                    this.progressLogEntry = entry;
                 });
-            }).finally(() => {
-                this.isLoading = false;
             });
         },
 
-        handleImportProgress(progress) {
-            this.progressIndex = progress.index;
-            this.totalProgress = progress.maxIndex;
-            this.statusText = progress.statusText;
+        // Todo implement and use handleprogress
+        handleProgress(progress) {
+            this.progressOffset = progress.offset;
+            this.progressTotal = progress.total;
+            // ToDo snippet text for states
+            this.progressText = progress.state;
+            this.progressState = progress.state;
 
-            if (progress.status === 'finished') {
-                this.stats = progress.stats;
+            if (progress.state === 'succeeded') {
+                this.onProgressFinished(progress);
+            }
+        },
+
+        onProgressFinished() {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-import-export.importer.titleImportSuccess'),
+                message: this.$tc('sw-settings-import-export.importer.messageImportSuccess', 0)
+            });
+            window.setTimeout(() => {
                 this.isLoading = false;
                 this.$emit('import-finish');
-            }
+            }, 1000);
         }
     }
 });

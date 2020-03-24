@@ -10,6 +10,7 @@ import './component/sw-import-export-entity-path-select';
 import './view/sw-settings-import-export-view-import';
 import './view/sw-settings-import-export-view-export';
 import './view/sw-settings-import-export-view-profiles';
+import './component/sw-settings-import-export-progress';
 
 
 Shopware.Service().register('importExport', () => {

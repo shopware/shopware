@@ -32,77 +32,14 @@
         required>
     </sw-entity-single-select>
 
-    {#
-        TODO: schauen, ob man den Start-Button, Ladebalken + Erfolgsmeldung + Progress in eine weitere Komponente
-         auslagern kann. Die UI ist sowohl bei Import als auch Export identisch. Über Props würden dann die Labels und
-         der Progress/State reingereicht:
-         - progressIndex
-         - totalProgress
-         - statusText
-         - stats
-         - disabled (für Button)
-         - label (für Button)
-         - buttonConfig (für "Show log file" und "Download file")
-            -> vll. geht das auch automatisch, je nach Response vom Server
-         ___
-         Diese Komponente kann dann auch gut isoliert getestet werden (Aussehen je nach Prop + Bedienbarkeit)
-     #}
-    <div class="sw-settings-import-export-importer__progress">
-        <sw-button :disabled="disableImporting"
-                   variant="primary"
-                   @click="onStartImport">
-            {{  $tc('sw-settings-import-export.importer.startImportLabel')  }}
-        </sw-button>
-
-        <div class="sw-settings-import-export-importer__progress-bar"
-             v-if="totalProgress !== null">
-            <div class="sw-settings-import-export-importer__progress-bar-stats">
-                <p>{{ statusText }}</p> {# TODO: Status #}
-                <p>{{ progressIndex }} / {{ totalProgress }} Entries</p>
-            </div>
-
-            <sw-progress-bar :value="percentageImportProgress"
-                             class="sw-settings-import-export-importer__progress-bar-bar"
-                             :class="progressBarClasses">
-            </sw-progress-bar>
-        </div>
-    </div>
-
-    <template v-if="!isLoading && stats">
-        <div class="sw-settings-import-export-importer__stats">
-            {# Texte werden wahrscheinlich vom Server kommen #}
-            <ul>
-                <li class="sw-settings-import-export-importer__stats-list-success">
-                    <sw-icon name="default-basic-checkmark-line"
-                             size="14px"
-                             color="#758ca3">
-                    </sw-icon>
-                    {{ stats.success }} products successfully imported
-                </li>
-                <li class="sw-settings-import-export-importer__stats-list-success">
-                    <sw-icon name="default-basic-checkmark-line"
-                             size="14px"
-                             color="#758ca3">
-                    </sw-icon>
-                    File "{{ stats.filename }}" imported
-                </li>
-                <li class="sw-settings-import-export-importer__stats-list-failure">
-                    <sw-icon name="default-basic-x-line"
-                             size="14px"
-                             color="#de294c">
-                    </sw-icon>
-                    {{ stats.failure }} Errors occured
-                </li>
-            </ul>
-        </div>
-
-        <div>
-            <sw-button variant="primary" :link="stats.fileUrl">{{  $tc('sw-settings-import-export.activity.contextMenu.downloadFile')  }}</sw-button>
-            <sw-button :link="stats.logfileUrl">{{  $tc('sw-settings-import-export.exporter.showLogLabel')  }}</sw-button>
-        </div>
-    </template>
-
-    {#
-        TODO: Hier Ende vom Auslagern
-     #}
+    <sw-settings-import-export-progress
+        activityType="import"
+        :offset="this.progressOffset"
+        :total="this.progressTotal"
+        :logEntry="this.progressLogEntry"
+        :state="this.progressState"
+        :isLoading="isLoading"
+        :disableButton="disableImporting"
+        @process-start="onStartProcess">
+    </sw-settings-import-export-progress>
 </div>

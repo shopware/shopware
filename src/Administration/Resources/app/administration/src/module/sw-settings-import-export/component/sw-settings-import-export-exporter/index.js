@@ -7,7 +7,7 @@ const { Mixin } = Shopware;
 Shopware.Component.register('sw-settings-import-export-exporter', {
     template,
 
-    inject: ['importExport'],
+    inject: ['importExport', 'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -16,56 +16,59 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
     data() {
         return {
             selectedProfileId: null,
-            progressIndex: 0,
-            totalProgress: null,
-            statusText: '',
-            stats: null,
+            progressOffset: 0,
+            progressTotal: null,
+            progressText: '',
+            progressState: '',
+            progressLogEntry: null,
             isLoading: false
         };
     },
 
     computed: {
-        percentageExportProgress() {
-            return this.progressIndex / this.totalProgress * 100;
-        },
-
         disableExporting() {
             return this.isLoading || this.selectedProfileId === null;
         },
-
-        progressBarClasses() {
-            return {
-                'sw-settings-import-export-exporter__progress-bar-bar--finished': this.percentageExportProgress >= 100
-            };
+        logRepository() {
+            return this.repositoryFactory.create('import_export_log');
         }
     },
 
     methods: {
-        onStartExport() {
+        onStartProcess() {
             this.isLoading = true;
 
-            this.importExport.export(this.selectedProfileId, this.handleExportProgress).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-import-export.exporter.titleExportSuccess'),
-                    message: this.$tc('sw-settings-import-export.exporter.messageExportSuccess', 0)
+            this.importExport.export(this.selectedProfileId, this.handleProgress).then(res => {
+                const logEntry = res.data.log;
+
+                this.logRepository.get(logEntry.id, Shopware.Context.api).then((entry) => {
+                    this.progressLogEntry = entry;
                 });
-            }).finally(() => {
-                this.$emit('export-finish');
-                this.isLoading = false;
             });
         },
 
         // Todo implement and use handleprogress
-        handleExportProgress(progress) {
-            this.progressIndex = progress.index;
-            this.totalProgress = progress.maxIndex;
-            this.statusText = progress.statusText;
+        handleProgress(progress) {
+            this.progressOffset = progress.offset;
+            this.progressTotal = progress.total;
+            // ToDo snippet text for states
+            this.progressText = progress.state;
+            this.progressState = progress.state;
 
-            if (progress.status === 'finished') {
-                this.stats = progress.stats;
+            if (progress.state === 'succeeded') {
+                this.onProgressFinished(progress);
+            }
+        },
+
+        onProgressFinished() {
+            this.createNotificationSuccess({
+                title: this.$tc('sw-settings-import-export.exporter.titleExportSuccess'),
+                message: this.$tc('sw-settings-import-export.exporter.messageExportSuccess', 0)
+            });
+            window.setTimeout(() => {
                 this.isLoading = false;
                 this.$emit('export-finish');
-            }
+            }, 1000);
         }
     }
 });

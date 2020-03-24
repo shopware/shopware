@@ -1,0 +1,40 @@
+@import "~scss/variables";
+
+.sw-settings-import-export-progress {
+    .sw-settings-import-export-progress__progress {
+        display: flex;
+    }
+
+    .sw-settings-import-export-progress__progress-bar {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+        margin-left: 16px;
+        margin-bottom: 4px;
+    }
+
+    .sw-settings-import-export-progress__progress-bar-stats {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .sw-settings-import-export-progress__progress-bar-bar {
+        &--finished {
+            .sw-progress-bar__value {
+                background-color: #3dcb3f;
+            }
+        }
+    }
+
+    .sw-settings-import-export-progress__stats {
+        margin: 32px 0 16px 0;
+        padding: 12px;
+        border-radius: $border-radius-default;
+        border: 1px solid $color-gray-300;
+
+        li {
+            list-style: none;
+        }
+    }
+}

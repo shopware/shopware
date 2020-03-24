@@ -66,6 +66,7 @@ Shopware.Component.register('sw-settings-import-export-importer', {
             if (progress.status === 'finished') {
                 this.stats = progress.stats;
                 this.isLoading = false;
+                this.$emit('import-finish');
             }
         }
     }

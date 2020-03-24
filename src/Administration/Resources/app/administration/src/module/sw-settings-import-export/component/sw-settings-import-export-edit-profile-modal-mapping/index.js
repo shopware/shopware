@@ -49,6 +49,22 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
             this.profile.mapping = this.profile.mapping.filter((mapping) => {
                 return mapping.key !== key;
             });
+
+            this.loadMappings();
+        },
+
+        loadMappings() {
+            if (this.searchTerm) {
+                const searchTerm = this.searchTerm.toLowerCase();
+                this.mappings = this.profile.mapping.filter(mapping => {
+                    const key = mapping.key.toLowerCase();
+                    const mappedKey = mapping.mappedKey.toLowerCase();
+                    return !!(key.includes(searchTerm) || mappedKey.includes(searchTerm));
+                });
+                return;
+            }
+
+            this.mappings = this.profile.mapping;
         },
 
         onAddMapping() {
@@ -60,16 +76,7 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         },
 
         debouncedSearch: debounce(function updateSearchTerm() {
-            this.search();
-        }, 100),
-
-        search() {
-            const searchTerm = this.searchTerm.toLowerCase();
-            this.mappings = this.profile.mapping.filter(mapping => {
-                const key = mapping.key.toLowerCase();
-                const mappedKey = mapping.mappedKey.toLowerCase();
-                return !!(key.includes(searchTerm) || mappedKey.includes(searchTerm));
-            });
-        }
+            this.loadMappings();
+        }, 100)
     }
 });

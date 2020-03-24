@@ -50,10 +50,12 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
                     message: this.$tc('sw-settings-import-export.exporter.messageExportSuccess', 0)
                 });
             }).finally(() => {
+                this.$emit('export-finish');
                 this.isLoading = false;
             });
         },
 
+        // Todo implement and use handleprogress
         handleExportProgress(progress) {
             this.progressIndex = progress.index;
             this.totalProgress = progress.maxIndex;
@@ -62,6 +64,7 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
             if (progress.status === 'finished') {
                 this.stats = progress.stats;
                 this.isLoading = false;
+                this.$emit('export-finish');
             }
         }
     }

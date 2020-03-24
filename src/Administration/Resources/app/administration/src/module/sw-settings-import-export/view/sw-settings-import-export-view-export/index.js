@@ -7,12 +7,22 @@ Shopware.Component.register('sw-settings-import-export-view-export', {
     inject: ['repositoryFactory'],
 
     data() {
-        return {};
+        return {
+            exportLoading: false,
+            activityLoading: false
+        };
     },
 
     metaInfo() {
         return {
             title: this.$createTitle()
         };
+    },
+
+    methods: {
+        onExportFinish() {
+            console.log('export dfinish : ');
+            this.$refs.activityGrid.fetchActivities();
+        }
     }
 });

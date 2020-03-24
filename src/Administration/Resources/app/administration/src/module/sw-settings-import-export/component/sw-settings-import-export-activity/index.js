@@ -51,9 +51,9 @@ Shopware.Component.register('sw-settings-import-export-activity', {
         activityCriteria() {
             const criteria = new Shopware.Data.Criteria();
 
-            if (this.type === "import") {
+            if (this.type === 'import') {
                 criteria.addFilter(Criteria.equals('activity', 'import'));
-            } else if (this.type === "export") {
+            } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
 

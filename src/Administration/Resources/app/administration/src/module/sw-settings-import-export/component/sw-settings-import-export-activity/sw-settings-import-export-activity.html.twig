@@ -4,10 +4,16 @@
         :items="logs"
         :isLoading="isLoading"
         :columns="exportActivityColumns"
+        sortBy="createdAt"
+        sortDirection="DESC"
         :showSettings="false"
         :showSelection="false"
         :allowColumnEdit="false"
         :fullPage="true">
+
+        <template #column-createdAt="{ item }">
+            {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'})}}
+        </template>
 
         <template #actions="{ item }">
             <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.fileId, item.file.accessToken)" target="_blank" download>

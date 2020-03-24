@@ -1,12 +1,14 @@
 <div class="sw-settings-import-export-view-export">
-    <sw-card title="Export">
-
-        <sw-settings-import-export-exporter></sw-settings-import-export-exporter>
+    <sw-card title="Export" :isLoading="exportLoading">
+        <sw-settings-import-export-exporter
+            :isLoading="exportLoading"
+            @export-finish="onExportFinish">
+        </sw-settings-import-export-exporter>
 
     </sw-card>
 
     <sw-card class="sw-settings-import-export-view-export__activity">
-        <template slot="title">
+        <template #title>
             <div class="sw-card__title">
                 Export activity
                 <p class="sw-settings-import-export__card-subtitle">
@@ -15,7 +17,11 @@
             </div>
         </template>
 
-        <sw-settings-import-export-activity slot="grid" type="export"></sw-settings-import-export-activity>
-
+        <template #grid>
+            <sw-settings-import-export-activity
+                ref="activityGrid"
+                type="export">
+            </sw-settings-import-export-activity>
+        </template>
     </sw-card>
 </div>

@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\ImportExport\Controller;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
+use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
-use Shopware\Core\Content\ImportExport\Service\InitiationService;
-use Shopware\Core\Content\ImportExport\Service\ProcessingService;
+use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
@@ -37,14 +37,9 @@ class ImportExportActionController extends AbstractController
     private $supportedFeaturesService;
 
     /**
-     * @var InitiationService
+     * @var ImportExportService
      */
-    private $initiationService;
-
-    /**
-     * @var ProcessingService
-     */
-    private $processingService;
+    private $importExportService;
 
     /**
      * @var DownloadService
@@ -62,11 +57,6 @@ class ImportExportActionController extends AbstractController
     private $dataValidator;
 
     /**
-     * @var int
-     */
-    private $processingBatchSize;
-
-    /**
      * @var ImportExportLogDefinition
      */
     private $logDefinition;
@@ -76,26 +66,29 @@ class ImportExportActionController extends AbstractController
      */
     private $apiVersionConverter;
 
+    /**
+     * @var ImportExportFactory
+     */
+    private $importExportFactory;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
-        InitiationService $initiationService,
-        ProcessingService $processingService,
+        ImportExportService $initiationService,
         DownloadService $downloadService,
         EntityRepositoryInterface $profileRepository,
         DataValidator $dataValidator,
         ImportExportLogDefinition $logDefinition,
         ApiVersionConverter $apiVersionConverter,
-        int $processingBatchSize
+        ImportExportFactory $importExportFactory
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
-        $this->initiationService = $initiationService;
-        $this->processingService = $processingService;
+        $this->importExportService = $initiationService;
         $this->downloadService = $downloadService;
         $this->profileRepository = $profileRepository;
         $this->dataValidator = $dataValidator;
-        $this->processingBatchSize = $processingBatchSize;
         $this->logDefinition = $logDefinition;
         $this->apiVersionConverter = $apiVersionConverter;
+        $this->importExportFactory = $importExportFactory;
     }
 
     /**
@@ -127,22 +120,23 @@ class ImportExportActionController extends AbstractController
         $expireDate = new \DateTimeImmutable($params['expireDate']);
 
         if ($file !== null) {
-            if ($file->getClientMimeType() !== $profile->getFileType()) {
-                throw new UnexpectedFileTypeException($file->getClientMimeType(), $profile->getFileType());
-            }
-
-            $log = $this->initiationService->initiate(
+            $log = $this->importExportService->prepareImport(
                 $context,
-                'import',
-                $profile,
+                $profile->getId(),
                 $expireDate,
-                $file->getPathname(),
-                $file->getClientOriginalName()
+                $file,
+                $params['config'] ?? []
             );
 
             unlink($file->getPathname());
         } else {
-            $log = $this->initiationService->initiate($context, 'export', $profile, $expireDate);
+            $log = $this->importExportService->prepareExport(
+                $context,
+                $profile->getId(),
+                $expireDate,
+                null,
+                $params['config'] ?? []
+            );
         }
 
         return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log, $version)]);
@@ -159,13 +153,21 @@ class ImportExportActionController extends AbstractController
         $definition->add('offset', new NotBlank(), new Type('int'));
         $this->dataValidator->validate($params, $definition);
 
-        $log = $this->processingService->findLog($context, $params['logId']);
-        $recordIterator = $this->processingService->createRecordIterator($context, $log);
-        $outer = new \LimitIterator($recordIterator, $params['offset'], $this->processingBatchSize);
+        $logId = strtolower($params['logId']);
+        $offset = $params['offset'];
 
-        $processed = $this->processingService->process($context, $log, $outer);
+        $importExport = $this->importExportFactory->create($logId, 5, 5);
+        $logEntity = $importExport->getLogEntity();
 
-        return new JsonResponse(['processed' => $processed]);
+        if ($logEntity->getActivity() === 'import') {
+            $progress = $importExport->import($context, $offset);
+        } elseif ($logEntity->getActivity() === 'export') {
+            $progress = $importExport->export($context, new Criteria(), $offset);
+        } else {
+            throw new ProcessingException('Unknown activity');
+        }
+
+        return new JsonResponse(['progress' => $progress->jsonSerialize()]);
     }
 
     /**
@@ -196,7 +198,7 @@ class ImportExportActionController extends AbstractController
         $definition->add('logId', new NotBlank(), new Type('string'));
         $this->dataValidator->validate($params, $definition);
 
-        $this->processingService->cancel($context, $params['logId']);
+        $this->importExportService->cancel($context, $params['logId']);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

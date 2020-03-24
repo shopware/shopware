@@ -197,6 +197,7 @@ class ImportExportLogApiTest extends TestCase
 
         $this->logRepository->create(array_values($data), $this->context);
         $searchData = array_pop($data);
+        unset($searchData['config']);
 
         $filter = [];
         foreach ($searchData as $key => $value) {
@@ -277,6 +278,8 @@ class ImportExportLogApiTest extends TestCase
 
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
+            $profile = $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])];
+
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => $activities[($i % 2)],
@@ -285,8 +288,9 @@ class ImportExportLogApiTest extends TestCase
                 'profileId' => $profileIds[($i % 2)],
                 'fileId' => $fileIds[($i % 2)],
                 'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'],
-                'profileName' => $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])]['name'],
+                'profileName' => $profile['name'],
                 'records' => 10 * $i,
+                'config' => ['profile' => $profile],
             ];
         }
 

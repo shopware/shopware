@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.2.0 can be replaced with Definition::getProtections()
+ */
 class ImportExportLogValidator implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

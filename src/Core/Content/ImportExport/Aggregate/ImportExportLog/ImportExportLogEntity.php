@@ -14,11 +14,7 @@ class ImportExportLogEntity extends Entity
 
     public const ACTIVITY_IMPORT = 'import';
     public const ACTIVITY_EXPORT = 'export';
-
-    public const STATE_PROGRESS = 'progress';
-    public const STATE_SUCCEEDED = 'succeeded';
-    public const STATE_FAILED = 'failed';
-    public const STATE_ABORTED = 'aborted';
+    public const ACTIVITY_INVALID_RECORDS_EXPORT = 'invalid_records_export';
 
     /**
      * @var string
@@ -33,7 +29,7 @@ class ImportExportLogEntity extends Entity
     /**
      * @var int
      */
-    protected $records;
+    protected $records = 0;
 
     /**
      * @var string|null
@@ -74,6 +70,26 @@ class ImportExportLogEntity extends Entity
      * @var string|null
      */
     protected $fileId;
+
+    /**
+     * @var array
+     */
+    protected $config = [];
+
+    /**
+     * @var string|null
+     */
+    protected $invalidRecordsLogId;
+
+    /**
+     * @var self|null
+     */
+    protected $invalidRecordsLog;
+
+    /**
+     * @var self|null
+     */
+    protected $failedImportLog;
 
     /**
      * @var \DateTimeInterface
@@ -193,5 +209,50 @@ class ImportExportLogEntity extends Entity
     public function setFileId(string $fileId): void
     {
         $this->fileId = $fileId;
+    }
+
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(array $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function getInvalidRecordsLogId(): ?string
+    {
+        return $this->invalidRecordsLogId;
+    }
+
+    public function setInvalidRecordsLogId(?string $invalidRecordsLogId): void
+    {
+        $this->invalidRecordsLogId = $invalidRecordsLogId;
+    }
+
+    public function getInvalidRecordsLog(): ?ImportExportLogEntity
+    {
+        return $this->invalidRecordsLog;
+    }
+
+    public function setInvalidRecordsLog(?ImportExportLogEntity $invalidRecordsLog): void
+    {
+        $this->invalidRecordsLog = $invalidRecordsLog;
+    }
+
+    public function getFailedImportLog(): ?ImportExportLogEntity
+    {
+        return $this->failedImportLog;
+    }
+
+    public function setFailedImportLog(?ImportExportLogEntity $failedImportLog): void
+    {
+        $this->failedImportLog = $failedImportLog;
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'import_export_profile_log';
     }
 }

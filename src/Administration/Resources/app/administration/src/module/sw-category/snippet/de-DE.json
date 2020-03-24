@@ -67,8 +67,7 @@
         "visible": "In der Navigation ausblenden",
         "imageLabel": "Anzeigebild",
         "descriptionLabel": "Beschreibung",
-                "descriptionPlaceholder": "Gib eine Beschreibung ein..."
-
+        "descriptionPlaceholder": "Gib eine Beschreibung ein ..."
       },
       "cms": {
         "title": "Layout-Zuweisung",

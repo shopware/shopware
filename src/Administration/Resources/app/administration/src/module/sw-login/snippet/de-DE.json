@@ -1,13 +1,13 @@
 {
   "sw-login": {
     "general": {
-      "mainMenuItemIndex": "Login",
+      "mainMenuItemIndex": "Anmeldung",
       "description": "Shopware-Login"
     },
     "index": {
       "headlineMain": "Hallo!",
       "subheadlineMain": "Willkommen zurück.",
-      "headlineForm": "Melde Dich in Deinem Shopware-Shop an.",
+      "headlineForm": "Melde Dich in Deinem Shopware-Shop an",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
       "placeholderUsername": "Gib Deinen Benutzernamen ein ...",
@@ -19,16 +19,16 @@
       "messageInvalidClient": "Die Client-Authentifizierung ist fehlgeschlagen.",
       "messageInvalidScope": "Der angegebene Scope ist invalide.",
       "messageInvalidCredentials": "Die Benutzerinformationen sind invalide.",
-      "messageServerError": "Ein allgemeiner Fehler beim Authenfizierungsserver ist aufgetreten.",
+      "messageServerError": "Ein allgemeiner Fehler beim Authentifizierungsserver ist aufgetreten.",
       "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist invalide.",
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
       "messageInvalidGrant": "Der Grant-Type oder der Refresh-Token ist invalide.",
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
       "forgottenPasswordLink": "Hast Du Dein Passwort vergessen?"
     },
-    "recovery" : {
+    "recovery": {
       "info": {
-        "headline": "Zurück zum Login",
+        "headline": "Zurück zur Anmeldung",
         "info": "Wenn Du eine gültige E-Mail-Adresse angegeben hast, erhältst Du innerhalb weniger Minuten eine E-Mail zur Passwort-Wiederherstellung.",
         "warning": "Bitte beachte, dass der Wiederherstellungs-Link nur für 2 Stunden gültig ist."
       },

@@ -119,7 +119,9 @@ class RequestCriteriaBuilder
         }
 
         if (count($criteria->getAssociations())) {
-            $array['associations'] = json_decode(json_encode($criteria->getAssociations()), true);
+            foreach ($criteria->getAssociations() as $assocName => $association) {
+                $array['associations'][$assocName] = $this->toArray($association);
+            }
         }
 
         if (count($criteria->getSorting())) {

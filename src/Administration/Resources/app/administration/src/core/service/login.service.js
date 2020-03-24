@@ -38,6 +38,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnLogoutListener,
         addOnLoginListener,
         getLocalStorageKey,
+        getStorageKey,
         notifyOnLoginListener
     };
 

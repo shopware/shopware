@@ -153,6 +153,7 @@ class CheckoutController extends StorefrontController
         try {
             $orderId = $this->orderService->createOrder($data, $context);
             $this->addAffiliateTracking($orderId, $request, $context);
+            $this->addCustomerComment($orderId, $data, $context);
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [
                 'orderId' => $orderId,
             ]);
@@ -205,6 +206,16 @@ class CheckoutController extends StorefrontController
                 'id' => $orderId,
                 'affiliateCode' => $request->getSession()->get('affiliateCode'),
                 'campaignCode' => $request->getSession()->get('campaignCode'),
+            ]], $context->getContext());
+        }
+    }
+
+    private function addCustomerComment(string $orderId, RequestDataBag $data, SalesChannelContext $context): void
+    {
+        if ($data->get('customerComment')) {
+            $this->orderRepository->update([[
+                'id' => $orderId,
+                'customerComment' => $data->get('customerComment'),
             ]], $context->getContext());
         }
     }

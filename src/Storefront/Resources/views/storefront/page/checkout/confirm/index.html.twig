@@ -141,6 +141,35 @@
     {% endblock %}
 {% endblock %}
 
+{% block page_checkout_aside %}
+    <div class="checkout-customer-comment">
+        {% if shopware.config.core.cart.showCustomerComment %}
+            <div class="card checkout-card">
+                <div class="card-body">
+                    {% block page_checkout_confirm_customer_comment_header %}
+                        <div class="card-title">
+                            {{ "checkout.customerCommentHeader"|trans|sw_sanitize }}
+                        </div>
+                    {% endblock %}
+
+                    {% block page_checkout_confirm_customer_comment_control %}
+                        <div class="checkout-customer-comment-control">
+                            {% block page_checkout_confirm_customer_comment_control_textfield %}
+                                <textarea class="form-control"
+                                       id="customerComment"
+                                       form="confirmOrderForm"
+                                       name="customerComment"></textarea>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {{ parent() }}
+{% endblock %}
+
 {% block page_checkout_aside_actions %}
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"

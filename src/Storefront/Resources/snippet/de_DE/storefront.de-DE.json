@@ -316,6 +316,7 @@
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
     "confirmRevocationNotice": "Bitte beachten Sie bei Ihrer Bestellung auch unsere Widerrufsbelehrung.",
     "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> Ihres Shops gelesen und bin mit deren Geltung einverstanden.",
+    "customerCommentHeader": "Kommentar",
     "finishInfoPayment": "Zahlungsart:",
     "finishInfoShipping": "Versandart:",
     "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",

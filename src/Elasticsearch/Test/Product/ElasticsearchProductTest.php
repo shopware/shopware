@@ -1319,6 +1319,26 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(0, $products->getTotal());
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testTotalWithGroupFieldAndPostFilter(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+        // check simple equals filter
+        $criteria = new Criteria($data->prefixed('p'));
+        $criteria->addGroupField(new FieldGrouping('stock'));
+        $criteria->addPostFilter(new EqualsFilter('manufacturerId', $data->get('m2')));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertEquals(3, $products->getTotal());
+        static::assertCount(3, $products->getIds());
+        static::assertContains($data->get('p2'), $products->getIds());
+        static::assertContains($data->get('p3'), $products->getIds());
+        static::assertContains($data->get('p4'), $products->getIds());
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();

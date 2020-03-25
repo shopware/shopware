@@ -43,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CriteriaParser
 {
@@ -175,13 +176,22 @@ class CriteriaParser
         }
 
         // set default size to 10.000 => max for default configuration
-        $composite->addParameter('size', 10000);
+        $composite->addParameter('size', ElasticsearchHelper::MAX_SIZE_VALUE);
 
         if ($aggregation->getLimit()) {
             $composite->addParameter('size', (string) $aggregation->getLimit());
         }
 
         return $composite;
+    }
+
+    protected function parseEntityAggregation(EntityAggregation $aggregation, string $fieldName): Bucketing\TermsAggregation
+    {
+        $bucketingAggregation = new Bucketing\TermsAggregation($aggregation->getName(), $fieldName);
+
+        $bucketingAggregation->addParameter('size', ElasticsearchHelper::MAX_SIZE_VALUE);
+
+        return $bucketingAggregation;
     }
 
     protected function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): CompositeAggregation
@@ -224,7 +234,7 @@ class CriteriaParser
                 return new Metric\AvgAggregation($aggregation->getName(), $fieldName);
 
             case $aggregation instanceof EntityAggregation:
-                return new Bucketing\TermsAggregation($aggregation->getName(), $fieldName);
+                return $this->parseEntityAggregation($aggregation, $fieldName);
 
             case $aggregation instanceof MaxAggregation:
                 return new Metric\MaxAggregation($aggregation->getName(), $fieldName);

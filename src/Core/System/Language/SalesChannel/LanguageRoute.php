@@ -52,7 +52,7 @@ class LanguageRoute implements LanguageRouteInterface
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/language_flat"))
      *     )
      * )
-     * @Route("/store-api/v{version}/language", name="shop-api.language", methods={"GET", "POST"})
+     * @Route("/store-api/v{version}/language", name="store-api.language", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): LanguageRouteResponse
     {

@@ -119,7 +119,7 @@ class RegisterRoute implements RegisterRouteInterface
      *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/account/register", name="shop-api.account.register", methods={"POST"})
+     * @Route("/store-api/v{version}/account/register", name="store-api.account.register", methods={"POST"})
      */
     public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse
     {

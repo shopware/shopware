@@ -51,7 +51,7 @@ class ProductListingRoute implements ProductListingRouteInterface
      *          @OA\JsonContent(ref="#/definitions/ProductListingResult")
      *     )
      * )
-     * @Route("/store-api/v{version}/product-listing/{categoryId}", name="shop-api.product.listing", methods={"POST"})
+     * @Route("/store-api/v{version}/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
      */
     public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext): ProductListingRouteResponse
     {

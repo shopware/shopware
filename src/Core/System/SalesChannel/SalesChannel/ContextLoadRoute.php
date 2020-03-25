@@ -24,7 +24,7 @@ class ContextLoadRoute implements ContextLoadRouteInterface
      *          @OA\JsonContent(ref="#/definitions/SalesChannelContext")
      *     )
      * )
-     * @Route("/store-api/v{version}/context", name="shop-api.context", methods={"GET"})
+     * @Route("/store-api/v{version}/context", name="store-api.context", methods={"GET"})
      */
     public function load(SalesChannelContext $context): ContextLoadRouteResponse
     {

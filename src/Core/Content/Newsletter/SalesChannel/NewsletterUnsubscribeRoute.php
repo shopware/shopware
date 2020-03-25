@@ -62,7 +62,7 @@ class NewsletterUnsubscribeRoute implements NewsletterUnsubscribeRouteInterface
      *          description="Success",
      *     )
      * )
-     * @Route("/store-api/v{version}/newsletter/unsubscribe", name="shop-api.newsletter.unsubscribe", methods={"POST"})
+     * @Route("/store-api/v{version}/newsletter/unsubscribe", name="store-api.newsletter.unsubscribe", methods={"POST"})
      */
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {

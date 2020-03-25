@@ -74,7 +74,7 @@ class CategoryRoute implements CategoryRouteInterface
      *     ),
      * )
      *
-     * @Route("/store-api/v{version}/category/{navigationId}", name="shop-api.category.detail", methods={"GET","POST"})
+     * @Route("/store-api/v{version}/category/{navigationId}", name="store-api.category.detail", methods={"GET","POST"})
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {

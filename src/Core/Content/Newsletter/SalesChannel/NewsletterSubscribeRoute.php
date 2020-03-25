@@ -79,7 +79,7 @@ class NewsletterSubscribeRoute implements NewsletterSubscribeRouteInterface
      *          description="Success",
      *     )
      * )
-     * @Route("/store-api/v{version}/newsletter/subscribe", name="shop-api.newsletter.subscribe", methods={"POST"})
+     * @Route("/store-api/v{version}/newsletter/subscribe", name="store-api.newsletter.subscribe", methods={"POST"})
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {

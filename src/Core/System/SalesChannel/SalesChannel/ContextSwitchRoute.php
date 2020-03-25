@@ -78,7 +78,7 @@ class ContextSwitchRoute implements ContextSwitchRouteInterface
      *          @OA\JsonContent(ref="#/definitions/ContextTokenResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/context", name="shop-api.switch-context", methods={"PATCH"})
+     * @Route("/store-api/v{version}/context", name="store-api.switch-context", methods={"PATCH"})
      */
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {

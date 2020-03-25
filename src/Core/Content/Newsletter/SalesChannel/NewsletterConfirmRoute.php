@@ -65,7 +65,7 @@ class NewsletterConfirmRoute implements NewsletterConfirmRouteInterface
      *          description="Success",
      *     )
      * )
-     * @Route("/store-api/v{version}/newsletter/confirm", name="shop-api.newsletter.confirm", methods={"POST"})
+     * @Route("/store-api/v{version}/newsletter/confirm", name="store-api.newsletter.confirm", methods={"POST"})
      */
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {

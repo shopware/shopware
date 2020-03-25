@@ -67,7 +67,7 @@ class ProductSuggestRoute implements ProductSuggestRouteInterface
      *          @OA\JsonContent(ref="#/definitions/ProductListingResult")
      *     )
      * )
-     * @Route("/store-api/v{version}/search-suggest", name="shop-api.search.suggest", methods={"POST"})
+     * @Route("/store-api/v{version}/search-suggest", name="store-api.search.suggest", methods={"POST"})
      */
     public function load(Request $request, SalesChannelContext $context): ProductSuggestRouteResponse
     {

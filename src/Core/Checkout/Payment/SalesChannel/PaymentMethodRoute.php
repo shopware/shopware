@@ -64,7 +64,7 @@ class PaymentMethodRoute implements PaymentMethodRouteInterface
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/payment_method_flat"))
      *     )
      * )
-     * @Route("/store-api/v{version}/payment-method", name="shop-api.payment.method", methods={"GET", "POST"})
+     * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): PaymentMethodRouteResponse
     {

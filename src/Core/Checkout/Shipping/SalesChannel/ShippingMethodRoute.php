@@ -63,7 +63,7 @@ class ShippingMethodRoute implements ShippingMethodRouteInterface
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/shipping_method_flat"))
      *     )
      * )
-     * @Route("/store-api/v{version}/shipping-method", name="shop-api.shipping.method", methods={"GET", "POST"})
+     * @Route("/store-api/v{version}/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): ShippingMethodRouteResponse
     {

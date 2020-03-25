@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -26,6 +27,7 @@ use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -152,19 +154,13 @@ class CheckoutController extends StorefrontController
 
         try {
             $orderId = $this->orderService->createOrder($data, $context);
-            $this->addAffiliateTracking($orderId, $request, $context);
-            $this->addCustomerComment($orderId, $data, $context);
-            $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [
-                'orderId' => $orderId,
-            ]);
+            $this->addAffiliateTracking($orderId, $request->getSession(), $context->getContext());
+            $this->addCustomerComment($orderId, $data, $context->getContext());
+            $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl);
 
-            if ($response !== null) {
-                return $response;
-            }
-
-            return new RedirectResponse($finishUrl);
+            return $response ?? new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
         } catch (Error $blockedError) {
         } catch (AsyncPaymentProcessException | InvalidOrderException | SyncPaymentProcessException | UnknownPaymentMethodException $e) {
@@ -199,24 +195,30 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }
 
-    private function addAffiliateTracking(string $orderId, Request $request, SalesChannelContext $context): void
+    private function addAffiliateTracking(string $orderId, SessionInterface $session, Context $context): void
     {
-        if ($request->getSession()->get('affiliateCode') && $request->getSession()->get('campaignCode')) {
+        $affiliateCode = $session->get('affiliateCode');
+        $campaignCode = $session->get('campaignCode');
+        if ($affiliateCode && $campaignCode) {
             $this->orderRepository->update([[
                 'id' => $orderId,
-                'affiliateCode' => $request->getSession()->get('affiliateCode'),
-                'campaignCode' => $request->getSession()->get('campaignCode'),
-            ]], $context->getContext());
+                'affiliateCode' => $affiliateCode,
+                'campaignCode' => $campaignCode,
+            ]], $context);
         }
     }
 
-    private function addCustomerComment(string $orderId, RequestDataBag $data, SalesChannelContext $context): void
+    private function addCustomerComment(string $orderId, RequestDataBag $data, Context $context): void
     {
-        if ($data->get('customerComment')) {
-            $this->orderRepository->update([[
-                'id' => $orderId,
-                'customerComment' => $data->get('customerComment'),
-            ]], $context->getContext());
+        $customerComment = ltrim(rtrim((string) $data->get('customerComment', '')));
+
+        if ($customerComment === '') {
+            return;
         }
+
+        $this->orderRepository->update([[
+            'id' => $orderId,
+            'customerComment' => $customerComment,
+        ]], $context);
     }
 }

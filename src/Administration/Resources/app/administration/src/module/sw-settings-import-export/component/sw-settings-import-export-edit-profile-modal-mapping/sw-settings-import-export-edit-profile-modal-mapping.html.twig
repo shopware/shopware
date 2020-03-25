@@ -16,6 +16,7 @@
                     <sw-button
                         variant="ghost"
                         @click="onAddMapping"
+                        :disabled="profile.systemDefault"
                         size="small">
                         {{ $tc('sw-settings-import-export.profile.addMappingLabel') }}
                     </sw-button>
@@ -28,11 +29,17 @@
                 :dataSource="mappings"
                 :compactMode="false"
                 :showSelection="false"
+                :showActions="!profile.systemDefault"
                 :columns="mappingColumns">
 
                 {% block sw_settings_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
                     <template slot="column-csvName" slot-scope="{ item, itemIndex }">
-                        <sw-field :name="`mappedKey-${itemIndex}`" type="text" v-model="item.mappedKey"></sw-field>
+                        <sw-field
+                            :name="`mappedKey-${itemIndex}`"
+                            type="text"
+                            :disabled="profile.systemDefault"
+                            v-model="item.mappedKey">
+                        </sw-field>
                     </template>
                 {% endblock %}
 
@@ -40,15 +47,18 @@
                     <template slot="column-entry" slot-scope="{ item }">
                         <sw-import-export-entity-path-select
                             :entityType="profile.sourceEntity"
+                            :disabled="profile.systemDefault"
                             v-model="item.key">
-
                         </sw-import-export-entity-path-select>
                     </template>
                 {% endblock %}
 
                 {% block sw_settings_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
                     <template #actions="{ item }">
-                        <sw-context-menu-item variant="danger" @click="onDeleteMapping(item.key)">
+                        <sw-context-menu-item
+                            variant="danger"
+                            :disabled="profile.systemDefault"
+                            @click="onDeleteMapping(item.key)">
                             {{ $tc('sw-settings-import-export.profile.deleteLabel') }}
                         </sw-context-menu-item>
                     </template>

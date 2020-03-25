@@ -10,8 +10,8 @@
                             <sw-simple-search-field
                                 size="small"
                                 variant="form"
-                                 v-model="searchTerm"
-                                 @search-term-change="onSearch">
+                                v-model="searchTerm"
+                                @search-term-change="onSearch">
                             </sw-simple-search-field>
                         {% endblock %}
 
@@ -37,8 +37,13 @@
                         :columns="profilesColumns"
                         :showSettings="false"
                         :showSelection="false"
-                        :allowColumnEdit="false"
-                        :fullPage="true">
+                        :allowColumnEdit="false">
+
+                        {% block sw_settings_import_export_view_profile_profiles_listing_column_system_default %}
+                            <template #column-systemDefault="{ item }">
+                                <sw-data-grid-column-boolean v-model="item.systemDefault"></sw-data-grid-column-boolean>
+                            </template>
+                        {% endblock %}
 
                         <template #actions="{ item }">
                             {% block sw_settings_import_export_view_profile_profiles_listing_edit %}
@@ -48,13 +53,16 @@
                             {% endblock %}
 
                             {% block sw_settings_import_export_view_profile_profiles_listing_duplicate %}
-                                <sw-context-menu-item @click="onDuplicateProfile(item.id)">
+                                <sw-context-menu-item @click="onDuplicateProfile(item)">
                                     {{ $tc('sw-settings-import-export.profile.duplicateLabel') }}
                                 </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_settings_import_export_view_profile_profiles_listing_delete %}
-                                <sw-context-menu-item variant="danger" @click="onDeleteProfile(item.id)">
+                                <sw-context-menu-item
+                                    variant="danger"
+                                    @click="onDeleteProfile(item.id)"
+                                    :disabled="item.systemDefault">
                                     {{ $tc('sw-settings-import-export.profile.deleteLabel') }}
                                 </sw-context-menu-item>
                             {% endblock %}
@@ -66,11 +74,11 @@
         {% endblock %}
 
         {% block sw_settings_import_export_view_profile_modal %}
-        <sw-settings-import-export-edit-profile-modal
-            :profile="selectedProfile"
-            @profile-save="saveSelectedProfile"
-            @profile-close="closeSelectedProfile">
-        </sw-settings-import-export-edit-profile-modal>
+            <sw-settings-import-export-edit-profile-modal
+                :profile="selectedProfile"
+                @profile-save="saveSelectedProfile"
+                @profile-close="closeSelectedProfile">
+            </sw-settings-import-export-edit-profile-modal>
         {% endblock %}
     </div>
 {% endblock %}

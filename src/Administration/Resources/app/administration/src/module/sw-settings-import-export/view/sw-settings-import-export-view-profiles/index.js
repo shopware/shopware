@@ -48,7 +48,6 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
                     property: 'name',
                     dataIndex: 'name',
                     label: 'Name',
-                    // routerLink: 'sw.order.detail',
                     allowResize: true,
                     primary: true
                 },
@@ -56,8 +55,8 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
                     property: 'systemDefault',
                     dataIndex: 'systemDefault',
                     label: 'sw-settings-import-export.profile.sourceEntityLabel',
-                    allowResize: true,
-                    primary: false
+                    align: 'center',
+                    allowResize: true
                 }
             ];
         }
@@ -96,19 +95,30 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
             this.selectedProfile = await this.profileRepository.get(id, Shopware.Context.api);
         },
 
-        onDuplicateProfile(id) {
-            this.profileRepository.clone(id, Shopware.Context.api).then(() => {
+        onDuplicateProfile(item) {
+            const clone = this.profileRepository.create(Shopware.Context.api);
+
+            clone.name = `${this.$tc('sw-settings-import-export.profile.copyOfLabel')} ${item.name}`;
+            clone.systemDefault = false;
+            clone.fileType = item.fileType;
+            clone.mapping = item.mapping;
+            clone.delimiter = item.delimiter;
+            clone.enclosure = item.enclosure;
+            clone.sourceEntity = item.sourceEntity;
+
+            this.profileRepository.save(clone, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-import-export.profile.titleDuplicateSuccess'),
-                    message: this.$tc('sw-settings-import-export.profile.messageDuplicateSuccess', 0)
+                    title: this.$tc('sw-settings-import-export.profile.titleSaveSuccess'),
+                    message: this.$tc('sw-settings-import-export.profile.messageSaveSuccess', 0)
                 });
+                return this.loadProfiles();
+            }).then(() => {
+                this.isLoading = false;
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-import-export.profile.titleDuplicateError'),
-                    message: this.$tc('sw-settings-import-export.profile.messageDuplicateError', 0)
+                    title: this.$tc('sw-settings-import-export.profile.titleSaveError'),
+                    message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
                 });
-            }).finally(() => {
-                this.loadProfiles();
             });
         },
 

@@ -46,6 +46,7 @@
       "addNewProfileLabel": "Add new profile",
       "openLabel": "Open",
       "duplicateLabel": "Duplicate",
+      "copyOfLabel": "Copy of:",
       "saveProfileLabel": "Save profile",
       "generalTab": "General",
       "fieldIndicatorsTab": "Field indicator",
@@ -55,6 +56,7 @@
       "cancelLabel": "Cancel",
       "addMappingLabel": "Add new mapping",
       "deleteLabel": "Delete",
+      "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",
       "mapping": {
         "fileValueLabel": "CSV name",
         "entityLabel": "Database entry"

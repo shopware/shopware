@@ -46,6 +46,7 @@
       "addNewProfileLabel": "Neues Profil hinzufügen",
       "openLabel": "Öffnen",
       "duplicateLabel": "Duplizieren",
+      "copyOfLabel": "Kopie von:",
       "saveProfileLabel": "Profil speichern",
       "generalTab": "Allgemein",
       "fieldIndicatorsTab": "Field indicator",
@@ -55,6 +56,7 @@
       "cancelLabel": "Abbrechen",
       "addMappingLabel": "Neues Mappping hinzufügen",
       "deleteLabel": "Löschen",
+      "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Sie können entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
       "mapping": {
         "fileValueLabel": "CSV-Name",
         "entityLabel": "Datenbankeintrag"

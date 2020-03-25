@@ -28,6 +28,10 @@
                 <template slot="content" slot-scope="{ active }">
                     <template v-if="active === 'general'">
 
+                        <sw-alert v-if="profile.systemDefault" variant="info">
+                            {{ $tc('sw-settings-import-export.profile.systemDefaultInfoText') }}
+                        </sw-alert>
+
                         <p>
                             {{ $tc('sw-settings-import-export.profile.descriptionBlock') }}
                             <br>
@@ -38,6 +42,7 @@
                             <sw-field type="text"
                                       label="Profile name"
                                       required
+                                      :disabled="profile.systemDefault"
                                       v-model="profile.name">
                             </sw-field>
                         {% endblock %}
@@ -49,6 +54,7 @@
                                 <sw-single-select label="Object type"
                                                   required
                                                   :options="supportedEntities"
+                                                  :disabled="profile.systemDefault"
                                                   v-model="profile.sourceEntity">
                                 </sw-single-select>
                             {% endblock %}
@@ -57,7 +63,7 @@
                                 {# TODO: change to entity single select #}
                                 <sw-single-select label="Identifier"
                                                   required
-                                                  :disabled="!profile.sourceEntity"
+                                                  :disabled="!profile.sourceEntity || profile.systemDefault"
                                                   :options="[
                                                       { value: 'product', label: 'product.id' },
                                                       { value: 'manufacturer', label: 'manufacturer.id' },
@@ -90,6 +96,7 @@
                                 <sw-single-select
                                     v-model="profile.delimiter"
                                     label="Seperator character"
+                                    :disabled="profile.systemDefault"
                                     :options="supportedDelimiter">
                                 </sw-single-select>
                             {% endblock %}
@@ -98,6 +105,7 @@
                                 <sw-single-select
                                     v-model="profile.enclosure"
                                     label="Enclosure character"
+                                    :disabled="profile.systemDefault"
                                     :options="supportedEnclosures">
                                 </sw-single-select>
                             {% endblock %}
@@ -109,8 +117,8 @@
 
         {% block sw_settings_import_export_edit_profile_modal_footer %}
             <template slot="modal-footer">
-                <sw-button @click="$emit('profile-close')">{{ $tc('sw-settings-import-export.profile.cancelLabel') }}</sw-button>
-                <sw-button @click="$emit('profile-save')" variant="primary">{{ saveLabelSnippet }}</sw-button>
+                <sw-button size="small" @click="$emit('profile-close')">{{ $tc('sw-settings-import-export.profile.cancelLabel') }}</sw-button>
+                <sw-button size="small" @click="$emit('profile-save')" variant="primary">{{ saveLabelSnippet }}</sw-button>
             </template>
         {% endblock %}
     </sw-modal>

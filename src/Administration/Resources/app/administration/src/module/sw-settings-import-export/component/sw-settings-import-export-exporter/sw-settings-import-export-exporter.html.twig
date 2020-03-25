@@ -1,25 +1,33 @@
-<div class="sw-settings-import-export-exporter">
-    <h3>
-        {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
-    </h3>
+{% block sw_settings_import_export_exporter %}
+    <div class="sw-settings-import-export-exporter">
+        {% block sw_settings_import_export_exporter_header %}
+            <h3>
+                {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
+            </h3>
+        {% endblock %}
 
-    <sw-entity-single-select
-        :disabled="isLoading"
-        :label="$tc('sw-settings-import-export.importer.profileLabel')"
-        entity="import_export_profile"
-        v-model="selectedProfileId"
-        required>
-    </sw-entity-single-select>
+        {% block sw_settings_import_export_exporter_profile_select %}
+            <sw-entity-single-select
+                :disabled="isLoading"
+                :label="$tc('sw-settings-import-export.importer.profileLabel')"
+                entity="import_export_profile"
+                v-model="selectedProfileId"
+                required>
+            </sw-entity-single-select>
+        {% endblock %}
 
-    <sw-settings-import-export-progress
-        activityType="export"
-        :offset="progressOffset"
-        :total="progressTotal"
-        :logEntry="progressLogEntry"
-        :state="progressState"
-        :isLoading="isLoading"
-        :disableButton="disableExporting"
-        @process-start="onStartProcess">
-    </sw-settings-import-export-progress>
+        {% block sw_settings_import_export_exporter_progress %}
+            <sw-settings-import-export-progress
+                activityType="export"
+                :offset="progressOffset"
+                :total="progressTotal"
+                :logEntry="progressLogEntry"
+                :state="progressState"
+                :isLoading="isLoading"
+                :disableButton="disableExporting"
+                @process-start="onStartProcess">
+            </sw-settings-import-export-progress>
+        {% endblock %}
 
-</div>
+    </div>
+{% endblock %}

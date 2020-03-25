@@ -1,21 +1,27 @@
-<div class="sw-settings-import-export-view-import">
-    <sw-card title="Import">
+{% block sw_settings_import_export_view_import %}
+    <div class="sw-settings-import-export-view-import">
+        {% block sw_settings_import_export_view_import_importer %}
+            <sw-card title="Import">
 
-        <sw-settings-import-export-importer></sw-settings-import-export-importer>
+                <sw-settings-import-export-importer></sw-settings-import-export-importer>
 
-    </sw-card>
+            </sw-card>
+        {% endblock %}
 
-    <sw-card class="sw-settings-import-export-view-import__activity">
-        <template slot="title">
-            <div class="sw-card__title">
-                {{ $tc('sw-settings-import-export.importer.importActivityLabel') }}
-                <p class="sw-settings-import-export__card-subtitle">
-                    {{ $tc('sw-settings-import-export.exporter.exportActivityDescription') }}
-                </p>
-            </div>
-        </template>
+        {% block sw_settings_import_export_view_import_activity %}
+            <sw-card class="sw-settings-import-export-view-import__activity">
+                <template slot="title">
+                    <div class="sw-card__title">
+                        {{ $tc('sw-settings-import-export.importer.importActivityLabel') }}
+                        <p class="sw-settings-import-export__card-subtitle">
+                            {{ $tc('sw-settings-import-export.exporter.exportActivityDescription') }}
+                        </p>
+                    </div>
+                </template>
 
-        <sw-settings-import-export-activity slot="grid" type="import"></sw-settings-import-export-activity>
+                <sw-settings-import-export-activity slot="grid" type="import"></sw-settings-import-export-activity>
 
-    </sw-card>
-</div>
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -1,23 +1,33 @@
-<sw-page class="sw-settings-import-export">
+{% block sw_settings_import_export %}
+    <sw-page class="sw-settings-import-export">
 
-    <sw-card-view slot="content">
+        <sw-card-view slot="content">
 
-        <sw-tabs>
-            <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.import' }">
-                Import
-            </sw-tabs-item>
+            {% block sw_settings_import_export_tabs %}
+                <sw-tabs>
+                    {% block sw_settings_import_export_tabs_import %}
+                        <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.import' }">
+                            Import
+                        </sw-tabs-item>
+                    {% endblock %}
 
-            <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.export' }">
-                Export
-            </sw-tabs-item>
+                    {% block sw_settings_import_export_tabs_export %}
+                        <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.export' }">
+                            Export
+                        </sw-tabs-item>
+                    {% endblock %}
 
-            <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.profiles' }">
-                {{  $tc('sw-settings-import-export.page.profileTab')  }}
-            </sw-tabs-item>
-        </sw-tabs>
+                    {% block sw_settings_import_export_tabs_profiles %}
+                        <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.profiles' }">
+                            {{  $tc('sw-settings-import-export.page.profileTab')  }}
+                        </sw-tabs-item>
+                    {% endblock %}
+                </sw-tabs>
+            {% endblock %}
 
-        <router-view></router-view>
+            <router-view></router-view>
 
-    </sw-card-view>
+        </sw-card-view>
 
-</sw-page>
+    </sw-page>
+{% endblock %}

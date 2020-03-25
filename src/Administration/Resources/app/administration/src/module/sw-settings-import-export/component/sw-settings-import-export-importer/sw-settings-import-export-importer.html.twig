@@ -1,36 +1,51 @@
-<div class="sw-settings-import-export-importer">
-    <h3>
-        {{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}
-    </h3>
-    <p>
-        <span v-html="$tc('sw-settings-import-export.importer.warningBlock')"></span>
-    </p>
+{% block sw_settings_import_export_importer %}
+    <div class="sw-settings-import-export-importer">
+        {% block sw_settings_import_export_importer_upload_csv_label %}
+            <h3>
+                {{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}
+            </h3>
+        {% endblock %}
 
-    <sw-file-input
-        v-model="importFile"
-        :allowedMimeTypes="['text/csv']">
-    </sw-file-input>
+        {% block sw_settings_import_export_importer_warning_block %}
+            <p>
+                <span v-html="$tc('sw-settings-import-export.importer.warningBlock')"></span>
+            </p>
+        {% endblock %}
 
-    <h3>
-        {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
-    </h3>
+        {% block sw_settings_import_export_importer_file_input %}
+            <sw-file-input
+                v-model="importFile"
+                :allowedMimeTypes="['text/csv']">
+            </sw-file-input>
+        {% endblock %}
 
-    <sw-entity-single-select
-        :disabled="isLoading"
-        :label="$tc('sw-settings-import-export.importer.profileLabel')"
-        entity="import_export_profile"
-        v-model="selectedProfile"
-        required>
-    </sw-entity-single-select>
+        {% block sw_settings_import_export_importer_select_profile_label %}
+            <h3>
+                {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
+            </h3>
+        {% endblock %}
 
-    <sw-settings-import-export-progress
-        activityType="import"
-        :offset="progressOffset"
-        :total="progressTotal"
-        :logEntry="progressLogEntry"
-        :state="progressState"
-        :isLoading="isLoading"
-        :disableButton="disableImporting"
-        @process-start="onStartProcess">
-    </sw-settings-import-export-progress>
-</div>
+        {% block sw_settings_import_export_importer_profile_select %}
+            <sw-entity-single-select
+                :disabled="isLoading"
+                :label="$tc('sw-settings-import-export.importer.profileLabel')"
+                entity="import_export_profile"
+                v-model="selectedProfile"
+                required>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_settings_import_export_importer_progress %}
+            <sw-settings-import-export-progress
+                activityType="import"
+                :offset="progressOffset"
+                :total="progressTotal"
+                :logEntry="progressLogEntry"
+                :state="progressState"
+                :isLoading="isLoading"
+                :disableButton="disableImporting"
+                @process-start="onStartProcess">
+            </sw-settings-import-export-progress>
+        {% endblock %}
+    </div>
+{% endblock %}

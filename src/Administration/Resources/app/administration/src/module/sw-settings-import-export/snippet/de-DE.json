@@ -43,6 +43,9 @@
       "newProfileLabel": "Neues Profil",
       "editProfileLabel": "Profil bearbeiten",
       "addProfileLabel": "Profil hinzufügen",
+      "addNewProfileLabel": "Neues Profil hinzufügen",
+      "openLabel": "Öffnen",
+      "duplicateLabel": "Duplizieren",
       "saveProfileLabel": "Profil speichern",
       "generalTab": "Allgemein",
       "fieldIndicatorsTab": "Field indicator",
@@ -64,7 +67,7 @@
       "startExportLabel": "Export starten",
       "showLogLabel": "Log anzeigen",
       "exportActivityLabel": "Export-Aktivität",
-      "exportActivityDescription": "AAktivitäten, die älter als 30 Tage sind, werden automatisch entfernt."
+      "exportActivityDescription": "Aktivitäten, die älter als 30 Tage sind, werden automatisch entfernt."
     },
     "importer": {
       "titleExportSuccess": "Erfolg",

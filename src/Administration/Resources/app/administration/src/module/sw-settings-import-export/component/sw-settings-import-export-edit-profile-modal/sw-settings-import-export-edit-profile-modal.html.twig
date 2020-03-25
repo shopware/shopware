@@ -1,95 +1,117 @@
-<sw-modal v-if="profile"
-          class="sw-settings-import-export-edit-profile-modal"
-          @modal-close="$emit('profile-close')"
-          :title="modalTitle">
+{% block sw_settings_import_export_edit_profile_modal %}
+    <sw-modal v-if="profile"
+              class="sw-settings-import-export-edit-profile-modal"
+              @modal-close="$emit('profile-close')"
+              :title="modalTitle">
 
-    <sw-tabs defaultItem="general">
+        {% block sw_settings_import_export_edit_profile_modal_tabs %}
+            <sw-tabs defaultItem="general">
 
-        <template slot-scope="{ active }" >
-            <sw-tabs-item title="General"
-                          name="general"
-                          :activeTab="active">
-                {{ $tc('sw-settings-import-export.profile.generalTab') }}
-            </sw-tabs-item>
+                <template slot-scope="{ active }" >
+                    {% block sw_settings_import_export_edit_profile_modal_tabs_general %}
+                        <sw-tabs-item title="General"
+                                      name="general"
+                                      :activeTab="active">
+                            {{ $tc('sw-settings-import-export.profile.generalTab') }}
+                        </sw-tabs-item>
+                    {% endblock %}
 
-            <sw-tabs-item title="Field indicators"
-                          name="fieldIndicators"
-                          :activeTab="active">
-                {{ $tc('sw-settings-import-export.profile.fieldIndicatorsTab') }}
-            </sw-tabs-item>
-        </template>
+                    {% block sw_settings_import_export_edit_profile_modal_tabs_field_indicators %}
+                        <sw-tabs-item title="Field indicators"
+                                      name="fieldIndicators"
+                                      :activeTab="active">
+                            {{ $tc('sw-settings-import-export.profile.fieldIndicatorsTab') }}
+                        </sw-tabs-item>
+                    {% endblock %}
+                </template>
 
-        <template slot="content" slot-scope="{ active }">
-            <template v-if="active === 'general'">
+                <template slot="content" slot-scope="{ active }">
+                    <template v-if="active === 'general'">
 
-                <p>
-                    {{ $tc('sw-settings-import-export.profile.descriptionBlock') }}
-                    <br>
-                    <br>
-                </p>
+                        <p>
+                            {{ $tc('sw-settings-import-export.profile.descriptionBlock') }}
+                            <br>
+                            <br>
+                        </p>
 
-                <sw-field type="text"
-                          label="Profile name"
-                          required
-                          v-model="profile.name">
-                </sw-field>
-
-                <sw-container columns="1fr 1fr" gap="16px">
-
-                    {# TODO: change to entity single select #}
-                    <sw-single-select label="Object type"
+                        {% block sw_settings_import_export_edit_profile_modal_tabs_name_field %}
+                            <sw-field type="text"
+                                      label="Profile name"
                                       required
-                                      :options="supportedEntities"
-                                      v-model="profile.sourceEntity">
-                    </sw-single-select>
+                                      v-model="profile.name">
+                            </sw-field>
+                        {% endblock %}
 
-                    {# TODO: change to entity single select #}
-                    <sw-single-select label="Identifier"
-                                      required
-                                      :disabled="!profile.sourceEntity"
-                                      :options="[
-                                          { value: 'product', label: 'product.id' },
-                                          { value: 'manufacturer', label: 'manufacturer.id' },
-                                      ]"
-                                      v-model="profile.identifier">
-                    </sw-single-select>
-                </sw-container>
+                        <sw-container columns="1fr 1fr" gap="16px">
 
-                <p>
-                    {{ $tc('sw-settings-import-export.profile.mappingDescriptionBlock') }}
-                </p>
+                            {% block sw_settings_import_export_edit_profile_modal_tabs_object_type_field %}
+                                {# TODO: change to entity single select #}
+                                <sw-single-select label="Object type"
+                                                  required
+                                                  :options="supportedEntities"
+                                                  v-model="profile.sourceEntity">
+                                </sw-single-select>
+                            {% endblock %}
 
-                <sw-settings-import-export-edit-profile-modal-mapping
-                    :profile="profile">
-                </sw-settings-import-export-edit-profile-modal-mapping>
+                            {% block sw_settings_import_export_edit_profile_modal_tabs_identifier_field %}
+                                {# TODO: change to entity single select #}
+                                <sw-single-select label="Identifier"
+                                                  required
+                                                  :disabled="!profile.sourceEntity"
+                                                  :options="[
+                                                      { value: 'product', label: 'product.id' },
+                                                      { value: 'manufacturer', label: 'manufacturer.id' },
+                                                  ]"
+                                                  v-model="profile.identifier">
+                                </sw-single-select>
+                            {% endblock %}
+                        </sw-container>
 
+                        <p>
+                            {{ $tc('sw-settings-import-export.profile.mappingDescriptionBlock') }}
+                        </p>
+
+                        {% block sw_settings_import_export_edit_profile_modal_tabs_mapping %}
+                            <sw-settings-import-export-edit-profile-modal-mapping
+                                :profile="profile">
+                            </sw-settings-import-export-edit-profile-modal-mapping>
+                        {% endblock %}
+
+                    </template>
+
+                    <template v-if="active === 'fieldIndicators'">
+                        <p>
+                            {{ $tc('sw-settings-import-export.profile.csvDescriptionBlock') }}
+                            <br><br>
+                        </p>
+
+                        <sw-container columns="repeat(1fr, 1fr)">
+                            {% block sw_settings_import_export_edit_profile_modal_tabs_seperator_field %}
+                                <sw-single-select
+                                    v-model="profile.delimiter"
+                                    label="Seperator character"
+                                    :options="supportedDelimiter">
+                                </sw-single-select>
+                            {% endblock %}
+
+                            {% block sw_settings_import_export_edit_profile_modal_tabs_enclosure_field %}
+                                <sw-single-select
+                                    v-model="profile.enclosure"
+                                    label="Enclosure character"
+                                    :options="supportedEnclosures">
+                                </sw-single-select>
+                            {% endblock %}
+                        </sw-container>
+                    </template>
+                </template>
+            </sw-tabs>
+        {% endblock %}
+
+        {% block sw_settings_import_export_edit_profile_modal_footer %}
+            <template slot="modal-footer">
+                <sw-button @click="$emit('profile-close')">{{ $tc('sw-settings-import-export.profile.cancelLabel') }}</sw-button>
+                <sw-button @click="$emit('profile-save')" variant="primary">{{ saveLabelSnippet }}</sw-button>
             </template>
-
-            <template v-if="active === 'fieldIndicators'">
-                <p>
-                    {{ $tc('sw-settings-import-export.profile.csvDescriptionBlock') }}
-                    <br><br>
-                </p>
-
-                <sw-container columns="repeat(1fr, 1fr)">
-                    <sw-single-select
-                        v-model="profile.delimiter"
-                        label="Seperator character"
-                        :options="supportedDelimiter"></sw-single-select>
-
-                    <sw-single-select
-                        v-model="profile.enclosure"
-                        label="Enclosure character"
-                        :options="supportedEnclosures">
-                    </sw-single-select>
-                </sw-container>
-            </template>
-        </template>
-
-    </sw-tabs>
-
-    <template slot="modal-footer">
-        <sw-button @click="$emit('profile-close')">{{ $tc('sw-settings-import-export.profile.cancelLabel') }}</sw-button>
-        <sw-button @click="$emit('profile-save')" variant="primary">{{ saveLabelSnippet }}</sw-button>
-    </template>
-</sw-modal>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

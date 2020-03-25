@@ -1,57 +1,75 @@
-<div class="sw-settings-import-export-progress">
-    <div class="sw-settings-import-export-progress__progress">
-        <sw-button :disabled="disableButton"
-                   variant="primary"
-                   @click="$emit('process-start')">
-            {{  $tc('sw-settings-import-export.progress.startProcessLabel')  }}
-        </sw-button>
+{% block sw_settings_import_export_progress %}
+    <div class="sw-settings-import-export-progress">
+        <div class="sw-settings-import-export-progress__progress">
+            {% block sw_settings_import_export_progress_start_process %}
+                <sw-button :disabled="disableButton"
+                           variant="primary"
+                           @click="$emit('process-start')">
+                    {{  $tc('sw-settings-import-export.progress.startProcessLabel')  }}
+                </sw-button>
+            {% endblock %}
 
-        <div class="sw-settings-import-export-progress__progress-bar"
-             v-if="total !== null">
-            <div class="sw-settings-import-export-progress__progress-bar-stats">
-                <p>{{ text }}</p> {# TODO: Status #}
-                <p>{{ offset }} / {{ total }} {{  $tc('sw-settings-import-export.progress.entriesLabel')  }}</p>
-            </div>
+            {% block sw_settings_import_export_progress_bar %}
+                <div class="sw-settings-import-export-progress__progress-bar"
+                     v-if="total !== null">
+                    <div class="sw-settings-import-export-progress__progress-bar-stats">
+                        <p>{{ text }}</p> {# TODO: Status #}
+                        <p>{{ offset }} / {{ total }} {{  $tc('sw-settings-import-export.progress.entriesLabel')  }}</p>
+                    </div>
 
-            <sw-progress-bar :value="percentageProgress"
-                             class="sw-settings-import-export-progress__progress-bar-bar"
-                             :class="progressBarClasses">
-            </sw-progress-bar>
+                    <sw-progress-bar :value="percentageProgress"
+                                     class="sw-settings-import-export-progress__progress-bar-bar"
+                                     :class="progressBarClasses">
+                    </sw-progress-bar>
+                </div>
+            {% endblock %}
         </div>
+
+        {% block sw_settings_import_export_progress_stats %}
+            <template v-if="!isLoading && logEntry">
+                <div class="sw-settings-import-export-progress__stats">
+                    <ul>
+                        {% block sw_settings_import_export_progress_stats_success %}
+                            <li class="sw-settings-import-export-progress__stats-list-success">
+                                <sw-icon name="default-basic-checkmark-line"
+                                         size="14px"
+                                         color="#758ca3">
+                                </sw-icon>
+                                 {{  $tc('sw-settings-import-export.progress.successTitle')  }}
+                            </li>
+                        {% endblock %}
+
+                        {% block sw_settings_import_export_progress_stats_file_success %}
+                            <li class="sw-settings-import-export-progress__stats-list-success">
+                                <sw-icon name="default-basic-checkmark-line"
+                                         size="14px"
+                                         color="#758ca3">
+                                </sw-icon>
+                                {{  $tc('sw-settings-import-export.progress.fileSuccessTitle')  }}
+                            </li>
+                        {% endblock %}
+
+                        {% block sw_settings_import_export_progress_stats_error %}
+                            <li class="sw-settings-import-export-progress__stats-list-failure">
+                                <sw-icon name="default-basic-x-line"
+                                         size="14px"
+                                         color="#de294c">
+                                </sw-icon>
+                                {{  $tc('sw-settings-import-export.progress.errorTitle')  }}
+                            </li>
+                        {% endblock %}
+                    </ul>
+                </div>
+
+                <div>
+                    {% block sw_settings_import_export_progress_stats_download %}
+                        <sw-button variant="primary"
+                                   :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
+                            {{  $tc('sw-settings-import-export.activity.contextMenu.DownloadFile')  }}
+                        </sw-button>
+                    {% endblock %}
+                </div>
+            </template>
+        {% endblock %}
     </div>
-
-    <template v-if="!isLoading && logEntry">
-        <div class="sw-settings-import-export-progress__stats">
-            <ul>
-                <li class="sw-settings-import-export-progress__stats-list-success">
-                    <sw-icon name="default-basic-checkmark-line"
-                             size="14px"
-                             color="#758ca3">
-                    </sw-icon>
-                     {{  $tc('sw-settings-import-export.progress.successTitle')  }}
-                </li>
-                <li class="sw-settings-import-export-progress__stats-list-success">
-                    <sw-icon name="default-basic-checkmark-line"
-                             size="14px"
-                             color="#758ca3">
-                    </sw-icon>
-                    {{  $tc('sw-settings-import-export.progress.fileSuccessTitle')  }}
-                </li>
-                <li class="sw-settings-import-export-progress__stats-list-failure">
-                    <sw-icon name="default-basic-x-line"
-                             size="14px"
-                             color="#de294c">
-                    </sw-icon>
-                    {{  $tc('sw-settings-import-export.progress.errorTitle')  }}
-                </li>
-            </ul>
-        </div>
-
-        <div>
-            <sw-button variant="primary"
-                       :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
-                {{  $tc('sw-settings-import-export.activity.contextMenu.DownloadFile')  }}
-            </sw-button>
-        </div>
-    </template>
-</div>
+{% endblock %}

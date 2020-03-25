@@ -38,37 +38,22 @@
                             <br>
                         </p>
 
-                        {% block sw_settings_import_export_edit_profile_modal_tabs_name_field %}
-                            <sw-field type="text"
-                                      label="Profile name"
-                                      required
-                                      :disabled="profile.systemDefault"
-                                      v-model="profile.name">
-                            </sw-field>
-                        {% endblock %}
-
                         <sw-container columns="1fr 1fr" gap="16px">
+                            {% block sw_settings_import_export_edit_profile_modal_tabs_name_field %}
+                                <sw-field type="text"
+                                          label="Profile name"
+                                          required
+                                          :disabled="profile.systemDefault"
+                                          v-model="profile.name">
+                                </sw-field>
+                            {% endblock %}
 
                             {% block sw_settings_import_export_edit_profile_modal_tabs_object_type_field %}
-                                {# TODO: change to entity single select #}
                                 <sw-single-select label="Object type"
                                                   required
                                                   :options="supportedEntities"
                                                   :disabled="profile.systemDefault"
                                                   v-model="profile.sourceEntity">
-                                </sw-single-select>
-                            {% endblock %}
-
-                            {% block sw_settings_import_export_edit_profile_modal_tabs_identifier_field %}
-                                {# TODO: change to entity single select #}
-                                <sw-single-select label="Identifier"
-                                                  required
-                                                  :disabled="!profile.sourceEntity || profile.systemDefault"
-                                                  :options="[
-                                                      { value: 'product', label: 'product.id' },
-                                                      { value: 'manufacturer', label: 'manufacturer.id' },
-                                                  ]"
-                                                  v-model="profile.identifier">
                                 </sw-single-select>
                             {% endblock %}
                         </sw-container>

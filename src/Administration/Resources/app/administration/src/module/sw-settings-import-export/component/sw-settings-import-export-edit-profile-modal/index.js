@@ -19,7 +19,7 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
             supportedEntities: [
                 { value: 'product', label: this.$tc('sw-settings-import-export.profile.productLabel') },
                 { value: 'customer', label: this.$tc('sw-settings-import-export.profile.customerLabel') },
-                { value: 'categories', label: this.$tc('sw-settings-import-export.profile.categoriesLabel') },
+                { value: 'category', label: this.$tc('sw-settings-import-export.profile.categoriesLabel') },
                 { value: 'media', label: this.$tc('sw-settings-import-export.profile.mediaLabel') },
                 { value: 'newsletter_recipient', label: this.$tc('sw-settings-import-export.profile.newsletterRecipientLabel') }
             ],

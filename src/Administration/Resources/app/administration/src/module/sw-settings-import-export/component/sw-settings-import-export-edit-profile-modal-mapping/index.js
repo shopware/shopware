@@ -8,6 +8,10 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
 
     inject: [],
 
+    mixins: [
+        Shopware.Mixin.getByName('notification')
+    ],
+
     props: {
         profile: {
             type: Object,
@@ -42,8 +46,6 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         }
     },
 
-    created() {},
-
     methods: {
         onDeleteMapping(key) {
             this.profile.mapping = this.profile.mapping.filter((mapping) => {
@@ -68,6 +70,15 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         },
 
         onAddMapping() {
+            if (!this.profile.sourceEntity) {
+                this.$emit('error-missing-entity');
+                this.createNotificationError({
+                    title: 'Error',
+                    message: 'Please add a source entity first.'
+                });
+                return;
+            }
+
             this.profile.mapping.unshift({ key: '', mappedKey: '' });
         },
 

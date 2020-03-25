@@ -44,15 +44,18 @@
                                           label="Profile name"
                                           required
                                           :disabled="profile.systemDefault"
+                                          :error="profileNameError"
                                           v-model="profile.name">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_settings_import_export_edit_profile_modal_tabs_object_type_field %}
                                 <sw-single-select label="Object type"
+                                                  ref="objectTypeSelect"
                                                   required
                                                   :options="supportedEntities"
                                                   :disabled="profile.systemDefault"
+                                                  :error="profileSourceEntityError"
                                                   v-model="profile.sourceEntity">
                                 </sw-single-select>
                             {% endblock %}
@@ -64,7 +67,8 @@
 
                         {% block sw_settings_import_export_edit_profile_modal_tabs_mapping %}
                             <sw-settings-import-export-edit-profile-modal-mapping
-                                :profile="profile">
+                                :profile="profile"
+                                @error-missing-entity="onMissingEntityError">
                             </sw-settings-import-export-edit-profile-modal-mapping>
                         {% endblock %}
 

@@ -3,12 +3,15 @@
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use Elasticsearch\Client;
+use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\FilterAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\CardinalityAggregation;
 use ONGR\ElasticsearchDSL\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -111,12 +114,22 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             ];
         }
 
-        $total = (int) $result['hits']['total']['value'];
-        if ($criteria->getGroupFields()) {
-            $total = (int) $result['aggregations']['total-count']['value'];
-        }
+        $total = $this->getTotalValue($criteria, $result);
 
         return new IdSearchResult($total, $data, $criteria, $context);
+    }
+
+    private function getTotalValue(Criteria $criteria, array $result): int
+    {
+        if (!$criteria->getGroupFields()) {
+            return (int) $result['hits']['total']['value'];
+        }
+
+        if (!$criteria->getPostFilters()) {
+            return (int) $result['aggregations']['total-count']['value'];
+        }
+
+        return (int) $result['aggregations']['total-filtered-count']['total-count']['value'];
     }
 
     private function extractHits(array $result): array
@@ -177,19 +190,19 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         ];
     }
 
-    private function buildTotalCountAggregation(Criteria $criteria, EntityDefinition $definition, Context $context): CardinalityAggregation
+    private function buildTotalCountAggregation(Criteria $criteria, EntityDefinition $definition, Context $context): AbstractAggregation
     {
         $groupings = $criteria->getGroupFields();
 
         if (count($groupings) === 1) {
             $first = array_shift($groupings);
-            $aggregation = new CardinalityAggregation('total-count');
 
             $accessor = $this->criteriaParser->buildAccessor($definition, $first->getField(), $context);
 
+            $aggregation = new CardinalityAggregation('total-count');
             $aggregation->setField($accessor);
 
-            return $aggregation;
+            return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
         }
 
         $fields = [];
@@ -198,10 +211,10 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             $fields[] = sprintf(
                 "
-                if (doc['%s'].size()==0) { 
-                    value = value + 'empty'; 
-                } else { 
-                    value = value + doc['%s'].value; 
+                if (doc['%s'].size()==0) {
+                    value = value + 'empty';
+                } else {
+                    value = value + doc['%s'].value;
                 }",
                 $accessor,
                 $accessor
@@ -210,15 +223,34 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $script = '
             def value = \'\';
-            
+
             ' . implode(' ', $fields) . '
-            
+
             return value;
         ';
 
         $aggregation = new CardinalityAggregation('total-count');
         $aggregation->setScript($script);
 
-        return $aggregation;
+        return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
+    }
+
+    private function addPostFilterAggregation(Criteria $criteria, EntityDefinition $definition, Context $context, CardinalityAggregation $aggregation): AbstractAggregation
+    {
+        if (!$criteria->getPostFilters()) {
+            return $aggregation;
+        }
+
+        $query = $this->criteriaParser->parseFilter(
+            new MultiFilter(MultiFilter::CONNECTION_AND, $criteria->getPostFilters()),
+            $definition,
+            $definition->getEntityName(),
+            $context
+        );
+
+        $filterAgg = new FilterAggregation('total-filtered-count', $query);
+        $filterAgg->addAggregation($aggregation);
+
+        return $filterAgg;
     }
 }

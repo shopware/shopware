@@ -18,6 +18,9 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
 class ElasticsearchHelper
 {
+    // max for default configuration
+    public const MAX_SIZE_VALUE = 10000;
+
     /**
      * @var Client
      */

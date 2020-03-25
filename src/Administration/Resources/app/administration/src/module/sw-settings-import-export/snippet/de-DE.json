@@ -34,8 +34,8 @@
       "customerLabel": "Kunde",
       "categoriesLabel": "Kategorien",
       "mediaLabel": "Medien",
-      "newsletterRecipientLabel": "Newsletter Empfänger",
-      "caretsLabel": "Carets (^)",
+      "newsletterRecipientLabel": "Newsletter-Empfänger",
+      "caretsLabel": "Caret (^)",
       "commasLabel": "Komma (,)",
       "pipesLabel": "Pipes (|)",
       "semicolonLabel": "Semikolon (;)",
@@ -46,25 +46,25 @@
       "saveProfileLabel": "Profil speichern",
       "generalTab": "Allgemein",
       "fieldIndicatorsTab": "Field indicator",
-      "descriptionBlock": "Objekt-Typen definieren einen bestimmten Modus mit dem importiert oder exportiert wird. Es hat ausserdem Auswirkung auf die verfügbaren Optionen in der Tabelle unten. Du kannst den Objekt-Typen nicht mehr ändern, nachdem du das Mapping konfiguriert hast.",
-      "mappingDescriptionBlock": "Benutze die Tabelle unten um die CSV Felder zu den Datenbankeinträgen zu mappen.",
-      "csvDescriptionBlock": "Seperatoren und Einfassungen werden verwendet um die Trennung der Felder zu signalisieren. Seperatoren werden verwendet um einzelne Felder zu trennen, Einfassungs-Zeichen werden verwedndet um mehrere Felder zu gruppieren.",
+      "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Tabelle unten. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
+      "mappingDescriptionBlock": "Verwende die Tabelle unten, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
+      "csvDescriptionBlock": "Verwende Seperatoren und Einfassungen, um Felder voneinander abzugrenzen. Seperatoren werden verwendet um einzelne Felder zu trennen; Einfassungs-Zeichen werden verwendet um mehrere Felder zu gruppieren.",
       "cancelLabel": "Abbrechen",
       "addMappingLabel": "Neues Mappping hinzufügen",
       "deleteLabel": "Löschen",
       "mapping": {
-        "fileValueLabel": "CSV Name",
+        "fileValueLabel": "CSV-Name",
         "entityLabel": "Datenbankeintrag"
       },
-      "sourceEntityLabel": "System Standard"
+      "sourceEntityLabel": "System-Standard"
     },
     "exporter": {
       "titleExportSuccess": "Erfolg",
       "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",
       "startExportLabel": "Export starten",
       "showLogLabel": "Log anzeigen",
-      "exportActivityLabel": "Export Aktivität",
-      "exportActivityDescription": "Aktivitäten älter als 30 Tage werden automatisch entfernt."
+      "exportActivityLabel": "Export-Aktivität",
+      "exportActivityDescription": "AAktivitäten, die älter als 30 Tage sind, werden automatisch entfernt."
     },
     "importer": {
       "titleExportSuccess": "Erfolg",
@@ -73,8 +73,8 @@
       "startImportLabel": "Import starten",
       "selectProfileLabel": "Profil auswählen",
       "profileLabel": "Profil",
-      "warningBlock": "<strong>Warnung:</strong> Importierte Datensätze könnten mit bereits vorhandenen Datenbank einträgen kolidieren und sie möglichweise überschreiben. Die Änderungen durch den Import sind endgültig. Bitte stelle sicher das du ein Datenbank-backup hast bevor du fortfährst.",
-      "importActivityLabel": "Import Aktivität"
+      "warningBlock": "<strong>Warnung:</strong> Neu importierte Datensätze können mit bereits vorhandenen Datenbankeinträgen in Konflikt stehen und sie überschreiben. Solche Änderungen durch die Import-Funktion sind endgültig. Bitte stelle daher sicher, dass Du ein aktuelles Datenbank-Backup gemacht hast, bevor Du fortfährst.",
+      "importActivityLabel": "Import-Aktivität"
 
     },
     "page": {

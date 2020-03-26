@@ -1,6 +1,7 @@
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
+import './sw-product-detail.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -578,6 +579,23 @@ Component.register('sw-product-detail', {
                 return pProduct.translated.hasOwnProperty('name') ? pProduct.translated.name : pProduct.name;
             }
             return '';
+        },
+
+        onDuplicate() {
+            return this.numberRangeService.reserve('product').then((response) => {
+                return this.productRepository.clone(this.product.id, Shopware.Context.api, {
+                    productNumber: response.number,
+                    name: `Copy of ${this.product.name}`,
+                    active: false
+                });
+            }).then((duplicate) => {
+                this.$router.push(
+                    {
+                        name: 'sw.product.detail',
+                        params: { id: duplicate.id }
+                    }
+                );
+            });
         }
     }
 });

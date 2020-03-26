@@ -214,8 +214,19 @@ Component.register('sw-product-list', {
         },
 
         onDuplicate(referenceProduct) {
-            this.numberRangeService.reserve('product').then((response) => {
-                this.productRepository.clone(referenceProduct.id, Shopware.Context.api, { productNumber: response.number });
+            return this.numberRangeService.reserve('product').then((response) => {
+                return this.productRepository.clone(referenceProduct.id, Shopware.Context.api, {
+                    productNumber: response.number,
+                    name: `Copy of ${referenceProduct.name}`,
+                    active: false
+                });
+            }).then((duplicate) => {
+                this.$router.push(
+                    {
+                        name: 'sw.product.detail',
+                        params: { id: duplicate.id }
+                    }
+                );
             });
         }
     }

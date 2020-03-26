@@ -35,7 +35,7 @@
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                                            id="{{ prefix }}company"
-                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans|striptags }}{% endif %}"
+                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                            name="{{ prefix }}[company]"
                                            value="{{ data.get('company') }}"
                                            {% if prefix != "shippingAddress" and accounTypeRequired %}required="required"{% endif %}>
@@ -140,7 +140,7 @@
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                id="{{ prefix }}AddressStreet"
-                               placeholder="{{ "address.streetPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[street]"
                                value="{{ data.get('street') }}"
                                required="required">
@@ -173,7 +173,7 @@
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                id="{{ prefix }}AddressZipcode"
-                               placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
                                value="{{ data.get('zipcode') }}"
                                required="required">
@@ -206,7 +206,7 @@
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                id="{{ prefix }}AddressCity"
-                               placeholder="{{ "address.cityPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               placeholder="{{ "address.cityPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[city]"
                                value="{{ data.get('city') }}"
                                required="required">
@@ -252,7 +252,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="{{ prefix }}AdditionalField1"
-                                   placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}{{ shopware.config.core.loginRegistration.additionalAddressField1Required ? "general.required"|trans|striptags }}"
+                                   placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
                                    value="{{ data.get('additionalAddressLine1') }}"
                                     {{ shopware.config.core.loginRegistration.additionalAddressField1Required ? 'required="true"' }}>
@@ -275,7 +275,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="{{ prefix }}AdditionalField2"
-                                   placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}{{ shopware.config.core.loginRegistration.additionalAddressField2Required ? "general.required"|trans|striptags }}"
+                                   placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
                                    value="{{ data.get('additionalAddressLine2') }}"
                                     {{ shopware.config.core.loginRegistration.additionalAddressField2Required ? 'required="true"' }}>
@@ -375,7 +375,7 @@
                         {% block component_address_form_phone_number_label %}
                             <label class="form-label"
                                    for="{{ prefix }}AddressPhoneNumber">
-                                {{ "address.phoneNumberLabel"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans|sw_sanitize }}
+                                {{ "address.phoneNumberLabel"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -383,7 +383,7 @@
                             <input type="text"
                                    class="form-control"
                                    id="{{ prefix }}AddressPhoneNumber"
-                                   placeholder="{{ "address.phoneNumberPlaceholder"|trans|striptags }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans|striptags }}"
+                                   placeholder="{{ "address.phoneNumberPlaceholder"|trans|striptags }}"
                                    name="{{ prefix }}[phoneNumber]"
                                    value="{{ data.get('phoneNumber') }}"
                                 {{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? 'required="true"' }}>

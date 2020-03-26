@@ -164,7 +164,10 @@ Component.register('sw-entity-single-select', {
             }
 
             this.isLoading = true;
-            return this.repository.get(this.value, this.context).then((item) => {
+
+            return this.repository.get(this.value, this.context, this.criteria).then((item) => {
+                this.criteria.setIds([]);
+
                 this.singleSelection = item;
                 this.isLoading = false;
                 return item;

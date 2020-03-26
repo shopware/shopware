@@ -6,7 +6,6 @@
                 {% block sw_settings_import_export_view_profile_profiles_toolbar %}
                     <div class="sw-settings-import-export-view-profiles__toolbar">
                         {% block sw_settings_import_export_view_profile_profiles_toolbar_search_field %}
-                            {# TODO: implement search functionality #}
                             <sw-simple-search-field
                                 size="small"
                                 variant="form"
@@ -49,7 +48,9 @@
 
                         {% block sw_settings_import_export_view_profile_profiles_listing_column_system_default %}
                             <template #column-systemDefault="{ item }">
-                                <sw-data-grid-column-boolean v-model="item.systemDefault"></sw-data-grid-column-boolean>
+                                <sw-data-grid-column-boolean
+                                    v-model="item.systemDefault">
+                                </sw-data-grid-column-boolean>
                             </template>
                         {% endblock %}
 

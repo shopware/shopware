@@ -16,13 +16,13 @@
                     <sw-button
                         variant="ghost"
                         @click="onAddMapping"
+                        :disabled="profile.systemDefault || !addMappingEnabled"
+                        size="small"
                         v-tooltip="{
                             message: 'Please select an object type first.',
                             disabled: addMappingEnabled,
                             showOnDisabledElements: true
-                        }"
-                        :disabled="profile.systemDefault || !addMappingEnabled"
-                        size="small">
+                        }">
                         {{ $tc('sw-settings-import-export.profile.addMappingLabel') }}
                     </sw-button>
                 {% endblock %}
@@ -61,11 +61,11 @@
                 {% endblock %}
 
                 {% block sw_settings_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
-                    <template #actions="{ itemIndex }">
+                    <template #actions="{ item }">
                         <sw-context-menu-item
                             variant="danger"
                             :disabled="profile.systemDefault"
-                            @click="onDeleteMapping(itemIndex)">
+                            @click="onDeleteMapping(item.id)">
                             {{ $tc('sw-settings-import-export.profile.deleteLabel') }}
                         </sw-context-menu-item>
                     </template>

@@ -1,7 +1,7 @@
 import template from './sw-settings-import-export-edit-profile-modal-mapping.html.twig';
 import './sw-settings-import-export-edit-profile-modal-mapping.scss';
 
-const { debounce } = Shopware.Utils;
+const { debounce, createId } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mapping', {
@@ -24,7 +24,7 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
     data() {
         return {
             searchTerm: null,
-            mappings: this.profile.mapping,
+            mappings: [],
             currencies: [],
             languages: [],
             addMappingEnabled: false
@@ -93,14 +93,18 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
                 this.currencies = currencies;
                 this.currencies.push({ isoCode: 'DEFAULT' });
             });
+
+            this.loadMappings();
         },
 
         toggleAddMappingActionState(sourceEntity) {
             this.addMappingEnabled = !!sourceEntity;
         },
 
-        onDeleteMapping(index) {
-            this.profile.mapping.splice(index, 1);
+        onDeleteMapping(id) {
+            this.profile.mapping = this.profile.mapping.filter((mapping) => {
+                return mapping.id !== id;
+            });
 
             this.loadMappings();
         },
@@ -116,7 +120,14 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
                 return;
             }
 
-            this.mappings = this.profile.mapping;
+            this.mappings = [];
+
+            this.profile.mapping.forEach((mapping) => {
+                if (!mapping.id) {
+                    mapping.id = createId();
+                }
+                this.mappings.push(mapping);
+            });
         },
 
         onAddMapping() {
@@ -124,7 +135,9 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
                 return;
             }
 
-            this.profile.mapping.unshift({ key: '', mappedKey: '' });
+            this.profile.mapping.unshift({ id: createId(), key: '', mappedKey: '' });
+
+            this.loadMappings();
         },
 
         onSearch() {

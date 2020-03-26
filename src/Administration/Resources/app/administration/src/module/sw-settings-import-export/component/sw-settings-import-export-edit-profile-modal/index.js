@@ -86,12 +86,5 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
                 this.$tc('sw-settings-import-export.profile.addProfileLabel') :
                 this.$tc('sw-settings-import-export.profile.saveProfileLabel');
         }
-    },
-
-    methods: {
-        onMissingEntityError() {
-            this.$refs.objectTypeSelect.$refs.selectBase.expand();
-            this.$refs.objectTypeSelect.$forceUpdate();
-        }
     }
 });

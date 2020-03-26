@@ -6,8 +6,6 @@ const { debounce } = Shopware.Utils;
 Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mapping', {
     template,
 
-    inject: [],
-
     mixins: [
         Shopware.Mixin.getByName('notification')
     ],
@@ -23,8 +21,22 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
     data() {
         return {
             searchTerm: null,
-            mappings: this.profile.mapping
+            mappings: this.profile.mapping,
+            addMappingEnabled: false
         };
+    },
+
+    watch: {
+        profile: {
+            handler(profile) {
+                this.toggleAddMappingActionState(profile.sourceEntity);
+            },
+            deep: true
+        }
+    },
+
+    created() {
+        this.toggleAddMappingActionState(this.profile.sourceEntity);
     },
 
     computed: {
@@ -47,10 +59,12 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
     },
 
     methods: {
-        onDeleteMapping(key) {
-            this.profile.mapping = this.profile.mapping.filter((mapping) => {
-                return mapping.key !== key;
-            });
+        toggleAddMappingActionState(sourceEntity) {
+            this.addMappingEnabled = !!sourceEntity;
+        },
+
+        onDeleteMapping(index) {
+            this.profile.mapping.splice(index, 1);
 
             this.loadMappings();
         },
@@ -71,11 +85,6 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
 
         onAddMapping() {
             if (!this.profile.sourceEntity) {
-                this.$emit('error-missing-entity');
-                this.createNotificationError({
-                    title: 'Error',
-                    message: 'Please add a source entity first.'
-                });
                 return;
             }
 

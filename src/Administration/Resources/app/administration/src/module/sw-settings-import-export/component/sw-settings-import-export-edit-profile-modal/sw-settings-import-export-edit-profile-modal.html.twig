@@ -7,7 +7,7 @@
         {% block sw_settings_import_export_edit_profile_modal_tabs %}
             <sw-tabs defaultItem="general">
 
-                <template slot-scope="{ active }" >
+                <template #default="{ active }" >
                     {% block sw_settings_import_export_edit_profile_modal_tabs_general %}
                         <sw-tabs-item title="General"
                                       name="general"
@@ -25,7 +25,7 @@
                     {% endblock %}
                 </template>
 
-                <template slot="content" slot-scope="{ active }">
+                <template #content="{ active }">
                     <template v-if="active === 'general'">
 
                         <sw-alert v-if="profile.systemDefault" variant="info">
@@ -67,8 +67,7 @@
 
                         {% block sw_settings_import_export_edit_profile_modal_tabs_mapping %}
                             <sw-settings-import-export-edit-profile-modal-mapping
-                                :profile="profile"
-                                @error-missing-entity="onMissingEntityError">
+                                :profile="profile">
                             </sw-settings-import-export-edit-profile-modal-mapping>
                         {% endblock %}
 
@@ -106,8 +105,12 @@
 
         {% block sw_settings_import_export_edit_profile_modal_footer %}
             <template slot="modal-footer">
-                <sw-button size="small" @click="$emit('profile-close')">{{ $tc('sw-settings-import-export.profile.cancelLabel') }}</sw-button>
-                <sw-button size="small" @click="$emit('profile-save')" variant="primary">{{ saveLabelSnippet }}</sw-button>
+                <sw-button size="small" @click="$emit('profile-close')">
+                    {{ $tc('sw-settings-import-export.profile.cancelLabel') }}
+                </sw-button>
+                <sw-button size="small" @click="$emit('profile-save')" variant="primary">
+                    {{ saveLabelSnippet }}
+                </sw-button>
             </template>
         {% endblock %}
     </sw-modal>

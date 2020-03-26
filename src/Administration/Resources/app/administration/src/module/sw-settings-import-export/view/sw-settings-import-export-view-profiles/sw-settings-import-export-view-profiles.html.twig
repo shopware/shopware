@@ -39,6 +39,14 @@
                         :showSelection="false"
                         :allowColumnEdit="false">
 
+                        {% block sw_settings_import_export_view_profile_profiles_listing_column_name %}
+                            <template #column-name="{ item }">
+                                <a href="#" @click.prevent="onEditProfile(item.id)">
+                                    {{ item.name }}
+                                </a>
+                            </template>
+                        {% endblock %}
+
                         {% block sw_settings_import_export_view_profile_profiles_listing_column_system_default %}
                             <template #column-systemDefault="{ item }">
                                 <sw-data-grid-column-boolean v-model="item.systemDefault"></sw-data-grid-column-boolean>

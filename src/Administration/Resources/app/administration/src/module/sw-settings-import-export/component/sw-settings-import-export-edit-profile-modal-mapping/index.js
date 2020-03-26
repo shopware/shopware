@@ -2,9 +2,12 @@ import template from './sw-settings-import-export-edit-profile-modal-mapping.htm
 import './sw-settings-import-export-edit-profile-modal-mapping.scss';
 
 const { debounce } = Shopware.Utils;
+const Criteria = Shopware.Data.Criteria;
 
 Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mapping', {
     template,
+
+    inject: ['repositoryFactory'],
 
     mixins: [
         Shopware.Mixin.getByName('notification')
@@ -22,6 +25,8 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         return {
             searchTerm: null,
             mappings: this.profile.mapping,
+            currencies: [],
+            languages: [],
             addMappingEnabled: false
         };
     },
@@ -35,11 +40,25 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         }
     },
 
-    created() {
-        this.toggleAddMappingActionState(this.profile.sourceEntity);
-    },
-
     computed: {
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        currencyRepository() {
+            return this.repositoryFactory.create('currency');
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addAssociation('locale');
+            return criteria;
+        },
+
+        currencyCriteria() {
+            return new Criteria(1, 500);
+        },
+
         mappingColumns() {
             return [
                 {
@@ -58,7 +77,24 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
         }
     },
 
+    created() {
+        this.createdComponent();
+        this.toggleAddMappingActionState(this.profile.sourceEntity);
+    },
+
     methods: {
+        createdComponent() {
+            this.languageRepository.search(this.languageCriteria, Shopware.Context.api).then(languages => {
+                this.languages = languages;
+                this.languages.push({ locale: { code: 'DEFAULT' } });
+            });
+
+            this.currencyRepository.search(this.currencyCriteria, Shopware.Context.api).then(currencies => {
+                this.currencies = currencies;
+                this.currencies.push({ isoCode: 'DEFAULT' });
+            });
+        },
+
         toggleAddMappingActionState(sourceEntity) {
             this.addMappingEnabled = !!sourceEntity;
         },

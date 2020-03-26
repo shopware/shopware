@@ -4,15 +4,15 @@ import './sw-settings-import-export-view-import.scss';
 Shopware.Component.register('sw-settings-import-export-view-import', {
     template,
 
-    inject: ['repositoryFactory'],
-
-    data() {
-        return {};
-    },
-
     metaInfo() {
         return {
             title: this.$createTitle()
         };
+    },
+
+    methods: {
+        onImportFinish() {
+            this.$refs.activityGrid.fetchActivities();
+        }
     }
 });

@@ -69,7 +69,8 @@
       "startExportLabel": "Start export",
       "showLogLabel": "Show log file",
       "exportActivityLabel": "Export activity",
-      "exportActivityDescription": "Activities older than 30 days will be removed automatically."
+      "exportActivityDescription": "Activities older than 30 days will be removed automatically.",
+      "exportLabel": "Export"
     },
     "importer": {
       "titleImportSuccess": "Success",
@@ -79,7 +80,8 @@
       "selectProfileLabel": "Select profile",
       "profileLabel": "Profile",
       "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
-      "importActivityLabel": "Import activity"
+      "importActivityLabel": "Import activity",
+      "importLabel": "Import"
     },
     "page": {
       "profileTab": "Profiles"
@@ -87,9 +89,9 @@
     "progress": {
       "startProcessLabel": "Start process",
       "entriesLabel": "Entries",
-      "successTitle": "Products successfully imported",
-      "fileSuccessTitle": "File imported",
-      "errorTitle": "Errors occurred"
+      "fileSizeLabel": "kB",
+      "successTitle": "successful",
+      "downloadFileLabel": "Download file"
     }
   }
 }

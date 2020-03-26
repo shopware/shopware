@@ -69,7 +69,8 @@
       "startExportLabel": "Export starten",
       "showLogLabel": "Log anzeigen",
       "exportActivityLabel": "Export-Aktivität",
-      "exportActivityDescription": "Aktivitäten, die älter als 30 Tage sind, werden automatisch entfernt."
+      "exportActivityDescription": "Aktivitäten, die älter als 30 Tage sind, werden automatisch entfernt.",
+      "exportLabel": "Export"
     },
     "importer": {
       "titleExportSuccess": "Erfolg",
@@ -79,7 +80,8 @@
       "selectProfileLabel": "Profil auswählen",
       "profileLabel": "Profil",
       "warningBlock": "<strong>Warnung:</strong> Neu importierte Datensätze können mit bereits vorhandenen Datenbankeinträgen in Konflikt stehen und sie überschreiben. Solche Änderungen durch die Import-Funktion sind endgültig. Bitte stelle daher sicher, dass Du ein aktuelles Datenbank-Backup gemacht hast, bevor Du fortfährst.",
-      "importActivityLabel": "Import-Aktivität"
+      "importActivityLabel": "Import-Aktivität",
+      "importLabel": "Import"
 
     },
     "page": {
@@ -88,9 +90,9 @@
     "progress": {
       "startProcessLabel": "Prozess starten",
       "entriesLabel": "Einträge",
-      "successTitle": "Produkte erfolgreich importiert",
-      "fileSuccessTitle": "Datei importiert",
-      "errorTitle": "Fehler aufgetreten"
+      "fileSizeLabel": "kB",
+      "successTitle": "erfolgreich",
+      "downloadFileLabel": "Datei herunterladen"
     }
   }
 }

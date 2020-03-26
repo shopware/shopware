@@ -75,6 +75,22 @@ Component.register('sw-import-export-entity-path-select', {
                     return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
             }
+        },
+
+        currencies: {
+            type: Array,
+            required: false,
+            default() {
+                return [{ isoCode: 'DEFAULT' }];
+            }
+        },
+
+        languages: {
+            type: Array,
+            required: false,
+            default() {
+                return [{ locale: 'DEFAULT' }];
+            }
         }
     },
 
@@ -85,9 +101,11 @@ Component.register('sw-import-export-entity-path-select', {
             isExpanded: false,
             // used to track if an item was selected before closing the result list
             itemRecentlySelected: false,
-            languages: [{ locale: 'DEFAULT' }, { locale: 'de-DE' }, { locale: 'en-GB' }],
-            currencies: [{ isoCode: 'DEFAULT' }, { isoCode: 'EUR' }, { isoCode: 'USD' }],
-            priceProperties: ['net', 'gross', 'currencyId', 'linked', 'listPrice']
+            // languages: [{ locale: 'DEFAULT' }, { locale: 'de-DE' }, { locale: 'en-GB' }],
+            // currencies: [{ isoCode: 'DEFAULT' }, { isoCode: 'EUR' }, { isoCode: 'USD' }],
+            priceProperties: ['net', 'gross', 'currencyId', 'linked', 'listPrice'],
+            visibilityProperties: ['all', 'link', 'search'],
+            allowedOneToManyAssociations: ['visibilities', 'translations']
         };
     },
 
@@ -214,6 +232,11 @@ Component.register('sw-import-export-entity-path-select', {
                 return this.getPriceProperties(path);
             }
 
+            // Special case for visibility
+            if (this.currentEntity === 'product_visibility') {
+                return this.getVisibilityProperties(path);
+            }
+
             const definition = Shopware.EntityDefinition.get(this.currentEntity);
             const properties = Object.keys(definition.properties);
 
@@ -226,14 +249,20 @@ Component.register('sw-import-export-entity-path-select', {
                 const name = `${path}${propertyName}`;
                 const property = definition.properties[propertyName];
 
+                // Special case if property is a price property
+                if (propertyName === 'price' && property.type === 'json_object') {
+                    options.push({ label: name, value: name, relation: 'price' });
+                    return;
+                }
+
                 if (property.relation) {
                     // Abort conditions
                     if (property.entity === this.entityType) {
                         return;
                     }
 
-                    // Only translation one to many associations are allowed
-                    if (property.relation === 'one_to_many' && propertyName !== 'translations') {
+                    // Skip all not allowed one to many associations
+                    if (property.relation === 'one_to_many' && !this.allowedOneToManyAssociations.includes(propertyName)) {
                         return;
                     }
                 }
@@ -266,7 +295,7 @@ Component.register('sw-import-export-entity-path-select', {
         availableLocales() {
             const locales = [];
             this.languages.forEach(language => {
-                locales.push(language.locale);
+                locales.push(language.locale.code);
             });
 
             return locales;
@@ -367,9 +396,9 @@ Component.register('sw-import-export-entity-path-select', {
         getTranslationProperties(entity, path, properties) {
             const options = [];
 
-            this.languages.forEach((language) => {
+            this.availableLocales.forEach((locale) => {
                 properties.forEach(propertyName => {
-                    const name = `${path}${language.locale}.${propertyName}`;
+                    const name = `${path}${locale}.${propertyName}`;
                     options.push({ label: name, value: name });
                 });
             });
@@ -385,6 +414,17 @@ Component.register('sw-import-export-entity-path-select', {
                     const name = `${path}${currency.isoCode}.${propertyName}`;
                     options.push({ label: name, value: name });
                 });
+            });
+
+            return options;
+        },
+
+        getVisibilityProperties(path) {
+            const options = [];
+
+            this.visibilityProperties.forEach(property => {
+                const name = `${path}${property}`;
+                options.push({ label: name, value: name });
             });
 
             return options;

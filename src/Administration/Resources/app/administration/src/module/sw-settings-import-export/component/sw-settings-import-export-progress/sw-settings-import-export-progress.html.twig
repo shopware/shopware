@@ -14,7 +14,7 @@
                      v-if="total !== null">
                     <div class="sw-settings-import-export-progress__progress-bar-stats">
                         <p>{{ text }}</p> {# TODO: Status #}
-                        <p>{{ offset }} / {{ total }} {{  $tc('sw-settings-import-export.progress.entriesLabel')  }}</p>
+                        <p>{{ offset }} / {{ total }} {{ entriesLabel }}</p>
                     </div>
 
                     <sw-progress-bar :value="percentageProgress"
@@ -35,29 +35,20 @@
                                          size="14px"
                                          color="#758ca3">
                                 </sw-icon>
-                                 {{  $tc('sw-settings-import-export.progress.successTitle')  }}
+                                  {{ successMessage }}
                             </li>
                         {% endblock %}
 
-                        {% block sw_settings_import_export_progress_stats_file_success %}
-                            <li class="sw-settings-import-export-progress__stats-list-success">
-                                <sw-icon name="default-basic-checkmark-line"
-                                         size="14px"
-                                         color="#758ca3">
-                                </sw-icon>
-                                {{  $tc('sw-settings-import-export.progress.fileSuccessTitle')  }}
-                            </li>
-                        {% endblock %}
-
-                        {% block sw_settings_import_export_progress_stats_error %}
-                            <li class="sw-settings-import-export-progress__stats-list-failure">
-                                <sw-icon name="default-basic-x-line"
-                                         size="14px"
-                                         color="#de294c">
-                                </sw-icon>
-                                {{  $tc('sw-settings-import-export.progress.errorTitle')  }}
-                            </li>
-                        {% endblock %}
+{#                        ToDo: Error handling#}
+{#                        {% block sw_settings_import_export_progress_stats_error %}#}
+{#                            <li class="sw-settings-import-export-progress__stats-list-failure">#}
+{#                                <sw-icon name="default-basic-x-line"#}
+{#                                         size="14px"#}
+{#                                         color="#de294c">#}
+{#                                </sw-icon>#}
+{#                                {{  $tc('sw-settings-import-export.progress.errorTitle')  }}#}
+{#                            </li>#}
+{#                        {% endblock %}#}
                     </ul>
                 </div>
 
@@ -65,7 +56,7 @@
                     {% block sw_settings_import_export_progress_stats_download %}
                         <sw-button variant="primary"
                                    :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
-                            {{  $tc('sw-settings-import-export.activity.contextMenu.DownloadFile')  }}
+                            {{  $tc('sw-settings-import-export.progress.downloadFileLabel')  }}
                         </sw-button>
                     {% endblock %}
                 </div>

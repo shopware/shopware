@@ -1,15 +1,11 @@
 {% block sw_settings_import_export_importer %}
     <div class="sw-settings-import-export-importer">
         {% block sw_settings_import_export_importer_upload_csv_label %}
-            <h3>
-                {{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}
-            </h3>
+            <h2>{{  $tc('sw-settings-import-export.importer.uploadCsvLabel')  }}</h2>
         {% endblock %}
 
         {% block sw_settings_import_export_importer_warning_block %}
-            <p>
-                <span v-html="$tc('sw-settings-import-export.importer.warningBlock')"></span>
-            </p>
+            <p><span v-html="$tc('sw-settings-import-export.importer.warningBlock')"></span></p>
         {% endblock %}
 
         {% block sw_settings_import_export_importer_file_input %}
@@ -20,9 +16,7 @@
         {% endblock %}
 
         {% block sw_settings_import_export_importer_select_profile_label %}
-            <h3>
-                {{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}
-            </h3>
+            <h2>{{  $tc('sw-settings-import-export.importer.selectProfileLabel')  }}</h2>
         {% endblock %}
 
         {% block sw_settings_import_export_importer_profile_select %}

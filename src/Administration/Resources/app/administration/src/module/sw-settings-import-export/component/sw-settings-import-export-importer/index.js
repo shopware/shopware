@@ -3,8 +3,6 @@ import './sw-settings-import-export-importer.scss';
 
 const { Mixin } = Shopware;
 
-// TODO: Bitte die ganze Komponente Unit testen!
-// TODO: Upload der Datei bitte E2E testen, ob alles korrekt importiert wird (inkl. UI)
 Shopware.Component.register('sw-settings-import-export-importer', {
     template,
 
@@ -36,6 +34,14 @@ Shopware.Component.register('sw-settings-import-export-importer', {
     methods: {
         onStartProcess() {
             this.isLoading = true;
+
+            // Reset progress stats
+            this.progressOffset = 0;
+            this.progressTotal = null;
+            this.progressText = '';
+            this.progressState = '';
+            this.progressLogEntry = null;
+
             const profile = this.selectedProfile;
 
             this.importExport.import(profile, this.importFile, this.handleProgress).then((result) => {
@@ -47,10 +53,9 @@ Shopware.Component.register('sw-settings-import-export-importer', {
             });
         },
 
-        // Todo implement and use handleprogress
         handleProgress(progress) {
-            this.progressOffset = progress.offset;
-            this.progressTotal = progress.total;
+            this.progressOffset = Math.round(progress.offset / 1024); // Convert byte to kilobyte
+            this.progressTotal = Math.round(progress.total / 1024); // Convert byte to kilobyte
             // ToDo snippet text for states
             this.progressText = progress.state;
             this.progressState = progress.state;

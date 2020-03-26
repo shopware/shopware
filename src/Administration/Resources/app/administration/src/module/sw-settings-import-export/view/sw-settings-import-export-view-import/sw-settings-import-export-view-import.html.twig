@@ -1,26 +1,34 @@
 {% block sw_settings_import_export_view_import %}
     <div class="sw-settings-import-export-view-import">
         {% block sw_settings_import_export_view_import_importer %}
-            <sw-card title="Import">
-
-                <sw-settings-import-export-importer></sw-settings-import-export-importer>
-
+            <sw-card :title="$tc('sw-settings-import-export.importer.importLabel')">
+                <sw-settings-import-export-importer
+                    @import-finish="onImportFinish">
+                </sw-settings-import-export-importer>
             </sw-card>
         {% endblock %}
 
         {% block sw_settings_import_export_view_import_activity %}
             <sw-card class="sw-settings-import-export-view-import__activity">
-                <template slot="title">
-                    <div class="sw-card__title">
-                        {{ $tc('sw-settings-import-export.importer.importActivityLabel') }}
-                        <p class="sw-settings-import-export__card-subtitle">
-                            {{ $tc('sw-settings-import-export.exporter.exportActivityDescription') }}
-                        </p>
-                    </div>
-                </template>
+                {% block sw_settings_import_export_view_import_activity_title %}
+                    <template slot="title">
+                        <div class="sw-card__title">
+                            {{ $tc('sw-settings-import-export.importer.importActivityLabel') }}
+                            <p class="sw-settings-import-export__card-subtitle">
+                                {{ $tc('sw-settings-import-export.exporter.exportActivityDescription') }}
+                            </p>
+                        </div>
+                    </template>
+                {% endblock %}
 
-                <sw-settings-import-export-activity slot="grid" type="import"></sw-settings-import-export-activity>
-
+                {% block sw_settings_import_export_view_import_activity_grid %}
+                    <template #grid>
+                        <sw-settings-import-export-activity
+                            ref="activityGrid"
+                            type="import">
+                        </sw-settings-import-export-activity>
+                    </template>
+                {% endblock %}
             </sw-card>
         {% endblock %}
     </div>

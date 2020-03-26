@@ -38,6 +38,13 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
         onStartProcess() {
             this.isLoading = true;
 
+            // Reset progress stats
+            this.progressOffset = 0;
+            this.progressTotal = null;
+            this.progressText = '';
+            this.progressState = '';
+            this.progressLogEntry = null;
+
             this.importExport.export(this.selectedProfileId, this.handleProgress).then(res => {
                 const logEntry = res.data.log;
 
@@ -47,7 +54,6 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
             });
         },
 
-        // Todo implement and use handleprogress
         handleProgress(progress) {
             this.progressOffset = progress.offset;
             this.progressTotal = progress.total;

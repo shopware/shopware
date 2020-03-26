@@ -2,31 +2,39 @@
     <div class="sw-settings-import-export-activity">
         {% block sw_settings_import_export_activity_listing %}
             <sw-entity-listing
-                :repository="logRepository"
-                :items="logs"
-                :isLoading="isLoading"
-                :columns="exportActivityColumns"
-                sortBy="createdAt"
-                sortDirection="DESC"
-                :showSettings="false"
-                :showSelection="false"
-                :allowColumnEdit="false"
-                :fullPage="true">
+                    :repository="logRepository"
+                    :items="logs"
+                    :isLoading="isLoading"
+                    :columns="exportActivityColumns"
+                    sortBy="createdAt"
+                    sortDirection="DESC"
+                    :showSettings="false"
+                    :showSelection="false"
+                    :allowColumnEdit="false"
+                    :fullPage="true">
+                {% block sw_settings_import_export_activity_listing_size %}
+                    <template #column-file.size="{ item }">
+                        {{ calculateFileSize(item.file.size) }}
+                    </template>
+                {% endblock %}
+                {% block sw_settings_import_export_activity_listing_createdAt %}
+                    <template #column-createdAt="{ item }">
+                        {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'})}}
+                    </template>
+                {% endblock %}
 
-                <template #column-createdAt="{ item }">
-                    {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'})}}
-                </template>
-
-                <template #actions="{ item }">
-                    <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.fileId, item.file.accessToken)" target="_blank" download>
-                        <sw-context-menu-item >
-                            {{ $tc('sw-settings-import-export.activity.contextMenu.downloadFile') }}
+                {% block sw_settings_import_export_activity_listing_actions %}
+                    <template #actions="{ item }">
+                        <a class="sw-import-export-log-list__download-action" :href="getDownloadUrl(item.fileId, item.file.accessToken)" target="_blank" download>
+                            <sw-context-menu-item >
+                                {{ $tc('sw-settings-import-export.activity.contextMenu.downloadFile') }}
+                            </sw-context-menu-item>
+                        </a>
+                        <sw-context-menu-item @click="onOpenProfile(item.profileId)">
+                            {{ $tc('sw-settings-import-export.activity.contextMenu.showProfile') }}
                         </sw-context-menu-item>
-                    </a>
-                    <sw-context-menu-item @click="onOpenProfile(item.profileId)">
-                        {{ $tc('sw-settings-import-export.activity.contextMenu.showProfile') }}
-                    </sw-context-menu-item>
-                </template>
+                    </template>
+                {% endblock %}
             </sw-entity-listing>
         {% endblock %}
 

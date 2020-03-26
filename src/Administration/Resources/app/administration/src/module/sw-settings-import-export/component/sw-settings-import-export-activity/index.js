@@ -3,6 +3,7 @@ import './sw-settings-import-export-activity.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { format } = Shopware.Utils;
 
 Shopware.Component.register('sw-settings-import-export-activity', {
     template,
@@ -56,6 +57,8 @@ Shopware.Component.register('sw-settings-import-export-activity', {
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
+
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             criteria.setPage(1);
             criteria.addAssociation('user');
@@ -152,6 +155,10 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                     message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
                 });
             });
+        },
+
+        calculateFileSize(size) {
+            return format.fileSize(size);
         }
     }
 });

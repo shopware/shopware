@@ -98,6 +98,25 @@ Shopware.Component.register('sw-settings-import-export-progress', {
             }
 
             return this.stateText[this.logEntry.state];
+        },
+
+        successMessage() {
+            let typeLabel = '';
+            if (this.activityType === 'import') {
+                typeLabel = this.$tc('sw-settings-import-export.importer.importLabel');
+            } else {
+                typeLabel = this.$tc('sw-settings-import-export.exporter.exportLabel');
+            }
+
+            return `${typeLabel} ${this.$tc('sw-settings-import-export.progress.successTitle')}`;
+        },
+
+        entriesLabel() {
+            if (this.activityType === 'import') {
+                return this.$tc('sw-settings-import-export.progress.fileSizeLabel');
+            }
+
+            return this.$tc('sw-settings-import-export.progress.entriesLabel');
         }
     },
 

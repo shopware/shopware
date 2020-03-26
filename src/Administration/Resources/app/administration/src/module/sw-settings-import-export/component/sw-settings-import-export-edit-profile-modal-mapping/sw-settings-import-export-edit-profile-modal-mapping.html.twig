@@ -51,6 +51,8 @@
                 {% block sw_settings_import_export_edit_profile_modal_mapping_grid_entry_column %}
                     <template #column-entry="{ item }">
                         <sw-import-export-entity-path-select
+                            :languages="languages"
+                            :currencies="currencies"
                             :entityType="profile.sourceEntity"
                             :disabled="profile.systemDefault"
                             v-model="item.key">

@@ -137,7 +137,11 @@ class MailService implements MailServiceInterface
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        if (isset($data['senderEmail'])) {
+            $senderEmail = $data['senderEmail'];
+        }
+
+        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
 
         $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.mailerSettings.senderAddress');
 

@@ -6,6 +6,11 @@
         margin-right: -30px;
     }
 
+    &__text {
+        font-size: $font-size-small;
+        margin-bottom: 20px;
+    }
+
     .sw-modal__body {
         height: 700px;
     }

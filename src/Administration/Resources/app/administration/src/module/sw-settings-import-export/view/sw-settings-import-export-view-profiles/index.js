@@ -96,48 +96,19 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
         },
 
         onDuplicateProfile(item) {
-            const clone = this.profileRepository.create(Shopware.Context.api);
+            this.selectedProfile = this.profileRepository.create(Shopware.Context.api);
 
-            clone.name = `${this.$tc('sw-settings-import-export.profile.copyOfLabel')} ${item.name}`;
-            clone.systemDefault = false;
-            clone.fileType = item.fileType;
-            clone.mapping = item.mapping;
-            clone.delimiter = item.delimiter;
-            clone.enclosure = item.enclosure;
-            clone.sourceEntity = item.sourceEntity;
-
-            this.profileRepository.save(clone, Shopware.Context.api).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-import-export.profile.titleSaveSuccess'),
-                    message: this.$tc('sw-settings-import-export.profile.messageSaveSuccess', 0)
-                });
-                return this.loadProfiles();
-            }).then(() => {
-                this.isLoading = false;
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-import-export.profile.titleSaveError'),
-                    message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
-                });
-            });
+            this.selectedProfile.name = `${this.$tc('sw-settings-import-export.profile.copyOfLabel')} ${item.name}`;
+            this.selectedProfile.systemDefault = false;
+            this.selectedProfile.fileType = item.fileType;
+            this.selectedProfile.mapping = item.mapping;
+            this.selectedProfile.delimiter = item.delimiter;
+            this.selectedProfile.enclosure = item.enclosure;
+            this.selectedProfile.sourceEntity = item.sourceEntity;
         },
 
         onDeleteProfile(id) {
-            this.isLoading = true;
-            this.profileRepository.delete(id, Shopware.Context.api).then(() => {
-                this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-import-export.profile.titleDeleteSuccess'),
-                    message: this.$tc('sw-settings-import-export.profile.messageDeleteSuccess', 0)
-                });
-                this.loadProfiles();
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-import-export.profile.titleDeleteError'),
-                    message: this.$tc('sw-settings-import-export.profile.messageDeleteError', 0)
-                });
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            this.$refs.listing.showDelete(id);
         },
 
         closeSelectedProfile() {

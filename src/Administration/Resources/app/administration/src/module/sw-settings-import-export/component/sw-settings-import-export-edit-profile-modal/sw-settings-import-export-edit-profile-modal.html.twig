@@ -4,6 +4,10 @@
               @modal-close="$emit('profile-close')"
               :title="modalTitle">
 
+        <sw-alert v-if="profile.systemDefault" variant="info">
+            {{ $tc('sw-settings-import-export.profile.systemDefaultInfoText') }}
+        </sw-alert>
+
         {% block sw_settings_import_export_edit_profile_modal_tabs %}
             <sw-tabs defaultItem="general">
 
@@ -28,14 +32,8 @@
                 <template #content="{ active }">
                     <template v-if="active === 'general'">
 
-                        <sw-alert v-if="profile.systemDefault" variant="info">
-                            {{ $tc('sw-settings-import-export.profile.systemDefaultInfoText') }}
-                        </sw-alert>
-
-                        <p>
+                        <p class="sw-settings-import-export-edit-profile-modal__text">
                             {{ $tc('sw-settings-import-export.profile.descriptionBlock') }}
-                            <br>
-                            <br>
                         </p>
 
                         <sw-container columns="1fr 1fr" gap="16px">
@@ -50,18 +48,24 @@
                             {% endblock %}
 
                             {% block sw_settings_import_export_edit_profile_modal_tabs_object_type_field %}
-                                <sw-single-select label="Object type"
-                                                  ref="objectTypeSelect"
-                                                  required
-                                                  :options="supportedEntities"
-                                                  :disabled="profile.systemDefault"
-                                                  :error="profileSourceEntityError"
-                                                  v-model="profile.sourceEntity">
+                                <sw-single-select
+                                    label="Object type"
+                                    ref="objectTypeSelect"
+                                    required
+                                    :options="supportedEntities"
+                                    :disabled="profile.systemDefault || mappingLength > 0"
+                                    :error="profileSourceEntityError"
+                                    v-model="profile.sourceEntity"
+                                    v-tooltip="{
+                                        message: 'The object type cannot be changed when mapping options are present.',
+                                        disabled: mappingLength <= 0,
+                                        showOnDisabledElements: true
+                                    }">
                                 </sw-single-select>
                             {% endblock %}
                         </sw-container>
 
-                        <p>
+                        <p class="sw-settings-import-export-edit-profile-modal__text">
                             {{ $tc('sw-settings-import-export.profile.mappingDescriptionBlock') }}
                         </p>
 
@@ -74,16 +78,17 @@
                     </template>
 
                     <template v-if="active === 'fieldIndicators'">
-                        <p>
+                        <p class="sw-settings-import-export-edit-profile-modal__text">
                             {{ $tc('sw-settings-import-export.profile.csvDescriptionBlock') }}
-                            <br><br>
                         </p>
 
                         <sw-container columns="repeat(1fr, 1fr)">
                             {% block sw_settings_import_export_edit_profile_modal_tabs_seperator_field %}
                                 <sw-single-select
                                     v-model="profile.delimiter"
+                                    required
                                     label="Seperator character"
+                                    :error="profileDelimiterError"
                                     :disabled="profile.systemDefault"
                                     :options="supportedDelimiter">
                                 </sw-single-select>
@@ -92,7 +97,9 @@
                             {% block sw_settings_import_export_edit_profile_modal_tabs_enclosure_field %}
                                 <sw-single-select
                                     v-model="profile.enclosure"
+                                    required
                                     label="Enclosure character"
+                                    :error="profileEnclosureError"
                                     :disabled="profile.systemDefault"
                                     :options="supportedEnclosures">
                                 </sw-single-select>

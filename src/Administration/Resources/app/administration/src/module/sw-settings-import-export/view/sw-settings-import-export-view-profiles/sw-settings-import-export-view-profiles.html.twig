@@ -28,8 +28,8 @@
                 {% endblock %}
 
                 {% block sw_settings_import_export_view_profile_profiles_listing %}
-                    {# TODO: add context menu and change to profiles #}
                     <sw-entity-listing
+                        ref="listing"
                         slot="grid"
                         :repository="profileRepository"
                         :items="profiles"

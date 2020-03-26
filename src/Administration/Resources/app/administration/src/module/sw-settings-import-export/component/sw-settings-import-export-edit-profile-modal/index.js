@@ -65,7 +65,13 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
     },
 
     computed: {
-        ...mapApiErrors('profile', ['name', 'sourceEntity']),
+        ...mapApiErrors('profile',
+            [
+                'name',
+                'sourceEntity',
+                'delimiter',
+                'enclosure'
+            ]),
 
         isNew() {
             if (!this.profile || !this.profile.isNew) {
@@ -73,6 +79,10 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
             }
 
             return this.profile.isNew();
+        },
+
+        mappingLength() {
+            return this.profile.mapping.length;
         },
 
         modalTitle() {

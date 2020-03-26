@@ -304,7 +304,9 @@ export default class Repository {
                     return { error, id, entityName: this.entityName };
                 });
 
-                return this.errorResolver.handleDeleteError(errors);
+                this.errorResolver.handleDeleteError(errors);
+
+                throw errorResponse;
             });
     }
 

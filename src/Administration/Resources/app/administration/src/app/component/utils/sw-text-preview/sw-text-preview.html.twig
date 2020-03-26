@@ -1,0 +1,36 @@
+{% block sw_text_preview %}
+    <div class="sw-text-preview">
+        {% block sw_text_preview_shortened_content %}
+            <span v-html="shortenedText"></span>
+        {% endblock %}
+
+        {% block sw_text_preview_expand_button %}
+            <sw-button v-if="shortened"
+                       class="sw-text-preview__expand-button"
+                       variant="ghost"
+                       size="x-small"
+                       @click.prevent="openModal">
+                {{ $tc('global.sw-text-preview.showMoreButton') }}
+            </sw-button>
+        {% endblock %}
+
+        {% block sw_text_preview_modal %}
+            <sw-modal v-if="showModal"
+                      :title="modalTitle"
+                      @modal-close="closeModal">
+                {% block sw_text_preview_modal_content %}
+                    <div v-html="fullText"></div>
+                {% endblock %}
+
+                <template #modal-footer>
+                    {% block sw_text_preview_modal_footer %}
+                        <sw-button size="small"
+                            @click="closeModal">
+                            {{ $tc('global.sw-modal.labelClose') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

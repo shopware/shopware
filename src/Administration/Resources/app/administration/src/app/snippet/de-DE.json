@@ -171,6 +171,9 @@
     "sw-modal": {
       "labelClose": "Schließen"
     },
+    "sw-text-preview": {
+      "showMoreButton": "Mehr zeigen"
+    },
     "sw-media-field": {
       "labelToggleSearchExisting": "Medien durchsuchen ...",
       "labelToggleUploadNew": "Neue Medien hochladen",

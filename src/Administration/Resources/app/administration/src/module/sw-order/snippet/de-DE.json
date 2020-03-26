@@ -233,6 +233,10 @@
       "buttonMerge": "Lieferung zusammenfügen",
       "buttonDelete": "Löschen"
     },
+    "detailCustomerComment": {
+      "cardTitle": "Kommentar",
+      "modalTitle": "Kundenkommentar"
+    },
     "stateCard": {
       "cardTitle": "Statusverlauf",
       "headlineOrderState": "Bestellstatus",

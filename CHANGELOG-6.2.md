@@ -435,7 +435,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * All javascript plugin options can now be overwritten in Twig
     * Added `Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to be able to add custom SCSS variables.
     * When `Hide products after clearance` is enabled, products marked as on "clearance sale" are hidden, as soon as their stock depletes back to 0
-
+    * We have removed the fallback mechanism of `theme.json` for the `views` array. If `@Storefront` or `@Plugins` are not defined in the `views` array, they will not be added automatically.
+    * It is now possible to inherited several themes from each other. Themes that are not defined in the `views` array of the active theme are excluded from template inheritance.
 **Removals**
 
 * Administration

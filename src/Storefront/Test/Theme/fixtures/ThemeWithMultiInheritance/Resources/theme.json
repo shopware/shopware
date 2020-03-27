@@ -1,0 +1,9 @@
+{
+  "views": [
+    "@ThemeA",
+    "@ThemeB",
+    "@Plugins",
+    "@ThemeC",
+    "@ThemeWithMultiInheritance"
+  ]
+}

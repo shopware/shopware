@@ -13,13 +13,13 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
@@ -153,9 +153,8 @@ class CheckoutController extends StorefrontController
         $formViolations = null;
 
         try {
+            $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
-            $this->addAffiliateTracking($orderId, $request->getSession(), $context->getContext());
-            $this->addCustomerComment($orderId, $data, $context->getContext());
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl);
@@ -195,30 +194,13 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }
 
-    private function addAffiliateTracking(string $orderId, SessionInterface $session, Context $context): void
+    private function addAffiliateTracking(RequestDataBag $dataBag, SessionInterface $session): void
     {
-        $affiliateCode = $session->get('affiliateCode');
-        $campaignCode = $session->get('campaignCode');
-        if ($affiliateCode && $campaignCode) {
-            $this->orderRepository->update([[
-                'id' => $orderId,
-                'affiliateCode' => $affiliateCode,
-                'campaignCode' => $campaignCode,
-            ]], $context);
+        $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
+        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        if ($affiliateCode !== null && $campaignCode !== null) {
+            $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
+            $dataBag->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
         }
-    }
-
-    private function addCustomerComment(string $orderId, RequestDataBag $data, Context $context): void
-    {
-        $customerComment = ltrim(rtrim((string) $data->get('customerComment', '')));
-
-        if ($customerComment === '') {
-            return;
-        }
-
-        $this->orderRepository->update([[
-            'id' => $orderId,
-            'customerComment' => $customerComment,
-        ]], $context);
     }
 }

@@ -157,9 +157,9 @@
                             <div class="checkout-customer-comment-control">
                                 {% block page_checkout_confirm_customer_comment_control_textfield %}
                                     <textarea class="form-control"
-                                           id="customerComment"
+                                           id="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"
                                            form="confirmOrderForm"
-                                           name="customerComment"></textarea>
+                                           name="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"></textarea>
                                 {% endblock %}
                             </div>
                         {% endblock %}

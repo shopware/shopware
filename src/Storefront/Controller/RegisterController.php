@@ -19,11 +19,13 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -152,7 +154,7 @@ class RegisterController extends StorefrontController
 
             $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
 
-            $data = $this->prepareAffiliateTracking($data, $request);
+            $data = $this->prepareAffiliateTracking($data, $request->getSession());
             $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data, $context));
         } catch (ConstraintViolationException $formViolations) {
             if (!$request->request->has('errorRoute')) {
@@ -244,12 +246,14 @@ class RegisterController extends StorefrontController
         return $definition;
     }
 
-    private function prepareAffiliateTracking(RequestDataBag $data, Request $request): DataBag
+    private function prepareAffiliateTracking(RequestDataBag $data, SessionInterface $session): DataBag
     {
-        if ($request->getSession()->get('affiliateCode') && $request->getSession()->get('campaignCode')) {
+        $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
+        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        if ($affiliateCode !== null && $campaignCode !== null) {
             $data->add([
-                'affiliateCode' => $request->getSession()->get('affiliateCode'),
-                'campaignCode' => $request->getSession()->get('campaignCode'),
+                AffiliateTrackingListener::AFFILIATE_CODE_KEY => $affiliateCode,
+                AffiliateTrackingListener::CAMPAIGN_CODE_KEY => $campaignCode,
             ]);
         }
 

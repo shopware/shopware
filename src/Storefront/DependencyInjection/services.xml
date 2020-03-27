@@ -129,8 +129,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">
-            <argument type="service" id="session"/>
-
             <tag name="kernel.event_subscriber"/>
         </service>
 

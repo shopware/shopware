@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CheckoutController;
+use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +31,8 @@ class CheckoutControllerTest extends TestCase
     private const UUID_LENGTH = 32;
     private const PRODUCT_PRICE = 15.99;
     private const CUSTOMER_NAME = 'Tester';
+    private const TEST_AFFILIATE_CODE = 'testAffiliateCode';
+    private const TEST_CAMPAIGN_CODE = 'testCampaignCode';
 
     /**
      * @dataProvider customerComments
@@ -65,10 +69,22 @@ class CheckoutControllerTest extends TestCase
         static::assertSame(self::CUSTOMER_NAME, $order->getOrderCustomer()->getLastName());
     }
 
+    public function testAffiliateOrder(): void
+    {
+        $request = $this->createRequest();
+        $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
+        $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
+
+        $order = $this->performOrder('', $request);
+
+        static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
+        static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
+    }
+
     /**
      * @param string|float|int|bool|null $customerComment
      */
-    private function performOrder($customerComment): OrderEntity
+    private function performOrder($customerComment, ?Request $request = null): OrderEntity
     {
         $contextToken = Uuid::randomHex();
 
@@ -76,7 +92,9 @@ class CheckoutControllerTest extends TestCase
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        $request = $this->createRequest();
+        if ($request === null) {
+            $request = $this->createRequest();
+        }
 
         /** @var RedirectResponse|Response $response */
         $response = $this->getContainer()->get(CheckoutController::class)->order($requestDataBag, $salesChannelContext, $request);
@@ -174,7 +192,7 @@ class CheckoutControllerTest extends TestCase
 
     private function createRequestDataBag($customerComment): RequestDataBag
     {
-        return new RequestDataBag(['tos' => true, 'customerComment' => $customerComment]);
+        return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
     private function createSalesChannelContext(string $contextToken): SalesChannelContext

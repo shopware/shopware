@@ -88,6 +88,18 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopes[] = new AdminScope();
         }
 
-        return $scopes;
+        return $this->uniqueScopes($scopes);
+    }
+
+    private function uniqueScopes(array $scopes): array
+    {
+        $uniqueScopes = [];
+
+        /** @var ScopeEntityInterface $scope */
+        foreach ($scopes as $scope) {
+            $uniqueScopes[$scope->getIdentifier()] = $scope;
+        }
+
+        return array_values($uniqueScopes);
     }
 }

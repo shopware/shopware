@@ -175,6 +175,7 @@
         <form id="confirmOrderForm"
               action="{{ path('frontend.checkout.finish.order') }}"
               data-form-csrf-handler="true"
+              data-form-preserver="true"
               method="post">
 
             {% block page_checkout_aside_actions_csrf %}

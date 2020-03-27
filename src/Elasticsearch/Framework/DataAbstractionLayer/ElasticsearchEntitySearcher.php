@@ -116,6 +116,10 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $total = $this->getTotalValue($criteria, $result);
 
+        if ($criteria->useIdSorting()) {
+            $data = $this->sortByIdArray($criteria->getIds(), $data);
+        }
+
         return new IdSearchResult($total, $data, $criteria, $context);
     }
 
@@ -252,5 +256,22 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $filterAgg->addAggregation($aggregation);
 
         return $filterAgg;
+    }
+
+    private function sortByIdArray(array $ids, array $data): array
+    {
+        $sorted = [];
+
+        foreach ($ids as $id) {
+            if (\is_array($id)) {
+                $id = implode('-', $id);
+            }
+
+            if (\array_key_exists($id, $data)) {
+                $sorted[$id] = $data[$id];
+            }
+        }
+
+        return $sorted;
     }
 }

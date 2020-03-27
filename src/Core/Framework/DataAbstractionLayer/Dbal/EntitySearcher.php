@@ -140,6 +140,10 @@ class EntitySearcher implements EntitySearcherInterface
             ];
         }
 
+        if ($criteria->useIdSorting()) {
+            $converted = $this->sortByIdArray($criteria->getIds(), $converted);
+        }
+
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
@@ -206,5 +210,22 @@ class EntitySearcher implements EntitySearcherInterface
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
             );
         }
+    }
+
+    private function sortByIdArray(array $ids, array $data): array
+    {
+        $sorted = [];
+
+        foreach ($ids as $id) {
+            if (\is_array($id)) {
+                $id = implode('-', $id);
+            }
+
+            if (\array_key_exists($id, $data)) {
+                $sorted[$id] = $data[$id];
+            }
+        }
+
+        return $sorted;
     }
 }

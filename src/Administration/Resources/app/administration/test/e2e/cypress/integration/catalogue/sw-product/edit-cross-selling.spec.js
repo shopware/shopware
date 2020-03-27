@@ -76,7 +76,7 @@ describe('Product: Check cross selling integration', () => {
                 value: ['Third product']
             }
         );
-        cy.get(page.elements.primaryButton).click();
+        cy.get('.sw-button-process').click();
         cy.wait('@saveStream').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -104,7 +104,7 @@ describe('Product: Check cross selling integration', () => {
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Save and verify cross selling stream
-        cy.get(page.elements.primaryButton).click();
+        cy.get('.sw-button-process').click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
@@ -162,7 +162,7 @@ describe('Product: Check cross selling integration', () => {
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Save and verify cross selling stream
-        cy.get(page.elements.primaryButton).click();
+        cy.get('.sw-button-process').click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
@@ -192,7 +192,7 @@ describe('Product: Check cross selling integration', () => {
         cy.get('.sw-data-grid__row--1').contains('Second product');
 
         // Save and verify cross selling stream
-        cy.get(page.elements.primaryButton).click();
+        cy.get('.sw-button-process').click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });

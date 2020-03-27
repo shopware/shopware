@@ -582,7 +582,9 @@ Component.register('sw-product-detail', {
         },
 
         onDuplicate() {
-            return this.numberRangeService.reserve('product').then((response) => {
+            return this.onSave().then(() => {
+                return this.numberRangeService.reserve('product');
+            }).then((response) => {
                 return this.productRepository.clone(this.product.id, Shopware.Context.api, {
                     productNumber: response.number,
                     name: `Copy of ${this.product.name}`,

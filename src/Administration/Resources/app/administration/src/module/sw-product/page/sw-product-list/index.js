@@ -220,13 +220,8 @@ Component.register('sw-product-list', {
                     name: `Copy of ${referenceProduct.name}`,
                     active: false
                 });
-            }).then((duplicate) => {
-                this.$router.push(
-                    {
-                        name: 'sw.product.detail',
-                        params: { id: duplicate.id }
-                    }
-                );
+            }).then(() => {
+                this.getList();
             });
         }
     }

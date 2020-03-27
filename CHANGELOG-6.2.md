@@ -264,6 +264,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `sw-settings-captcha-select` component
         * This component allows users to define active captchas via `Settings -> Basic information`
     * Fix renaming of duplicated media names
+    * Added new component `sw-text-preview` to display an expandable preview of a text. It will show a "Read more" button if the text has a certain length. On click a modal shows the whole text.
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
@@ -409,7 +410,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` instead
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
-
+    * Added `customerComment` property to the `Shopware\Core\Checkout\Order\OrderEntity.php`
+    
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
@@ -452,7 +454,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Terser Minifier works now in ES5 for better IE11 support
     * Add babel polyfill for IE11
     * Added `rel="noopener"` to all `target="_blank"` links
-
+    * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
+    
 **Removals**
 
 * Administration

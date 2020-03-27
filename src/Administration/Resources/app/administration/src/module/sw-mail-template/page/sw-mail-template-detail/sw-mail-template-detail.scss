@@ -2,7 +2,8 @@
 
 .sw-mail-template-detail {
     .sw-card {
-        .sw-single-select, .sw-multi-select {
+        .sw-single-select,
+        .sw-multi-select {
             margin-bottom: 20px;
         }
     }
@@ -10,11 +11,17 @@
     .sw-mail-template-detail__test-mail-sidebar {
         .sw-mail-template-detail__test-mail-sidebar-container {
             padding: 20px;
-            border-top: 1px solid #D8DDE6;
+            border-top: 1px solid $color-steam-cloud;
 
             label {
                 font-weight: bold;
             }
         }
+    }
+
+    .sw-mail-template-detail__attachments-info-grid {
+        position: relative;
+        margin-top: 20px;
+        border: 1px solid $color-steam-cloud;
     }
 }

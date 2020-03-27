@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
@@ -67,6 +68,11 @@ class OrderActionController extends AbstractController
      */
     private $stateMachineDefinition;
 
+    /**
+     * @var OrderService
+     */
+    private $orderService;
+
     public function __construct(
         StateMachineRegistry $stateMachineRegistry,
         EntityRepositoryInterface $orderRepository,
@@ -75,7 +81,8 @@ class OrderActionController extends AbstractController
         MailServiceInterface $mailService,
         DocumentService $documentService,
         ApiVersionConverter $apiVersionConverter,
-        StateMachineDefinition $stateMachineDefinition
+        StateMachineDefinition $stateMachineDefinition,
+        OrderService $orderService
     ) {
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->orderRepository = $orderRepository;
@@ -85,6 +92,7 @@ class OrderActionController extends AbstractController
         $this->documentRepository = $documentRepository;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->stateMachineDefinition = $stateMachineDefinition;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -358,13 +366,24 @@ class OrderActionController extends AbstractController
             $data->set('mediaIds', $mediaIds);
         }
 
-        $documents = [];
-        foreach ($documentIds as $documentId) {
-            $documents[] = $this->getDocument($documentId, $context);
+        $attachments = [];
+        foreach ($mailTemplate->getMedia() as $mailTemplateMedia) {
+            if (empty($mailTemplateMedia->getMedia())) {
+                continue;
+            }
+            if ($mailTemplateMedia->getLanguageId() !== $context->getLanguageId()) {
+                continue;
+            }
+
+            $attachments[] = $this->orderService->getAttachment($mailTemplateMedia->getMedia(), $context);
         }
 
-        if (!empty($documents)) {
-            $data->set('binAttachments', $documents);
+        foreach ($documentIds as $documentId) {
+            $attachments[] = $this->getDocument($documentId, $context);
+        }
+
+        if (!empty($attachments)) {
+            $data->set('binAttachments', $attachments);
         }
 
         $this->mailService->send(
@@ -395,6 +414,7 @@ class OrderActionController extends AbstractController
     private function getMailTemplate(Context $context, string $technicalName, OrderEntity $order): ?MailTemplateEntity
     {
         $criteria = new Criteria();
+        $criteria->addAssociation('media.media');
         $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
         $criteria->setLimit(1);
 

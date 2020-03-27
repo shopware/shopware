@@ -19,11 +19,6 @@ class MailTemplateMediaEntity extends Entity
     /**
      * @var string
      */
-    protected $languageId;
-
-    /**
-     * @var string
-     */
     protected $mediaId;
 
     /**
@@ -44,16 +39,6 @@ class MailTemplateMediaEntity extends Entity
     public function setMailTemplateId(string $mailTemplateId): void
     {
         $this->mailTemplateId = $mailTemplateId;
-    }
-
-    public function getLanguageId(): string
-    {
-        return $this->languageId;
-    }
-
-    public function setLanguageId(string $languageId): void
-    {
-        $this->languageId = $languageId;
     }
 
     public function getMediaId(): string

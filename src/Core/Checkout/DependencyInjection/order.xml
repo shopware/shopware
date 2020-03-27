@@ -47,7 +47,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
@@ -84,7 +83,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineDefinition"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

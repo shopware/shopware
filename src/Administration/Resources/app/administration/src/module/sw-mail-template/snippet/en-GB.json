@@ -28,8 +28,7 @@
       "buttonDelete": "Delete",
       "messageEmpty": "No email templates yet",
       "titleSidebarItemRefresh": "Refresh",
-      "errorMediaItemDuplicated": "Media item already assigned",
-      "columnFilename": "File name"
+      "errorMediaItemDuplicated": "Media item already assigned"
     },
     "detail": {
       "basic": {

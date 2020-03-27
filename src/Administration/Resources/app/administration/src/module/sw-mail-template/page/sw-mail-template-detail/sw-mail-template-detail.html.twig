@@ -104,61 +104,6 @@
                         </sw-card>
                     {% endblock %}
 
-                    {% block sw_mail_template_detail_attachments_info %}
-                        <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')">
-                            {% block sw_mail_template_detail_attachments_info_upload %}
-                                <sw-upload-listener
-                                        :uploadTag="mailTemplate.id"
-                                        autoUpload
-                                        @media-upload-finish="successfulUpload">
-                                </sw-upload-listener>
-
-                                <sw-media-upload-v2
-                                        variant="regular"
-                                        :defaultFolder="mailTemplate.entityName"
-                                        :uploadTag="mailTemplate.id"
-                                        :fileAccept="fileAccept"
-                                        @media-upload-sidebar-open="openMediaSidebar">
-                                </sw-media-upload-v2>
-                            {% endblock %}
-
-                            {% block sw_mail_template_detail_attachments_info_grid %}
-                                <sw-data-grid class="sw-mail-template-detail__attachments-info-grid"
-                                              v-if="mailTemplateMedia.length > 0"
-                                              :dataSource="mailTemplateMedia"
-                                              :columns="mediaColumns"
-                                              :fullPage="false"
-                                              :showSettings="false"
-                                              :allowColumnEdit="false"
-                                              :allowInlineEdit="false"
-                                              :compactMode="false"
-                                              @selection-change="onSelectionChanged">
-                                    <template #preview-fileName="{ item }">
-                                        {% block sw_mail_template_detail_attachments_info_grid_preview %}
-                                            <sw-media-preview-v2 :source="item.id"></sw-media-preview-v2>
-                                        {% endblock %}
-                                    </template>
-
-                                    <template #actions="{ item }">
-                                        {% block sw_mail_template_detail_attachments_info_grid_actions %}
-                                            <sw-context-menu-item variant="danger" @click="onDeleteMedia(item.id)">
-                                                {{ $tc('global.default.delete') }}
-                                            </sw-context-menu-item>
-                                        {% endblock %}
-                                    </template>
-
-                                    <template #bulk>
-                                        {% block sw_mail_template_detail_attachments_info_grid_bulk %}
-                                            <a class="link link-danger" @click="onDeleteSelectedMedia">
-                                                {{ $tc('global.default.delete') }}
-                                            </a>
-                                        {% endblock %}
-                                    </template>
-                                </sw-data-grid>
-                            {% endblock %}
-                        </sw-card>
-                    {% endblock %}
-
                     {% block sw_mail_template_detail_mail_text_info %}
                         <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
                             {% block sw_mail_template_mail_text_form_content_plain_field %}
@@ -192,15 +137,12 @@
                     {% endblock %}
                 </sw-card-view>
             </template>
-        {% endblock %}
 
-        {% block sw_mail_template_detail_sidebar %}
             <template #sidebar>
                 <sw-sidebar :propagateWidth="true">
-                    {% block sw_mail_template_detail_sidebar %}
-                        <sw-sidebar-item icon="default-object-paperplane"
-                                         :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
-                                         class="sw-mail-template-detail__test-mail-sidebar">
+                    <sw-sidebar-item icon="default-object-paperplane"
+                                     :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
+                                     class="sw-mail-template-detail__test-mail-sidebar">
                             <div class="sw-mail-template-detail__test-mail-sidebar-container">
                                 {% block sw_mail_template_mail_text_form_test_mail_field %}
                                     <sw-text-field
@@ -216,18 +158,7 @@
                                     </sw-button>
                                 {% endblock %}
                             </div>
-                        </sw-sidebar-item>
-
-                        <sw-sidebar-media-item ref="mediaSidebarItem">
-                            <template slot="context-menu-items" slot-scope="media">
-                                {% block sw_mail_template_detail_sidebar_add_attachment %}
-                                    <sw-context-menu-item @click="onAddItemToAttachment(media.mediaItem)">
-                                        {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
-                                    </sw-context-menu-item>
-                                {% endblock %}
-                            </template>
-                        </sw-sidebar-media-item>
-                    {% endblock %}
+                    </sw-sidebar-item>
                 </sw-sidebar>
             </template>
         {% endblock %}

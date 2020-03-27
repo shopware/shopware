@@ -3,9 +3,6 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -39,25 +36,18 @@ class OrderService
     private $cartService;
 
     /**
-     * @var MediaService
-     */
-    private $mediaService;
-
-    /**
      * @param ValidationServiceInterface|DataValidationFactoryInterface $orderValidationFactory
      */
     public function __construct(
         DataValidator $dataValidator,
         $orderValidationFactory,
         EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        MediaService $mediaService
+        CartService $cartService
     ) {
         $this->dataValidator = $dataValidator;
         $this->orderValidationFactory = $orderValidationFactory;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
-        $this->mediaService = $mediaService;
     }
 
     /**
@@ -70,21 +60,6 @@ class OrderService
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         return $this->cartService->order($cart, $context);
-    }
-
-    public function getAttachment(MediaEntity $media, Context $context): array
-    {
-        $fileBlob = '';
-        $mediaService = $this->mediaService;
-        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($mediaService, $media, &$fileBlob): void {
-            $fileBlob = $mediaService->loadFile($media->getId(), $context);
-        });
-
-        return [
-            'content' => $fileBlob,
-            'fileName' => $media->getFilename() . '.' . $media->getFileExtension(),
-            'mimeType' => $media->getMimeType(),
-        ];
     }
 
     /**

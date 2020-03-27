@@ -260,7 +260,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
     private function changeMailTemplateNameForType(Connection $connection, string $mailTemplateType): void
     {
         $connection->executeUpdate(
-            'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\') 
+            'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\')
             WHERE `technical_name` = :type',
             ['type' => $mailTemplateType]
         );
@@ -269,7 +269,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
     private function fetchLanguageId(string $code, Connection $connection): string
     {
         $langId = (string) $connection->fetchColumn(
-            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` 
+            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`
             WHERE `code` = :code LIMIT 1',
             ['code' => $code]
         );
@@ -440,11 +440,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
-        the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+
+        the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.
         The new status is as follows: {{order.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.
 EOT;
     }
@@ -457,7 +457,7 @@ EOT;
             <p>
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                 <br/>
-                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
+                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                 <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                 <br/>
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
@@ -471,11 +471,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
 EOT;
     }
@@ -502,11 +502,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
-        the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+
+        the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.
 EOT;
     }
@@ -519,7 +519,7 @@ EOT;
             <p>
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                 <br/>
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                 <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                 <br/>
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
@@ -533,11 +533,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
 EOT;
     }

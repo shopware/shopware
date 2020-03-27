@@ -28,7 +28,8 @@
       "buttonDelete": "Löschen",
       "messageEmpty": "Noch keine E-Mail-Vorlagen",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "errorMediaItemDuplicated": "Medium bereits verwendet"
+      "errorMediaItemDuplicated": "Medium bereits verwendet",
+      "columnFilename": "Dateiname"
     },
     "detail": {
       "basic": {

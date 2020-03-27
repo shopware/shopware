@@ -50,6 +50,7 @@
         "tooltipFoundInProducts": "Found in products",
         "tooltipFoundInCategories": "Found in categories",
         "tooltipFoundInManufacturers": "Found in manufacturers",
+        "tooltipFoundInMailTemplate": "Found in mail templates",
         "titleMediaNotUsed": "Unused medium",
         "labelMediaNotUsed": "This media item is currently not in use."
       }

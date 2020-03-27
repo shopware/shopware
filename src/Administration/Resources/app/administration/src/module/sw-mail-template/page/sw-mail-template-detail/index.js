@@ -1,7 +1,7 @@
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, StateDeprecated } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -29,7 +29,10 @@ Component.register('sw-mail-template-detail', {
             selectedType: {},
             editorConfig: {
                 enableBasicAutocompletion: true
-            }
+            },
+            mailTemplateMedia: null,
+            mailTemplateMediaSelected: {},
+            fileAccept: 'application/pdf, image/*'
         };
     },
 
@@ -54,6 +57,14 @@ Component.register('sw-mail-template-detail', {
 
         mailTemplateSalesChannelAssociationStore() {
             return this.mailTemplate.getAssociation('salesChannels');
+        },
+
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
+        mailTemplateMediaRepository() {
+            return this.repositoryFactory.create('mail_template_media');
         },
 
         outerCompleterFunction() {
@@ -85,6 +96,14 @@ Component.register('sw-mail-template-detail', {
                 this.mailTemplate.contentPlain &&
                 this.mailTemplate.contentHtml &&
                 this.mailTemplate.senderName;
+        },
+
+        mediaColumns() {
+            return this.getMediaColumns();
+        },
+
+        languageStore() {
+            return StateDeprecated.getStore('language');
         }
     },
 
@@ -110,6 +129,7 @@ Component.register('sw-mail-template-detail', {
             const criteria = new Criteria();
             criteria.addAssociation('salesChannels.salesChannel');
             criteria.addAssociation('mailTemplateType');
+            criteria.addAssociation('media.media');
             this.isLoading = true;
             this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, criteria).then((item) => {
                 this.mailTemplate = item;
@@ -118,6 +138,7 @@ Component.register('sw-mail-template-detail', {
                     this.mailTemplateSalesChannels.push(salesChannelAssoc.salesChannel);
                 });
                 this.onChangeType(this.mailTemplate.mailTemplateType.id);
+                this.getMailTemplateMedia();
             });
         },
 
@@ -136,6 +157,20 @@ Component.register('sw-mail-template-detail', {
                     this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
                 });
             }
+        },
+
+        createMediaCollection() {
+            return new EntityCollection('/media', 'media', Shopware.Context.api);
+        },
+
+        getMailTemplateMedia() {
+            this.mailTemplateMedia = this.createMediaCollection();
+
+            this.mailTemplate.media.forEach((mediaAssoc) => {
+                if (mediaAssoc.languageId === this.languageStore.getCurrentId()) {
+                    this.mailTemplateMedia.push(mediaAssoc.media);
+                }
+            });
         },
 
         abortOnLanguageChange() {
@@ -223,9 +258,10 @@ Component.register('sw-mail-template-detail', {
                     } else {
                         salesChannelId = salesChannelAssoc;
                     }
-                    this.mailService.testMailTemplateById(
+                    this.mailService.testMailTemplate(
                         this.testerMail,
                         this.mailTemplate,
+                        this.mailTemplateMedia,
                         salesChannelId
                     ).then(() => {
                         this.createNotificationSuccess(notificationTestMailSuccess);
@@ -365,6 +401,79 @@ Component.register('sw-mail-template-detail', {
                     salesChannelAssoc.isDeleted = false;
                 }
             });
+        },
+
+        getMediaColumns() {
+            return [{
+                property: 'fileName',
+                label: 'sw-mail-template.list.columnFilename'
+            }];
+        },
+
+        successfulUpload({ targetId }) {
+            if (this.mailTemplate.media.find((mailTemplateMedia) => mailTemplateMedia.mediaId === targetId)) {
+                return;
+            }
+
+            this.mediaRepository.get(targetId, Shopware.Context.api).then((mediaItem) => {
+                this.createMailTemplateMediaAssoc(mediaItem);
+            });
+        },
+
+        createMailTemplateMediaAssoc(mediaItem) {
+            const mailTemplateMedia = this.mailTemplateMediaRepository.create(Shopware.Context.api);
+            mailTemplateMedia.mailTemplateId = this.mailTemplateId;
+            mailTemplateMedia.languageId = this.languageStore.getCurrentId();
+            mailTemplateMedia.mediaId = mediaItem.id;
+            if (this.mailTemplate.media.length <= 0) {
+                mailTemplateMedia.position = 0;
+            } else {
+                mailTemplateMedia.position = this.mailTemplate.media.length;
+            }
+            this.mailTemplate.media.push(mailTemplateMedia);
+            this.mailTemplateMedia.push(mediaItem);
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
+        },
+
+        onDeleteMedia(mailTemplateMediaId) {
+            const foundItem = this.mailTemplate.media
+                .find((mailTemplateMedia) => mailTemplateMedia.mediaId === mailTemplateMediaId);
+            if (foundItem) {
+                this.mailTemplate.media.remove(foundItem.id);
+                this.getMailTemplateMedia();
+            }
+        },
+
+        onSelectionChanged(selection) {
+            this.selectedItems = selection;
+        },
+
+        onDeleteSelectedMedia() {
+            Object.keys(this.selectedItems).forEach((mailTemplateMediaId) => {
+                this.onDeleteMedia(mailTemplateMediaId);
+            });
+        },
+
+        _checkIfMediaIsAlreadyUsed(mediaId) {
+            return this.mailTemplate.media.some((mailTemplateMedia) => {
+                return mailTemplateMedia.mediaId === mediaId &&
+                    mailTemplateMedia.languageId === this.languageStore.getCurrentId();
+            });
+        },
+
+        onAddItemToAttachment(mediaItem) {
+            if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
+                this.createNotificationInfo({
+                    message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated')
+                });
+                return false;
+            }
+
+            this.createMailTemplateMediaAssoc(mediaItem);
+            return true;
         }
     }
 });

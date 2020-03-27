@@ -64,7 +64,7 @@ Component.register('sw-product-media-form', {
             if (!this.product) {
                 return null;
             }
-            return this.product.media.find(media => media.id === this.product.coverId);
+            return this.product.media.find(media => media.id === this.product.cover.mediaId);
         },
 
         ...mapGetters('swProductDetail', {
@@ -159,6 +159,7 @@ Component.register('sw-product-media-form', {
 
             if (this.productMedia.length === 0) {
                 productMedia.position = 0;
+                this.product.cover = productMedia;
                 this.product.coverId = productMedia.id;
             } else {
                 productMedia.position = this.productMedia.length + 1;
@@ -211,11 +212,10 @@ Component.register('sw-product-media-form', {
         },
 
         isCover(productMedia) {
-            if (this.product.media.length === 0) {
+            if (this.product.media.length === 0 || productMedia.isPlaceholder) {
                 return false;
             }
-
-            return productMedia.id === this.product.coverId;
+            return productMedia.mediaId === this.product.cover.mediaId;
         },
 
         removeFile(productMedia) {
@@ -232,6 +232,7 @@ Component.register('sw-product-media-form', {
         },
 
         markMediaAsCover(productMedia) {
+            this.product.cover = productMedia;
             this.product.coverId = productMedia.id;
         },
 
@@ -244,6 +245,7 @@ Component.register('sw-product-media-form', {
             if (this.product.media.length === 0) {
                 // set media item as cover
                 productMedia.position = 0;
+                this.product.cover = productMedia;
                 this.product.coverId = productMedia.id;
             }
 

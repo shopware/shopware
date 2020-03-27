@@ -23,12 +23,12 @@
             <div class="sw-product-media-form__previews">
                 <div class="sw-product-media-form__cover-container sw-product-media-form__column">
                     {% block sw_product_media_form_cover_preview %}
-                        <div v-if="cover" class="sw-product-media-form__preview-cover">
+                        <div v-if="product.cover || cover" class="sw-product-media-form__preview-cover">
                                 <div class="preview-cover">
                                     {% block sw_product_media_form_cover_image %}
                                         <sw-media-preview-v2
                                             class="sw-product-media-form__cover-image"
-                                            :source="cover.mediaId">
+                                            :source="cover ? cover.mediaId : product.cover.mediaId">
                                         </sw-media-preview-v2>
                                     {% endblock %}
                                     <span>{{ $tc('sw-product.mediaForm.coverSubline') }}</span>

@@ -131,6 +131,7 @@ Component.register('sw-product-detail', {
                 .addAssociation('product');
 
             criteria
+                .addAssociation('cover')
                 .addAssociation('categories')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')

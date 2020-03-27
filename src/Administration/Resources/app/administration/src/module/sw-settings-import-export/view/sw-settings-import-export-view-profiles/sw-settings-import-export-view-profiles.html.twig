@@ -48,9 +48,7 @@
 
                         {% block sw_settings_import_export_view_profile_profiles_listing_column_system_default %}
                             <template #column-systemDefault="{ item }">
-                                <sw-data-grid-column-boolean
-                                    v-model="item.systemDefault">
-                                </sw-data-grid-column-boolean>
+                                {{ getTypeLabel(item.systemDefault) }}
                             </template>
                         {% endblock %}
 

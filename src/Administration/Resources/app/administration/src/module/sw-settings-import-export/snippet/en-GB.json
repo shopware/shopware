@@ -50,6 +50,12 @@
       "saveProfileLabel": "Save profile",
       "generalTab": "General",
       "fieldIndicatorsTab": "Field indicator",
+      "profileNameFieldLabel": "Profile name",
+      "objectTypeFieldLabel": "Object type",
+      "separatorFieldLabel": "Separator character",
+      "enclosureFieldLabel": "Enclosure character",
+      "addMappingTooltipText": "Please define an object type first.",
+      "objectTypeFieldTooltipText": "The object type cannot be changed when mapping options are present.",
       "descriptionBlock": "Object types define a mode for importing and exporting data. The defined mode will also affect the mapping options in the table below. Note, that you cannot change the object type after mapping options have been introduced.",
       "mappingDescriptionBlock": "Use the table below to map CSV fields to their respective database counterparts.",
       "csvDescriptionBlock": "Separators and enclosure characters are used to indicate separate fields within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
@@ -61,7 +67,10 @@
         "fileValueLabel": "CSV name",
         "entityLabel": "Database entry"
       },
-      "sourceEntityLabel": "System default"
+      "typeColumn": "Type",
+      "nameColumn": "Name",
+      "customTypeLabel": "Custom",
+      "defaultTypeLabel": "Default"
     },
     "exporter": {
       "titleExportSuccess": "Success",

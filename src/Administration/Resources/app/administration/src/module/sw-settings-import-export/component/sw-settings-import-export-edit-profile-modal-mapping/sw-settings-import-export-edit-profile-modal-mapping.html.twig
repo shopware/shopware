@@ -19,7 +19,7 @@
                         :disabled="profile.systemDefault || !addMappingEnabled"
                         size="small"
                         v-tooltip="{
-                            message: 'Please select an object type first.',
+                            message: $tc('sw-settings-import-export.profile.addMappingTooltipText'),
                             disabled: addMappingEnabled,
                             showOnDisabledElements: true
                         }">

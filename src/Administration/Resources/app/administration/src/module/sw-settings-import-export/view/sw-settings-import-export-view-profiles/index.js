@@ -47,15 +47,14 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-import-export.profile.nameColumn',
                     allowResize: true,
                     primary: true
                 },
                 {
                     property: 'systemDefault',
                     dataIndex: 'systemDefault',
-                    label: 'sw-settings-import-export.profile.sourceEntityLabel',
-                    align: 'center',
+                    label: 'sw-settings-import-export.profile.typeColumn',
                     allowResize: true
                 }
             ];
@@ -124,14 +123,20 @@ Shopware.Component.register('sw-settings-import-export-view-profiles', {
                     message: this.$tc('sw-settings-import-export.profile.messageSaveSuccess', 0)
                 });
                 return this.loadProfiles();
-            }).then(() => {
-                this.isLoading = false;
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-import-export.profile.titleSaveError'),
                     message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
                 });
+            }).finally(() => {
+                this.isLoading = false;
             });
+        },
+
+        getTypeLabel(isSystemDefault) {
+            return isSystemDefault ?
+                this.$tc('sw-settings-import-export.profile.defaultTypeLabel') :
+                this.$tc('sw-settings-import-export.profile.customTypeLabel');
         }
     }
 });

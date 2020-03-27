@@ -15,7 +15,7 @@
                 <template #default="{ active }" >
                     {% block sw_settings_import_export_edit_profile_modal_tabs_general %}
                         <sw-tabs-item
-                            title="General"
+                            :title="$tc('sw-settings-import-export.profile.generalTab')"
                             name="general"
                             :activeTab="active">
                             {{ $tc('sw-settings-import-export.profile.generalTab') }}
@@ -24,7 +24,7 @@
 
                     {% block sw_settings_import_export_edit_profile_modal_tabs_field_indicators %}
                         <sw-tabs-item
-                            title="Field indicators"
+                            :title="$tc('sw-settings-import-export.profile.fieldIndicatorsTab')"
                             name="fieldIndicators"
                             :activeTab="active">
                             {{ $tc('sw-settings-import-export.profile.fieldIndicatorsTab') }}
@@ -43,7 +43,7 @@
                             {% block sw_settings_import_export_edit_profile_modal_tabs_name_field %}
                                 <sw-field
                                     type="text"
-                                    label="Profile name"
+                                    :label="$tc('sw-settings-import-export.profile.profileNameFieldLabel')"
                                     required
                                     :disabled="profile.systemDefault"
                                     :error="profileNameError"
@@ -52,20 +52,23 @@
                             {% endblock %}
 
                             {% block sw_settings_import_export_edit_profile_modal_tabs_object_type_field %}
-                                <sw-single-select
-                                    label="Object type"
-                                    ref="objectTypeSelect"
-                                    required
-                                    :options="supportedEntities"
-                                    :disabled="profile.systemDefault || mappingLength > 0"
-                                    :error="profileSourceEntityError"
-                                    v-model="profile.sourceEntity"
+                                <span
+                                    class="sw-settings-import-export-edit-profile-modal__object-type-field"
                                     v-tooltip="{
-                                        message: 'The object type cannot be changed when mapping options are present.',
+                                        message: $tc('sw-settings-import-export.profile.objectTypeFieldTooltipText'),
                                         disabled: mappingLength <= 0,
-                                        showOnDisabledElements: true
+                                        showOnDisabledElements: false
                                     }">
-                                </sw-single-select>
+                                    <sw-single-select
+                                        :label="$tc('sw-settings-import-export.profile.objectTypeFieldLabel')"
+                                        ref="objectTypeSelect"
+                                        required
+                                        :options="supportedEntities"
+                                        :disabled="profile.systemDefault || mappingLength > 0"
+                                        :error="profileSourceEntityError"
+                                        v-model="profile.sourceEntity">
+                                    </sw-single-select>
+                                </span>
                             {% endblock %}
                         </sw-container>
 
@@ -91,7 +94,7 @@
                                 <sw-single-select
                                     v-model="profile.delimiter"
                                     required
-                                    label="Seperator character"
+                                    :label="$tc('sw-settings-import-export.profile.separatorFieldLabel')"
                                     :error="profileDelimiterError"
                                     :disabled="profile.systemDefault"
                                     :options="supportedDelimiter">
@@ -102,7 +105,7 @@
                                 <sw-single-select
                                     v-model="profile.enclosure"
                                     required
-                                    label="Enclosure character"
+                                    :label="$tc('sw-settings-import-export.profile.enclosureFieldLabel')"
                                     :error="profileEnclosureError"
                                     :disabled="profile.systemDefault"
                                     :options="supportedEnclosures">

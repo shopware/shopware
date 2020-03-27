@@ -316,7 +316,6 @@
     "confirmTermsHeader": "Terms, conditions and cancellation policy",
     "confirmRevocationNotice": "Please note our cancellation policy.",
     "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"General terms and conditions\">General terms and conditions</a> of your shop.",
-    "customerCommentHeader": "Comment",
     "finishInfoPayment": "Payment method:",
     "finishInfoShipping": "Shipping type:",
     "finishHeader": "Thank you for your order with %shop%!",
@@ -337,7 +336,10 @@
     "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
     "promotion-discount-deleted": "Discount \"%name%\" has been removed",
     "promotion-discount-added": "Discount \"%name%\" has been added",
-    "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible."
+    "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible.",
+    "customerCommentHeader": "Additional information",
+    "customerCommentLabel": "Would you like to tell us something about your order?",
+    "customerCommentPlaceholder": "Comment here …"
   },
   "listing": {
     "filterTitleText": "Filter",

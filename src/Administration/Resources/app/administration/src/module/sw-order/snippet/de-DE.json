@@ -234,8 +234,7 @@
       "buttonDelete": "Löschen"
     },
     "detailCustomerComment": {
-      "cardTitle": "Kommentar",
-      "modalTitle": "Kundenkommentar"
+      "title": "Zusätzliche Informationen"
     },
     "stateCard": {
       "cardTitle": "Statusverlauf",

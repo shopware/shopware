@@ -214,8 +214,7 @@
       "buttonDelete": "Delete"
     },
     "detailCustomerComment": {
-      "cardTitle": "Comment",
-      "modalTitle": "Customer Comment"
+      "title": "Additional information"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Addresses",

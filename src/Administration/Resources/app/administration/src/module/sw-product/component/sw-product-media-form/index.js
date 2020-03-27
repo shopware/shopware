@@ -56,6 +56,7 @@ Component.register('sw-product-media-form', {
             for (let i = 0; i < placeholderCount; i += 1) {
                 mediaItems.push(this.createPlaceholderMedia(mediaItems));
             }
+
             return mediaItems;
         },
 

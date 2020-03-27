@@ -17,7 +17,8 @@
       "descriptionTextModule": "Verwaltung von Produkten.",
       "placeholderSearchBar": "Durchsuche alle Produkte ...",
       "inheritanceModuleName": "Dieses Produkt",
-      "backToParent": "zurück zur Variantenübersicht"
+      "backToParent": "zurück zur Variantenübersicht",
+      "copyOf": "Kopie"
     },
     "basicForm": {
       "labelTitle": "Titel",

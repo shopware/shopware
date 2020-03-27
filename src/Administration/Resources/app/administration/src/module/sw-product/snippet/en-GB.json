@@ -17,7 +17,8 @@
       "descriptionTextModule": "Manage products here.",
       "placeholderSearchBar": "Search products...",
       "inheritanceModuleName": "This product",
-      "backToParent": "Go back to variant overview"
+      "backToParent": "Go back to variant overview",
+      "copyOf": "Copy"
     },
     "basicForm": {
       "labelTitle": "Title",

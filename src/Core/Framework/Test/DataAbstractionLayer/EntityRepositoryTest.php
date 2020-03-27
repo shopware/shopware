@@ -739,7 +739,13 @@ class EntityRepositoryTest extends TestCase
     public function testCloneWithOverrides(): void
     {
         $id = Uuid::randomHex();
+        $tags = [
+            ['id' => Uuid::randomHex(), 'name' => 'tag1'],
+            ['id' => Uuid::randomHex(), 'name' => 'tag2'],
+            ['id' => Uuid::randomHex(), 'name' => 'tag3'],
+        ];
         $productNumber = Uuid::randomHex();
+
         $data = [
             'id' => $id,
             'productNumber' => $productNumber,
@@ -747,6 +753,7 @@ class EntityRepositoryTest extends TestCase
             'name' => 'Test',
             'tax' => ['name' => 'test', 'taxRate' => 5],
             'manufacturer' => ['name' => 'test'],
+            'tags' => $tags,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
         ];
 
@@ -778,6 +785,8 @@ class EntityRepositoryTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $new);
 
         static::assertSame($old->getName(), $new->getName());
+        static::assertSame($old->getTags(), $new->getTags());
+        static::assertSame($old->getTagIds(), $new->getTagIds());
         static::assertNotSame($old->getProductNumber(), $new->getProductNumber());
     }
 

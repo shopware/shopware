@@ -151,7 +151,7 @@
                        type="file"
                        id="files"
                        ref="fileInput"
-                       accept="image/*"
+                       :accept="fileAccept"
                        :multiple="multiSelect"
                        @change="onFileInputChange"/>
             </form>

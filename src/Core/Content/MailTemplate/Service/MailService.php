@@ -8,7 +8,6 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -74,11 +73,6 @@ class MailService implements MailServiceInterface
      */
     private $logger;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
-
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
@@ -89,8 +83,7 @@ class MailService implements MailServiceInterface
         EntityRepositoryInterface $salesChannelRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger,
-        UrlGeneratorInterface $urlGenerator
+        LoggerInterface $logger
     ) {
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
@@ -102,7 +95,6 @@ class MailService implements MailServiceInterface
         $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
@@ -252,7 +244,7 @@ class MailService implements MailServiceInterface
 
         $urls = [];
         foreach ($media as $mediaItem) {
-            $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
+            $urls[] = $mediaItem->getUrl();
         }
 
         return $urls;

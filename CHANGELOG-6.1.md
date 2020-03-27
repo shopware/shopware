@@ -7,12 +7,6 @@ in 6.1 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
 
-### 6.1.5
-
-**Addition / Changes**
-
-* Administration
-    * Added property `fileAccept` to `sw-media-upload-v2`
 ### 6.1.3
 
 **Addition / Changes**

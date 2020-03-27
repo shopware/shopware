@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\System\Language\LanguageDefinition;
 
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {
@@ -38,7 +37,6 @@ class MailTemplateMediaDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('mail_template_id', 'mailTemplateId', MailTemplateDefinition::class))->addFlags(new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
             new IntField('position', 'position'),
             new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, 'id', false),

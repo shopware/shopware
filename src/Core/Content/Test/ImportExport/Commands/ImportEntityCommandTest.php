@@ -51,8 +51,6 @@ class ImportEntityCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        static::markTestSkipped('fix tests');
-
         $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
         $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
         $this->importEntityCommand = $this->getContainer()->get(ImportEntityCommand::class);

@@ -32,6 +32,7 @@
         "symfony/dependency-injection": "4.4.4",
         "symfony/filesystem": "4.4.4",
         "symfony/finder": "4.4.4",
-        "symfony/http-kernel": "4.4.4"
+        "symfony/http-kernel": "4.4.4",
+        "stecman/symfony-console-completion": "^0.11.0"
     }
 }

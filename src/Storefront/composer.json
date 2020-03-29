@@ -47,7 +47,8 @@
         "true/punycode": "2.1.1",
         "twig/intl-extra": "2.12.3",
         "twig/string-extra": "2.12.3",
-        "twig/twig": "2.12.3"
+        "twig/twig": "2.12.3",
+        "stecman/symfony-console-completion": "^0.11.0"
     },
     "require-dev": {
         "phpunit/phpunit": "8.5.2"

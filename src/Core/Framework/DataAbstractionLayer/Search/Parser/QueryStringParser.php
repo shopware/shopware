@@ -36,7 +36,7 @@ class QueryStringParser
                 $queries = [];
                 $operator = MultiFilter::CONNECTION_AND;
 
-                if (isset($query['operator']) && $query['operator'] === MultiFilter::CONNECTION_OR) {
+                if (isset($query['operator']) && mb_strtoupper($query['operator']) === MultiFilter::CONNECTION_OR) {
                     $operator = MultiFilter::CONNECTION_OR;
                 }
 

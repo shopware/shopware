@@ -72,27 +72,31 @@ export default class ImportExportService extends ApiService {
     }
 
     async trackProgress(logEntry, callback) {
-        let data = { data: { offset: 0, total: 1 } };
+        let data = { progress: { offset: 0, total: 1 } };
         let noProgressCounter = 0;
 
-        while (data.data.offset < data.data.total) {
-            const oldOffset = data.data.offset;
+        while (data.progress.offset < data.progress.total) {
+            const oldOffset = data.progress.offset;
 
             // eslint-disable-next-line no-await-in-loop
-            data = await this.httpClient.post('/_action/import-export/process', {
+            let result = await this.httpClient.post('/_action/import-export/process', {
                 logId: logEntry.data.log.id,
                 offset: oldOffset
             }, { headers: this.getBasicHeaders() });
+            data = result.data;
 
             // Track if no progress was made
-            if (oldOffset === data.data.offset) {
+            if (oldOffset === data.progress.offset) {
                 noProgressCounter += 1;
+            } else {
+                noProgressCounter = 0;
             }
+
             if (noProgressCounter >= 3) {
                 throw new Error('ImportExportService - Process failed. ' +
                     'The offset did not change over within three requests');
             }
-            callback.call(this, data.data);
+            callback.call(this, data.progress);
         }
     }
 

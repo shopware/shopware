@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\FieldSerializer;
+namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer;

@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @experimental We might break this in v6.2
+ */
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';

@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @internal We might break this in v6.2
+ */
 class ImportExportService
 {
     /**

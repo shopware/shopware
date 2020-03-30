@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.2.0 can be replaced with Definition::getProtections()
  */
 class ImportExportLogValidator implements EventSubscriberInterface
@@ -20,6 +22,9 @@ class ImportExportLogValidator implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @internal
+     */
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $ids = [];

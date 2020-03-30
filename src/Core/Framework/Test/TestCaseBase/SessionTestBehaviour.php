@@ -9,19 +9,21 @@ use Symfony\Component\HttpFoundation\Session\Session;
  */
 trait SessionTestBehaviour
 {
+    /**
+     * @before
+     */
+    public function clearSessionBefore(): void
+    {
+        $this->clearSessionAfter();
+    }
+
+    /**
+     * @after
+     */
     public function clearSessionAfter(): void
     {
         /** @var Session $session */
         $session = $this->getContainer()->get('session');
         $session->clear();
-    }
-
-    /**
-     * @before
-     * @after
-     */
-    public function clearSession(): void
-    {
-        $this->clearSessionAfter();
     }
 }

@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @experimental We might break this in v6.2
+ */
 abstract class AbstractFileWriter extends AbstractWriter
 {
     /**

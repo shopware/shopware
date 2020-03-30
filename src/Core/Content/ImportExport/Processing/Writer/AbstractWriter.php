@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @experimental We might break this in v6.2
+ */
 abstract class AbstractWriter
 {
     abstract public function append(Config $config, array $data, int $index): void;

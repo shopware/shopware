@@ -104,7 +104,7 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/import-export/initiate", name="api.action.import_export.initiate", methods={"POST"})
+     * @Route("/api/v{version}/_action/import-export/prepare", name="api.action.import_export.initiate", methods={"POST"})
      */
     public function initiate(int $version, Request $request, Context $context): JsonResponse
     {

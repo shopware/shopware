@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+/**
+ * @internal We might break this in v6.2
+ */
 class SupportedFeaturesService
 {
     /**

@@ -20,7 +20,7 @@ export default class ImportExportService extends ApiService {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
-        const createdLog = await this.httpClient.post('/_action/import-export/initiate', {
+        const createdLog = await this.httpClient.post('/_action/import-export/prepare', {
             profileId: profileId,
             expireDate: expireDate.toDateString()
         }, { headers: this.getBasicHeaders() });
@@ -62,7 +62,7 @@ export default class ImportExportService extends ApiService {
         formData.append('expireDate', expireDate.toDateString());
 
 
-        const createdLog = await this.httpClient.post('/_action/import-export/initiate', formData, {
+        const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
             headers: this.getBasicHeaders()
         });
 

@@ -350,6 +350,21 @@ class Migration1584002637NewImportExport extends MigrationStep
                     ['key' => 'visibilities.all', 'mappedKey' => 'sales_channel'],
                 ],
             ],
+            [
+                'name' => 'Default product configurator settings',
+                'source_entity' => 'product_configurator_setting',
+                'mapping' => [
+                    ['key' => 'id', 'mappedKey' => 'id'],
+                    ['key' => 'productId', 'mappedKey' => 'product_id'],
+                    ['key' => 'optionId', 'mappedKey' => 'option_id'],
+
+                    // cannot add price, because it's not a `PriceField`...
+                    ['key' => 'position', 'mappedKey' => 'position'],
+                    ['key' => 'media.id', 'mappedKey' => 'cover_media_id'],
+                    ['key' => 'media.url', 'mappedKey' => 'cover_media_url'],
+                    ['key' => 'media.translations.DEFAULT.title', 'mappedKey' => 'cover_media_alt'],
+                ],
+            ]
         ];
     }
 }

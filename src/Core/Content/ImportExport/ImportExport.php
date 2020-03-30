@@ -141,7 +141,7 @@ class ImportExport
             try {
                 // TODO: event before import record
                 $this->repository->upsert([$record], $context);
-                $progress->addProcessedRecords(++$importedRecords);
+                $progress->addProcessedRecords(1);
 
                 // TODO: event after import record
             } catch (\Throwable $exception) {

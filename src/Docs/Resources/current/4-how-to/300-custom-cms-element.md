@@ -457,6 +457,18 @@ Quite simple, right?
 This would render the `sw-field` component two times. Once as a `text` field, once as a `switch` field. The `v-model` takes care
 of binding the field's values to the values from the config. 
 
+Don't forget to include your config in your `index.js`.
+
+```javascript
+import './component';
+import './config';
+import './preview';
+
+Shopware.Service('cmsService').registerCmsElement({
+...
+}
+```
+
 That's it! You could now go ahead and fully test your new element!
 Install this plugin via `bin/console plugin:install --activate CustomCmsElement`, rebuild the administration via `./psh.phar administration:build`
 and start using your new element in the administration!

@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+.sw-import-export-edit-profile-modal-mapping {
+    border-top: 1px solid $color-gray-300;
+    max-height: 300px;
+    margin-top: 30px;
+
+    &__toolbar {
+        z-index: 10;
+        height: 83px;
+        display: flex;
+        padding: 25px 35px;
+        background-color: $color-light-gray;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-simple-search-field {
+            flex-basis: 100%;
+            margin-right: 16px;
+        }
+    }
+}

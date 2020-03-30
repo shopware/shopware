@@ -1,0 +1,31 @@
+{% block sw_import_export_exporter %}
+    <div class="sw-import-export-exporter">
+        {% block sw_import_export_exporter_header %}
+            <h2>{{  $tc('sw-import-export.importer.selectProfileLabel')  }}</h2>
+        {% endblock %}
+
+        {% block sw_import_export_exporter_profile_select %}
+            <sw-entity-single-select
+                :disabled="isLoading"
+                :label="$tc('sw-import-export.importer.profileLabel')"
+                entity="import_export_profile"
+                v-model="selectedProfileId"
+                required>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_import_export_exporter_progress %}
+            <sw-import-export-progress
+                activityType="export"
+                :offset="progressOffset"
+                :total="progressTotal"
+                :logEntry="progressLogEntry"
+                :state="progressState"
+                :isLoading="isLoading"
+                :disableButton="disableExporting"
+                @process-start="onStartProcess">
+            </sw-import-export-progress>
+        {% endblock %}
+
+    </div>
+{% endblock %}

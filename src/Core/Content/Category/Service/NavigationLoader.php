@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
+use Shopware\Core\Content\Category\Event\NavigationValidationCategoryIdsLoadedEvent;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRouteInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
@@ -257,7 +258,11 @@ class NavigationLoader implements NavigationLoaderInterface
             $context->getSalesChannel()->getNavigationCategoryId(),
         ]);
 
-        foreach ($ids as $id) {
+        $event = new NavigationValidationCategoryIdsLoadedEvent($ids, $context);
+
+        $this->eventDispatcher->dispatch($event);
+
+        foreach ($event->getCategoryIds() as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {
                 return;
             }

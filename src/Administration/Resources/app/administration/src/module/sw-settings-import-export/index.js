@@ -30,6 +30,7 @@ Shopware.Module.register('sw-settings-import-export', {
     color: '#9AA8B5',
     icon: 'default-device-database',
     entity: 'import_export_profile',
+    routePrefixPath: 'sw/settings/import-export',
 
     routes: {
         index: {

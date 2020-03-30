@@ -94,6 +94,45 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
+    public function testPersistFileWithUpperCaseExtension(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        copy(self::TEST_IMAGE, $tempFile);
+
+        $fileSize = filesize($tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'PNG', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                ],
+            ],
+            $context
+        );
+
+        try {
+            $this->fileSaver->persistFileToMedia(
+                $mediaFile,
+                'test-file',
+                $mediaId,
+                $context
+            );
+        } finally {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        $path = $this->urlGenerator->getRelativeMediaUrl($media);
+        static::assertTrue($this->getPublicFilesystem()->has($path));
+    }
+
     public function testPersistFileToMediaRemovesOldFile(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');

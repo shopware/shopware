@@ -398,7 +398,7 @@ class FileSaver
         $this->eventDispatcher->dispatch($event);
 
         foreach ($event->getWhitelist() as $extension) {
-            if ($mediaFile->getFileExtension() === $extension) {
+            if (strtolower($mediaFile->getFileExtension()) === strtolower($extension)) {
                 return;
             }
         }

@@ -108,12 +108,14 @@
                         <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')">
                             {% block sw_mail_template_detail_attachments_info_upload %}
                                 <sw-upload-store-listener
+                                    v-if="mailTemplate.id"
                                     :uploadTag="mailTemplate.id"
                                     autoUpload
                                     @media-upload-finish="successfulUpload">
                                 </sw-upload-store-listener>
 
                                 <sw-media-upload
+                                        v-if="mailTemplate.id"
                                         variant="regular"
                                         defaultFolder="mail_template"
                                         :uploadTag="mailTemplate.id"
@@ -124,7 +126,7 @@
 
                             {% block sw_mail_template_detail_attachments_info_grid %}
                                 <sw-data-grid class="sw-mail-template-detail__attachments-info-grid"
-                                              v-if="mailTemplateMedia.length > 0"
+                                              v-if="mailTemplateMedia && mailTemplateMedia.length > 0"
                                               :dataSource="mailTemplateMedia"
                                               :columns="mediaColumns"
                                               :fullPage="false"

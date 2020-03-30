@@ -231,6 +231,7 @@ Component.register('sw-mail-template-detail', {
             }));
             Promise.all(updatePromises).then(() => {
                 this.loadEntityData();
+                this.saveFinish();
             });
         },
 
@@ -347,7 +348,9 @@ Component.register('sw-mail-template-detail', {
                 }
             }
             // Reset the results of the select field. So it fetches new results with the new criteria
-            this.$refs.mailTemplateSalesChannelSelect.resetResultCollection();
+            if (this.$refs.mailTemplateSalesChannelSelect) {
+                this.$refs.mailTemplateSalesChannelSelect.resetResultCollection();
+            }
         },
         enrichAssocStores(responseAssoc) {
             this.mailTemplateSalesChannelsAssoc = responseAssoc;

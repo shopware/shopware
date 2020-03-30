@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 
 class MaxResult extends AggregationResult
 {
-    /**
-     * @var mixed
-     */
     protected $max;
 
     public function __construct(string $name, $max)

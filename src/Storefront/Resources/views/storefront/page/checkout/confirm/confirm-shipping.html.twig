@@ -16,7 +16,7 @@
             {% endblock %}
 
             {% block page_checkout_confirm_shipping_current %}
-                <p class="confirm-shipping-current{% if shippingMethodInvalid %} is-invalid{% endif %}">
+                <p class="confirm-shipping-current">
                     {% block page_checkout_confirm_shipping_current_image %}
                         {% if context.shippingMethod.media %}
                             {% sw_thumbnails 'confirm-shipping-current-image-thumbnails' with {
@@ -35,22 +35,16 @@
 
                     {% block page_checkout_confirm_shipping_current_text %}
                         <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
-                        {{ context.shippingMethod.translated.name }}
-                    {% endblock %}
 
-                    {% block page_checkout_confirm_shipping_invalid_tooltip %}
                         {% if shippingMethodInvalid %}
-                            <a data-toggle="tooltip"
-                               data-placement="right"
-                               class="confirm-method-tooltip"
-                               title="{{ "checkout.confirmShippingMethodNotAvailable"|trans|striptags }}">
-                                {% sw_icon 'help' style {
-                                    'color': 'danger',
-                                    'size': 'xs'
-                                } %}
-                            </a>
+                            {{ "checkout.confirmSelectionNone"|trans|sw_sanitize }}
+                        {% else %}
+                            {{ context.shippingMethod.translated.name }}
                         {% endif %}
                     {% endblock %}
+
+                    {# @deprecated tag:v6.4.0 will be removed in version 6.4.0 #}
+                    {% block page_checkout_confirm_shipping_invalid_tooltip %}{% endblock %}
                 </p>
             {% endblock %}
 
@@ -60,7 +54,12 @@
                         data-toggle="modal"
                         data-backdrop="static"
                         data-target="#confirmShippingModal">
-                    {{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}
+
+                    {% if shippingMethodInvalid %}
+                        {{ "checkout.confirmChooseShipping"|trans|sw_sanitize }}
+                    {% else %}
+                        {{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}
+                    {% endif %}
                 </button>
             {% endblock %}
 

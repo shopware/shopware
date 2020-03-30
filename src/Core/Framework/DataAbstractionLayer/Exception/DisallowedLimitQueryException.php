@@ -12,9 +12,6 @@ class DisallowedLimitQueryException extends ShopwareHttpException
      */
     private $allowedLimits;
 
-    /**
-     * @var mixed
-     */
     private $limit;
 
     public function __construct(array $allowedLimits, $limit)

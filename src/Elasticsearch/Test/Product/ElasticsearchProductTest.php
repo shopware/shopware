@@ -1339,6 +1339,58 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($data->get('p4'), $products->getIds());
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testIdsSorting(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        $expected = [
+            $data->get('p2'),
+            $data->get('p3'),
+            $data->get('p1'),
+            $data->get('p4'),
+            $data->get('p5'),
+        ];
+
+        // check simple equals filter
+        $criteria = new Criteria($expected);
+
+        $criteria->addFilter(new RangeFilter('stock', [
+            RangeFilter::GTE => 0,
+        ]));
+
+        $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertEquals($expected, $ids->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSorting(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        $expected = [
+            $data->get('p4'),
+            $data->get('p5'),
+            $data->get('p6'),
+            $data->get('p2'),
+            $data->get('p1'),
+            $data->get('p3'),
+        ];
+
+        // check simple equals filter
+        $criteria = new Criteria($data->prefixed('p'));
+        $criteria->addSorting(new FieldSorting('name'));
+
+        $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertEquals($expected, $ids->getIds());
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();

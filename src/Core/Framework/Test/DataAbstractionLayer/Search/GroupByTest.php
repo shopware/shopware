@@ -4,16 +4,22 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Event\TestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -57,7 +63,7 @@ class GroupByTest extends TestCase
 
         $this->connection->executeUpdate('
             DROP TABLE IF EXISTS group_by_test;
-            
+
             CREATE TABLE `group_by_test` (
               `id` binary(16) NOT NULL,
               `name` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -184,5 +190,25 @@ class TestData
     public function getAll(): array
     {
         return $this->ids;
+    }
+}
+
+class TestDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'test';
+
+    public function getEntityName(): string
+    {
+        return 'test';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new IdField('id', 'id'),
+            new ManyToOneAssociationField('many_to_one', 'many_to_one', self::class, 'id', true),
+            new OneToManyAssociationField('one_to_many', self::class, 'test_id'),
+            new ManyToManyAssociationField('many_to_many', self::class, ProductCategoryDefinition::class, 'test_id', 'test_id'),
+        ]);
     }
 }

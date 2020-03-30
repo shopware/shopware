@@ -2,18 +2,26 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class EntitySearcherTest extends TestCase
 {
@@ -326,5 +334,42 @@ class EntitySearcherTest extends TestCase
         static::assertTrue($result->has($variant6));
         static::assertTrue($result->has($variant4));
         static::assertTrue($result->has($variant2));
+    }
+
+    public function testSortingByProvidedIds(): void
+    {
+        $ids = new TestDataCollection();
+
+        $data = [
+            ['id' => $ids->create('t1'), 'name' => 'tax 1', 'taxRate' => 10],
+            ['id' => $ids->create('t2'), 'name' => 'tax 2', 'taxRate' => 10],
+            ['id' => $ids->create('t3'), 'name' => 'tax 3', 'taxRate' => 10],
+            ['id' => $ids->create('t4'), 'name' => 'tax 4', 'taxRate' => 10],
+        ];
+
+        $this->getContainer()->get('tax.repository')
+            ->create($data, Context::createDefaultContext());
+
+        $searcher = new EntitySearcher(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(SqlQueryParser::class),
+            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
+            $this->getContainer()->get(SearchTermInterpreter::class),
+            $this->getContainer()->get(EntityScoreQueryBuilder::class)
+        );
+
+        $expected = [
+            $ids->get('t4'),
+            $ids->get('t2'),
+            $ids->get('t1'),
+            $ids->get('t3'),
+        ];
+
+        $criteria = new Criteria($expected);
+        $criteria->addFilter(new EqualsFilter('taxRate', 10));
+
+        $result = $searcher->search($this->getContainer()->get(TaxDefinition::class), $criteria, Context::createDefaultContext());
+
+        static::assertEquals($expected, $result->getIds());
     }
 }

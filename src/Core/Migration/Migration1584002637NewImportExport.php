@@ -80,6 +80,8 @@ class Migration1584002637NewImportExport extends MigrationStep
     {
         $defaultFolderId = Uuid::randomBytes();
 
+        $configurationId = Uuid::randomBytes();
+
         $connection->insert('media_default_folder', [
             'id' => $defaultFolderId,
             'entity' => 'import_export_profile',
@@ -87,12 +89,56 @@ class Migration1584002637NewImportExport extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
+        $connection->executeUpdate('
+                INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `private`, created_at)
+                VALUES (:id, 80, 1, :private, :createdAt)
+            ', [
+            'id' => $configurationId,
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'private' => 0,
+        ]);
+
+        foreach ($this->getThumbnailSizes($connection) as $thumbnailSize) {
+            $connection->executeUpdate('
+                    REPLACE INTO `media_folder_configuration_media_thumbnail_size` (`media_folder_configuration_id`, `media_thumbnail_size_id`)
+                    VALUES (:folderConfigurationId, :thumbnailSizeId)
+                ', [
+                'folderConfigurationId' => $configurationId,
+                'thumbnailSizeId' => $thumbnailSize['id'],
+            ]);
+        }
+
         $connection->insert('media_folder', [
             'id' => Uuid::randomBytes(),
             'default_folder_id' => $defaultFolderId,
             'name' => 'Import Media',
+            'media_folder_configuration_id' => $configurationId,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+    }
+
+    private function getThumbnailSizes(Connection $connection): array
+    {
+        $thumbnailSizes = [
+            ['width' => 400, 'height' => 400],
+            ['width' => 800, 'height' => 800],
+            ['width' => 1920, 'height' => 1920],
+        ];
+
+        $stmt = $connection->prepare('SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height');
+        foreach ($thumbnailSizes as $i => $thumbnailSize) {
+            $stmt->execute(['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]);
+            $id = $stmt->fetchColumn();
+            if (!$id) {
+                unset($thumbnailSizes[$i]);
+
+                continue;
+            }
+
+            $thumbnailSizes[$i]['id'] = $id;
+        }
+
+        return $thumbnailSizes;
     }
 
     private function getSystemDefaultProfiles(): array

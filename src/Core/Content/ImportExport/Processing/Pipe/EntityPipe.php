@@ -46,14 +46,14 @@ class EntityPipe extends AbstractPipe
     {
         $this->loadConfig($config);
 
-        return $this->entitySerializer->serialize($this->definition, $entity);
+        return $this->entitySerializer->serialize($config, $this->definition, $entity);
     }
 
     public function out(Config $config, iterable $encoded): iterable
     {
         $this->loadConfig($config);
 
-        return $this->entitySerializer->deserialize($this->definition, $encoded);
+        return $this->entitySerializer->deserialize($config, $this->definition, $encoded);
     }
 
     private function loadConfig(Config $config): void

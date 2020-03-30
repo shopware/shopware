@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -30,13 +31,13 @@ class ProductSerializer extends EntitySerializer
         $this->visibilityRepository = $visibilityRepository;
     }
 
-    public function serialize(EntityDefinition $definition, $value): iterable
+    public function serialize(Config $config, EntityDefinition $definition, $value): iterable
     {
         if ($value instanceof Struct) {
             $value = $value->jsonSerialize();
         }
 
-        yield from parent::serialize($definition, $value);
+        yield from parent::serialize($config, $definition, $value);
 
         if (!isset($value['visibilities'])) {
             return;
@@ -69,11 +70,11 @@ class ProductSerializer extends EntitySerializer
         }
     }
 
-    public function deserialize(EntityDefinition $definition, $value)
+    public function deserialize(Config $config, EntityDefinition $definition, $value)
     {
         $value = is_array($value) ? $value : iterator_to_array($value);
 
-        yield from parent::deserialize($definition, $value);
+        yield from parent::deserialize($config, $definition, $value);
 
         $productId = $value['id'] ?? null;
 

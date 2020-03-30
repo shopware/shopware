@@ -6,6 +6,9 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
+/**
+ * @experimental Might break in v6.2
+ */
 class Config
 {
     use JsonSerializableTrait;

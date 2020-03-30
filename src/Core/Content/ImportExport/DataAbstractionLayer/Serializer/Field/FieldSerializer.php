@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -20,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 
 class FieldSerializer extends AbstractFieldSerializer
 {
-    public function serialize(Field $field, $value): iterable
+    public function serialize(Config $config, Field $field, $value): iterable
     {
         $key = $field->getPropertyName();
 
@@ -74,7 +75,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
     }
 
-    public function deserialize(Field $field, $value)
+    public function deserialize(Config $config, Field $field, $value)
     {
         if ($value === null) {
             return null;

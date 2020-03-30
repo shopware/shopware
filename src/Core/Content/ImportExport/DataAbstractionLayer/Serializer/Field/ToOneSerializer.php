@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -9,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class ToOneSerializer extends FieldSerializer
 {
-    public function serialize(Field $toOne, $record): iterable
+    public function serialize(Config $config, Field $toOne, $record): iterable
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
             throw new \InvalidArgumentException('Expected *ToOneField');
@@ -26,13 +27,13 @@ class ToOneSerializer extends FieldSerializer
         $definition = $toOne->getReferenceDefinition();
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
 
-        $result = $entitySerializer->serialize($definition, $record);
+        $result = $entitySerializer->serialize($config, $definition, $record);
         if ($record !== null) {
             yield $toOne->getPropertyName() => iterator_to_array($result);
         }
     }
 
-    public function deserialize(Field $toOne, $records)
+    public function deserialize(Config $config, Field $toOne, $records)
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
             throw new \InvalidArgumentException('Expected *ToOneField');
@@ -41,7 +42,7 @@ class ToOneSerializer extends FieldSerializer
         $definition = $toOne->getReferenceDefinition();
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
 
-        $result = $entitySerializer->deserialize($definition, $records);
+        $result = $entitySerializer->deserialize($config, $definition, $records);
 
         if (is_iterable($result) && !is_array($result)) {
             $result = iterator_to_array($result);

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\FieldSerializer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -71,7 +72,7 @@ class MediaSerializerTest extends TestCase
                 $this->assertSame($mediaId, $id);
             });
 
-        $result = $mediaSerializer->deserialize($mediaDefinition, $record);
+        $result = $mediaSerializer->deserialize(new Config([], []), $mediaDefinition, $record);
 
         $writtenResult = new EntityWriteResult($mediaId, $result, 'media', 'insert');
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
@@ -122,7 +123,7 @@ class MediaSerializerTest extends TestCase
         $searchResult = new EntitySearchResult(1, new MediaCollection([$mediaEntity]), null, new Criteria(), $context);
         $mediaRepository->method('search')->willReturn($searchResult);
 
-        $result = $mediaSerializer->deserialize($mediaDefinition, $record);
+        $result = $mediaSerializer->deserialize(new Config([], []), $mediaDefinition, $record);
 
         static::assertArrayNotHasKey('url', $result);
 

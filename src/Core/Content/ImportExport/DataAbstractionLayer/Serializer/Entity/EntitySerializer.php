@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Struct\Struct;
 
 class EntitySerializer extends AbstractEntitySerializer
 {
-    public function serialize(EntityDefinition $definition, $entity): iterable
+    public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {
         if ($entity === null) {
             return;
@@ -29,11 +30,11 @@ class EntitySerializer extends AbstractEntitySerializer
             }
 
             $serializer = $this->serializerRegistry->getFieldSerializer($field);
-            yield from $serializer->serialize($field, $value);
+            yield from $serializer->serialize($config, $field, $value);
         }
     }
 
-    public function deserialize(EntityDefinition $definition, $record)
+    public function deserialize(Config $config, EntityDefinition $definition, $record)
     {
         $fields = $definition->getFields();
 
@@ -45,7 +46,7 @@ class EntitySerializer extends AbstractEntitySerializer
             }
 
             $serializer = $this->serializerRegistry->getFieldSerializer($field);
-            $value = $serializer->deserialize($field, $value);
+            $value = $serializer->deserialize($config, $field, $value);
 
             if ($value === null) {
                 continue;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -24,7 +25,7 @@ class TranslationsSerializer extends FieldSerializer
         $this->languageRepository = $languageRepository;
     }
 
-    public function serialize(Field $associationField, $translations): iterable
+    public function serialize(Config $config, Field $associationField, $translations): iterable
     {
         if ($translations === null) {
             return;
@@ -50,7 +51,7 @@ class TranslationsSerializer extends FieldSerializer
             }
 
             $translationCode = $this->mapToTranslationCode($languageId);
-            $result = iterator_to_array($entitySerializer->serialize($referenceDefinition, $translation));
+            $result = iterator_to_array($entitySerializer->serialize($config, $referenceDefinition, $translation));
 
             $codedTranslations[$translationCode] = $result;
             if ($languageId === Defaults::LANGUAGE_SYSTEM) {
@@ -61,7 +62,7 @@ class TranslationsSerializer extends FieldSerializer
         yield $associationField->getPropertyName() => $codedTranslations;
     }
 
-    public function deserialize(Field $associationField, $translations)
+    public function deserialize(Config $config, Field $associationField, $translations)
     {
         if (!$associationField instanceof TranslationsAssociationField) {
             throw new \InvalidArgumentException('Expected *ToOneField');
@@ -77,7 +78,7 @@ class TranslationsSerializer extends FieldSerializer
         $entitySerializer = $this->serializerRegistry->getEntity($referenceDefinition->getEntityName());
 
         foreach ($translations as $languageId => $translation) {
-            $deserialized = $entitySerializer->deserialize($referenceDefinition, $translation);
+            $deserialized = $entitySerializer->deserialize($config, $referenceDefinition, $translation);
             if (!is_array($deserialized) && is_iterable($deserialized)) {
                 $deserialized = iterator_to_array($deserialized);
             }

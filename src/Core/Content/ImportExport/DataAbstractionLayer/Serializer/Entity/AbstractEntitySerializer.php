@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 abstract class AbstractEntitySerializer
@@ -12,9 +13,9 @@ abstract class AbstractEntitySerializer
      */
     protected $serializerRegistry;
 
-    abstract public function serialize(EntityDefinition $definition, $entity): iterable;
+    abstract public function serialize(Config $config, EntityDefinition $definition, $entity): iterable;
 
-    abstract public function deserialize(EntityDefinition $definition, $entity);
+    abstract public function deserialize(Config $config, EntityDefinition $definition, $entity);
 
     abstract public function supports(string $entity): bool;
 

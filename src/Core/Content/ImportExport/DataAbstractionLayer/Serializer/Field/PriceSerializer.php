@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -27,7 +28,7 @@ class PriceSerializer extends FieldSerializer
         $this->currencyRepository = $currencyRepository;
     }
 
-    public function serialize(Field $entity, $prices): iterable
+    public function serialize(Config $config, Field $entity, $prices): iterable
     {
         if (!$prices) {
             return;
@@ -45,7 +46,7 @@ class PriceSerializer extends FieldSerializer
         yield $entity->getPropertyName() => $isoPrices;
     }
 
-    public function deserialize(Field $field, $record): ?array
+    public function deserialize(Config $config, Field $field, $record): ?array
     {
         $prices = [];
 

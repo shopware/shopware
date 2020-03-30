@@ -46,7 +46,7 @@ class ImportExportActionControllerTest extends TestCase
             $client = $this->getBrowser();
             $client->request(
                 'POST',
-                '/api/v1/_action/import-export/initiate',
+                '/api/v1/_action/import-export/prepare',
                 ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s')],
                 ['file' => $this->getUploadFile('text/html', 'test.xml')],
                 ['Content-Type' => 'multipart/formdata']
@@ -68,7 +68,7 @@ class ImportExportActionControllerTest extends TestCase
             $client = $this->getBrowser();
             $client->request(
                 'POST',
-                '/api/v1/_action/import-export/initiate',
+                '/api/v1/_action/import-export/prepare',
                 ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s')],
                 ['file' => $this->getUploadFile($entry['fileType'])],
                 ['Content-Type' => 'multipart/formdata']

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
 abstract class AbstractFieldSerializer
@@ -12,9 +13,9 @@ abstract class AbstractFieldSerializer
      */
     protected $serializerRegistry;
 
-    abstract public function serialize(Field $field, $value): iterable;
+    abstract public function serialize(Config $config, Field $field, $value): iterable;
 
-    abstract public function deserialize(Field $field, $value);
+    abstract public function deserialize(Config $config, Field $field, $value);
 
     abstract public function supports(Field $field): bool;
 

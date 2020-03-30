@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -55,23 +56,24 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $this->mediaRepository = $mediaRepository;
     }
 
-    public function serialize(EntityDefinition $definition, $value): iterable
+    public function serialize(Config $config, EntityDefinition $definition, $value): iterable
     {
-        yield from parent::serialize($definition, $value);
+        yield from parent::serialize($config, $definition, $value);
     }
 
-    public function deserialize(EntityDefinition $definition, $value)
+    public function deserialize(Config $config, EntityDefinition $definition, $value)
     {
         $value = is_array($value) ? $value : iterator_to_array($value);
-        $deserialized = parent::deserialize($definition, $value);
+        $deserialized = parent::deserialize($config, $definition, $value);
 
         if (is_iterable($deserialized)) {
             $deserialized = iterator_to_array($deserialized);
         }
 
         if (isset($deserialized['id'])) {
-            $entityName = $definition->getEntityName();
-            $deserialized['mediaFolderId'] = $deserialized['mediaFolderId'] ?? $this->getMediaFolderId($deserialized['id'], $entityName);
+            $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
+            $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
+                ?? $this->getMediaFolderId($deserialized['id'], $entityName);
         }
 
         $url = $value['url'] ?? null;

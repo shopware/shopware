@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\FieldSerializer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -52,7 +53,7 @@ class ProductSerializerTest extends TestCase
         $serializer = new ProductSerializer($visibilityRepository);
         $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
 
-        $serialized = iterator_to_array($serializer->serialize($productDefinition, $product));
+        $serialized = iterator_to_array($serializer->serialize(new Config([], []), $productDefinition, $product));
 
         static::assertNotEmpty($serialized);
 
@@ -62,7 +63,7 @@ class ProductSerializerTest extends TestCase
         static::assertSame($product->getProductNumber(), $serialized['productNumber']);
         static::assertSame('1', $serialized['active']);
 
-        $deserialized = iterator_to_array($serializer->deserialize($productDefinition, $serialized));
+        $deserialized = iterator_to_array($serializer->deserialize(new Config([], []), $productDefinition, $serialized));
 
         static::assertSame($product->getId(), $deserialized['id']);
         static::assertSame($product->getTranslations()->first()->getName(), $deserialized['translations'][Defaults::LANGUAGE_SYSTEM]['name']);

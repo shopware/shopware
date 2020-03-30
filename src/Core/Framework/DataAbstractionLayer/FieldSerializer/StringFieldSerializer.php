@@ -30,16 +30,14 @@ class StringFieldSerializer extends AbstractFieldSerializer
             $data->setValue(null);
         }
 
+        if ($data->getValue() !== null && !$field->is(AllowHtml::class)) {
+            $data->setValue(strip_tags((string) $data->getValue()));
+        }
+        
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        $value = $data->getValue();
-
-        if ($value !== null && !$field->is(AllowHtml::class)) {
-            $value = strip_tags((string) $value);
-        }
-
         /* @var StringField $field */
-        yield $field->getStorageName() => $value !== null ? (string) $value : null;
+        yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
     public function decode(Field $field, $value): ?string

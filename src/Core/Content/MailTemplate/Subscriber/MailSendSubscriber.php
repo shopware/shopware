@@ -75,6 +75,7 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+        $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
         if ($mailEvent->getSalesChannelId()) {
@@ -87,6 +88,7 @@ class MailSendSubscriber implements EventSubscriberInterface
             if ($mailTemplate === null) {
                 $criteria = new Criteria();
                 $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+                $criteria->addAssociation('media.media');
                 $criteria->setLimit(1);
 
                 /** @var MailTemplateEntity|null $mailTemplate */

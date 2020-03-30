@@ -183,8 +183,6 @@ class ImportExportActionController extends AbstractController
 
         $response = $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
 
-        $this->downloadService->regenerateToken($context, $params['fileId']);
-
         return $response;
     }
 

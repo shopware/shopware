@@ -53,10 +53,6 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
                     label: this.$tc('sw-settings-import-export.profile.commasLabel')
                 },
                 {
-                    value: '|',
-                    label: this.$tc('sw-settings-import-export.profile.pipesLabel')
-                },
-                {
                     value: ';',
                     label: this.$tc('sw-settings-import-export.profile.semicolonLabel')
                 }

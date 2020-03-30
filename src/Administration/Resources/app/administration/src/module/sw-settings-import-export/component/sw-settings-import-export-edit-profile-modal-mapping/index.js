@@ -4,6 +4,9 @@ import './sw-settings-import-export-edit-profile-modal-mapping.scss';
 const { debounce, createId } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mapping', {
     template,
 

@@ -1,6 +1,8 @@
 import ApiService from 'src/core/service/api.service';
 
-// TODO: Bitte die ganze Klasse Unit testen!
+/**
+ * @private
+ */
 export default class ImportExportService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'import-export') {
         super(httpClient, loginService, apiEndpoint);
@@ -25,9 +27,7 @@ export default class ImportExportService extends ApiService {
             expireDate: expireDate.toDateString()
         }, { headers: this.getBasicHeaders() });
 
-        await this.trackProgress(createdLog, callback);
-
-        return createdLog;
+        return this.trackProgress(createdLog, callback);
     }
 
     /**
@@ -66,37 +66,27 @@ export default class ImportExportService extends ApiService {
             headers: this.getBasicHeaders()
         });
 
-        await this.trackProgress(createdLog, callback);
-
-        return createdLog;
+        return this.trackProgress(createdLog, callback);
     }
 
-    async trackProgress(logEntry, callback) {
-        let data = { progress: { offset: 0, total: 1 } };
-        let noProgressCounter = 0;
+    /**
+     * @param logEntry {String} log entity
+     * @param callback
+     * @param progress
+     * @returns {Promise<void>}
+     */
+    async trackProgress(logEntry, callback, progress) {
+        const { data: { progress: newProgress } } = await this.httpClient.post('/_action/import-export/process', {
+            logId: logEntry.data.log.id,
+            offset: (progress && progress.offset) ? progress.offset : 0
+        }, { headers: this.getBasicHeaders() });
 
-        while (data.progress.offset < data.progress.total) {
-            const oldOffset = data.progress.offset;
+        callback.call(this, newProgress);
 
-            // eslint-disable-next-line no-await-in-loop
-            const result = await this.httpClient.post('/_action/import-export/process', {
-                logId: logEntry.data.log.id,
-                offset: oldOffset
-            }, { headers: this.getBasicHeaders() });
-            data = result.data;
-
-            // Track if no progress was made
-            if (oldOffset === data.progress.offset) {
-                noProgressCounter += 1;
-            } else {
-                noProgressCounter = 0;
-            }
-
-            if (noProgressCounter >= 3) {
-                throw new Error('ImportExportService - Process failed. ' +
-                    'The offset did not change within three requests');
-            }
-            callback.call(this, data.progress);
+        if (newProgress.offset >= newProgress.total) {
+            return logEntry;
         }
+
+        return this.trackProgress(logEntry, callback, newProgress);
     }
 }

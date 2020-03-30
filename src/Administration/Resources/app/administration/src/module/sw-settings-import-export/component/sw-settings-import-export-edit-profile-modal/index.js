@@ -3,13 +3,19 @@ import './sw-settings-import-export-edit-profile-modal.scss';
 
 const { mapApiErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export-edit-profile-modal', {
     template,
 
     props: {
         profile: {
             type: Object,
-            required: false
+            required: false,
+            default() {
+                return {};
+            }
         }
     },
 

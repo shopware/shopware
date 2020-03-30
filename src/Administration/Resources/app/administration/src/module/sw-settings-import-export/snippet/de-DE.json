@@ -100,7 +100,9 @@
 
     },
     "page": {
-      "profileTab": "Profile"
+      "profileTab": "Profile",
+      "importTab": "Import",
+      "exportTab": "Export"
     },
     "progress": {
       "startProcessLabel": "Prozess starten",

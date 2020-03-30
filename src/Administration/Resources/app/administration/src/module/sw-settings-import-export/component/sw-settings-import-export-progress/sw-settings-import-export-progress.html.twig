@@ -71,7 +71,10 @@
                             <li>
                                 <sw-button variant="primary"
                                            class="sw-settings-import-export-progress__stats-list-failure-download"
-                                           :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
+                                           :link="getDownloadUrl(
+                                               logEntry.invalidRecordsLog.file.id,
+                                               logEntry.invalidRecordsLog.file.accessToken
+                                                )">
                                     {{  $tc('sw-settings-import-export.progress.downloadFailedLabel')  }}
                                 </sw-button>
                             </li>

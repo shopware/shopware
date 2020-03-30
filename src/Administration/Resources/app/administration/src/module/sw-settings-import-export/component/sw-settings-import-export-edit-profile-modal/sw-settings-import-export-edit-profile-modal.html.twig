@@ -5,9 +5,11 @@
         @modal-close="$emit('profile-close')"
         :title="modalTitle">
 
-        <sw-alert v-if="profile.systemDefault" variant="info">
-            {{ $tc('sw-settings-import-export.profile.systemDefaultInfoText') }}
-        </sw-alert>
+        {% block sw_settings_import_export_edit_profile_modal_alert %}
+            <sw-alert v-if="profile.systemDefault" variant="info">
+                {{ $tc('sw-settings-import-export.profile.systemDefaultInfoText') }}
+            </sw-alert>
+        {% endblock %}
 
         {% block sw_settings_import_export_edit_profile_modal_tabs %}
             <sw-tabs defaultItem="general">

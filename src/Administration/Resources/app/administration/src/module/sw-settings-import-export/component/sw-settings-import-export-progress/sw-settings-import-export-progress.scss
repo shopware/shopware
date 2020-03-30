@@ -22,7 +22,7 @@
     .sw-settings-import-export-progress__progress-bar-bar {
         &--finished {
             .sw-progress-bar__value {
-                background-color: #3dcb3f;
+                background-color: $color-emerald-500;
             }
         }
     }

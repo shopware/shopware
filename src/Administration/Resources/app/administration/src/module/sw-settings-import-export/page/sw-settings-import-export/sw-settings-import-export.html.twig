@@ -7,13 +7,13 @@
                 <sw-tabs>
                     {% block sw_settings_import_export_tabs_import %}
                         <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.import' }">
-                            Import
+                            {{  $tc('sw-settings-import-export.page.importTab')  }}
                         </sw-tabs-item>
                     {% endblock %}
 
                     {% block sw_settings_import_export_tabs_export %}
                         <sw-tabs-item :route="{ name: 'sw.settings.import.export.index.export' }">
-                            Export
+                            {{  $tc('sw-settings-import-export.page.exportTab')  }}
                         </sw-tabs-item>
                     {% endblock %}
 

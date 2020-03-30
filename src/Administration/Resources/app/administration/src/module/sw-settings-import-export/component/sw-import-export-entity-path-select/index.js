@@ -4,6 +4,9 @@ import template from './sw-import-export-entity-path-select.html.twig';
 const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
+/**
+ * @private
+ */
 Component.register('sw-import-export-entity-path-select', {
     template,
 
@@ -50,19 +53,6 @@ Component.register('sw-import-export-entity-path-select', {
             default: 'value'
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return { active: false };
-            }
-        },
-
-        // Used to implement a custom search function.
-        // Parameters passed: { options, labelProperty, valueProperty, searchTerm }
         searchFunction: {
             type: Function,
             required: false,
@@ -101,8 +91,6 @@ Component.register('sw-import-export-entity-path-select', {
             isExpanded: false,
             // used to track if an item was selected before closing the result list
             itemRecentlySelected: false,
-            // languages: [{ locale: 'DEFAULT' }, { locale: 'de-DE' }, { locale: 'en-GB' }],
-            // currencies: [{ isoCode: 'DEFAULT' }, { isoCode: 'EUR' }, { isoCode: 'USD' }],
             priceProperties: ['net', 'gross', 'currencyId', 'linked', 'listPrice'],
             visibilityProperties: ['all', 'link', 'search'],
             allowedOneToManyAssociations: ['visibilities', 'translations']
@@ -115,8 +103,6 @@ Component.register('sw-import-export-entity-path-select', {
                 return this.value || '';
             },
             set(newValue) {
-                /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-                this.$emit('input', newValue);
                 this.$emit('change', newValue);
             }
         },
@@ -152,9 +138,10 @@ Component.register('sw-import-export-entity-path-select', {
             if (this.singleSelection) {
                 const results = [];
                 results.push(this.singleSelection);
+                const value = this.getKey(this.singleSelection, this.valueProperty);
                 this.results.forEach(option => {
                     // Prevent duplicate options
-                    if (this.getKey(option, this.valueProperty) !== this.getKey(this.singleSelection, this.valueProperty)) {
+                    if (this.getKey(option, this.valueProperty) !== value) {
                         results.push(option);
                     }
                 });
@@ -165,30 +152,19 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         actualPathPrefix() {
-            const pathParts = this.actualPathParts;
-
-            if (pathParts.length < 1) {
-                return '';
-            }
-
-            return pathParts.join('.');
+            return this.actualPathParts.length > 0 ? this.actualPathParts.join('.') : '';
         },
 
         actualPathParts() {
-            let pathParts = this.currentValue.split('.');
-            if (this.isExpanded) {
-                pathParts = this.searchTerm.split('.');
-            }
+            const pathParts = this.isExpanded ? this.searchTerm.split('.') : this.currentValue.split('.');
 
             // remove last element of path which is the user search input
             pathParts.splice(-1, 1);
 
             // Remove special cases for prices and translations
-            pathParts = pathParts.filter(part => {
+            return pathParts.filter(part => {
                 return !(this.availableIsoCodes.includes(part) || this.availableLocales.includes(part));
             });
-
-            return pathParts;
         },
 
         currentEntity() {
@@ -204,11 +180,15 @@ Component.register('sw-import-export-entity-path-select', {
             }
 
             let actualDefinition = Shopware.EntityDefinition.get(this.entityType);
+
             pathParts.forEach((propertyName) => {
-                try {
-                    actualDefinition = Shopware.EntityDefinition.get(actualDefinition.properties[propertyName].entity);
-                } catch (e) {
-                    // ToDO: implement EntityDefinition has function
+                // Return if propertyName does not exist in the definition, e.g. "DEFAULT", "en_GB"
+                if (!actualDefinition.properties[propertyName]) {
+                    return;
+                }
+                const entity = actualDefinition.properties[propertyName].entity;
+                if (Shopware.EntityDefinition.has(entity)) {
+                    actualDefinition = Shopware.EntityDefinition.get(entity);
                 }
             });
 
@@ -221,8 +201,6 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         options() {
-            const options = [];
-
             let path = this.actualPathPrefix;
             if (path.length > 0) {
                 path = path.replace(/\.?$/, '.');
@@ -245,6 +223,7 @@ Component.register('sw-import-export-entity-path-select', {
                 return this.getTranslationProperties(this.currentEntity, path, properties);
             }
 
+            const options = [];
             properties.forEach((propertyName) => {
                 const name = `${path}${propertyName}`;
                 const property = definition.properties[propertyName];
@@ -255,16 +234,9 @@ Component.register('sw-import-export-entity-path-select', {
                     return;
                 }
 
-                if (property.relation) {
-                    // Abort conditions
-                    if (property.entity === this.entityType) {
-                        return;
-                    }
-
-                    // Skip all not allowed one to many associations
-                    if (property.relation === 'one_to_many' && !this.allowedOneToManyAssociations.includes(propertyName)) {
-                        return;
-                    }
+                // Skip all not allowed one to many associations
+                if (property.relation === 'one_to_many' && !this.allowedOneToManyAssociations.includes(propertyName)) {
+                    return;
                 }
                 options.push({ label: name, value: name, relation: property.relation });
             });
@@ -284,21 +256,11 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         availableIsoCodes() {
-            const isoCodes = [];
-            this.currencies.forEach(currency => {
-                isoCodes.push(currency.isoCode);
-            });
-
-            return isoCodes;
+            return this.currencies.map(currency => currency.isoCode);
         },
 
         availableLocales() {
-            const locales = [];
-            this.languages.forEach(language => {
-                locales.push(language.locale.code);
-            });
-
-            return locales;
+            return this.languages.map(language => language.locale.code);
         }
     },
 
@@ -311,7 +273,6 @@ Component.register('sw-import-export-entity-path-select', {
             this.isExpanded = true;
 
             // Get the search text of the selected item as prefilled value
-            // this.searchTerm = this.tryGetSearchText(this.singleSelection);
             this.searchTerm = this.currentValue;
 
             this.$nextTick(() => {

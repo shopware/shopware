@@ -5,6 +5,9 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { format } = Shopware.Utils;
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export-activity', {
     template,
 
@@ -59,7 +62,6 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
 
-
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             criteria.setPage(1);
@@ -70,12 +72,11 @@ Shopware.Component.register('sw-settings-import-export-activity', {
         },
 
         exportActivityColumns() {
-            const columns = [
+            return [
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
                     label: 'sw-settings-import-export.activity.columns.date',
-                    // routerLink: 'sw.order.detail',
                     allowResize: true,
                     primary: true
                 }, {
@@ -91,17 +92,14 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                     label: 'sw-settings-import-export.activity.columns.records',
                     allowResize: true,
                     primary: false
-                }];
-            if (this.type === 'import') {
-                columns.push({
+                },
+                ...this.type === 'import' ? [{
                     property: 'invalidRecords',
                     dataIndex: 'records',
                     label: 'sw-settings-import-export.activity.columns.invalidRecords',
                     allowResize: true,
                     primary: false
-                });
-            }
-            columns.push(...[
+                }] : [],
                 {
                     property: 'file.size',
                     dataIndex: 'file.size',
@@ -122,9 +120,7 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                     label: 'sw-settings-import-export.activity.columns.state',
                     allowResize: true,
                     primary: false
-                }]);
-
-            return columns;
+                }];
         }
     },
 
@@ -166,13 +162,13 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                     message: this.$tc('sw-settings-import-export.profile.messageSaveSuccess', 0)
                 });
                 return this.loadProfiles();
-            }).then(() => {
-                this.isLoading = false;
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-import-export.profile.titleSaveError'),
                     message: this.$tc('sw-settings-import-export.profile.messageSaveError', 0)
                 });
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 

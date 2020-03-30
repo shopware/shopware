@@ -1,9 +1,10 @@
 import template from './sw-settings-import-export-exporter.html.twig';
-import './sw-settings-import-export-exporter.scss';
 
 const { Mixin } = Shopware;
 
-// TODO: Bitte die ganze Komponente Unit testen!
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export-exporter', {
     template,
 
@@ -71,10 +72,8 @@ Shopware.Component.register('sw-settings-import-export-exporter', {
                 title: this.$tc('sw-settings-import-export.exporter.titleExportSuccess'),
                 message: this.$tc('sw-settings-import-export.exporter.messageExportSuccess', 0)
             });
-            window.setTimeout(() => {
-                this.isLoading = false;
-                this.$emit('export-finish');
-            }, 1000);
+            this.isLoading = false;
+            this.$emit('export-finish');
         }
     }
 });

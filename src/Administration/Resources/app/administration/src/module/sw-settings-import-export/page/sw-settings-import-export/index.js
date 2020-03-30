@@ -1,6 +1,9 @@
 import template from './sw-settings-import-export.html.twig';
 import './sw-settings-import-export.scss';
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export', {
     template,
 

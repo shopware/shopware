@@ -102,5 +102,5 @@ export function fileSize(bytes, locale = 'de-DE') {
         result = currentResult;
     }
 
-    return `${result.toFixed(2).toLocaleString(locale)} ${units[i]}`;
+    return `${result.toFixed(2).toLocaleString(locale)}${units[i]}`;
 }

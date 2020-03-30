@@ -99,7 +99,9 @@
       "importLabel": "Import"
     },
     "page": {
-      "profileTab": "Profiles"
+      "profileTab": "Profiles",
+      "importTab": "Import",
+      "exportTab": "Export"
     },
     "progress": {
       "startProcessLabel": "Start process",

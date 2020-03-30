@@ -4,6 +4,9 @@ import './sw-settings-import-export-importer.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export-importer', {
     template,
 
@@ -88,11 +91,8 @@ Shopware.Component.register('sw-settings-import-export-importer', {
         },
 
         onProgressFinished() {
-            this.importFile = null;
-            window.setTimeout(() => {
-                this.isLoading = false;
-                this.$emit('import-finish');
-            }, 1000);
+            this.isLoading = false;
+            this.$emit('import-finish');
         }
     }
 });

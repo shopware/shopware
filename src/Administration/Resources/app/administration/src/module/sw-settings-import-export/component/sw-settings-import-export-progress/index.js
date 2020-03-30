@@ -3,6 +3,9 @@ import './sw-settings-import-export-progress.scss';
 
 const { Mixin } = Shopware;
 
+/**
+ * @private
+ */
 Shopware.Component.register('sw-settings-import-export-progress', {
     template,
 

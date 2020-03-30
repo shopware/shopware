@@ -1,7 +1,7 @@
 {% block sw_language_info %}
     <p class="sw-language-info" v-if="infoText">
         {% block sw_language_info_text %}
-            <span v-html="$sanitize(infoText)"></span>
+            <span class="sw_language-info__info" v-html="$sanitize(infoText)"></span>
             <span v-if="infoParent"
                   @click="onClickParentLanguage"
                   class="sw-language-info__link-parent">

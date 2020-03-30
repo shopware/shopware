@@ -34,8 +34,9 @@ describe('Product: Edit in various ways', () => {
 
         page.changeTranslation('Deutsch', 1);
         cy.get(page.elements.loader).should('not.exist');
-        // TODO: fixme
-        // cy.get('.sw-language-info span').contains('"Product name" displayed in the content language "Deutsch".');
+        cy.get('.sw_language-info__info').contains('"Product name" displayed in the content language');
+        cy.get('.sw_language-info__info').contains('span', '"Deutsch"');
+        cy.get('.sw_language-info__info').contains('Fallback is the system default language');
         cy.get('input[name=sw-field--product-name]').type('Sauerkraut');
         cy.get(page.elements.productSaveAction).click();
 

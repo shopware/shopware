@@ -296,10 +296,20 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         return getStorageKey();
     }
 
+    /**
+     * Returns the storage key.
+     *
+     * @returns {String}
+     */
     function getStorageKey() {
         return storageKey;
     }
 
+    /**
+     * Returns a CookieStorage instance with the right domain and path from the context.
+     *
+     * @returns {CookieStorage}
+     */
     function cookieStorageFactory() {
         const domain = context.host;
         const path = context.basePath + context.pathInfo;

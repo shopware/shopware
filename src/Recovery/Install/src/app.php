@@ -488,13 +488,18 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
 
     $data = json_decode($loginResponse->getBody(), true);
     $loginTokenData = [
-        'access' => $data['access_token'], 'refresh' => $data['refresh_token'], 'expires_in' => $data['expires_in'],
+        'access' => $data['access_token'], 'refresh' => $data['refresh_token'], 'expiry' => $data['expires_in'],
     ];
 
     return $this->renderer->render(
         $response,
         'finish.php',
-        ['url' => $schema . '://' . $_SERVER['HTTP_HOST'] . $basepath, 'loginTokenData' => $loginTokenData]
+        [
+            'url' => $schema . '://' . $_SERVER['HTTP_HOST'] . $basepath,
+            'loginTokenData' => $loginTokenData,
+            'basePath' => $basepath,
+            'host' => $_SERVER['HTTP_HOST'],
+        ]
     );
 })->setName('finish');
 

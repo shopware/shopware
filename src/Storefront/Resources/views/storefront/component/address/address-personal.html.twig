@@ -150,7 +150,7 @@
                                class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal given-name"
                                id="{{ prefix }}personalFirstName"
-                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                                value="{{ data.get('firstName') }}"
                                required="required">
@@ -180,7 +180,7 @@
                                class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal family-name"
                                id="{{ prefix }}personalLastName"
-                               placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                               placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                                value="{{ data.get('lastName') }}"
                                required="required">

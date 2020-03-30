@@ -1,8 +1,25 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass mixins.
+// -----------------------------------------------------------------------------
+
+/// @type Box
+@mixin square($dimension) {
+    width: $dimension;
+    height: $dimension;
+}
+
+@mixin circle($dimension) {
+    width: $dimension;
+    height: $dimension;
+    border-radius: 50%;
+}
+
 @mixin size($size) {
     width: $size;
     height: $size;
 }
 
+/// @type Text
 @mixin truncate() {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -15,6 +32,7 @@
     overflow: visible;
 }
 
+/// @type Other
 @mixin transition($what: all, $time: 0.3s, $how: ease) {
     transition: $what $time $how;
 }

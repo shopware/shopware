@@ -1,0 +1,29 @@
+{% block sw_sales_channel_detail_account_connect %}
+    <div class="sw-sales-channel-detail-account-connect">
+        {% block sw_sales_channel_detail_account_connect_title %}
+            <h4 class="google-shopping__instruction-title">
+                {{ $tc('sw-sales-channel.detail.googleShoppingAccountConnect.title') }}
+            </h4>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_account_connect_subtitle %}
+            <p class="google-shopping__instruction-subtitle">
+                {{ $tc('sw-sales-channel.detail.googleShoppingAccountConnect.subTitle') }}
+            </p>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_account_connect_content %}
+            <div class="google-shopping__connection">
+                {% block sw_sales_channel_detail_account_connect_content_image %}
+                    <div class="google-shopping__connection-image"></div>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_account_connect_content_button %}
+                    <sw-button variant="ghost" :disabled="isGoogleShoppingCreate" @click="onConnectToGoogle">
+                        {{ $tc('sw-sales-channel.detail.googleShoppingAccountConnect.textConnectButton') }}
+                    </sw-button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

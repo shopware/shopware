@@ -79,11 +79,12 @@ Shopware.Component.register('sw-settings-import-export-edit-profile-modal-mappin
 
     created() {
         this.createdComponent();
-        this.toggleAddMappingActionState(this.profile.sourceEntity);
     },
 
     methods: {
         createdComponent() {
+            this.toggleAddMappingActionState(this.profile.sourceEntity);
+
             this.languageRepository.search(this.languageCriteria, Shopware.Context.api).then(languages => {
                 this.languages = languages;
                 this.languages.push({ locale: { code: 'DEFAULT' } });

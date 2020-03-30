@@ -54,9 +54,11 @@ Shopware.Component.register('sw-settings-import-export-activity', {
 
             if (this.type === 'import') {
                 criteria.addFilter(Criteria.equals('activity', 'import'));
+                criteria.addAssociation('invalidRecordsLog');
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
+
 
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
@@ -68,7 +70,7 @@ Shopware.Component.register('sw-settings-import-export-activity', {
         },
 
         exportActivityColumns() {
-            return [
+            const columns = [
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
@@ -83,7 +85,23 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                     allowResize: true,
                     primary: false
                 },
-
+                {
+                    property: 'records',
+                    dataIndex: 'records',
+                    label: 'sw-settings-import-export.activity.columns.records',
+                    allowResize: true,
+                    primary: false
+                }];
+            if (this.type === 'import') {
+                columns.push({
+                    property: 'invalidRecords',
+                    dataIndex: 'records',
+                    label: 'sw-settings-import-export.activity.columns.invalidRecords',
+                    allowResize: true,
+                    primary: false
+                });
+            }
+            columns.push(...[
                 {
                     property: 'file.size',
                     dataIndex: 'file.size',
@@ -104,8 +122,9 @@ Shopware.Component.register('sw-settings-import-export-activity', {
                     label: 'sw-settings-import-export.activity.columns.state',
                     allowResize: true,
                     primary: false
-                }
-            ];
+                }]);
+
+            return columns;
         }
     },
 

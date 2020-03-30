@@ -5,16 +5,20 @@
       "descriptionTextModule": "Verwaltung von Imports und Exports."
     },
     "activity": {
+      "invalidHelpText": "Fehlerhafte Einträge können in dem Context-Menu heruntergeladen werden.",
       "columns": {
         "size": "Größe",
         "profile": "Profil",
         "date": "Datum",
         "user": "Benutzer",
-        "state": "Status"
+        "state": "Status",
+        "records": "Einträge",
+        "invalidRecords": "Fehlerhafte Einträge"
       },
       "contextMenu": {
         "downloadFile": "Datei herunterladen",
-        "showProfile": "Profil anzeigen"
+        "showProfile": "Profil anzeigen",
+        "downloadInvalidFile": "Fehlerhafte Einträge herunterladen"
       }
     },
     "profile": {
@@ -84,6 +88,8 @@
     "importer": {
       "titleExportSuccess": "Erfolg",
       "messageExportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
+      "titleImportError": "Fehler",
+      "messageExportError": "Es gab Fehler während des Imports",
       "uploadCsvLabel": "CSV-Datei hochladen",
       "startImportLabel": "Import starten",
       "selectProfileLabel": "Profil auswählen",
@@ -101,7 +107,14 @@
       "entriesLabel": "Einträge",
       "fileSizeLabel": "kB",
       "successTitle": "erfolgreich",
-      "downloadFileLabel": "Datei herunterladen"
+      "downloadFileLabel": "Datei herunterladen",
+      "succeededText": "Prozess erfolgreich",
+      "failedText": "Prozess fehlgeschlagen",
+      "progressText": "Prozess im Gange",
+      "downloadFailedLabel": "Fehlgeschlagene Einträge herunterladen",
+      "successfulImportsText": "{records} Einträge erfolgreich importiert",
+      "failedImportsText": "{failedRecords} Einträge konnten nicht importiert werden. Die fehlgeschlagenen Einträge können heruntergeladen, bearbeitet und erneut importiert werden.",
+      "failedExportText": "Export fehlgeschlagen"
     }
   }
 }

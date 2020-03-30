@@ -25,7 +25,7 @@ export default class ImportExportService extends ApiService {
             expireDate: expireDate.toDateString()
         }, { headers: this.getBasicHeaders() });
 
-        this.trackProgress(createdLog, callback);
+        await this.trackProgress(createdLog, callback);
 
         return createdLog;
     }
@@ -47,7 +47,7 @@ export default class ImportExportService extends ApiService {
      *
      * @param profileId {String} Profile entity
      * @param file {File} The csv file
-     * @param cb {Function} Callback for progress
+     * @param callback
      * @returns {Promise<void>}
      */
     async import(profileId, file, callback) {
@@ -66,7 +66,7 @@ export default class ImportExportService extends ApiService {
             headers: this.getBasicHeaders()
         });
 
-        this.trackProgress(createdLog, callback);
+        await this.trackProgress(createdLog, callback);
 
         return createdLog;
     }
@@ -79,7 +79,7 @@ export default class ImportExportService extends ApiService {
             const oldOffset = data.progress.offset;
 
             // eslint-disable-next-line no-await-in-loop
-            let result = await this.httpClient.post('/_action/import-export/process', {
+            const result = await this.httpClient.post('/_action/import-export/process', {
                 logId: logEntry.data.log.id,
                 offset: oldOffset
             }, { headers: this.getBasicHeaders() });
@@ -94,37 +94,9 @@ export default class ImportExportService extends ApiService {
 
             if (noProgressCounter >= 3) {
                 throw new Error('ImportExportService - Process failed. ' +
-                    'The offset did not change over within three requests');
+                    'The offset did not change within three requests');
             }
             callback.call(this, data.progress);
         }
-    }
-
-    /**
-     * Recursive function, which requests the new url for fetching progress. The callback get called with every progress
-     * information.
-     *
-     * @param progress {Object}
-     * @param cb {Function}
-     * @returns {Promise<void>}
-     */
-    async handleImportProgress(progress, cb) {
-        // the callback gets the progress information
-        // TODO: an adapter could be needed
-        cb(progress);
-
-        if (progress.status === 'finished') {
-            // stop recursion when exporting is finished
-            return;
-        }
-
-        // fetch new progress information from the given url
-        // TODO: the implementation could be different when not using the mock
-        const newProgress = await this.httpClientMock.post(
-            `/_action/import/${progress.progressUrl}`
-        );
-
-        // handle the progress
-        this.handleImportProgress(newProgress, cb);
     }
 }

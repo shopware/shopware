@@ -13,7 +13,7 @@
                 <div class="sw-settings-import-export-progress__progress-bar"
                      v-if="total !== null">
                     <div class="sw-settings-import-export-progress__progress-bar-stats">
-                        <p>{{ text }}</p> {# TODO: Status #}
+                        <p>{{ logEntryState }}</p>
                         <p>{{ offset }} / {{ total }} {{ entriesLabel }}</p>
                     </div>
 
@@ -30,34 +30,76 @@
                 <div class="sw-settings-import-export-progress__stats">
                     <ul>
                         {% block sw_settings_import_export_progress_stats_success %}
-                            <li class="sw-settings-import-export-progress__stats-list-success">
+                            <template v-if="state === 'succeeded'">
+                                <li class="sw-settings-import-export-progress__stats-list-success">
+                                    <sw-icon name="default-basic-checkmark-line"
+                                             size="14px"
+                                             color="#758ca3">
+                                    </sw-icon>
+                                    {{ successMessage }}
+                                </li>
+                            </template>
+                        {% endblock %}
+                        {% block sw_settings_import_export_progress_stats_import_failed %}
+                        <template v-if="state === 'failed' && activityType === 'import'">
+                            <li class="sw-settings-import-export-progress__stats-list-successful">
                                 <sw-icon name="default-basic-checkmark-line"
                                          size="14px"
                                          color="#758ca3">
                                 </sw-icon>
-                                  {{ successMessage }}
+                                <span>
+                                    {{ $tc(
+                                        'sw-settings-import-export.progress.successfulImportsText',
+                                        0,
+                                        { records: logEntry.records })
+                                    }}
+                                </span>
                             </li>
+                            <li class="sw-settings-import-export-progress__stats-list-failed">
+                                <sw-icon name="default-basic-x-line"
+                                         size="14px"
+                                         color="#de294c">
+                                </sw-icon>
+                                <span>
+                                    {{ $tc(
+                                        'sw-settings-import-export.progress.failedImportsText',
+                                        0,
+                                        { failedRecords: logEntry.invalidRecordsLog.records})
+                                    }}
+                                </span>
+                            </li>
+                            <li>
+                                <sw-button variant="primary"
+                                           class="sw-settings-import-export-progress__stats-list-failure-download"
+                                           :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
+                                    {{  $tc('sw-settings-import-export.progress.downloadFailedLabel')  }}
+                                </sw-button>
+                            </li>
+                        </template>
                         {% endblock %}
-
-{#                        ToDo: Error handling#}
-{#                        {% block sw_settings_import_export_progress_stats_error %}#}
-{#                            <li class="sw-settings-import-export-progress__stats-list-failure">#}
-{#                                <sw-icon name="default-basic-x-line"#}
-{#                                         size="14px"#}
-{#                                         color="#de294c">#}
-{#                                </sw-icon>#}
-{#                                {{  $tc('sw-settings-import-export.progress.errorTitle')  }}#}
-{#                            </li>#}
-{#                        {% endblock %}#}
+                        {% block sw_settings_import_export_progress_stats_export_failed %}
+                            <template v-if="state === 'failed' && activityType === 'export'">
+                                <li class="sw-settings-import-export-progress__stats-list-failure">
+                                    <sw-icon name="default-basic-x-line"
+                                             size="14px"
+                                             color="#de294c">
+                                    </sw-icon>
+                                    {{  $tc('sw-settings-import-export.progress.failedExportText')  }}
+                                </li>
+                            </template>
+                        {% endblock %}
                     </ul>
                 </div>
 
                 <div>
                     {% block sw_settings_import_export_progress_stats_download %}
-                        <sw-button variant="primary"
-                                   :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
-                            {{  $tc('sw-settings-import-export.progress.downloadFileLabel')  }}
-                        </sw-button>
+                        <template v-if="activityType === 'export'">
+                            <sw-button variant="primary"
+                                       :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
+                                {{  $tc('sw-settings-import-export.progress.downloadFileLabel')  }}
+                            </sw-button>
+                        </template>
+
                     {% endblock %}
                 </div>
             </template>

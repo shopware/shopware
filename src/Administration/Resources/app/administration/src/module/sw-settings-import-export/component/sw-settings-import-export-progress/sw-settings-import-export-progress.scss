@@ -34,7 +34,13 @@
         border: 1px solid $color-gray-300;
 
         li {
+            display: flex;
             list-style: none;
+            margin-bottom: 10px;
+        }
+
+        .sw-icon {
+            margin-right: 10px;
         }
     }
 }

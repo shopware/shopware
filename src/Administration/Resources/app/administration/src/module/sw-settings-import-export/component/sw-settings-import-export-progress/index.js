@@ -47,12 +47,6 @@ Shopware.Component.register('sw-settings-import-export-progress', {
             default: null
         },
 
-        text: {
-            type: String,
-            required: false,
-            default: ''
-        },
-
         disableButton: {
             type: Boolean,
             required: false,
@@ -75,8 +69,9 @@ Shopware.Component.register('sw-settings-import-export-progress', {
     data() {
         return {
             stateText: {
-                succeeded: 'Process war erfolgreich',
-                progress: 'Process in progress'
+                succeeded: this.$tc('sw-settings-import-export.progress.succeededText'),
+                failed: this.$tc('sw-settings-import-export.progress.failedText'),
+                progress: this.$tc('sw-settings-import-export.progress.progressText')
             }
         };
     },

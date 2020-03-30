@@ -5,16 +5,20 @@
       "descriptionTextModule": "Manages the import export of the application"
     },
     "activity": {
+      "invalidHelpText": "Invalid records can be downloaded in the context menu",
       "columns": {
         "size": "Size",
         "profile": "Profile",
         "date": "Date",
         "user": "User",
-        "state": "State"
+        "state": "State",
+        "records": "Records",
+        "invalidRecords": "Invalid records"
       },
       "contextMenu": {
         "downloadFile": "Download file",
-        "showProfile": "Show profile"
+        "showProfile": "Show profile",
+        "downloadInvalidFile": "Download invalid records"
       }
     },
     "profile": {
@@ -84,6 +88,8 @@
     "importer": {
       "titleImportSuccess": "Success",
       "messageImportSuccess": "The import was completed successfully.",
+      "titleImportError": "Error",
+      "messageImportError": "There were errors during the import",
       "uploadCsvLabel": "Upload CSV file",
       "startImportLabel": "Start import",
       "selectProfileLabel": "Select profile",
@@ -100,7 +106,14 @@
       "entriesLabel": "Entries",
       "fileSizeLabel": "kB",
       "successTitle": "successful",
-      "downloadFileLabel": "Download file"
+      "downloadFileLabel": "Download file",
+      "succeededText": "Process succeeded",
+      "failedText": "Process failed",
+      "progressText": "Processing",
+      "downloadFailedLabel": "Download failed records",
+      "successfulImportsText": "{records} records imported successful.",
+      "failedImportsText": "{failedRecords} records failed to import. The failed records can be downloaded, edited and re-imported.",
+      "failedExportText": "Export failed"
     }
   }
 }

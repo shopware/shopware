@@ -23,4 +23,9 @@ abstract class AbstractEntitySerializer
     {
         $this->serializerRegistry = $serializerRegistry;
     }
+
+    protected function getDecorated(): AbstractEntitySerializer
+    {
+        throw new \RuntimeException('Implement getDecorated');
+    }
 }

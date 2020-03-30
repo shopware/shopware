@@ -156,7 +156,7 @@ class ImportExportActionController extends AbstractController
         $logId = strtolower($params['logId']);
         $offset = $params['offset'];
 
-        $importExport = $this->importExportFactory->create($logId, 5, 5);
+        $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
 
         if ($logEntity->getActivity() === 'import') {

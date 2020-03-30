@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
-/**
- * @experimental We might break this in v6.2
- */
 abstract class AbstractReader
 {
     /**
@@ -15,4 +12,9 @@ abstract class AbstractReader
     abstract public function read(Config $config, $resource, int $offset): iterable;
 
     abstract public function getOffset(): int;
+
+    protected function getDecorated(): AbstractReader
+    {
+        throw new \RuntimeException('Implement getDecorated');
+    }
 }

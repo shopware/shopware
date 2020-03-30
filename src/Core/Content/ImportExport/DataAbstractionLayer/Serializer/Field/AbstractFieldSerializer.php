@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -22,5 +23,10 @@ abstract class AbstractFieldSerializer
     public function setRegistry(SerializerRegistry $serializerRegistry): void
     {
         $this->serializerRegistry = $serializerRegistry;
+    }
+
+    protected function getDecorated(): AbstractEntitySerializer
+    {
+        throw new \RuntimeException('Implement getDecorated');
     }
 }

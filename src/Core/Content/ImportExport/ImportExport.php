@@ -162,12 +162,14 @@ class ImportExport
             $progress->setInvalidRecordsLogId($invalidRecordsProgress->getLogId());
         }
 
+        // importing the file is complete
         if ($this->reader->getOffset() === $this->filesystem->getSize($path)) {
             if ($this->logEntity->getInvalidRecordsLog() !== null) {
                 $invalidLog = $this->logEntity->getInvalidRecordsLog();
                 $invalidRecordsProgress = $invalidRecordsProgress
                     ?? $this->importExportService->getProgress($invalidLog->getId(), $invalidLog->getRecords());
 
+                // complete invalid records export
                 $this->mergePartFiles($this->logEntity->getInvalidRecordsLog(), $invalidRecordsProgress);
 
                 $invalidRecordsProgress->setState(Progress::STATE_SUCCEEDED);
@@ -250,6 +252,10 @@ class ImportExport
         return $targetPath . self::PART_FILE_SUFFIX . $offset;
     }
 
+    /**
+     * flysystem does not support appending to existing files. Therefore we need to export multiple files and merge them
+     * into the complete export file at the end.
+     */
     private function mergePartFiles(ImportExportLogEntity $logEntity, Progress $progress): Progress
     {
         $progress->setState(Progress::STATE_MERGING_FILES);
@@ -344,9 +350,13 @@ class ImportExport
         return $progress;
     }
 
+    /**
+     * In case we failed to import some invalid records, we export them as a new csv with the same format and
+     * an additional _error column.
+     */
     private function exportInvalid(Context $context, array $failedRecords): Progress
     {
-        // TODO: explain
+        // created a invalid records export if it doesn't exist
         if (!$this->logEntity->getInvalidRecordsLogId()) {
             $pathInfo = pathinfo($this->logEntity->getFile()->getOriginalName());
             $newName = $pathInfo['filename'] . '_failed.' . $pathInfo['extension'];

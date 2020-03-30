@@ -65,7 +65,7 @@
                                         :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
                                         :disabled="!item.installedAt"
                                         @change="changeActiveState(item, $event)"
-                                        v-tooltip="{ disable: !item.installedAt, message: $tc('sw-plugin.list.tooltipActivationDisabled') }">
+                                        v-tooltip="{ disabled: item.installedAt, message: $tc('sw-plugin.list.tooltipActivationDisabled') }">
                                     </sw-switch-field>
                                 {% endblock %}
                             </template>

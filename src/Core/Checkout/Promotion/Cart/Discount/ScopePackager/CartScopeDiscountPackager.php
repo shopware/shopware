@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CartScopeDiscountPackager
+class CartScopeDiscountPackager implements DiscountPackagerInterface
 {
     /**
      * @var LineItemQuantitySplitter

@@ -84,6 +84,7 @@ Core
 * Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use one of the following new services
     * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRouteInterface`
     * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRouteInterface`
+* Deprecated `\Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface` use `\Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager` instead
 
 Administration
 --------------

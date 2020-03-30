@@ -53,28 +53,13 @@ Component.register('sw-file-input', {
     data() {
         return {
             selectedFile: null,
-            utilsId: utils.createId(),
-            fileDragover: false
+            utilsId: utils.createId()
         };
     },
 
     computed: {
         id() {
             return `sw-file-input--${this.utilsId}`;
-        },
-
-        dropzoneClasses() {
-            return {
-                'sw-file-input__dropzone-dragover': this.fileDragover
-            };
-        },
-
-        fileSize() {
-            if (!this.selectedFile || !this.selectedFile.size) {
-                return '';
-            }
-
-            return fileSize(this.selectedFile.size);
         }
     },
 
@@ -89,19 +74,14 @@ Component.register('sw-file-input', {
 
         onFileInputChange() {
             const newFiles = Array.from(this.$refs.fileInput.files);
-            this.setFile(newFiles);
+
+            if (newFiles.length) {
+                const newFile = newFiles[0];
+                if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+                    this.setSelectedFile(newFile);
+                }
+            }
             this.$refs.fileForm.reset();
-        },
-
-        setFile(files) {
-            if (files.length <= 0) {
-                return;
-            }
-
-            const newFile = files[0];
-            if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
-                this.setSelectedFile(newFile);
-            }
         },
 
         setSelectedFile(newFile) {
@@ -137,25 +117,6 @@ Component.register('sw-file-input', {
                 })
             });
             return false;
-        },
-
-        onDropFile(event) {
-            this.fileDragover = false;
-
-            if (!event || !event.dataTransfer || !event.dataTransfer.files) {
-                return;
-            }
-
-            this.setFile(event.dataTransfer.files);
-        },
-
-        onDragEnter() {
-            this.fileDragover = true;
-        },
-
-        onDragLeave() {
-            console.log('onDragLeave');
-            this.fileDragover = false;
         }
     }
 });

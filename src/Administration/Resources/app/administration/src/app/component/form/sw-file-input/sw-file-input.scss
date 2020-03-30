@@ -27,16 +27,6 @@
         border: 2px dashed $color-steam-cloud;
         border-radius: $border-radius-default;
         background-color: $color-light-gray;
-
-        &-dragover {
-            border-color: $color-shopware-blue;
-            background-color: $color-cadet-blue;
-            color: $color-shopware-blue;
-
-            * {
-                pointer-events: none;
-            }
-        }
     }
 
     .sw-file-input__upload-caption {
@@ -57,21 +47,12 @@
             display: flex;
             flex-grow: 1;
             align-items: center;
-            justify-content: space-between;
             font-size: 14px;
-            background-color: $color-white;
-            padding: 20px;
-            border-radius: $border-radius-default;
-            border: 1px solid $color-steam-cloud;
         }
 
         .sw-file-input__file-headline {
             word-break: break-word;
             padding-right: 16px;
-        }
-
-        .sw-file-input__file-size {
-            color: $color-gray-500;
         }
 
         .sw-file-input__remove-icon {

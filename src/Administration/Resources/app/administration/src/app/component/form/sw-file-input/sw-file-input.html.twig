@@ -13,12 +13,7 @@
             {% endblock %}
 
             {% block sw_file_input_regular_drop_zone %}
-                <div class="sw-file-input__dropzone"
-                    :class="dropzoneClasses"
-                     @drop.self.prevent="onDropFile"
-                     @dragover.self.prevent
-                     @dragenter.self.prevent="onDragEnter"
-                     @dragleave.self.prevent="onDragLeave">
+                <div class="sw-file-input__dropzone" ref="dropzone">
 
                     {% block sw_file_input_caption %}
                         <div v-if="selectedFile === null" class="sw-file-input__upload-caption">
@@ -31,11 +26,9 @@
                         <div class="sw-file-input__actions" :class="{ 'has--source': selectedFile }">
 
                             <div class="sw-file-input__file-info" v-if="selectedFile">
-                                <span>
-                                    <span class="sw-file-input__file-headline">{{ selectedFile.name }}</span>
-                                    <span class="sw-file-input__file-size">{{ fileSize }}</span>
+                                <span class="sw-file-input__file-headline">
+                                    {{ selectedFile.name }}
                                 </span>
-
                                 <sw-icon class="sw-file-input__remove-icon"
                                          name="small-default-x-line-small"
                                          small
@@ -44,8 +37,7 @@
                             </div>
 
                             {% block sw_file_input_regular_choose_button %}
-                                <sw-button v-else
-                                           class="sw-file-input__button"
+                                <sw-button class="sw-file-input__button"
                                            variant="ghost"
                                            size="small"
                                            @click="onChooseButtonClick">

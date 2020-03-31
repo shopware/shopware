@@ -41,6 +41,14 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 {
                     value: 'newsletter_recipient',
                     label: this.$tc('sw-import-export.profile.newsletterRecipientLabel')
+                },
+                {
+                    value: 'property_group_option',
+                    label: this.$tc('sw-import-export.profile.propertyLabel')
+                },
+                {
+                    value: 'product_configurator_setting',
+                    label: this.$tc('sw-import-export.profile.configuratorSettingLabel')
                 }
             ],
             supportedDelimiter: [

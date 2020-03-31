@@ -73,7 +73,9 @@
       "typeColumn": "Type",
       "nameColumn": "Name",
       "customTypeLabel": "Custom",
-      "defaultTypeLabel": "Default"
+      "defaultTypeLabel": "Default",
+      "propertyLabel": "Properties",
+      "configuratorSettingLabel": "Variant configuration settings"
     },
     "exporter": {
       "titleExportSuccess": "Success",

@@ -116,7 +116,6 @@ class ImportExport
         }
 
         $processed = 0;
-        $importedRecords = 0;
 
         $path = $this->logEntity->getFile()->getPath();
         $progress->setTotal($this->filesystem->getSize($path));

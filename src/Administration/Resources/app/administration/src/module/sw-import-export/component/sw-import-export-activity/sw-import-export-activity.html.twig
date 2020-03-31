@@ -44,15 +44,10 @@
 
                 {% block sw_import_export_activity_listing_state %}
                     <template #column-state="{ item }">
-                        <template v-if="item.state === 'failed'">
-                            <sw-icon name="small-default-x-line-small"></sw-icon>
-                        </template>
-                        <template v-else-if="item.state === 'success'">
-                            <sw-icon name="small-default-checkmark-line-small"></sw-icon>
-                        </template>
-                        <template v-else>
-                            {{ item.state }}
-                        </template>
+                        <sw-color-badge v-if="item.state === 'failed'" variant="success" rounded></sw-color-badge>
+                        <sw-color-badge v-else-if="item.state === 'succeeded'" variant="success" rounded></sw-color-badge>
+                        <sw-color-badge v-else rounded></sw-color-badge>
+                        {{ item.state }}
                     </template>
                 {% endblock %}
 

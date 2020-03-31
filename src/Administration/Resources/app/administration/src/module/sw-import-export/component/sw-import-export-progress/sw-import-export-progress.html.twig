@@ -3,6 +3,7 @@
         <div class="sw-import-export-progress__progress">
             {% block sw_import_export_progress_start_process %}
                 <sw-button :disabled="disableButton"
+                           size="small"
                            variant="primary"
                            @click="$emit('process-start')">
                     <template v-if="activityType === 'import'">
@@ -12,7 +13,6 @@
                         {{  $tc('sw-import-export.progress.startExportLabel')  }}
                     </template>
                 </sw-button>
-
             {% endblock %}
 
             {% block sw_import_export_progress_bar %}
@@ -50,8 +50,7 @@
                         <template v-if="state === 'failed' && activityType === 'import'">
                             <li class="sw-import-export-progress__stats-list-successful">
                                 <sw-icon name="default-basic-checkmark-line"
-                                         size="14px"
-                                         color="#758ca3">
+                                         size="14px">
                                 </sw-icon>
                                 <span>
                                     {{ $tc(
@@ -63,8 +62,7 @@
                             </li>
                             <li class="sw-import-export-progress__stats-list-failed">
                                 <sw-icon name="default-basic-x-line"
-                                         size="14px"
-                                         color="#de294c">
+                                         size="14px">
                                 </sw-icon>
                                 <span>
                                     {{ $tc(
@@ -104,11 +102,11 @@
                     {% block sw_import_export_progress_stats_download %}
                         <template v-if="activityType === 'export'">
                             <sw-button variant="primary"
+                                       size="small"
                                        :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
                                 {{  $tc('sw-import-export.progress.downloadFileLabel')  }}
                             </sw-button>
                         </template>
-
                     {% endblock %}
                 </div>
             </template>

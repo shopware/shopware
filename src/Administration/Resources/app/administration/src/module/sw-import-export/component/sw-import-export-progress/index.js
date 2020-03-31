@@ -72,9 +72,16 @@ Shopware.Component.register('sw-import-export-progress', {
     data() {
         return {
             stateText: {
-                succeeded: this.$tc('sw-import-export.progress.succeededText'),
-                failed: this.$tc('sw-import-export.progress.failedText'),
-                progress: this.$tc('sw-import-export.progress.progressText')
+                import: {
+                    succeeded: this.$tc('sw-import-export.progress.succeededImportText'),
+                    failed: this.$tc('sw-import-export.progress.failedImportText'),
+                    progress: this.$tc('sw-import-export.progress.progressImportText')
+                },
+                export: {
+                    succeeded: this.$tc('sw-import-export.progress.succeededExportText'),
+                    failed: this.$tc('sw-import-export.progress.failedExportText'),
+                    progress: this.$tc('sw-import-export.progress.progressExportText')
+                }
             }
         };
     },
@@ -82,7 +89,7 @@ Shopware.Component.register('sw-import-export-progress', {
     computed: {
         progressBarClasses() {
             return {
-                'sw-import-export-importer__progress-bar-bar--finished': this.percentageProgress >= 100
+                'is--finished': this.percentageProgress >= 100
             };
         },
 
@@ -98,7 +105,7 @@ Shopware.Component.register('sw-import-export-progress', {
                 return '';
             }
 
-            return this.stateText[this.logEntry.state];
+            return this.stateText[this.activityType][this.logEntry.state];
         },
 
         successMessage() {

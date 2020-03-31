@@ -9,9 +9,9 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        font-size: $font-size-small;
         width: 100%;
         margin-left: 16px;
-        margin-bottom: 4px;
     }
 
     .sw-import-export-progress__progress-bar-stats {
@@ -20,7 +20,7 @@
     }
 
     .sw-import-export-progress__progress-bar-bar {
-        &--finished {
+        &.is--finished {
             .sw-progress-bar__value {
                 background-color: $color-emerald-500;
             }
@@ -29,12 +29,14 @@
 
     .sw-import-export-progress__stats {
         margin: 32px 0 16px 0;
-        padding: 12px;
+        padding: 12px 12px 2px 12px;
         border-radius: $border-radius-default;
         border: 1px solid $color-gray-300;
+        font-size: $font-size-small;
 
         li {
             display: flex;
+            align-items: center;
             list-style: none;
             margin-bottom: 10px;
         }

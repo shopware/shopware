@@ -1,0 +1,21 @@
+{% block sw_sales_channel_detail_products %}
+    <div v-if="salesChannel" class="sw-sales-channel-detail-products">
+        {% block sw_sales_channel_detail_products_product_sync %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleProductSync')">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis, animi!
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_products_products %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleProducts')">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Magni, earum.
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_products_category_mapping %}
+            <sw-card :title="$tc('sw-sales-channel.detail.titleCategoryMapping')">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam, velit.
+            </sw-card>
+        {% endblock %}
+    </div>
+{% endblock %}

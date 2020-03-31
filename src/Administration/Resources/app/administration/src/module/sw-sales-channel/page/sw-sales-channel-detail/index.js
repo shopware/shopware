@@ -1,6 +1,6 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
+const { Component, Mixin, Context, Defaults, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -66,6 +66,21 @@ Component.register('sw-sales-channel-detail', {
             return this.productComparison.newProductExport;
         },
 
+        googleShopping() {
+            if (this.salesChannel && this.salesChannel.productExports.first()) {
+                return this.salesChannel.productExports.first();
+            }
+
+            this.productComparison.newProductExport.encoding = 'UTF-8';
+            this.productComparison.newProductExport.fileFormat = 'xml';
+            this.productComparison.newProductExport.fileName = Utils.createId();
+            this.productComparison.newProductExport.interval = 0;
+            this.productComparison.newProductExport.generateByCronjob = false;
+            this.productComparison.newProductExport.accessKey = this.salesChannel.accessKey;
+
+            return this.productComparison.newProductExport;
+        },
+
         isStoreFront() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.storefrontSalesChannelTypeId;
@@ -80,6 +95,14 @@ Component.register('sw-sales-channel-detail', {
             }
 
             return this.salesChannel.typeId === Defaults.productComparisonTypeId;
+        },
+
+        isGoogleShopping() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === Defaults.googleShoppingTypeId;
+            }
+
+            return this.salesChannel.typeId === Defaults.googleShoppingTypeId;
         },
 
         salesChannelRepository() {
@@ -261,9 +284,14 @@ Component.register('sw-sales-channel-detail', {
             this.isLoading = true;
 
             this.isSaveSuccessful = false;
-            if (this.isProductComparison && this.salesChannel.productExports.length === 0) {
+            if (this.isProductComparison && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);
             }
+
+            if (this.isGoogleShopping && !this.salesChannel.productExports.length) {
+                this.salesChannel.productExports.add(this.googleShopping);
+            }
+
 
             this.salesChannelRepository
                 .save(this.salesChannel, Context.api)

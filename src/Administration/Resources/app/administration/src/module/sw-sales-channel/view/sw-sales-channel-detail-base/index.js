@@ -96,7 +96,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         isStoreFront() {
-            return this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
+            return this.salesChannel && this.salesChannel.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
         isDomainAware() {
@@ -109,7 +109,15 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         isProductComparison() {
-            return this.salesChannel.typeId === Defaults.productComparisonTypeId;
+            return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
+        },
+
+        isGoogleShopping() {
+            return this.salesChannel && this.salesChannel.typeId === Defaults.googleShoppingTypeId;
+        },
+
+        isGoogleShoppingCreate() {
+            return this.isGoogleShopping && this.$route.path.includes(Defaults.googleShoppingTypeId);
         },
 
         storefrontSalesChannelDomainCriteria() {
@@ -330,7 +338,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true || this.isProductComparison) {
+            if (this.salesChannel.active !== true || this.isProductComparison || this.isGoogleShopping) {
                 return;
             }
 
@@ -458,6 +466,10 @@ Component.register('sw-sales-channel-detail-base', {
             if (this.disableGenerateByCronjob) {
                 this.productExport.generateByCronjob = false;
             }
+        },
+
+        onConnectToGoogle() {
+            // TODO - https://jira.shopware.com/browse/NEXT-7728
         }
     }
 });

@@ -73,6 +73,52 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
     .sw-sales-channel-detail-base_general__last-generation-text {
         margin-bottom: 22px;
     }
+
+    .google-shopping {
+        &__instruction-title {
+            margin: 0 0 8px;
+        }
+
+        &__instruction-title-inner {
+            color: $color-darkgray-200;
+            font-size: $font-size-default;
+            font-weight: 700;
+        }
+
+        &__instruction-description {
+            margin: 0 0 22px;
+            color: $color-darkgray-200;
+            font-size: $font-size-small;
+        }
+
+        &__connection {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 74px;
+            padding: 0 16px;
+            border: 1px solid $color-gray-300;
+            border-radius: 4px;
+        }
+
+        &__connection-image {
+            display: inline-block;
+            width: 74px;
+            height: 100%;
+            background: url('/administration/static/img/social-shopping/google.png') no-repeat 0 50%;
+            background-size: 100%;
+        }
+    }
+
+    .google-shopping-crossbar {
+        height: 1px;
+        margin: 0 0 16px;
+        background: $color-gray-300;
+    }
+
+    .google-shopping-switcher {
+        margin-bottom: 0;
+    }
 }
 
 .sw-sales-channel-detail-base__delete-modal {

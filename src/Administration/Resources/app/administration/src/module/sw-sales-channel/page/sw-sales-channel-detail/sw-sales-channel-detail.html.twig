@@ -52,7 +52,9 @@
                             </sw-tabs-item>
                         {% endblock %}
 
-                        {%  block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
+                        <template v-if="!isGoogleShopping">
+                            {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
+                        </template>
 
                         {%  block sw_sales_channel_detail_content_tab_product_comparison %}
                             <sw-tabs-item v-if="isProductComparison && !isLoading"
@@ -67,6 +69,24 @@
                             <sw-tabs-item v-if="isStoreFront" :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
                                           :title="$tc('sw-sales-channel.detail.tabAnalytics')">
                                 {{ $tc('sw-sales-channel.detail.tabAnalytics') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_content_tab_products %}
+                            <sw-tabs-item
+                                v-if="isGoogleShopping"
+                                :title="$tc('sw-sales-channel.detail.tabProducts')"
+                                :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }">
+                                {{ $tc('sw-sales-channel.detail.tabProducts') }}
+                            </sw-tabs-item>
+                        {% endblock %}
+
+                        {% block sw_sales_channel_detail_content_tab_template %}
+                            <sw-tabs-item
+                                v-if="isGoogleShopping"
+                                :title="$tc('sw-sales-channel.detail.tabProductComparison')"
+                                :route="{ name: 'sw.sales.channel.detail.template', params: { id: $route.params.id } }">
+                                {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
                             </sw-tabs-item>
                         {% endblock %}
                     </sw-tabs>

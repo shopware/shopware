@@ -48,21 +48,37 @@ Shopware.Component.register('sw-import-export-importer', {
         }
     },
 
-    methods: {
-        onStartProcess() {
-            this.isLoading = true;
+    watch: {
+        importFile: {
+            handler(newValue) {
+                if (newValue) {
+                    this.resetProgressStats();
+                }
+            }
+        }
+    },
 
+    methods: {
+        resetProgressStats() {
             // Reset progress stats
             this.progressOffset = 0;
             this.progressTotal = null;
             this.progressText = '';
             this.progressState = '';
             this.progressLogEntry = null;
+        },
+
+        onStartProcess() {
+            this.isLoading = true;
+
+            this.resetProgressStats();
+            this.progressTotal = 0;
 
             const profile = this.selectedProfile;
 
             this.importExport.import(profile, this.importFile, this.handleProgress).then((result) => {
                 const logEntry = result.data.log;
+                this.importFile = null;
 
                 this.logRepository.get(logEntry.id, Shopware.Context.api, this.logCriteria).then((entry) => {
                     this.progressLogEntry = entry;

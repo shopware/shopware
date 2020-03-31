@@ -5,8 +5,14 @@
                 <sw-button :disabled="disableButton"
                            variant="primary"
                            @click="$emit('process-start')">
-                    {{  $tc('sw-import-export.progress.startProcessLabel')  }}
+                    <template v-if="activityType === 'import'">
+                        {{  $tc('sw-import-export.progress.startImportLabel')  }}
+                    </template>
+                    <template v-else>
+                        {{  $tc('sw-import-export.progress.startExportLabel')  }}
+                    </template>
                 </sw-button>
+
             {% endblock %}
 
             {% block sw_import_export_progress_bar %}

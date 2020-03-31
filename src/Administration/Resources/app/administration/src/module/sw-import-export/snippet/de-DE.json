@@ -104,7 +104,8 @@
       "exportTab": "Export"
     },
     "progress": {
-      "startProcessLabel": "Prozess starten",
+      "startImportLabel": "Import starten",
+      "startExportLabel": "Export starten",
       "entriesLabel": "Einträge",
       "fileSizeLabel": "kB",
       "successTitle": "erfolgreich",

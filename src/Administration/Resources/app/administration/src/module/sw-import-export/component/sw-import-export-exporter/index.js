@@ -41,7 +41,7 @@ Shopware.Component.register('sw-import-export-exporter', {
 
             // Reset progress stats
             this.progressOffset = 0;
-            this.progressTotal = null;
+            this.progressTotal = 0;
             this.progressText = '';
             this.progressState = '';
             this.progressLogEntry = null;

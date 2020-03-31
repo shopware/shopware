@@ -87,6 +87,9 @@ Shopware.Component.register('sw-import-export-progress', {
         },
 
         percentageProgress() {
+            if (this.total === 0) {
+                return 0;
+            }
             return this.offset / this.total * 100;
         },
 

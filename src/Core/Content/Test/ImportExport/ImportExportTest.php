@@ -413,6 +413,8 @@ class ImportExportTest extends TestCase
 
     public function importPropertyCsv(): void
     {
+        $this->markTestSkipped('TODO: v6.2.0');
+
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */

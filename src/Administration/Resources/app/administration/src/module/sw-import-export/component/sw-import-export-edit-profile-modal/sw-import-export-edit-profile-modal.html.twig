@@ -125,13 +125,25 @@
                 <sw-button size="small" @click="$emit('profile-close')">
                     {{ $tc('sw-import-export.profile.cancelLabel') }}
                 </sw-button>
+                <template v-if="profile.systemDefault">
+
                 <sw-button
                     class="sw-import-export-edit-profile-modal__save-action"
                     size="small"
-                    @click="$emit('profile-save')"
+                    @click="$emit('profile-close')"
                     variant="primary">
-                    {{ saveLabelSnippet }}
+                    {{ $tc('sw-import-export.profile.closeProfileLabel')}}
                 </sw-button>
+                </template>
+                <template v-else>
+                    <sw-button
+                        class="sw-import-export-edit-profile-modal__save-action"
+                        size="small"
+                        @click="$emit('profile-save')"
+                        variant="primary">
+                        {{ saveLabelSnippet }}
+                    </sw-button>
+                </template>
             </template>
         {% endblock %}
     </sw-modal>

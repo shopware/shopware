@@ -161,7 +161,6 @@ Shopware.Component.register('sw-import-export-activity', {
                     title: this.$tc('sw-import-export.profile.titleSaveSuccess'),
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
                 });
-                return this.loadProfiles();
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('sw-import-export.profile.titleSaveError'),

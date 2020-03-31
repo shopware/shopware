@@ -5,12 +5,12 @@ describe('Import/Export - Export:', () => {
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/import/export/index/export`);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
         });
     });
 
     it('@settings: Create export with default profile', () => {
-        cy.get('.sw-settings-import-export-view-export').should('be.visible');
+        cy.get('.sw-import-export-view-export').should('be.visible');
 
         // TODO: Improve selectors
         cy.get('.sw-entity-single-select')

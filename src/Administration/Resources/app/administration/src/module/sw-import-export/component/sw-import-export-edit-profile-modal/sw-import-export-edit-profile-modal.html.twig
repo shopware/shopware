@@ -125,7 +125,11 @@
                 <sw-button size="small" @click="$emit('profile-close')">
                     {{ $tc('sw-import-export.profile.cancelLabel') }}
                 </sw-button>
-                <sw-button size="small" @click="$emit('profile-save')" variant="primary">
+                <sw-button
+                    class="sw-import-export-edit-profile-modal__save-action"
+                    size="small"
+                    @click="$emit('profile-save')"
+                    variant="primary">
                     {{ saveLabelSnippet }}
                 </sw-button>
             </template>

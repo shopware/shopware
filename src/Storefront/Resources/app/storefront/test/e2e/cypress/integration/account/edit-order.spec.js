@@ -1,49 +1,84 @@
 describe('Account: Edit order', () => {
     beforeEach(() => {
-        cy.createProductFixture();
-        cy.createCustomerFixtureStorefront();
-        cy.visit('/account/login');
+        return cy.createProductFixture().then(() => {
+            return cy.createCustomerFixtureStorefront()
+        }).then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
+            });
+        }).then((result) => {
+            return cy.createOrder(result.id, {
+                username: 'test@example.com',
+                password: 'shopware'
+            });
+        })
+    });
 
+    it('@package @customer: reorder order', () => {
         // Login
+        cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
-        // Create an order -> should be a fixture
-        cy.get('.home-link').click();
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas-cart-actions .btn.btn-block.btn-primary').click();
-        cy.get('.custom-control.custom-checkbox').click();
-        cy.get('#confirmFormSubmit').click();
-        cy.visit('/account/order');
-    });
-
-    it('@package @customer: reorder order', () => {
         // Order detail is expandable
+        cy.get('.order-table').should('be.visible');
+        cy.get('.order-table:nth-of-type(1) .order-table-header-order-number').contains('Order number: 10000');
         cy.get('.order-table:nth-of-type(1) .order-hide-btn').click();
-        cy.wait(400);
-        cy.get('.order-table:nth-of-type(1) .order-hide-btn').click();
+        cy.get('.order-detail-content').should('be.visible');
 
-        // Reorder order
+        // Re-order past order
         cy.get('.order-table-header-context-menu').click();
         cy.get('.order-table-header-context-menu-content-form button').click();
         cy.get('.btn.btn-block.btn-primary').click();
         cy.get('.custom-control.custom-checkbox').click();
         cy.get('#confirmFormSubmit').click();
-        cy.visit('/account/order');
+
+        // Verify order
+        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+        cy.get('.finish-ordernumber').contains('Your order number #10001');
     });
 
     it('@package @customer: cancel order', () => {
+        // Enable refunds
+        cy.loginViaApi().then(() => {
+            cy.visit('/admin#/sw/settings/cart/index');
+            cy.contains('Enable refunds').click();
+            cy.get('.sw-settings-cart__save-action').click();
+            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        });
+
+        // Login
+        cy.visit('/account/order');
+        cy.get('.login-card').should('be.visible');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+        cy.get('.login-submit [type="submit"]').click();
+
         // cancel order
+        cy.get('.order-table').should('be.visible');
         cy.get('.order-table-header-context-menu').click();
         cy.get('.dropdown-menu > [type="button"]').click();
-        cy.get('form > .btn').click();
+        cy.get('form > .btn-primary').click();
         cy.get('.order-table-header-order-status').contains('Cancelled');
     });
 
     it('@package @customer: change payment', () => {
+        // Login
+        cy.visit('/account/order');
+        cy.get('.login-card').should('be.visible');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+        cy.get('.login-submit [type="submit"]').click();
+
         // change payment
+        cy.get('.order-table').should('be.visible');
+        cy.get('.order-table-header-order-table-body > :nth-child(3)').contains('Invoice');
         cy.get('.order-table-header-context-menu').click();
         cy.get('a.order-table-header-context-menu-content-link').click();
         cy.get('.card-body > [data-toggle="modal"]').click();

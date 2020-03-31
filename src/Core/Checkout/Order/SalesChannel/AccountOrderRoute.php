@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -77,6 +79,19 @@ class AccountOrderRoute extends AbstractAccountOrderRoute
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
         } elseif (!$criteria->hasEqualsFilter('order.deepLinkCode')) {
             throw new CustomerNotLoggedInException();
+        } else {
+            // Search with deepLinkCode needs updatedAt Filter
+            $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
+            $latestOrderChange = $latestOrderDate->format('Y-m-d H:i:s');
+            $criteria->addFilter(
+                new MultiFilter(
+                    MultiFilter::CONNECTION_OR,
+                    [
+                        new RangeFilter('updatedAt', ['gte' => $latestOrderChange]),
+                        new RangeFilter('createdAt', ['gte' => $latestOrderChange])
+                    ]
+                )
+            );
         }
 
         return new AccountOrderRouteResponse($this->orderRepository->search($criteria, $context->getContext()));

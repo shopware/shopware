@@ -18,6 +18,11 @@ class AccountEditOrderPage extends Page
      */
     protected $paymentMethods;
 
+    /**
+     * @var string|null
+     */
+    protected $deepLinkCode;
+
     public function getOrder(): OrderEntity
     {
         return $this->order;
@@ -36,5 +41,15 @@ class AccountEditOrderPage extends Page
     public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
+    }
+
+    public function getDeepLinkCode(): ?string
+    {
+        return $this->deepLinkCode;
+    }
+
+    public function setDeepLinkCode(?string $deepLinkCode): void
+    {
+        $this->deepLinkCode = $deepLinkCode;
     }
 }

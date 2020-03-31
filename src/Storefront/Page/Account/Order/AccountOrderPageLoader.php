@@ -3,12 +3,14 @@
 namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractAccountOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -40,16 +42,23 @@ class AccountOrderPageLoader
      */
     private $requestCriteriaBuilder;
 
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         AbstractAccountOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        RequestCriteriaBuilder $requestCriteriaBuilder,
+        AccountService $accountService
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRoute = $orderRoute;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+        $this->accountService = $accountService;
     }
 
     /**
@@ -69,6 +78,16 @@ class AccountOrderPageLoader
         $page = AccountOrderPage::createFrom($page);
 
         $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
+
+        $page->setDeepLinkCode($request->get('deepLinkCode', false));
+
+        if ($page->getOrders() !== null && $page->getOrders()->first() !== null && $request->get('deepLinkCode')) {
+            $this->accountService->login(
+                $page->getOrders()->first()->getOrderCustomer()->getCustomer()->getEmail(),
+                $salesChannelContext,
+                true
+            );
+        }
 
         $this->eventDispatcher->dispatch(
             new AccountOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -95,6 +114,7 @@ class AccountOrderPageLoader
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
@@ -104,6 +124,7 @@ class AccountOrderPageLoader
 
         if ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
+
         }
 
         return $criteria;

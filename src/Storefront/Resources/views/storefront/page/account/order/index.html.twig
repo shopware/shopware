@@ -4,6 +4,8 @@
     {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
 {% endblock %}
 
+{% set orderState = page.order.stateMachineState.technicalName %}
+
 {% block base_navigation %}{% endblock %}
 
 {% block base_content %}
@@ -200,15 +202,18 @@
                                                 </form>
 
                                                 {% block page_checkout_aside_cancel_order_modal_toggle %}
-                                                    <button type="button"
-                                                            class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
-                                                            data-toggle="modal"
-                                                            data-target="#cancelOrderModal">
-                                                        {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
-                                                    </button>
+
+                                                    {% if page.order.stateMachineState.technicalName != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+                                                        <button type="button"
+                                                                class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
+                                                                data-toggle="modal"
+                                                                data-target="#cancelOrderModal">
+                                                            {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                                                        </button>
+                                                    {% endif %}
                                                 {% endblock %}
 
-                                                {% if page.order.stateMachineState.technicalName != 'cancelled' %}
+                                                {% if orderState != 'cancelled' %}
                                                     {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
                                                 {% endif %}
                                             </div>

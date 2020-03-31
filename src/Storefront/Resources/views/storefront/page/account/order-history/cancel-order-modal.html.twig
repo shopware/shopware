@@ -55,7 +55,11 @@
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_csrf %}
                                             {{ sw_csrf('frontend.account.order.cancel') }}
                                         {% endblock %}
-
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_deeplinkcode %}
+                                            <input type="hidden"
+                                                   name="deepLinkCode"
+                                                   value="{{ order.deepLinkCode }}">
+                                        {% endblock %}
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_order_id %}
                                             <input type="hidden"
                                                    name="orderId"
@@ -66,6 +70,14 @@
                                             <input type="hidden"
                                                    name="redirectTo"
                                                    value="frontend.account.order.page">
+                                        {% endblock %}
+
+                                        {% block page_checkout_aside_cancel_order_modal_header_back_button %}
+                                            <button class="btn"
+                                                    type="button"
+                                                    data-dismiss="modal">
+                                                {{ "account.editOrderCancelOrderModalFooterButtonBack"|trans|sw_sanitize }}
+                                            </button>
                                         {% endblock %}
 
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_button %}

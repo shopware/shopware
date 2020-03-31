@@ -12,6 +12,11 @@ class AccountOrderPage extends Page
      */
     protected $orders;
 
+    /**
+     * @var string|null
+     */
+    protected $deepLinkCode;
+
     public function getOrders(): StorefrontSearchResult
     {
         return $this->orders;
@@ -20,5 +25,15 @@ class AccountOrderPage extends Page
     public function setOrders(StorefrontSearchResult $orders): void
     {
         $this->orders = $orders;
+    }
+
+    public function getDeepLinkCode(): ?string
+    {
+        return $this->deepLinkCode;
+    }
+
+    public function setDeepLinkCode(?string $deepLinkCode): void
+    {
+        $this->deepLinkCode = $deepLinkCode;
     }
 }

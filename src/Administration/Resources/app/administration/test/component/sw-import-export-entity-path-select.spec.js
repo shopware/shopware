@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import EntityDefinition from 'src/core/data-new/entity-definition.data';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -10,6 +9,8 @@ import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
 import 'src/module/sw-settings-import-export/component/sw-import-export-entity-path-select';
 
+const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
+
 describe('components/sw-import-export-entity-path-select', () => {
     let wrapper;
     let localVue;
@@ -18,18 +19,89 @@ describe('components/sw-import-export-entity-path-select', () => {
         localVue = createLocalVue();
         localVue.directive('popover', {});
 
-        const mockSchema = {
-            entity: 'product',
-            properties: {
-                id: {
-                    type: 'uuid',
-                    flags: {}
+        const mockEntitySchema = {
+            product: {
+                entity: 'product',
+                properties: {
+                    id: {
+                        type: 'uuid'
+                    },
+                    price: {
+                        type: 'json_object',
+                        properties: []
+                    },
+                    parent: {
+                        type: 'association',
+                        relation: 'many_to_one',
+                        entity: 'product'
+                    },
+                    manufacturer: {
+                        type: 'association',
+                        relation: 'many_to_one',
+                        entity: 'product_manufacturer'
+                    },
+                    translations: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product_translation'
+                    }
+                }
+            },
+            product_translation: {
+                entity: 'product_translation',
+                properties: {
+                    name: {
+                        type: 'string'
+                    }
+                }
+            },
+            product_manufacturer: {
+                entity: 'product_manufacturer',
+                properties: {
+                    id: {
+                        type: 'uuid'
+                    },
+                    name: {
+                        type: 'string'
+                    },
+                    media: {
+                        type: 'association',
+                        relation: 'many_to_one',
+                        entity: 'media'
+                    },
+                    products: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product'
+                    }
+                }
+            },
+            media: {
+                entity: 'media',
+                properties: {
+                    id: {
+                        type: 'uuid'
+                    },
+                    translations: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'media_translation'
+                    }
+                }
+            },
+            media_translation: {
+                entity: 'media_translation',
+                properties: {
+                    title: {
+                        type: 'string'
+                    }
                 }
             }
         };
 
-        Shopware.EntityDefinition.get = (() => {
-            return new EntityDefinition(mockSchema);
+        Shopware.EntityDefinition = EntityDefinitionFactory;
+        Object.keys(mockEntitySchema).forEach((entity) => {
+            Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
         });
 
         wrapper = shallowMount(Shopware.Component.build('sw-import-export-entity-path-select'), {
@@ -132,18 +204,103 @@ describe('components/sw-import-export-entity-path-select', () => {
         wrapper.setProps({
             languages: [
                 { locale: { code: 'en-GB' } },
-                { locale: { code: 'de-DE' } }
+                { locale: { code: 'de-DE' } },
+                { locale: { code: 'DEFAULT' } }
             ]
         });
 
         const actual = wrapper.vm.getTranslationProperties('product_translation', 'translations.', mockProperties);
+
         const expected = [
             { label: 'translations.en-GB.metaDescription', value: 'translations.en-GB.metaDescription' },
             { label: 'translations.en-GB.keywords', value: 'translations.en-GB.keywords' },
             { label: 'translations.en-GB.description', value: 'translations.en-GB.description' },
             { label: 'translations.de-DE.metaDescription', value: 'translations.de-DE.metaDescription' },
             { label: 'translations.de-DE.keywords', value: 'translations.de-DE.keywords' },
-            { label: 'translations.de-DE.description', value: 'translations.de-DE.description' }
+            { label: 'translations.de-DE.description', value: 'translations.de-DE.description' },
+            { label: 'translations.DEFAULT.metaDescription', value: 'translations.DEFAULT.metaDescription' },
+            { label: 'translations.DEFAULT.keywords', value: 'translations.DEFAULT.keywords' },
+            { label: 'translations.DEFAULT.description', value: 'translations.DEFAULT.description' }
+        ];
+
+        expect(actual).toEqual(expected);
+    });
+
+    it('should return media properties for product media translation value', () => {
+        wrapper.setProps({
+            value: 'media.translations.',
+            languages: [
+                { locale: { code: 'en-GB' } },
+                { locale: { code: 'de-DE' } },
+                { locale: { code: 'DEFAULT' } }
+            ]
+        });
+
+        const actual = wrapper.vm.visibleResults;
+
+        const expected = [
+            {
+                label: 'media.translations.en-GB.name',
+                value: 'media.translations.en-GB.name'
+            },
+            {
+                label: 'media.translations.de-DE.name',
+                value: 'media.translations.de-DE.name'
+            },
+            {
+                label: 'media.translations.DEFAULT.name',
+                value: 'media.translations.DEFAULT.name'
+            }
+        ];
+
+        expect(actual).toEqual(expected);
+    });
+
+    it('should return product translation properties for product parent parent translation value', () => {
+        wrapper.setProps({
+            value: 'parent.parent.translations.name',
+            languages: [
+                { locale: { code: 'en-GB' } },
+                { locale: { code: 'de-DE' } },
+                { locale: { code: 'DEFAULT' } }
+            ]
+        });
+
+        const actual = wrapper.vm.visibleResults;
+
+        const expected = [
+            {
+                label: 'parent.parent.translations.en-GB.name',
+                value: 'parent.parent.translations.en-GB.name'
+            },
+            {
+                label: 'parent.parent.translations.de-DE.name',
+                value: 'parent.parent.translations.de-DE.name'
+            },
+            {
+                label: 'parent.parent.translations.DEFAULT.name',
+                value: 'parent.parent.translations.DEFAULT.name'
+            }
+        ];
+
+        expect(actual).toEqual(expected);
+    });
+
+    it('should return filtered product properties when searching', () => {
+        wrapper.setProps({
+            value: 'parent.parent.'
+        });
+        wrapper.vm.searchTerm = 'parent.parent.pri';
+        wrapper.vm.search();
+
+        const actual = wrapper.vm.visibleResults;
+
+        const expected = [
+            {
+                label: 'parent.parent.price',
+                value: 'parent.parent.price',
+                relation: 'price'
+            }
         ];
 
         expect(actual).toEqual(expected);

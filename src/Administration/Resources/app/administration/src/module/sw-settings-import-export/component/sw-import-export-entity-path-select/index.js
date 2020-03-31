@@ -42,11 +42,6 @@ Component.register('sw-import-export-entity-path-select', {
             required: false,
             default: ''
         },
-        labelProperty: {
-            type: String,
-            required: false,
-            default: 'label'
-        },
         valueProperty: {
             type: String,
             required: false,
@@ -86,6 +81,7 @@ Component.register('sw-import-export-entity-path-select', {
 
     data() {
         return {
+            labelProperty: 'label',
             searchTerm: '',
             actualSearch: '',
             isExpanded: false,

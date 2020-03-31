@@ -25,6 +25,12 @@
                 background-color: $color-emerald-500;
             }
         }
+
+        &.is--errored {
+            .sw-progress-bar__value {
+                background-color: $color-crimson-500;
+            }
+        }
     }
 
     .sw-import-export-progress__stats {

@@ -89,7 +89,8 @@ Shopware.Component.register('sw-import-export-progress', {
     computed: {
         progressBarClasses() {
             return {
-                'is--finished': this.percentageProgress >= 100
+                'is--finished': (this.percentageProgress >= 100) && this.state === 'succeeded',
+                'is--errored': this.state === 'failed'
             };
         },
 

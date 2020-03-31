@@ -182,26 +182,6 @@ class Migration1584002637NewImportExport extends MigrationStep
                 ],
             ],
             [
-                'name' => 'Default newsletter recipient',
-                'source_entity' => 'newsletter_recipient',
-                'mapping' => [
-                    ['key' => 'id', 'mappedKey' => 'id'],
-                    ['key' => 'email', 'mappedKey' => 'email'],
-                    ['key' => 'title', 'mappedKey' => 'title'],
-                    ['key' => 'firstName', 'mappedKey' => 'first_name'],
-                    ['key' => 'lastName', 'mappedKey' => 'last_name'],
-                    ['key' => 'zipCode', 'mappedKey' => 'zip_code'],
-                    ['key' => 'city', 'mappedKey' => 'city'],
-                    ['key' => 'street', 'mappedKey' => 'street'],
-                    ['key' => 'status', 'mappedKey' => 'status'],
-                    ['key' => 'hash', 'mappedKey' => 'hash'],
-                    ['key' => 'salesChannelId', 'mappedKey' => 'sales_channel_id'],
-                    ['key' => 'customFields', 'mappedKey' => 'custom_fields'],
-                    ['key' => 'confirmedAt', 'mappedKey' => 'confirmed_at'],
-                    ['key' => 'salutation.salutationKey', 'mappedKey' => 'salutation_key'],
-                ],
-            ],
-            [
                 'name' => 'Default product',
                 'source_entity' => 'product',
                 'mapping' => [

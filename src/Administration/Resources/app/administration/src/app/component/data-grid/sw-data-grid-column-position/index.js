@@ -64,13 +64,13 @@ Component.register('sw-data-grid-column-position', {
 
     methods: {
         onLowerPositionValue() {
-            this.lowerPositionValue(this.value, this.item);
+            this.lowerPositionValue(this.value, this.item, this.field);
             this.$emit('lower-position-value', this.value);
             this.$emit('position-changed', this.value);
         },
 
         onRaisePositionValue() {
-            this.raisePositionValue(this.value, this.item);
+            this.raisePositionValue(this.value, this.item, this.field);
             this.$emit('raise-position-value', this.value);
             this.$emit('position-changed', this.value);
         }

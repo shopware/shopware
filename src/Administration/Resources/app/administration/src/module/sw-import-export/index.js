@@ -29,36 +29,36 @@ Shopware.Module.register('sw-import-export', {
     color: '#9AA8B5',
     icon: 'default-device-database',
     entity: 'import_export_profile',
-    routePrefixPath: 'sw/settings/import-export',
+    routePrefixPath: 'sw/import-export',
 
     routes: {
         index: {
-            component: 'sw-settings-import-export',
+            component: 'sw-import-export',
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index'
             },
             redirect: {
-                name: 'sw.settings.import.export.index.import'
+                name: 'sw.import.export.index.import'
             },
 
             children: {
                 import: {
-                    component: 'sw-settings-import-export-view-import',
+                    component: 'sw-import-export-view-import',
                     path: 'import',
                     meta: {
                         parentPath: 'sw.settings.index'
                     }
                 },
                 export: {
-                    component: 'sw-settings-import-export-view-export',
+                    component: 'sw-import-export-view-export',
                     path: 'export',
                     meta: {
                         parentPath: 'sw.settings.index'
                     }
                 },
                 profiles: {
-                    component: 'sw-settings-import-export-view-profiles',
+                    component: 'sw-import-export-view-profiles',
                     path: 'profiles',
                     meta: {
                         parentPath: 'sw.settings.index'

@@ -150,7 +150,7 @@ Shopware.Component.register('sw-import-export-activity', {
         },
 
         getDownloadUrl(id, accessToken) {
-            return this.importExport.getDownloadUrl(id, accessToken);
+            return this.importExport.getDownloadUrl(id, accessToken, Shopware.Context.api);
         },
 
         saveSelectedProfile() {

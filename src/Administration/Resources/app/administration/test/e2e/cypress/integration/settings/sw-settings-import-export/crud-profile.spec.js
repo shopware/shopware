@@ -1,4 +1,8 @@
+import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
+
 describe('Import/Export - Profiles: Test crud operations', () => {
+    let page = null;
+
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -7,10 +11,15 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
         });
+
+        page = new SettingsPageObject();
+    });
+
+    afterEach(() => {
+        page = null;
     });
 
     it('@settings: Create and read profile', () => {
-        // Request we want to wait for later
         cy.server();
         cy.route({
             url: '/api/v1/import-export-profile',
@@ -51,8 +60,40 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
+        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
+
         // Verify that created profile is inside profile listing
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').type('Basic');
         cy.get('.sw-data-grid__row--0').should('contain', 'Basic');
+    });
+
+    it('@settings: Update and read profile', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/import-export-profile/*',
+            method: 'patch'
+        }).as('saveData');
+
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').type('E2E');
+        cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
+
+        cy.clickContextMenuItem(
+            '.sw-import-export-view-profiles__listing-open-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-import-export-edit-profile-modal').should('be.visible');
+
+        cy.get('[name="sw-field--profile-name"]').clearTypeAndCheck('Extended');
+
+        cy.get('.sw-import-export-edit-profile-modal__save-action').click();
+
+        // Save request should be successful
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
     });
 });

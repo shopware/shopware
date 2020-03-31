@@ -58,19 +58,24 @@
 
                         <template #actions="{ item }">
                             {% block sw_import_export_view_profile_profiles_listing_edit %}
-                                <sw-context-menu-item @click="onEditProfile(item.id)">
+                                <sw-context-menu-item
+                                    class="sw-import-export-view-profiles__listing-open-action"
+                                    @click="onEditProfile(item.id)">
                                     {{ $tc('sw-import-export.profile.openLabel') }}
                                 </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_import_export_view_profile_profiles_listing_duplicate %}
-                                <sw-context-menu-item @click="onDuplicateProfile(item)">
+                                <sw-context-menu-item
+                                    class="sw-import-export-view-profiles__listing-duplicate-action"
+                                    @click="onDuplicateProfile(item)">
                                     {{ $tc('sw-import-export.profile.duplicateLabel') }}
                                 </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_import_export_view_profile_profiles_listing_delete %}
                                 <sw-context-menu-item
+                                    class="sw-import-export-view-profiles__listing-delete-action"
                                     variant="danger"
                                     @click="onDeleteProfile(item.id)"
                                     :disabled="item.systemDefault">

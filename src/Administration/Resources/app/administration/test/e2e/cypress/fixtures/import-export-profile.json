@@ -1,6 +1,6 @@
 {
-  "name": "Default E2E",
-  "systemDefault": true,
+  "name": "E2E",
+  "systemDefault": false,
   "sourceEntity": "product",
   "fileType": "text/csv",
   "delimiter": ";",

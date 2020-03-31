@@ -2,6 +2,7 @@ import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';
 
 const { Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /**
  * @private
@@ -26,7 +27,9 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             isLoading: false,
             selectedProfile: null,
             profiles: null,
-            searchTerm: null
+            searchTerm: null,
+            sortBy: 'name',
+            sortDirection: 'ASC'
         };
     },
 
@@ -36,11 +39,12 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         profileCriteria() {
-            const criteria = new Shopware.Data.Criteria();
+            const criteria = new Criteria();
 
             criteria.setPage(1);
             criteria.setTerm(this.searchTerm);
             criteria.addAssociation('importExportLogs');
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             return criteria;
         },

@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Content\ContactForm;
 
-use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRouteInterface;
+use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/** @deprecated tag:v6.3.0 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRouteInterface */
+/** @deprecated tag:v6.3.0 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute */
 class ContactFormService
 {
     /**
-     * @var ContactFormRouteInterface
+     * @var AbstractContactFormRoute
      */
     private $contactFormRoute;
 
     public function __construct(
-        ContactFormRouteInterface $contactFormRoute
+        AbstractContactFormRoute $contactFormRoute
     ) {
         $this->contactFormRoute = $contactFormRoute;
     }

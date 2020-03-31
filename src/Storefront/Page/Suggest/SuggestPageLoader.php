@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Suggest;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteInterface;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,7 +19,7 @@ class SuggestPageLoader
     private $eventDispatcher;
 
     /**
-     * @var ProductSuggestRouteInterface
+     * @var AbstractProductSuggestRoute
      */
     private $productSuggestRoute;
 
@@ -30,7 +30,7 @@ class SuggestPageLoader
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        ProductSuggestRouteInterface $productSuggestRoute,
+        AbstractProductSuggestRoute $productSuggestRoute,
         GenericPageLoaderInterface $genericLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;

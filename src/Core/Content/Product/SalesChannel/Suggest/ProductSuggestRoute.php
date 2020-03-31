@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -22,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class ProductSuggestRoute implements ProductSuggestRouteInterface
+class ProductSuggestRoute extends AbstractProductSuggestRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -47,6 +48,11 @@ class ProductSuggestRoute implements ProductSuggestRouteInterface
         $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
         $this->searchBuilder = $searchBuilder;
+    }
+
+    public function getDecorated(): AbstractProductSuggestRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

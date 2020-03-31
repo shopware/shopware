@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -24,7 +25,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class ChangeCustomerProfileRoute implements ChangeCustomerProfileRouteInterface
+class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
     /**
      * @var EntityRepositoryInterface
@@ -56,6 +57,11 @@ class ChangeCustomerProfileRoute implements ChangeCustomerProfileRouteInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
         $this->customerProfileValidationFactory = $customerProfileValidationFactory;
+    }
+
+    public function getDecorated(): AbstractChangeCustomerProfileRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

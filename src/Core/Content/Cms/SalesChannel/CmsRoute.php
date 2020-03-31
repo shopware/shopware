@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class CmsRoute implements CmsRouteInterface
+class CmsRoute extends AbstractCmsRoute
 {
     /**
      * @var SalesChannelCmsPageLoaderInterface
@@ -24,6 +25,11 @@ class CmsRoute implements CmsRouteInterface
     public function __construct(SalesChannelCmsPageLoaderInterface $cmsPageLoader)
     {
         $this->cmsPageLoader = $cmsPageLoader;
+    }
+
+    public function getDecorated(): AbstractCmsRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

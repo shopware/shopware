@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -23,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class NewsletterUnsubscribeRoute implements NewsletterUnsubscribeRouteInterface
+class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
     /**
      * @var EntityRepositoryInterface
@@ -48,6 +49,11 @@ class NewsletterUnsubscribeRoute implements NewsletterUnsubscribeRouteInterface
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDecorated(): AbstractNewsletterUnsubscribeRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

@@ -7,17 +7,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @deprecated tag:v6.2.0 use \Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteInterface instead
+ * @deprecated tag:v6.2.0 use \Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute instead
  */
 class ProductSuggestGateway implements ProductSuggestGatewayInterface
 {
     /**
-     * @var ProductSuggestRouteInterface
+     * @var AbstractProductSuggestRoute
      */
     private $route;
 
     public function __construct(
-        ProductSuggestRouteInterface $route
+        AbstractProductSuggestRoute $route
     ) {
         $this->route = $route;
     }

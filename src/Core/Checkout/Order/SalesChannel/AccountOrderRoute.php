@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class AccountOrderRoute implements AccountOrderRouteInterface
+class AccountOrderRoute extends AbstractAccountOrderRoute
 {
     /**
      * @var EntityRepositoryInterface
@@ -42,6 +43,11 @@ class AccountOrderRoute implements AccountOrderRouteInterface
         $this->orderRepository = $orderRepository;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->orderDefinition = $salesChannelOrderDefinition;
+    }
+
+    public function getDecorated(): AbstractAccountOrderRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

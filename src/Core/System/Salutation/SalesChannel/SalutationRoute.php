@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Salutation\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class SalutationRoute implements SalutationRouteInterface
+class SalutationRoute extends AbstractSalutationRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -30,6 +31,11 @@ class SalutationRoute implements SalutationRouteInterface
     {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+    }
+
+    public function getDecorated(): AbstractSalutationRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

@@ -9,9 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\Currency\SalesChannel\CurrencyRouteInterface;
+use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\SalesChannel\LanguageRouteInterface;
+use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,12 +24,12 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     private $eventDispatcher;
 
     /**
-     * @var CurrencyRouteInterface
+     * @var AbstractCurrencyRoute
      */
     private $currencyRoute;
 
     /**
-     * @var LanguageRouteInterface
+     * @var AbstractLanguageRoute
      */
     private $languagePageRoute;
 
@@ -45,8 +45,8 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        CurrencyRouteInterface $currencyPageRoute,
-        LanguageRouteInterface $languagePageRoute,
+        AbstractCurrencyRoute $currencyPageRoute,
+        AbstractLanguageRoute $languagePageRoute,
         NavigationLoaderInterface $navigationLoader,
         RequestCriteriaBuilder $requestCriteriaBuilder
     ) {

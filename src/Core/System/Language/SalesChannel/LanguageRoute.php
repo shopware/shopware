@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Language\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -15,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class LanguageRoute implements LanguageRouteInterface
+class LanguageRoute extends AbstractLanguageRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -37,6 +38,11 @@ class LanguageRoute implements LanguageRouteInterface
         $this->languageRepository = $languageRepository;
         $this->criteriaBuilder = $criteriaBuilder;
         $this->languageDefinition = $languageDefinition;
+    }
+
+    public function getDecorated(): AbstractLanguageRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

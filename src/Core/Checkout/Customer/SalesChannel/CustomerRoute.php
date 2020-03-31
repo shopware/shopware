@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class CustomerRoute implements CustomerRouteInterface
+class CustomerRoute extends AbstractCustomerRoute
 {
     /**
      * @var CustomerDefinition
@@ -41,6 +42,11 @@ class CustomerRoute implements CustomerRouteInterface
         $this->customerDefinition = $customerDefinition;
         $this->customerRepository = $customerRepository;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+    }
+
+    public function getDecorated(): AbstractCustomerRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

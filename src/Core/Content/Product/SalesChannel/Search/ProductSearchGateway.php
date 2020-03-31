@@ -7,16 +7,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @deprecated tag:v6.2.0 use \Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface instead
+ * @deprecated tag:v6.2.0 use \Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute instead
  */
 class ProductSearchGateway implements ProductSearchGatewayInterface
 {
     /**
-     * @var ProductSearchRouteInterface
+     * @var AbstractProductSearchRoute
      */
     private $route;
 
-    public function __construct(ProductSearchRouteInterface $route)
+    public function __construct(AbstractProductSearchRoute $route)
     {
         $this->route = $route;
     }

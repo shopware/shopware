@@ -59,42 +59,42 @@ class AccountService
     private $legacyPasswordVerifier;
 
     /**
-     * @var LogoutRouteInterface
+     * @var AbstractLogoutRoute
      */
     private $logoutRoute;
 
     /**
-     * @var LoginRouteInterface
+     * @var AbstractLoginRoute
      */
     private $loginRoute;
 
     /**
-     * @var ChangePasswordRouteInterface
+     * @var AbstractChangePasswordRoute
      */
     private $changePasswordRoute;
 
     /**
-     * @var ChangePaymentMethodRouteInterface
+     * @var AbstractChangePaymentMethodRoute
      */
     private $changePaymentMethodRoute;
 
     /**
-     * @var ChangeEmailRouteInterface
+     * @var AbstractChangeEmailRoute
      */
     private $changeEmailRoute;
 
     /**
-     * @var ChangeCustomerProfileRouteInterface
+     * @var AbstractChangeCustomerProfileRoute
      */
     private $changeCustomerProfileRoute;
 
     /**
-     * @var ResetPasswordRouteInterface
+     * @var AbstractResetPasswordRoute
      */
     private $resetPasswordRoute;
 
     /**
-     * @var SendPasswordRecoveryMailRouteInterface
+     * @var AbstractSendPasswordRecoveryMailRoute
      */
     private $sendPasswordRecoveryMailRoute;
 
@@ -105,14 +105,14 @@ class AccountService
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        LogoutRouteInterface $logoutRoute,
-        LoginRouteInterface $loginRoute,
-        ChangePasswordRouteInterface $changePasswordRoute,
-        ChangePaymentMethodRouteInterface $changePaymentMethodRoute,
-        ChangeEmailRouteInterface $changeEmailRoute,
-        ChangeCustomerProfileRouteInterface $changeCustomerProfileRoute,
-        ResetPasswordRouteInterface $resetPasswordRoute,
-        SendPasswordRecoveryMailRouteInterface $sendPasswordRecoveryMailRoute
+        AbstractLogoutRoute $logoutRoute,
+        AbstractLoginRoute $loginRoute,
+        AbstractChangePasswordRoute $changePasswordRoute,
+        AbstractChangePaymentMethodRoute $changePaymentMethodRoute,
+        AbstractChangeEmailRoute $changeEmailRoute,
+        AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
+        AbstractResetPasswordRoute $resetPasswordRoute,
+        AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
@@ -172,7 +172,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute instead
      */
     public function saveProfile(DataBag $data, SalesChannelContext $context): void
     {
@@ -180,7 +180,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute instead
      */
     public function savePassword(DataBag $data, SalesChannelContext $context): void
     {
@@ -188,7 +188,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute instead
      */
     public function saveEmail(DataBag $data, SalesChannelContext $context): void
     {
@@ -196,7 +196,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute instead
      */
     public function generateAccountRecovery(DataBag $data, SalesChannelContext $context): void
     {
@@ -208,7 +208,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute instead
      */
     public function resetPassword(DataBag $data, SalesChannelContext $context): bool
     {
@@ -304,7 +304,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\LoginRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute instead
      */
     public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
     {
@@ -312,7 +312,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\LogoutRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute instead
      */
     public function logout(SalesChannelContext $context): void
     {
@@ -333,7 +333,7 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRouteInterface instead
+     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute instead
      */
     public function changeDefaultPaymentMethod(string $paymentMethodId, RequestDataBag $requestDataBag, CustomerEntity $customer, SalesChannelContext $context): void
     {

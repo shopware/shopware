@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -22,7 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class NavigationRoute implements NavigationRouteInterface
+class NavigationRoute extends AbstractNavigationRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -54,6 +55,11 @@ class NavigationRoute implements NavigationRouteInterface
         $this->connection = $connection;
         $this->categoryDefinition = $categoryDefinition;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+    }
+
+    public function getDecorated(): AbstractNavigationRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

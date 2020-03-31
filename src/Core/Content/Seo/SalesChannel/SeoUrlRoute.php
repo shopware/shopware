@@ -7,6 +7,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class SeoUrlRoute implements SeoUrlRouteInterface
+class SeoUrlRoute extends AbstractSeoUrlRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -32,6 +33,11 @@ class SeoUrlRoute implements SeoUrlRouteInterface
     {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+    }
+
+    public function getDecorated(): AbstractSeoUrlRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

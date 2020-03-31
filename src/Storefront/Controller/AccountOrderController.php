@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRouteInterface;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractAccountOrderRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -27,7 +27,7 @@ class AccountOrderController extends StorefrontController
     private $orderPageLoader;
 
     /**
-     * @var AccountOrderRouteInterface
+     * @var AbstractAccountOrderRoute
      */
     private $orderRoute;
 
@@ -38,7 +38,7 @@ class AccountOrderController extends StorefrontController
 
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
-        AccountOrderRouteInterface $orderRoute,
+        AbstractAccountOrderRoute $orderRoute,
         RequestCriteriaBuilder $requestCriteriaBuilder
     ) {
         $this->orderPageLoader = $orderPageLoader;

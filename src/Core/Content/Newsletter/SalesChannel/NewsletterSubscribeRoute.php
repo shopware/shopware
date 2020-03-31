@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -29,7 +30,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class NewsletterSubscribeRoute implements NewsletterSubscribeRouteInterface
+class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
     public const STATUS_NOT_SET = 'notSet';
     public const STATUS_OPT_IN = 'optIn';
@@ -59,6 +60,11 @@ class NewsletterSubscribeRoute implements NewsletterSubscribeRouteInterface
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDecorated(): AbstractNewsletterSubscribeRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

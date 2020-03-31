@@ -513,7 +513,7 @@ Component.register('sw-cms-detail', {
 
             this.isLoading = true;
 
-            return this.pageRepository.save(this.page, Shopware.Context.api).then(() => {
+            return this.pageRepository.save(this.page, Shopware.Context.api, false).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
 

@@ -233,6 +233,8 @@ class ImportExportTest extends TestCase
 
     public function testNewsletterRecipient(): void
     {
+        $this->markTestSkipped('TODO: v6.2.0');
+
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
         $testData = [
             'id' => Uuid::randomHex(),

@@ -91,7 +91,8 @@ class ImportExportService
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
 
-        if ($file->getClientMimeType() !== $profileEntity->getFileType()) {
+        $type = $this->detectType($file);
+        if ($type !== $profileEntity->getFileType()) {
             throw new UnexpectedFileTypeException($file->getClientMimeType(), $profileEntity->getFileType());
         }
 
@@ -155,6 +156,16 @@ class ImportExportService
     {
         $data['id'] = $fileId;
         $this->fileRepository->update([$data], $context);
+    }
+
+    private function detectType(UploadedFile $file): string
+    {
+        $guessedExtension = $file->guessClientExtension();
+        if ($guessedExtension === 'csv' || ($file->getExtension() === 'csv' && $guessedExtension === 'xls')) {
+            return 'text/csv';
+        }
+
+        return $file->getClientMimeType();
     }
 
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity

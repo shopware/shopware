@@ -91,6 +91,7 @@ class MediaIndexer extends EntityIndexer
     {
         $ids = $message->getData();
 
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }

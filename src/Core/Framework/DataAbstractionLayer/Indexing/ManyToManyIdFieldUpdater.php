@@ -40,6 +40,8 @@ class ManyToManyIdFieldUpdater
             return;
         }
 
+        $ids = array_unique($ids);
+
         if ($definition instanceof MappingEntityDefinition) {
             $fkFields = $definition->getFields()->filterInstance(FkField::class);
 

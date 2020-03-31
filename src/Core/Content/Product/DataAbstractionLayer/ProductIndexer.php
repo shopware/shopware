@@ -158,6 +158,7 @@ class ProductIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
+        $ids = array_unique(array_filter($ids));
 
         if (empty($ids)) {
             return;
@@ -207,7 +208,7 @@ class ProductIndexer extends EntityIndexer
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_column($childrenIds, 'id');
+        return array_unique(array_filter(array_column($childrenIds, 'id')));
     }
 
     /**
@@ -221,6 +222,6 @@ class ProductIndexer extends EntityIndexer
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_column($parentIds, 'id');
+        return array_unique(array_filter(array_column($parentIds, 'id')));
     }
 }

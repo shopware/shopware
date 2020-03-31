@@ -90,7 +90,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-
+        $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
         }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
@@ -21,64 +21,64 @@ class ImportExportServiceTest extends TestCase
             [
                 'clientMimeType' => 'text/csv',
                 'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
             [
                 'clientMimeType' => 'text/x-csv',
                 'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
             [
                 'clientMimeType' => 'application/vnd.ms-excel',
                 'fileExtension' => 'csv',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
 
             [
                 'clientMimeType' => 'text/csv',
                 'fileExtension' => '',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
             [
                 'clientMimeType' => 'text/x-csv',
                 'fileExtension' => '',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
             [
                 'clientMimeType' => 'text/csv',
                 'fileExtension' => 'txt',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
             [
                 'clientMimeType' => 'text/x-csv',
                 'fileExtension' => 'txt',
-                'expectedMimeType' => 'text/csv'
+                'expectedMimeType' => 'text/csv',
             ],
 
             [
                 'clientMimeType' => 'text/xml',
                 'fileExtension' => 'xml',
-                'expectedMimeType' => false
+                'expectedMimeType' => false,
             ],
             [
                 'clientMimeType' => 'text/xml',
                 'fileExtension' => '',
-                'expectedMimeType' => false
+                'expectedMimeType' => false,
             ],
             [
                 'clientMimeType' => 'application/xml',
                 'fileExtension' => 'xml',
-                'expectedMimeType' => false
+                'expectedMimeType' => false,
             ],
             [
                 'clientMimeType' => 'application/xml',
                 'fileExtension' => '',
-                'expectedMimeType' => false
+                'expectedMimeType' => false,
             ],
             [
                 'clientMimeType' => 'application/vnd.ms-excel',
                 'fileExtension' => 'xls',
-                'expectedMimeType' => false
+                'expectedMimeType' => false,
             ],
         ];
     }
@@ -88,7 +88,6 @@ class ImportExportServiceTest extends TestCase
      */
     public function testMimeTypeValidation(string $clientMimeType, string $fileExtension, $expectedMimeType): void
     {
-
         /** @var EntityRepositoryInterface $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
         $importExportService = new ImportExportService(
@@ -129,6 +128,4 @@ class ImportExportServiceTest extends TestCase
 
         @unlink($path);
     }
-
-
 }

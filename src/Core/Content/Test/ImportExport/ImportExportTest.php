@@ -233,7 +233,7 @@ class ImportExportTest extends TestCase
 
     public function testNewsletterRecipient(): void
     {
-        $this->markTestSkipped('TODO: v6.2.0');
+        static::markTestSkipped('TODO: v6.2.0');
 
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
         $testData = [
@@ -415,7 +415,7 @@ class ImportExportTest extends TestCase
 
     public function importPropertyCsv(): void
     {
-        $this->markTestSkipped('TODO: v6.2.0');
+        static::markTestSkipped('TODO: v6.2.0');
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 

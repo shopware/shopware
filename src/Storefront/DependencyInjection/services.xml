@@ -429,5 +429,20 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider" />
+
+        <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
+            <argument type="tagged" tag="shopware.storefront.captcha"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Captcha\HoneypotCaptcha">
+            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="shopware.storefront.captcha"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
     </services>
 </container>

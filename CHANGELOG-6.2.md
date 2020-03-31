@@ -262,6 +262,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add `Hide products after clearance` option in `Setting -> Shop -> Listing`
     * Add `Listing` tab in the `Storefront presentation` modal to configure the variant preselection
     * Updated Node Dependencies
+    
+    * Added new `sw-settings-captcha-select` component
+        * This component allows users to define active captchas via `Settings -> Basic information`
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
@@ -411,6 +414,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
+    * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
+
+* Storefront    
+    * Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json
         {
@@ -438,6 +445,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * When `Hide products after clearance` is enabled, products marked as on "clearance sale" are hidden, as soon as their stock depletes back to 0
     * We have removed the fallback mechanism of `theme.json` for the `views` array. If `@Storefront` or `@Plugins` are not defined in the `views` array, they will not be added automatically.
     * It is now possible to inherited several themes from each other. Themes that are not defined in the `views` array of the active theme are excluded from template inheritance.
+    * Added `\Shopware\Storefront\Framework\Captcha\Annotation\Captcha` annotation to mark storefront routes which require a captcha check
+    * Added `\Shopware\Storefront\Framework\Captcha\AbstractCaptcha` as a base class for captchas
+        * Added `\Shopware\Storefront\Framework\Captcha\HoneypotCaptcha`
+    * Added `\Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException`
+    * Added `\Shopware\Storefront\Framework\Captcha\CaptchaRouteListener` on `KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE`
+    * Added base template for captchas at `platform/src/Storefront/Resources/views/storefront/component/captcha/base.html.twig`
+        * Added honeypot captcha template at `platform/src/Storefront/Resources/views/storefront/component/captcha/honeypot.html.twig`
+
 **Removals**
 
 * Administration

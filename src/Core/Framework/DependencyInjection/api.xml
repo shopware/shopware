@@ -213,6 +213,13 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Controller\CaptchaController" public="true">
+            <argument type="tagged" tag="shopware.storefront.captcha"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <!-- API OAuth Repositories -->
         <service id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">

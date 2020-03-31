@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -136,6 +137,7 @@ class RegisterController extends StorefrontController
 
     /**
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+     * @Captcha
      */
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {

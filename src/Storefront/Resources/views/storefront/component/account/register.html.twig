@@ -314,7 +314,7 @@
                     {% endblock %}
 
                     {% block component_account_register_captcha %}
-                        {#TODO: NEXT-2002 - captcha#}
+                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': shopware.config.core.basicInformation.activeCaptchas } %}
                     {% endblock %}
 
                     {% block component_account_register_privacy %}

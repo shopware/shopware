@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -39,6 +40,7 @@ class FormController extends StorefrontController
 
     /**
      * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     * @Captcha
      */
     public function sendContactForm(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
@@ -72,6 +74,7 @@ class FormController extends StorefrontController
 
     /**
      * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     * @Captcha
      */
     public function handleNewsletter(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {

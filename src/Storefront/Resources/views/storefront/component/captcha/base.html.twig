@@ -1,0 +1,7 @@
+{% block component_captcha_base %}
+    {% if captchas is defined and captchas is not empty %}
+        {% for captcha in captchas %}
+            {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(captcha) %}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

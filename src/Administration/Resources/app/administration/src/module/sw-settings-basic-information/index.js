@@ -1,6 +1,15 @@
+import CaptchaService from './service/captcha.service';
 import './page/sw-settings-basic-information';
+import './component/sw-settings-captcha-select';
 
 const { Module } = Shopware;
+
+Shopware.Service().register('captchaService', () => {
+    return new CaptchaService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service().get('loginService')
+    );
+});
 
 Module.register('sw-settings-basic-information', {
     type: 'core',

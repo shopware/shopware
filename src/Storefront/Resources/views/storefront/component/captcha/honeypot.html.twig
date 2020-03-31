@@ -1,0 +1,16 @@
+{% block component_captcha_honeypot %}
+    <div class="captcha--honeypot">
+        {% block component_captcha_honeypot_input %}
+            <input type="text"
+                   name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER') }}"
+                   class="d-none"
+                   value=""
+                   tabindex="-1"
+                   autocapitalize="off"
+                   spellcheck="false"
+                   autocorrect="off"
+                   autocomplete="off"
+            >
+        {% endblock %}
+    </div>
+{% endblock %}

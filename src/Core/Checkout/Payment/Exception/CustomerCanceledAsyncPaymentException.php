@@ -4,11 +4,11 @@ namespace Shopware\Core\Checkout\Payment\Exception;
 
 class CustomerCanceledAsyncPaymentException extends PaymentProcessException
 {
-    public function __construct(string $orderTransactionId, string $additionalInformation)
+    public function __construct(string $orderTransactionId, string $additionalInformation = '')
     {
         parent::__construct(
             $orderTransactionId,
-            'The customer canceled the external payment process. Additional information:' . PHP_EOL . '{{ additionalInformation }}',
+            'The customer canceled the external payment process. {{ additionalInformation }}',
             ['additionalInformation' => $additionalInformation]
         );
     }

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Account\Overview;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRouteInterface;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractAccountOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,7 +30,7 @@ class AccountOverviewPageLoader
     private $eventDispatcher;
 
     /**
-     * @var AccountOrderRouteInterface
+     * @var AbstractAccountOrderRoute
      */
     private $orderRoute;
 
@@ -42,7 +42,7 @@ class AccountOverviewPageLoader
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        AccountOrderRouteInterface $orderRoute,
+        AbstractAccountOrderRoute $orderRoute,
         RequestCriteriaBuilder $requestCriteriaBuilder
     ) {
         $this->genericLoader = $genericLoader;

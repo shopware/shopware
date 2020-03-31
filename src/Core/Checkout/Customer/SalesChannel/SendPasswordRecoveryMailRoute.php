@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -35,7 +36,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInterface
+class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
     /**
      * @var EntityRepositoryInterface
@@ -67,6 +68,11 @@ class SendPasswordRecoveryMailRoute implements SendPasswordRecoveryMailRouteInte
         $this->customerRecoveryRepository = $customerRecoveryRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
+    }
+
+    public function getDecorated(): AbstractSendPasswordRecoveryMailRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

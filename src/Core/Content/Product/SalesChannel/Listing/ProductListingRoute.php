@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -19,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class ProductListingRoute implements ProductListingRouteInterface
+class ProductListingRoute extends AbstractProductListingRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -37,6 +38,11 @@ class ProductListingRoute implements ProductListingRouteInterface
     ) {
         $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDecorated(): AbstractProductListingRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

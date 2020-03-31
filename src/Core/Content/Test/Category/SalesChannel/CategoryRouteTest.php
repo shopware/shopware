@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,7 +18,7 @@ class CategoryRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var CategoryRouteInterface
+     * @var AbstractCategoryRoute
      */
     private $route;
 

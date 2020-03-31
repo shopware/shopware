@@ -6,9 +6,9 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRouteInterface;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRouteInterface;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRouteInterface;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,17 +31,17 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInterface
 {
     /**
-     * @var NewsletterSubscribeRouteInterface
+     * @var AbstractNewsletterSubscribeRoute
      */
     private $newsletterSubscribeRoute;
 
     /**
-     * @var NewsletterConfirmRouteInterface
+     * @var AbstractNewsletterConfirmRoute
      */
     private $newsletterConfirmRoute;
 
     /**
-     * @var NewsletterUnsubscribeRouteInterface
+     * @var AbstractNewsletterUnsubscribeRoute
      */
     private $newsletterUnsubscribeRoute;
 
@@ -71,9 +71,9 @@ class NewsletterSubscriptionService implements NewsletterSubscriptionServiceInte
     private $domainRepository;
 
     public function __construct(
-        NewsletterSubscribeRouteInterface $newsletterSubscribeRoute,
-        NewsletterConfirmRouteInterface $newsletterConfirmRoute,
-        NewsletterUnsubscribeRouteInterface $newsletterUnsubscribeRoute,
+        AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
+        AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
+        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,

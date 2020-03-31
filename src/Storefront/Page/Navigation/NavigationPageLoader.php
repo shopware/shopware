@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
+use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -23,14 +23,14 @@ class NavigationPageLoader
     private $eventDispatcher;
 
     /**
-     * @var CategoryRouteInterface
+     * @var AbstractCategoryRoute
      */
     private $cmsPageRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        CategoryRouteInterface $cmsPageRoute
+        AbstractCategoryRoute $cmsPageRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;

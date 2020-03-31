@@ -3,9 +3,9 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRouteInterface;
+use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
-use Shopware\Core\Content\Cms\SalesChannel\CmsRouteInterface;
+use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -28,19 +28,19 @@ class CmsController extends StorefrontController
     private $listingGateway;
 
     /**
-     * @var CmsRouteInterface
+     * @var AbstractCmsRoute
      */
     private $cmsRoute;
 
     /**
-     * @var CategoryRouteInterface
+     * @var AbstractCategoryRoute
      */
     private $categoryRoute;
 
     public function __construct(
         ProductListingGateway $listingGateway,
-        CmsRouteInterface $cmsRoute,
-        CategoryRouteInterface $categoryRoute
+        AbstractCmsRoute $cmsRoute,
+        AbstractCategoryRoute $categoryRoute
     ) {
         $this->listingGateway = $listingGateway;
         $this->cmsRoute = $cmsRoute;

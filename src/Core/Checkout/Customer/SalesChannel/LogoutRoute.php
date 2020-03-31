@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
@@ -16,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class LogoutRoute implements LogoutRouteInterface
+class LogoutRoute extends AbstractLogoutRoute
 {
     /**
      * @var SalesChannelContextPersister
@@ -32,6 +33,11 @@ class LogoutRoute implements LogoutRouteInterface
     {
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDecorated(): AbstractLogoutRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

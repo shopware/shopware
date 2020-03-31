@@ -7,7 +7,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\NavigationRouteInterface;
+use Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -45,7 +45,7 @@ class NavigationLoader implements NavigationLoaderInterface
     private $connection;
 
     /**
-     * @var NavigationRouteInterface
+     * @var AbstractNavigationRoute
      */
     private $navigationRoute;
 
@@ -53,7 +53,7 @@ class NavigationLoader implements NavigationLoaderInterface
         Connection $connection,
         SalesChannelRepositoryInterface $repository,
         EventDispatcherInterface $eventDispatcher,
-        NavigationRouteInterface $navigationRoute
+        AbstractNavigationRoute $navigationRoute
     ) {
         $this->categoryRepository = $repository;
         $this->treeItem = new TreeItem(null, []);

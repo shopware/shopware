@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Currency\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -15,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class CurrencyRoute implements CurrencyRouteInterface
+class CurrencyRoute extends AbstractCurrencyRoute
 {
     /**
      * @var SalesChannelRepositoryInterface
@@ -40,6 +41,11 @@ class CurrencyRoute implements CurrencyRouteInterface
         $this->currencyRepository = $currencyRepository;
         $this->criteriaBuilder = $criteriaBuilder;
         $this->currencyDefinition = $currencyDefinition;
+    }
+
+    public function getDecorated(): AbstractCurrencyRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

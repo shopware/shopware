@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Page;
 
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteInterface;
-use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteInterface;
+use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -32,12 +32,12 @@ class GenericPageLoader implements GenericPageLoaderInterface
     private $systemConfigService;
 
     /**
-     * @var PaymentMethodRouteInterface
+     * @var AbstractPaymentMethodRoute
      */
     private $paymentMethodPageRoute;
 
     /**
-     * @var ShippingMethodRouteInterface
+     * @var AbstractShippingMethodRoute
      */
     private $shippingMethodPageRoute;
 
@@ -45,8 +45,8 @@ class GenericPageLoader implements GenericPageLoaderInterface
         HeaderPageletLoaderInterface $headerLoader,
         FooterPageletLoaderInterface $footerLoader,
         SystemConfigService $systemConfigService,
-        PaymentMethodRouteInterface $paymentMethodPageRoute,
-        ShippingMethodRouteInterface $shippingMethodPageRoute
+        AbstractPaymentMethodRoute $paymentMethodPageRoute,
+        AbstractShippingMethodRoute $shippingMethodPageRoute
     ) {
         $this->headerLoader = $headerLoader;
         $this->footerLoader = $footerLoader;

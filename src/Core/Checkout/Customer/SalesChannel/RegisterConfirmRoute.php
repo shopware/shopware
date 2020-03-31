@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -22,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class RegisterConfirmRoute implements RegisterConfirmRouteInterface
+class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
     /**
      * @var EntityRepositoryInterface
@@ -47,6 +48,11 @@ class RegisterConfirmRoute implements RegisterConfirmRouteInterface
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
+    }
+
+    public function getDecorated(): AbstractRegisterConfirmRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

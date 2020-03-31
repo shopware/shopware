@@ -7,6 +7,7 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -22,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class ContactFormRoute implements ContactFormRouteInterface
+class ContactFormRoute extends AbstractContactFormRoute
 {
     /**
      * @var ValidationServiceInterface|DataValidationFactoryInterface
@@ -64,6 +65,11 @@ class ContactFormRoute implements ContactFormRouteInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfigService = $systemConfigService;
         $this->cmsSlotRepository = $cmsSlotRepository;
+    }
+
+    public function getDecorated(): AbstractContactFormRoute
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

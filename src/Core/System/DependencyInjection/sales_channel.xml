@@ -91,7 +91,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\StoreApiController" public="true">
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="twig"/>
         </service>
@@ -105,6 +105,8 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute"/>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

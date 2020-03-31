@@ -14,12 +14,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class AccountRegistrationService
 {
     /**
-     * @var RegisterRouteInterface
+     * @var AbstractRegisterRoute
      */
     private $registerRoute;
 
     /**
-     * @var RegisterConfirmRouteInterface
+     * @var AbstractRegisterConfirmRoute
      */
     private $registerConfirmRoute;
 
@@ -34,8 +34,8 @@ class AccountRegistrationService
     private $domainRepository;
 
     public function __construct(
-        RegisterRouteInterface $registerRoute,
-        RegisterConfirmRouteInterface $registerConfirmRoute,
+        AbstractRegisterRoute $registerRoute,
+        AbstractRegisterConfirmRoute $registerConfirmRoute,
         EntityRepositoryInterface $domainRepository,
         SystemConfigService $systemConfigService
     ) {

@@ -15,8 +15,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Development\Kernel;
+use Symfony\Component\Finder\Finder;
 
 class CacheClearerTest extends TestCase
 {
@@ -34,7 +35,7 @@ class CacheClearerTest extends TestCase
         $oldCacheDirs = [];
         for ($i = 0; $i < 2; ++$i) {
             $class = KernelLifecycleManager::getKernelClass();
-            /** @var \Shopware\Development\Kernel $kernel */
+            /** @var Kernel $kernel */
             $kernel = new $class(
                 'test',
                 true,
@@ -60,13 +61,56 @@ class CacheClearerTest extends TestCase
 
         static::assertNotContains($second->getCacheDir(), $oldCacheDirs);
 
-        /** @var CacheClearer $clearer */
-        $clearer = $this->getContainer()->get(CacheClearer::class);
-        $clearer->clear();
+        $this->getContainer()->get(CacheClearer::class)->clear();
 
         foreach ($oldCacheDirs as $oldCacheDir) {
             static::assertFileNotExists($oldCacheDir);
         }
+    }
+
+    public function testClearContainerCache(): void
+    {
+        $kernelClass = KernelLifecycleManager::getKernelClass();
+        /** @var Kernel $newTestKernel */
+        $newTestKernel = new $kernelClass(
+            'test',
+            true,
+            new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
+            Uuid::randomHex(),
+            '1.1.1',
+            $this->getContainer()->get(Connection::class)
+        );
+
+        $newTestKernel->boot();
+        $cacheDir = $newTestKernel->getCacheDir();
+        $newTestKernel->shutdown();
+
+        $finder = (new Finder())->in($cacheDir)->directories()->name('Container*');
+        $containerCaches = [];
+
+        foreach ($finder->getIterator() as $containerPaths) {
+            $containerCaches[] = $containerPaths->getRealPath();
+        }
+
+        static::assertCount(1, $containerCaches);
+
+        $filesystem = $this->getContainer()->get('filesystem');
+        $cacheClearer = new CacheClearer(
+            [],
+            $this->getContainer()->get('cache_clearer'),
+            $filesystem,
+            $cacheDir,
+            'test',
+            $this->getContainer()->get(EntityCacheKeyGenerator::class)
+        );
+
+        $cacheClearer->clearContainerCache();
+
+        foreach ($containerCaches as $containerCache) {
+            static::assertFileNotExists($containerCache);
+        }
+
+        $filesystem->remove($cacheDir);
     }
 
     public function testInvalidateByTag(): void

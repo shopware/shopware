@@ -13,7 +13,9 @@ module.exports = {
 
     globals: {
         Shopware: true,
-        VueJS: true
+        VueJS: true,
+        Cypress: true,
+        cy: true,
     },
 
     plugins: ['jest'],

@@ -65,7 +65,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `sw-multi-tag-select` component which can now be used to allow users to enter data into a tagged input field
     * Added `sw-multi-tag-ip-select` as an extension which includes IP-validation
     * The `sw-multi-ip-select`-component is now deprecated and will be removed with version 6.4
-    
     * Replaced Store based datahandling with repository based datahandling in media specific components and modules, including the following changes
       * sw-tag-field
         * Added injection of `repositoryFactory`
@@ -248,12 +247,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added an error notification for user when he deletes a customer group that has a SalesChannel and/or a customer assigned to it.
     * Added `bulk-modal-cancel`, `bulk-modal-delete-items`, `delete-modal-cancel` and `delete-modal-delete-item` slots to `sw-entity-listing.html.twig`
     * Added twig blocks `sw_cms_page_form_section_empty_state_block_text` and `sw_cms_page_form_section_empty_state_block` to `sw-cms-page-form.html.twig`
-
-    * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
     * The `fixed` directive is now deprecated and will be removed with version 6.4
     * Added `sw-order-promotion-tag-input` component to handle showing promotion code list, entering and removing promotion code
     * Added `sw-order-create-invalid-promotion-modal` component to show recent invalid promotion codes after clicking on Save Order button
-     
     * The `fixed` directive is now deprecated and will be removed with version 6.4 
     * Ordered settings items on settings list index page alphabetically
     * Show error when theme compiling in theme manager throws an error
@@ -263,7 +259,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add `Hide products after clearance` option in `Setting -> Shop -> Listing`
     * Add `Listing` tab in the `Storefront presentation` modal to configure the variant preselection
     * Updated Node Dependencies
-    
     * Added new `sw-settings-captcha-select` component
         * This component allows users to define active captchas via `Settings -> Basic information`
     * Fix renaming of duplicated media names
@@ -324,7 +319,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw-entity-multi-id-select`
         * `sw-text-editor`
         * `sw-media-field`
-
     * Added `trackingUrl` property to the `Shopware\Core\Checkout\Shipping\ShippingMethodEntity.php`
     * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
     * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
@@ -387,8 +381,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * When the new field and the old field is send, the converter will prefer the new field
         * Added new header `sw-ignore-deprecations` to ignore deprecations and receive all fields
         * This header is used now in all api calls in the administration
-    
-    
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry` use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry` instead
     * Added `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection::getPayloadsProperty` function which allows to extract a property value of all line item payloads.
     * Added `\Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection::filterByType` function which allows to filter the line item collection by the provided line item type
@@ -414,12 +406,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Elasticsearch\Framework\Indexing\EntityIndexer`, use `\Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer` instead
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` instead
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
+    * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
+
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
-
-* Storefront    
-    * Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json
         {
@@ -458,6 +449,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Non ES5 modules are now compiled with babel to support IE11
     * Terser Minifier works now in ES5 for better IE11 support
     * Add babel polyfill for IE11
+    * Added `rel="noopener"` to all `target="_blank"` links
 
 **Removals**
 
@@ -551,10 +543,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add `rel="noopener"` to all `target="_blank"` links
     * Fix wrong behavior of switch fields, checkboxes and radio fields when clicking on the label
     * Moved bearerAuth location from localStorage to Cookies 
+    * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
 
 * Core
     *
 
 * Storefront
-    * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
-    * Add `rel="noopener"` to all `target="_blank"` links
+    * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor

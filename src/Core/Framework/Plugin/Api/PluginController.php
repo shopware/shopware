@@ -80,15 +80,14 @@ class PluginController extends AbstractController
         }
 
         try {
-            $this->pluginManagementService->uploadPlugin($file);
+            $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
             unlink($file->getPathname());
 
             throw $e;
         }
-        $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return new Response(null, Response::HTTP_NO_CONTENT);
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -107,9 +106,7 @@ class PluginController extends AbstractController
             throw new CanNotDeletePluginManagedByComposerException('can not delete plugins managed by composer');
         }
 
-        $this->pluginManagementService->deletePlugin($plugin);
-
-        $this->pluginService->refreshPlugins($context, new NullIO());
+        $this->pluginManagementService->deletePlugin($plugin, $context);
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,
@@ -125,7 +122,7 @@ class PluginController extends AbstractController
     {
         $this->pluginService->refreshPlugins($context, new NullIO());
 
-        return new Response();
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     /**

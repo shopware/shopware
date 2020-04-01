@@ -28,9 +28,19 @@
                                 </div>
                             {% endblock %}
                         </div>
+                        
+                        {% block sw_cms_page_form_section_empty_state_block %}
+                            <sw-card v-if="section.blocks.length === 0"
+                                     class="sw-cms-page-form__block-card is--empty">
+                            
+                                {% block sw_cms_page_form_section_empty_state_block_text %}
+                                    <p class="sw-cms-page-form__empty-state-text">{{ $tc('sw-cms.section.sectionEmptyState') }}</p>
+                                {% endblock %}
+                            </sw-card>
+                        {% endblock %}
 
-                        <template v-for="block in section.blocks">
-                                                        
+                        <template v-else v-for="block in section.blocks">
+
                             {% block sw_cms_page_form_section_type_label_wrapper %}
                                 <div v-if="displaySectionType(block)"
                                      class="sw-cms-page-form__section-type">

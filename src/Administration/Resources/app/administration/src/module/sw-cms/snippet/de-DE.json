@@ -36,7 +36,8 @@
       "sidebar": "Sidebar",
       "isSidebar": "Layout-Sektion - Sidebar",
       "isDefault": "Layout-Sektion - Standard",
-      "layoutSection": "Layout-Sektion"
+      "layoutSection": "Layout-Sektion",
+      "sectionEmptyState": "Noch keine Blöcke und Elemente hinzugefügt"
     },
     "sidebar": {
       "contentMenu": {

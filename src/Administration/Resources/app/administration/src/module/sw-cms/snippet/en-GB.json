@@ -36,7 +36,8 @@
       "sidebar": "Sidebar",
       "layoutSection": "Layout section",
       "isSidebar": "Layout section - Sidebar",
-      "isDefault": "Layout section - Default"
+      "isDefault": "Layout section - Default",
+      "sectionEmptyState": "No blocks and elements in here"
     },
     "sidebar": {
       "contentMenu": {

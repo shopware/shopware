@@ -11,9 +11,9 @@ describe('Import/Export - Export:', () => {
         }).then(() => {
             return cy.createProductFixture();
         })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
-            });
+        .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
+        });
 
         page = new SettingsPageObject();
     });

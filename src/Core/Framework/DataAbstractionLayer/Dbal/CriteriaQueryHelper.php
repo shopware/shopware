@@ -107,7 +107,7 @@ trait CriteriaQueryHelper
 
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
-            if ($primaryKeyField instanceof IdField) {
+            if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
                 $primaryKeys = array_map(function ($id) {
                     if (is_array($id)) {
                         return Uuid::fromHexToBytes($id[0]);

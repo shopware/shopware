@@ -1,0 +1,29 @@
+@import "~scss/variables";
+
+.sw-sales-channel-google-shipping-setting {
+    &__description {
+        margin: 10px 0;
+        font-size: $font-size-small;
+    }
+
+    &__options {
+        margin-bottom: 0;
+
+        .sw-field__radio-option {
+            margin-top: 24px;
+        }
+    }
+
+    &__rate-input {
+        grid-column: 2;
+        margin-top: 12px;
+
+        &.sw-field {
+            width: 120px;
+        }
+    }
+
+    &__currency-label {
+        font-weight: $font-weight-semi-bold;
+    }
+}

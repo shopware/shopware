@@ -10,10 +10,9 @@ describe('Import/Export - Export:', () => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             return cy.createProductFixture();
-        })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
-            });
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/export`);
+        });
 
         page = new SettingsPageObject();
     });

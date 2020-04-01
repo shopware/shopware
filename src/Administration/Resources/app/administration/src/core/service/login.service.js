@@ -1,3 +1,5 @@
+import { CookieStorage } from 'cookie-storage';
+
 /**
  * @module core/service/login
  */
@@ -13,11 +15,16 @@
  * @returns {Object}
  */
 export default function createLoginService(httpClient, context, bearerAuth = null) {
-    /** @var {String} localStorage token */
-    const localStorageKey = 'bearerAuth';
+    /** @var {String} storageKey token */
+    const storageKey = 'bearerAuth';
     const onTokenChangedListener = [];
     const onLogoutListener = [];
     const onLoginListener = [];
+    const cookieStorage = cookieStorageFactory();
+
+    if (typeof removeLocalStorageImplementation === 'function') {
+        removeLocalStorageImplementation();
+    }
 
     return {
         loginByUsername,
@@ -31,6 +38,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnLogoutListener,
         addOnLoginListener,
         getLocalStorageKey,
+        getStorageKey,
         notifyOnLoginListener
     };
 
@@ -155,7 +163,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * Saves the bearer authentication object in the localStorage using the {@link localStorageKey} as the
+     * Saves the bearer authentication object in the cokkies using the {@link storageKey} as the
      * object identifier.
      *
      * @memberOf module:core/service/login
@@ -166,8 +174,8 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     function setBearerAuthentication({ access, refresh, expiry }) {
         expiry = Math.round(+new Date() / 1000) + expiry;
         const authObject = { access, refresh, expiry };
-        if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(localStorageKey, JSON.stringify(authObject));
+        if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
+            cookieStorage.setItem(storageKey, JSON.stringify(authObject));
         } else {
             bearerAuth = authObject;
         }
@@ -187,9 +195,9 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      * @returns {Boolean|String|Number}
      */
     function getBearerAuthentication(section = null) {
-        if (typeof localStorage !== 'undefined') {
+        if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             try {
-                bearerAuth = JSON.parse(localStorage.getItem(localStorageKey));
+                bearerAuth = JSON.parse(cookieStorage.getItem(storageKey));
             } catch {
                 bearerAuth = null;
             }
@@ -209,14 +217,14 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * Clears the local stored bearer authentication object.
+     * Clears the cookie stored bearer authentication object.
      *
      * @memberOf module:core/service/login
      * @returns {Boolean}
      */
     function logout() {
-        if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem(localStorageKey);
+        if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
+            cookieStorage.removeItem(storageKey);
         }
 
         context.authToken = null;
@@ -280,7 +288,52 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         return validateExpiry(bearerAuthExpiry);
     }
 
+    /**
+     * @deprecated 6.3.0 - use getStorageKey instead
+     * @returns {String}
+     */
     function getLocalStorageKey() {
-        return localStorageKey;
+        return getStorageKey();
+    }
+
+    /**
+     * Returns the storage key.
+     *
+     * @returns {String}
+     */
+    function getStorageKey() {
+        return storageKey;
+    }
+
+    /**
+     * Returns a CookieStorage instance with the right domain and path from the context.
+     *
+     * @returns {CookieStorage}
+     */
+    function cookieStorageFactory() {
+        const domain = context.host;
+        const path = context.basePath + context.pathInfo;
+
+        // Set default cookie values
+        return new CookieStorage(
+            {
+                path: path,
+                domain: domain,
+                secure: false, // only allow HTTPs
+                sameSite: 'Strict' // Should be Strict
+            }
+        );
+    }
+
+    /**
+     * @deprecated 6.3.0
+     * It resets the old localStorage implementation of the authentication.
+     * Can be removed in 6.3.0 because it is only needed for upgrading from
+     * 6.1 to 6.2
+     */
+    function removeLocalStorageImplementation() {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem(storageKey);
+        }
     }
 }

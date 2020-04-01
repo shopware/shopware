@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -94,8 +96,8 @@ class FieldSerializer extends AbstractFieldSerializer
         if ($field instanceof ManyToManyAssociationField) {
             return array_filter(
                 array_map(
-                    static function ($id) {
-                        $id = strtolower(trim($id));
+                    function ($id) {
+                        $id = $this->normalizeId($id);
                         if ($id === '') {
                             return null;
                         }
@@ -137,11 +139,20 @@ class FieldSerializer extends AbstractFieldSerializer
             return (int) $value;
         }
 
+        if ($field instanceof IdField || $field instanceof FkField) {
+            return $this->normalizeId($value);
+        }
+
         return $value;
     }
 
     public function supports(Field $field): bool
     {
         return true;
+    }
+
+    private function normalizeId(?string $id): string
+    {
+        return strtolower(trim((string) $id));
     }
 }

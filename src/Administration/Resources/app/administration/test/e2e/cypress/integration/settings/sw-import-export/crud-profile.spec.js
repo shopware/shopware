@@ -91,7 +91,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal').should('be.visible');
 
         // Update the profile with a new name
-        cy.get('[name="sw-field--profile-name"]').clearTypeAndCheck('Extended');
+        cy.get('[name="sw-field--profile-name"]').clearTypeAndCheck('Updated E2E');
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
@@ -102,8 +102,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
 
         // Verify updated profile is in listing
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('Extended');
-        cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Extended');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('Updated E2E');
+        cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Updated E2E');
     });
 
     it('@settings: Delete profile', () => {

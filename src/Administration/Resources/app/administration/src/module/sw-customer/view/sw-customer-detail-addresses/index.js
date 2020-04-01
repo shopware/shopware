@@ -212,11 +212,12 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         isValidAddress(address) {
+            const ignoreFields = ['createdAt'];
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
             let isValid = true;
 
             isValid = requiredAddressFields.every(field => {
-                return required(address[field]);
+                return (ignoreFields.indexOf(field) !== -1) || required(address[field]);
             });
 
             return isValid;

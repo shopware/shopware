@@ -13,6 +13,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core
     * Fixed a bug, where access tokens could get very large and cause requests to fail
+    * Added Import/Export module with csv support. We've decided to add this feature in this patch release, to make it available earlier, due to the current covid-19 crisis. Be believe this feature may help small business owners to setup their shop faster. Beware that parts of the import/export api are still unstable and marked as @experimental.
 
 ### 6.1.4
 

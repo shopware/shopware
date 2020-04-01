@@ -287,7 +287,7 @@ function createRouteComponentList(route, moduleId, module) {
         if (!component) {
             warn(
                 'ModuleFactory',
-                `The route definition of module "${moduleId}" is not valid. 
+                `The route definition of module "${moduleId}" is not valid.
                     A route needs an assigned component name.`
             );
             return;

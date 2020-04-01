@@ -1,0 +1,14 @@
+{
+  "name": "E2E",
+  "systemDefault": false,
+  "sourceEntity": "product",
+  "fileType": "text/csv",
+  "delimiter": ";",
+  "enclosure": "\"",
+  "mapping": [
+    {
+      "key": "id",
+      "mappedKey": "id"
+    }
+  ]
+}

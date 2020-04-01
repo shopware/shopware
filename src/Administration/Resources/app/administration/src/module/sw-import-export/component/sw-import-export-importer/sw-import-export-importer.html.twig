@@ -1,0 +1,46 @@
+{% block sw_import_export_importer %}
+    <div class="sw-import-export-importer">
+        {% block sw_import_export_importer_upload_csv_label %}
+            <h2>{{  $tc('sw-import-export.importer.uploadCsvLabel')  }}</h2>
+        {% endblock %}
+
+        {% block sw_import_export_importer_warning_block %}
+            <p><span v-html="$tc('sw-import-export.importer.warningBlock')"></span></p>
+        {% endblock %}
+
+        {% block sw_import_export_importer_file_input %}
+            <sw-file-input v-model="importFile">
+                <template #caption-label>
+                    {{ $tc('sw-import-export.importer.labelUploadCaption') }}
+                </template>
+            </sw-file-input>
+        {% endblock %}
+
+        {% block sw_import_export_importer_select_profile_label %}
+            <h2>{{  $tc('sw-import-export.importer.selectProfileLabel')  }}</h2>
+        {% endblock %}
+
+        {% block sw_import_export_importer_profile_select %}
+            <sw-entity-single-select
+                :disabled="isLoading"
+                :label="$tc('sw-import-export.importer.profileLabel')"
+                entity="import_export_profile"
+                v-model="selectedProfile"
+                required>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_import_export_importer_progress %}
+            <sw-import-export-progress
+                activityType="import"
+                :offset="progressOffset"
+                :total="progressTotal"
+                :logEntry="progressLogEntry"
+                :state="progressState"
+                :isLoading="isLoading"
+                :disableButton="disableImporting"
+                @process-start="onStartProcess">
+            </sw-import-export-progress>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -285,7 +285,7 @@
 
                                                         {% block sw_data_grid_body_cell_actions %}
                                                             <sw-context-button v-else class="sw-data-grid__actions-menu">
-                                                                <slot name="actions" :item="item">
+                                                                <slot name="actions" :item="item" :itemIndex="itemIndex">
                                                                     {% block sw_data_grid_slot_actions %}{% endblock %}
                                                                 </slot>
                                                             </sw-context-button>

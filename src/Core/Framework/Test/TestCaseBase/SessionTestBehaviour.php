@@ -10,6 +10,14 @@ use Symfony\Component\HttpFoundation\Session\Session;
 trait SessionTestBehaviour
 {
     /**
+     * @before
+     */
+    public function clearSessionBefore(): void
+    {
+        $this->clearSessionAfter();
+    }
+
+    /**
      * @after
      */
     public function clearSessionAfter(): void

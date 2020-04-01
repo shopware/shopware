@@ -5,11 +5,21 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 class CartLineItemControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
+
+    /**
+     * @before
+     * @after
+     */
+    public function clearFlashBag(): void
+    {
+        $this->getFlashBag()->clear();
+    }
 
     public function testErrorBehaviourInFlashMessages(): void
     {
@@ -25,7 +35,7 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertSame(
             ['warning' => ['checkout.product-not-found']],
-            $this->getContainer()->get('session')->getFlashBag()->all()
+            $this->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), $response->getContent());
     }
@@ -45,5 +55,10 @@ class CartLineItemControllerTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function getFlashBag(): FlashBagInterface
+    {
+        return $this->getContainer()->get('session')->getFlashBag();
     }
 }

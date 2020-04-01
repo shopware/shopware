@@ -1,42 +1,118 @@
 {% block sw_import_export_progress %}
-    <sw-modal class="sw-import-export-progress"
-              :title="$tc('sw-import-export-progress.title')"
-              @modal-close="closeModal">
+    <div class="sw-import-export-progress">
+        <div class="sw-import-export-progress__progress">
+            {% block sw_import_export_progress_start_process %}
+                <sw-button :disabled="disableButton"
+                           class="sw-import-export-progress__start-process-action"
+                           size="small"
+                           variant="primary"
+                           @click="$emit('process-start')">
+                    <template v-if="activityType === 'import'">
+                        {{  $tc('sw-import-export.progress.startImportLabel')  }}
+                    </template>
+                    <template v-else>
+                        {{  $tc('sw-import-export.progress.startExportLabel')  }}
+                    </template>
+                </sw-button>
+            {% endblock %}
 
-        <sw-progress-bar :value="percentage"></sw-progress-bar>
+            {% block sw_import_export_progress_bar %}
+                <div class="sw-import-export-progress__progress-bar"
+                     v-if="total !== null">
+                    <div class="sw-import-export-progress__progress-bar-stats">
+                        <p>{{ logEntryState }}</p>
+                        <p>{{ offset }} / {{ total }} {{ entriesLabel }}</p>
+                    </div>
 
-        {% block sw_import_export_progress_footer %}
-            <template #modal-footer>
-                {% block sw_import_export_progress_footer_actions_cancel %}
-                    <sw-button @click="onUserCancel"
-                               v-if="progress"
-                               :disabled="aborted"
-                               size="small">
-                        {{ $tc('sw-import-export-progress.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
+                    <sw-progress-bar :value="percentageProgress"
+                                     class="sw-import-export-progress__progress-bar-bar"
+                                     :class="progressBarClasses">
+                    </sw-progress-bar>
+                </div>
+            {% endblock %}
+        </div>
 
-                {% block sw_import_export_progress_footer_actions_close %}
-                    <sw-button @click="closeModal"
-                               :disabled="progress"
-                               :variant="downloadUrl ? '' : 'primary'"
-                               size="small">
-                        {{ $tc('sw-import-export-progress.buttonClose') }}
-                    </sw-button>
-                {% endblock %}
+        {% block sw_import_export_progress_stats %}
+            <template v-if="!isLoading && logEntry">
+                <div class="sw-import-export-progress__stats">
+                    <ul>
+                        {% block sw_import_export_progress_stats_success %}
+                            <template v-if="state === 'succeeded'">
+                                <li class="sw-import-export-progress__stats-list-success">
+                                    <sw-icon name="default-basic-checkmark-line"
+                                             size="14px"
+                                             color="#758ca3">
+                                    </sw-icon>
+                                    {{ successMessage }}
+                                </li>
+                            </template>
+                        {% endblock %}
+                        {% block sw_import_export_progress_stats_import_failed %}
+                            <template v-if="state === 'failed' && activityType === 'import'">
+                                <li class="sw-import-export-progress__stats-list-successful">
+                                    <sw-icon name="default-basic-checkmark-line"
+                                             size="14px">
+                                    </sw-icon>
+                                    <span>
+                                        {{ $tc(
+                                            'sw-import-export.progress.successfulImportsText',
+                                            0,
+                                            { records: logEntry.records })
+                                        }}
+                                    </span>
+                                </li>
+                                <li class="sw-import-export-progress__stats-list-failed">
+                                    <sw-icon name="default-basic-x-line"
+                                             size="14px">
+                                    </sw-icon>
+                                    <span>
+                                        {{ $tc(
+                                            'sw-import-export.progress.failedImportsText',
+                                            0,
+                                            { failedRecords: logEntry.invalidRecordsLog.records})
+                                        }}
+                                    </span>
+                                </li>
+                                <li>
+                                    <sw-button variant="primary"
+                                               size="small"
+                                               class="sw-import-export-progress__stats-list-failure-download"
+                                               :link="getDownloadUrl(
+                                                   logEntry.invalidRecordsLog.file.id,
+                                                   logEntry.invalidRecordsLog.file.accessToken
+                                                    )">
+                                        {{  $tc('sw-import-export.progress.downloadFailedLabel')  }}
+                                    </sw-button>
+                                </li>
+                            </template>
+                        {% endblock %}
+                        {% block sw_import_export_progress_stats_export_failed %}
+                            <template v-if="state === 'failed' && activityType === 'export'">
+                                <li class="sw-import-export-progress__stats-list-failure">
+                                    <sw-icon name="default-basic-x-line"
+                                             size="14px"
+                                             color="#de294c">
+                                    </sw-icon>
+                                    {{  $tc('sw-import-export.progress.failedExportText')  }}
+                                </li>
+                            </template>
+                        {% endblock %}
+                    </ul>
+                </div>
 
-                {% block sw_import_export_progress_footer_actions_download %}
-                    <a :href="downloadUrl"
-                       target="_blank"
-                       v-if="downloadUrl">
-                        <sw-button variant="primary"
-                                   size="small">
-                            {{ $tc('sw-import-export-progress.buttonDownload') }}
-                        </sw-button>
-                    </a>
-                {% endblock %}
+                <div>
+                    {% block sw_import_export_progress_stats_download %}
+                        <template v-if="activityType === 'export'">
+                            <sw-button variant="primary"
+                                       class="sw-import-export-progress__download-action"
+                                       size="small"
+                                       :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
+                                {{  $tc('sw-import-export.progress.downloadFileLabel')  }}
+                            </sw-button>
+                        </template>
+                    {% endblock %}
+                </div>
             </template>
         {% endblock %}
-
-    </sw-modal>
+    </div>
 {% endblock %}

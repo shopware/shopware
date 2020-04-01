@@ -132,7 +132,7 @@ class ProductPageConfiguratorLoader
         return $groups;
     }
 
-    private function sortSettings(array $groups): PropertyGroupCollection
+    private function sortSettings(?array $groups): PropertyGroupCollection
     {
         if (!$groups) {
             return new PropertyGroupCollection();
@@ -209,7 +209,10 @@ class ProductPageConfiguratorLoader
 
         $current = [];
         foreach ($product->getOptionIds() as $optionId) {
-            $groupId = $keyMap[$optionId];
+            $groupId = $keyMap[$optionId] ?? null;
+            if ($groupId === null) {
+                continue;
+            }
 
             $current[$groupId] = $optionId;
         }

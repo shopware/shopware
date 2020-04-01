@@ -14,7 +14,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Administration
     * Added new `sw-import-export` module in `src/Administration/Resources/app/administration/src/module`
     * Added new slot `caption-label` in `sw-file-input` component
-    * Added new `add` method to `src/Administration/Resources/app/administration/src/core/factory/entity-definition.factory.js`
+    * Added new `has` method to `src/Administration/Resources/app/administration/src/core/factory/entity-definition.factory.js`
 
 * Core
     * Fixed a bug, where access tokens could get very large and cause requests to fail

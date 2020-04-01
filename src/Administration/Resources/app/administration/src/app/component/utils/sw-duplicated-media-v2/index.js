@@ -242,7 +242,10 @@ Component.register('sw-duplicated-media-v2', {
 
         async renameFile(uploadTask) {
             const newTask = Object.assign({}, uploadTask);
-            newTask.fileName = await this.mediaService.provideName(uploadTask.fileName, uploadTask.extension).fileName;
+
+            const { fileName } = await this.mediaService.provideName(uploadTask.fileName, uploadTask.extension);
+            newTask.fileName = fileName;
+
             this.mediaService.addUpload(newTask.uploadTag, newTask);
             await this.mediaService.runUploads(newTask.uploadTag);
         },

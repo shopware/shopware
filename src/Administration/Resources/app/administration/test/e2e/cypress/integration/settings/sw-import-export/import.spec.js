@@ -20,6 +20,22 @@ describe('Import/Export - Import:', () => {
     });
 
     it('@settings: Perform import with product profile', () => {
+        cy.server();
+        cy.route({
+            url: '/api/v1/_action/import-export/prepare',
+            method: 'post'
+        }).as('prepare');
+
+        cy.route({
+            url: '/api/v1/_action/import-export/process',
+            method: 'post'
+        }).as('process');
+
+        cy.route({
+            url: '/api/v1/search/import-export-log',
+            method: 'post'
+        }).as('importExportLog');
+
         cy.get('.sw-import-export-view-import').should('be.visible');
 
         // Upload a fixture CSV file with a single product
@@ -50,6 +66,21 @@ describe('Import/Export - Import:', () => {
         cy.get('.sw-import-export-progress__start-process-action').click();
         cy.get('.sw-import-export-progress__start-process-action').should('be.disabled');
 
+        // Prepare request should be successful
+        cy.wait('@prepare').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // Process request should be successful
+        cy.wait('@process').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // Import export log request should be successful
+        cy.wait('@importExportLog').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         // Progress bar and log should be visible
         cy.get('.sw-import-export-progress__progress-bar-bar').should('be.visible');
         cy.get('.sw-import-export-progress__stats').should('be.visible');
@@ -60,5 +91,10 @@ describe('Import/Export - Import:', () => {
             .should('contain', 'E2E');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
             .should('contain', 'succeeded');
+
+        // Verify that the imported product exists in product listing
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
+            .contains('Example product');
     });
 });

@@ -9,6 +9,8 @@
 
     {% block component_address_form_company %}
         {% if shopware.config.core.loginRegistration.showAccountTypeSelection %}
+            {% set accountTypeRequired = true %}
+            {# @deprecated tag:6.4.0 - Variable "accounTypeRequired" will be removed. Use "accountTypeRequired" instead #}
             {% set accounTypeRequired = true %}
         {% endif %}
 
@@ -27,7 +29,7 @@
                                 {% block component_address_form_company_name_label %}
                                     <label class="form-label"
                                            for="{{ prefix }}company">
-                                        {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
+                                        {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if prefix != "shippingAddress" and accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
                                     </label>
                                 {% endblock %}
 
@@ -35,10 +37,10 @@
                                     <input type="text"
                                            class="form-control{% if violationPath %} is-invalid{% endif %}"
                                            id="{{ prefix }}company"
-                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}{% if prefix != "shippingAddress" and accounTypeRequired %}{{ "general.required"|trans|striptags }}{% endif %}"
+                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}{% if prefix != "shippingAddress" and accountTypeRequired %}{{ "general.required"|trans|striptags }}{% endif %}"
                                            name="{{ prefix }}[company]"
                                            value="{{ data.get('company') }}"
-                                           {% if prefix != "shippingAddress" and accounTypeRequired %}required="required"{% endif %}>
+                                           {% if prefix != "shippingAddress" and accountTypeRequired %}required="required"{% endif %}>
                                 {% endblock %}
 
                                 {% block component_address_form_company_name_input_error %}

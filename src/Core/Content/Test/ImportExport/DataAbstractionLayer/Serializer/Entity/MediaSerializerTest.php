@@ -137,4 +137,52 @@ class MediaSerializerTest extends TestCase
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
         $eventDispatcher->dispatch($writtenEvent, 'media.written');
     }
+
+    public function testOnlyUrl(): void
+    {
+        $context = Context::createDefaultContext();
+        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $fileSaver = $this->createMock(FileSaver::class);
+
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
+        $mediaSerializer->setRegistry($serializerRegistry);
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber($mediaSerializer);
+
+        $expectedDestination = 'shopware-logo';
+        $record = [
+            'url' => 'http://172.16.11.80/shopware-logo.png',
+        ];
+
+        $expectedMediaFile = new MediaFile(
+            '/tmp/foo/bar/baz',
+            'image/png',
+            'png',
+            1337
+        );
+        $mediaService->expects(static::once())
+            ->method('fetchFile')
+            ->willReturn($expectedMediaFile);
+
+        $fileSaver->expects(static::once())
+            ->method('persistFileToMedia')
+            ->willReturnCallback(function (MediaFile $m, string $dest) use ($expectedMediaFile, $expectedDestination): void {
+                $this->assertSame($expectedMediaFile, $m);
+                $this->assertSame($expectedDestination, $dest);
+            });
+        $config = new Config([], []);
+
+        $result = $mediaSerializer->deserialize($config, $mediaDefinition, $record);
+
+        $writtenResult = new EntityWriteResult($result['id'], $result, 'media', 'insert');
+        $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
+        $eventDispatcher->dispatch($writtenEvent, 'media.written');
+    }
 }

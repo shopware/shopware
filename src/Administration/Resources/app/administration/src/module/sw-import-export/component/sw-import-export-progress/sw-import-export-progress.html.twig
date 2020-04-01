@@ -47,43 +47,43 @@
                             </template>
                         {% endblock %}
                         {% block sw_import_export_progress_stats_import_failed %}
-                        <template v-if="state === 'failed' && activityType === 'import'">
-                            <li class="sw-import-export-progress__stats-list-successful">
-                                <sw-icon name="default-basic-checkmark-line"
-                                         size="14px">
-                                </sw-icon>
-                                <span>
-                                    {{ $tc(
-                                        'sw-import-export.progress.successfulImportsText',
-                                        0,
-                                        { records: logEntry.records })
-                                    }}
-                                </span>
-                            </li>
-                            <li class="sw-import-export-progress__stats-list-failed">
-                                <sw-icon name="default-basic-x-line"
-                                         size="14px">
-                                </sw-icon>
-                                <span>
-                                    {{ $tc(
-                                        'sw-import-export.progress.failedImportsText',
-                                        0,
-                                        { failedRecords: logEntry.invalidRecordsLog.records})
-                                    }}
-                                </span>
-                            </li>
-                            <li>
-                                <sw-button variant="primary"
-                                           size="small"
-                                           class="sw-import-export-progress__stats-list-failure-download"
-                                           :link="getDownloadUrl(
-                                               logEntry.invalidRecordsLog.file.id,
-                                               logEntry.invalidRecordsLog.file.accessToken
-                                                )">
-                                    {{  $tc('sw-import-export.progress.downloadFailedLabel')  }}
-                                </sw-button>
-                            </li>
-                        </template>
+                            <template v-if="state === 'failed' && activityType === 'import'">
+                                <li class="sw-import-export-progress__stats-list-successful">
+                                    <sw-icon name="default-basic-checkmark-line"
+                                             size="14px">
+                                    </sw-icon>
+                                    <span>
+                                        {{ $tc(
+                                            'sw-import-export.progress.successfulImportsText',
+                                            0,
+                                            { records: logEntry.records })
+                                        }}
+                                    </span>
+                                </li>
+                                <li class="sw-import-export-progress__stats-list-failed">
+                                    <sw-icon name="default-basic-x-line"
+                                             size="14px">
+                                    </sw-icon>
+                                    <span>
+                                        {{ $tc(
+                                            'sw-import-export.progress.failedImportsText',
+                                            0,
+                                            { failedRecords: logEntry.invalidRecordsLog.records})
+                                        }}
+                                    </span>
+                                </li>
+                                <li>
+                                    <sw-button variant="primary"
+                                               size="small"
+                                               class="sw-import-export-progress__stats-list-failure-download"
+                                               :link="getDownloadUrl(
+                                                   logEntry.invalidRecordsLog.file.id,
+                                                   logEntry.invalidRecordsLog.file.accessToken
+                                                    )">
+                                        {{  $tc('sw-import-export.progress.downloadFailedLabel')  }}
+                                    </sw-button>
+                                </li>
+                            </template>
                         {% endblock %}
                         {% block sw_import_export_progress_stats_export_failed %}
                             <template v-if="state === 'failed' && activityType === 'export'">

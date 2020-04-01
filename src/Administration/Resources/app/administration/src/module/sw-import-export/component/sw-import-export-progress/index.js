@@ -41,7 +41,7 @@ Shopware.Component.register('sw-import-export-progress', {
         total: {
             type: Number,
             required: false,
-            default: 1
+            default: null
         },
 
         state: {

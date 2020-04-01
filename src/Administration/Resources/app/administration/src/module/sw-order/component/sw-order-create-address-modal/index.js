@@ -1,8 +1,7 @@
-import { required } from 'src/core/service/validation.service';
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 
-const { Component, EntityDefinition, Mixin, State, Service } = Shopware;
+const { Component, Mixin, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create-address-modal', {
@@ -231,14 +230,6 @@ Component.register('sw-order-create-address-modal', {
                     return;
                 }
 
-                if (!this.isValidAddress(this.currentAddress)) {
-                    this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('sw-customer.notification.requiredFields')
-                    });
-                    return;
-                }
-
                 await this.saveCurrentAddress();
                 await this.saveCurrentCustomer();
                 await this.updateOrderContext();
@@ -267,17 +258,6 @@ Component.register('sw-order-create-address-modal', {
             newAddress.customerId = this.activeCustomer.id;
 
             this.currentAddress = newAddress;
-        },
-
-        isValidAddress(address) {
-            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
-            let isValid = true;
-
-            isValid = requiredAddressFields.every(field => {
-                return required(address[field]);
-            });
-
-            return isValid;
         }
     }
 });

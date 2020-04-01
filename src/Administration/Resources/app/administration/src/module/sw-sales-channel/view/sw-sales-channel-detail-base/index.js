@@ -87,7 +87,8 @@ Component.register('sw-sales-channel-detail-base', {
             invalidFileName: false,
             isFileNameChecking: false,
             disableGenerateByCronjob: false,
-            isGoogleAccountConnected: false
+            isGoogleAccountConnected: false,
+            showGoogleProgramsModal: false
         };
     },
 
@@ -470,8 +471,12 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onConnectToGoogle() {
+            this.showGoogleProgramsModal = true;
             this.isGoogleAccountConnected = true;
-            // TODO - https://jira.shopware.com/browse/NEXT-7728
+        },
+
+        onCloseGoogleProgramsModal() {
+            this.showGoogleProgramsModal = false;
         },
 
         onDisconnectToGoogle() {

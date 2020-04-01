@@ -1,0 +1,66 @@
+{% block sw_sales_channel_google_programs_modal %}
+    <sw-modal :title="$tc('sw-sales-channel.modalGooglePrograms.title')"
+              class="sw-sales-channel-google-programs-modal"
+              @modal-close="onCloseModal">
+        {% block sw_sales_channel_google_programs_modal_content_page %}
+            <div class="sw-sales-channel-google-programs-content__page">
+                <router-view :salesChannel="salesChannel"
+                             @buttons-update="updateButtons"
+                             @modal-close="onCloseModal">
+                </router-view>
+            </div>
+        {% endblock %}
+
+        {% block sw_sales_channel_google_programs_modal_footer %}
+            <template #modal-footer>
+                <div class="sw-sales-channel-google-programs-modal__footer">
+                    {% block sw_sales_channel_google_programs_modal_footer_left %}
+                        <sw-button v-if="buttonLeft"
+                                   class="sw-sales-channel-google-programs-modal__button-left"
+                                   @click="onButtonClick(buttonLeft.action)"
+                                   :variant="buttonLeft.variant"
+                                   :disabled="buttonLeft.disabled"
+                                   size="small">
+                            {{ buttonLeft.label }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_google_programs_modal_step_status %}
+                        <div class="sw-sales-channel-google-programs-modal__steps">
+                            <div v-for="item in stepper"
+                                 class="sw-sales-channel-google-programs-modal__step-item"
+                                 :key="item.navigationIndex"
+                                 :class="getActiveStyle(item)">
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_google_programs_modal_footer_right %}
+                        <template v-if="buttonRight">
+                            <sw-button-process v-if="typeof buttonRight.processFinish === 'function'"
+                                               class="sw-sales-channel-google-programs-modal__button-process-right"
+                                               @click.prevent="onButtonClick(buttonRight.action)"
+                                               :variant="buttonRight.variant"
+                                               :disabled="buttonRight.disabled"
+                                               :isLoading="buttonRight.isLoading"
+                                               :processSuccess="buttonRight.isSaveSuccessful"
+                                               @process-finish="buttonRight.processFinish"
+                                               size="small">
+                                {{ buttonRight.label }}
+                            </sw-button-process>
+                            <sw-button v-else
+                                       class="sw-sales-channel-google-programs-modal__button-right"
+                                       @click="onButtonClick(buttonRight.action)"
+                                       :variant="buttonRight.variant"
+                                       :disabled="buttonRight.disabled"
+                                       :isLoading="buttonRight.isLoading"
+                                       size="small">
+                                {{ buttonRight.label }}
+                            </sw-button>
+                        </template>
+                    {% endblock %}
+                </div>
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

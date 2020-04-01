@@ -243,6 +243,35 @@
         "textGroupWebsite": "Website:"
       }
     },
+    "modalGooglePrograms": {
+      "title": "Connect Google Account",
+      "buttonNext": "Next",
+      "buttonBack": "Back",
+      "step-1": {
+        "titleGetStarted": "Get started with Google Programs",
+        "textGetStartedDescription": "Google’s retail solutions can help you welcome more customers to your site or your store. After you get set up, you’ll have access to reports so you can see how well your ads are doing.",
+        "textLearnMore": "Learn more",
+        "titleConnectGoogleAccount": "Connect your Google Account to use Google Programs",
+        "textConnectGoogleAccountDescription": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
+        "buttonConnect": "Connect Account"
+      },
+      "step-2": {
+        "titleYourGoogleAccount": "Your Google Account",
+        "buttonDisconnect": "Disconnect",
+        "textDisconnectInfo": "If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected."
+      },
+      "step-3": {
+        "titleGeneral": "Create or connect your Google Merchant Center account",
+        "textLearnMore": "Learn more about",
+        "textGoogleMerchantCenter": "Google Merchant Center",
+        "titleConnectExistingMerchant": "Connect an existing Google Merchant Center account",
+        "textConnectExistingMerchantDescription": "already has access to one or more Google Merchant Center accounts. You can choose to use one of these existing Google Merchant Center accounts if you wish.",
+        "placeholderSelectMerchant": "Select an existing Google Merchant Center account...",
+        "titleCreateMerchant": "Create a new Google Merchant Center account",
+        "textCreateMerchantDescription": "You can choose to create a new Google Merchant Center account if you wish.",
+        "buttonCreateMerchant": "Create a new Merchant Center account"
+      }
+    },
     "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"%{url}\"."
     }

@@ -1,0 +1,46 @@
+{% block sw_sales_channel_google_merchant %}
+    <sw-container class="sw-sales-channel-google-merchant">
+        {% block sw_sales_channel_google_merchant_connect_existing_account %}
+            <sw-card-section divider="bottom" class="sw-sales-channel-google-merchant__top">
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.titleGeneral') }}</strong>
+                <p>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.textLearnMore') }}
+
+                    <sw-sales-channel-detail-protect-link
+                        href="https://www.google.com/retail/solutions/merchant-center/">
+                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.textGoogleMerchantCenter') }}
+                    </sw-sales-channel-detail-protect-link>.
+                </p>
+                <br/>
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.titleConnectExistingMerchant') }}</strong>
+                <p>
+                    <a :href="`mailto:${userProfile.email}`" >{{ userProfile.email }}</a>
+                    {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.textConnectExistingMerchantDescription') }}
+                </p>
+
+                {% block sw_sales_channel_google_merchant_select_existing_account %}
+                    <sw-single-select :options="merchantAccounts"
+                                      :isLoading="isListLoading"
+                                      class="sw-sales-channel-google-merchant__select-merchant"
+                                      v-model="selectedMerchant"
+                                      labelProperty="id"
+                                      valueProperty="id"
+                                      :placeholder="$tc('sw-sales-channel.modalGooglePrograms.step-3.placeholderSelectMerchant')">
+                    </sw-single-select>
+                {% endblock %}
+            </sw-card-section>
+        {% endblock %}
+
+        {% block sw_sales_channel_google_merchant_creact_new_account %}
+            <sw-card-section class="sw-sales-channel-google-merchant__bottom">
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.titleCreateMerchant') }}</strong>
+                <p>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.textCreateMerchantDescription') }}</p>
+
+                {% block sw_sales_channel_google_merchant_button_create %}
+                    <sw-button variant="primary" size="small">
+                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.buttonCreateMerchant') }}
+                    </sw-button>
+                {% endblock %}
+            </sw-card-section>
+        {% endblock %}
+    </sw-container>
+{% endblock %}

@@ -245,6 +245,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
           * Deprecated data `themeFields`, use `structuredThemeFields` instead
           * Added method `getStructuredFields` to themeApiService      
     * Added `sw-order-create` page, `sw-order-create-base` view, and `create` route to `sw-order` module
+    * Added order state in `sw-order` module
     * Added `cart-sales-channel.api.service` to handle cart line item services in create order page
     * Added `check-out-sales-channel.api.service` to handle save order service in create order page
     * Added component `sw-order-create-details-header` handle customer selection in create order page 
@@ -255,8 +256,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added component `sw-order-line-items-grid-sales-channel` which can be used to display line items list in create order page
     * Added component `sw-order-create-promotion-modal` which can be used to display and disable the automatic promotions
     * Refactor `sw-order-product-select`
-        * `displayProductSelection` prop is now deprecated and will be removed with version 6.4
+        * Deprecated `displayProductSelection` prop. It will be removed with version 6.4
         * Added `inheritance: true` in context of `productRepository` in `sw-order-product-select`
+    * Refactor `sw-order-line-items-grid`
+              * Deprecated `isItemCredit` prop. It will be removed with version 6.4
+              * Removed `slot` and `slot-scope` attribute in favor of new `v-slot` directive
     * Added component `sw-order-promotion-tag-input` to handle showing promotion code list, entering and removing promotion code
     * Added component `sw-order-create-invalid-promotion-modal` to show recent invalid promotion codes after clicking on Save Order button
     * Fixed error of showing shipping cost value in `sw-order-detail-base` when order detail has shipping cost discount

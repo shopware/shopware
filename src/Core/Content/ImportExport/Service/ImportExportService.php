@@ -160,8 +160,9 @@ class ImportExportService
 
     private function detectType(UploadedFile $file): string
     {
+        // TODO: we should do a mime type detection on the file content
         $guessedExtension = $file->guessClientExtension();
-        if ($guessedExtension === 'csv' || ($file->getExtension() === 'csv' && $guessedExtension === 'xls')) {
+        if ($guessedExtension === 'csv' || $file->getClientOriginalExtension() === 'csv') {
             return 'text/csv';
         }
 

@@ -56,6 +56,11 @@ class ImportExportServiceTest extends TestCase
             ],
 
             [
+                'clientMimeType' => 'application/octet-stream',
+                'fileExtension' => 'csv',
+                'expectedMimeType' => 'text/csv',
+            ],
+            [
                 'clientMimeType' => 'text/xml',
                 'fileExtension' => 'xml',
                 'expectedMimeType' => false,
@@ -103,9 +108,6 @@ class ImportExportServiceTest extends TestCase
         static::assertNotnUll($profileId);
 
         $path = tempnam(sys_get_temp_dir(), '');
-        if ($fileExtension) {
-            $path .= '.' . $fileExtension;
-        }
 
         copy(__DIR__ . '/../fixtures/categories.csv', $path);
 

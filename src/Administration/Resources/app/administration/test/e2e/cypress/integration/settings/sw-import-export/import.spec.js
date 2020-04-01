@@ -35,6 +35,7 @@ describe('Import/Export - Import:', () => {
             );
         });
 
+        // File upload component should display file name
         cy.get('.sw-file-input__file-headline').should('contain', 'single-product.csv');
 
         // Start button should be disabled in the first place

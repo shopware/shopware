@@ -12,9 +12,8 @@ describe('Import/Export - Export:', () => {
     it('@settings: Create export with default profile', () => {
         cy.get('.sw-import-export-view-export').should('be.visible');
 
-        // TODO: Improve selectors
-        cy.get('.sw-entity-single-select')
-            .typeSingleSelectAndCheck('E2E', '.sw-entity-single-select');
-        cy.get('.sw-button.sw-button--primary').click();
+        cy.get('.sw-import-export-exporter__profile-select')
+            .typeSingleSelectAndCheck('E2E', '.sw-import-export-exporter__profile-select');
+        cy.get('.sw-import-export-progress__start-process-action').click();
     });
 });

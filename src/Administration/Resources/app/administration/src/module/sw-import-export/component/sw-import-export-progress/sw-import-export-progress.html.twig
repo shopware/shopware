@@ -3,6 +3,7 @@
         <div class="sw-import-export-progress__progress">
             {% block sw_import_export_progress_start_process %}
                 <sw-button :disabled="disableButton"
+                           class="sw-import-export-progress__start-process-action"
                            size="small"
                            variant="primary"
                            @click="$emit('process-start')">
@@ -103,6 +104,7 @@
                     {% block sw_import_export_progress_stats_download %}
                         <template v-if="activityType === 'export'">
                             <sw-button variant="primary"
+                                       class="sw-import-export-progress__download-action"
                                        size="small"
                                        :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
                                 {{  $tc('sw-import-export.progress.downloadFileLabel')  }}

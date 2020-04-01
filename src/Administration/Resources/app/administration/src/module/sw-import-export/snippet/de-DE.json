@@ -98,8 +98,8 @@
       "profileLabel": "Profil",
       "warningBlock": "<strong>Warnung:</strong> Neu importierte Datensätze können mit bereits vorhandenen Datenbankeinträgen in Konflikt stehen und sie überschreiben. Solche Änderungen durch die Import-Funktion sind endgültig. Bitte stelle daher sicher, dass Du ein aktuelles Datenbank-Backup gemacht hast, bevor Du fortfährst.",
       "importActivityLabel": "Import-Aktivität",
-      "importLabel": "Import"
-
+      "importLabel": "Import",
+      "labelUploadCaption": "Wähle eine Datei zum Hochladen"
     },
     "page": {
       "profileTab": "Profile",

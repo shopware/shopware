@@ -98,7 +98,8 @@
       "profileLabel": "Profile",
       "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
       "importActivityLabel": "Import activity",
-      "importLabel": "Import"
+      "importLabel": "Import",
+      "labelUploadCaption": "Select a file to upload"
     },
     "page": {
       "profileTab": "Profiles",

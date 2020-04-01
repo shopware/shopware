@@ -9,8 +9,10 @@
         {% endblock %}
 
         {% block sw_import_export_importer_file_input %}
-            <sw-file-input
-                v-model="importFile">
+            <sw-file-input v-model="importFile">
+                <template #caption-label>
+                    {{ $tc('sw-import-export.importer.labelUploadCaption') }}
+                </template>
             </sw-file-input>
         {% endblock %}
 

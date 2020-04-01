@@ -3,5 +3,9 @@
 .sw-import-export-importer {
     .sw-file-input {
         margin-bottom: 32px;
+
+        .sw-file-input__dropzone {
+            border: 1px solid $color-gray-300;
+        }
     }
 }

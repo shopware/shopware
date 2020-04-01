@@ -6,6 +6,7 @@
 
         {% block sw_import_export_exporter_profile_select %}
             <sw-entity-single-select
+                class="sw-import-export-exporter__profile-select"
                 :disabled="isLoading"
                 :label="$tc('sw-import-export.importer.profileLabel')"
                 entity="import_export_profile"

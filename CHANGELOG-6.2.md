@@ -266,6 +266,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
     * Added new `sw-settings-captcha-select` component
         * This component allows users to define active captchas via `Settings -> Basic information`
+    * Fix renaming of duplicated media names
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

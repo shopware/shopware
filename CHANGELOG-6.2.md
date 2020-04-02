@@ -224,7 +224,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * sw-cms/elements/image/config/index.js
         * Method `onImageUpload` is now async
       * repository.data
-        * Added method `discard`  
+        * Added method `discard`
+        * The `delete` method now throws an exception when the delete request is not successful
       * media.api.service
         * Added method `hasListeners`
         * Added method `hasDefaultListeners`

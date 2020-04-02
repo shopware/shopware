@@ -5,22 +5,13 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @deprecated tag:v6.3.0 - Use \Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager instead
- */
-interface DiscountPackagerInterface
+abstract class DiscountPackager implements DiscountPackagerInterface
 {
     /**
-     * Use this context if your result filter should be based
-     * on the whole found packages of your packager.
+     * This function should return the decorated core service.
+     * This ensures that when new functions are implemented in this class, decorations will continue to work
      */
-    public const RESULT_CONTEXT_PACKAGE = 'package';
-
-    /**
-     * Use this context if the result filter should be based
-     * on each line item inside your package.
-     */
-    public const RESULT_CONTEXT_LINEITEM = 'lineitem';
+    abstract public function getDecorated(): DiscountPackager;
 
     /**
      * Gets the scope of this packager for filtering.
@@ -29,7 +20,7 @@ interface DiscountPackagerInterface
      * In case of a CartPackager, the line items in the single package should be filtered.
      * In case of a GroupPackager, the whole groups should be filtered that have been found.
      */
-    public function getResultContext(): string;
+    abstract public function getResultContext(): string;
 
     /**
      * This function is used to get the line items that match the configured scope and product rules of the provided discount.
@@ -37,5 +28,5 @@ interface DiscountPackagerInterface
      * So a SetGroup packager has found "Set Groups" as units (e.g. 3x "pants + tshirt" combo),
      * while a simple Cart packager might have only 1 result unit that contains all items.
      */
-    public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection;
+    abstract public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection;
 }

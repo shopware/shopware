@@ -35,11 +35,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
@@ -88,6 +85,21 @@ class PromotionCalculator
      */
     private $percentagePriceCalculator;
 
+    /**
+     * @var DiscountPackager
+     */
+    private $cartScopeDiscountPackager;
+
+    /**
+     * @var DiscountPackager
+     */
+    private $setGroupScopeDiscountPackager;
+
+    /**
+     * @var DiscountPackager
+     */
+    private $setScopeDiscountPackager;
+
     public function __construct(
         AmountCalculator $amountCalculator,
         AbsolutePriceCalculator $absolutePriceCalculator,
@@ -95,7 +107,10 @@ class PromotionCalculator
         DiscountCompositionBuilder $compositionBuilder,
         AdvancedPackageFilter $filter,
         LineItemQuantitySplitter $lineItemQuantitySplitter,
-        PercentagePriceCalculator $percentagePriceCalculator
+        PercentagePriceCalculator $percentagePriceCalculator,
+        DiscountPackager $cartScopeDiscountPackager,
+        DiscountPackager $setGroupScopeDiscountPackager,
+        DiscountPackager $setScopeDiscountPackager
     ) {
         $this->amountCalculator = $amountCalculator;
         $this->absolutePriceCalculator = $absolutePriceCalculator;
@@ -104,6 +119,9 @@ class PromotionCalculator
         $this->advancedFilter = $filter;
         $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
+        $this->cartScopeDiscountPackager = $cartScopeDiscountPackager;
+        $this->setGroupScopeDiscountPackager = $setGroupScopeDiscountPackager;
+        $this->setScopeDiscountPackager = $setScopeDiscountPackager;
     }
 
     /**
@@ -204,17 +222,17 @@ class PromotionCalculator
 
         switch ($discount->getScope()) {
             case PromotionDiscountEntity::SCOPE_CART:
-                $packager = new CartScopeDiscountPackager($this->lineItemQuantitySplitter);
+                $packager = $this->cartScopeDiscountPackager;
 
                 break;
 
             case PromotionDiscountEntity::SCOPE_SET:
-                $packager = new SetScopeDiscountPackager($this->groupBuilder);
+                $packager = $this->setScopeDiscountPackager;
 
                 break;
 
             case PromotionDiscountEntity::SCOPE_SETGROUP:
-                $packager = new SetGroupScopeDiscountPackager($this->groupBuilder);
+                $packager = $this->setGroupScopeDiscountPackager;
 
                 break;
 
@@ -237,7 +255,7 @@ class PromotionCalculator
         // then our sorter would not work, this one is for packages.
         // in that case we temporarily wrap our line items in packages
         // and move the found results back into 1 package in the end.
-        if ($packager->getResultContext() === DiscountPackagerInterface::RESULT_CONTEXT_LINEITEM) {
+        if ($packager->getResultContext() === DiscountPackager::RESULT_CONTEXT_LINEITEM) {
             $packages = $packages->splitPackages();
         }
 
@@ -251,7 +269,7 @@ class PromotionCalculator
         $packages = $this->advancedFilter->filter($discount->getFilterSorterKey(), $discount->getFilterApplierKey(), $discount->getFilterUsageKey(), $packages);
 
         // if we had our line item scope and split it into different packages, then bring them back into 1 single package
-        if ($packager->getResultContext() === DiscountPackagerInterface::RESULT_CONTEXT_LINEITEM) {
+        if ($packager->getResultContext() === DiscountPackager::RESULT_CONTEXT_LINEITEM) {
             $packages = new DiscountPackageCollection(
                 [new DiscountPackage($packages->getAllLineMetaItems())]
             );

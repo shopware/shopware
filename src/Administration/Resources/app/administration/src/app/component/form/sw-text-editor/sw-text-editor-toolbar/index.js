@@ -2,6 +2,7 @@ import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
 const { Component } = Shopware;
+const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 /**
  * @private
@@ -383,7 +384,11 @@ Component.register('sw-text-editor-toolbar', {
 
         prepareLink(link) {
             link = link.trim();
-            link = this.addProtocol(link);
+
+            if (!link.startsWith(domainPlaceholderId)) {
+                link = this.addProtocol(link);
+            }
+
             return link;
         },
 

@@ -12,6 +12,7 @@
   "license": "MIT",
   "scripts": {
     "development": "NODE_ENV=development webpack --config webpack.config.js",
+    "check-modules": "are-you-es5 check . -r",
     "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js",
     "hot-proxy": "NODE_ENV=development MODE=hot node ./build/start-hot-reload.js",
     "lint": "eslint --config .eslintrc.js ./src && stylelint --config stylelint.config.js ./src",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@shopware-ag/webpack-plugin-injector": "1.0.3",
+    "are-you-es5": "1.3.3",
     "bootstrap": "4.3.1",
     "copy-webpack-plugin": "5.1.1",
     "deepmerge": "4.0.0",

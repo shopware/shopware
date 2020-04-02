@@ -453,6 +453,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `\Shopware\Storefront\Framework\Captcha\CaptchaRouteListener` on `KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE`
     * Added base template for captchas at `platform/src/Storefront/Resources/views/storefront/component/captcha/base.html.twig`
         * Added honeypot captcha template at `platform/src/Storefront/Resources/views/storefront/component/captcha/honeypot.html.twig`
+    * Update Babel compiler to support "> 1%, IE 11, not dead"
+    * Non ES5 modules are now compiled with babel to support IE11
+    * Terser Minifier works now in ES5 for better IE11 support
+    * Add babel polyfill for IE11
 
 **Removals**
 

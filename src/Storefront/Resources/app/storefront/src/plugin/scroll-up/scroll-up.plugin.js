@@ -99,6 +99,6 @@ export default class ScrollUpPlugin extends Plugin {
     }
 
     _addBodyPadding() {
-        this._button.style.bottom = `calc(${this._defaultPadding} + ${document.body.style.paddingBottom})`;
+        this._button.style.bottom = `calc(${this._defaultPadding} + ${document.body.style.paddingBottom || '0px'})`;
     }
 }

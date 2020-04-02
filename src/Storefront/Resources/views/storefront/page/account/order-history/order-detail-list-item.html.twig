@@ -57,11 +57,17 @@
                 {% block page_account_order_item_detail_name %}
                     <div class="col-12 col-md-4 order-item order-item-name">
                         {% block page_account_order_item_detail_name_value %}
-                            <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
-                               class="order-item-product-name"
-                               title="{{ lineItem.label }}"> <strong class="name-value">
-                                    {{ lineItem.label }}
-                                </strong> </a>
+                            {% if isDiscount %}
+                                <strong class="name-value">
+                                        {{ lineItem.label }}
+                                    </strong>
+                            {% else %}
+                                <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                   class="order-item-product-name"
+                                   title="{{ lineItem.label }}"> <strong class="name-value">
+                                        {{ lineItem.label }}
+                                    </strong> </a>
+                            {% endif %}
                         {% endblock %}
 
                         {% block page_account_order_item_detail_variants %}

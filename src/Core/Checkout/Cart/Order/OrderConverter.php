@@ -264,6 +264,7 @@ class OrderConverter
             SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
         ];
 
+        //get the first not paid transaction or, if all paid, the last transaction
         if ($order->getTransactions()) {
             foreach ($order->getTransactions() as $transaction) {
                 $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();

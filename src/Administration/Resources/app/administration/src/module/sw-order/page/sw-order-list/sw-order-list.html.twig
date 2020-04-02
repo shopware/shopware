@@ -96,11 +96,11 @@
                                     {% endblock %}
 
                                     {% block sw_order_list_grid_columns_transaction_state %}
-                                        <template #column-transactions[0].stateMachineState.name="{ item }">
+                                        <template #column-transactions.last().stateMachineState.name="{ item }">
                                             <sw-label v-if="item.transactions && item.transactions[0]"
                                                       :variant="getVariantFromPaymentState(item)"
                                                       appearance="pill">
-                                                {{ item.transactions[0].stateMachineState.translated.name }}
+                                                {{ item.transactions.last().stateMachineState.translated.name }}
                                             </sw-label>
                                         </template>
                                     {% endblock %}

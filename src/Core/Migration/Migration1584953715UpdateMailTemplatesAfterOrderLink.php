@@ -225,7 +225,6 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         $getHtmlTemplateDe,
         $getPlainTemplateDe
     ): void {
-
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
         if ($templateId !== null) {
             $this->updateMailTemplateTranslation(
@@ -325,7 +324,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -340,7 +339,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
             the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
             The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
-            You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+            You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
             However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -355,7 +354,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                <br/>
-               Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+               Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                </br>
                Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
            </p>
@@ -370,7 +369,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.deliveries.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -385,7 +384,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                       the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                       <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                       <br/>
-                      You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                      You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                       </br>
                       However, in case you have purchased without a registration or a customer account, you do not have this option.
                 </p>
@@ -401,7 +400,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
             the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
             The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
-            You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+            You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
             However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -416,7 +415,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -431,7 +430,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -446,7 +445,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                    the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                    <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                    <br/>
-                   You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                   You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     However, in case you have purchased without a registration or a customer account, you do not have this option.
                </p>
@@ -462,7 +461,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -477,7 +476,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Lieferstatys für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -492,7 +491,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -507,7 +506,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     However, in case you have purchased without a registration or a customer account, you do not have this option.
                 </p>
@@ -523,7 +522,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -538,7 +537,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -554,7 +553,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -569,7 +568,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     However, in case you have purchased without a registration or a customer account, you do not have this option.
                 </p>
@@ -585,7 +584,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -600,7 +599,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -616,7 +615,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -631,7 +630,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     However, in case you have purchased without a registration or a customer account, you do not have this option.</p>
             </div>
@@ -647,7 +646,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -662,7 +661,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -678,7 +677,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -693,7 +692,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -709,7 +708,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -724,7 +723,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -740,7 +739,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -754,7 +753,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -770,7 +769,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -785,7 +784,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -801,7 +800,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -821,7 +820,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -837,7 +836,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -852,7 +851,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -868,7 +867,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -884,7 +883,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -900,7 +899,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -915,7 +914,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -931,7 +930,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -946,7 +945,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -962,7 +961,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -977,7 +976,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -993,7 +992,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -1008,7 +1007,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -1024,7 +1023,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -1039,7 +1038,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -1055,7 +1054,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -1070,7 +1069,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -1086,7 +1085,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -1101,7 +1100,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -1117,7 +1116,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -1132,7 +1131,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -1148,7 +1147,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -1163,7 +1162,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                    der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                    <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                    <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -1179,7 +1178,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.deliveries.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -1194,7 +1193,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -1210,7 +1209,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -1225,7 +1224,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -1241,7 +1240,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -1256,7 +1255,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
-                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                         </br>
                         However, in case you have purchased without a registration or a customer account, you do not have this option.
                     </p>
@@ -1272,7 +1271,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -1287,7 +1286,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} has changed.<br/>
                     <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                     <br/>
-                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                    Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                     </br>
                     Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
                 </p>
@@ -1303,7 +1302,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -1386,7 +1385,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>
                 {% endif %}
                 <br/>
-                You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                 </br>
                 If you have any questions, do not hesitate to contact us.
 
@@ -1447,7 +1446,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.
         {% endif %}
 
-        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         If you have any questions, do not hesitate to contact us.
 
         However, in case you have purchased without a registration or a customer account, you do not have this option.';
@@ -1531,7 +1530,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit. <br>
                 {% endif %}
                 <br/>
-                Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+                Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
                 </br>
                 Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
@@ -1593,7 +1592,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit.
         {% endif %}
 
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'deepLinkCode\': order.deepLinkCode}) }}
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ path(\'frontend.account.edit-order.page\', { \'orderId\': order.id}) }}
         Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.';
     }
 }

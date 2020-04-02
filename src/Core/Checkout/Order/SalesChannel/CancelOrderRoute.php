@@ -4,41 +4,38 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class AccountCancelOrderRoute extends AbstractAccountCancelOrderRoute
+class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     /**
      * @var OrderService
      */
     private $orderService;
 
-    public function __construct(
-        OrderService $orderService
-    ) {
+    public function __construct(OrderService $orderService)
+    {
         $this->orderService = $orderService;
     }
 
-    public function getDecorated(): AbstractAccountCancelOrderRoute
+    public function getDecorated(): AbstractCancelOrderRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
     /**
      * @OA\Post(
-     *      path="/account/order/cancel",
+     *      path="/order/cancel",
      *      description="Cancel an order",
      *      operationId="cancelOrder",
-     *      tags={"Store API", "Account"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      tags={"Store API", "Order"},
      *      @OA\Parameter(
      *          name="orderId",
      *          in="post",
@@ -53,14 +50,12 @@ class AccountCancelOrderRoute extends AbstractAccountCancelOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/order/cancel", name="store-api.account.order", methods={"POST"})
+     * @Route(path="/store-api/v{version}/order/cancel", name="store-api.order.cancel", methods={"POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): AccountCancelOrderRouteResponse
+    public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
-        $newState = $this->orderService->orderStateTransition($request->get('orderId'), 'cancel', 1, new DataBag(), $context->getContext());
+        $newState = $this->orderService->orderStateTransition($request->get('orderId'), 'cancel', new ParameterBag(), $context->getContext());
 
-        $newState = new ArrayEntity($newState);
-
-        return new AccountCancelOrderRouteResponse($newState);
+        return new CancelOrderRouteResponse($newState);
     }
 }

@@ -122,11 +122,11 @@ abstract class StorefrontController extends AbstractController
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if (
-            $context &&
-            $context->getCustomer() &&
-            (
-                $allowGuest === true ||
-                $context->getCustomer()->getGuest() === false
+            $context
+            && $context->getCustomer()
+            && (
+                $allowGuest === true
+                || $context->getCustomer()->getGuest() === false
             )
         ) {
             return;

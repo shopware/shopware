@@ -44,7 +44,7 @@
     }
 }
 
-@media (max-width: 787px) {
+@include media-breakpoint-down(md) {
     .order-detail-content-row {
         .order-item:last-of-type {
             padding-right: 20px;

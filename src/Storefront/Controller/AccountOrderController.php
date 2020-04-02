@@ -4,13 +4,15 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\SalesChannel\AbstractAccountCancelOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\AbstractAccountOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
-use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -35,7 +37,7 @@ class AccountOrderController extends StorefrontController
     private $orderPageLoader;
 
     /**
-     * @var AccountOrderRouteInterface
+     * @var AbstractOrderRoute
      */
     private $orderRoute;
 
@@ -55,38 +57,38 @@ class AccountOrderController extends StorefrontController
     private $accountEditOrderPageLoader;
 
     /**
-     * @var OrderService
-     */
-    private $orderService;
-
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
-
-    /**
-     * @var AbstractAccountCancelOrderRoute
+     * @var AbstractCancelOrderRoute
      */
     private $cancelOrderRoute;
 
+    /**
+     * @var AbstractSetPaymentOrderRoute
+     */
+    private $setPaymentOrderRoute;
+
+    /**
+     * @var AbstractHandlePaymentMethodRoute
+     */
+    private $handlePaymentMethodRoute;
+
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
-        AbstractAccountOrderRoute $orderRoute,
+        AbstractOrderRoute $orderRoute,
         RequestCriteriaBuilder $requestCriteriaBuilder,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
         ContextSwitchRoute $contextSwitchRoute,
-        OrderService $orderService,
-        PaymentService $paymentService,
-        AbstractAccountCancelOrderRoute $cancelOrderRoute
+        AbstractCancelOrderRoute $cancelOrderRoute,
+        AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
+        AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute
     ) {
         $this->orderPageLoader = $orderPageLoader;
         $this->orderRoute = $orderRoute;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->contextSwitchRoute = $contextSwitchRoute;
-        $this->orderService = $orderService;
         $this->accountEditOrderPageLoader = $accountEditOrderPageLoader;
-        $this->paymentService = $paymentService;
         $this->cancelOrderRoute = $cancelOrderRoute;
+        $this->setPaymentOrderRoute = $setPaymentOrderRoute;
+        $this->handlePaymentMethodRoute = $handlePaymentMethodRoute;
     }
 
     /**
@@ -136,10 +138,14 @@ class AccountOrderController extends StorefrontController
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('lineItems.cover');
 
+        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+
         $orderRequest = new Request();
         $orderRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
 
-        $order = $this->orderRoute->load($orderRequest, $context)->getOrders()->first();
+        /** @var OrderRouteResponseStruct $result */
+        $result = $this->orderRoute->load($orderRequest, $context)->getObject();
+        $order = $result->getOrders()->first();
 
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();
@@ -157,13 +163,13 @@ class AccountOrderController extends StorefrontController
         $cancelOrderRequest = new Request();
         $cancelOrderRequest->request->set('orderId', $request->get('orderId'));
 
-        $this->cancelOrderRoute->load($cancelOrderRequest, $context);
+        $this->cancelOrderRoute->cancel($cancelOrderRequest, $context);
 
         if ($context->getCustomer() && $context->getCustomer()->getGuest() === true) {
             return $this->redirectToRoute(
                 'frontend.account.order.single.page',
                 [
-                    'deepLinkCode' => $request->get('deepLinkCode')
+                    'deepLinkCode' => $request->get('deepLinkCode'),
                 ]
             );
         }
@@ -210,12 +216,22 @@ class AccountOrderController extends StorefrontController
             'changedPayment' => true,
         ]);
 
-        $this->orderService->setPaymentMethod($request->get('paymentMethodId'), $orderId, $salesChannelContext);
+        $setPaymentRequest = new Request();
+        $setPaymentRequest->request->set('orderId', $request->get('orderId'));
+        $setPaymentRequest->request->set('paymentMethodId', $request->get('paymentMethodId'));
+
+        $this->setPaymentOrderRoute->setPayment($setPaymentRequest, $salesChannelContext);
+
+        $handlePaymentRequest = new Request();
+        $handlePaymentRequest->request->set('orderId', $request->get('orderId'));
+        $handlePaymentRequest->request->set('finishUrl', $finishUrl);
 
         try {
-            $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext, $finishUrl);
+            $routeResponse = $this->handlePaymentMethodRoute->load($handlePaymentRequest, $salesChannelContext);
+            $response = $routeResponse->getRedirectResponse();
         } catch (PaymentProcessException $paymentProcessException) {
             $this->addFlash('danger', $this->trans('error.payment-error'));
+
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true]);
         }
         if ($response !== null) {

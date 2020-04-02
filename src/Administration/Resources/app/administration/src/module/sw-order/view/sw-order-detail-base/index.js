@@ -71,7 +71,6 @@ Component.register('sw-order-detail-base', {
         },
 
         transaction() {
-            console.log(this.order.transactions);
             for (let i = 0; i < this.order.transactions.length; i += 1) {
                 if (this.order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
                     return this.order.transactions[i];

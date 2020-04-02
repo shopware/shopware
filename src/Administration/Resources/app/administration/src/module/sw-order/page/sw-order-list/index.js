@@ -198,7 +198,6 @@ Component.register('sw-order-list', {
                     technicalName = order.stateMachineState.technicalName;
                 }
             }
-            console.log(technicalName);
             return this.stateStyleDataProviderService.getStyle(
                 'order_transaction.state', technicalName
             ).variant;

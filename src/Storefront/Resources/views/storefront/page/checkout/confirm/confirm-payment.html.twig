@@ -59,6 +59,9 @@
                         class="btn btn-light"
                         data-toggle="modal"
                         data-backdrop="static"
+                        {% if page.paymentChangeable != null and page.paymentChangeable == false %}
+                            disabled="disabled"
+                        {% endif %}
                         data-target="#confirmPaymentModal">
                     {{ "checkout.confirmChangePayment"|trans|sw_sanitize }}
                 </button>

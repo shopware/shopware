@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Storefront\Page\Page;
 
 class AccountEditOrderPage extends Page
@@ -19,9 +20,19 @@ class AccountEditOrderPage extends Page
     protected $paymentMethods;
 
     /**
+     * @var PromotionCollection
+     */
+    protected $activePromotions;
+
+    /**
      * @var string|null
      */
     protected $deepLinkCode;
+
+    /**
+     * @var bool
+     */
+    protected $paymentChangeable = true;
 
     public function getOrder(): OrderEntity
     {
@@ -51,5 +62,25 @@ class AccountEditOrderPage extends Page
     public function setDeepLinkCode(?string $deepLinkCode): void
     {
         $this->deepLinkCode = $deepLinkCode;
+    }
+
+    public function getActivePromotions(): PromotionCollection
+    {
+        return $this->activePromotions;
+    }
+
+    public function setActivePromotions(PromotionCollection $activePromotions): void
+    {
+        $this->activePromotions = $activePromotions;
+    }
+
+    public function isPaymentChangeable(): bool
+    {
+        return $this->paymentChangeable;
+    }
+
+    public function setPaymentChangeable(bool $paymentChangeable): void
+    {
+        $this->paymentChangeable = $paymentChangeable;
     }
 }

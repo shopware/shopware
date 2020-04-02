@@ -45,6 +45,15 @@
                                                 {% endfor %}
                                             {% endblock %}
 
+                                            {% block page_checkout_payment_not_changeable %}
+                                                {% if page.paymentChangeable == false %}
+                                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                                        type: "danger",
+                                                        content: 'account.editOrderPaymentNotChangeable'|trans|sw_sanitize
+                                                    } %}
+                                                {% endif %}
+                                            {% endblock %}
+
                                             {% block page_checkout_confirm_errors %}
                                                 {% for error in page.cart.errors %}
                                                     {% set snippetName = "error.#{error.messageKey}" %}
@@ -195,7 +204,12 @@
 
                                                     <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
 
-                                                    <button class="btn btn-primary btn-block" type="submit">
+                                                    <button
+                                                        class="btn btn-primary btn-block"
+                                                        {% if page.paymentChangeable == false %}
+                                                            disabled="disabled"
+                                                        {% endif %}
+                                                        type="submit">
                                                         {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
                                                     </button>
 

@@ -61,7 +61,7 @@
                             {% block page_checkout_finish_order_payment_method %}
                                 <p>
                                     <strong>{{ "checkout.finishInfoPayment"|trans|sw_sanitize }}</strong>
-                                    {{ page.order.transactions.first.paymentMethod.translated.name }}
+                                    {{ page.order.transactions.last.paymentMethod.translated.name }}
                                 </p>
                             {% endblock %}
 

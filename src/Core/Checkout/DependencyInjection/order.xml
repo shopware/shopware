@@ -47,9 +47,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\Api\OrderActionController"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
@@ -78,24 +81,27 @@
 
         <!-- controller -->
         <service id="Shopware\Core\Checkout\Order\Api\OrderActionController" public="true">
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService" />
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute" public="true">
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute" public="true">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
+            <argument type="service" id="promotion.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
         </service>
 
         <!-- events -->

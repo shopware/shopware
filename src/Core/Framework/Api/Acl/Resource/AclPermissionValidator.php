@@ -32,7 +32,7 @@ class AclPermissionValidator implements EventSubscriberInterface
 
         $commands = $event->getCommands();
         $source = $event->getContext()->getSource();
-        if (!$source instanceof AdminApiSource) {
+        if (!$source instanceof AdminApiSource || $source->isAdmin()) {
             return;
         }
 

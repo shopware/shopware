@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,11 +26,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductSearchRoute extends AbstractProductSearchRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $repository;
-
-    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
@@ -40,14 +35,19 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      */
     private $searchBuilder;
 
+    /**
+     * @var ProductListingLoader
+     */
+    private $productListingLoader;
+
     public function __construct(
-        SalesChannelRepositoryInterface $repository,
         ProductSearchBuilderInterface $searchBuilder,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ProductListingLoader $productListingLoader
     ) {
-        $this->repository = $repository;
         $this->eventDispatcher = $eventDispatcher;
         $this->searchBuilder = $searchBuilder;
+        $this->productListingLoader = $productListingLoader;
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -93,7 +93,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
 
-        $result = $this->repository->search($criteria, $context);
+        $result = $this->productListingLoader->load($criteria, $context);
 
         $result = ProductListingResult::createFrom($result);
 

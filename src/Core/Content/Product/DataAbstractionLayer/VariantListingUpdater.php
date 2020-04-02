@@ -49,6 +49,10 @@ class VariantListingUpdater
             $childCount = (int) $config['child_count'];
             $groups = $config['groups'];
 
+            if ($config['main_variant']) {
+                $groups = [];
+            }
+
             if ($childCount <= 0) {
                 // display parent in listing
                 $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
@@ -104,7 +108,12 @@ class VariantListingUpdater
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
         $query = $this->connection->createQueryBuilder();
-        $query->select(['product.id as id', 'product.configurator_group_config as config', '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count']);
+        $query->select([
+            'product.id as id',
+            'product.configurator_group_config as config',
+            'product.main_variant_id',
+            '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
+        ]);
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
@@ -127,6 +136,7 @@ class VariantListingUpdater
             $listingConfiguration[$config['id']] = [
                 'groups' => $groups,
                 'child_count' => $config['child_count'],
+                'main_variant' => $config['main_variant_id'],
             ];
         }
 

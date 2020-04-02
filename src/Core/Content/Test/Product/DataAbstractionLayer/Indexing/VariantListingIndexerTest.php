@@ -334,8 +334,8 @@ class VariantListingIndexerTest extends TestCase
     private function fetchListing(): Listing
     {
         $listing = $this->connection->fetchAll(
-            'SELECT LOWER(HEX(id)) as id, option_ids 
-             FROM product 
+            'SELECT LOWER(HEX(id)) as id, option_ids
+             FROM product
              WHERE product.parent_id = :parentId
              AND display_group IS NOT NULL
              GROUP BY display_group',

@@ -410,6 +410,14 @@ class Criteria extends Struct
         ]);
     }
 
+    public function getFilterFields(): array
+    {
+        return $this->collectFields([
+            $this->filters,
+            $this->postFilters,
+        ]);
+    }
+
     public function getAllFields(): array
     {
         return $this->collectFields([

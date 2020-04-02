@@ -134,6 +134,7 @@ class ProductDefinition extends EntityDefinition
             (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
 
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
+            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class)),
 
             //inherited foreign keys with version fields
             (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->addFlags(new Inherited()),

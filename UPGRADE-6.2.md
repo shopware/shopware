@@ -53,7 +53,6 @@ Core
     * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
     * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_EDIT_ORDER_PERMISSIONS`.
     * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
-    
 * The usage of `$connection->executeQuery()` for write operations is deprecated, use 
 `$connection->executeUpdate()` instead.
 * For the possibility to add individual product to across selling, you need to use a new field for creating a cross selling
@@ -61,7 +60,6 @@ Core
 * The `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` will be removed, extend from the abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` instead.
 * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
 * Deprecated `\Shopware\Core\Content\ContactForm\ContactFormService` use the new service `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` instead
-
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway` use `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteInterface` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteInterface` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
@@ -85,6 +83,8 @@ Core
     * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRouteInterface`
     * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRouteInterface`
 * Deprecated `\Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface` use `\Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager` instead
+* Added optional second parameter `$context` to `\Shopware\Core\Framework\Plugin\PluginManagementService::uploadPlugin` and `\Shopware\Core\Framework\Plugin\PluginManagementService::deletePlugin`. It will be required in 6.3.0
+* Deprecated `\Shopware\Core\Framework\Plugin\PluginManagementService::extractPluginZip` which will be private in 6.3.0
 
 Administration
 --------------

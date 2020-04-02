@@ -97,6 +97,18 @@ class CacheClearer
         $this->cleanupOldCacheDirectories();
     }
 
+    public function clearContainerCache(): void
+    {
+        $finder = (new Finder())->in($this->cacheDir)->directories()->name('Container*');
+        $containerCaches = [];
+
+        foreach ($finder->getIterator() as $containerPaths) {
+            $containerCaches[] = $containerPaths->getRealPath();
+        }
+
+        $this->filesystem->remove($containerCaches);
+    }
+
     public function deleteItems(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
@@ -115,24 +127,23 @@ class CacheClearer
 
     private function cleanupOldCacheDirectories(): void
     {
-        $finder = new Finder();
-
-        $finder->directories()
+        $finder = (new Finder())
+            ->directories()
             ->name($this->environment . '*')
-            ->in(dirname($this->cacheDir) . '/');
+            ->in(\dirname($this->cacheDir) . '/');
 
         if (!$finder->hasResults()) {
             return;
         }
 
         $remove = [];
-        foreach ($finder as $directory) {
+        foreach ($finder->getIterator() as $directory) {
             if ($directory->getPathname() !== $this->cacheDir) {
                 $remove[] = $directory->getPathname();
             }
         }
 
-        if (!empty($remove)) {
+        if ($remove !== []) {
             $this->filesystem->remove($remove);
         }
     }

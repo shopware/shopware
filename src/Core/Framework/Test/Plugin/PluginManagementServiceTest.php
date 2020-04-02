@@ -2,24 +2,33 @@
 
 namespace Shopware\Core\Framework\Test\Plugin;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Development\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
     use PluginTestsHelper;
 
-    /**
-     * @var KernelPluginCollection
-     */
-    protected $container;
+    private const TEST_ZIP_NAME = 'SwagFashionTheme.zip';
+    private const FIXTURE_PATH = __DIR__ . '/_fixture/';
+    private const PLUGIN_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_ZIP_NAME;
+    private const PLUGINS_PATH = self::FIXTURE_PATH . 'plugins';
+    private const PLUGIN_FASHION_THEME_PATH = self::PLUGINS_PATH . '/SwagFashionTheme';
 
     /**
      * @var Filesystem
@@ -27,40 +36,93 @@ class PluginManagementServiceTest extends TestCase
     private $filesystem;
 
     /**
-     * @var PluginManagementService
+     * @var string
      */
-    private $managementService;
+    private $cacheDir;
 
     protected function setUp(): void
     {
-        $this->container = $this->getContainer();
-        $this->filesystem = $this->container->get(Filesystem::class);
+        $this->filesystem = $this->getContainer()->get(Filesystem::class);
 
-        $extractor = new PluginExtractor(__DIR__ . '/_fixture/plugins', $this->filesystem);
-        $pluginService = $this->createPluginService(
+        $this->cacheDir = $this->createTestCacheDirectory();
+
+        $this->filesystem->copy(
+            self::FIXTURE_PATH . 'archives/' . self::TEST_ZIP_NAME,
+            self::PLUGIN_ZIP_FIXTURE_PATH
+        );
+    }
+
+    protected function tearDown(): void
+    {
+        $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
+        $this->filesystem->remove($this->cacheDir);
+    }
+
+    public function testUploadPlugin(): void
+    {
+        $pluginFile = $this->createUploadedFile();
+        $this->getPluginManagementService()->uploadPlugin($pluginFile);
+
+        static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH);
+        static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH . '/SwagFashionTheme.php');
+    }
+
+    private function createTestCacheDirectory(): string
+    {
+        $kernelClass = KernelLifecycleManager::getKernelClass();
+        /** @var Kernel $newTestKernel */
+        $newTestKernel = new $kernelClass(
+            'test',
+            true,
+            new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
+            Uuid::randomHex(),
+            '2.2.2',
+            $this->getContainer()->get(Connection::class)
+        );
+
+        $newTestKernel->boot();
+        $cacheDir = $newTestKernel->getCacheDir();
+        $newTestKernel->shutdown();
+
+        return $cacheDir;
+    }
+
+    private function createUploadedFile(): UploadedFile
+    {
+        return new UploadedFile(self::PLUGIN_ZIP_FIXTURE_PATH, self::TEST_ZIP_NAME, null, null, true);
+    }
+
+    private function getPluginManagementService(): PluginManagementService
+    {
+        return new PluginManagementService(
+            self::PLUGINS_PATH,
+            new PluginZipDetector(),
+            new PluginExtractor(self::PLUGINS_PATH, $this->filesystem),
+            $this->getPluginService(),
+            $this->filesystem,
+            $this->getCacheClearer()
+        );
+    }
+
+    private function getPluginService(): PluginService
+    {
+        return $this->createPluginService(
             $this->getContainer()->get('plugin.repository'),
             $this->getContainer()->get('language.repository'),
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(PluginFinder::class)
         );
-
-        $this->managementService = new PluginManagementService(__DIR__ . '/_fixture/plugins', new PluginZipDetector(), $extractor, $pluginService, $this->filesystem);
-
-        $this->filesystem->copy(__DIR__ . '/_fixture/archives/SwagFashionTheme.zip', __DIR__ . '/_fixture/SwagFashionTheme.zip');
     }
 
-    protected function tearDown(): void
+    private function getCacheClearer(): CacheClearer
     {
-        $this->filesystem->remove(__DIR__ . '/_fixture/plugins/SwagFashionTheme');
-    }
-
-    public function testExtractPluginZip(): void
-    {
-        $this->managementService->extractPluginZip(__DIR__ . '/_fixture/SwagFashionTheme.zip');
-
-        $extractedPlugin = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme');
-        $extractedPluginBaseClass = $this->filesystem->exists(__DIR__ . '/_fixture/plugins/SwagFashionTheme/SwagFashionTheme.php');
-        static::assertTrue($extractedPlugin);
-        static::assertTrue($extractedPluginBaseClass);
+        return new CacheClearer(
+            [],
+            $this->getContainer()->get('cache_clearer'),
+            $this->filesystem,
+            $this->cacheDir,
+            'test',
+            $this->getContainer()->get(EntityCacheKeyGenerator::class)
+        );
     }
 }

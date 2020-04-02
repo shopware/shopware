@@ -128,7 +128,7 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-tabs-item[title="System"]').click();
         cy.get('a[href="#/sw/plugin/index"]').click();
         cy.wait('@refresh').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

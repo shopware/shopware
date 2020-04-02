@@ -4,8 +4,8 @@
             <template #search-bar>
                 <sw-search-bar
                         :placeholder="$tc('sw-settings-user.general.placeholderSearchBar')"
-                        :searchType="$tc('sw-settings-user.general.mainMenuItemGeneral')"
                         :initialSearch="term"
+                        initialSearchType="user"
                         @search="onSearch">
                 </sw-search-bar>
             </template>

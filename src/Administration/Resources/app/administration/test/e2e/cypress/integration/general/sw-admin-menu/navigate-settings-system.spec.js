@@ -15,8 +15,8 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to user module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/user?page=1&limit=25',
-            method: 'get'
+            url: '/api/v1/search/user',
+            method: 'post'
         }).as('getData');
 
         cy.clickMainMenuItem({

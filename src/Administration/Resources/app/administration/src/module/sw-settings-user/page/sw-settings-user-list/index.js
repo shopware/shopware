@@ -1,6 +1,7 @@
 import template from './sw-settings-user-list.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-settings-user-list', {
     template,
@@ -15,10 +16,7 @@ Component.register('sw-settings-user-list', {
 
     data() {
         return {
-            currentUser: null,
-            total: 0,
             user: [],
-            term: this.$route.query ? this.$route.query.searchTerm : '',
             isLoading: false,
             itemToDelete: null
         };
@@ -31,8 +29,36 @@ Component.register('sw-settings-user-list', {
     },
 
     computed: {
+        /** @deprecated tag:6.4.0 will be removed in v.6.4.0 */
         userStore() {
             return StateDeprecated.getStore('user');
+        },
+
+        userRepository() {
+            return Shopware.Service('repositoryFactory').create('user');
+        },
+
+        currentUser: {
+            get() {
+                return State.get('session').currentUser;
+            },
+            /** deprecated tag:v6.4.0 will be read only in v.6.4.0 */
+            set() {}
+
+        },
+
+        userCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            if (this.term) {
+                criteria.setTerm(this.term);
+            }
+
+            if (this.sortBy) {
+                criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection || 'ASC'));
+            }
+
+            return criteria;
         },
 
         userColumns() {
@@ -52,16 +78,9 @@ Component.register('sw-settings-user-list', {
         }
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.userService.getUser().then((response) => {
-                this.currentUser = response.data;
-            });
-        },
+        /** @deprecated tag:6.4.0 will be removed in v.6.4.0 */
+        createdComponent() { /* nth because deprecated */ },
 
         getItemToDelete(item) {
             if (!this.itemToDelete) {
@@ -72,21 +91,17 @@ Component.register('sw-settings-user-list', {
 
         onSearch(value) {
             this.term = value;
-            this.clearSelection();
+            this.getList();
         },
 
         getList() {
             this.isLoading = true;
-            const params = this.getListingParams();
-
             this.user = [];
 
-            return this.userStore.getList(params).then((response) => {
-                this.user = response.items;
-                this.total = response.total;
+            return this.userRepository.search(this.userCriteria, Shopware.Context.api).then((users) => {
+                this.user = users;
+            }).finally(() => {
                 this.isLoading = false;
-
-                return this.user;
             });
         },
 
@@ -111,7 +126,8 @@ Component.register('sw-settings-user-list', {
                 });
                 return;
             }
-            user.delete(true).then(() => {
+
+            this.userRepository.delete(user.id, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
                     title: titleDeleteSuccess,
                     message: messageDeleteSuccess

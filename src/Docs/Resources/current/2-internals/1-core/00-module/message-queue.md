@@ -22,7 +22,7 @@ You can add your own middleware by implementing the `MiddlewareInterface` and ad
 ### Handler
 
 A [handler](https://symfony.com/doc/current/messenger.html#registering-handlers) gets called once the message is dispatched by the `handle_messages` middleware.
-Handlers do the actual processing of the message, therefore they must extend the `AbstractHandler`-class and implement the `handle()`-method.
+Handlers do the actual processing of the message, therefore they must extend the `AbstractMessageHandler`-class and implement the `handle()`-method.
 To register a handler you have to tag it with the `messenger.message_handler` tag.
 To specify which methods should be handled by a given handler implement the static `getHandledMessages()`-method and return the MessageClasses that handler should handle.
 You can also define multiple handlers for the same message.
@@ -38,7 +38,7 @@ A message will be wrapped in [envelope](https://symfony.com/doc/current/componen
 
 ### Stamps
 
-While the message bus is processing the message through it's middleware it adds [stamps](https://symfony.com/doc/current/components/messenger.html#adding-metadata-to-messages-envelopes) to the envelope that contain metadata about the message.
+While the message bus is processing the message through its middleware it adds [stamps](https://symfony.com/doc/current/components/messenger.html#adding-metadata-to-messages-envelopes) to the envelope that contain metadata about the message.
 If you need to add metadata or configuration to your message you can either wrap your message in an Envelope and adding the necessary stamps before dispatching your message or 
 you can create your own custom middleware for that.
 

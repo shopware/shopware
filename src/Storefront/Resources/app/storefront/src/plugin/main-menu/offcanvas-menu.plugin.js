@@ -10,7 +10,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
         position: 'left',
-        tiggerEvent: 'click',
+        triggerEvent: 'click',
 
         additionalOffcanvasClass: 'navigation-offcanvas',
         linkSelector: '.js-navigation-offcanvas-link',
@@ -44,8 +44,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
-        this.el.addEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
+        this.el.removeEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
+        this.el.addEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
 
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();

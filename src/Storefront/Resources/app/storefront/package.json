@@ -42,6 +42,7 @@
     "jquery": "3.4.1",
     "mini-css-extract-plugin": "0.8.0",
     "nunito-fontface": "0.7.3",
+    "object-fit-images": "^3.2.4",
     "object-fit-polyfill": "0.1.0",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "popper.js": "1.15.0",

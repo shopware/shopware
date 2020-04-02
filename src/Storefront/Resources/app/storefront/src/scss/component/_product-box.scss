@@ -38,6 +38,7 @@ $box-image-height-img: 332px;
     // 'max-height: 100%' not working in firefox
     max-height: $box-standard-height-img;
     object-fit: contain;
+    font-family: 'object-fit: contain;'; // IE polyfill
 
     &.is-cover,
     &.is-contain {
@@ -47,10 +48,12 @@ $box-image-height-img: 332px;
 
     &.is-cover {
         object-fit: cover;
+        font-family: 'object-fit: cover;'; // IE polyfill
     }
 
     &.is-contain {
         object-fit: contain;
+        font-family: 'object-fit: contain;'; // IE polyfill
     }
 }
 
@@ -163,6 +166,7 @@ $box-image-height-img: 332px;
         .product-image.is-standard {
             height: 100%;
             object-fit: cover;
+            font-family: 'object-fit: cover;'; // IE polyfill
         }
     }
 }

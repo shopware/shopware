@@ -23,6 +23,7 @@ General styling for cms elements
 
             .cms-image {
                 object-fit: cover;
+                font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;
                 top: 0;

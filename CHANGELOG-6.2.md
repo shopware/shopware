@@ -457,6 +457,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Non ES5 modules are now compiled with babel to support IE11
     * Terser Minifier works now in ES5 for better IE11 support
     * Add babel polyfill for IE11
+    * Add polyfill for object fit for IE11
 
 **Removals**
 

@@ -38,7 +38,7 @@ A message will be wrapped in [envelope](https://symfony.com/doc/current/componen
 
 ### Stamps
 
-While the message bus is processing the message through it's middleware it adds [stamps](https://symfony.com/doc/current/components/messenger.html#adding-metadata-to-messages-envelopes) to the envelope that contain metadata about the message.
+While the message bus is processing the message through its middleware it adds [stamps](https://symfony.com/doc/current/components/messenger.html#adding-metadata-to-messages-envelopes) to the envelope that contain metadata about the message.
 If you need to add metadata or configuration to your message you can either wrap your message in an Envelope and adding the necessary stamps before dispatching your message or 
 you can create your own custom middleware for that.
 

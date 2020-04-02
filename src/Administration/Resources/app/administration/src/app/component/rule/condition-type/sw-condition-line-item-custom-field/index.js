@@ -1,9 +1,9 @@
 import template from './sw-condition-line-item-custom-field.html.twig';
 import './sw-condition-line-item-custom-field.scss';
 
-const {Component, Mixin} = Shopware;
-const {mapApiErrors} = Component.getComponentHelper();
-const {Criteria} = Shopware.Data;
+const { Component, Mixin } = Shopware;
+const { mapApiErrors } = Component.getComponentHelper();
+const { Criteria } = Shopware.Data;
 
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
     template,
@@ -43,7 +43,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             },
             set(operator) {
                 this.ensureValueExist();
-                this.condition.value = {...this.condition.value, operator};
+                this.condition.value = { ...this.condition.value, operator };
             }
         },
 
@@ -54,7 +54,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             },
             set(renderedField) {
                 this.ensureValueExist();
-                this.condition.value = {...this.condition.value, renderedField};
+                this.condition.value = { ...this.condition.value, renderedField };
             }
         },
 
@@ -65,7 +65,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             },
             set(selectedField) {
                 this.ensureValueExist();
-                this.condition.value = {...this.condition.value, selectedField};
+                this.condition.value = { ...this.condition.value, selectedField };
             }
         },
 
@@ -76,7 +76,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             },
             set(selectedFieldSet) {
                 this.ensureValueExist();
-                this.condition.value = {...this.condition.value, selectedFieldSet};
+                this.condition.value = { ...this.condition.value, selectedFieldSet };
             }
         },
 
@@ -87,7 +87,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             },
             set(renderedFieldValue) {
                 this.ensureValueExist();
-                this.condition.value = {...this.condition.value, renderedFieldValue};
+                this.condition.value = { ...this.condition.value, renderedFieldValue };
             }
         },
 
@@ -131,9 +131,8 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
 
         /**
          * Clear any further field's value if custom field set selection has changed
-         * @param id
          */
-        onFieldSetChange(id) {
+        onFieldSetChange() {
             this.selectedField = null;
             this.operator = null;
             this.renderedField = null;

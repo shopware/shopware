@@ -288,6 +288,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug in `sw-description-list`, added `display: grid` CSS property to the component and changed default of `grid` property to `1fr` to ensure usages of this component have the same behaviour
     * Added `sw-import-export-activity-detail` component
 
+    * Added new condition-type `sw-condition-line-item-custom-field`
+        * Added new method `getOperatorSetByComponent` in `rule-condition.service.js`
+        * Added new property `customFields` to `entityBlacklist` in `product-stream-condition.service.js`
+        * Added new condition `cartLineItemCustomField` in `condition-type-data-provider.decorator.js`
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 

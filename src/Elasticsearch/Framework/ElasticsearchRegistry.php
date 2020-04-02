@@ -32,4 +32,15 @@ class ElasticsearchRegistry
 
         return null;
     }
+
+    public function has(string $entityName): bool
+    {
+        foreach ($this->getDefinitions() as $definition) {
+            if ($definition->getEntityDefinition()->getEntityName() === $entityName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

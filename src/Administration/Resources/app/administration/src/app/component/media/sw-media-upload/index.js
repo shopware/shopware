@@ -103,6 +103,12 @@ Component.register('sw-media-upload', {
             default: false
         },
 
+        fileAccept: {
+            type: String,
+            required: false,
+            default: 'image/*'
+        },
+
         sourceContext: {
             type: Object,
             required: false,

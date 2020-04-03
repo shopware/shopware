@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class SystemDefaultValidator implements EventSubscriberInterface
 {
     /**
@@ -30,6 +33,8 @@ class SystemDefaultValidator implements EventSubscriberInterface
     }
 
     /**
+     * @internal
+     *
      * @throws DeleteDefaultProfileException
      */
     public function preValidate(PreWriteValidationEvent $event): void

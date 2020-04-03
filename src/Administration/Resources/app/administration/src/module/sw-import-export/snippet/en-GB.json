@@ -2,173 +2,126 @@
   "sw-import-export": {
     "general": {
       "mainMenuItemGeneral": "Import/Export",
-      "mainMenuItemProfiles": "Profiles",
-      "mainMenuItemLogs": "Protocol",
       "descriptionTextModule": "Manages the import export of the application"
-    }
-  },
-  "sw-import-export-progress": {
-    "title": "Progress",
-    "buttonClose": "Close",
-    "buttonCancel": "Cancel",
-    "buttonDownload": "Download",
-    "notificationTitle": {
-      "import": "Import",
-      "export": "Export"
     },
-    "messages": {
-      "progress": "Processing your data ...",
-      "failed": "Your data could not be processed entirely. Please check the log files for further details.",
-      "succeeded": "Your data has been processed successfully.",
-      "aborted": "Processing aborted due to user cancellation."
-    }
-  },
-  "sw-import-export-index": {
-    "cards": {
-      "import": {
-        "title": "Import",
-        "selectProfileLabel": "Profile",
-        "fileInputLabel": "File",
-        "expireDateLabel": "Expiration date",
-        "action": "Start import",
-        "notification": {
-          "initFailed": {
-            "title": "Upload failed",
-            "messages": {
-              "CONTENT__IMPORT_FILE_HAS_UNEXPECTED_TYPE": "Filetype of upload file doesn't match selected profile",
-              "0": "Unexpected error"
-            }
-          },
-          "error": {
-            "title": "Import failed",
-            "messages": {
-              "noProfileSelected": "No profile selected"
-            }
-          }
-        }
-      },
-      "export": {
-        "title": "Export",
-        "selectProfileLabel": "Profile",
-        "expireDateLabel": "Expiration date",
-        "action": "Start export",
-        "notification": {
-          "initSuccess": {
-            "title": "Success",
-            "message": "Export started, export file is now being generated for you."
-          },
-          "initFailed": {
-            "title": "Export could not be started",
-            "message": "An error occurred when the export was started."
-          },
-          "error": {
-            "title": "Export could not be started",
-            "messages": {
-              "noProfileSelected": "No profile was selected"
-            }
-          }
-        }
-      }
-    }
-  },
-  "sw-import-export-profile": {
-    "list": {
-      "textImportExportProfileOverview": "Profiles",
-      "buttonAddImportExportProfile": "Add profile",
-      "buttonAdd": "Add",
-      "columnName": "Name",
-      "columnSourceEntity": "Object type",
-      "columnFileType": "File type",
-      "columnSystemDefault": "Default profile",
-      "columnUpdatedAt": "Updated at",
-      "columnCreatedAt": "Created at",
-      "contextMenuDelete": "Delete",
-      "contextMenuEdit": "Edit",
-      "contextMenuDuplicate": "Duplicate",
-      "textDeleteConfirm": "Are you sure you want to delete the profile \"{name}\"?",
-      "modalTitleDelete": "Delete profile",
-      "buttonCancel": "Cancel",
-      "buttonDelete": "Delete",
-      "messageEmpty": "No profiles yet"
-    },
-    "detail": {
-      "basic": {
-        "titleCard": "Profile",
-        "labelName": "Name",
-        "labelSourceEntity": "Object type",
-        "labelFileType": "File type",
-        "labelDelimiter": "Delimiter",
-        "labelEnclosure": "Enclosure",
-        "placeholderName": "Enter a name",
-        "placeholderDelimiter": "Choose a delimiter...",
-        "placeholderEnclosure": "Choose an enclosure...",
-        "fieldMappingButton": "Map fields"
-      },
-      "buttonCancel": "Cancel",
-      "buttonSave": "Save",
-      "textHeadline": "New profile",
-      "textHeadlineEdit": "Edit profile",
-      "titleResult": "Profiles",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The profile \"{name}\" has been saved."
-    },
-    "mapping": {
-      "modal": {
-        "title": "Field mapping for object type \"{entity}\""
-      },
-      "columnFileField": "File column",
-      "columnEntityField": "Internal field",
-      "columnValueSubstitution": "Value substitution",
-      "columnIsIdentifier": "Identity criteria",
-      "addCsvMappingItem": "Add item",
-      "deleteCsvMappingItem": "Delete item",
-      "saveButton": "Save"
-    }
-  },
-  "sw-import-export-log": {
-    "general": {
-      "enum": {
-        "activity": {
-          "import": "Import",
-          "export": "Export"
-        },
-        "state": {
-          "progress": "In progress",
-          "succeeded": "Succeeded",
-          "failed": "Failed",
-          "aborted": "Aborted"
-        }
-      }
-    },
-    "list": {
-      "header": "Protocol",
-      "contextMenuDetails": "Details",
-      "contextMenuDownload": "Download file",
-      "messageEmpty": "No protocols yet",
-      "referenceDeleted": "- Deleted -",
+    "activity": {
+      "invalidHelpText": "Invalid records can be downloaded in the context menu",
       "columns": {
-        "activity": "Activity",
+        "size": "Size",
         "profile": "Profile",
+        "date": "Date",
+        "user": "User",
         "state": "State",
-        "updatedAt": "Updated at",
-        "createdAt": "Created at",
-        "user": "User"
+        "records": "Records",
+        "invalidRecords": "Invalid records"
+      },
+      "contextMenu": {
+        "downloadFile": "Download file",
+        "showProfile": "Show profile",
+        "downloadInvalidFile": "Download invalid records"
       }
     },
-    "modal": {
-      "title": "Protocol entry",
-      "filename": "Filename",
-      "activity": "Activity",
-      "entity": "Entity",
-      "format": "Format",
-      "records": "Records",
-      "filesize": "Filesize",
-      "profile": "Profile",
-      "user": "User",
-      "createdAt": "Created at",
-      "updatedAt": "Updated at",
-      "state": "State",
-      "referenceDeleted": "- Deleted -"
+    "profile": {
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "The profile was saved successfully.",
+      "titleSaveError": "Error",
+      "messageSaveError": "The profile could not be saved.",
+      "titleDeleteSuccess": "Success",
+      "messageDeleteSuccess": "The profile was deleted successfully.",
+      "titleDeleteError": "Error",
+      "messageDeleteError": "The profile could not be saved. Please make sure that all logs for this profile are deleted.",
+      "titleDuplicateSuccess": "Success",
+      "messageDuplicateSuccess": "The profile was duplicated successfully.",
+      "titleDuplicateError": "Error",
+      "messageDuplicateError": "The profile could not be duplicated.",
+      "productLabel": "Product",
+      "customerLabel": "Customer",
+      "categoriesLabel": "Categories",
+      "mediaLabel": "Media",
+      "newsletterRecipientLabel": "Newsletter recipient",
+      "caretsLabel": "Caret (^)",
+      "commasLabel": "Comma (,)",
+      "semicolonLabel": "Semicolon (;)",
+      "doubleQuoteLabel": "Double quotes (\")",
+      "newProfileLabel": "New profile",
+      "editProfileLabel": "Edit profile",
+      "addProfileLabel": "Add profile",
+      "addNewProfileLabel": "Add new profile",
+      "openLabel": "Open",
+      "duplicateLabel": "Duplicate",
+      "copyOfLabel": "Copy of:",
+      "saveProfileLabel": "Save profile",
+      "closeProfileLabel": "Close profile",
+      "generalTab": "General",
+      "fieldIndicatorsTab": "Field indicator",
+      "profileNameFieldLabel": "Profile name",
+      "objectTypeFieldLabel": "Object type",
+      "separatorFieldLabel": "Separator character",
+      "enclosureFieldLabel": "Enclosure character",
+      "addMappingTooltipText": "Please define an object type first.",
+      "objectTypeFieldTooltipText": "The object type cannot be changed when mapping options are present.",
+      "descriptionBlock": "Object types define a mode for importing and exporting data. The defined mode will also affect the mapping options in the table below. Note, that you cannot change the object type after mapping options have been introduced.",
+      "mappingDescriptionBlock": "Use the table below to map CSV fields to their respective database counterparts.",
+      "csvDescriptionBlock": "Separators and enclosure characters are used to indicate separate fields within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
+      "cancelLabel": "Cancel",
+      "addMappingLabel": "Add new mapping",
+      "deleteLabel": "Delete",
+      "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",
+      "mapping": {
+        "fileValueLabel": "CSV name",
+        "entityLabel": "Database entry"
+      },
+      "typeColumn": "Type",
+      "nameColumn": "Name",
+      "customTypeLabel": "Custom",
+      "defaultTypeLabel": "Default",
+      "propertyLabel": "Properties",
+      "configuratorSettingLabel": "Variant configuration settings"
+    },
+    "exporter": {
+      "titleExportSuccess": "Success",
+      "messageExportSuccess": "The export was completed successfully.",
+      "startExportLabel": "Start export",
+      "showLogLabel": "Show log file",
+      "exportActivityLabel": "Export activity",
+      "exportActivityDescription": "Activities older than 30 days will be removed automatically.",
+      "exportLabel": "Export"
+    },
+    "importer": {
+      "titleImportSuccess": "Success",
+      "messageImportSuccess": "The import was completed successfully.",
+      "titleImportError": "Error",
+      "messageImportError": "There were errors during the import",
+      "uploadCsvLabel": "Upload CSV file",
+      "startImportLabel": "Start import",
+      "selectProfileLabel": "Select profile",
+      "profileLabel": "Profile",
+      "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
+      "importActivityLabel": "Import activity",
+      "importLabel": "Import",
+      "labelUploadCaption": "Select a file to upload"
+    },
+    "page": {
+      "profileTab": "Profiles",
+      "importTab": "Import",
+      "exportTab": "Export"
+    },
+    "progress": {
+      "startImportLabel": "Start import",
+      "startExportLabel": "Start export",
+      "entriesLabel": "Entries",
+      "fileSizeLabel": "kB",
+      "successTitle": "successful",
+      "downloadFileLabel": "Download file",
+      "succeededImportText": "Import succeeded",
+      "succeededExportText": "Export succeeded",
+      "failedImportText": "Import failed",
+      "progressImportText": "Processing",
+      "progressExportText": "Processing",
+      "downloadFailedLabel": "Download failed records",
+      "successfulImportsText": "{records} records imported successful.",
+      "failedImportsText": "{failedRecords} records failed to import. The failed records can be downloaded, edited and re-imported.",
+      "failedExportText": "Export failed"
     }
   }
 }

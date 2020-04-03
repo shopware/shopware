@@ -140,7 +140,7 @@
           "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
         }
       },
-      "caption": "Datei zum Hochladen"
+      "caption": "Datei zum Hochladen hierhin ziehen"
     },
     "sw-price-field": {
       "labelPriceGross": "Preis (Brutto)",

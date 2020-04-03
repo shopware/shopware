@@ -140,7 +140,7 @@
           "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
         }
       },
-      "caption": "Upload file"
+      "caption": "Drag a file here to upload"
     },
     "sw-price-field": {
       "labelPriceGross": "Price (gross)",

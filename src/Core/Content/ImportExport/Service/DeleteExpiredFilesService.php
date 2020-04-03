@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 
+/**
+ * @internal We might break this in v6.2
+ */
 class DeleteExpiredFilesService
 {
     /**

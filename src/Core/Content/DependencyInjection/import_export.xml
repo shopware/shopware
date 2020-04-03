@@ -10,7 +10,7 @@
         </parameter>
         <parameter key="import_export.supported_file_types" type="collection">
             <parameter>text/csv</parameter>
-            <parameter>text/xml</parameter>
+<!--            <parameter>text/xml</parameter>-->
         </parameter>
         <parameter key="import_export.read_buffer_size">100</parameter>
         <parameter key="import_export.write_buffer_size">100</parameter>
@@ -40,16 +40,24 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\Service\ImportExportService">
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="import_export_file.repository"/>
+            <argument type="service" id="import_export_log.repository"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="import_export_profile.repository"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\Controller\ImportExportActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService"/>
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\InitiationService"/>
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ProcessingService"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DownloadService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition" />
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
-            <argument>%import_export.http_batch_size%</argument>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -60,88 +68,95 @@
             <argument>%import_export.supported_file_types%</argument>
         </service>
 
-        <service id="Shopware\Core\Content\ImportExport\Service\InitiationService">
-            <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="import_export_file.repository"/>
-            <argument type="service" id="import_export_log.repository"/>
-            <argument type="tagged" tag="shopware.import_export.iterator_factory"/>
-            <argument type="service" id="user.repository"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Service\ProcessingService">
-            <argument type="service" id="import_export_log.repository"/>
-            <argument type="tagged" tag="shopware.import_export.writer_factory"/>
-            <argument type="tagged" tag="shopware.import_export.iterator_factory"/>
-            <argument type="tagged" tag="shopware.import_export.mapper"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="logger"/>
-            <argument>%import_export.write_buffer_size%</argument>
-        </service>
-
         <service id="Shopware\Core\Content\ImportExport\Service\DownloadService">
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="import_export_file.repository"/>
+        </service>
+
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry">
+            <argument type="tagged" tag="shopware.import_export.entity_serializer"/>
+            <argument type="tagged" tag="shopware.import_export.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\EntitySerializer">
+            <!-- Fallback -->
+            <tag name="shopware.import_export.entity_serializer" priority="-999"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer">
+            <!-- Fallback -->
+            <tag name="shopware.import_export.field_serializer" priority="-999"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\ToOneSerializer">
+            <tag name="shopware.import_export.field_serializer" priority="-500"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\TranslationsSerializer">
+            <argument type="service" id="language.repository"/>
+
+            <tag name="shopware.import_export.field_serializer" priority="-500"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\PriceSerializer">
+            <argument type="service" id="currency.repository"/>
+
+            <tag name="shopware.import_export.field_serializer" priority="-500"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer">
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="media.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">
+            <argument type="service" id="product_visibility.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory">
+            <tag name="shopware.import_export.reader_factory" />
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory">
+            <argument type="service" id="shopware.filesystem.private"/>
+
+            <tag name="shopware.import_export.writer_factory" />
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry"/>
+
+            <tag name="shopware.import_export.pipe_factory" />
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\ImportExportFactory" public="true">
+            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="import_export_log.repository"/>
+
+            <argument type="tagged" tag="shopware.import_export.reader_factory"/>
+            <argument type="tagged" tag="shopware.import_export.writer_factory"/>
+            <argument type="tagged" tag="shopware.import_export.pipe_factory"/>
+
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService">
             <argument type="service" id="import_export_file.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\ImportExport\Iterator\CsvFileIteratorFactory">
-            <argument type="service" id="shopware.filesystem.private"/>
-
-            <tag name="shopware.import_export.iterator_factory"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Iterator\XmlFileIteratorFactory">
-            <argument type="service" id="shopware.filesystem.private"/>
-
-            <tag name="shopware.import_export.iterator_factory"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Iterator\RepositoryIteratorFactory">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument>%import_export.read_buffer_size%</argument>
-
-            <tag name="shopware.import_export.iterator_factory"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Mapping\ImportMapper">
-            <tag name="shopware.import_export.mapper"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Mapping\ExportMapper">
-            <tag name="shopware.import_export.mapper"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Writer\CsvFileWriterFactory">
-            <argument type="service" id="shopware.filesystem.private"/>
-
-            <tag name="shopware.import_export.writer_factory"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Writer\XmlFileWriterFactory">
-            <argument type="service" id="shopware.filesystem.private"/>
-
-            <tag name="shopware.import_export.writer_factory"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Writer\RepositoryWriterFactory">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-
-            <tag name="shopware.import_export.writer_factory"/>
-        </service>
-
         <service id="Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
-
-            <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\InitiationService"/>
-            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ProcessingService"/>
-            <argument type="service" id="import_export_profile.repository"/>
 
             <tag name="console.command"/>
         </service>
@@ -154,10 +169,23 @@
         </service>
 
         <!-- Subscriber -->
-        <service id="Shopware\Core\Content\ImportExport\Subscriber\FileDeletedSubscriber">
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\FileDeletedSubscriber">
             <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\CategoryCriteriaSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+
+        <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
+            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>
+            <argument type="service" id="import_export_profile.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

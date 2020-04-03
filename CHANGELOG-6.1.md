@@ -23,7 +23,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Administration
     * Fixed VAT Information in default order confirmation mail templates
-    * Changed sw-text-editor to ignore addProtocol when the domainPlaceholder is used as a link
 
 * Core
     * Fix updater language to use the admin user language

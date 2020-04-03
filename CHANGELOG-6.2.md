@@ -50,7 +50,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactor mixin `sw-settings-list.mixin`
         * Added computed property `entityRepository`
         * Added computed property `listingCriteria`
-    * Added a new component `sw-order-line-items-grid-sales-channel` which can be used to display line items list in create order page
     * Fixed disabled click event of `router-link` in `sw-context-menu-item`
         * Added `event` and `target` attribute to `<router-link>` to handle with `disabled` prop
         * Added `target` prop to set target options for `<router-link>`
@@ -244,15 +243,30 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * Added possibility to add tabs to Theme Manager
           * Deprecated method `getFields`, use `getStructuredFields` instead
           * Deprecated data `themeFields`, use `structuredThemeFields` instead
-          * Added method `getStructuredFields` to themeApiService
-    * Added new component `sw-order-create-promotion-modal` which can be used to display the automatic promotions will be disabled before click to the button disable
+          * Added method `getStructuredFields` to themeApiService      
+    * Added `sw-order-create` page, `sw-order-create-base` view, and `create` route to `sw-order` module
+    * Added `cart-sales-channel.api.service` to handle cart line item services in create order page
+    * Added `check-out-sales-channel.api.service` to handle save order service in create order page
+    * Added component `sw-order-create-details-header` handle customer selection in create order page 
+    * Added component `sw-order-create-details-body` to handler customer contact information in create order page 
+    * Added component `sw-order-create-details-footer` to handle sales channel context in create order page
+    * Added component `sw-order-new-customer-modal` to create new customer
+    * Added component `sw-order-create-address-modal` to create new address of selected customer in create order page
+    * Added component `sw-order-line-items-grid-sales-channel` which can be used to display line items list in create order page
+    * Added component `sw-order-create-promotion-modal` which can be used to display and disable the automatic promotions
+    * Refactor `sw-order-product-select`
+        * `displayProductSelection` prop is now deprecated and will be removed with version 6.4
+        * Added `inheritance: true` in context of `productRepository` in `sw-order-product-select`
+    * Added component `sw-order-promotion-tag-input` to handle showing promotion code list, entering and removing promotion code
+    * Added component `sw-order-create-invalid-promotion-modal` to show recent invalid promotion codes after clicking on Save Order button
+    * Fixed error of showing shipping cost value in `sw-order-detail-base` when order detail has shipping cost discount
+    * Refactor `sw-order-savable-field`, changed style and position of Save button and Cancel button
+    " Added `slice` in `array` of `utils.service`
+    * Fixed hover style of `sw-label`
     * Added an error notification for user when he deletes a customer group that has a SalesChannel and/or a customer assigned to it.
     * Added `bulk-modal-cancel`, `bulk-modal-delete-items`, `delete-modal-cancel` and `delete-modal-delete-item` slots to `sw-entity-listing.html.twig`
     * Added twig blocks `sw_cms_page_form_section_empty_state_block_text` and `sw_cms_page_form_section_empty_state_block` to `sw-cms-page-form.html.twig`
     * The `fixed` directive is now deprecated and will be removed with version 6.4
-    * Added `sw-order-promotion-tag-input` component to handle showing promotion code list, entering and removing promotion code
-    * Added `sw-order-create-invalid-promotion-modal` component to show recent invalid promotion codes after clicking on Save Order button
-    * The `fixed` directive is now deprecated and will be removed with version 6.4 
     * Ordered settings items on settings list index page alphabetically
     * Show error when theme compiling in theme manager throws an error
     * Moved "Customer Group" settings-item from settings-index page to navigation sidebar

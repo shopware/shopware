@@ -231,7 +231,7 @@ class ThemeCompiler
                     continue;
                 }
 
-                if (in_array($data['type'], ['media','text','textarea']) {
+                if (in_array($data['type'], ['media','text','textarea'])) {
                     $variables[$key] = '\'' . $data['value'] . '\'';
                 } else {
                     $variables[$key] = $data['value'];

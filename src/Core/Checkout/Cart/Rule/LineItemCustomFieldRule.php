@@ -12,7 +12,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemCustomFieldRule extends Rule
 {
-
     /** @var string */
     protected $operator;
 
@@ -28,8 +27,6 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
-     * @param RuleScope $scope
-     * @return bool
      * @throws UnsupportedOperatorException
      */
     public function match(RuleScope $scope): bool
@@ -51,9 +48,6 @@ class LineItemCustomFieldRule extends Rule
         return false;
     }
 
-    /**
-     * @return array
-     */
     public function getConstraints(): array
     {
         return [
@@ -78,8 +72,6 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
-     * @param LineItem $lineItem
-     * @return bool
      * @throws UnsupportedOperatorException
      */
     private function isCustomFieldValid(LineItem $lineItem): bool
@@ -95,14 +87,14 @@ class LineItemCustomFieldRule extends Rule
         switch ($this->operator) {
             case self::OPERATOR_NEQ:
                 // mixed data types, thus weak value only comparison
-                return $actual != $expected;
+                return $actual !== $expected;
             case self::OPERATOR_GTE:
                 return $actual >= $expected;
             case self::OPERATOR_LTE:
                 return $actual <= $expected;
             case self::OPERATOR_EQ:
                 // mixed data types, thus weak value only comparison
-                return $actual == $expected;
+                return $actual === $expected;
             case self::OPERATOR_GT:
                 return $actual > $expected;
             case self::OPERATOR_LT:

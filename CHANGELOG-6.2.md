@@ -423,6 +423,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`, use `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer` instead
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
+    * Added `BLUE_GREEN_DEPLOYMENT` environment variable
+    * `bin/setup` asks if you want to enable blue/green deployment
 
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations

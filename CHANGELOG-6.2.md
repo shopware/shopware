@@ -61,6 +61,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Deprecated `mapApiErrors`, use `mapPropertyErrors`
         * Added `mapCollectionPropertyErrors` to mapErrorService for Entity Collections
     * Fix that user can delete SEO templates accidentally with an empty string in the template text field
+    * Changed sw-text-editor to ignore addProtocol when the domainPlaceholder is used as a link
 
     * Added `sw-multi-tag-select` component which can now be used to allow users to enter data into a tagged input field
     * Added `sw-multi-tag-ip-select` as an extension which includes IP-validation

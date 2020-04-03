@@ -49,6 +49,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
         .gallery-slider-image {
             object-fit: cover;
+            font-family: 'object-fit: cover;'; // IE polyfill
             position: absolute;
             top: 0;
             right: 0;
@@ -61,6 +62,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     &.is-cover {
         .gallery-slider-image {
             object-fit: cover;
+            font-family: 'object-fit: cover;'; // IE polyfill
             width: 100%;
             height: 100%;
         }
@@ -70,6 +72,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         .gallery-slider-image {
             margin: auto;
             object-fit: contain;
+            font-family: 'object-fit: contain;'; // IE polyfill
         }
     }
 }

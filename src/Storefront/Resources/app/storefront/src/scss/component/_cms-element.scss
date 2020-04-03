@@ -19,10 +19,13 @@ General styling for cms elements
         position: relative;
 
         &.is-cover {
+            object-fit: contain;
+            font-family: 'object-fit: contain;'; // IE polyfill
             height: 100%;
 
             .cms-image {
                 object-fit: cover;
+                font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;
                 top: 0;

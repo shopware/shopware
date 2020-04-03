@@ -1,3 +1,4 @@
+import objectFitImages from 'object-fit-images';
 import '@babel/polyfill';
 import 'form-association-polyfill/dist/form-association-polyfill-register-with-shims';
 import 'mdn-polyfills/NodeList.prototype.forEach';
@@ -11,3 +12,4 @@ import 'object-fit-polyfill';
 import 'intersection-observer';
 
 ElementClosestPolyfill(window);
+objectFitImages();

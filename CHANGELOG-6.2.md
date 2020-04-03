@@ -466,6 +466,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Terser Minifier works now in ES5 for better IE11 support
     * Add babel polyfill for IE11
     * Added `rel="noopener"` to all `target="_blank"` links
+    * Add polyfill for object fit for IE11
 
 **Removals**
 

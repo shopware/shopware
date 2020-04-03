@@ -248,7 +248,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if ($data['type'] === 'media') {
+            if (in_array($data['type'], ['media','text','textarea'])) {
                 // Add id of media which needs to be resolved
                 if (Uuid::isValid($data['value'])) {
                     $mediaIds[$key] = $data['value'];

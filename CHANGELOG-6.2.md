@@ -278,6 +278,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `sw-settings-captcha-select` component
         * This component allows users to define active captchas via `Settings -> Basic information`
     * Fix renaming of duplicated media names
+    * Added new blocks in `sw-settings-user-detail` to allow overriding each card by its own:
+        * `sw_settings_user_detail_content_inner` to override card view only
+        * `sw_setting_user_detail_card_basic_information` to override basic information
+        * `sw_setting_user_detail_card_integrations` to override integration settings
+    * Fixed a bug where the pages content could not be overridden because `sw_settings_user_detail_content` existed twice
+    * Fixed a bug in `sw-profile-index` that caused media requests to fail
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

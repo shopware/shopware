@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal We might break this in v6.2
+ */
 class DownloadService
 {
     /**

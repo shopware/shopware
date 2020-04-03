@@ -1,74 +1,70 @@
-import './page/sw-import-export-index';
-import './page/sw-import-export-profile-list';
-import './page/sw-import-export-profile-create';
-import './page/sw-import-export-profile-detail';
-import './page/sw-import-export-log-list';
-import './component/sw-import-export-log-modal';
-import './component/sw-import-export-profile-csv-mapping-modal';
+import ImportExportService from './service/importExport.service';
+import './extension/sw-settings-index';
+import './page/sw-import-export';
+import './component/sw-import-export-exporter';
+import './component/sw-import-export-importer';
+import './component/sw-import-export-activity';
+import './component/sw-import-export-edit-profile-modal';
+import './component/sw-import-export-edit-profile-modal-mapping';
+import './component/sw-import-export-entity-path-select';
+import './view/sw-import-export-view-import';
+import './view/sw-import-export-view-export';
+import './view/sw-import-export-view-profiles';
 import './component/sw-import-export-progress';
-import { NEXT733 } from 'src/flag/feature_next733';
 
-const { Module } = Shopware;
+Shopware.Service().register('importExport', () => {
+    return new ImportExportService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service('loginService')
+    );
+});
 
-Module.register('sw-import-export', {
+Shopware.Module.register('sw-import-export', {
     type: 'core',
-    name: 'Import/Export',
-    flag: NEXT733,
+    name: 'ImportExport',
     title: 'sw-import-export.general.mainMenuItemGeneral',
     description: 'sw-import-export.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#f198e4',
+    color: '#9AA8B5',
     icon: 'default-device-database',
     entity: 'import_export_profile',
+    routePrefixPath: 'sw/import-export',
 
     routes: {
         index: {
-            component: 'sw-import-export-index',
-            path: 'index'
-        },
-        protocol: {
-            component: 'sw-import-export-log-list',
-            path: 'protocol'
-        },
-        profile_index: {
-            component: 'sw-import-export-profile-list',
-            path: 'profile/index'
-        },
-        profile_create: {
-            component: 'sw-import-export-profile-create',
-            path: 'profile/create',
+            component: 'sw-import-export',
+            path: 'index',
             meta: {
-                parentPath: 'sw.import.export.profile_index'
-            }
-        },
-        profile_detail: {
-            component: 'sw-import-export-profile-detail',
-            path: 'profile/detail/:id',
-            meta: {
-                parentPath: 'sw.import.export.profile_index'
+                parentPath: 'sw.settings.index'
+            },
+            redirect: {
+                name: 'sw.import.export.index.import'
+            },
+
+            children: {
+                import: {
+                    component: 'sw-import-export-view-import',
+                    path: 'import',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
+                },
+                export: {
+                    component: 'sw-import-export-view-export',
+                    path: 'export',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
+                },
+                profiles: {
+                    component: 'sw-import-export-view-profiles',
+                    path: 'profiles',
+                    meta: {
+                        parentPath: 'sw.settings.index'
+                    }
+                }
             }
         }
-    },
-
-    navigation: [{
-        id: 'sw-import-export',
-        label: 'sw-import-export.general.mainMenuItemGeneral',
-        color: '#f198e4',
-        path: 'sw.import.export.index',
-        icon: 'default-device-database',
-        position: 90
-    }, {
-        path: 'sw.import.export.index',
-        label: 'sw-import-export.general.mainMenuItemGeneral',
-        parent: 'sw-import-export'
-    }, {
-        path: 'sw.import.export.protocol',
-        label: 'sw-import-export.general.mainMenuItemLogs',
-        parent: 'sw-import-export'
-    }, {
-        path: 'sw.import.export.profile_index',
-        label: 'sw-import-export.general.mainMenuItemProfiles',
-        parent: 'sw-import-export'
-    }]
+    }
 });

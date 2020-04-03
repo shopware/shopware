@@ -17,6 +17,19 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
 * Storefront
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
+### 6.1.5
+
+**Addition / Changes**
+
+* Administration
+    * Added new `sw-import-export` module in `src/Administration/Resources/app/administration/src/module`
+    * Added new slot `caption-label` in `sw-file-input` component
+    * Added new `has` method to `src/Administration/Resources/app/administration/src/core/factory/entity-definition.factory.js`
+
+* Core
+    * Fixed a bug, where access tokens could get very large and cause requests to fail
+    * Added Import/Export module with csv support. We've decided to add this feature in this patch release, to make it available earlier, due to the current covid-19 crisis. We believe this feature may help small business owners to setup their shop faster. Beware that parts of the Import/Export api are still unstable and marked as `@experimental`.
+
 ### 6.1.4
 
 **Addition / Changes**
@@ -34,6 +47,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix using the SCSS `@extend` feature on existing bootstrap classes when running `./psh.phar storefront:hot` or `./psh.phar storefront:hot-proxy`.
     * Changed reviewer mail and name to be private in sales-channel API
 
+### 6.1.5
+
+**Addition / Changes**
+
+* Administration
+    * Added property `fileAccept` to `sw-media-upload`
 ### 6.1.3
 
 **Addition / Changes**

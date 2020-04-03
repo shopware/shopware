@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\ImportExport\Command;
 
+use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
-use Shopware\Core\Content\ImportExport\Iterator\ProgressBarIterator;
-use Shopware\Core\Content\ImportExport\Service\InitiationService;
-use Shopware\Core\Content\ImportExport\Service\ProcessingService;
+use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,32 +14,33 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportEntityCommand extends Command
 {
     protected static $defaultName = 'import:entity';
 
     /**
-     * @var InitiationService
+     * @var ImportExportService
      */
     private $initiationService;
-
-    /**
-     * @var ProcessingService
-     */
-    private $processingService;
 
     /**
      * @var EntityRepositoryInterface
      */
     private $profileRepository;
 
-    public function __construct(InitiationService $initiationService, ProcessingService $processingService, EntityRepositoryInterface $profileRepository)
+    /**
+     * @var ImportExportFactory
+     */
+    private $importExportFactory;
+
+    public function __construct(ImportExportService $initiationService, EntityRepositoryInterface $profileRepository, ImportExportFactory $importExportFactory)
     {
         parent::__construct();
         $this->initiationService = $initiationService;
-        $this->processingService = $processingService;
         $this->profileRepository = $profileRepository;
+        $this->importExportFactory = $importExportFactory;
     }
 
     protected function configure(): void
@@ -66,28 +67,36 @@ class ImportEntityCommand extends Command
             ));
         }
 
-        $log = $this->initiationService->initiate(
+        $file = new UploadedFile($filePath, basename($filePath), $profile->getFileType());
+
+        $log = $this->initiationService->prepareImport(
             $context,
-            'import',
-            $profile,
+            $profile->getId(),
             $expireDate,
-            $filePath,
-            basename($filePath)
+            $file
         );
 
         $startTime = time();
 
-        $recordIterator = $this->processingService->createRecordIterator($context, $log);
+        $importExport = $this->importExportFactory->create($log->getId());
 
-        $outer = new ProgressBarIterator($recordIterator, $io->createProgressBar($log->getRecords()));
+        $total = filesize($filePath);
+        $progressBar = $io->createProgressBar($total);
 
-        $io->title(sprintf('Starting import of %d records', $log->getRecords()));
+        $io->title(sprintf('Starting import of size %d ', $total));
 
-        $processed = $this->processingService->process($context, $log, $outer);
+        $records = 0;
+
+        $progress = new Progress($log->getId(), Progress::STATE_PROGRESS, 0);
+        do {
+            $progress = $importExport->export(Context::createDefaultContext(), new Criteria(), $progress->getOffset());
+            $progressBar->setProgress($progress->getOffset());
+            $records += $progress->getProcessedRecords();
+        } while (!$progress->isFinished());
 
         $elapsed = time() - $startTime;
         $io->newLine(2);
-        $io->success(sprintf('Successfully imported %d records in %d seconds', $processed, $elapsed));
+        $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
 
         return 0;
     }

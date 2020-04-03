@@ -40,10 +40,10 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new StringField('source_entity', 'sourceEntity'))->setFlags(new Required()),
             (new StringField('file_type', 'fileType'))->setFlags(new Required()),
 
-            new StringField('delimiter', 'delimiter'),
-            new StringField('enclosure', 'enclosure'),
+            (new StringField('delimiter', 'delimiter'))->setFlags(new Required()),
+            (new StringField('enclosure', 'enclosure'))->setFlags(new Required()),
 
-            new JsonField('mapping', 'mapping'),
+            (new JsonField('mapping', 'mapping', [], [])),
 
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
 

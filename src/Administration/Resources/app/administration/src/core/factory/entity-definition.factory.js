@@ -4,6 +4,7 @@ export default {
     getScalarTypes,
     getJsonTypes,
     getDefinitionRegistry,
+    has,
     get,
     add,
     remove,
@@ -16,6 +17,15 @@ const entityDefinitionRegistry = new Map();
 
 function getDefinitionRegistry() {
     return entityDefinitionRegistry;
+}
+
+/**
+ * Checks the EntityDefinition object for a given entity
+ * @param entityName
+ * @returns {Boolean}
+ */
+function has(entityName) {
+    return entityDefinitionRegistry.has(entityName);
 }
 
 /**

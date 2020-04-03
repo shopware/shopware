@@ -1,132 +1,137 @@
 import template from './sw-import-export-progress.html.twig';
+import './sw-import-export-progress.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
-Component.register('sw-import-export-progress', {
+/**
+ * @private
+ */
+Shopware.Component.register('sw-import-export-progress', {
     template,
 
-    inject: ['importExportService'],
+    inject: ['importExport'],
 
     mixins: [
         Mixin.getByName('notification')
     ],
 
     props: {
-        log: {
-            type: Object,
-            required: true
-        }
-    },
+        activityType: {
+            type: String,
+            required: false,
+            default: 'import',
+            validValues: [
+                'import',
+                'export'
+            ],
+            validator(value) {
+                return [
+                    'import',
+                    'export'
+                ].includes(value);
+            }
+        },
 
-    computed: {
-        aborted() {
-            return this.state === 'aborted';
+        offset: {
+            type: Number,
+            required: false,
+            default: 0
         },
-        failed() {
-            return this.state === 'failed';
+
+        total: {
+            type: Number,
+            required: false,
+            default: null
         },
-        progress() {
-            return this.state === 'progress';
+
+        state: {
+            type: String,
+            required: false,
+            default: null
         },
-        succeeded() {
-            return this.state === 'succeeded';
+
+        disableButton: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        logEntry: {
+            type: Object,
+            required: false,
+            default: null
         }
     },
 
     data() {
         return {
-            state: null,
-            percentage: 0,
-            downloadUrl: null
+            stateText: {
+                import: {
+                    succeeded: this.$tc('sw-import-export.progress.succeededImportText'),
+                    failed: this.$tc('sw-import-export.progress.failedImportText'),
+                    progress: this.$tc('sw-import-export.progress.progressImportText')
+                },
+                export: {
+                    succeeded: this.$tc('sw-import-export.progress.succeededExportText'),
+                    failed: this.$tc('sw-import-export.progress.failedExportText'),
+                    progress: this.$tc('sw-import-export.progress.progressExportText')
+                }
+            }
         };
     },
 
-    created() {
-        this.createdComponent();
+    computed: {
+        progressBarClasses() {
+            return {
+                'is--finished': (this.percentageProgress >= 100) && this.state === 'succeeded',
+                'is--errored': this.state === 'failed'
+            };
+        },
+
+        percentageProgress() {
+            if (this.total === 0) {
+                return 0;
+            }
+            return this.offset / this.total * 100;
+        },
+
+        logEntryState() {
+            if (!this.logEntry) {
+                return '';
+            }
+
+            return this.stateText[this.activityType][this.logEntry.state];
+        },
+
+        successMessage() {
+            let typeLabel = '';
+            if (this.activityType === 'import') {
+                typeLabel = this.$tc('sw-import-export.importer.importLabel');
+            } else {
+                typeLabel = this.$tc('sw-import-export.exporter.exportLabel');
+            }
+
+            return `${typeLabel} ${this.$tc('sw-import-export.progress.successTitle')}`;
+        },
+
+        entriesLabel() {
+            if (this.activityType === 'import') {
+                return this.$tc('sw-import-export.progress.fileSizeLabel');
+            }
+
+            return this.$tc('sw-import-export.progress.entriesLabel');
+        }
     },
 
     methods: {
-        createdComponent() {
-            if (this.log.records > 0) {
-                this.state = 'progress';
-                this.createNotificationInfo({
-                    title: this.notificationTitle(),
-                    message: this.notificationMessage()
-                });
-                this.process(0);
-            } else {
-                this.complete();
-            }
-        },
-
-        process(offset) {
-            this.percentage = offset / this.log.records * 100;
-            this.importExportService.process(this.log.id, offset).then((response) => {
-                if (this.aborted || this.failed) {
-                    return;
-                }
-
-                offset += response.processed;
-                if (offset < this.log.records) {
-                    this.process(offset);
-                    return;
-                }
-
-                this.complete();
-            }).catch(() => {
-                this.fail();
-            });
-        },
-
-        complete() {
-            this.percentage = 100;
-            this.state = 'succeeded';
-            this.createNotificationSuccess({
-                title: this.notificationTitle(),
-                message: this.notificationMessage(),
-                autoClose: false
-            });
-            if (this.log.activity === 'export') {
-                this.downloadUrl = this.importExportService.getDownloadUrl(this.log.file.id, this.log.file.accessToken);
-            }
-        },
-
-        abort() {
-            this.state = 'aborted';
-            this.createNotificationWarning({
-                title: this.notificationTitle(),
-                message: this.notificationMessage(),
-                autoClose: false
-            });
-        },
-
-        fail() {
-            this.state = 'failed';
-            this.createNotificationError({
-                title: this.notificationTitle(),
-                message: this.notificationMessage(),
-                autoClose: false
-            });
-        },
-
-        closeModal() {
-            if (this.progress) {
-                return;
-            }
-            this.$emit('modal-close');
-        },
-
-        onUserCancel() {
-            this.abort();
-            this.importExportService.cancel(this.log.id);
-        },
-
-        notificationTitle() {
-            return this.$tc(`sw-import-export-progress.notificationTitle.${this.log.activity}`);
-        },
-
-        notificationMessage() {
-            return this.$tc(`sw-import-export-progress.messages.${this.state}`);
+        getDownloadUrl(id, accessToken) {
+            return this.importExport.getDownloadUrl(id, accessToken);
         }
     }
 });

@@ -265,6 +265,7 @@ const Shopware = function Shopware() {
         getScalarTypes: EntityDefinitionFactory.getScalarTypes,
         getJsonTypes: EntityDefinitionFactory.getJsonTypes,
         getDefinitionRegistry: EntityDefinitionFactory.getDefinitionRegistry,
+        has: EntityDefinitionFactory.has,
         get: EntityDefinitionFactory.get,
         add: EntityDefinitionFactory.add,
         remove: EntityDefinitionFactory.remove,

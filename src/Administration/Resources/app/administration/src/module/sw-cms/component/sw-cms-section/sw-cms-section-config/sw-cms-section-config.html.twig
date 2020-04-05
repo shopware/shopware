@@ -55,8 +55,15 @@
                     <sw-select-field v-if="section.type === 'sidebar'"
                                      :label="$tc('sw-cms.detail.sidebar.mobile')"
                                      v-model="section.mobileBehavior">
-                        <option value="hidden">{{ $tc('sw-cms.detail.sidebar.mobileOptionHidden') }}</option>
-                        <option value="wrap">{{ $tc('sw-cms.detail.sidebar.mobileOptionWrap') }}</option>
+                        {% block sw_cms_sidebar_section_config_sidebar_mobile_options %}
+                            <option
+                                v-for="(config, behaviour) in cmsPageState.fieldOptions.sectionMobileBehaviour"
+                                :key="behaviour"
+                                :value="behaviour"
+                            >
+                                {{ $t(config.label) }}
+                            </option>
+                        {% endblock %}
                     </sw-select-field>
                 {% endblock %}
 

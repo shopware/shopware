@@ -111,6 +111,14 @@ Shopware.State.registerModule('cmsPageState', {
                     label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal'
                 }
             },
+            sectionMobileBehaviour: {
+                hidden: {
+                    label: 'sw-cms.detail.sidebar.mobileOptionHidden'
+                },
+                wrap: {
+                    label: 'sw-cms.detail.sidebar.mobileOptionWrap'
+                }
+            },
             sectionSizingMode: {
                 boxed: {
                     label: 'sw-cms.detail.label.sizingOptionBoxed'
@@ -315,6 +323,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.productBoxLayoutType, name, {
                 ...(state.fieldOptions.productBoxLayoutType[name] || {}),
+                ...configuration
+            });
+        },
+
+        setSectionMobileBehaviour(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.sectionMobileBehaviour, name, {
+                ...(state.fieldOptions.sectionMobileBehaviour[name] || {}),
                 ...configuration
             });
         },

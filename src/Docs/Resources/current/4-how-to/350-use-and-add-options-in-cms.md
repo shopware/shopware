@@ -456,6 +456,57 @@ Therefore you also need to add a corresponding snippet for it:
 }
 ```
 
+## Section mobile behaviour
+
+Section mobile behaviours are the ways a sidebar can react on a mobile viewport.
+In a case you want to read the behaviours you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        sectionMobileBehaviours() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.sectionMobileBehaviour;
+        }
+    }
+});
+```
+
+When you want to add a new section mobile behaviour option you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setSectionMobileBehaviour',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.detail.sidebar.mobileOptionFoobar'
+    }
+);
+```
+
+Therefore you also need add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "detail": {
+            "sidebar": {
+                "mobileOptionFoobar": "Foobar"
+            }
+        }
+    }
+}
+```
+
 ## Section sizing modes
 
 Section sizing modes are the sizing behaviours or single sections (boxed, fullwidth).

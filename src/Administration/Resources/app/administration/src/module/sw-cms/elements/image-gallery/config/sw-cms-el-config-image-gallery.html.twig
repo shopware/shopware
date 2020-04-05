@@ -157,13 +157,15 @@
                                                           v-model="element.config.galleryPosition.value"
                                                           @change="emitUpdateEl"
                                                           :label="$tc('sw-cms.elements.imageGallery.config.label.navigationPreview')">
-
-                                                    <option value="left">
-                                                        {{ $tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionLeft') }}
-                                                    </option>
-                                                    <option value="underneath">
-                                                        {{ $tc('sw-cms.elements.imageGallery.config.label.navigationPreviewPositionUnderneath') }}
-                                                    </option>
+                                                    {% block sw_cms_element_image_gallery_config_settings_navigation_preview_position_options %}
+                                                        <option
+                                                            v-for="(config, position) in cmsPageState.fieldOptions.mediaGalleryNavigationPreviewPosition"
+                                                            :key="position"
+                                                            :value="position"
+                                                        >
+                                                            {{ $t(config.label) }}
+                                                        </option>
+                                                    {% endblock %}
                                                 </sw-field>
                                             {% endblock %}
                                         </div>

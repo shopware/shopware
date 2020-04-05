@@ -134,6 +134,61 @@ Therefore you also need add a corresponding snippet for it:
 }
 ```
 
+## Media gallery navigation preview position
+
+Media gallery navigation preview position are the choices for the location of preview images on a gallery.
+In a case you want to read the positions you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        mediaSliderNavigationPositions() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.mediaGalleryNavigationPreviewPosition;
+        }
+    }
+});
+```
+
+When you want to add a new preview position you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setMediaGalleryNavigationPreviewPosition',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.elements.imageGallery.config.label.navigationPreviewPositionFoobar'
+    }
+);
+```
+
+Therefore you also need add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "elements": {
+            "imageGallery": {
+                "config": {
+                    "label": {
+                        "navigationPreviewPositionFoobar": "Foobar"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Media slider navigation position
 
 Media slider navigation position are the choices of navigation positions that are used in sliders.

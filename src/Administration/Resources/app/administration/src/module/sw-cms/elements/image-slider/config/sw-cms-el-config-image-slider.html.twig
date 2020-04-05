@@ -61,9 +61,15 @@
                                                              v-model="element.config.displayMode.value"
                                                              @change="onChangeDisplayMode"
                                                              class="sw-cms-el-config-image-slider__setting-display-mode">
-                                                <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
-                                                <option value="cover">{{ $tc('sw-cms.elements.general.config.label.displayModeCover') }}</option>
-                                                <option value="contain">{{ $tc('sw-cms.elements.general.config.label.displayModeContain') }}</option>
+                                                {% block sw_cms_element_image_gallery_config_settings_display_mode_select_options %}
+                                                    <option
+                                                        v-for="(config, mode) in cmsPageState.fieldOptions.mediaDisplayMode"
+                                                        :key="mode"
+                                                        :value="mode"
+                                                    >
+                                                        {{ $t(config.label) }}
+                                                    </option>
+                                                {% endblock %}
                                             </sw-select-field>
                                         {% endblock %}
 

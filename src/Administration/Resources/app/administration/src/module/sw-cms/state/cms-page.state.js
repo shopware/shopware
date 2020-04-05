@@ -15,6 +15,17 @@ Shopware.State.registerModule('cmsPageState', {
         selectedBlock: null,
         isSystemDefaultLanguage: true,
         fieldOptions: {
+            mediaDisplayMode: {
+                standard: {
+                    label: 'sw-cms.elements.general.config.label.displayModeStandard'
+                },
+                cover: {
+                    label: 'sw-cms.elements.general.config.label.displayModeCover'
+                },
+                contain: {
+                    label: 'sw-cms.elements.general.config.label.displayModeContain'
+                }
+            },
             productBoxLayoutType: {
                 standard: {
                     label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard'
@@ -104,6 +115,21 @@ Shopware.State.registerModule('cmsPageState', {
 
         setIsSystemDefaultLanguage(state, isSystemDefaultLanguage) {
             state.isSystemDefaultLanguage = isSystemDefaultLanguage;
+        },
+
+        setMediaDisplayMode(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.mediaDisplayMode, name, {
+                ...(state.fieldOptions.mediaDisplayMode[name] || {}),
+                ...configuration
+            });
         },
 
         setProductBoxLayoutType(state, configuration) {

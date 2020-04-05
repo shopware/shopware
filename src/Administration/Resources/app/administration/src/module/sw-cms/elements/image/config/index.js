@@ -7,6 +7,7 @@ Component.register('sw-cms-el-config-image', {
     template,
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('cms-element')
     ],
 

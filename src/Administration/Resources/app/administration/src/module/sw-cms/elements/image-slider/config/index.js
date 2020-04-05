@@ -9,6 +9,7 @@ Component.register('sw-cms-el-config-image-slider', {
     template,
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('cms-element')
     ],
 

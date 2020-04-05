@@ -29,6 +29,17 @@ Shopware.State.registerModule('cmsPageState', {
                     vertical: true
                 }
             },
+            mediaBackgroundMode: {
+                auto: {
+                    label: 'sw-cms.detail.label.backgroundMediaModeAuto'
+                },
+                contain: {
+                    label: 'sw-cms.detail.label.backgroundMediaModeContain'
+                },
+                cover: {
+                    label: 'sw-cms.detail.label.backgroundMediaModeCover'
+                }
+            },
             mediaDisplayMode: {
                 standard: {
                     label: 'sw-cms.elements.general.config.label.displayModeStandard',
@@ -166,6 +177,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.alignment, name, {
                 ...(state.fieldOptions.alignment[name] || {}),
+                ...configuration
+            });
+        },
+
+        setMediaBackgroundMode(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.mediaBackgroundMode, name, {
+                ...(state.fieldOptions.mediaBackgroundMode[name] || {}),
                 ...configuration
             });
         },

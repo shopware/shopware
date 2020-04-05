@@ -57,9 +57,15 @@
                         <sw-select-field :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
                                          v-model="block.backgroundMediaMode"
                                          :disabled="!block.backgroundMediaId">
-                            <option value="auto">{{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}</option>
-                            <option value="contain">{{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}</option>
-                            <option value="cover">{{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}</option>
+                            {% block sw_cms_block_config_background_image_position_field_options %}
+                                <option
+                                    v-for="(config, mode) in cmsPageState.fieldOptions.mediaBackgroundMode"
+                                    :key="mode"
+                                    :value="mode"
+                                >
+                                    {{ $t(config.label) }}
+                                </option>
+                            {% endblock %}
                         </sw-select-field>
                     {% endblock %}
                 {% endblock %}

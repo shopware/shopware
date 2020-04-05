@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-youtube-video.html.twig';
 import './sw-cms-el-config-youtube-video.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-cms-el-config-youtube-video', {
     template,
@@ -31,6 +31,10 @@ Component.register('sw-cms-el-config-youtube-video', {
             set(link) {
                 this.element.config.videoID.value = this.shortenLink(link);
             }
+        },
+
+        videoDisplayModes() {
+            return State.getters['cmsPageState/videoDisplayModes'];
         }
     },
 

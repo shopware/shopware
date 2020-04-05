@@ -17,27 +17,32 @@ Shopware.State.registerModule('cmsPageState', {
         fieldOptions: {
             mediaDisplayMode: {
                 standard: {
-                    label: 'sw-cms.elements.general.config.label.displayModeStandard'
+                    label: 'sw-cms.elements.general.config.label.displayModeStandard',
+                    image: true,
+                    video: true
                 },
                 cover: {
-                    label: 'sw-cms.elements.general.config.label.displayModeCover'
+                    label: 'sw-cms.elements.general.config.label.displayModeCover',
+                    image: true
                 },
                 contain: {
-                    label: 'sw-cms.elements.general.config.label.displayModeContain'
+                    label: 'sw-cms.elements.general.config.label.displayModeContain',
+                    image: true
+                },
+                stretched: {
+                    label: 'sw-cms.elements.general.config.label.displayModeStretch',
+                    video: true
                 }
             },
             productBoxLayoutType: {
                 standard: {
-                    label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard',
-                    image: true
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard'
                 },
                 image: {
-                    label: 'sw-cms.elements.productBox.config.label.layoutTypeImage',
-                    image: true
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeImage'
                 },
                 minimal: {
-                    label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal',
-                    image: true
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal'
                 }
             }
         }
@@ -175,6 +180,13 @@ Shopware.State.registerModule('cmsPageState', {
             return Object.fromEntries(
                 Object.entries(state.fieldOptions.mediaDisplayMode)
                     .filter(config => config[1] && config[1].image)
+            );
+        },
+
+        videoDisplayModes(state) {
+            return Object.fromEntries(
+                Object.entries(state.fieldOptions.mediaDisplayMode)
+                    .filter(config => config[1] && config[1].video)
             );
         }
     }

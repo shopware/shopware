@@ -68,8 +68,15 @@
             <sw-select-field v-model="element.config.displayMode.value"
                                 :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
                                 :label="$tc('sw-cms.elements.general.config.label.displayMode')">
-                <option value="standard">{{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}</option>
-                <option value="streched">{{ $tc('sw-cms.elements.general.config.label.displayModeStretch') }}</option>
+                {% block sw_cms_element_youtube_video_config_display_mode_options %}
+                    <option
+                        v-for="(config, mode) in videoDisplayModes"
+                        :key="mode"
+                        :value="mode"
+                    >
+                        {{ $t(config.label) }}
+                    </option>
+                {% endblock %}
             </sw-select-field>
         {% endblock %}
 

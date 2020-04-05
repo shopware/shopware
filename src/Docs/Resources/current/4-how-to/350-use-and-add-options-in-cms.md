@@ -25,8 +25,11 @@ Component.register('foobar', {
         },
 
         imageDisplayModes() {
-            // can also be directly access in the template without computed getter
             return State.getters['cmsPageState/imageDisplayModes'];
+        },
+
+        videoDisplayModes() {
+            return State.getters['cmsPageState/videoDisplayModes'];
         }
     }
 });

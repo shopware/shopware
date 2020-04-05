@@ -83,6 +83,23 @@ Shopware.State.registerModule('cmsPageState', {
                     label: 'sw-cms.elements.imageSlider.config.label.navigationPositionOutside'
                 }
             },
+            pageType: {
+                page: {
+                    label: 'sw-cms.detail.label.pageTypeShopPage'
+                },
+                landingpage: {
+                    label: 'sw-cms.detail.label.pageTypeLandingpage'
+                },
+                product_list: {
+                    label: 'sw-cms.detail.label.pageTypeCategory'
+                }
+                /*
+                will be implemented in the future
+                product_detail: {
+                    label: 'sw-cms.detail.label.pageTypeProduct'
+                }
+                */
+            },
             productBoxLayoutType: {
                 standard: {
                     label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard'
@@ -260,6 +277,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.mediaSliderNavigationPosition, name, {
                 ...(state.fieldOptions.mediaSliderNavigationPosition[name] || {}),
+                ...configuration
+            });
+        },
+
+        setPageType(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.pageType, name, {
+                ...(state.fieldOptions.pageType[name] || {}),
                 ...configuration
             });
         },

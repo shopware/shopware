@@ -350,6 +350,57 @@ Therefore you also need to add a corresponding snippet for it:
 }
 ```
 
+## Page types
+
+Page types are the different types of CMS pages (listing, landing page, static page).
+In a case you want to read the page types you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        pageTypes() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.pageType;
+        }
+    }
+});
+```
+
+When you want to add a new box type you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setPageType',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.detail.label.pageTypeFoobar'
+    }
+);
+```
+
+Therefore you also need to add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "detail": {
+            "label": {
+                "pageTypeFoobar": "Foobar"
+            }
+        }
+    }
+}
+```
+
 ## Product box layout types
 
 Product box layout types are the choices of products boxes that are used in listings, sliders or single products.

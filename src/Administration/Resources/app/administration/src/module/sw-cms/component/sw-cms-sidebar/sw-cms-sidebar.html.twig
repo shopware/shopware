@@ -30,21 +30,15 @@
                                         :disabled="!isSystemDefaultLanguage"
                                         v-model="page.type"
                                         @change="onPageTypeChange">
-                                            {% block sw_cms_sidebar_page_settings_type_field_options %}
-                                                <option value="page">
-                                                    {{ $tc('sw-cms.detail.label.pageTypeShopPage') }}
-                                                </option>
-                                                <option value="landingpage">
-                                                    {{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}
-                                                </option>
-                                                <option value="product_list">
-                                                    {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
-                                                </option>
-                                                {# Will be implemented in the future #}
-{#                                                <option value="product_detail" disabled>#}
-{#                                                    {{ $tc('sw-cms.detail.label.pageTypeProduct') }}#}
-{#                                                </option>#}
-                                            {% endblock %}
+                                        {% block sw_cms_sidebar_page_settings_type_field_options %}
+                                            <option
+                                                v-for="(config, type) in cmsPageState.fieldOptions.pageType"
+                                                :key="type"
+                                                :value="type"
+                                            >
+                                                {{ $t(config.label) }}
+                                            </option>
+                                        {% endblock %}
                                     </sw-select-field>
                                 {% endblock %}
 

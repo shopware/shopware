@@ -29,6 +29,29 @@ Shopware.State.registerModule('cmsPageState', {
                     vertical: true
                 }
             },
+            blockCategory: {
+                text: {
+                    label: 'sw-cms.detail.label.blockCategoryText'
+                },
+                image: {
+                    label: 'sw-cms.detail.label.blockCategoryImage'
+                },
+                video: {
+                    label: 'sw-cms.detail.label.blockCategoryVideo'
+                },
+                'text-image': {
+                    label: 'sw-cms.detail.label.blockCategoryTextImage'
+                },
+                commerce: {
+                    label: 'sw-cms.detail.label.blockCategoryCommerce'
+                },
+                sidebar: {
+                    label: 'sw-cms.detail.label.blockCategorySidebar'
+                },
+                form: {
+                    label: 'sw-cms.detail.label.blockCategoryForm'
+                }
+            },
             formType: {
                 contact: {
                     label: 'sw-cms.elements.form.config.label.typeContact'
@@ -218,6 +241,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.alignment, name, {
                 ...(state.fieldOptions.alignment[name] || {}),
+                ...configuration
+            });
+        },
+
+        setBlockCategory(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.blockCategory, name, {
+                ...(state.fieldOptions.blockCategory[name] || {}),
                 ...configuration
             });
         },

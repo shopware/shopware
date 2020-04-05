@@ -69,6 +69,57 @@ Therefore you also need to add a corresponding snippet for it:
 }
 ```
 
+## Block categories
+
+Block categories are the groups the single elements are grouped into (text, image, ecommerce).
+In a case you want to read the categories you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        blockCategories() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.blockCategory;
+        }
+    }
+});
+```
+
+When you want to add a new category you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setBlockCategory',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.detail.label.blockCategoryFoobar'
+    }
+);
+```
+
+Therefore you also need to add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "detail": {
+            "label": {
+                "blockCategoryFoobar": "Foobar"
+            }
+        }
+    }
+}
+```
+
 ## Form types
 
 Form types are used to determine which form should be embed into the page (contact, newsletter).

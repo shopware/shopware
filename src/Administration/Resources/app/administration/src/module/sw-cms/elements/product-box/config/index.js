@@ -8,6 +8,7 @@ Component.register('sw-cms-el-config-product-box', {
     template,
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('cms-element')
     ],
 

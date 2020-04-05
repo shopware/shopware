@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 Shopware.State.registerModule('cmsPageState', {
     namespaced: true,
 
@@ -11,7 +13,20 @@ Shopware.State.registerModule('cmsPageState', {
         currentCmsDeviceView: 'desktop',
         selectedSection: null,
         selectedBlock: null,
-        isSystemDefaultLanguage: true
+        isSystemDefaultLanguage: true,
+        fieldOptions: {
+            productBoxLayoutType: {
+                standard: {
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard'
+                },
+                image: {
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeImage'
+                },
+                minimal: {
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal'
+                }
+            }
+        }
     },
 
     mutations: {
@@ -89,6 +104,21 @@ Shopware.State.registerModule('cmsPageState', {
 
         setIsSystemDefaultLanguage(state, isSystemDefaultLanguage) {
             state.isSystemDefaultLanguage = isSystemDefaultLanguage;
+        },
+
+        setProductBoxLayoutType(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.productBoxLayoutType, name, {
+                ...(state.fieldOptions.productBoxLayoutType[name] || {}),
+                ...configuration
+            });
         }
     },
 

@@ -4,6 +4,61 @@
 
 This HowTo will teach you to access CMS options in the administration.
 
+## Product box layout types
+
+Product box layout types are the choices of products boxes that are used in listings, sliders or single products.
+In a case you want to read the box types you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        productBoxLayoutTypes() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.productBoxLayoutType;
+        }
+    }
+});
+```
+
+When you want to add a new box type you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setProductBoxLayoutType',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.elements.productBox.config.label.layoutTypeFoobar'
+    }
+);
+```
+
+Therefore you also need add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "elements": {
+            "productBox": {
+                "config": {
+                    "label": {
+                        "layoutTypeFoobar": "Foobar"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Implement a new CMS field option state
 
 In the imaginary case let us add an image mirror state that defines whether an image has to be either mirrored vertically, horizontally or not at all.

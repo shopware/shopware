@@ -4,10 +4,75 @@
 
 This HowTo will teach you to access CMS options in the administration.
 
+## Alignments
+
+Alignments are used to determine how an element should be aligned within its parent either vertically or horizontally.
+In a case you want to read the alignments you can use the `cms-state` mixin or the global State to use customized getters in your component:
+
+```js
+const { Component, Mixin, State } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        alignments() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.alignment;
+        },
+
+        horizontalAlignments() {
+            return State.getters['cmsPageState/horizontalAlignments'];
+        },
+
+        verticalAlignments() {
+            return State.getters['cmsPageState/verticalAlignments'];
+        }
+    }
+});
+```
+
+When you want to add a new alignment you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setAlignment',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.elements.general.config.label.verticalAlignTop',
+        // when alignment is available for y-axis
+        vertical: true
+    }
+);
+```
+
+Therefore you also need add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "elements": {
+            "general": {
+                "config": {
+                    "label": {
+                        "alignmentFoobar": "Foobar"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Media display mode
 
 Media display modes are used to determine how a media should behave in sizing (cover, contain).
-In a case you want to read the display modes you can use the `cms-state` mixin in your component:
+In a case you want to read the display modes you can use the `cms-state` mixin or the global State to use customized getters in your component:
 
 ```js
 const { Component, Mixin, State } = Shopware;

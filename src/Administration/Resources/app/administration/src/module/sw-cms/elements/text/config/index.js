@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-text.html.twig';
 import './sw-cms-el-config-text.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-cms-el-config-text', {
     template,
@@ -12,6 +12,12 @@ Component.register('sw-cms-el-config-text', {
 
     created() {
         this.createdComponent();
+    },
+
+    computed: {
+        verticalAlignments() {
+            return State.getters['cmsPageState/verticalAlignments'];
+        }
     },
 
     methods: {

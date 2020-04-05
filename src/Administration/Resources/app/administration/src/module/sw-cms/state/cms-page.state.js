@@ -15,6 +15,20 @@ Shopware.State.registerModule('cmsPageState', {
         selectedBlock: null,
         isSystemDefaultLanguage: true,
         fieldOptions: {
+            alignment: {
+                'flex-start': {
+                    label: 'sw-cms.elements.general.config.label.verticalAlignTop',
+                    vertical: true
+                },
+                center: {
+                    label: 'sw-cms.elements.general.config.label.verticalAlignCenter',
+                    vertical: true
+                },
+                'flex-end': {
+                    label: 'sw-cms.elements.general.config.label.verticalAlignBottom',
+                    vertical: true
+                }
+            },
             mediaDisplayMode: {
                 standard: {
                     label: 'sw-cms.elements.general.config.label.displayModeStandard',
@@ -125,6 +139,21 @@ Shopware.State.registerModule('cmsPageState', {
             state.isSystemDefaultLanguage = isSystemDefaultLanguage;
         },
 
+        setAlignment(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.alignment, name, {
+                ...(state.fieldOptions.alignment[name] || {}),
+                ...configuration
+            });
+        },
+
         setMediaDisplayMode(state, configuration) {
             if (!('name' in configuration)) {
                 return;
@@ -176,6 +205,20 @@ Shopware.State.registerModule('cmsPageState', {
     },
 
     getters: {
+        verticalAlignments(state) {
+            return Object.fromEntries(
+                Object.entries(state.fieldOptions.alignment)
+                    .filter(config => config[1] && config[1].vertical)
+            );
+        },
+
+        horizontalAlignments(state) {
+            return Object.fromEntries(
+                Object.entries(state.fieldOptions.alignment)
+                    .filter(config => config[1] && config[1].horizontal)
+            );
+        },
+
         imageDisplayModes(state) {
             return Object.fromEntries(
                 Object.entries(state.fieldOptions.mediaDisplayMode)

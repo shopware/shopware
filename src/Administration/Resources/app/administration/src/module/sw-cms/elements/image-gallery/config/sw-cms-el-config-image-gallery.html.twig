@@ -87,9 +87,15 @@
                                                              v-model="element.config.verticalAlign.value"
                                                              :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                                                              :disabled="['cover', 'contain'].includes(element.config.displayMode.value)">
-                                                <option value="flex-start">{{ $tc('sw-cms.elements.general.config.label.verticalAlignTop') }}</option>
-                                                <option value="center">{{ $tc('sw-cms.elements.general.config.label.verticalAlignCenter') }}</option>
-                                                <option value="flex-end">{{ $tc('sw-cms.elements.general.config.label.verticalAlignBottom') }}</option>
+                                                {% block sw_cms_element_image_gallery_config_settings_vertical_align_options %}
+                                                    <option
+                                                        v-for="(config, alignment) in verticalAlignments"
+                                                        :key="alignment"
+                                                        :value="alignment"
+                                                    >
+                                                        {{ $t(config.label) }}
+                                                    </option>
+                                                {% endblock %}
                                             </sw-select-field>
                                         {% endblock %}
                                     </div>

@@ -27,8 +27,11 @@ Component.register('sw-cms-el-config-product-box', {
         },
 
         imageDisplayModes() {
-            // can also be directly access in the template without computed getter
             return State.getters['cmsPageState/imageDisplayModes'];
+        },
+
+        verticalAlignments() {
+            return State.getters['cmsPageState/verticalAlignments'];
         }
     },
 

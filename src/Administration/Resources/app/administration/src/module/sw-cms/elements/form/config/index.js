@@ -9,6 +9,7 @@ Component.register('sw-cms-el-config-form', {
     inject: ['systemConfigApiService'],
 
     mixins: [
+        Mixin.getByName('cms-state'),
         Mixin.getByName('cms-element')
     ],
 

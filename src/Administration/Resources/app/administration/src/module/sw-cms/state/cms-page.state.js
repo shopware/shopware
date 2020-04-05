@@ -29,6 +29,14 @@ Shopware.State.registerModule('cmsPageState', {
                     vertical: true
                 }
             },
+            formType: {
+                contact: {
+                    label: 'sw-cms.elements.form.config.label.typeContact'
+                },
+                newsletter: {
+                    label: 'sw-cms.elements.form.config.label.typeNewsletter'
+                }
+            },
             mediaBackgroundMode: {
                 auto: {
                     label: 'sw-cms.detail.label.backgroundMediaModeAuto'
@@ -177,6 +185,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.alignment, name, {
                 ...(state.fieldOptions.alignment[name] || {}),
+                ...configuration
+            });
+        },
+
+        setFormType(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.formType, name, {
+                ...(state.fieldOptions.formType[name] || {}),
                 ...configuration
             });
         },

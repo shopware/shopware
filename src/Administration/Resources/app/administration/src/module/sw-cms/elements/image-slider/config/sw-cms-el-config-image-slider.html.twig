@@ -111,16 +111,18 @@
                                                           v-model="element.config.navigationArrows.value"
                                                           @change="emitUpdateEl"
                                                           :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')">
-
-                                                    <option :value="null">
-                                                        {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
-                                                    </option>
-                                                    <option value="inside">
-                                                        {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside') }}
-                                                    </option>
-                                                    <option value="outside">
-                                                        {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
-                                                    </option>
+                                                    {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position_options %}
+                                                        <option :value="null">
+                                                            {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
+                                                        </option>
+                                                        <option
+                                                            v-for="(config, position) in cmsPageState.fieldOptions.mediaSliderNavigationPosition"
+                                                            :key="position"
+                                                            :value="position"
+                                                        >
+                                                            {{ $t(config.label) }}
+                                                        </option>
+                                                    {% endblock %}
                                                 </sw-field>
                                             {% endblock %}
                                         </div>
@@ -132,16 +134,18 @@
                                                           v-model="element.config.navigationDots.value"
                                                           @change="emitUpdateEl"
                                                           :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')">
-
-                                                    <option :value="null">
-                                                        {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
-                                                    </option>
-                                                    <option value="inside">
-                                                        {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionInside') }}
-                                                    </option>
-                                                    <option value="outside">
-                                                        {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionOutside') }}
-                                                    </option>
+                                                    {% block sw_cms_element_image_slider_config_settings_navigation_dots_position_options %}
+                                                        <option :value="null">
+                                                            {{ $tc('sw-cms.elements.imageSlider.config.label.navigationPositionNone') }}
+                                                        </option>
+                                                        <option
+                                                            v-for="(config, position) in cmsPageState.fieldOptions.mediaSliderNavigationPosition"
+                                                            :key="position"
+                                                            :value="position"
+                                                        >
+                                                            {{ $t(config.label) }}
+                                                        </option>
+                                                    {% endblock %}
                                                 </sw-field>
                                             {% endblock %}
                                         </div>

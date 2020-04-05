@@ -48,6 +48,14 @@ Shopware.State.registerModule('cmsPageState', {
                     video: true
                 }
             },
+            mediaSliderNavigationPosition: {
+                inside: {
+                    label: 'sw-cms.elements.imageSlider.config.label.navigationPositionInside'
+                },
+                outside: {
+                    label: 'sw-cms.elements.imageSlider.config.label.navigationPositionOutside'
+                }
+            },
             productBoxLayoutType: {
                 standard: {
                     label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard'
@@ -165,6 +173,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.mediaDisplayMode, name, {
                 ...(state.fieldOptions.mediaDisplayMode[name] || {}),
+                ...configuration
+            });
+        },
+
+        setMediaSliderNavigationPosition(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.mediaSliderNavigationPosition, name, {
+                ...(state.fieldOptions.mediaSliderNavigationPosition[name] || {}),
                 ...configuration
             });
         },

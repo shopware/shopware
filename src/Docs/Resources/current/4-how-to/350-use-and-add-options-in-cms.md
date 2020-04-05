@@ -134,6 +134,61 @@ Therefore you also need add a corresponding snippet for it:
 }
 ```
 
+## Media slider navigation position
+
+Media slider navigation position are the choices of navigation positions that are used in sliders.
+In a case you want to read the box types you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        mediaSliderNavigationPositions() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.mediaSliderNavigationPosition;
+        }
+    }
+});
+```
+
+When you want to add a new navigation position you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setMediaSliderNavigationPosition',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.elements.imageSlider.config.label.navigationPositionInside'
+    }
+);
+```
+
+Therefore you also need add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "elements": {
+            "imageSlider": {
+                "config": {
+                    "label": {
+                        "navigationPositionFoobar": "Foobar"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
 ## Product box layout types
 
 Product box layout types are the choices of products boxes that are used in listings, sliders or single products.

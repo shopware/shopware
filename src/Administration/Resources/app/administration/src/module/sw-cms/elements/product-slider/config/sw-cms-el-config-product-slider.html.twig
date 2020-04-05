@@ -59,7 +59,7 @@
                                                  v-model="element.config.displayMode.value">
                                     {% block sw_cms_element_product_slider_config_settings_display_mode_options %}
                                         <option
-                                            v-for="(config, mode) in cmsPageState.fieldOptions.mediaDisplayMode"
+                                            v-for="(config, mode) in imageDisplayModes"
                                             :key="mode"
                                             :value="mode"
                                         >

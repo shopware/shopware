@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 
@@ -43,6 +43,11 @@ Component.register('sw-cms-el-config-image-slider', {
             }
 
             return [];
+        },
+
+        imageDisplayModes() {
+            // can also be directly access in the template without computed getter
+            return State.getters['cmsPageState/imageDisplayModes'];
         }
     },
 

@@ -10,7 +10,7 @@ Media display modes are used to determine how a media should behave in sizing (c
 In a case you want to read the display modes you can use the `cms-state` mixin in your component:
 
 ```js
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('foobar', {
     mixins: [
@@ -22,6 +22,11 @@ Component.register('foobar', {
         mediaDisplayModes() {
             // can also be directly access in the template without computed getter
             return this.cmsPageState.fieldOptions.mediaDisplayMode;
+        },
+
+        imageDisplayModes() {
+            // can also be directly access in the template without computed getter
+            return State.getters['cmsPageState/imageDisplayModes'];
         }
     }
 });
@@ -36,7 +41,9 @@ Shopware.State.commit(
         // technical name
         name: 'foobar',
         // snippet to display as label
-        label: 'sw-cms.elements.general.config.label.displayModeFoobar'
+        label: 'sw-cms.elements.general.config.label.displayModeFoobar',
+        // when media mode is available for images
+        image: true
     }
 );
 ```

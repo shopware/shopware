@@ -2,7 +2,7 @@ import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-cms-el-config-product-box.html.twig';
 import './sw-cms-el-config-product-box.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-cms-el-config-product-box', {
     template,
@@ -24,6 +24,11 @@ Component.register('sw-cms-el-config-product-box', {
             context.inheritance = true;
 
             return context;
+        },
+
+        imageDisplayModes() {
+            // can also be directly access in the template without computed getter
+            return State.getters['cmsPageState/imageDisplayModes'];
         }
     },
 

@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-cms-el-config-product-slider', {
@@ -45,6 +45,11 @@ Component.register('sw-cms-el-config-product-slider', {
             context.inheritance = true;
 
             return context;
+        },
+
+        imageDisplayModes() {
+            // can also be directly access in the template without computed getter
+            return State.getters['cmsPageState/imageDisplayModes'];
         }
     },
 

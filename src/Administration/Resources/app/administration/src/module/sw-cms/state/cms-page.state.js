@@ -28,13 +28,16 @@ Shopware.State.registerModule('cmsPageState', {
             },
             productBoxLayoutType: {
                 standard: {
-                    label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard'
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeStandard',
+                    image: true
                 },
                 image: {
-                    label: 'sw-cms.elements.productBox.config.label.layoutTypeImage'
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeImage',
+                    image: true
                 },
                 minimal: {
-                    label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal'
+                    label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal',
+                    image: true
                 }
             }
         }
@@ -164,6 +167,15 @@ Shopware.State.registerModule('cmsPageState', {
         setBlock({ commit }, block) {
             commit('removeSelectedSection');
             commit('setSelectedBlock', block);
+        }
+    },
+
+    getters: {
+        imageDisplayModes(state) {
+            return Object.fromEntries(
+                Object.entries(state.fieldOptions.mediaDisplayMode)
+                    .filter(config => config[1] && config[1].image)
+            );
         }
     }
 });

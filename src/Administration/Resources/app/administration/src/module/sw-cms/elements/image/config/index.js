@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 
 Component.register('sw-cms-el-config-image', {
     template,
@@ -35,6 +35,11 @@ Component.register('sw-cms-el-config-image', {
             }
 
             return this.element.config.media.value;
+        },
+
+        imageDisplayModes() {
+            // can also be directly access in the template without computed getter
+            return State.getters['cmsPageState/imageDisplayModes'];
         }
     },
 

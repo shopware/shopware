@@ -63,7 +63,7 @@
                                                              class="sw-cms-el-config-image-gallery__setting-display-mode">
                                                 {% block sw_cms_element_image_gallery_config_settings_display_mode_select_options %}
                                                     <option
-                                                        v-for="(config, mode) in cmsPageState.fieldOptions.mediaDisplayMode"
+                                                        v-for="(config, mode) in imageDisplayModes"
                                                         :key="mode"
                                                         :value="mode"
                                                     >

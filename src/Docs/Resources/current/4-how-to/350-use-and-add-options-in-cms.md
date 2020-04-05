@@ -456,6 +456,57 @@ Therefore you also need to add a corresponding snippet for it:
 }
 ```
 
+## Section sizing modes
+
+Section sizing modes are the sizing behaviours or single sections (boxed, fullwidth).
+In a case you want to read the sizing modes you can use the `cms-state` mixin in your component:
+
+```js
+const { Component, Mixin } = Shopware;
+
+Component.register('foobar', {
+    mixins: [
+        // provides this.cmsPageState
+        Mixin.getByName('cms-state')
+    ],
+
+    computed: {
+        sectionSizingModes() {
+            // can also be directly access in the template without computed getter
+            return this.cmsPageState.fieldOptions.sectionSizingMode;
+        }
+    }
+});
+```
+
+When you want to add a new sizing mode you can execute the following statement any time in your plugin:
+
+```js
+Shopware.State.commit(
+    'cmsPageState/setSectionSizingMode',
+    {
+        // technical name
+        name: 'foobar',
+        // snippet to display as label
+        label: 'sw-cms.detail.label.sizingOptionFoobar'
+    }
+);
+```
+
+Therefore you also need to add a corresponding snippet for it:
+
+```json
+{
+    "sw-cms": {
+        "detail": {
+            "label": {
+                "sizingOptionFoobar": "Foobar"
+            }
+        }
+    }
+}
+```
+
 ## Implement a new CMS field option state
 
 In the imaginary case let us add an image mirror state that defines whether an image has to be either mirrored vertically, horizontally or not at all.

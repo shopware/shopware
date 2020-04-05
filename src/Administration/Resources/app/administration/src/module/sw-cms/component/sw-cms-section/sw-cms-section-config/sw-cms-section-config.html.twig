@@ -39,8 +39,15 @@
 
                 {% block sw_cms_sidebar_section_config_sizing_field %}
                     <sw-select-field :label="$tc('sw-cms.detail.label.sizingField')" v-model="section.sizingMode">
-                        <option value="boxed">{{ $tc('sw-cms.detail.label.sizingOptionBoxed') }}</option>
-                        <option value="full_width">{{ $tc('sw-cms.detail.label.sizingOptionFull') }}</option>
+                        {% block sw_cms_sidebar_section_config_sizing_field_options %}
+                            <option
+                                v-for="(config, mode) in cmsPageState.fieldOptions.sectionSizingMode"
+                                :key="mode"
+                                :value="mode"
+                            >
+                                {{ $t(config.label) }}
+                            </option>
+                        {% endblock %}
                     </sw-select-field>
                 {% endblock %}
 

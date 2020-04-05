@@ -110,6 +110,14 @@ Shopware.State.registerModule('cmsPageState', {
                 minimal: {
                     label: 'sw-cms.elements.productBox.config.label.layoutTypeMinimal'
                 }
+            },
+            sectionSizingMode: {
+                boxed: {
+                    label: 'sw-cms.detail.label.sizingOptionBoxed'
+                },
+                full_width: {
+                    label: 'sw-cms.detail.label.sizingOptionFull'
+                }
             }
         }
     },
@@ -307,6 +315,21 @@ Shopware.State.registerModule('cmsPageState', {
 
             Vue.set(state.fieldOptions.productBoxLayoutType, name, {
                 ...(state.fieldOptions.productBoxLayoutType[name] || {}),
+                ...configuration
+            });
+        },
+
+        setSectionSizingMode(state, configuration) {
+            if (!('name' in configuration)) {
+                return;
+            }
+
+            configuration = { ...configuration };
+            const name = configuration.name;
+            delete configuration.name;
+
+            Vue.set(state.fieldOptions.sectionSizingMode, name, {
+                ...(state.fieldOptions.sectionSizingMode[name] || {}),
                 ...configuration
             });
         }

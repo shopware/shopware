@@ -21,7 +21,7 @@ describe('Import/Export - Export:', () => {
         page = null;
     });
 
-    it('@settings: Create export with product profile', () => {
+    it('@base @settings: Create export with product profile', () => {
         cy.server();
         cy.route({
             url: '/api/v1/_action/import-export/prepare',

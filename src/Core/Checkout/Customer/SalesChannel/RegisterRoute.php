@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -314,8 +315,8 @@ class RegisterRoute extends AbstractRegisterRoute
             'lastName' => $data->get('lastName'),
             'email' => $data->get('email'),
             'title' => $data->get('title'),
-            'affiliateCode' => $data->get('affiliateCode'),
-            'campaignCode' => $data->get('campaignCode'),
+            'affiliateCode' => $data->get(OrderService::AFFILIATE_CODE_KEY),
+            'campaignCode' => $data->get(OrderService::CAMPAIGN_CODE_KEY),
             'active' => true,
             'birthday' => $this->getBirthday($data),
             'guest' => $isGuest,

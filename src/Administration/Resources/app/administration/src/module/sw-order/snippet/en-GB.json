@@ -213,6 +213,9 @@
       "buttonMerge": "Merge order",
       "buttonDelete": "Delete"
     },
+    "detailCustomerComment": {
+      "title": "Additional information"
+    },
     "addressSelection": {
       "modalTitleEditAddress": "Addresses",
       "modalTitleSelectAddress": "Change address",

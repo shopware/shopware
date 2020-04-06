@@ -61,6 +61,13 @@
             </sw-order-user-card>
         {% endblock %}
 
+        {% block sw_order_detail_customer_comment_card %}
+            <sw-order-customer-comment v-if="order.customerComment"
+                                       class="sw-order-customer-comment"
+                                       :isLoading="isLoading"
+                                       :customerComment="order.customerComment">
+            </sw-order-customer-comment>
+        {% endblock %}
 
         {% block sw_order_detail_base_line_items_card %}
             <sw-card :title="$tc('sw-order.detailBase.cardTitleLineItems')"

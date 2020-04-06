@@ -6,6 +6,7 @@ import './view/sw-order-create-base';
 import './component/sw-order-line-items-grid';
 import './component/sw-order-line-items-grid-sales-channel';
 import './component/sw-order-delivery-metadata';
+import './component/sw-order-customer-comment';
 import './component/sw-order-product-select';
 import './component/sw-order-saveable-field';
 import './../sw-customer/component/sw-customer-address-form';

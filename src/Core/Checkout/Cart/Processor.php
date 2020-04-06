@@ -50,6 +50,9 @@ class Processor
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         $cart = new Cart($original->getName(), $original->getToken());
+        $cart->setCustomerComment($original->getCustomerComment());
+        $cart->setAffiliateCode($original->getAffiliateCode());
+        $cart->setCampaignCode($original->getCampaignCode());
 
         // move data from previous calculation into new cart
         $cart->setData($original->getData());

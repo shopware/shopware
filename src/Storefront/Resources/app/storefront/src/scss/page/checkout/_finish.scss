@@ -11,13 +11,26 @@
             @extend .col-lg-8;
         }
 
+        .checkout-additional {
+            @extend .col-sm-7;
+            @extend .col-md-6;
+            @extend .offset-lg-2;
+            @extend .col-lg-4;
+            margin-top: $spacer;
+            margin-bottom: $spacer;
+        }
+
         .checkout-aside {
+            @extend .col;
             @extend .offset-sm-5;
             @extend .col-sm-7;
             @extend .offset-md-6;
             @extend .col-md-6;
-            @extend .offset-lg-6;
             @extend .col-lg-4;
+        }
+
+        .checkout-aside-no-offset {
+            @include make-col-offset(0);
         }
     }
 }

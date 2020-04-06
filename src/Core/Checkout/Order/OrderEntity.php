@@ -182,6 +182,11 @@ class OrderEntity extends Entity
      */
     protected $campaignCode;
 
+    /**
+     * @var string|null
+     */
+    protected $customerComment;
+
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -516,6 +521,16 @@ class OrderEntity extends Entity
     public function setCampaignCode(?string $campaignCode): void
     {
         $this->campaignCode = $campaignCode;
+    }
+
+    public function getCustomerComment(): ?string
+    {
+        return $this->customerComment;
+    }
+
+    public function setCustomerComment(?string $customerComment): void
+    {
+        $this->customerComment = $customerComment;
     }
 
     public function getApiAlias(): string

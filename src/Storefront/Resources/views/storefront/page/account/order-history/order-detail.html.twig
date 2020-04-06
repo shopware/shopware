@@ -37,6 +37,24 @@
                     <div class="order-detail-content-body js-order-detail-container-{{ order.id }}"></div>
                 {% endblock %}
 
+                {% if order.customerComment %}
+                    {% block page_account_order_item_detail_table_body_customer_comment %}
+                        <div class="order-detail-content-body">
+                            <div class="row order-detail-content-row">
+                                {% block page_account_order_customer_comment_header %}
+                                    <div class="col-12 card-title">
+                                        {{ "checkout.customerCommentHeader"|trans|sw_sanitize }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block page_account_order_customer_comment_content %}
+                                    <div class="col-12">{{ order.customerComment|sw_sanitize|nl2br }}</div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endif %}
+
                 {% block page_account_order_item_detail_table_footer %}
                     <div class="order-detail-content-footer">
                         {% block page_account_order_item_detail_table_labels_summary %}

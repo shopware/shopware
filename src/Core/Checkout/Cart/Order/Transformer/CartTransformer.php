@@ -24,6 +24,9 @@ class CartTransformer
             'lineItems' => [],
             'deliveries' => [],
             'deepLinkCode' => Random::getBase64UrlString(32),
+            'customerComment' => $cart->getCustomerComment(),
+            'affiliateCode' => $cart->getAffiliateCode(),
+            'campaignCode' => $cart->getCampaignCode(),
         ];
     }
 }

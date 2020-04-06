@@ -18,4 +18,16 @@
         </input-field>
 
     </card>
+
+    <card>
+        <title>Checkout</title>
+        <title lang="de-DE">Bestellabschluss</title>
+
+        <input-field type="bool">
+            <name>showCustomerComment</name>
+            <label>Show comment field on checkout confirm page</label>
+            <label lang="de-DE">Kommentarfeld auf der Bestellabschlussseite anzeigen</label>
+        </input-field>
+
+    </card>
 </config>

@@ -32,6 +32,28 @@
     {% endblock %}
 {% endblock %}
 
+{% block page_checkout_additional %}
+    {% if page.order.customerComment %}
+        <div class="checkout-additional">
+            {% block page_checkout_finish_customer_comment %}
+                <div class="card checkout-card">
+                    <div class="card-body">
+                        {% block page_checkout_finish_customer_comment_header %}
+                            <div class="card-title">
+                                {{ "checkout.customerCommentHeader"|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_finish_customer_comment_content %}
+                            <div class="checkout-customer-comment-control">{{ page.order.customerComment|sw_sanitize|nl2br }}</div>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block base_footer %}
     {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
 {% endblock %}

@@ -336,7 +336,10 @@
     "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
     "promotion-discount-deleted": "Der Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
     "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
-    "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich."
+    "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
+    "customerCommentHeader": "Zusätzliche Informationen",
+    "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
+    "customerCommentPlaceholder": "Kommentieren Sie hier …"
   },
   "listing": {
     "filterTitleText": "Filter",

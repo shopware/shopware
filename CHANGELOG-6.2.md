@@ -291,8 +291,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added new method `getOperatorSetByComponent` in `rule-condition.service.js`
         * Added new property `customFields` to `entityBlacklist` in `product-stream-condition.service.js`
         * Added new condition `cartLineItemCustomField` in `condition-type-data-provider.decorator.js`
-    * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
-          
+    * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.   
+    * Added `media-upload-cancel` to `media.api.service`
+    * Fixed a bug in `sw-duplicated-media-v2` to reload media list when user clicked to cancel
+
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 

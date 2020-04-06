@@ -72,7 +72,8 @@
                             :uploadTag="uploadTag"
                             @media-upload-add="onUploadsAdded"
                             @media-upload-finish="onUploadFinished"
-                            @media-upload-fail="onUploadFailed">
+                            @media-upload-fail="onUploadFailed"
+                            @media-upload-cancel="reloadList">
                         </sw-upload-listener>
                         <sw-media-library
                             class="sw-media-index__media-library"

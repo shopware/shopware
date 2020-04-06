@@ -69,15 +69,13 @@ class NewsletterConfirmEvent extends Event implements MailActionInterface
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if ($this->mailRecipientStruct) {
-            return $this->mailRecipientStruct;
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $this->mailRecipientStruct = new MailRecipientStruct([
+                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
+            ]);
         }
 
-        return new MailRecipientStruct(
-            [
-                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
-            ]
-        );
+        return $this->mailRecipientStruct;
     }
 
     public function getSalesChannelId(): ?string

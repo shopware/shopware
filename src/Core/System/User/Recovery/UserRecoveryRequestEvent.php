@@ -32,6 +32,11 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
      */
     private $resetUrl;
 
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
+
     public function __construct(UserRecoveryEntity $userRecovery, string $resetUrl, Context $context)
     {
         $this->userRecovery = $userRecovery;
@@ -64,11 +69,15 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
 
     public function getMailStruct(): MailRecipientStruct
     {
-        $user = $this->userRecovery->getUser();
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $user = $this->userRecovery->getUser();
 
-        return new MailRecipientStruct([
-            $user->getEmail() => $user->getFirstName() . ' ' . $user->getLastName(),
-        ]);
+            $this->mailRecipientStruct = new MailRecipientStruct([
+                $user->getEmail() => $user->getFirstName() . ' ' . $user->getLastName(),
+            ]);
+        }
+
+        return $this->mailRecipientStruct;
     }
 
     public function getSalesChannelId(): ?string

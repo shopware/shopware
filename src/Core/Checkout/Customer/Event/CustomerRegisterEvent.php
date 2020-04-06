@@ -65,15 +65,13 @@ class CustomerRegisterEvent extends Event implements MailActionInterface
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if ($this->mailRecipientStruct) {
-            return $this->mailRecipientStruct;
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $this->mailRecipientStruct = new MailRecipientStruct([
+                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+            ]);
         }
 
-        return new MailRecipientStruct(
-            [
-                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
-            ]
-        );
+        return $this->mailRecipientStruct;
     }
 
     public function getSalesChannelId(): ?string

@@ -79,21 +79,21 @@ class NewsletterRegisterEvent extends Event implements MailActionInterface
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if ($this->mailRecipientStruct) {
-            return $this->mailRecipientStruct;
+        if (!$this->mailRecipientStruct) {
+            $recipientName = $this->newsletterRecipient->getEmail();
+
+            if ($this->newsletterRecipient->getFirstName() && $this->newsletterRecipient->getLastName()) {
+                $recipientName = $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName();
+            }
+
+            $this->mailRecipientStruct = new MailRecipientStruct(
+                [
+                    $this->newsletterRecipient->getEmail() => $recipientName,
+                ]
+            );
         }
 
-        $recipientName = $this->newsletterRecipient->getEmail();
-
-        if ($this->newsletterRecipient->getFirstName() && $this->newsletterRecipient->getLastName()) {
-            $recipientName = $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName();
-        }
-
-        return new MailRecipientStruct(
-            [
-                $this->newsletterRecipient->getEmail() => $recipientName,
-            ]
-        );
+        return $this->mailRecipientStruct;
     }
 
     public function getSalesChannelId(): ?string

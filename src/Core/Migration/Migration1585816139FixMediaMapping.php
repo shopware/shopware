@@ -40,7 +40,6 @@ class Migration1585816139FixMediaMapping extends MigrationStep
         // implement update destructive
     }
 
-
     private function getCategoryMapping(): array
     {
         return [

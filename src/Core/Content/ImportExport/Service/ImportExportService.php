@@ -282,12 +282,15 @@ class ImportExportService
 
     private function getConfig(ImportExportProfileEntity $profileEntity, array $config)
     {
-        $parameters = $profileEntity->jsonSerialize();
-        $mapping = $parameters['mapping'];
-        unset($parameters['mapping']);
+        $parameters = $profileEntity->getConfig();
+
+        $parameters['delimiter'] = $profileEntity->getDelimiter();
+        $parameters['enclosure'] = $profileEntity->getEnclosure();
+        $parameters['sourceEntity'] = $profileEntity->getSourceEntity();
+        $parameters['fileType'] = $profileEntity->getFileType();
 
         return [
-            'mapping' => $config['mapping'] ?? $mapping,
+            'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),
             'parameters' => array_merge($parameters, $config['parameters'] ?? []),
         ];
     }

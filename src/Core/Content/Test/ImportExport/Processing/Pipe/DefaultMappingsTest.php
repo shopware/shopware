@@ -1,8 +1,6 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Test\ImportExport\Processing\Pipe;
-
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -24,7 +22,7 @@ class DefaultMappingsTest extends TestCase
     {
         $mediaTranslations = [
             'alt' => 'alternate text',
-            'title' => 'media title'
+            'title' => 'media title',
         ];
 
         $media = [
@@ -34,8 +32,8 @@ class DefaultMappingsTest extends TestCase
             'private' => false,
             'mediaType' => 'image/png',
             'translations' => [
-                'DEFAULT' => $mediaTranslations
-            ]
+                'DEFAULT' => $mediaTranslations,
+            ],
         ];
 
         $mapping = $this->getDefaultMapping('media');
@@ -91,7 +89,7 @@ class DefaultMappingsTest extends TestCase
             'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => '19%',
-                'taxRate' => 19.0
+                'taxRate' => 19.0,
             ],
             'cover' => [
                 'media' => [
@@ -104,22 +102,22 @@ class DefaultMappingsTest extends TestCase
                         'DEFAULT' => [
                             'title' => 'cover media title',
                             'alt' => 'cover media alt',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ],
             'manufacturer' => [
                 'id' => Uuid::randomHex(),
                 'translations' => [
                     'DEFAULT' => [
-                        'name' => 'Some brand'
-                    ]
-                ]
+                        'name' => 'Some brand',
+                    ],
+                ],
             ],
             'categories' => Uuid::randomHex() . '|' . Uuid::randomHex(),
             'visibilities' => [
                 'all' => Uuid::randomHex() . '|' . Uuid::randomHex(),
-            ]
+            ],
         ];
 
         $mapping = $this->getDefaultMapping('product');
@@ -153,7 +151,6 @@ class DefaultMappingsTest extends TestCase
 
         static::assertSame($product['categories'], $mappedProduct['categories']);
         static::assertSame($product['visibilities']['all'], $mappedProduct['sales_channel']);
-
 
         $unmappedProduct = iterator_to_array($mappingPipe->out($config, $mappedProduct));
 
@@ -199,7 +196,7 @@ class DefaultMappingsTest extends TestCase
                     'description' => 'test',
                     'metaTitle' => 'test',
                     'metaDescription' => 'test',
-                ]
+                ],
             ],
             'media' => [
                 'id' => Uuid::randomHex(),
@@ -210,11 +207,11 @@ class DefaultMappingsTest extends TestCase
                 'translations' => [
                     'DEFAULT' => [
                         'title' => 'media title',
-                        'alt' => 'media alt'
-                    ]
-                ]
+                        'alt' => 'media alt',
+                    ],
+                ],
             ],
-            'cmsPageId' => Uuid::randomHex()
+            'cmsPageId' => Uuid::randomHex(),
         ];
 
         $mapping = $this->getDefaultMapping('category');
@@ -222,7 +219,6 @@ class DefaultMappingsTest extends TestCase
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
         $mappedCategory = iterator_to_array($mappingPipe->in($config, $category));
-        
 
         static::assertSame($category['id'], $mappedCategory['id']);
         static::assertSame($category['parentId'], $mappedCategory['parent_id']);
@@ -244,7 +240,6 @@ class DefaultMappingsTest extends TestCase
         static::assertSame($category['media']['translations']['DEFAULT']['alt'], $mappedCategory['media_alt']);
 
         static::assertSame($category['cmsPageId'], $mappedCategory['cms_page_id']);
-
 
         $unmappedCategory = iterator_to_array($mappingPipe->out($config, $mappedCategory));
 
@@ -280,6 +275,7 @@ class DefaultMappingsTest extends TestCase
 
         /** @var ImportExportProfileEntity $profile */
         $profile = $profileRepository->search($criteria, Context::createDefaultContext())->first();
+
         return MappingCollection::fromIterable($profile->getMapping());
     }
 }

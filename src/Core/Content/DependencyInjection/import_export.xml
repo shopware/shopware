@@ -179,6 +179,9 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>

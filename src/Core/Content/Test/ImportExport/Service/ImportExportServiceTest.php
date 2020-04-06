@@ -4,11 +4,14 @@ namespace Shopware\Core\Content\Test\ImportExport\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportExportServiceTest extends TestCase
@@ -129,5 +132,78 @@ class ImportExportServiceTest extends TestCase
         $importExportService->prepareImport(Context::createDefaultContext(), $profileId, new \DateTimeImmutable(), $uploadedFile);
 
         @unlink($path);
+    }
+
+    public function testConfig(): void
+    {
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $importExportService = new ImportExportService(
+            $this->getContainer()->get('shopware.filesystem.private'),
+            $this->getContainer()->get('import_export_file.repository'),
+            $this->getContainer()->get('import_export_log.repository'),
+            $this->getContainer()->get('user.repository'),
+            $profileRepository
+        );
+
+        $baseConfig = [
+            'includeVariants' => false,
+        ];
+
+        $profile = [
+            'id' => Uuid::randomHex(),
+            'name' => 'Test Profile',
+            'sourceEntity' => 'product',
+            'fileType' => 'text/csv',
+            'delimiter' => ';',
+            'enclosure' => '"',
+            'config' => $baseConfig,
+            'mapping' => [
+                ['key' => 'foo', 'mappedKey' => 'bar'],
+            ],
+        ];
+        $profileRepository->create([$profile], Context::createDefaultContext());
+
+        $path = tempnam(sys_get_temp_dir(), '');
+        copy(__DIR__ . '/../fixtures/categories.csv', $path);
+
+        $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
+        $log = $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
+
+        $actualConfig = Config::fromLog($log);
+
+        static::assertFalse($actualConfig->get('includeVariants'));
+        static::assertSame($profile['delimiter'], $actualConfig->get('delimiter'));
+        static::assertSame($profile['enclosure'], $actualConfig->get('enclosure'));
+        static::assertSame($profile['sourceEntity'], $actualConfig->get('sourceEntity'));
+        static::assertSame($profile['fileType'], $actualConfig->get('fileType'));
+
+        $expectedMapping = MappingCollection::fromIterable($profile['mapping']);
+        static::assertEquals($expectedMapping, $actualConfig->getMapping());
+
+        $overrides = [
+            'parameters' => [
+                'includeVariants' => true,
+                'fooBar' => 'baz',
+                'enclosure' => '\'',
+            ],
+            'mapping' => [
+                ['key' => 'zxcv', 'mappedKey' => 'qwer'],
+            ],
+        ];
+
+        $log = $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile, $overrides);
+        $actualConfig = Config::fromLog($log);
+
+        static::assertTrue($actualConfig->get('includeVariants'));
+        static::assertSame($overrides['parameters']['fooBar'], $actualConfig->get('fooBar'));
+        static::assertSame($overrides['parameters']['enclosure'], $actualConfig->get('enclosure'));
+        static::assertSame($profile['delimiter'], $actualConfig->get('delimiter'));
+        static::assertSame($profile['sourceEntity'], $actualConfig->get('sourceEntity'));
+        static::assertSame($profile['fileType'], $actualConfig->get('fileType'));
+
+        $expectedMapping = MappingCollection::fromIterable($overrides['mapping']);
+        static::assertEquals($expectedMapping, $actualConfig->getMapping());
     }
 }

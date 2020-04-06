@@ -51,6 +51,11 @@ class ImportExportProfileEntity extends Entity
     protected $importExportLogs;
 
     /**
+     * @var array
+     */
+    protected $config;
+
+    /**
      * @var \DateTimeInterface
      */
     protected $createdAt;
@@ -138,6 +143,16 @@ class ImportExportProfileEntity extends Entity
     public function setImportExportLogs(ImportExportLogCollection $importExportLogs): void
     {
         $this->importExportLogs = $importExportLogs;
+    }
+
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(array $config): void
+    {
+        $this->config = $config;
     }
 
     public function getApiAlias(): string

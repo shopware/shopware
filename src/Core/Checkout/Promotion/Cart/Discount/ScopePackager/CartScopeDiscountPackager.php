@@ -67,6 +67,10 @@ class CartScopeDiscountPackager extends DiscountPackager
             }
         }
 
+        if ($foundItems === []) {
+            return new DiscountPackageCollection([]);
+        }
+
         $package = new DiscountPackage(new LineItemQuantityCollection($foundItems));
 
         return new DiscountPackageCollection([$package]);

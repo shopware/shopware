@@ -32,6 +32,11 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements MailActionIn
      */
     private $confirmUrl;
 
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
+
     public function __construct(
         CustomerEntity $customer,
         SalesChannelContext $salesChannelContext,
@@ -56,11 +61,13 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements MailActionIn
 
     public function getMailStruct(): MailRecipientStruct
     {
-        return new MailRecipientStruct(
-            [
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $this->mailRecipientStruct = new MailRecipientStruct([
                 $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
-            ]
-        );
+            ]);
+        }
+
+        return $this->mailRecipientStruct;
     }
 
     public function getCustomer(): CustomerEntity

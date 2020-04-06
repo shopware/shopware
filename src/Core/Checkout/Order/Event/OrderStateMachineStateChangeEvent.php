@@ -34,6 +34,11 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
      */
     private $name;
 
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
+
     public function __construct(string $eventName, OrderEntity $order, ?string $salesChannelId, Context $context)
     {
         $this->order = $order;
@@ -55,15 +60,17 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if ($this->order->getOrderCustomer() === null) {
-            throw new MailEventConfigurationException('Data for mailRecipientStruct not available.', self::class);
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            if ($this->order->getOrderCustomer() === null) {
+                throw new MailEventConfigurationException('Data for mailRecipientStruct not available.', self::class);
+            }
+
+            $this->mailRecipientStruct = new MailRecipientStruct([
+                $this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName(),
+            ]);
         }
 
-        return new MailRecipientStruct(
-            [
-                $this->order->getOrderCustomer()->getEmail() => $this->order->getOrderCustomer()->getFirstName() . ' ' . $this->order->getOrderCustomer()->getLastName(),
-            ]
-        );
+        return $this->mailRecipientStruct;
     }
 
     public function getSalesChannelId(): ?string

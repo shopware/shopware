@@ -19,7 +19,7 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionService;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
@@ -233,11 +233,19 @@ class ImportExportTest extends TestCase
 
     public function testNewsletterRecipient(): void
     {
-        static::markTestSkipped('TODO: v6.2.0');
-
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
         $testData = [
             'id' => Uuid::randomHex(),
+            'salutation' => [
+                'id' => Uuid::randomHex(),
+                'salutationKey' => 'test',
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'displayName' => 'test display name',
+                        'letterName' => 'test letter name',
+                    ],
+                ],
+            ],
             'email' => 'foo.bar@example.test',
             'title' => 'dr.',
             'firstName' => 'Max',
@@ -246,7 +254,7 @@ class ImportExportTest extends TestCase
             'city' => 'Musterstadt',
             'street' => 'Musterstraße 7',
             'hash' => 'asdf',
-            'status' => NewsletterSubscriptionService::STATUS_DIRECT,
+            'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
             'confirmedAt' => new \DateTimeImmutable('2020-02-29 13:37'),
             'salesChannelId' => Defaults::SALES_CHANNEL,
         ];
@@ -293,7 +301,8 @@ class ImportExportTest extends TestCase
         static::assertTrue($progress->isFinished());
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
 
-        static::assertNotNull($repo->search(new Criteria([$testData['id']]), Context::createDefaultContext()));
+        $actualNewsletter = $repo->search(new Criteria([$testData['id']]), Context::createDefaultContext());
+        static::assertNotNull($actualNewsletter);
     }
 
     public function testDefaultProperties(): void
@@ -411,12 +420,12 @@ class ImportExportTest extends TestCase
             $importExport = $factory->create($logEntity->getId(), 5, 5);
             $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
         } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
     }
 
     public function importPropertyCsv(): void
     {
-        static::markTestSkipped('TODO: v6.2.0');
-
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */
@@ -437,6 +446,8 @@ class ImportExportTest extends TestCase
             $importExport = $factory->create($logEntity->getId(), 5, 5);
             $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
         } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
     }
 
     public function testProductsCsv(): void
@@ -465,6 +476,8 @@ class ImportExportTest extends TestCase
             $importExport = $factory->create($logEntity->getId(), 5, 5);
             $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
         } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
     }
 
     public function testInvalidFile(): void
@@ -494,6 +507,8 @@ class ImportExportTest extends TestCase
             $importExport = $factory->create($logEntity->getId(), 2, 2);
             $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
         } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_FAILED, $progress->getState());
 
         $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());
         static::assertCount(8, $ids->getIds());

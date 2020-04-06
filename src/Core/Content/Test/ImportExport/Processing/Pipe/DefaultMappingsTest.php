@@ -3,10 +3,16 @@
 namespace Shopware\Core\Content\Test\ImportExport\Processing\Pipe;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -36,7 +42,7 @@ class DefaultMappingsTest extends TestCase
             ],
         ];
 
-        $mapping = $this->getDefaultMapping('media');
+        $mapping = $this->getDefaultMapping(MediaDefinition::ENTITY_NAME);
 
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
@@ -120,7 +126,7 @@ class DefaultMappingsTest extends TestCase
             ],
         ];
 
-        $mapping = $this->getDefaultMapping('product');
+        $mapping = $this->getDefaultMapping(ProductDefinition::ENTITY_NAME);
 
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
@@ -214,7 +220,7 @@ class DefaultMappingsTest extends TestCase
             'cmsPageId' => Uuid::randomHex(),
         ];
 
-        $mapping = $this->getDefaultMapping('category');
+        $mapping = $this->getDefaultMapping(CategoryDefinition::ENTITY_NAME);
 
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
@@ -263,6 +269,130 @@ class DefaultMappingsTest extends TestCase
         static::assertSame($category['media']['translations']['DEFAULT']['alt'], $unmappedCategory['media']['translations']['DEFAULT']['alt']);
 
         static::assertSame($category['cmsPageId'], $unmappedCategory['cmsPageId']);
+    }
+
+    public function testNewsletterRecipient(): void
+    {
+        $mapping = $this->getDefaultMapping(NewsletterRecipientDefinition::ENTITY_NAME);
+
+        $config = new Config($mapping, []);
+        $mappingPipe = new KeyMappingPipe($mapping, true);
+
+        $newsletterRecipient = [
+            'id' => Uuid::randomHex(),
+            'email' => 'email',
+            'title' => 'title',
+            'salutation' => [
+                'salutationKey' => 'test',
+            ],
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'zipCode' => '48624',
+            'city' => 'Schöppingen',
+            'street' => 'Ebbinghoff 10',
+            'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
+            'hash' => Uuid::randomHex(),
+            'salesChannel' => [
+                'id' => Uuid::randomHex(),
+            ],
+        ];
+
+        $mappedNewsletterRecipient = iterator_to_array($mappingPipe->in($config, $newsletterRecipient));
+
+        static::assertSame($newsletterRecipient['id'], $mappedNewsletterRecipient['id']);
+        static::assertSame($newsletterRecipient['email'], $mappedNewsletterRecipient['email']);
+        static::assertSame($newsletterRecipient['title'], $mappedNewsletterRecipient['title']);
+        static::assertSame($newsletterRecipient['salutation']['salutationKey'], $mappedNewsletterRecipient['salutation']);
+        static::assertSame($newsletterRecipient['firstName'], $mappedNewsletterRecipient['first_name']);
+        static::assertSame($newsletterRecipient['lastName'], $mappedNewsletterRecipient['last_name']);
+        static::assertSame($newsletterRecipient['zipCode'], $mappedNewsletterRecipient['zip_code']);
+        static::assertSame($newsletterRecipient['city'], $mappedNewsletterRecipient['city']);
+        static::assertSame($newsletterRecipient['street'], $mappedNewsletterRecipient['street']);
+        static::assertSame($newsletterRecipient['status'], $mappedNewsletterRecipient['status']);
+        static::assertSame($newsletterRecipient['hash'], $mappedNewsletterRecipient['hash']);
+        static::assertSame($newsletterRecipient['salesChannel']['id'], $mappedNewsletterRecipient['sales_channel_id']);
+
+        $unmappedNewsletterRecipient = iterator_to_array($mappingPipe->out($config, $mappedNewsletterRecipient));
+
+        static::assertSame($newsletterRecipient['id'], $unmappedNewsletterRecipient['id']);
+        static::assertSame($newsletterRecipient['email'], $unmappedNewsletterRecipient['email']);
+        static::assertSame($newsletterRecipient['title'], $unmappedNewsletterRecipient['title']);
+        static::assertSame($newsletterRecipient['salutation']['salutationKey'], $unmappedNewsletterRecipient['salutation']['salutationKey']);
+        static::assertSame($newsletterRecipient['firstName'], $unmappedNewsletterRecipient['firstName']);
+        static::assertSame($newsletterRecipient['lastName'], $unmappedNewsletterRecipient['lastName']);
+        static::assertSame($newsletterRecipient['zipCode'], $unmappedNewsletterRecipient['zipCode']);
+        static::assertSame($newsletterRecipient['city'], $unmappedNewsletterRecipient['city']);
+        static::assertSame($newsletterRecipient['street'], $unmappedNewsletterRecipient['street']);
+        static::assertSame($newsletterRecipient['status'], $unmappedNewsletterRecipient['status']);
+        static::assertSame($newsletterRecipient['hash'], $unmappedNewsletterRecipient['hash']);
+        static::assertSame($newsletterRecipient['salesChannel']['id'], $unmappedNewsletterRecipient['salesChannel']['id']);
+    }
+
+    public function testProductConfigurationSetting(): void
+    {
+        $mapping = $this->getDefaultMapping(ProductConfiguratorSettingDefinition::ENTITY_NAME);
+
+        $config = new Config($mapping, []);
+        $mappingPipe = new KeyMappingPipe($mapping, true);
+
+        $setting = [
+            'id' => Uuid::randomHex(),
+            'productId' => Uuid::randomHex(),
+            'optionId' => Uuid::randomHex(),
+            'position' => 1,
+            'media' => [
+                'id' => Uuid::randomHex(),
+                'url' => 'https://shopware.test/foo/bar.png',
+                'mediaFolderId' => Uuid::randomHex(),
+                'mediaType' => 'image/png',
+                'translations' => [
+                    'DEFAULT' => [
+                        'title' => 'media title',
+                        'alt' => 'media alt',
+                    ],
+                ],
+            ],
+            'price' => [
+                'DEFAULT' => [
+                    'gross' => 11.0,
+                    'net' => 10.1,
+                ],
+            ],
+        ];
+
+        $mappedSetting = iterator_to_array($mappingPipe->in($config, $setting));
+
+        static::assertSame($setting['id'], $mappedSetting['id']);
+        static::assertSame($setting['productId'], $mappedSetting['product_id']);
+        static::assertSame($setting['optionId'], $mappedSetting['option_id']);
+        static::assertSame($setting['position'], $mappedSetting['position']);
+
+        static::assertSame($setting['media']['id'], $mappedSetting['media_id']);
+        static::assertSame($setting['media']['url'], $mappedSetting['media_url']);
+        static::assertSame($setting['media']['mediaFolderId'], $mappedSetting['media_folder_id']);
+        static::assertSame($setting['media']['mediaType'], $mappedSetting['media_type']);
+        static::assertSame($setting['media']['translations']['DEFAULT']['title'], $mappedSetting['media_title']);
+        static::assertSame($setting['media']['translations']['DEFAULT']['alt'], $mappedSetting['media_alt']);
+
+        static::assertSame($setting['price']['DEFAULT']['net'], $mappedSetting['price_net']);
+        static::assertSame($setting['price']['DEFAULT']['gross'], $mappedSetting['price_gross']);
+
+        $unmappedSetting = iterator_to_array($mappingPipe->out($config, $mappedSetting));
+
+        static::assertSame($setting['id'], $unmappedSetting['id']);
+        static::assertSame($setting['productId'], $unmappedSetting['productId']);
+        static::assertSame($setting['optionId'], $unmappedSetting['optionId']);
+        static::assertSame($setting['position'], $unmappedSetting['position']);
+
+        static::assertSame($setting['media']['id'], $unmappedSetting['media']['id']);
+        static::assertSame($setting['media']['url'], $unmappedSetting['media']['url']);
+        static::assertSame($setting['media']['mediaFolderId'], $unmappedSetting['media']['mediaFolderId']);
+        static::assertSame($setting['media']['mediaType'], $unmappedSetting['media']['mediaType']);
+        static::assertSame($setting['media']['translations']['DEFAULT']['title'], $unmappedSetting['media']['translations']['DEFAULT']['title']);
+        static::assertSame($setting['media']['translations']['DEFAULT']['alt'], $unmappedSetting['media']['translations']['DEFAULT']['alt']);
+
+        static::assertSame($setting['price']['DEFAULT']['net'], $unmappedSetting['price']['DEFAULT']['net']);
+        static::assertSame($setting['price']['DEFAULT']['gross'], $unmappedSetting['price']['DEFAULT']['gross']);
     }
 
     private function getDefaultMapping(string $entity): MappingCollection

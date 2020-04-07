@@ -291,7 +291,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`, use `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField` with `AllowHtml` flag instead
-    * Added `lenght`, `width`, `height` variables to `\Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation`  
+    * Added `length`, `width`, `height` variables to `\Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation`  
     * CartBehavior::isRecalculation is deprecated and will be removed in version 6.3
     * Please use context permissions instead:
         * Permissions can be configured in the SalesChannelContext.
@@ -319,18 +319,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule` to check the length of a product in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeigthRule` to check the weight of a product in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule` to check if a product with a specific list price is in cart
-        * Please use context permissions instead:
-            * Permissions can be configured in the SalesChannelContext.
-            * `CartBehavior` is created based on the permissions from `SalesChannelContext`, you can check the permissions at this class.
-            * Permissions exists:
-                 `ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES`
-                 `ProductCartProcessor::SKIP_PRODUCT_RECALCULATION`
-                 `DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION`
-                 `DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION`
-                 `PromotionCollector::SKIP_PROMOTION`
-            * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
-            * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.
-            * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
     * Added hreflang support
     * Added new supported types for the plugin configuration
         * `colorpicker`
@@ -345,11 +333,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `trackingUrl` property to the `Shopware\Core\Checkout\Shipping\ShippingMethodEntity.php`
     * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
     * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
-    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`, use `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField` with `AllowHtml` flag instead
-    * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
-    * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `novelty` rule builder condition-type
-    * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
     * Added OrderTransactionStates `failed` and `in_progress`
     * Deprecated `OrderTransactionStateHandler::pay` use `OrderTransactionStateHandler::doPay` instead
     * Deprecated Action Constant `StateMachineTransitionActions::PAY` use `StateMachineTransitionActions::DO_PAY` instead
@@ -396,7 +380,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to process the reset password form with the new api route `/store-api/v1/account/reset-password`
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute` to subscribe to the newsletter with the new api route `/store-api/v1/newsletter/subscribe`
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute` to unsubscribe to the newsletter with the new api route `/store-api/v1/newsletter/unsubscribe`
-    * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to register a new customer with the new api route `/store-api/v1/account/register`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute` to confirm a double optin registration with the new api route `/store-api/v1/account/register-confirm`

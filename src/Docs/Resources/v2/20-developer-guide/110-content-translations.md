@@ -461,7 +461,7 @@ const demoManufacturer = {
 
 ### How to modify translatable values
 
-You should work on the main property (`demoManufacturer.name`) when you want to change the actual data. Shopware has
+You should work on the main property (e.g. `demoManufacturer.name`) when you want to change the actual data. Shopware has
 the functionality to inherit from the default language. Therefore it could be possible that some properties are null. In our
 example the name in German matches the English name. Then we don´t need to set the name twice because the name is inherited
 from the English language.
@@ -516,3 +516,26 @@ onChangeLanguage() {
 ```
 
 ## Storefront
+
+The translated content in the storefront is similar to the administration. You have
+the actual representative value in `entity.translated.yourProperty`.
+
+You can access this values in two ways. The first way is to use a twig filter. This filter
+is get called with `trans`. This should be the best solution in most ways.
+
+```twig
+{{ manufacturer.name|trans }}
+```
+
+Another possibility is to get the property directly from the `translated` value.
+
+````twig
+{{ manufacturer.translated.name }}
+````
+
+For security reason it is useful to sanitize the content values before you output them.
+You can use the `sw_sanitize` filter to do this.
+````twig
+{{ manufacturer.name|trans|sw_sanitize }}
+{{ manufacturer.translated.name|sw_sanitize }}
+````

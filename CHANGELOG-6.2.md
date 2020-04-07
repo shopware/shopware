@@ -432,6 +432,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
     * Added `customerComment` property to the `Shopware\Core\Checkout\Order\OrderEntity.php`
     
+    * Added `BLUE_GREEN_DEPLOYMENT` environment variable
+    * `bin/setup` asks if you want to enable blue/green deployment
+
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

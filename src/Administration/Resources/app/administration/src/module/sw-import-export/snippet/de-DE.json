@@ -78,7 +78,7 @@
       "objectTypeFieldTooltipText": "Der Object-Typ kann nicht verändert werden, wenn bereits Mapping Optionen gepflegt wurden.",
       "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Tabelle unten. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
       "mappingDescriptionBlock": "Verwende die Tabelle unten, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
-      "csvDescriptionBlock": "Verwende Seperatoren und Einfassungen, um Felder voneinander abzugrenzen. Seperatoren werden verwendet um einzelne Felder zu trennen; Einfassungs-Zeichen werden verwendet um mehrere Felder zu gruppieren.",
+      "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separatorzeichen auftaucht.",
       "cancelLabel": "Abbrechen",
       "addMappingLabel": "Neues Mappping hinzufügen",
       "deleteLabel": "Löschen",

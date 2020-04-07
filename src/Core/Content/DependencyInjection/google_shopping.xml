@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <!-- Field Serializer -->
+        <service id="Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\FieldSerializer\GoogleAccountCredentialFieldSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="validator"/>
+
+            <tag name="shopware.field_serializer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+    </services>
+</container>

@@ -427,7 +427,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
-    * Added new Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule to check available attributes in cart 
+    * Added new `\Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to check available attributes in cart 
 
 * Storefront    
     * Deprecated `$connection->executeQuery()` for write operations

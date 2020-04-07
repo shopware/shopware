@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class GenericPageLoader implements GenericPageLoaderInterface
@@ -41,18 +42,25 @@ class GenericPageLoader implements GenericPageLoaderInterface
      */
     private $shippingMethodPageRoute;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         HeaderPageletLoaderInterface $headerLoader,
         FooterPageletLoaderInterface $footerLoader,
         SystemConfigService $systemConfigService,
         AbstractPaymentMethodRoute $paymentMethodPageRoute,
-        AbstractShippingMethodRoute $shippingMethodPageRoute
+        AbstractShippingMethodRoute $shippingMethodPageRoute,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->headerLoader = $headerLoader;
         $this->footerLoader = $footerLoader;
         $this->systemConfigService = $systemConfigService;
         $this->paymentMethodPageRoute = $paymentMethodPageRoute;
         $this->shippingMethodPageRoute = $shippingMethodPageRoute;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -65,6 +73,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
         $page = new Page();
 
         if ($request->isXmlHttpRequest()) {
+            $this->eventDispatcher->dispatch(
+                new GenericPageLoadedEvent($page, $salesChannelContext, $request)
+            );
+
             return $page;
         }
         $page->setHeader(
@@ -89,6 +101,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
             'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
             'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName') ?? '',
         ]));
+
+        $this->eventDispatcher->dispatch(
+            new GenericPageLoadedEvent($page, $salesChannelContext, $request)
+        );
 
         return $page;
     }

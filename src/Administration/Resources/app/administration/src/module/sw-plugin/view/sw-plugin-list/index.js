@@ -193,12 +193,26 @@ Component.register('sw-plugin-list', {
             }).catch((e) => {
                 this.isLoading = false;
 
-                const context = { message: e.response.data.errors[0].detail };
+                const context = {
+                    message: e.response.data.errors[0].detail,
+                    code: e.response.data.errors[0].code,
+                    meta: e.response.data.errors[0].meta
+                };
 
-                this.createNotificationError({
-                    title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
-                    message: this.$tc('sw-plugin.errors.messagePluginDeactivationFailed', 0, context)
-                });
+                if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
+                    this.createNotificationWarning({
+                        title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
+                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants', null, null, {
+                            dependency: context.meta.parameters.dependency,
+                            dependantNames: context.meta.parameters.dependantNames
+                        })
+                    });
+                } else {
+                    this.createNotificationError({
+                        title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
+                        message: this.$tc('sw-plugin.errors.messagePluginDeactivationFailed', 0, context)
+                    });
+                }
 
                 plugin.active = true;
             });

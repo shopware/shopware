@@ -47,6 +47,7 @@
       "messagePluginActivationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktiviert werden",
       "titlePluginDeactivationFailed": "Plugin Deaktivierung ist fehlgeschlagen",
       "messagePluginDeactivationFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht deaktiviert werden",
+      "messageDeactivationFailedBecauseOfActiveDependants": "Das plugin \"{dependency}\" kann nicht deaktiviert werden, da es noch aktive Plugins gibt, die von ihm abhängig sind. Bitte deaktiviere zuerst folgende Plugins, bevor du das Update erneut startest: {dependantNames}",
       "titlePluginUpdateFailed": "Plugin Update ist fehlgeschlagen",
       "messagePluginUpdateFailed": "Plugin konnte auf Grund der Fehlermeldung \"{message}\" nicht aktualisiert werden. {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Plugin wurde deaktiviert."

@@ -357,7 +357,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Framework\Plugin\BundleConfigGenerator` to generate webpack bundle config and moved the according logic from `\Shopware\Core\Framework\Plugin\BundleConfigDumper` to the new class
     * Added methods `cancelOder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
     * Added methods `cancelOrder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
-        
 
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
@@ -440,6 +439,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Marked `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface` as internal
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface::sync` function
     * Added `single-operation` header in `_action/sync` endpoint
+    * Added `\Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator::resolveActiveDependants` method
+    * Added `\Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException` exception
+        * This exception is now thrown before a plugin which other plugins depend on is deactivated
+    
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

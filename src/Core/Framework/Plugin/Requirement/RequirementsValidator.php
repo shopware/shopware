@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -58,6 +59,41 @@ class RequirementsValidator
         $this->addRemainingRequirementsAsException($pluginRequirements, $exceptionStack);
 
         $exceptionStack->tryToThrow($method);
+    }
+
+    /**
+     * resolveActiveDependants returns all active dependants of the given plugin.
+     *
+     * @param PluginEntity[] $dependants the plugins to check for a dependency on the given plugin
+     *
+     * @return PluginEntity[]
+     */
+    public function resolveActiveDependants(PluginEntity $dependency, array $dependants): array
+    {
+        return array_filter($dependants, function ($dependant) use ($dependency) {
+            if (!$dependant->getActive()) {
+                return false;
+            }
+
+            return $this->dependsOn($dependant, $dependency);
+        });
+    }
+
+    /**
+     * dependsOn determines, wether a given plugin depends on another one.
+     *
+     * @param PluginEntity $plugin     the plugin to be checked
+     * @param PluginEntity $dependency the potential dependency
+     */
+    private function dependsOn(PluginEntity $plugin, PluginEntity $dependency): bool
+    {
+        foreach (array_keys($this->getPluginRequirements($plugin)) as $requirement) {
+            if ($requirement === $dependency->getComposerName()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -6,6 +6,9 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -27,6 +30,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
+use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -374,16 +378,27 @@ class PluginLifecycleService
     /**
      * @throws PluginNotInstalledException
      * @throws PluginNotActivatedException
+     * @throws PluginHasActiveDependantsException
      */
     public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
     {
         $pluginBaseClassString = $plugin->getBaseClass();
+
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
 
         if ($plugin->getActive() === false) {
             throw new PluginNotActivatedException($plugin->getName());
+        }
+
+        $dependants = $this->requirementValidator->resolveActiveDependants(
+            $plugin,
+            $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getElements()
+        );
+
+        if (count($dependants) > 0) {
+            throw new PluginHasActiveDependantsException($plugin->getName(), $dependants);
         }
 
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
@@ -416,6 +431,7 @@ class PluginLifecycleService
         $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 
         $plugin->setActive(false);
+
         $this->rebuildContainerWithNewPluginState($plugin);
 
         $this->updatePluginData(
@@ -551,5 +567,22 @@ class PluginLifecycleService
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
         $cacheItem->set(microtime(true));
         $this->restartSignalCachePool->save($cacheItem);
+    }
+
+    /**
+     * Takes plugin base classes and returns the corresponding entities.
+     *
+     * @param Plugin[] $plugins
+     */
+    private function getEntities(array $plugins, Context $context): EntitySearchResult
+    {
+        $names = array_map(static function (Plugin $plugin) {
+            return $plugin->getName();
+        }, $plugins);
+
+        return $this->pluginRepo->search(
+            (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),
+            $context
+        );
     }
 }

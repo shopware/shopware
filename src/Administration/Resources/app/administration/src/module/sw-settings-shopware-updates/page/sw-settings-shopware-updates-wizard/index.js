@@ -54,6 +54,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 }
             });
         },
+
         onRequirementsResponse(requirementsStore) {
             this.requirements = requirementsStore;
             this.updateService.pluginCompatibility().then(plugins => {
@@ -68,6 +69,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 this.isLoading = false;
             });
         },
+
         startUpdateProcess() {
             this.updateModalShown = false;
             this.$emit('update-started');
@@ -78,6 +80,16 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
 
             this.downloadUpdate(0);
+        },
+
+        stopUpdateProcess() {
+            this.updateModalShown = false;
+            this.$emit('update-stopped');
+            this.updaterIsRunning = false;
+            this.createNotificationInfo({
+                title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                message: this.$tc('sw-settings-shopware-updates.notifications.updateStopped')
+            });
         },
 
         downloadUpdate(offset) {
@@ -119,11 +131,28 @@ Component.register('sw-settings-shopware-updates-wizard', {
                         message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
                     });
                 }
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-shopware-updates.notifications.title'),
-                    message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
-                });
+            }).catch((e) => {
+                this.stopUpdateProcess();
+
+                const context = {
+                    code: e.response.data.errors[0].code,
+                    meta: e.response.data.errors[0].meta
+                };
+
+                if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
+                    this.createNotificationWarning({
+                        title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
+                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants', null, null, {
+                            dependency: context.meta.parameters.dependency,
+                            dependantNames: context.meta.parameters.dependantNames
+                        })
+                    });
+                } else {
+                    this.createNotificationError({
+                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
+                    });
+                }
             });
         },
 

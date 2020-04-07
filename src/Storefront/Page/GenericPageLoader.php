@@ -80,6 +80,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
         $page = new Page();
 
         if ($request->isXmlHttpRequest()) {
+            $this->eventDispatcher->dispatch(
+                new GenericPageLoadedEvent($page, $context, $request)
+            );
+
             return $page;
         }
         $page->setHeader(
@@ -120,6 +124,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
             'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
             'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName') ?? '',
         ]));
+
+        $this->eventDispatcher->dispatch(
+            new GenericPageLoadedEvent($page, $context, $request)
+        );
 
         return $page;
     }

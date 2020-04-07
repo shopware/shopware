@@ -39,7 +39,8 @@ Shopware.Component.register('sw-import-export-activity', {
         return {
             logs: null,
             isLoading: false,
-            selectedProfile: null
+            selectedProfile: null,
+            selectedLog: null
         };
     },
 
@@ -130,7 +131,7 @@ Shopware.Component.register('sw-import-export-activity', {
 
     methods: {
         createdComponent() {
-            this.fetchActivities();
+            return this.fetchActivities();
         },
 
         async fetchActivities() {
@@ -147,6 +148,14 @@ Shopware.Component.register('sw-import-export-activity', {
 
         closeSelectedProfile() {
             this.selectedProfile = null;
+        },
+
+        onShowLog(item) {
+            this.selectedLog = item;
+        },
+
+        closeSelectedLog() {
+            this.selectedLog = null;
         },
 
         getDownloadUrl(id, accessToken) {

@@ -285,6 +285,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug where the pages content could not be overridden because `sw_settings_user_detail_content` existed twice
     * Fixed a bug in `sw-profile-index` that caused media requests to fail
     * Added new component `sw-text-preview` to display an expandable preview of a text. It will show a "Read more" button if the text has a certain length. On click a modal shows the whole text.
+    * Fixed a bug in `sw-description-list`, added `display: grid` CSS property to the component and changed default of `grid` property to `1fr` to ensure usages of this component have the same behaviour
+    * Added `sw-import-export-activity-detail` component
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

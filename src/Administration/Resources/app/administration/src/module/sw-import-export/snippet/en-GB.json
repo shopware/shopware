@@ -19,6 +19,23 @@
         "downloadFile": "Download file",
         "showProfile": "Show profile",
         "downloadInvalidFile": "Download invalid records"
+      },
+      "detail": {
+        "modalTitle": "Log information",
+        "labelClose": "Close",
+        "labelFilename": "Filename",
+        "labelType": "Type",
+        "labelRecords": "Records",
+        "labelFailedRecords": "Failed records",
+        "labelSize": "Filesize",
+        "labelUser": "User",
+        "labelDate": "Date / Time",
+        "labelState": "State",
+        "exportLabel": "Export",
+        "importLabel": "Import",
+        "labelDownloadFile": "Download file",
+        "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
+        "labelDownloadInvalidFile": "Download failed records"
       }
     },
     "profile": {
@@ -121,7 +138,8 @@
       "downloadFailedLabel": "Download failed records",
       "successfulImportsText": "{records} records imported successful.",
       "failedImportsText": "{failedRecords} records failed to import. The failed records can be downloaded, edited and re-imported.",
-      "failedExportText": "Export failed"
+      "failedExportText": "Export failed",
+      "showLogFileLabel": "Show log entry"
     }
   }
 }

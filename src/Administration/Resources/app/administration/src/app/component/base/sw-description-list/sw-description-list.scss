@@ -3,6 +3,8 @@
 .sw-description-list {
     line-height: 20px;
     font-size: 14px;
+    display: grid;
+    place-content: start;
 
     dt,
     dd {

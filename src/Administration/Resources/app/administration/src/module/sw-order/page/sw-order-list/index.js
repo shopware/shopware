@@ -78,10 +78,6 @@ Component.register('sw-order-list', {
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
 
             return criteria;
-        },
-
-        ifNext5515() {
-            return this.next5515;
         }
     },
 

@@ -11,7 +11,7 @@ import 'src/module/sw-import-export/component/sw-import-export-entity-path-selec
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 
-describe('module/sw-import-export/sw-import-export-entity-path-select', () => {
+describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
     let wrapper;
     let localVue;
 

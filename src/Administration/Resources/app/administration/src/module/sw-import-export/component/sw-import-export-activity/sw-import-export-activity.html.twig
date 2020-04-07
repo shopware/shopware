@@ -38,7 +38,9 @@
                 {% endblock %}
                 {% block sw_import_export_activity_listing_createdAt %}
                     <template #column-createdAt="{ item }">
-                        {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'})}}
+                        <a href="#" @click.prevent="onShowLog(item)">
+                            {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
+                        </a>
                     </template>
                 {% endblock %}
 
@@ -75,6 +77,13 @@
                     </template>
                 {% endblock %}
             </sw-entity-listing>
+        {% endblock %}
+
+        {% block sw_import_export_activity_detail_modal %}
+            <sw-import-export-activity-detail-modal
+                :logEntity="selectedLog"
+                @log-close="closeSelectedLog">
+            </sw-import-export-activity-detail-modal>
         {% endblock %}
 
         {% block sw_import_export_activity_modal %}

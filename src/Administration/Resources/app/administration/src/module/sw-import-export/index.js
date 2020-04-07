@@ -1,9 +1,9 @@
 import ImportExportService from './service/importExport.service';
-import './extension/sw-settings-index';
 import './page/sw-import-export';
 import './component/sw-import-export-exporter';
 import './component/sw-import-export-importer';
 import './component/sw-import-export-activity';
+import './component/sw-import-export-activity-detail-modal';
 import './component/sw-import-export-edit-profile-modal';
 import './component/sw-import-export-edit-profile-modal-mapping';
 import './component/sw-import-export-entity-path-select';
@@ -66,5 +66,11 @@ Shopware.Module.register('sw-import-export', {
                 }
             }
         }
+    },
+
+    settingsItem: {
+        group: 'shop',
+        to: 'sw.import.export.index',
+        icon: 'default-location-flag'
     }
 });

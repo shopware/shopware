@@ -418,7 +418,101 @@ $customEntityTranslation = $customEntity->getTranslations()->filterByLanguageId(
 In this example, the ID of your custom entity, whose technical name equals to 'FOO', is requested.
 Additional to that, the translation for the entity is read.
 
-### Administration
+## Administration
 
+### Global usage
+
+The content language in the administration is globally. When you change you content language then all modules work
+with this content language. You can find the active content language id in the context object.
+
+```javascript
+Shopware.Context.api.languageId // active content language
+Shopware.Context.api.systemLanguageId // default content language
+```
+
+The repository uses the active language id for fetching data. It saves them automatically to the right property. Here an 
+example with English as the default language:
+
+Active language is English:
+```javascript
+const demoManufacturer = {
+    id: '143daac4cc354634a4955ca6503fcde3',
+    name: 'Shopware',
+    description: 'This is the manufacturer of the best e-commerce solution in the world.',
+    translated: {
+        name: 'Shopware',
+        description: 'This is the manufacturer of the best e-commerce solution in the world.'
+    }
+}
+```
+
+Active language is German:
+```javascript
+const demoManufacturer = {
+    id: '143daac4cc354634a4955ca6503fcde3',
+    name: null,
+    description: 'Der Hersteller der weltweit besten E-Commerce Lösung.',
+    translated: {
+        name: 'Shopware',
+        description: 'Der Hersteller der weltweit besten E-Commerce Lösung.'
+    }
+}
+```
+
+### How to modify translatable values
+
+You should work on the main property (`demoManufacturer.name`) when you want to change the actual data. Shopware has
+the functionality to inherit from the default language. Therefore it could be possible that some properties are null. In our
+example the name in German matches the English name. Then we don´t need to set the name twice because the name is inherited
+from the English language.
+
+To get the actual representative value you can use the `translated` property. This property is read-only and should not be 
+modified. It is helpful for listings or when you want to use the default value as an placeholder text in input fields.
+
+### Best practice for changing the content language
+
+You should only use the `sw-language-switch` component when you want to change the content language. The reason for this is
+that it combines the best practices to change your language:
+
+```vue
+<sw-language-switch
+    :abortChangeFunction="abortOnLanguageChange"
+    :saveChangesFunction="saveOnLanguageChange"
+    @on-change="onChangeLanguage">
+</sw-language-switch>
+```
+
+The two function properties `abortChangeFunction` and `saveOnLanguageChange` should be used to provide the best experience
+for changing the language.
+
+To validate if the content language should be allowed to switch you can use the `abortChangeFunction`. 
+There are reason why this could be dangerous. One reason is when the user changed data but does not save them yet.
+When the provided function return `true`, then there will be a warning modal which notify the user that there are unsaved
+data.
+
+```javascript
+abortOnLanguageChange() {
+    return this.manufacturerRepository.hasChanges(this.manufacturer);
+}
+```
+
+In this warning the user can directly save the data if he wants. Then it will call the `saveChangesFunction` and wait
+until the Promise is resolved. After everything is saved the content language get switched.
+
+```javascript
+saveOnLanguageChange() {
+    return this.onSave();
+}
+```
+
+Now the content language was successfully switched. Our actual data is not updated yet. This is why we implemented our
+`onChangeLanguage` function for the `on-change` event. It reloads automatically all data so that the user see now the data
+in the new selected content language.
+
+```javascript
+onChangeLanguage() {
+    this.loadEntityData();
+}
+```
 
 ## Storefront

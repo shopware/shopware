@@ -16,6 +16,7 @@
         "invalidRecords": "Invalid records"
       },
       "contextMenu": {
+        "showLog": "Open log entry",
         "downloadFile": "Download file",
         "showProfile": "Show profile",
         "downloadInvalidFile": "Download invalid records"
@@ -25,9 +26,10 @@
         "labelClose": "Close",
         "labelFilename": "Filename",
         "labelType": "Type",
-        "labelRecords": "Records",
+        "labelImportRecords": "Successfully imported records",
+        "labelExportRecords": "Successfully exported records",
         "labelFailedRecords": "Failed records",
-        "labelSize": "Filesize",
+        "labelSize": "File size",
         "labelUser": "User",
         "labelDate": "Date / Time",
         "labelState": "State",

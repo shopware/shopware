@@ -16,6 +16,7 @@
         "invalidRecords": "Fehlerhafte Einträge"
       },
       "contextMenu": {
+        "showLog": "Öffne Logeintrag",
         "downloadFile": "Datei herunterladen",
         "showProfile": "Profil anzeigen",
         "downloadInvalidFile": "Fehlerhafte Einträge herunterladen"
@@ -25,7 +26,8 @@
         "labelClose": "Schließen",
         "labelFilename": "Dateiname",
         "labelType": "Typ",
-        "labelRecords": "Einträge",
+        "labelImportRecords": "Erfolgreich importierte Einträge",
+        "labelExportRecords": "Erfolgreich exportierte Einträge",
         "labelFailedRecords": "Fehlgeschlagene Einträge",
         "labelSize": "Dateigröße",
         "labelUser": "Benutzer",

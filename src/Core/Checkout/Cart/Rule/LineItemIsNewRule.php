@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemIsNewRule extends Rule
@@ -53,7 +52,7 @@ class LineItemIsNewRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isNew' => [new NotBlank(), new Type('bool')],
+            'isNew' => [new Type('bool')],
         ];
     }
 

@@ -309,3 +309,4 @@ Shopware 6 is completely free and released under the [MIT License](LICENSE).
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/avatars/fabianhueske.png)](https://github.com/fabianhueske)
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/avatars/hanneswernery.png)](https://github.com/hanneswernery)
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/avatars/hlohaus.png)](https://github.com/hlohaus)
+[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/avatars/joshuabehrens.png)](https://github.com/JoshuaBehrens)

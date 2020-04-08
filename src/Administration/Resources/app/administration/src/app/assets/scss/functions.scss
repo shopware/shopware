@@ -1,0 +1,21 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass functions.
+// -----------------------------------------------------------------------------
+
+/// Native `url(..)` function wrapper
+/// @param {String} $base - base URL for the asset
+/// @param {String} $type - asset type folder (e.g. `fonts/`)
+/// @param {String} $path - asset path
+/// @return {Url} -
+@function asset($base, $type, $path) {
+    @return url($base + $type + $path);
+}
+
+/// Returns URL to an image based on its path
+/// @param {String} $path - image path
+/// @param {String} $base [$asset-base-url] - base URL
+/// @return {Url}
+/// @require $asset-base-url
+@function image($path, $base: $asset-base-url) {
+    @return asset($base, 'img/', $path);
+}

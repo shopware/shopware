@@ -227,10 +227,20 @@
         "title": "Select a Storefront for the Checkout Proccess",
         "description": "Sales channels that don’t have a storefront require a linked storefront that will be used to complete the checkout procces."
       },
-      "googleShoppingAccount": {
+      "googleShoppingAccountConnect": {
         "title": "Connect your Google Account to use Google Programs",
-        "description": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
-        "textConnectionButton": "Connect"
+        "subTitle": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
+        "textConnectButton": "Connect"
+      },
+      "googleShoppingAccountDisconnect": {
+        "titleProfiles": "This Google Account can be used to access your Google Merchant Center account at",
+        "titleLinkProfiles": "merchants.google.com.",
+        "textDisconnectButton": "Disconnect",
+        "titleMerchant": "A suspended Google Merchant Center account cannot run Shopping ads. Learn more",
+        "titleLinkMerchant": "about account suspensions.",
+        "textGroupMerchant": "Merchant Center Account:",
+        "titleWebsite": "Your website is associated with your Google Merchant Center account. It must be claimed to run Shopping ads.",
+        "textGroupWebsite": "Website:"
       }
     },
     "sw-sales-channel-defaults-select": {

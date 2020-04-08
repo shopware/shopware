@@ -249,14 +249,12 @@
                     <div class="google-shopping">
                         {% block sw_sales_channel_detail_base_google_shopping_general_instruction_title %}
                             <h4 class="google-shopping__instruction-title">
-                                <span class="google-shopping__instruction-title-inner">
-                                    {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.title') }}
-                                </span>
+                                {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.title') }}
                             </h4>
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_base_google_shopping_general_instruction_description %}
-                            <p class="google-shopping__instruction-description">
+                            <p class="google-shopping__instruction-subtitle">
                                 {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.description') }}
                             </p>
                         {% endblock %}
@@ -390,36 +388,16 @@
         {% block sw_sales_channel_detail_base_google_shopping_account %}
             <sw-card v-if="salesChannel && isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleAccount')">
                 <div class="google-shopping">
-                    {% block sw_sales_channel_detail_base_google_shopping_account_title %}
-                        <h4 class="google-shopping__instruction-title">
-                            <span class="google-shopping__instruction-title-inner">
-                                {{ $tc('sw-sales-channel.detail.googleShoppingAccount.title') }}
-                            </span>
-                        </h4>
-                    {% endblock %}
+                    <sw-sales-channel-detail-account-connect
+                        v-if="!isGoogleAccountConnected"
+                        :isGoogleShoppingCreate="isGoogleShoppingCreate"
+                        @on-connect-to-google="onConnectToGoogle">
+                    </sw-sales-channel-detail-account-connect>
 
-                    {% block sw_sales_channel_detail_base_google_shopping_account_description %}
-                        <p class="google-shopping__instruction-description">
-                            {{ $tc('sw-sales-channel.detail.googleShoppingAccount.description') }}
-                        </p>
-                    {% endblock %}
-
-                    {% block sw_sales_channel_detail_base_google_shopping_account_connection %}
-                        <div class="google-shopping__connection">
-                            {% block sw_sales_channel_detail_base_google_shopping_account_connection_image %}
-                                <div class="google-shopping__connection-image"></div>
-                            {% endblock %}
-
-                            {% block sw_sales_channel_detail_base_google_shopping_account_connection_button %}
-                                <sw-button
-                                    :disabled="isGoogleShoppingCreate"
-                                    @click="onConnectToGoogle"
-                                    variant="ghost" >
-                                    {{ $tc('sw-sales-channel.detail.googleShoppingAccount.textConnectionButton') }}
-                                </sw-button>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+                    <sw-sales-channel-detail-account-disconnect
+                        v-else
+                        @on-disconnect-to-google="onDisconnectToGoogle">
+                    </sw-sales-channel-detail-account-disconnect>
                 </div>
             </sw-card>
         {% endblock %}

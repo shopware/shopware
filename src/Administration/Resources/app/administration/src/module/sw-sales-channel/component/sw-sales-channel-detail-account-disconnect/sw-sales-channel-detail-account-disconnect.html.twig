@@ -1,0 +1,125 @@
+{% block sw_sales_channel_detail_account_disconnect %}
+    <div class="sw-sales-channel-detail-account-disconnect">
+        {# Start Google Profiles #}
+        {% block sw_sales_channel_detail_account_disconnect_profiles %}
+            {% block sw_sales_channel_detail_account_disconnect_profiles_title %}
+                <p class="google-shopping__instruction-subtitle">
+                    {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.titleProfiles') }}
+                    <sw-sales-channel-detail-protect-link
+                        class="google-shopping__instruction-subtitle-link"
+                        href="https://www.google.com/retail/solutions/merchant-center/">
+                        {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.titleLinkProfiles') }}
+                    </sw-sales-channel-detail-protect-link>
+                </p>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_account_disconnect_profiles_content %}
+                <div class="google-shopping__connection google-shopping-u-mb-32">
+                    {% block sw_sales_channel_detail_account_disconnect_profiles_content_info %}
+                        <div class="google-shopping__profiles">
+                            <sw-avatar
+                                size="44px"
+                                imageUrl="https://randomuser.me/api/portraits/women/68.jpg">
+                            </sw-avatar>
+                            <div class="google-shopping__profiles-info">
+                                <h4 class="google-shopping__profiles-name">
+                                    Benjamin Zindel
+                                </h4>
+                                <p class="google-shopping__profiles-email">b.zindel@gmail.com</p>
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_account_disconnect_profiles_content_disconnect %}
+                        <sw-button variant="ghost" @click="onDisconnectToGoogle">
+                            {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.textDisconnectButton') }}
+                        </sw-button>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+        {# End Google Profiles #}
+
+        {# Start System Feedbacks #}
+        {% block sw_sales_channel_detail_account_disconnect_feedbacks %}
+            <sw-alert variant="error" class="google-shopping-u-mb-32" :showIcon="true" :closable="false">
+                Your account has been suspended for [suspension reason]. [Suspension description provided by Content API].
+                You must fix this issue in order for your products to appear on Google.
+            </sw-alert>
+        {% endblock %}
+        {# End System Feedbacks #}
+
+        {# Start Merchant Center #}
+        {% block sw_sales_channel_detail_account_disconnect_merchant %}
+            {% block sw_sales_channel_detail_account_disconnect_merchant_title %}
+                <p class="google-shopping__instruction-subtitle">
+                    {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.titleMerchant') }}
+                    <sw-sales-channel-detail-protect-link
+                        class="google-shopping__instruction-subtitle-link"
+                        href="https://support.google.com/merchants/answer/2948694?hl=en#">
+                        {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.titleLinkMerchant') }}
+                    </sw-sales-channel-detail-protect-link>
+                </p>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_account_disconnect_merchant_content %}
+                <div class="google-shopping__connection google-shopping-u-mb-32">
+                    {% block sw_sales_channel_detail_account_disconnect_merchant_content_info %}
+                        <p class="google-shopping__text-group">
+                            {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.textGroupMerchant') }}
+                            <span class="google-shopping__text-group-highlight">
+                                123456789
+                            </span>
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_account_disconnect_merchant_content_status %}
+                        <sw-label variant="success" size="small" appearance="pill" class="google-shopping__label">
+                            <sw-color-badge
+                                rounded
+                                variant="success"
+                                class="google-shopping__label-badge">
+                            </sw-color-badge>
+                            <span class="google-shopping__label-text">Active</span>
+                        </sw-label>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+        {# End Merchant Center #}
+
+        {# Start Merchant Website #}
+        {% block sw_sales_channel_detail_account_disconnect_website %}
+            {% block sw_sales_channel_detail_account_disconnect_website_title %}
+                <p class="google-shopping__instruction-subtitle">
+                    {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.titleWebsite') }}
+                </p>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_account_disconnect_website_content %}
+                <div class="google-shopping__connection">
+                    {% block sw_sales_channel_detail_account_disconnect_website_content_info %}
+                        <p class="google-shopping__text-group">
+                            {{ $tc('sw-sales-channel.detail.googleShoppingAccountDisconnect.textGroupWebsite') }}
+                            <span class="google-shopping__text-group-highlight">
+                                https://www.examplestore.com
+                            </span>
+                        </p>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_account_disconnect_website_content_status %}
+                        <sw-label variant="success" size="small" appearance="pill" class="google-shopping__label">
+                            <sw-color-badge
+                                rounded
+                                variant="success"
+                                class="google-shopping__label-badge">
+                            </sw-color-badge>
+                            <span class="google-shopping__label-text">Claimed</span>
+                        </sw-label>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endblock %}
+        {# End Merchant Website #}
+    </div>
+{% endblock %}

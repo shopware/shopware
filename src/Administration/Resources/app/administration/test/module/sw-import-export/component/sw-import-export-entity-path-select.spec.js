@@ -384,35 +384,39 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         const definition = Shopware.EntityDefinition.get('product');
 
-        let properties = Object.keys(definition.properties);
-        let options = [];
+        let data = {
+            definition: definition,
+            options: [],
+            properties: Object.keys(definition.properties),
+            path: ''
+        };
 
-        expect(properties).toEqual(
+        expect(data.properties).toEqual(
             ['id', 'price', 'parent', 'cover', 'name', 'manufacturer', 'translations', 'visibilities']
         );
 
-        [options, properties] = wrapper.vm.processTranslations(definition, options, properties, '');
+        data = wrapper.vm.processTranslations(data);
 
-        expect(properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer', 'visibilities']);
-        expect(options).toEqual([{
+        expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer', 'visibilities']);
+        expect(data.options).toEqual([{
             label: 'translations.DEFAULT.name',
             value: 'translations.DEFAULT.name'
         }]);
 
-        [options, properties] = wrapper.vm.processVisibilities(definition, options, properties, '');
+        data = wrapper.vm.processVisibilities(data);
 
-        expect(properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer']);
-        expect(options).toEqual([
+        expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer']);
+        expect(data.options).toEqual([
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
             { label: 'visibilities.search', value: 'visibilities.search' }
         ]);
 
-        [options, properties] = wrapper.vm.processPrice(definition, options, properties, '');
+        data = wrapper.vm.processPrice(data);
 
-        expect(properties).toEqual(['id', 'parent', 'cover', 'manufacturer']);
-        expect(options).toEqual([
+        expect(data.properties).toEqual(['id', 'parent', 'cover', 'manufacturer']);
+        expect(data.options).toEqual([
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },

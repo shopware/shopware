@@ -2,6 +2,7 @@
  * @module core/service/utils
  */
 import throttle from 'lodash/throttle';
+import flow from 'lodash/flow';
 import debounce from 'lodash/debounce';
 import flattenDeep from 'lodash/flattenDeep';
 import uuidV4 from 'uuid/v4';
@@ -101,6 +102,7 @@ export default {
     createId,
     throttle,
     debounce,
+    flow,
     get,
     object,
     debug,

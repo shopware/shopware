@@ -2,186 +2,13 @@
 
 {% block page_checkout_item_info %}
     <div class="col-6 cart-item-info">
-        {% block page_checkout_item_info_inner %}
-            <div class="row cart-item-row">
-                {% block page_checkout_item_info_image %}
-                    <div class="col-auto cart-item-info-img">
-                        {% block page_checkout_item_info_image_container %}
-                            <div class="cart-item-img-container">
-                                {% block page_checkout_item_info_image_link %}
-                                    {% if isDiscount %}
-                                        <div class="cart-item-img cart-item-discount-icon">
-                                            {% sw_icon 'marketing' style {
-                                                'color': 'success'
-                                            } %}
-                                        </div>
-                                    {% elseif isNested %}
-                                        <div class="cart-item-nested-icon">
-                                            {% sw_icon 'bag-product' style {
-                                                'color': 'light'
-                                            } %}
-                                        </div>
-                                    {% else %}
-                                        <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
-                                           class="cart-item-img-link"
-                                           title="{{ lineItem.label }}"
-                                            {% if controllerAction is same as('confirmPage') %}
-                                                data-toggle="modal"
-                                                data-modal-class="quickview-modal"
-                                                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
-                                            {% endif %}
-                                        >
-                                            {% block page_checkout_item_info_image_element %}
-                                                {% if lineItem.cover.url %}
-                                                    {% sw_thumbnails 'cart-item-img-thumbnails' with {
-                                                        media: lineItem.cover,
-                                                        sizes: {
-                                                            'default': '100px'
-                                                        },
-                                                        attributes: {
-                                                            'class': 'img-fluid cart-item-img',
-                                                            'alt': (lineItem.cover.translated.alt ?: ''),
-                                                            'title': (lineItem.cover.translated.title ?: '')
-                                                        }
-                                                    } %}
-                                                {% else %}
-                                                    {% sw_icon 'placeholder' style {
-                                                        'size': 'fluid'
-                                                    } %}
-                                                {% endif %}
-                                            {% endblock %}
-                                        </a>
-                                    {% endif %}
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-
-                {% block page_checkout_item_info_details %}
-                    <div class="col cart-item-details">
-                        {% block page_checkout_item_info_details_inner %}
-                            <div class="cart-item-details-container">
-                                {% block page_checkout_item_info_label %}
-                                    {% if lineItem.type == 'product' %}
-                                        <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
-                                           class="cart-item-label"
-                                           title="{{ lineItem.label }}"
-                                            {% if controllerAction is same as('confirmPage') %}
-                                                data-toggle="modal"
-                                                data-modal-class="quickview-modal"
-                                                data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
-                                            {% endif %}
-                                        >
-                                            {{ lineItem.label|u.truncate(60) }}
-                                        </a>
-                                    {% else %}
-                                        <div class="cart-item-label">
-                                            {{ lineItem.label|u.truncate(60) }}
-                                        </div>
-                                    {% endif %}
-                                {% endblock %}
-
-                                {% block page_checkout_item_info_ordernumber %}
-                                    {% if lineItem.payload.productNumber %}
-                                        <div class="cart-item-ordernumber">
-                                            {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
-                                        </div>
-                                    {% endif %}
-                                {% endblock %}
-
-                                {% if lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
-                                    {% set price = lineItem.price %}
-                                    {{ "checkout.priceUnitName"|trans|sw_sanitize }}
-                                    <span class="price-unit-reference">
-                                                        {{ price.referencePrice.purchaseUnit }} {{ price.referencePrice.unitName }}
-                                                        ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                                                    </span>
-                                {% endif %}
-
-                                {% block page_checkout_item_info_variants %}
-                                    {% if lineItem.payload.options|length >= 1 %}
-                                        <div class="cart-item-variants">
-                                            {% for option in lineItem.payload.options %}
-                                                <div class="cart-item-variants-properties">
-                                                    <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
-                                                    <div class="cart-item-variants-properties-value">{{ option.option }}</div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                {% endblock %}
-
-                                {% block page_checkout_item_delivery_date %}
-                                    {% if deliveryPosition and deliveryPosition.deliveryDate %}
-                                        <div class="cart-item-delivery-date">
-                                            {{ "checkout.lineItemDeliveryDate"|trans({
-                                                '%earliest%': deliveryPosition.deliveryDate.earliest|format_date('short', locale=app.request.locale),
-                                                '%latest%': deliveryPosition.deliveryDate.latest|format_date('short', locale=app.request.locale)
-                                            })|sw_sanitize }}
-                                        </div>
-                                    {% endif %}
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
+        {{ block('page_checkout_item_info_inner') }}
     </div>
 {% endblock %}
 
 {% block page_checkout_item_quantity %}
     <div class="col-2 justify-content-end cart-item-quantity">
-        {% block page_checkout_item_quantity_label %}
-            <div class="cart-item-quantity-label">
-                {{ "checkout.cartHeaderQuantity"|trans|sw_sanitize }}
-            </div>
-        {% endblock %}
-
-        {% block page_checkout_item_quantity_select %}
-            {% block page_checkout_item_quantity_form %}
-                {% if lineItem.quantityInformation and lineItem.stackable %}
-                    <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
-                          class="cart-item-quantity-container"
-                          method="post"
-                          data-form-auto-submit="true">
-
-                        {% block page_checkout_item_quantity_form_csrf %}
-                            {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
-                        {% endblock %}
-
-                        {% block page_checkout_item_quantity_redirect %}
-                            <input type="hidden"
-                                   name="redirectTo"
-                                   value="frontend.checkout.cart.page">
-                        {% endblock %}
-
-                        {# @var quantityInformation \Shopware\Core\Checkout\Cart\LineItem\QuantityInformation #}
-                        {% set quantityInformation = lineItem.quantityInformation %}
-                        {% if quantityInformation.maxPurchase %}
-                            {% set maxQuantity = quantityInformation.maxPurchase %}
-                        {% else %}
-                            {% set maxQuantity = shopware.config.core.cart.maxQuantity %}
-                        {% endif %}
-
-                        {% block page_product_detail_buy_quantity %}
-                            <select name="quantity"
-                                    class="custom-select quantity-select">
-                                {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
-                                    <option value="{{ quantity }}"
-                                        {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                        {{ quantity }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        {% endblock %}
-                    </form>
-                {% else %}
-                    {{ lineItem.quantity }}
-                {% endif %}
-            {% endblock %}
-        {% endblock %}
+        {{ lineItem.quantity }}
     </div>
 {% endblock %}
 
@@ -211,17 +38,7 @@
 
 {% block page_checkout_item_total_price %}
     <div class="col-2 cart-item-total-price">
-        {% block page_checkout_item_total_price_wrapper %}
-            {% block page_checkout_item_total_price_label %}
-                <div class="cart-item-total-price-label">
-                    {{ "checkout.cartHeaderTotalPrice"|trans|sw_sanitize }}
-                </div>
-            {% endblock %}
-
-            {% block page_checkout_item_total_price_inner %}
-                {{ lineItem.price.totalPrice|currency }}{% block page_checkout_item_total_price_tax_symbol %}{{ "general.star"|trans|sw_sanitize }}{% endblock %}
-            {% endblock %}
-        {% endblock %}
+        {{ block('page_checkout_item_total_price_wrapper') }}
     </div>
 {% endblock %}
 

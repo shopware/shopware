@@ -93,7 +93,8 @@
       "customTypeLabel": "Custom",
       "defaultTypeLabel": "Default",
       "propertyLabel": "Properties",
-      "configuratorSettingLabel": "Variant configuration settings"
+      "configuratorSettingLabel": "Variant configuration settings",
+      "exportVariants": "Produktvarianten exportieren"
     },
     "exporter": {
       "titleExportSuccess": "Success",
@@ -102,7 +103,10 @@
       "showLogLabel": "Show log file",
       "exportActivityLabel": "Export activity",
       "exportActivityDescription": "Activities older than 30 days will be removed automatically.",
-      "exportLabel": "Export"
+      "exportLabel": "Export",
+      "directExportLabel": "Export now",
+      "close": "Close",
+      "variantsWarning": "The selected profile contains product variants. In order for these to work, the product configuration settings must also be exported."
     },
     "importer": {
       "titleImportSuccess": "Success",
@@ -116,7 +120,10 @@
       "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
       "importActivityLabel": "Import activity",
       "importLabel": "Import",
-      "labelUploadCaption": "Select a file to upload"
+      "directImportLabel": "Import now",
+      "close": "Close",
+      "labelUploadCaption": "Select a file to upload",
+      "variantsWarning": "The selected profile contains product variants. For these to work, the product configuration settings must be present."
     },
     "page": {
       "profileTab": "Profiles",

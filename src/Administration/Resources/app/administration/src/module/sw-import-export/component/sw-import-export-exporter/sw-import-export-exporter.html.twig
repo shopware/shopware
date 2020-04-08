@@ -9,11 +9,52 @@
                 class="sw-import-export-exporter__profile-select"
                 :disabled="isLoading"
                 :label="$tc('sw-import-export.importer.profileLabel')"
+                :criteria="profileCriteria"
                 entity="import_export_profile"
-                v-model="selectedProfileId"
+                @change="onProfileSelect"
+                :value="selectedProfileId"
                 required>
             </sw-entity-single-select>
         {% endblock %}
+
+        <template v-if="showProductVariantsInfo">
+            {% block sw_import_export_exporter_product_variants_warning %}
+                <sw-alert variant="warning" class="sw-import-export-exporter__variants-warning">
+                    {% block sw_import_export_exporter_product_variants_warning_text %}
+                        {{  $tc('sw-import-export.exporter.variantsWarning')  }}
+
+                        <a href="#"
+                           class="sw-import-export-exporter__link"
+                           @click.prevent="setShowVariantsSettingsExportModal(true)">
+                            {{  $tc('sw-import-export.exporter.directExportLabel')  }}
+                        </a>
+                    {% endblock %}
+                </sw-alert>
+            {% endblock %}
+
+            {% block sw_import_export_exporter_product_variants_modal %}
+                <sw-modal v-if="showVariantsSettingsExportModal"
+                          @modal-close="setShowVariantsSettingsExportModal(false)"
+                          :title="$tc('sw-import-export.exporter.exportLabel')">
+                    {% block sw_import_export_exporter_product_variants_modal_exporter %}
+                        <sw-import-export-exporter
+                            @export-finish="$emit('export-finish')"
+                            sourceEntity="product_configurator_setting">
+                        </sw-import-export-exporter>
+                    {% endblock %}
+
+                    <template slot="modal-footer">
+                        {% block sw_import_export_exporter_product_variants_modal_footer %}
+                            <sw-button
+                                size="small"
+                                @click="setShowVariantsSettingsExportModal(false)">
+                                {{ $tc('sw-import-export.exporter.close') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                </sw-modal>
+            {% endblock %}
+        </template>
 
         {% block sw_import_export_exporter_progress %}
             <sw-import-export-progress

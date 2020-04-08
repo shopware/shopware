@@ -256,6 +256,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemListPriceRule',
         scopes: ['lineItem']
     });
+    ruleConditionService.addCondition('cartLineItemCustomField', {
+        component: 'sw-condition-line-item-custom-field',
+        label: 'global.sw-condition.condition.lineItemCustomFieldRule',
+        scopes: ['lineItem']
+    });
 
     ruleConditionService.addCondition('paymentMethod', {
         component: 'sw-condition-payment-method',

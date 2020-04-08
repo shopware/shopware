@@ -544,6 +544,8 @@
         "lineItemTagRule": "Positionen mit Tag",
         "alwaysValidRule": "Immer zutreffend",
         "lineItemPropertyRule": "Positionen mit Eigenschaften",
+        "lineItemNoveltyRule": "Neuheiten",
+        "lineItemCustomFieldRule": "Positionen mit Attribut",
         "lineItemIsNewRule": "Neuheiten",
         "lineItemOfManufacturerRule": "Hersteller",
         "lineItemPurchasePriceRule": "Positionen Einkaufspreis",
@@ -559,7 +561,17 @@
         "lineItemDimensionWeightRule": "Positionen mit Gewicht",
         "lineItemListPriceRule": "Positionen mit Streichpreis",
         "paymentMethodRule": "Zahlungsart",
-        "shippingMethodRule": "Versandart"
+        "shippingMethodRule": "Versandart",
+        "lineItemCustomField": {
+          "field": {
+            "fieldSetSelect": {
+              "placeholder": "Fieldset wählen..."
+            },
+            "customFieldSelect": {
+              "placeholder": "Zusatzfeld wählen..."
+            }
+          }
+        }
       }
     },
     "sw-product-image": {

@@ -28,6 +28,7 @@ Shopware.Component.register('sw-import-export-importer', {
         return {
             selectedProfileId: null,
             selectedProfile: null,
+            config: {},
             progressOffset: 0,
             progressTotal: null,
             progressText: '',
@@ -35,7 +36,7 @@ Shopware.Component.register('sw-import-export-importer', {
             progressLogEntry: null,
             isLoading: false,
             importFile: null,
-            showVariantsSettingsImportModal: false
+            importModalProfile: null
         };
     },
 
@@ -63,8 +64,8 @@ Shopware.Component.register('sw-import-export-importer', {
         showProductVariantsInfo() {
             return this.selectedProfile &&
                 this.selectedProfile.sourceEntity === 'product' &&
-                this.selectedProfile.config &&
-                this.selectedProfile.config.includeVariants;
+                this.config &&
+                this.config.includeVariants;
         },
 
         logCriteria() {
@@ -110,7 +111,7 @@ Shopware.Component.register('sw-import-export-importer', {
 
             const profile = this.selectedProfileId;
 
-            this.importExport.import(profile, this.importFile, this.handleProgress).then((result) => {
+            this.importExport.import(profile, this.importFile, this.handleProgress, this.config).then((result) => {
                 const logEntry = result.data.log;
                 this.importFile = null;
 
@@ -145,8 +146,8 @@ Shopware.Component.register('sw-import-export-importer', {
             this.$emit('import-finish');
         },
 
-        setShowVariantsSettingsImportModal(showVariantsSettingsModal) {
-            this.showVariantsSettingsImportModal = showVariantsSettingsModal;
+        setImportModalProfile(profileName) {
+            this.importModalProfile = profileName;
         }
     }
 });

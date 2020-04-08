@@ -16,14 +16,16 @@ export default class ImportExportService extends ApiService {
      *
      * @param profileId {Entity} Profile entity
      * @param callback {Function} Callback for progress
+     * @param config {Object} Additional config for profile
      * @returns {Promise<void>}
      */
-    async export(profileId, callback) {
+    async export(profileId, callback, config) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', {
             profileId: profileId,
+            config: config,
             expireDate: expireDate.toDateString()
         }, { headers: this.getBasicHeaders() });
 
@@ -48,10 +50,11 @@ export default class ImportExportService extends ApiService {
      *
      * @param profileId {String} Profile entity
      * @param file {File} The csv file
-     * @param callback
+     * @param callback {Function} Callback for progress
+     * @param config {Object} Additional config for profile
      * @returns {Promise<void>}
      */
-    async import(profileId, file, callback) {
+    async import(profileId, file, callback, config = {}) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -61,6 +64,10 @@ export default class ImportExportService extends ApiService {
         }
         formData.append('profileId', profileId);
         formData.append('expireDate', expireDate.toDateString());
+
+        Object.entries(config).forEach(([key, value]) => {
+            formData.append(`config[${key}]`, JSON.stringify(value));
+        });
 
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {

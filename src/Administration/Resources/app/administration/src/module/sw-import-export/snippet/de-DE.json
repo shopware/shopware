@@ -94,8 +94,7 @@
       "customTypeLabel": "Benutzerdefiniert",
       "defaultTypeLabel": "Standard",
       "propertyLabel": "Eigenschaften",
-      "configuratorSettingLabel": "Variantenkonfiguration",
-      "exportVariants": "Export product variants"
+      "configuratorSettingLabel": "Variantenkonfiguration"
     },
     "exporter": {
       "titleExportSuccess": "Erfolg",
@@ -105,9 +104,11 @@
       "exportActivityLabel": "Export-Aktivität",
       "exportActivityDescription": "Aktivitäten, die älter als 30 Tage sind, werden automatisch entfernt.",
       "exportLabel": "Export",
-      "directExportLabel": "Jetzt exportieren",
+      "directExportVariantsLabel": "Varianten Einstellungen exportieren",
+      "directExportPropertiesLabel": "Eigenschaften exportieren",
       "close": "Schließen",
-      "variantsWarning": "Das ausgewähle Profil enthält Produktvarianten. Damit diese funktionieren, müssen die Produkt-Konfigurationseinstellungen mit exportiert werden."
+      "variantsWarning": "<strong>Warnung: </strong> Stelle sicher, dass die in exportierten CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im neuen System vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu exportieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Export manuell im neuen System pflegen.",
+      "exportVariants": "Produktvarianten exportieren"
     },
     "importer": {
       "titleExportSuccess": "Erfolg",
@@ -118,13 +119,15 @@
       "startImportLabel": "Import starten",
       "selectProfileLabel": "Profil auswählen",
       "profileLabel": "Profil",
-      "warningBlock": "<strong>Warnung:</strong> Neu importierte Datensätze können mit bereits vorhandenen Datenbankeinträgen in Konflikt stehen und sie überschreiben. Solche Änderungen durch die Import-Funktion sind endgültig. Bitte stelle daher sicher, dass Du ein aktuelles Datenbank-Backup gemacht hast, bevor Du fortfährst.",
+      "warningBlock": "<strong>Warnung: </strong>Stelle sicher, dass die in deiner hochgeladenen CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im Shop vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu importieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Import im Produkt Modul manuell pflegen.",
       "importActivityLabel": "Import-Aktivität",
       "importLabel": "Import",
-      "directImportLabel": "Jetzt importieren",
+      "directImportVariantsLabel": "Varianten Einstellungen importieren",
+      "directImportPropertiesLabel": "Eigenschaften importieren",
       "close": "Schließen",
       "labelUploadCaption": "Wähle eine Datei zum Hochladen",
-      "variantsWarning": "Das ausgewähle Profil enthält Produktvarianten. Damit diese funktionieren, müssen die Produkt-Konfigurationseinstellungen vorhanden sein."
+      "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
+      "importVariants": "Produktvarianten importieren"
     },
     "page": {
       "profileTab": "Profile",

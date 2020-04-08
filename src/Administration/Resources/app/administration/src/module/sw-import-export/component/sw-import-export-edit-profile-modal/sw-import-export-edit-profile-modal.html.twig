@@ -75,18 +75,6 @@
                             {% endblock %}
                         </sw-container>
 
-                        <template v-if="profile.sourceEntity === 'product'">
-                            {% block sw_import_export_edit_profile_modal_tabs_include_variants_field %}
-                                <sw-field
-                                    type="switch"
-                                    :disabled="profile.systemDefault"
-                                    class="sw-import-export-edit-profile-modal__variants-switch-field"
-                                    v-model="profile.config.includeVariants"
-                                    :label="$tc('sw-import-export.profile.exportVariants')">
-                                </sw-field>
-                            {% endblock %}
-                        </template>
-
                         <p class="sw-import-export-edit-profile-modal__text">
                             {{ $tc('sw-import-export.profile.mappingDescriptionBlock') }}
                         </p>

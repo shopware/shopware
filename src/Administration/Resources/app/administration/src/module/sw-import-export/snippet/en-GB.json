@@ -95,8 +95,7 @@
       "customTypeLabel": "Custom",
       "defaultTypeLabel": "Default",
       "propertyLabel": "Properties",
-      "configuratorSettingLabel": "Variant configuration settings",
-      "exportVariants": "Produktvarianten exportieren"
+      "configuratorSettingLabel": "Variant configuration settings"
     },
     "exporter": {
       "titleExportSuccess": "Success",
@@ -106,9 +105,11 @@
       "exportActivityLabel": "Export activity",
       "exportActivityDescription": "Activities older than 30 days will be removed automatically.",
       "exportLabel": "Export",
-      "directExportLabel": "Export now",
+      "directExportVariantsLabel": "Export variant settings",
+      "directExportPropertiesLabel": "Export properties",
       "close": "Close",
-      "variantsWarning": "The selected profile contains product variants. In order for these to work, the product configuration settings must also be exported."
+      "variantsWarning": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
+      "exportVariants": "Export product variants"
     },
     "importer": {
       "titleImportSuccess": "Success",
@@ -119,13 +120,15 @@
       "startImportLabel": "Start import",
       "selectProfileLabel": "Select profile",
       "profileLabel": "Profile",
-      "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
+      "warningBlock": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in your uploaded CSV file are available in the shop. If this is not the case, you have the possibility to import properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to maintain the product variants manually in the product module after the import.",
       "importActivityLabel": "Import activity",
       "importLabel": "Import",
-      "directImportLabel": "Import now",
+      "directImportVariantsLabel": "Import variant settings",
+      "directImportPropertiesLabel": "Import properties",
       "close": "Close",
       "labelUploadCaption": "Select a file to upload",
-      "variantsWarning": "The selected profile contains product variants. For these to work, the product configuration settings must be present."
+      "variantsWarning": "<strong>Attention when importing variants: </strong> If the variants are to be imported completely directly, you should also import them. Use a profile that imports variant settings.<br>If you don't do this, the variants must be created manually by the admin.",
+      "importVariants": "Import product variants"
     },
     "page": {
       "profileTab": "Profiles",

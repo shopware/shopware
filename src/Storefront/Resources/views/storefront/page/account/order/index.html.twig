@@ -1,4 +1,4 @@
-{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
 
 {% block base_header %}
     {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
@@ -6,241 +6,77 @@
 
 {% set orderState = page.order.stateMachineState.technicalName %}
 
-{% block base_navigation %}{% endblock %}
+{% block page_checkout_confirm_header %}
+    <h1 class="confirm-main-header">
+        {{ "account.editOrder"|trans|sw_sanitize }}
+    </h1>
+{% endblock %}
 
-{% block base_content %}
-    {% block page_checkout %}
-        <div class="edit-order">
-            <div class="edit-order-container">
-                {% block page_checkout_container %}
-                    <div class="checkout-container">
-                        {% block page_checkout_main %}
-                            <div class="checkout-main">
-                                {% block base_flashbags_checkout %}
-                                    <div class="flashbags">
-                                        {% for type, messages in app.flashes %}
-                                            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
-                                        {% endfor %}
-                                    </div>
-                                {% endblock %}
+{% block page_checkout_confirm_address %}
+    <div class="confirm-address">
+        {% sw_include '@Storefront/storefront/page/account/order/address.html.twig' %}
+    </div>
+{% endblock %}
 
-                                {% block page_checkout_main_content %}
-                                    {% block page_checkout_confirm %}
-                                        {% block page_checkout_confirm_header %}
-                                            <h1 class="confirm-main-header">
-                                                {{ "account.editOrder"|trans|sw_sanitize }}
-                                            </h1>
-                                        {% endblock %}
+{% block page_checkout_confirm_payment %}
+    <div class="col-sm-6 confirm-payment">
+        {% sw_include '@Storefront/storefront/page/account/order/payment.html.twig' %}
+    </div>
+{% endblock %}
 
-                                        {% block page_checkout_confirm_alerts %}
-                                            {% block page_checkout_confirm_violations %}
-                                                {% for violation in formViolations.getViolations() %}
-                                                    {% set snippetName = "error.#{violation.code}" %}
-                                                    {% set fieldName = violation.propertyPath|trim('/', 'left') %}
+{% block page_checkout_confirm_shipping %}
+    <div class="col-sm-6 confirm-shipping">
+        {% sw_include '@Storefront/storefront/page/account/order/shipping.html.twig' %}
+    </div>
+{% endblock %}
 
-                                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                                        type: "danger",
-                                                        content: snippetName|trans({'%field%': fieldName})|sw_sanitize
-                                                    } %}
-                                                {% endfor %}
-                                            {% endblock %}
+{% block page_checkout_confirm_table_header %}
+    {% sw_include '@Storefront/storefront/page/account/order/line-item-header.html.twig' %}
+{% endblock %}
 
-                                            {% block page_checkout_payment_not_changeable %}
-                                                {% if page.paymentChangeable == false %}
-                                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                                        type: "danger",
-                                                        content: 'account.editOrderPaymentNotChangeable'|trans|sw_sanitize
-                                                    } %}
-                                                {% endif %}
-                                            {% endblock %}
+{% block page_checkout_confirm_table_items %}
+    {% for lineItem in page.order.lineItems %}
+        {% block page_checkout_confirm_table_item %}
+            {% sw_include '@Storefront/storefront/page/account/order/line-item.html.twig' %}
+        {% endblock %}
+    {% endfor %}
+{% endblock %}
 
-                                            {% block page_checkout_confirm_errors %}
-                                                {% for error in page.cart.errors %}
-                                                    {% set snippetName = "error.#{error.messageKey}" %}
+{% block page_checkout_aside_actions %}
+    <div class="checkout-aside-action">
+        <form id="confirmOrderForm"
+              action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
+              method="post">
 
-                                                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                                        type: "danger",
-                                                        content: snippetName|trans({'%name%': error.name})|sw_sanitize
-                                                    } %}
-                                                {% endfor %}
-                                            {% endblock %}
-                                        {% endblock %}
+            {{ sw_csrf('frontend.account.edit-order.update-order') }}
 
-                                        {% block page_checkout_confirm_tos %}
-                                            <div class="confirm-tos">
-                                                <div class="card checkout-card">
-                                                    <div class="card-body">
-                                                        {% block page_checkout_confirm_tos_header %}
-                                                            <div class="card-title">
-                                                                {{ "checkout.confirmTermsHeader"|trans|sw_sanitize }}
-                                                            </div>
-                                                        {% endblock %}
+            <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
 
-                                                        {% block page_checkout_confirm_revocation_notice %}
-                                                            {% if shopware.config.confirm.revocationNotice %}
-                                                                <p class="revocation-notice">
-                                                                    {% block page_checkout_confirm_revocation_notice_link %}
-                                                                        <a href="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}"
-                                                                           data-toggle="modal"
-                                                                           title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
-                                                                           data-url="{{ path('frontend.cms.page',{ id: shopware.config.core.basicInformation.revocationPage }) }}">
-                                                                            {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
-                                                                        </a>
-                                                                    {% endblock %}
-                                                                </p>
-                                                            {% endif %}
-                                                        {% endblock %}
+            <button
+                class="btn btn-primary btn-block"
+                {% if page.paymentChangeable == false %}
+                    disabled="disabled"
+                {% endif %}
+                type="submit">
+                {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
+            </button>
+        </form>
 
-                                                        {% block page_checkout_confirm_tos_control %}
-                                                            <div class="custom-control custom-checkbox">
-                                                                {% block page_checkout_confirm_tos_control_checkbox %}
-                                                                    <input type="checkbox"
-                                                                           class="edit-order-tos-checkbox custom-control-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
-                                                                           required="required"
-                                                                           id="tos"
-                                                                           form="confirmOrderForm"
-                                                                           name="tos"/>
-                                                                {% endblock %}
+        {% block page_checkout_aside_cancel_order_modal_toggle %}
+            {% if page.order.stateMachineState.technicalName != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+                <button type="button"
+                        class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
+                        data-toggle="modal"
+                        data-target="#cancelOrderModal">
+                    {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                </button>
+            {% endif %}
+        {% endblock %}
 
-                                                                {% block page_checkout_confirm_tos_control_label %}
-                                                                    <label for="tos"
-                                                                           class="edit-order-tos-label custom-control-label">
-                                                                        {{ "checkout.confirmTerms"|trans({
-                                                                            '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.tosPage })
-                                                                        })|raw }}
-                                                                    </label>
-                                                                {% endblock %}
-                                                            </div>
-                                                        {% endblock %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_confirm_address %}
-                                            <div class="confirm-address">
-                                                {% sw_include '@Storefront/storefront/page/account/order/address.html.twig' %}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_confirm_payment_shipping %}
-                                            <div class="confirm-payment-shipping">
-                                                <div class="row">
-                                                    {% block page_checkout_confirm_payment %}
-                                                        <div class="col-sm-6 confirm-payment">
-                                                            {% sw_include '@Storefront/storefront/page/account/order/payment.html.twig' %}
-                                                        </div>
-                                                    {% endblock %}
-
-                                                    {% block page_checkout_confirm_shipping %}
-                                                        <div class="col-sm-6 confirm-shipping">
-                                                            {% sw_include '@Storefront/storefront/page/account/order/shipping.html.twig' %}
-                                                        </div>
-                                                    {% endblock %}
-                                                </div>
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_confirm_product_table %}
-                                            <div class="confirm-product">
-                                                {% block page_checkout_confirm_table_container %}
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            {% block page_checkout_confirm_table_header %}
-                                                                {% sw_include '@Storefront/storefront/page/account/order/line-item-header.html.twig' %}
-                                                            {% endblock %}
-
-                                                            {% block page_checkout_confirm_table_items %}
-                                                                {% for lineItem in page.order.lineItems %}
-                                                                    {% block page_checkout_confirm_table_item %}
-                                                                        {% sw_include '@Storefront/storefront/page/account/order/line-item.html.twig' %}
-                                                                    {% endblock %}
-                                                                {% endfor %}
-                                                            {% endblock %}
-                                                        </div>
-                                                    </div>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-                                    {% endblock %}
-                                {% endblock %}
-                            </div>
-                        {% endblock %}
-
-                        {% block page_checkout_aside %}
-                            <div class="row justify-content-end">
-                                <div class="">
-                                    <div class="checkout-aside edit-order-checkout-aside">
-                                        {% block page_checkout_aside_container %}
-                                            <div class="checkout-aside-container">
-                                                {% block page_checkout_aside_summary %}
-                                                    <div class="checkout-aside-summary">
-                                                        {% block page_checkout_summary_header %}
-                                                            <h2 class="checkout-aside-summary-header">
-                                                                {{ "checkout.summaryHeader"|trans|sw_sanitize }}
-                                                            </h2>
-                                                        {% endblock %}
-
-                                                        {% block page_checkout_summary_list %}
-                                                            <div class="checkout-aside-summary-list-container">
-                                                                {% block page_checkout_summary_list_container %}
-                                                                    {% sw_include '@Storefront/storefront/page/checkout/summary.html.twig' %}
-                                                                {% endblock %}
-                                                            </div>
-                                                        {% endblock %}
-                                                    </div>
-                                                {% endblock %}
-                                            </div>
-                                        {% endblock %}
-
-                                        {% block page_checkout_aside_actions %}
-                                            <div class="checkout-aside-action">
-
-                                                <form id="confirmOrderForm"
-                                                      action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
-                                                      method="post">
-
-                                                    {{ sw_csrf('frontend.account.edit-order.update-order') }}
-
-                                                    <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
-
-                                                    <button
-                                                        class="btn btn-primary btn-block"
-                                                        {% if page.paymentChangeable == false %}
-                                                            disabled="disabled"
-                                                        {% endif %}
-                                                        type="submit">
-                                                        {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
-                                                    </button>
-
-                                                </form>
-
-                                                {% block page_checkout_aside_cancel_order_modal_toggle %}
-
-                                                    {% if page.order.stateMachineState.technicalName != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
-                                                        <button type="button"
-                                                                class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
-                                                                data-toggle="modal"
-                                                                data-target="#cancelOrderModal">
-                                                            {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
-                                                        </button>
-                                                    {% endif %}
-                                                {% endblock %}
-
-                                                {% if orderState != 'cancelled' %}
-                                                    {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
-                                                {% endif %}
-                                            </div>
-                                        {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </div>
-                        </div>
-                    </div>
-                {% endblock %}
-            </div>
-        </div>
-    {% endblock %}
+        {% if orderState != 'cancelled' %}
+            {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block base_footer %}

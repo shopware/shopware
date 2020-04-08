@@ -6,14 +6,13 @@ use Pimple\Container;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\DumpIterator;
 use Shopware\Recovery\Common\IOHelper;
-use Shopware\Recovery\Common\MigrationRuntime;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\DatabaseInteractor;
 use Shopware\Recovery\Install\Service\AdminService;
-use Shopware\Recovery\Install\Service\ConfigWriter;
 use Shopware\Recovery\Install\Service\DatabaseService;
+use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
 use Shopware\Recovery\Install\Struct\AdminUser;
@@ -108,7 +107,7 @@ class InstallCommand extends Command
         $shop = $this->getShopInfoFromArgs($input, $shop);
         $shop = $this->getShopInfoFromInteractiveShell($shop);
 
-        /** @var ConfigWriter $configWriter */
+        /** @var EnvConfigWriter $configWriter */
         $configWriter = $this->container->offsetGet('config.writer');
         $configWriter->writeConfig($connectionInfo, $shop);
 
@@ -293,10 +292,7 @@ class InstallCommand extends Command
         return $adminUser;
     }
 
-    /**
-     * @return Shop
-     */
-    protected function getShopInfoFromInteractiveShell(Shop $shop)
+    protected function getShopInfoFromInteractiveShell(Shop $shop): Shop
     {
         if (!$this->IOHelper->isInteractive()) {
             return $shop;
@@ -322,10 +318,7 @@ class InstallCommand extends Command
         return $shop;
     }
 
-    /**
-     * @return Shop
-     */
-    protected function getShopInfoFromArgs(InputInterface $input, Shop $shop)
+    protected function getShopInfoFromArgs(InputInterface $input, Shop $shop): Shop
     {
         $shop->name = $input->getOption('shop-name');
         $shop->email = $input->getOption('shop-email');
@@ -341,10 +334,7 @@ class InstallCommand extends Command
         return $shop;
     }
 
-    /**
-     * @return \PDO
-     */
-    protected function initDatabaseConnection(DatabaseConnectionInformation $connectionInfo, Container $container)
+    protected function initDatabaseConnection(DatabaseConnectionInformation $connectionInfo, Container $container): \PDO
     {
         $databaseFactory = new DatabaseFactory();
         $conn = $databaseFactory->createPDOConnection($connectionInfo);
@@ -353,10 +343,7 @@ class InstallCommand extends Command
         return $conn;
     }
 
-    /**
-     * @return bool
-     */
-    protected function shouldSkipImport()
+    protected function shouldSkipImport(): bool
     {
         if (!$this->IOHelper->isInteractive()) {
             return true;
@@ -371,13 +358,10 @@ class InstallCommand extends Command
         return (bool) $skipImport;
     }
 
-    /**
-     * @return DatabaseConnectionInformation
-     */
     protected function getConnectionInfoFromInteractiveShell(
         IOHelper $IOHelper,
         DatabaseConnectionInformation $connectionInfo
-    ) {
+    ): DatabaseConnectionInformation {
         if (!$IOHelper->isInteractive()) {
             return $connectionInfo;
         }
@@ -442,12 +426,7 @@ class InstallCommand extends Command
         return $databaseConnectionInformation;
     }
 
-    /**
-     * @param string $configPath
-     *
-     * @return DatabaseConnectionInformation
-     */
-    protected function getConnectionInfoFromConfig($configPath, DatabaseConnectionInformation $connectionInfo)
+    protected function getConnectionInfoFromConfig(string $configPath, DatabaseConnectionInformation $connectionInfo): DatabaseConnectionInformation
     {
         if (!$configuration = $this->loadConfiguration($configPath)) {
             return $connectionInfo;
@@ -694,34 +673,21 @@ EOT;
 
     private function runMigrations(): void
     {
-        /** @var MigrationRuntime $migrationManger */
-        $migrationManger = $this->container->offsetGet('migration.manager');
-
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->offsetGet('migration.collection.loader');
 
-        /** @var array $identifiers */
-        $identifiers = array_column($this->container->offsetGet('migration.paths'), 'name');
+        $coreMigrations = $migrationCollectionLoader->collect('core');
 
-        foreach ($identifiers as &$identifier) {
-            $identifier = sprintf('Shopware\\%s\\Migration', $identifier);
-        }
-        unset($identifier);
+        $coreMigrations->sync();
 
-        reset($identifiers);
-        foreach ($identifiers as $identifier) {
-            $migrationCollectionLoader->syncMigrationCollection($identifier);
-        }
-
-        $total = \count($migrationManger->getExecutableMigrations(null, null, $identifiers));
+        $total = count($coreMigrations->getExecutableMigrations());
 
         $progress = $this->IOHelper->createProgressBar($total);
         $progress->setRedrawFrequency(20);
         $progress->start();
 
-        for ($i = 0; $i <= $total; ++$i) {
-            iterator_count($migrationManger->migrate(null, 1, $identifiers));
-            iterator_count($migrationManger->migrateDestructive(null, 1, $identifiers));
+        foreach ($coreMigrations->migrateInSteps() as $null) {
+            $coreMigrations->migrateDestructiveInPlace(null, 1);
             $progress->advance();
         }
 

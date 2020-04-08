@@ -6,11 +6,11 @@ use Doctrine\DBAL\DriverManager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
-use Shopware\Core\Framework\Migration\MigrationCollection;
-use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
 use Shopware\Recovery\Common\DependencyInjection\Container as BaseContainer;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
-use Shopware\Recovery\Common\MigrationRuntime;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Common\SystemLocker;
@@ -68,43 +68,28 @@ class Container extends BaseContainer
             return new PathBuilder($baseDir, $updateDir, $backupDir);
         };
 
-        $container['migration.paths'] = static function () {
-            $path = SW_PATH . '/vendor/shopware/';
-
-            $bundleDirs = array_filter(array_map(static function (string $name) use ($path) {
-                if (mb_strpos($name, '.') === 0) {
-                    return null;
-                }
-
-                if (!is_dir($path . $name . '/Migration/')) {
-                    return null;
-                }
-
-                return [
-                    'name' => ucfirst($name),
-                    'path' => $path . $name . '/Migration/',
+        $container['migration.source'] = static function () {
+            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
+                $coreBundleMigrations = [
+                    SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
+                    SW_PATH . '/platform/src/Storefront/Migration' => 'Shopware\\Storefront\\Migration',
                 ];
-            }, scandir($path, SCANDIR_SORT_NONE)));
-
-            return $bundleDirs;
-        };
-
-        $container['migration.collection'] = function ($c) {
-            $paths = [];
-
-            foreach ($c['migration.paths'] as $path) {
-                $paths[sprintf('Shopware\\%s\\Migration', $path['name'])] = $path['path'];
+            } else {
+                $coreBundleMigrations = [
+                    SW_PATH . '/vendor/shopware/core/Migration' => 'Shopware\\Core\\Migration',
+                    SW_PATH . '/vendor/shopware/storefront/Migration' => 'Shopware\\Storefront\\Migration',
+                ];
             }
 
-            return new MigrationCollection($paths);
+            return new CoreMigrationSource('core', $coreBundleMigrations);
         };
 
-        $container['migration.collection.loader'] = function ($c) {
-            return new MigrationCollectionLoader($c['dbal'], $c['migration.collection']);
+        $container['migration.runtime'] = static function ($c) {
+            return new CoreMigrationRuntime($c['dbal'], new NullLogger());
         };
 
-        $container['migration.manager'] = function ($c) {
-            return new MigrationRuntime($c['dbal'], new NullLogger());
+        $container['migration.collection.loader'] = static function ($c) {
+            return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], [$c['migration.source']]);
         };
 
         $container['app'] = function ($c) {

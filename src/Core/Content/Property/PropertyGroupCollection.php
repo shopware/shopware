@@ -36,8 +36,8 @@ class PropertyGroupCollection extends EntityCollection
     public function sortByPositions(): void
     {
         usort($this->elements, function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-            $posA = $a->getTranslation('position');
-            $posB = $b->getTranslation('position');
+            $posA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
+            $posB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
             if ($posA === $posB) {
                 return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
@@ -63,7 +63,7 @@ class PropertyGroupCollection extends EntityCollection
                     return $a->getTranslation('name') <=> $b->getTranslation('name');
                 }
 
-                return ($a->getTranslation('position') ?? $a->getPosition()) <=> ($b->getTranslation('position') ?? $b->getPosition());
+                return ($a->getTranslation('position') ?? $a->getPosition() ?? 0) <=> ($b->getTranslation('position') ?? $b->getPosition() ?? 0);
             });
         }
     }

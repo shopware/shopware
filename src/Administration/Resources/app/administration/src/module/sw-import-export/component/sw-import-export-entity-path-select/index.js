@@ -368,12 +368,13 @@ Component.register('sw-import-export-entity-path-select', {
 
         processTranslations(definition, options, properties, path) {
             const translationProperty = definition.properties.translations;
+            const newOptions = [...options];
 
             if (translationProperty && translationProperty.relation === 'one_to_many') {
                 const translationDefinition = Shopware.EntityDefinition.get(translationProperty.entity);
                 const translationProperties = Object.keys(translationDefinition.properties);
 
-                options.push(...this.getTranslationProperties(path, translationProperties));
+                newOptions.push(...this.getTranslationProperties(path, translationProperties));
 
                 // Remove translation property and translatable properties
                 properties = properties.filter(propertyName => {
@@ -384,7 +385,7 @@ Component.register('sw-import-export-entity-path-select', {
                 });
             }
 
-            return [options, properties];
+            return [newOptions, properties];
         },
 
         getTranslationProperties(path, properties) {
@@ -403,9 +404,10 @@ Component.register('sw-import-export-entity-path-select', {
 
         processPrice(definition, options, properties, path) {
             const priceProperty = definition.properties.price;
+            const newOptions = [...options];
 
             if (priceProperty && priceProperty.type === 'json_object') {
-                options.push(...this.getPriceProperties(path));
+                newOptions.push(...this.getPriceProperties(path));
 
                 // Remove visibility property
                 properties = properties.filter(propertyName => {
@@ -413,7 +415,7 @@ Component.register('sw-import-export-entity-path-select', {
                 });
             }
 
-            return [options, properties];
+            return [newOptions, properties];
         },
 
         getPriceProperties(path) {
@@ -431,9 +433,10 @@ Component.register('sw-import-export-entity-path-select', {
 
         processVisibilities(definition, options, properties, path) {
             const visibilityProperty = definition.properties.visibilities;
+            const newOptions = [...options];
 
             if (visibilityProperty && visibilityProperty.relation === 'one_to_many') {
-                options.push(...this.getVisibilityProperties(path));
+                newOptions.push(...this.getVisibilityProperties(path));
 
                 // Remove visibility property
                 properties = properties.filter(propertyName => {
@@ -441,7 +444,7 @@ Component.register('sw-import-export-entity-path-select', {
                 });
             }
 
-            return [options, properties];
+            return [newOptions, properties];
         },
 
         getVisibilityProperties(path) {

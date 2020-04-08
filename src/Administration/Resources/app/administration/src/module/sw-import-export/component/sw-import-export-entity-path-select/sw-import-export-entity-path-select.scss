@@ -2,14 +2,14 @@
 
 .sw-import-export-entity-path-select {
     .sw-import-export-entity-path-select__selection-input {
-        padding: 12px 0;
+        padding: 12px 22px 12px 0;
         width: 0;
         display: inline-block;
 
         &.is--expanded {
             width: 100%;
             display: block;
-            padding: 12px 8px;
+            padding: 12px 22px 12px 8px;
         }
     }
 

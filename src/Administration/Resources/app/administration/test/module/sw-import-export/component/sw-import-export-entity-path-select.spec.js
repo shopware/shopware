@@ -35,6 +35,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                         relation: 'many_to_one',
                         entity: 'product'
                     },
+                    cover: {
+                        type: 'association',
+                        relation: 'many_to_one',
+                        entity: 'product_media'
+                    },
+                    name: {
+                        type: 'string'
+                    },
                     manufacturer: {
                         type: 'association',
                         relation: 'many_to_one',
@@ -44,6 +52,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                         type: 'association',
                         relation: 'one_to_many',
                         entity: 'product_translation'
+                    },
+                    visibilities: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product_visibilities'
                     }
                 }
             },
@@ -73,6 +86,19 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                         type: 'association',
                         relation: 'one_to_many',
                         entity: 'product'
+                    }
+                }
+            },
+            product_media: {
+                entity: 'product_media',
+                properties: {
+                    id: {
+                        type: 'uuid'
+                    },
+                    media: {
+                        type: 'association',
+                        relation: 'many_to_one',
+                        entity: 'media'
                     }
                 }
             },
@@ -149,7 +175,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             ]
         });
 
-        const actual = wrapper.vm.getPriceProperties('price.');
+        const actual = wrapper.vm.getPriceProperties('');
         const expected = [
             { label: 'price.EUR.net', value: 'price.EUR.net' },
             { label: 'price.EUR.gross', value: 'price.EUR.gross' },
@@ -166,8 +192,33 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
+    it('should return valid price properties on `getPriceProperties` with given currencies and path set', () => {
+        wrapper.setProps({
+            currencies: [
+                { isoCode: 'EUR' },
+                { isoCode: 'USD' }
+            ]
+        });
+
+        const actual = wrapper.vm.getPriceProperties('parent.');
+        const expected = [
+            { label: 'parent.price.EUR.net', value: 'parent.price.EUR.net' },
+            { label: 'parent.price.EUR.gross', value: 'parent.price.EUR.gross' },
+            { label: 'parent.price.EUR.currencyId', value: 'parent.price.EUR.currencyId' },
+            { label: 'parent.price.EUR.linked', value: 'parent.price.EUR.linked' },
+            { label: 'parent.price.EUR.listPrice', value: 'parent.price.EUR.listPrice' },
+            { label: 'parent.price.USD.net', value: 'parent.price.USD.net' },
+            { label: 'parent.price.USD.gross', value: 'parent.price.USD.gross' },
+            { label: 'parent.price.USD.currencyId', value: 'parent.price.USD.currencyId' },
+            { label: 'parent.price.USD.linked', value: 'parent.price.USD.linked' },
+            { label: 'parent.price.USD.listPrice', value: 'parent.price.USD.listPrice' }
+        ];
+
+        expect(actual).toEqual(expected);
+    });
+
     it('should return valid price properties when getting price properties without given currencies', () => {
-        const actual = wrapper.vm.getPriceProperties('price.');
+        const actual = wrapper.vm.getPriceProperties('');
         const expected = [
             { label: 'price.DEFAULT.net', value: 'price.DEFAULT.net' },
             { label: 'price.DEFAULT.gross', value: 'price.DEFAULT.gross' },
@@ -180,11 +231,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid visibility properties on `getVisibilityProperties` with given visibilities', () => {
-        wrapper.setData({
-            visibilityProperties: ['all', 'link', 'search']
-        });
-
-        const actual = wrapper.vm.getVisibilityProperties('visibilities.');
+        const actual = wrapper.vm.getVisibilityProperties('');
         const expected = [
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
@@ -209,7 +256,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             ]
         });
 
-        const actual = wrapper.vm.getTranslationProperties('product_translation', 'translations.', mockProperties);
+        const actual = wrapper.vm.getTranslationProperties('', mockProperties);
 
         const expected = [
             { label: 'translations.en-GB.metaDescription', value: 'translations.en-GB.metaDescription' },
@@ -226,9 +273,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return media properties for product media translation value', () => {
+    it('should return media properties for product cover media value', () => {
         wrapper.setProps({
-            value: 'media.translations.',
+            value: 'cover.media.',
             languages: [
                 { locale: { code: 'en-GB' } },
                 { locale: { code: 'de-DE' } },
@@ -240,19 +287,23 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         const expected = [
             {
-                label: 'media.translations.en-GB.name',
-                value: 'media.translations.en-GB.name'
+                label: 'cover.media.id',
+                value: 'cover.media.id',
+                relation: undefined
             },
             {
-                label: 'media.translations.de-DE.name',
-                value: 'media.translations.de-DE.name'
+                label: 'cover.media.translations.DEFAULT.title',
+                value: 'cover.media.translations.DEFAULT.title'
             },
             {
-                label: 'media.translations.DEFAULT.name',
-                value: 'media.translations.DEFAULT.name'
+                label: 'cover.media.translations.de-DE.title',
+                value: 'cover.media.translations.de-DE.title'
+            },
+            {
+                label: 'cover.media.translations.en-GB.title',
+                value: 'cover.media.translations.en-GB.title'
             }
         ];
-
         expect(actual).toEqual(expected);
     });
 
@@ -283,26 +334,114 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             }
         ];
 
-        expect(actual).toEqual(expected);
+        expect(actual).toEqual(expect.arrayContaining(expected));
     });
 
     it('should return filtered product properties when searching', () => {
         wrapper.setProps({
-            value: 'parent.parent.'
+            value: 'parent.parent.',
+            languages: [
+                { locale: { code: 'DEFAULT' } }
+            ]
         });
-        wrapper.vm.searchTerm = 'parent.parent.pri';
-        wrapper.vm.search();
+        wrapper.vm.actualSearch = 'parent.parent.price';
 
         const actual = wrapper.vm.visibleResults;
 
         const expected = [
             {
-                label: 'parent.parent.price',
-                value: 'parent.parent.price',
-                relation: 'price'
+                label: 'parent.parent.price.DEFAULT.currencyId',
+                value: 'parent.parent.price.DEFAULT.currencyId'
+            },
+            {
+                label: 'parent.parent.price.DEFAULT.gross',
+                value: 'parent.parent.price.DEFAULT.gross'
+            },
+            {
+                label: 'parent.parent.price.DEFAULT.linked',
+                value: 'parent.parent.price.DEFAULT.linked'
+            },
+            {
+                label: 'parent.parent.price.DEFAULT.listPrice',
+                value: 'parent.parent.price.DEFAULT.listPrice'
+            },
+            {
+                label: 'parent.parent.price.DEFAULT.net',
+                value: 'parent.parent.price.DEFAULT.net'
             }
         ];
 
         expect(actual).toEqual(expected);
+    });
+
+    it('should process translations, prices visibilities and remove property from properties array', () => {
+        wrapper.setProps({
+            value: '',
+            languages: [
+                { locale: { code: 'DEFAULT' } }
+            ]
+        });
+
+        const definition = Shopware.EntityDefinition.get('product');
+
+        let properties = Object.keys(definition.properties);
+        let options = [];
+
+        expect(properties).toEqual(
+            ['id', 'price', 'parent', 'cover', 'name', 'manufacturer', 'translations', 'visibilities']
+        );
+
+        [options, properties] = wrapper.vm.processTranslations(definition, options, properties, '');
+
+        expect(properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer', 'visibilities']);
+        expect(options).toEqual([{
+            label: 'translations.DEFAULT.name',
+            value: 'translations.DEFAULT.name'
+        }]);
+
+        [options, properties] = wrapper.vm.processVisibilities(definition, options, properties, '');
+
+        expect(properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer']);
+        expect(options).toEqual([
+            { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'visibilities.all', value: 'visibilities.all' },
+            { label: 'visibilities.link', value: 'visibilities.link' },
+            { label: 'visibilities.search', value: 'visibilities.search' }
+        ]);
+
+        [options, properties] = wrapper.vm.processPrice(definition, options, properties, '');
+
+        expect(properties).toEqual(['id', 'parent', 'cover', 'manufacturer']);
+        expect(options).toEqual([
+            { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'visibilities.all', value: 'visibilities.all' },
+            { label: 'visibilities.link', value: 'visibilities.link' },
+            { label: 'visibilities.search', value: 'visibilities.search' },
+            { label: 'price.DEFAULT.net', value: 'price.DEFAULT.net' },
+            { label: 'price.DEFAULT.gross', value: 'price.DEFAULT.gross' },
+            { label: 'price.DEFAULT.currencyId', value: 'price.DEFAULT.currencyId' },
+            { label: 'price.DEFAULT.linked', value: 'price.DEFAULT.linked' },
+            { label: 'price.DEFAULT.listPrice', value: 'price.DEFAULT.listPrice' }
+        ]);
+    });
+
+    it('should sort options', () => {
+        const options = [
+            { label: 'name', value: 'name' },
+            { label: 'media', value: 'media' },
+            { label: 'media', value: 'media' },
+            { label: 'id', value: 'id' },
+            { label: 'cover', value: 'cover' }
+        ];
+
+        const actual = options.sort(wrapper.vm.sortOptions);
+
+        expect(actual).toEqual([
+            { label: 'cover', value: 'cover' },
+            { label: 'id', value: 'id' },
+            { label: 'media', value: 'media' },
+            { label: 'media', value: 'media' },
+            { label: 'name', value: 'name' }
+        ]);
     });
 });

@@ -71,6 +71,11 @@
                                                         <template v-else>
                                                             {{ getKey(item, labelProperty) }}
                                                         </template>
+
+                                                        <sw-icon v-if="item.relation && item.relation !== 'many_to_many'"
+                                                                 name="small-arrow-small-right"
+                                                                 size="16px">
+                                                        </sw-icon>
                                                     </slot>
                                                 {% endblock %}
                                             </li>

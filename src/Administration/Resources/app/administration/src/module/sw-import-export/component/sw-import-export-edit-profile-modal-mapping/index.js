@@ -74,7 +74,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                     property: 'entry',
                     label: 'sw-import-export.profile.mapping.entityLabel',
                     allowResize: true,
-                    width: '250px'
+                    width: '300px'
                 }
             ];
         }

@@ -16,6 +16,7 @@
         "invalidRecords": "Invalid records"
       },
       "contextMenu": {
+        "showLog": "Open log entry",
         "downloadFile": "Download file",
         "showProfile": "Show profile",
         "downloadInvalidFile": "Download invalid records"
@@ -25,9 +26,10 @@
         "labelClose": "Close",
         "labelFilename": "Filename",
         "labelType": "Type",
-        "labelRecords": "Records",
+        "labelImportRecords": "Successfully imported records",
+        "labelExportRecords": "Successfully exported records",
         "labelFailedRecords": "Failed records",
-        "labelSize": "Filesize",
+        "labelSize": "File size",
         "labelUser": "User",
         "labelDate": "Date / Time",
         "labelState": "State",
@@ -79,7 +81,7 @@
       "objectTypeFieldTooltipText": "The object type cannot be changed when mapping options are present.",
       "descriptionBlock": "Object types define a mode for importing and exporting data. The defined mode will also affect the mapping options in the table below. Note, that you cannot change the object type after mapping options have been introduced.",
       "mappingDescriptionBlock": "Use the table below to map CSV fields to their respective database counterparts.",
-      "csvDescriptionBlock": "Separators and enclosure characters are used to indicate separate fields within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
+      "csvDescriptionBlock": "Separators are used to separate individual fields. Enclosure characters are used to ignore specific control characters contained therein. For example, if the separator appears in continuous text.",
       "cancelLabel": "Cancel",
       "addMappingLabel": "Add new mapping",
       "deleteLabel": "Delete",

@@ -18,7 +18,12 @@
                     <dd>{{ typeText }}</dd>
                 {% endblock %}
                 {% block sw_import_export_edit_profile_modal_description_records %}
-                    <dt>{{ $tc('sw-import-export.activity.detail.labelRecords') }}</dt>
+                    <template v-if="logEntity.activity === 'import'">
+                        <dt>{{ $tc('sw-import-export.activity.detail.labelImportRecords') }}</dt>
+                    </template>
+                    <template v-else>
+                        <dt>{{ $tc('sw-import-export.activity.detail.labelExportRecords') }}</dt>
+                    </template>
                     <dd>{{ logEntity.records }}</dd>
                 {% endblock %}
                 {% block sw_import_export_edit_profile_modal_description_invalid_records %}
@@ -62,12 +67,12 @@
         {% block sw_import_export_edit_profile_modal_invalid_records %}
             <template v-if="logEntity.invalidRecordsLog">
                 <sw-button-group>
-                    {% block sw_import_export_edit_profile_modal_invalid_records_download %}
+                    {% block sw_import_export_edit_profile_modal_invalid_records_context_button_download %}
                         <sw-button variant="ghost"
-                                   class="sw-import-export-activity-detail-modal__download-button"
+                                   class="sw-import-export-activity-detail-modal__download-failed"
                                    size="small"
-                                   :link="getDownloadUrl(logEntity.file)">
-                            {{  $tc('sw-import-export.activity.detail.labelDownloadFile')  }}
+                                   :link="getDownloadUrl(logEntity.invalidRecordsLog.file)">
+                            {{  $tc('sw-import-export.activity.detail.labelDownloadInvalidFile')  }}
                         </sw-button>
                     {% endblock %}
 
@@ -83,13 +88,11 @@
                                     </sw-icon>
                                 </sw-button>
                             </template>
-                            {% block sw_import_export_edit_profile_modal_invalid_records_context_button_download %}
-                                <sw-context-menu-item>
-                                    <a :href="getDownloadUrl(logEntity.invalidRecordsLog.file)"
-                                        class="sw-import-export-activity-detail-modal__download-failed">
-                                        {{  $tc('sw-import-export.activity.detail.labelDownloadInvalidFile')  }}
-                                    </a>
-                                </sw-context-menu-item>
+                            {% block sw_import_export_edit_profile_modal_invalid_records_download %}
+                                <a :href="getDownloadUrl(logEntity.file)"
+                                   class="sw-import-export-activity-detail-modal__download">
+                                    {{  $tc('sw-import-export.activity.detail.labelDownloadFile')  }}
+                                </a>
                             {% endblock %}
                         </sw-context-button>
                     {% endblock %}

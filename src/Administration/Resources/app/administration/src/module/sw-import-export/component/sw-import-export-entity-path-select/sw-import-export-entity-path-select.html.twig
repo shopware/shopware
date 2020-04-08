@@ -32,8 +32,8 @@
                                            :class="inputClasses"
                                            type="text"
                                            :placeholder="placeholder"
-                                           @input="onInputSearchTerm"
-                                           v-model="searchTerm">
+                                           @input="onInputSearch"
+                                           v-model="searchInput">
                                 {% endblock %}
                             {% endblock %}
                         </div>
@@ -47,7 +47,7 @@
                         <sw-select-result-list ref="resultsList"
                                                :options="visibleResults"
                                                :isLoading="isLoading"
-                                               :emptyMessage="$tc('global.sw-single-select.messageNoResults', 0, { term: searchTerm })"
+                                               :emptyMessage="$tc('global.sw-single-select.messageNoResults', 0, { term: searchInput })"
                                                :focusEl="$refs.swSelectInput"
                                                @paginate="$emit('paginate')"
                                                @item-select="setValue">
@@ -71,6 +71,11 @@
                                                         <template v-else>
                                                             {{ getKey(item, labelProperty) }}
                                                         </template>
+
+                                                        <sw-icon v-if="item.relation && item.relation !== 'many_to_many'"
+                                                                 name="small-arrow-small-right"
+                                                                 size="16px">
+                                                        </sw-icon>
                                                     </slot>
                                                 {% endblock %}
                                             </li>

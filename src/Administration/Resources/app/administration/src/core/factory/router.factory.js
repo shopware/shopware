@@ -22,7 +22,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         addModuleRoutes,
         createRouterInstance,
         getViewComponent,
-        getRouterInstance
+        getRouterInstance,
+        _setModuleFavicon: setModuleFavicon
     };
 
     /**
@@ -369,8 +370,9 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         favRef.rel = 'shortcut icon';
 
+        const faviconSrc = moduleInfo.manifest.faviconSrc || 'administration';
         if (assetsPath.length !== 0) {
-            assetsPath = `${assetsPath}administration/`;
+            assetsPath = `${assetsPath}${faviconSrc}/`;
         }
 
         favRef.href = favicon

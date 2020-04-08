@@ -287,11 +287,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new component `sw-text-preview` to display an expandable preview of a text. It will show a "Read more" button if the text has a certain length. On click a modal shows the whole text.
     * Fixed a bug in `sw-description-list`, added `display: grid` CSS property to the component and changed default of `grid` property to `1fr` to ensure usages of this component have the same behaviour
     * Added `sw-import-export-activity-detail` component
-
     * Added new condition-type `sw-condition-line-item-custom-field`
         * Added new method `getOperatorSetByComponent` in `rule-condition.service.js`
         * Added new property `customFields` to `entityBlacklist` in `product-stream-condition.service.js`
         * Added new condition `cartLineItemCustomField` in `condition-type-data-provider.decorator.js`
+    * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
+          
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 

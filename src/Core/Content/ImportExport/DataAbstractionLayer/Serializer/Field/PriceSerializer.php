@@ -53,15 +53,23 @@ class PriceSerializer extends FieldSerializer
     {
         $prices = [];
 
+        if (!is_array($record)) {
+            return null;
+        }
+
         foreach ($record as $curIso => $price) {
             $cur = $this->getCurrencyIdFromIso($curIso);
 
-            if ($cur === null) {
+            if ($cur === null || !$this->isValidPrice($price)) {
                 continue;
             }
 
             $p = new Price($cur, (float) $price['net'], (float) $price['gross'], (bool) ($price['linked'] ?? false));
             $prices[$cur] = $p->jsonSerialize();
+        }
+
+        if (empty($prices)) {
+            return null;
         }
 
         return $prices;
@@ -75,6 +83,12 @@ class PriceSerializer extends FieldSerializer
 
     public function setRegistry(SerializerRegistry $serializerRegistry): void
     {
+    }
+
+    public function isValidPrice(array $price): bool
+    {
+        return filter_var($price['net'] ?? null, FILTER_VALIDATE_FLOAT) !== false
+            && filter_var($price['gross'] ?? null, FILTER_VALIDATE_FLOAT) !== false;
     }
 
     private function mapToCurrencyIso(string $currencyId): string

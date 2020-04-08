@@ -44,6 +44,11 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
         $referencedDefinition = $field->getMappingDefinition();
 
+        if ($value === null) {
+            yield from [];
+            return;
+        }
+
         if (!\is_array($value)) {
             throw new ExpectedArrayException($parameters->getPath() . '/' . $key);
         }

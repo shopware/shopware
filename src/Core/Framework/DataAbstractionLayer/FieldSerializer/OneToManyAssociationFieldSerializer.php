@@ -37,6 +37,11 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
         }
         $value = $data->getValue();
 
+        if ($value === null) {
+            yield from [];
+            return;
+        }
+
         if (!\is_array($value)) {
             throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
         }

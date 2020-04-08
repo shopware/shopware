@@ -26,7 +26,7 @@ class PropertyGroupOptionEntity extends Entity
     protected $name;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $position;
 
@@ -189,12 +189,12 @@ class PropertyGroupOptionEntity extends Entity
         $this->media = $media;
     }
 
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }
 
-    public function setPosition(int $position): void
+    public function setPosition(?int $position): void
     {
         $this->position = $position;
     }

@@ -280,10 +280,10 @@ class EntityWriter implements EntityWriterInterface
      */
     private function validateWriteInput(array $data): void
     {
-        $valid = array_keys($data) === range(0, \count($data) - 1);
+        $valid = array_keys($data) === range(0, \count($data) - 1) || $data === [];
 
         if (!$valid) {
-            throw new \InvalidArgumentException('Expected input to be non empty non associative array.');
+            throw new \InvalidArgumentException('Expected input to be non associative array.');
         }
     }
 

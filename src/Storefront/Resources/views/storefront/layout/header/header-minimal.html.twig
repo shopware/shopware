@@ -19,16 +19,15 @@
                             </div>
                         {% endblock %}
 
-                        {% block layout_header_minimal_switch %}
-                            <div class="col-6 col-md-4 header-minimal-home">
-                                <a class="btn btn-link btn-sm header-minimal-home-btn"
-                                   href="{{ path('frontend.home.page') }}"
-                                   title="{{ "header.logoLink"|trans|striptags }}">
-                                    {% sw_icon 'arrow-medium-left' style {
-                                        'size': 'sm',
-                                        'pack': 'solid'
-                                    } %}
-                                    {{ "header.logoLink"|trans|sw_sanitize }}
+                        {# @deprecated tag:v6.4.0 #}
+                        {% block layout_header_minimal_switch %}{% endblock %}
+
+                        {% block layout_header_minimal_button %}
+                            <div class="col-md-4 header-minimal-back-to-shop">
+                                <a href="{{ path('frontend.home.page') }}"
+                                   class="btn btn-outline-primary header-minimal-back-to-shop-button"
+                                   title="{{ "checkout.finishButtonBackToShop"|trans|striptags }}">
+                                    {{ "checkout.finishButtonBackToShop"|trans|striptags }}
                                 </a>
                             </div>
                         {% endblock %}

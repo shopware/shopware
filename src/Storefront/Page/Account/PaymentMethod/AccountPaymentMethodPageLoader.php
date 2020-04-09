@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Page\Account\PaymentMethod;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -56,20 +55,14 @@ class AccountPaymentMethodPageLoader
 
         $page = AccountPaymentMethodPage::createFrom($page);
 
-        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
+        if ($page->getSalesChannelPaymentMethods()) {
+            $page->setPaymentMethods($page->getSalesChannelPaymentMethods()->filterByActiveRules($salesChannelContext));
+        }
 
         $this->eventDispatcher->dispatch(
             new AccountPaymentMethodPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;
-    }
-
-    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
-    {
-        $request = new Request();
-        $request->query->set('onlyAvailable', 1);
-
-        return $this->paymentMethodRoute->load($request, $salesChannelContext)->getPaymentMethods();
     }
 }

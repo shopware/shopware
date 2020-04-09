@@ -64,6 +64,7 @@ Component.register('sw-order-list', {
             criteria.addAssociation('currency');
             criteria.addAssociation('transactions');
             criteria.addAssociation('deliveries');
+            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
             return criteria;
         },
@@ -158,7 +159,7 @@ Component.register('sw-order-list', {
                 label: 'sw-order.list.columnState',
                 allowResize: true
             }, {
-                property: 'transactions[0].stateMachineState.name',
+                property: 'transactions.last().stateMachineState.name',
                 label: 'sw-order.list.columnTransactionState',
                 allowResize: true
             }, {
@@ -191,8 +192,14 @@ Component.register('sw-order-list', {
         },
 
         getVariantFromPaymentState(order) {
+            let technicalName = order.transactions.last().stateMachineState.technicalName;
+            for (let i = 0; i < order.transactions.length; i += 1) {
+                if (order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
+                    technicalName = order.stateMachineState.technicalName;
+                }
+            }
             return this.stateStyleDataProviderService.getStyle(
-                'order_transaction.state', order.transactions[0].stateMachineState.technicalName
+                'order_transaction.state', technicalName
             ).variant;
         },
 

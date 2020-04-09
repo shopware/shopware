@@ -1,9 +1,14 @@
 .order-table {
+    margin-bottom: $spacer-lg;
     border: 1px solid $border-color;
 }
 
 .order-table-header {
     display: none;
+
+    :first-child {
+        position: relative;
+    }
 }
 
 .order-hide-btn {
@@ -28,8 +33,6 @@
 
 .order-table-header,
 .order-wrapper {
-    border-bottom: 1px solid $border-color;
-
     &:last-of-type {
         border-bottom: 0;
     }
@@ -45,6 +48,123 @@
 .order-item-header {
     padding-left: $grid-gutter-width / 2;
     padding-right: $grid-gutter-width / 2;
+}
+
+.order-table-header-heading,
+.order-table-header-order-status,
+.order-table-header-context-menu {
+    display: inline-block;
+}
+
+.order-table-header-heading {
+    max-width: 290px;
+}
+
+.order-table-header-order-status {
+    font-weight: $font-weight-bold;
+    margin-top: 10px;
+    height: 24px;
+}
+
+.order-table-header-context-menu {
+    $width: 35px;
+    $height: $width;
+
+    float: right;
+    border: 1px solid $sw-border-color;
+    border-radius: $border-radius;
+    width: $width;
+    height: $height;
+    padding: 0;
+
+    &::after {
+        display: none;
+    }
+
+    .icon {
+        position: relative;
+        margin: 5px;
+
+        > svg {
+            color: $sw-text-color;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    }
+
+    &-content {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+.order-table-header-context-menu-content-link {
+    display: block;
+    border: 0 none;
+    padding: 0;
+    width: 100%;
+    color: $sw-text-color;
+    background: none;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+        text-decoration: none;
+        color: $primary;
+    }
+
+    &:active {
+        outline: none;
+    }
+}
+
+.order-table-header-order-number {
+    display: block;
+    font-weight: $font-weight-normal;
+    margin-bottom: $spacer-lg;
+    width: 100%;
+}
+
+.order-table-header-order-table-body,
+.order-table-header-order-table-header {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.order-table-header-order-table-body {
+    margin: 0 !important;
+    border-top: 1px solid $sw-border-color;
+    font-weight: $font-weight-normal;
+}
+
+.order-table-header-order-table-header {
+    font-weight: $font-weight-bold;
+}
+
+.order-table-header-order-table-header-cell {
+    margin-bottom: 10px;
+}
+
+.order-table-header-order-table-body-cell {
+    margin-top: 10px;
+
+    &:first-of-type {
+        padding-left: 0 !important;
+    }
+
+    &:last-of-type {
+        padding-right: 0 !important;
+    }
+}
+
+.order-table-header-order-table {
+    width: 100%;
+}
+
+.payment-control input,
+.payment-control label {
+    cursor: pointer;
 }
 
 .order-item {

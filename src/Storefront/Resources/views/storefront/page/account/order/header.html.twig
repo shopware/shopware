@@ -1,0 +1,19 @@
+{% sw_extends '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
+
+{% block layout_header_minimal_button %}
+    <div class="col-md-4 header-minimal-back-to-shop">
+        {% if context.customer and context.customer.guest %}
+        <a href="{{ path('frontend.account.order.single.page', {'deepLinkCode': page.order.deepLinkCode}) }}"
+           class="btn btn-outline-primary header-minimal-back-to-shop-button"
+           title="{{ "account.editOrderBackToAccountButton"|trans|striptags }}">
+            {{ "account.editOrderBackToOrderButton"|trans|striptags }}
+        </a>
+        {% else %}
+            <a href="{{ path('frontend.account.home.page') }}"
+               class="btn btn-outline-primary header-minimal-back-to-shop-button"
+               title="{{ "account.editOrderBackToAccountButton"|trans|striptags }}">
+                {{ "account.editOrderBackToAccountButton"|trans|striptags }}
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}

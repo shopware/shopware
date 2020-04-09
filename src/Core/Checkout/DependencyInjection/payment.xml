@@ -99,5 +99,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+        </service>
     </services>
 </container>

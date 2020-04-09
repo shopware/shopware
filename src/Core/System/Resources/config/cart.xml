@@ -17,6 +17,12 @@
             <label lang="de-DE">Lieferzeit im Warenkorb anzeigen</label>
         </input-field>
 
+        <input-field type="bool">
+            <name>enableOrderRefunds</name>
+            <label>Enable refunds</label>
+            <label lang="de-DE">Stornierungen erlauben</label>
+        </input-field>
+
     </card>
 
     <card>

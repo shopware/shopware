@@ -348,6 +348,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new route `_action/theme/{themeId}/structured-fields`
     * Added new `Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts` to provide the possibility to assign individual products to cross selling
     * Added new `\Shopware\Core\Framework\Plugin\BundleConfigGenerator` to generate webpack bundle config and moved the according logic from `\Shopware\Core\Framework\Plugin\BundleConfigDumper` to the new class
+    * Added methods `cancelOder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
+    * Added methods `cancelOrder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
+        
+
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
@@ -476,6 +480,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add babel polyfill for IE11
     * Added `rel="noopener"` to all `target="_blank"` links
     * Add polyfill for object fit for IE11
+    * All javascript plugin options can now be overwritten in Twig 
+    * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader`
+    * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage`
+    * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
 
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     
@@ -578,3 +586,47 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor
+    * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
+    * Add `rel="noopener"` to all `target="_blank"` links
+    * Deprecated `layout_header_minimal_switch` in `src/Storefront/Resources/views/storefront/layout/header/header-minimal.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_date` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_number` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_payment_method` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_shipping_method` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_actions` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_orders_table_header` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_date` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_number` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_payment_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_shipping_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_actions` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_order_item_detail_action` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_form_action` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_csrf` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_redirect_input` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_lineitems_input` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_lineitem_input` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_button` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_date` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_date_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_date_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_number` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_number_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_number_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_payment_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_payment_method_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_payment_method_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_shipping_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_shipping_method_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_shipping_method_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_actions` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_actions_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_actions_value_text` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_csrf` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_redirect` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_fields` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_submit` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`

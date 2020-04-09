@@ -25,52 +25,34 @@
                         {% block page_account_orders_overview %}
                             <div class="account-orders-overview">
                                 {% block page_account_orders_table %}
-                                    <div class="table order-table">
-                                        {% block page_account_orders_table_header %}
-                                            <div class="order-table-header">
-                                                <div class="row">
-                                                    {% block page_account_orders_table_header_date %}
-                                                        <div class="col order-header-date">
-                                                            {{ "account.orderItemColumnDate"|trans|sw_sanitize }}
-                                                        </div>
-                                                    {% endblock %}
 
-                                                    {% block page_account_orders_table_header_number %}
-                                                        <div class="col order-header-number">
-                                                            {{ "account.orderItemColumnNumber"|trans|sw_sanitize }}
-                                                        </div>
-                                                    {% endblock %}
+                                    {# @deprecated tag:v6.4.0 #}
+                                    {% block page_account_orders_table_header %}
 
-                                                    {% block page_account_orders_table_header_payment_method %}
-                                                        <div class="col order-header-payment-method">
-                                                            {{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}
-                                                        </div>
-                                                    {% endblock %}
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_orders_table_header_date %}{% endblock %}
 
-                                                    {% block page_account_orders_table_header_shipping_method %}
-                                                        <div class="col order-header-shipping-method">
-                                                            {{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}
-                                                        </div>
-                                                    {% endblock %}
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_orders_table_header_number %}{% endblock %}
 
-                                                    {% block page_account_orders_table_header_actions %}
-                                                        <div class="col order-header-actions">
-                                                            {{ "account.orderItemColumnActions"|trans|sw_sanitize }}
-                                                        </div>
-                                                    {% endblock %}
-                                                </div>
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_orders_table_header_payment_method %}{% endblock %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_orders_table_header_shipping_method %}{% endblock %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_orders_table_header_actions %}{% endblock %}
+                                    {% endblock %}
+
+                                    {% block page_account_orders_table_body %}
+                                        {% for order in page.orders %}
+                                            <div class="table order-table"
+                                                 data-order-detail-loader="true">
+                                                {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
                                             </div>
-                                        {% endblock %}
-
-                                        {% block page_account_orders_table_body %}
-                                            {% for order in page.orders %}
-                                                <div class="order-table-body"
-                                                     data-order-detail-loader="true">
-                                                    {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
-                                                </div>
-                                            {% endfor %}
-                                        {% endblock %}
-                                    </div>
+                                        {% endfor %}
+                                    {% endblock %}
                                 {% endblock %}
                             </div>
                         {% endblock %}

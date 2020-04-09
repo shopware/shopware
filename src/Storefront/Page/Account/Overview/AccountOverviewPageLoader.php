@@ -5,7 +5,8 @@ namespace Shopware\Storefront\Page\Account\Overview;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\SalesChannel\AbstractAccountOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,7 +31,7 @@ class AccountOverviewPageLoader
     private $eventDispatcher;
 
     /**
-     * @var AbstractAccountOrderRoute
+     * @var AbstractOrderRoute
      */
     private $orderRoute;
 
@@ -42,7 +43,7 @@ class AccountOverviewPageLoader
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        AbstractAccountOrderRoute $orderRoute,
+        AbstractOrderRoute $orderRoute,
         RequestCriteriaBuilder $requestCriteriaBuilder
     ) {
         $this->genericLoader = $genericLoader;
@@ -87,6 +88,7 @@ class AccountOverviewPageLoader
     {
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
+            ->addAssociation('lineItems')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->setLimit(1)
@@ -95,6 +97,9 @@ class AccountOverviewPageLoader
         $request = new Request();
         $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
 
-        return $this->orderRoute->load($request, $salesChannelContext)->getOrders()->first();
+        /** @var OrderRouteResponseStruct $responseStruct */
+        $responseStruct = $this->orderRoute->load($request, $salesChannelContext)->getObject();
+
+        return $responseStruct->getOrders()->first();
     }
 }

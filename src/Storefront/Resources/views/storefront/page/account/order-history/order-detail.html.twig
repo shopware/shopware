@@ -34,7 +34,9 @@
                 {% endblock %}
 
                 {% block page_account_order_item_detail_table_body %}
-                    <div class="order-detail-content-body js-order-detail-container-{{ order.id }}"></div>
+                    <div class="order-detail-content-body">
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list.html.twig' %}
+                    </div>
                 {% endblock %}
 
                 {% if order.customerComment %}
@@ -68,7 +70,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_date_value %}
-                                                    <dd class="col-6 col-md-7">{{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</dd>
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</dd>
                                                 {% endblock %}
                                             {% endblock %}
 
@@ -78,7 +80,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_number_value %}
-                                                    <dd class="col-6 col-md-7">{{ order.orderNumber }}</dd>
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderNumber }}</dd>
                                                 {% endblock %}
                                             {% endblock %}
 
@@ -89,7 +91,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_payment_method_value %}
-                                                        <dd class="col-6 col-md-7">
+                                                        <dd class="col-6 col-md-7 order-item-detail-labels-value">
                                                             {% for transaction in order.transactions %}
                                                                 {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
                                                             {% endfor %}
@@ -105,7 +107,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_method_value %}
-                                                        <dd class="col-6 col-md-7">
+                                                        <dd class="col-6 col-md-7 order-item-detail-labels-value">
                                                             {% for delivery in order.deliveries %}
                                                                 {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
                                                             {% endfor %}

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -45,7 +46,7 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @var WriteCommandExtractor
      */
-    private $writeResource;
+    private $commandExtractor;
 
     /**
      * @var EntityWriteGatewayInterface
@@ -70,10 +71,51 @@ class EntityWriter implements EntityWriterInterface
         DefinitionInstanceRegistry $registry
     ) {
         $this->foreignKeyResolver = $foreignKeyResolver;
-        $this->writeResource = $writeResource;
+        $this->commandExtractor = $writeResource;
         $this->gateway = $gateway;
         $this->languageLoader = $languageLoader;
         $this->registry = $registry;
+    }
+
+    public function sync(array $operations, WriteContext $context): array
+    {
+        $commandQueue = new WriteCommandQueue();
+
+        $context->setLanguages(
+            $this->languageLoader->loadLanguages()
+        );
+
+        foreach ($operations as $operation) {
+            if (!$operation instanceof SyncOperation) {
+                continue;
+            }
+
+            $definition = $this->registry->getByEntityName($operation->getEntity());
+
+            $this->validateWriteInput($operation->getPayload());
+
+            if ($operation->getAction() === SyncOperation::ACTION_DELETE) {
+                $this->extractDeleteCommands($definition, $operation->getPayload(), $context, $commandQueue);
+
+                continue;
+            }
+
+            $parameters = new WriteParameterBag($definition, $context, '', $commandQueue);
+            foreach ($operation->getPayload() as $index => $row) {
+                $parameters->setPath('/' . $index);
+                $context->resetPaths();
+
+                if ($operation->getAction() === SyncOperation::ACTION_UPSERT) {
+                    $this->commandExtractor->extract($row, $parameters);
+                }
+            }
+        }
+
+        $context->getExceptions()->tryToThrow();
+
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $context);
+
+        return $this->getWriteResults($commandQueue);
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
@@ -101,41 +143,7 @@ class EntityWriter implements EntityWriterInterface
 
         $commandQueue = new WriteCommandQueue();
 
-        $resolved = $this->resolvePrimaryKeys($ids, $definition, $writeContext);
-
-        if (!$definition instanceof MappingEntityDefinition) {
-            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
-
-            if (!empty($restrictions)) {
-                $restrictions = array_map(function ($restriction) {
-                    return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
-                }, $restrictions);
-
-                throw new RestrictDeleteViolationException($definition, $restrictions);
-            }
-        }
-
-        $skipped = [];
-        foreach ($resolved as $primaryKey) {
-            $mappedBytes = array_map(function ($id) {
-                return Uuid::fromHexToBytes($id);
-            }, $primaryKey);
-
-            $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
-
-            if (!$existence->exists()) {
-                $skipped[$definition->getEntityName()][] = new EntityWriteResult($primaryKey, $primaryKey, $definition->getEntityName(), EntityWriteResult::OPERATION_DELETE, $existence);
-
-                continue;
-            }
-
-            $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
-        }
-
-        // we had some logic in the command layer (pre-validate, post-validate, indexer which listens to this events)
-        // to trigger this logic for cascade deletes or set nulls, we add a fake commands for the affected rows
-        $this->addDeleteCascadeCommands($commandQueue, $definition, $writeContext, $resolved);
-        $this->addSetNullOnDeletesCommands($commandQueue, $definition, $writeContext, $resolved);
+        $skipped = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
@@ -261,7 +269,7 @@ class EntityWriter implements EntityWriterInterface
         foreach ($rawData as $index => $row) {
             $parameters->setPath('/' . $index);
             $writeContext->resetPaths();
-            $this->writeResource->extract($row, $parameters);
+            $this->commandExtractor->extract($row, $parameters);
         }
 
         if ($ensure) {
@@ -503,5 +511,53 @@ class EntityWriter implements EntityWriterInterface
         }
 
         return ['deleted' => $deleted, 'updated' => $updated];
+    }
+
+    private function extractDeleteCommands(EntityDefinition $definition, array $ids, WriteContext $writeContext, WriteCommandQueue $commandQueue): array
+    {
+        $resolved = $this->resolvePrimaryKeys($ids, $definition, $writeContext);
+
+        if (!$definition instanceof MappingEntityDefinition) {
+            $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
+
+            if (!empty($restrictions)) {
+                $restrictions = array_map(function ($restriction) {
+                    return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
+                }, $restrictions);
+
+                throw new RestrictDeleteViolationException($definition, $restrictions);
+            }
+        }
+
+        $skipped = [];
+        foreach ($resolved as $primaryKey) {
+            $mappedBytes = array_map(function ($id) {
+                return Uuid::fromHexToBytes($id);
+            }, $primaryKey);
+
+            $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
+
+            if (!$existence->exists()) {
+                $skipped[$definition->getEntityName()][] = new EntityWriteResult(
+                    $primaryKey,
+                    $primaryKey,
+                    $definition->getEntityName(),
+                    EntityWriteResult::OPERATION_DELETE,
+                    $existence
+                );
+
+                continue;
+            }
+
+            $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
+        }
+
+        // we had some logic in the command layer (pre-validate, post-validate, indexer which listens to this events)
+        // to trigger this logic for cascade deletes or set nulls, we add a fake commands for the affected rows
+        $this->addDeleteCascadeCommands($commandQueue, $definition, $writeContext, $resolved);
+
+        $this->addSetNullOnDeletesCommands($commandQueue, $definition, $writeContext, $resolved);
+
+        return $skipped;
     }
 }

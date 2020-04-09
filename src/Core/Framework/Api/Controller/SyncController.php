@@ -53,15 +53,15 @@ class SyncController extends AbstractController
     {
         // depending on the request header setting, we either
         // fail immediately or add any unexpected errors to our exception list
-        /** @var bool $failOnError */
-        $failOnError = filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN);
-
         $useMessageQueue = $request->headers->has('message-queue-indexing');
         if ($useMessageQueue) {
             $context->addExtension(EntityIndexerRegistry::USE_INDEXING_QUEUE, new ArrayEntity());
         }
 
-        $behavior = new SyncBehavior($failOnError);
+        $behavior = new SyncBehavior(
+            filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN),
+            filter_var($request->headers->get('single-operation', 'false'), FILTER_VALIDATE_BOOLEAN)
+        );
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 
@@ -74,7 +74,7 @@ class SyncController extends AbstractController
             return $this->syncService->sync($operations, $context, $behavior);
         });
 
-        if ($failOnError === true && !$result->isSuccess()) {
+        if ($behavior->failOnError() && !$result->isSuccess()) {
             return new JsonResponse($result, 400);
         }
 

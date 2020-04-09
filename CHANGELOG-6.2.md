@@ -426,6 +426,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * `bin/setup` asks if you want to enable blue/green deployment
     * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
 
+    * Marked `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface` as internal
+    * Added `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface::sync` function
+    * Added `single-operation` header in `_action/sync` endpoint
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

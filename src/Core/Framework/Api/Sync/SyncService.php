@@ -12,8 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SyncService implements SyncServiceInterface
 {
@@ -32,23 +35,48 @@ class SyncService implements SyncServiceInterface
      */
     private $apiVersionConverter;
 
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Connection $connection,
-        ApiVersionConverter $apiVersionConverter
+        ApiVersionConverter $apiVersionConverter,
+        EntityWriterInterface $writer,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->connection = $connection;
         $this->apiVersionConverter = $apiVersionConverter;
+        $this->writer = $writer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * @param SyncOperation[] $operations
-     *
-     * @throws \Doctrine\DBAL\ConnectionException
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
+        // allows to execute all writes inside a single transaction and a single entity write event
+        if ($behavior->useSingleOperation()) {
+            $result = $this->writer->sync($operations, WriteContext::createFromContext($context));
+
+            $event = EntityWrittenContainerEvent::createWithWrittenEvents($result, $context, []);
+
+            $this->eventDispatcher->dispatch($event);
+
+            $ids = $this->getWrittenEntities($event);
+
+            return new SyncResult($ids, !empty($ids));
+        }
+
         if ($behavior->failOnError()) {
             $this->connection->beginTransaction();
         }

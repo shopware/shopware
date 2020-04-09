@@ -424,6 +424,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
     * Added `BLUE_GREEN_DEPLOYMENT` environment variable
     * `bin/setup` asks if you want to enable blue/green deployment
+    * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
 
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations

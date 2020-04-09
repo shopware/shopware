@@ -42,7 +42,6 @@
             <argument type="service" id="theme_sales_channel.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
-            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleHandler">

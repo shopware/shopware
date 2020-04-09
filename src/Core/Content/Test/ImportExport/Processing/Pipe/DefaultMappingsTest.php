@@ -74,7 +74,7 @@ class DefaultMappingsTest extends TestCase
     {
         $product = [
             'id' => Uuid::randomHex(),
-            'parentVersionId' => null,
+            'parentId' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'active' => false,
             'stock' => 10,
@@ -133,6 +133,7 @@ class DefaultMappingsTest extends TestCase
         $mappedProduct = iterator_to_array($mappingPipe->in($config, $product));
 
         static::assertSame($product['id'], $mappedProduct['id']);
+        static::assertSame($product['parentId'], $mappedProduct['parent_id']);
 
         static::assertSame($product['productNumber'], $mappedProduct['product_number']);
         static::assertSame($product['active'], $mappedProduct['active']);
@@ -161,6 +162,7 @@ class DefaultMappingsTest extends TestCase
         $unmappedProduct = iterator_to_array($mappingPipe->out($config, $mappedProduct));
 
         static::assertSame($product['id'], $unmappedProduct['id']);
+        static::assertSame($product['parentId'], $unmappedProduct['parentId']);
 
         static::assertSame($product['productNumber'], $unmappedProduct['productNumber']);
         static::assertSame($product['active'], $unmappedProduct['active']);

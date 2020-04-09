@@ -258,7 +258,7 @@ EOF;
 
                 break;
             case $field instanceof BoolField:
-                $type = 'boolean';
+                $type = 'bool';
 
                 break;
             case $field instanceof DateTimeField:

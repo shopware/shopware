@@ -206,14 +206,14 @@ class EntityRepository implements EntityRepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent
+    public function clone(string $id, Context $context, ?string $newId = null, array $overwrites = []): EntityWrittenContainerEvent
     {
         $newId = $newId ?? Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
         }
 
-        $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context));
+        $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context), true, $overwrites);
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch($event);
 

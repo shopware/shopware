@@ -362,9 +362,9 @@ class VersionManager
         }
     }
 
-    public function clone(EntityDefinition $definition, string $id, string $newId, string $versionId, WriteContext $context, bool $cloneChildren = true): array
+    public function clone(EntityDefinition $definition, string $id, string $newId, string $versionId, WriteContext $context, bool $cloneChildren = true, array $overwrites = []): array
     {
-        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $cloneChildren, true);
+        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $cloneChildren, true, $overwrites);
     }
 
     private function cloneEntity(
@@ -374,7 +374,8 @@ class VersionManager
         string $versionId,
         WriteContext $context,
         bool $cloneChildren = true,
-        bool $writeAuditLog = false
+        bool $writeAuditLog = false,
+        array $overwrites = []
     ): array {
         $criteria = new Criteria([$id]);
         $this->addCloneAssociations($definition, $criteria, $cloneChildren);
@@ -391,6 +392,8 @@ class VersionManager
 
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
+
+        $data = array_replace_recursive($data, $overwrites);
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;

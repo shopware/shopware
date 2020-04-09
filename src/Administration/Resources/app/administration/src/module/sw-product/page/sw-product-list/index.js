@@ -211,6 +211,12 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'right'
             }];
+        },
+
+        onDuplicate(referenceProduct) {
+            this.numberRangeService.reserve('product').then((response) => {
+                this.productRepository.clone(referenceProduct.id, Shopware.Context.api, { productNumber: response.number });
+            });
         }
     }
 });

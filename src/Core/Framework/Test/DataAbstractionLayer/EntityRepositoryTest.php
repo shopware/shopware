@@ -16,6 +16,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -733,6 +734,51 @@ class EntityRepositoryTest extends TestCase
             static::assertNotContains($condition['parent_id'], $ids);
             static::assertNotContains($condition['parent_id'], $parentIds);
         }
+    }
+
+    public function testCloneWithOverrides(): void
+    {
+        $id = Uuid::randomHex();
+        $productNumber = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => $productNumber,
+            'stock' => 1,
+            'name' => 'Test',
+            'tax' => ['name' => 'test', 'taxRate' => 5],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 5, 'linked' => false]],
+        ];
+
+        $repository = $this->getContainer()->get('product.repository');
+        $context = Context::createDefaultContext();
+
+        $repository->create([$data], $context);
+        $newId = Uuid::randomHex();
+
+        $result = $repository->clone($id, $context, $newId, ['productNumber' => 'abc']);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+        static::assertCount(1, $written->getIds());
+        static::assertContains($newId, $written->getIds());
+
+        $entities = $repository->search(new Criteria([$id, $newId]), $context);
+
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($newId));
+
+        /** @var ProductEntity $old */
+        $old = $entities->get($id);
+        /** @var ProductEntity $new */
+        $new = $entities->get($newId);
+
+        static::assertInstanceOf(ProductEntity::class, $old);
+        static::assertInstanceOf(ProductEntity::class, $new);
+
+        static::assertSame($old->getName(), $new->getName());
+        static::assertNotSame($old->getProductNumber(), $new->getProductNumber());
     }
 
     public function testReadPaginatedOneToManyChildrenAssociation(): void

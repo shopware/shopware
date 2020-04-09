@@ -64,6 +64,8 @@ Component.register('sw-product-detail', {
         },
 
         productTitle() {
+            // ToDo: $tc is not availadble here
+
             // when product is variant
             if (this.isChild && this.product) {
                 return this.getInheritTitle();

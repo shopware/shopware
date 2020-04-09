@@ -112,15 +112,16 @@ export default class Repository {
      *
      * @param {String} entityId
      * @param {Object} context
+     * @param {Object} overwrites
      * @returns {Promise<T>}
      */
-    clone(entityId, context) {
+    clone(entityId, context, overwrites) {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
         return this.httpClient
-            .post(`/_action/clone${this.route}/${entityId}`, null, {
+            .post(`/_action/clone${this.route}/${entityId}`, { overwrites }, {
                 headers: this.buildHeaders(context),
                 version: this.options.version
             })

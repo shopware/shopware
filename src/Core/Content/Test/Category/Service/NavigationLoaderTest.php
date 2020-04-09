@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Category\Service;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -77,7 +76,6 @@ class NavigationLoaderTest extends TestCase
     public function testTreeBuilderWithSimpleTree(): void
     {
         $loader = new NavigationLoader(
-            $this->createMock(Connection::class),
             $this->createMock(SalesChannelRepository::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(NavigationRoute::class)

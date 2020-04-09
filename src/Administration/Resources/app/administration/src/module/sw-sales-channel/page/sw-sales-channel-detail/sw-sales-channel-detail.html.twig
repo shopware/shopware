@@ -80,15 +80,6 @@
                                 {{ $tc('sw-sales-channel.detail.tabProducts') }}
                             </sw-tabs-item>
                         {% endblock %}
-
-                        {% block sw_sales_channel_detail_content_tab_template %}
-                            <sw-tabs-item
-                                v-if="isGoogleShopping"
-                                :title="$tc('sw-sales-channel.detail.tabProductComparison')"
-                                :route="{ name: 'sw.sales.channel.detail.template', params: { id: $route.params.id } }">
-                                {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
-                            </sw-tabs-item>
-                        {% endblock %}
                     </sw-tabs>
                 {% endblock %}
 

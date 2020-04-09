@@ -3,7 +3,7 @@
 
 The style sheets are written in [SASS](https://sass-lang.com/). The organization is inspired by the [7-1 pattern](https://sass-guidelin.es/#architecture) structure. 
 
-```bash
+```
 <platform/src/Storefront/Resources/app/storefront/src/scss>
 └── abstract
 └── base
@@ -15,7 +15,24 @@ The style sheets are written in [SASS](https://sass-lang.com/). The organization
 └── base.scss
 ```
 
-By default, Shopware 6 looks inside `<plugin root>/src/Resources/app/storefront/src/scss` folder of your plugin to load a `base.scss` file.
+Shopware 6 looks inside your `theme.json` file to find a "style" array which contains all SCSS files which should be loaded by your theme.
+By default you get the Shopware Storefront SCSS plus an additional entry point for your own SCSS. You can also extend this array with more SCSS files.
+
+```json
+{
+  "name": "Just another theme",
+
+  ...
+
+  "style": [
+    "@Storefront",
+    "app/storefront/src/scss/base.scss" <-- Theme SCSS entry 
+  ],
+
+  ...
+
+}
+```
 
 To try it out, open up the `base.scss` file in the folder mentioned above.
 

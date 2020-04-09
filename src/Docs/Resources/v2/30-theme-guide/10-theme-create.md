@@ -3,13 +3,13 @@
 
 ## Difference between "themes" and "regular" plugins
 
-There are basically two ways to change the appearance of the storefront. You can have a "regular" plugins
+There are basically two ways to change the appearance of the storefront. You can have "regular" plugins
 which main purpose is to add new functions and change the behavior of the shop. 
-These Plugins might also contain scss/css and javascript to be able to embed their new content into
-the storefront correctly.
-                                                                         
-A shop manager can install your plugin over the plugin manager and your scripts and styles will 
-automatically be embedded. The theme which is currently selected by the shop manager will be
+These Plugins might also contain scss/css and javascript to be able to embed their new features into
+the storefront.
+
+A shop owner can install your plugin over the plugin manager and your scripts and styles will 
+automatically be embedded. The theme which is currently selected by the shop owner will be
 recompiled with your custom styles.
 
 The second way to change the appearance of the storefront is to create a theme. The main purpose of themes
@@ -17,13 +17,13 @@ is to change the appearance of the storefront and they behave a bit different co
 
 Technically a theme is also a plugin but it will not only appear in the plugin manager of the administration,
 it will also be visible in the theme manger once activated in the plugin manager.
-To distinguish a theme plugin from a "regular" plugin you need to implement the Interface _Shopware\Storefront\Framework\ThemePlugin_ 
+To distinguish a theme plugin from a "regular" plugin you need to implement the Interface `Shopware\Storefront\Framework\ThemeInterface`
 A theme can inherit from other themes, overwrite the default configuration (colors, fonts, media) and
 add new configuration options.
 
 ## Creating a new theme
 
-Open your console terminal and run any of these commands to create a new theme.
+Open your terminal and run any of these commands to create a new theme.
 
 ```bash
 # run this inside the project directory to create a new theme
@@ -39,14 +39,14 @@ Creating theme structure under .../development/custom/plugins/MyTheme
 ```bash
 # run this to let shopware know about your plugin
 $ bin/console plugin:refresh
-	
+
 # you should get an output like this
-	
+
 [OK] Plugin list refreshed
-	
+
 Shopware Plugin Service
 =======================
-	
+
 --------------------------- ------------------------- ------------- ----------------- -------------------- ----------- -------- ------------- 
 Plugin                      Label                     Version       Upgrade version   Author               Installed   Active   Upgradeable  
 --------------------------- ------------------------- ------------- ----------------- -------------------- ----------- -------- ------------- 
@@ -59,9 +59,9 @@ Now you can install your theme and activate it with die following command.
 ```bash
 # run this to install and activate your plugin
 $ bin/console plugin:install --activate MyTheme
-	
+
 # you should get an output like this
-	
+
 Shopware Plugin Lifecycle Service
 =================================
 
@@ -101,9 +101,9 @@ Now your theme is fully installed and you can start your customization.
 
 ## Directory structure of a theme
 
-In the following you can see the basic file structure of the generated theme.
+In the file tree below you can see the basic file structure of the generated theme:
 
-```bash
+```
 # move into your theme folder
 $ cd custom/plugins/MyTheme
 	

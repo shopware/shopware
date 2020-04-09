@@ -75,6 +75,14 @@ export default function createConditionService() {
             operators.lowerThan,
             operators.lowerThanEquals,
             operators.notEquals
+        ],
+        date: [
+            operators.equals,
+            operators.greaterThan,
+            operators.greaterThanEquals,
+            operators.lowerThan,
+            operators.lowerThanEquals,
+            operators.notEquals
         ]
     };
 

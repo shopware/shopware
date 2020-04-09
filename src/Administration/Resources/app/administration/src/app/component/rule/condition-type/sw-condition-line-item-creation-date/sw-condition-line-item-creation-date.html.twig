@@ -1,15 +1,20 @@
 {% block sw_condition_value_content %}
-    <div class="sw-condition-line-item-creation-date">
+    <div class="sw-condition-line-item-creation-date sw-condition__condition-value">
+
+        {% block sw_condition_line_item_creation_date_operator %}
+            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+        {% endblock %}
+
         {% block sw_condition_line_item_creation_date %}
-            <sw-arrow-field primary="#F9FAFB">
-                <sw-datepicker
-                    size="medium"
-                    dateType="date"
-                    required
-                    :config="datepickerConfig"
-                    v-model="lineItemCreationDate">
-                </sw-datepicker>
-            </sw-arrow-field>
+            <sw-datepicker
+                size="medium"
+                dateType="date"
+                required
+                :config="datepickerConfig"
+                v-model="lineItemCreationDate">
+            </sw-datepicker>
         {% endblock %}
     </div>
 {% endblock %}
+
+

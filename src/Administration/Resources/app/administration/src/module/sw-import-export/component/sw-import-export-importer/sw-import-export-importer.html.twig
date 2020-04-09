@@ -33,44 +33,64 @@
             </sw-entity-single-select>
         {% endblock %}
 
+        <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
+            {% block sw_import_export_importer_profile_select_product_variants_switch %}
+                <sw-field
+                    type="switch"
+                    class="sw-import-export-importer__variants-switch-field"
+                    v-model="config.includeVariants"
+                    :label="$tc('sw-import-export.importer.importVariants')">
+                </sw-field>
+            {% endblock %}
+        </template>
+
         <template v-if="showProductVariantsInfo">
             {% block sw_import_export_importer_product_variants_warning %}
                 <sw-alert variant="warning" class="sw-import-export-importer__variants-warning">
                     {% block sw_import_export_importer_product_variants_warning_text %}
-                        {{  $tc('sw-import-export.importer.variantsWarning')  }}
-
-                        <a href="#"
-                           class="sw-import-export-importer__link"
-                           @click.prevent="setShowVariantsSettingsImportModal(true)">
-                            {{  $tc('sw-import-export.importer.directImportLabel')  }}
-                        </a>
+                        <p>
+                            <span v-html="$tc('sw-import-export.importer.variantsWarning')"></span>
+                        </p>
+                        <p>
+                            <a href="#"
+                               class="sw-import-export-importer__link"
+                               @click.prevent="setImportModalProfile('product_configurator_setting')">
+                                {{ $tc('sw-import-export.importer.directImportVariantsLabel') }}
+                            </a>
+                            <br>
+                            <a href="#"
+                               class="sw-import-export-importer__link"
+                               @click.prevent="setImportModalProfile('property_group_option')">
+                                {{ $tc('sw-import-export.importer.directImportPropertiesLabel') }}
+                            </a>
+                        </p>
                     {% endblock %}
                 </sw-alert>
             {% endblock %}
-
-            {% block sw_import_export_importer_product_variants_modal %}
-                <sw-modal v-if="showVariantsSettingsImportModal"
-                          @modal-close="setShowVariantsSettingsImportModal(false)"
-                          :title="$tc('sw-import-export.importer.importLabel')">
-                    {% block sw_import_export_importer_product_variants_modal_importer %}
-                        <sw-import-export-importer
-                            @import-finish="$emit('import-finish')"
-                            sourceEntity="product_configurator_setting">
-                        </sw-import-export-importer>
-                    {% endblock %}
-
-                    <template slot="modal-footer">
-                        {% block sw_import_export_importer_product_variants_modal_footer %}
-                            <sw-button
-                                size="small"
-                                @click="setShowVariantsSettingsImportModal(false)">
-                                {{ $tc('sw-import-export.importer.close') }}
-                            </sw-button>
-                        {% endblock %}
-                    </template>
-                </sw-modal>
-            {% endblock %}
         </template>
+
+        {% block sw_import_export_importer_modal %}
+            <sw-modal v-if="importModalProfile"
+                      @modal-close="setImportModalProfile(null)"
+                      :title="$tc('sw-import-export.importer.importLabel')">
+                {% block sw_import_export_importer_modal_exporter %}
+                    <sw-import-export-importer
+                        @import-finish="$emit('import-finish')"
+                        :sourceEntity="importModalProfile">
+                    </sw-import-export-importer>
+                {% endblock %}
+
+                <template slot="modal-footer">
+                    {% block sw_import_export_importer_modal_footer %}
+                        <sw-button
+                            size="small"
+                            @click="setImportModalProfile(null)">
+                            {{ $tc('sw-import-export.importer.close') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
 
         {% block sw_import_export_importer_progress %}
             <sw-import-export-progress

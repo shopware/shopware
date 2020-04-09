@@ -18,13 +18,6 @@ const repositoryMockFactory = () => {
                     config: []
                 },
                 {
-                    name: 'Product with variants',
-                    sourceEntity: 'product',
-                    config: {
-                        includeVariants: true
-                    }
-                },
-                {
                     name: 'Default configurator settings',
                     sourceEntity: 'product_configurator_setting',
                     config: []
@@ -72,6 +65,7 @@ describe('components/sw-import-export-exporter', () => {
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
                 'sw-loader': true,
                 'sw-icon': true,
+                'sw-field': true,
                 'sw-field-error': true,
                 'sw-import-export-progress': true,
                 'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
@@ -120,16 +114,38 @@ describe('components/sw-import-export-exporter', () => {
         expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBeFalsy();
     });
 
-    it('should show the warning when a product profile with variants is selected', async () => {
+    it('should not show the warning when a product profile should not export variants', async () => {
         wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        const defaultProduct = wrapper.find('.sw-select-option--1');
-        expect(defaultProduct.text()).toBe('Product with variants');
+        const defaultProduct = wrapper.find('.sw-select-option--0');
+        expect(defaultProduct.text()).toBe('Default product');
 
         defaultProduct.trigger('click');
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Product with variants');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+
+        const variantsWarning = wrapper.find('.sw-import-export-exporter__variants-warning');
+
+        expect(variantsWarning.exists()).toBeFalsy();
+    });
+
+    it('should show the warning when a product profile should also exprt variants', async () => {
+        wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const defaultProduct = wrapper.find('.sw-select-option--0');
+        expect(defaultProduct.text()).toBe('Default product');
+
+        defaultProduct.trigger('click');
+
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+
+        wrapper.setData({
+            config: {
+                includeVariants: true
+            }
+        });
 
         const variantsWarning = wrapper.find('.sw-import-export-exporter__variants-warning');
 
@@ -141,18 +157,33 @@ describe('components/sw-import-export-exporter', () => {
         wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select-option--1').trigger('click');
+        wrapper.find('.sw-select-option--0').trigger('click');
 
-        const variantsWarningLink = wrapper.find('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
-        expect(variantsWarningLink.exists()).toBeTruthy();
-        expect(variantsWarningLink.text()).toContain('sw-import-export.exporter.directExportLabel');
+        wrapper.setData({
+            config: {
+                includeVariants: true
+            }
+        });
+
+        const variantsWarningLink = wrapper.findAll('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
+        expect(variantsWarningLink.at(0).exists()).toBeTruthy();
+        expect(variantsWarningLink.at(0).text()).toContain('sw-import-export.exporter.directExportVariantsLabel');
+
+        expect(variantsWarningLink.at(1).exists()).toBeTruthy();
+        expect(variantsWarningLink.at(1).text()).toContain('sw-import-export.exporter.directExportPropertiesLabel');
     });
 
     it('should show a modal with an exporter', async () => {
         wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select-option--1').trigger('click');
+        wrapper.find('.sw-select-option--0').trigger('click');
+
+        wrapper.setData({
+            config: {
+                includeVariants: true
+            }
+        });
 
         const variantsWarningLink = wrapper.find('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
         variantsWarningLink.trigger('click');
@@ -166,7 +197,13 @@ describe('components/sw-import-export-exporter', () => {
         wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select-option--1').trigger('click');
+        wrapper.find('.sw-select-option--0').trigger('click');
+
+        wrapper.setData({
+            config: {
+                includeVariants: true
+            }
+        });
 
         const variantsWarningLink = wrapper.find('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
         variantsWarningLink.trigger('click');
@@ -186,7 +223,6 @@ describe('components/sw-import-export-exporter', () => {
         const resultNames = results.wrappers.map(result => result.text());
 
         expect(resultNames).toContain('Default product');
-        expect(resultNames).toContain('Product with variants');
         expect(resultNames).toContain('Default configurator settings');
         expect(resultNames).toContain('Default category');
         expect(resultNames).toContain('Default media');
@@ -202,7 +238,6 @@ describe('components/sw-import-export-exporter', () => {
         const resultNames = results.wrappers.map(result => result.text());
 
         expect(resultNames).not.toContain('Default product');
-        expect(resultNames).not.toContain('Product with variants');
         expect(resultNames).toContain('Default configurator settings');
         expect(resultNames).not.toContain('Default category');
         expect(resultNames).not.toContain('Default media');

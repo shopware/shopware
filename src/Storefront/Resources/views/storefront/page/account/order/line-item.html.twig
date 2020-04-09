@@ -14,9 +14,9 @@
 
 {% block page_checkout_item_unit_price %}
     {# display tax instead of unit price in confirm item #}
-    {% block page_checkout_item_tax_price %}
+    {% block page_account_order_line_item_tax_price %}
         <div class="col-2 cart-item-tax-price">
-            {% block page_checkout_item_tax_price_label %}
+            {% block page_account_order_line_item_price_label %}
                 <div class="cart-item-tax-price-label">
                     {% if context.taxState == "gross" %}
                         {{ "checkout.cartHeaderTaxIncludeVat"|trans|sw_sanitize }}
@@ -26,7 +26,7 @@
                 </div>
             {% endblock %}
 
-            {% block page_checkout_item_tax_price_inner %}
+            {% block page_account_order_line_item_tax_price_inner %}
                 {% for calculatedTax in lineItem.price.calculatedTaxes %}
                     {{ calculatedTax.tax|currency }}
                     <br>

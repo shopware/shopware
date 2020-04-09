@@ -96,12 +96,15 @@
             <argument type="service" id="promotion.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderStateChangeRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <!-- events -->

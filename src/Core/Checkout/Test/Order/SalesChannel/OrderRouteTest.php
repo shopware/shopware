@@ -205,14 +205,32 @@ class OrderRouteTest extends TestCase
         static::assertTrue($response['success']);
     }
 
+    public function testSetPaymentOrderWrongPayment(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v1/order/payment',
+                [
+                    'orderId' => $this->orderId,
+                    'paymentMethodId' => Uuid::randomHex(),
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('errors', $response);
+    }
+
     public function testCancelOrder(): void
     {
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/order/cancel',
+                '/store-api/v1/order/state/transition',
                 [
                     'orderId' => $this->orderId,
+                    'transition' => 'cancel',
                 ]
             );
 

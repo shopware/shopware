@@ -4,12 +4,10 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
@@ -17,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -136,7 +133,8 @@ class OrderService
         string $orderId,
         string $transition,
         ParameterBag $data,
-        Context $context
+        Context $context,
+        ?string $customerId = null
     ): StateMachineStateEntity {
         $mediaIds = $data->get('mediaIds', []);
         $documentIds = $data->get('documentIds', []);
@@ -156,7 +154,7 @@ class OrderService
         $fromPlace = $stateMachineStates->get('fromPlace');
 
         if ($toPlace) {
-            $orderCriteria = $this->getOrderCriteria($orderId);
+            $orderCriteria = $this->getOrderCriteria($orderId, $customerId);
             /** @var OrderEntity|null $order */
             $order = $this->orderRepository->search($orderCriteria, $context)->first();
             if ($order === null) {
@@ -294,59 +292,6 @@ class OrderService
     }
 
     /**
-     * @internal Should not be called from outside the core
-     */
-    public function setPaymentMethod(string $paymentMethodId, string $orderId, SalesChannelContext $salesChannelContext): void
-    {
-        $initialState = $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $salesChannelContext->getContext());
-
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
-
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
-
-        $salesChannelContext->getContext()->scope(
-            Context::SYSTEM_SCOPE,
-            function () use ($order, $initialState, $orderId, $paymentMethodId, $salesChannelContext): void {
-                if ($order->getTransactions() !== null && $order->getTransactions()->count() >= 1) {
-                    foreach ($order->getTransactions() as $transaction) {
-                        if ($transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED) {
-                            $this->orderTransactionStateTransition(
-                                $transaction->getId(),
-                                'cancel',
-                                new ParameterBag(),
-                                $salesChannelContext->getContext()
-                            );
-                        }
-                    }
-                }
-                $transactionId = Uuid::randomHex();
-                $transactionAmount = new CalculatedPrice(
-                    $order->getPrice()->getTotalPrice(),
-                    $order->getPrice()->getTotalPrice(),
-                    $order->getPrice()->getCalculatedTaxes(),
-                    $order->getPrice()->getTaxRules()
-                );
-
-                $this->orderRepository->update([
-                    [
-                        'id' => $orderId,
-                        'transactions' => [
-                            [
-                                'id' => $transactionId,
-                                'paymentMethodId' => $paymentMethodId,
-                                'stateId' => $initialState->getId(),
-                                'amount' => $transactionAmount,
-                            ],
-                        ],
-                    ],
-                ], $salesChannelContext->getContext());
-            }
-        );
-    }
-
-    /**
      * @throws ConstraintViolationException
      */
     private function validateOrderData(ParameterBag $data, SalesChannelContext $context): void
@@ -373,12 +318,18 @@ class OrderService
         return $validation;
     }
 
-    private function getOrderCriteria(?string $orderId = null): Criteria
+    private function getOrderCriteria(?string $orderId = null, ?string $customerId = null): Criteria
     {
         if ($orderId) {
             $orderCriteria = new Criteria([$orderId]);
         } else {
             $orderCriteria = new Criteria([]);
+        }
+
+        if ($customerId !== null) {
+            $orderCriteria->addFilter(
+                new EqualsFilter('order.orderCustomer.customerId', $customerId)
+            );
         }
 
         $orderCriteria->addAssociation('orderCustomer.salutation');
@@ -484,17 +435,12 @@ class OrderService
             ]
         );
 
-        $documents = [];
-        foreach ($documentIds as $documentId) {
-            $documents[] = $this->documentRepository->update(
-                [
-                    [
-                        'id' => $documentId,
-                        'sent' => true,
-                    ],
-                ],
-                $context
-            );
+        $writes = array_map(static function ($id) {
+            return ['id' => $id, 'sent' => true];
+        }, $documentIds);
+
+        if (!empty($writes)) {
+            $this->documentRepository->update($writes, $context);
         }
     }
 

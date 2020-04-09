@@ -1,7 +1,7 @@
 [titleEn]: <>(SCSS and Styling)
 [hash]: <>(article:theme_scss)
 
-The style sheets are written in [SASS](https://sass-lang.com/). The organization is inspired by the [7-1 pattern](https://sass-guidelin.es/#architecture) structure. 
+The stylesheets are written in [SASS](https://sass-lang.com/). The folder structure is inspired by the [7-1 pattern](https://sass-guidelin.es/#architecture) structure. 
 
 ```
 <platform/src/Storefront/Resources/app/storefront/src/scss>
@@ -34,9 +34,9 @@ By default you get the Shopware Storefront SCSS plus an additional entry point f
 }
 ```
 
-To try it out, open up the `base.scss` file in the folder mentioned above.
+To try it out, open up the `base.scss` file from your theme.
 
-Inside of the `.scss` file, add some styles like this.
+Inside of the `.scss` file, add some styles like this:
 
 ```scss
 // src/Resources/app/storefront/src/scss/base.scss
@@ -45,7 +45,7 @@ body {
 }
 ```
 
-Too see if it's working you have to re-build the storefront. Use the following command to do that.
+To see if it's working you have to re-build the storefront. Use the following command to do that.
 
 ```bash
 # run this to re-compile the current storefront theme
@@ -61,7 +61,7 @@ In this example, the background of the `body` will be changed.
 
 In case you want to use the same color in several places, but want to define it just one time you can use variables for this.
 
-Create a `abstract/variables.scss` file inside your styles folder and define your background color variable.
+Create a `abstract/variables.scss` file inside your "scss" folder and define your background color variable.
 ```scss
 // in variables.scss
 $sw-storefront-assets-color-background: blue;

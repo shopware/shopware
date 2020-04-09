@@ -552,7 +552,7 @@
         "lineItemCreationDateRule": "Line item with creation date",
         "lineItemReleaseDateRule": "Line item with release date",
         "lineItemClearanceSale": "Line item with clearance sale",
-        "lineItemTopsellerRule": "Line item topseller",
+        "lineItemPromotedRule": "Line item is promoted",
         "lineItemInCategoryRule": "Line item in category",
         "lineItemTaxationRule": "Line item with tax rate",
         "lineItemDimensionWidthRule": "Line item width",

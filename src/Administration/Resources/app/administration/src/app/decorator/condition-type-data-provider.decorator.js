@@ -201,9 +201,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemClearanceSale',
         scopes: ['lineItem']
     });
-    ruleConditionService.addCondition('cartLineItemTopseller', {
-        component: 'sw-condition-line-item-topseller',
-        label: 'global.sw-condition.condition.lineItemTopsellerRule',
+    ruleConditionService.addCondition('cartLineItemPromoted', {
+        component: 'sw-condition-line-item-promoted',
+        label: 'global.sw-condition.condition.lineItemPromotedRule',
         scopes: ['lineItem']
     });
     ruleConditionService.addCondition('cartLineItemInCategory', {

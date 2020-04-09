@@ -318,7 +318,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule` to check the creation date of a product in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule` to check the release date of a product in the cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule` to check if a clearance sale product is in cart
-    * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemTopsellerRule` to check if a top seller product is in cart
+    * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule` to check if a promoted product is in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule` to check product categories in cart 
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule` to check specific taxation in cart 
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule` to check the width of a product in cart

@@ -18,7 +18,8 @@
                 {% block sw_media_quickinfo_usage_item %}
                     <router-link v-for="usage in getUsages"
                                  :to="{ name: usage.link.name, params: { id: usage.link.id } }"
-                                 :key="usage.link.id">
+                                 :key="usage.link.id"
+                                 :target="routerLinkTarget">
                         <li class="sw-media-quickinfo-usage__item"
                             v-tooltip="{
                                 showDelay: 300,

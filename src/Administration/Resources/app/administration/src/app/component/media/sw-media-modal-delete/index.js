@@ -1,4 +1,5 @@
 import template from './sw-media-modal-delete.html.twig';
+import './sw-media-modal-delete.scss';
 
 const { Component, Context, Mixin, Filter } = Shopware;
 
@@ -96,6 +97,17 @@ Component.register('sw-media-modal-delete', {
                     }
                 )
             };
+        },
+
+        mediaQuickInfo() {
+            const usedMediaItem = this.mediaItems.length === 1 && this._checkInUsage(this.mediaItems[0]);
+            return usedMediaItem ? this.mediaItems[0] : null;
+        },
+
+        mediaInUsages() {
+            if (this.mediaItems.length <= 1) return [];
+
+            return this.mediaItems.filter(mediaItem => this._checkInUsage(mediaItem));
         }
     },
 
@@ -108,6 +120,7 @@ Component.register('sw-media-modal-delete', {
             this.mediaItems = this.itemsToDelete.filter((item) => {
                 return item.getEntityName() === 'media';
             });
+
             this.folders = this.itemsToDelete.filter((item) => {
                 return item.getEntityName() === 'media_folder';
             });
@@ -221,6 +234,26 @@ Component.register('sw-media-modal-delete', {
             if (successAmount + failureAmount < totalAmount) {
                 this.notificationId = newNotificationId;
             }
+        },
+
+        _checkInUsage(mediaItem) {
+            if (mediaItem.avatarUser) {
+                return true;
+            }
+
+            const mediaAssociations = [
+                'categories',
+                'productMedia',
+                'productManufacturers',
+                'mailTemplateMedia',
+                'documentBaseConfigs',
+                'paymentMethods',
+                'shippingMethods'
+            ];
+
+            return mediaAssociations.some((association) => {
+                return mediaItem[association].length > 0;
+            });
         }
     }
 });

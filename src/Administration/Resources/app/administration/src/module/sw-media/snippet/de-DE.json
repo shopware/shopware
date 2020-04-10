@@ -51,6 +51,10 @@
         "tooltipFoundInCategories": "Gefunden in Kategorien",
         "tooltipFoundInManufacturers": "Gefunden in Herstellern",
         "tooltipFoundInMailTemplate": "Gefunden in E-Mail-Vorlagen",
+        "tooltipFoundInDocument": "Gefunden in Document",
+        "tooltipFoundInUser": "Gefunden in User",
+        "tooltipFoundInPayment": "Gefunden in Zahlungart",
+        "tooltipFoundShipping": "Gefunden in Versandart",
         "titleMediaNotUsed": "Medium nicht verwendet",
         "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
       }

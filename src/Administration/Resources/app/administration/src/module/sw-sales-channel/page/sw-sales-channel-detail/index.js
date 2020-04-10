@@ -1,8 +1,9 @@
 import template from './sw-sales-channel-detail.html.twig';
 import swSalesChannelState from '../../state/salesChannel.store';
 
-const { Component, Mixin, Context, Defaults, Utils, State } = Shopware;
+const { Component, Mixin, Context, Defaults, State } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-detail', {
     template,
@@ -72,11 +73,13 @@ Component.register('sw-sales-channel-detail', {
                 return this.salesChannel.productExports.first();
             }
 
-            this.productComparison.newProductExport.encoding = 'UTF-8';
-            this.productComparison.newProductExport.fileFormat = 'xml';
-            this.productComparison.newProductExport.fileName = Utils.createId();
-            this.productComparison.newProductExport.interval = 0;
-            this.productComparison.newProductExport.generateByCronjob = false;
+            const templatesGoogleProductSearchDe = this.productComparison.templates['google-product-search-de'];
+
+            Object.entries(templatesGoogleProductSearchDe).forEach(([key, value]) => {
+                this.productComparison.newProductExport[key] = value;
+            });
+
+            this.productComparison.newProductExport.fileName = `${this.salesChannel.id}.xml`;
             this.productComparison.newProductExport.accessKey = this.salesChannel.accessKey;
 
             return this.productComparison.newProductExport;
@@ -131,7 +134,11 @@ Component.register('sw-sales-channel-detail', {
                 message: `${systemKey} + S`,
                 appearance: 'light'
             };
-        }
+        },
+
+        ...mapGetters('swSalesChannel', [
+            'needToCompleteTheSetup'
+        ])
     },
 
     beforeCreate() {
@@ -159,6 +166,10 @@ Component.register('sw-sales-channel-detail', {
         },
 
         beforeDestroyComponent() {
+            if (this.$route.name.includes('sw.sales.channel')) {
+                return;
+            }
+
             State.unregisterModule('swSalesChannel');
         },
 

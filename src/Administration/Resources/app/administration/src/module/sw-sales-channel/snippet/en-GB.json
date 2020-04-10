@@ -18,6 +18,8 @@
       "messageSaveSuccess": "Sales Channel \"{name}\" has been saved.",
       "titleSaveError": "Error",
       "titleActivateError": "Activation error",
+      "titleFetchError": "Error",
+      "messageFetchMerchantError": "An error occurred while fetching the requested merchant data.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
@@ -225,8 +227,10 @@
         }
       },
       "googleShoppingGeneral": {
-        "title": "Select a storefront for the checkout process",
-        "description": "Sales Channels that don’t have a storefront require another linked storefront, which will be used to complete the checkout process."
+        "title": "Assign a storefront designated to performing the checkout process.",
+        "description": "All Sales Channels require an associated storefront to complete the checkout process.",
+        "titleSecond": "Select products to synchronise",
+        "descriptionSecond": "This dynamic product group is used to synchronise products with Google."
       },
       "googleShoppingAccountConnect": {
         "title": "Connect your Google Account to use Google Programs",
@@ -242,7 +246,18 @@
         "textGroupMerchant": "Merchant Center Account:",
         "titleWebsite": "Your website is associated with your Google Merchant Center account. It must be claimed to run Shopping ads.",
         "textGroupWebsite": "Website:"
-      }
+      },
+      "textConnected": "Active",
+      "textNotConnected": "Not connected",
+      "textClaimed": "Claimed",
+      "textNotclaimed": "Not claimed",
+      "textNoAccountConnected": "No account connected",
+      "textNoWebsiteClaimed": "No website claimed",
+      "textCompleteSetupBefore": "You need to",
+      "textCompleteSetup": "complete the setup",
+      "textCompleteSetupAfter": "of your Google Account to synchronize products.",
+      "textIssuesBefore": "Your account has been suspended for",
+      "textIssuesAfter": "You must fix this issue in order for your products to appear on Google."
     },
     "modalGooglePrograms": {
       "title": "Connect Google Account",

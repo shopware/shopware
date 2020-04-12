@@ -285,13 +285,20 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug where the pages content could not be overridden because `sw_settings_user_detail_content` existed twice
     * Fixed a bug in `sw-profile-index` that caused media requests to fail
     * Added new component `sw-text-preview` to display an expandable preview of a text. It will show a "Read more" button if the text has a certain length. On click a modal shows the whole text.
-
+    * Fixed a bug in `sw-description-list`, added `display: grid` CSS property to the component and changed default of `grid` property to `1fr` to ensure usages of this component have the same behaviour
+    * Added `sw-import-export-activity-detail` component
+    * Added new condition-type `sw-condition-line-item-custom-field`
+        * Added new method `getOperatorSetByComponent` in `rule-condition.service.js`
+        * Added new property `customFields` to `entityBlacklist` in `product-stream-condition.service.js`
+        * Added new condition `cartLineItemCustomField` in `condition-type-data-provider.decorator.js`
+    * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
+          
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`, use `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField` with `AllowHtml` flag instead
-    * Added `lenght`, `width`, `height` variables to `\Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation`  
+    * Added `length`, `width`, `height` variables to `\Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation`  
     * CartBehavior::isRecalculation is deprecated and will be removed in version 6.3
     * Please use context permissions instead:
         * Permissions can be configured in the SalesChannelContext.
@@ -319,18 +326,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule` to check the length of a product in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeigthRule` to check the weight of a product in cart
     * Added new `Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule` to check if a product with a specific list price is in cart
-        * Please use context permissions instead:
-            * Permissions can be configured in the SalesChannelContext.
-            * `CartBehavior` is created based on the permissions from `SalesChannelContext`, you can check the permissions at this class.
-            * Permissions exists:
-                 `ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES`
-                 `ProductCartProcessor::SKIP_PRODUCT_RECALCULATION`
-                 `DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION`
-                 `DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION`
-                 `PromotionCollector::SKIP_PROMOTION`
-            * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
-            * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_ORDER_PERMISSIONS`.
-            * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
     * Added hreflang support
     * Added new supported types for the plugin configuration
         * `colorpicker`
@@ -345,11 +340,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `trackingUrl` property to the `Shopware\Core\Checkout\Shipping\ShippingMethodEntity.php`
     * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
     * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
-    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`, use `\Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField` with `AllowHtml` flag instead
-    * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
-    * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `novelty` rule builder condition-type
-    * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
     * Added OrderTransactionStates `failed` and `in_progress`
     * Deprecated `OrderTransactionStateHandler::pay` use `OrderTransactionStateHandler::doPay` instead
     * Deprecated Action Constant `StateMachineTransitionActions::PAY` use `StateMachineTransitionActions::DO_PAY` instead
@@ -357,6 +348,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new route `_action/theme/{themeId}/structured-fields`
     * Added new `Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts` to provide the possibility to assign individual products to cross selling
     * Added new `\Shopware\Core\Framework\Plugin\BundleConfigGenerator` to generate webpack bundle config and moved the according logic from `\Shopware\Core\Framework\Plugin\BundleConfigDumper` to the new class
+    * Added methods `cancelOder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
+    * Added methods `cancelOrder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
+        
+
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
@@ -397,7 +392,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute` to subscribe to the newsletter with the new api route `/store-api/v1/newsletter/subscribe`
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute` to unsubscribe to the newsletter with the new api route `/store-api/v1/newsletter/unsubscribe`
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
-    * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to register a new customer with the new api route `/store-api/v1/account/register`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute` to confirm a double optin registration with the new api route `/store-api/v1/account/register-confirm`
     * Added `\Shopware\Core\Framework\Api\Converter\DefaultApiConverter` to handle deprecated fields from DAL in the api versions
@@ -432,9 +426,20 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
     * Added `customerComment` property to the `Shopware\Core\Checkout\Order\OrderEntity.php`
     
+    * Added `BLUE_GREEN_DEPLOYMENT` environment variable
+    * `bin/setup` asks if you want to enable blue/green deployment
+    * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
+
+    * Marked `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface` as internal
+    * Added `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface::sync` function
+    * Added `single-operation` header in `_action/sync` endpoint
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
+    * Added new `\Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to check available attributes in cart 
+
+* Storefront    
+    * Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json
         {
@@ -475,6 +480,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add babel polyfill for IE11
     * Added `rel="noopener"` to all `target="_blank"` links
     * Add polyfill for object fit for IE11
+    * All javascript plugin options can now be overwritten in Twig 
+    * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader`
+    * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage`
+    * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
 
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     
@@ -577,3 +586,47 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor
+    * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
+    * Add `rel="noopener"` to all `target="_blank"` links
+    * Deprecated `layout_header_minimal_switch` in `src/Storefront/Resources/views/storefront/layout/header/header-minimal.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_date` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_number` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_payment_method` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_shipping_method` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_overview_newest_order_table_header_actions` in `src/Storefront/Resources/views/storefront/page/account/index.html.twig`
+    * Deprecated `page_account_orders_table_header` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_date` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_number` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_payment_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_shipping_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_orders_table_header_actions` in `src/Storefront/Resources/views/storefront/page/account/order-history/index.html.twig`
+    * Deprecated `page_account_order_item_detail_action` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_form_action` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_csrf` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_redirect_input` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_lineitems_input` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_lineitem_input` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_detail_reorder_button` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-detail-list.html.twig`
+    * Deprecated `page_account_order_item_date` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_date_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_date_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_number` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_number_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_number_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_payment_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_payment_method_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_payment_method_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_shipping_method` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_shipping_method_label` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_shipping_method_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_actions` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_actions_value` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_account_order_item_actions_value_text` in `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_csrf` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_redirect` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_fields` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_form_submit` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`

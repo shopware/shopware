@@ -16,9 +16,27 @@
         "invalidRecords": "Fehlerhafte Einträge"
       },
       "contextMenu": {
+        "showLog": "Öffne Logeintrag",
         "downloadFile": "Datei herunterladen",
         "showProfile": "Profil anzeigen",
         "downloadInvalidFile": "Fehlerhafte Einträge herunterladen"
+      },
+      "detail": {
+        "modalTitle": "Log Informationen",
+        "labelClose": "Schließen",
+        "labelFilename": "Dateiname",
+        "labelType": "Typ",
+        "labelImportRecords": "Erfolgreich importierte Einträge",
+        "labelExportRecords": "Erfolgreich exportierte Einträge",
+        "labelFailedRecords": "Fehlgeschlagene Einträge",
+        "labelSize": "Dateigröße",
+        "labelUser": "Benutzer",
+        "labelDate": "Datum /  Zeit",
+        "labelState": "Status",
+        "exportLabel": "Export",
+        "importLabel": "Import",
+        "labelDownloadFile": "Datei herunterladen",
+        "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen"
       }
     },
     "profile": {
@@ -62,7 +80,7 @@
       "objectTypeFieldTooltipText": "Der Object-Typ kann nicht verändert werden, wenn bereits Mapping Optionen gepflegt wurden.",
       "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Tabelle unten. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
       "mappingDescriptionBlock": "Verwende die Tabelle unten, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
-      "csvDescriptionBlock": "Verwende Seperatoren und Einfassungen, um Felder voneinander abzugrenzen. Seperatoren werden verwendet um einzelne Felder zu trennen; Einfassungs-Zeichen werden verwendet um mehrere Felder zu gruppieren.",
+      "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separatorzeichen auftaucht.",
       "cancelLabel": "Abbrechen",
       "addMappingLabel": "Neues Mappping hinzufügen",
       "deleteLabel": "Löschen",
@@ -85,7 +103,12 @@
       "showLogLabel": "Log anzeigen",
       "exportActivityLabel": "Export-Aktivität",
       "exportActivityDescription": "Aktivitäten, die älter als 30 Tage sind, werden automatisch entfernt.",
-      "exportLabel": "Export"
+      "exportLabel": "Export",
+      "directExportVariantsLabel": "Varianten Einstellungen exportieren",
+      "directExportPropertiesLabel": "Eigenschaften exportieren",
+      "close": "Schließen",
+      "variantsWarning": "<strong>Warnung: </strong> Stelle sicher, dass die in exportierten CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im neuen System vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu exportieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Export manuell im neuen System pflegen.",
+      "exportVariants": "Produktvarianten exportieren"
     },
     "importer": {
       "titleExportSuccess": "Erfolg",
@@ -96,10 +119,15 @@
       "startImportLabel": "Import starten",
       "selectProfileLabel": "Profil auswählen",
       "profileLabel": "Profil",
-      "warningBlock": "<strong>Warnung:</strong> Neu importierte Datensätze können mit bereits vorhandenen Datenbankeinträgen in Konflikt stehen und sie überschreiben. Solche Änderungen durch die Import-Funktion sind endgültig. Bitte stelle daher sicher, dass Du ein aktuelles Datenbank-Backup gemacht hast, bevor Du fortfährst.",
+      "warningBlock": "<strong>Warnung: </strong>Stelle sicher, dass die in deiner hochgeladenen CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im Shop vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu importieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Import im Produkt Modul manuell pflegen.",
       "importActivityLabel": "Import-Aktivität",
       "importLabel": "Import",
-      "labelUploadCaption": "Wähle eine Datei zum Hochladen"
+      "directImportVariantsLabel": "Varianten Einstellungen importieren",
+      "directImportPropertiesLabel": "Eigenschaften importieren",
+      "close": "Schließen",
+      "labelUploadCaption": "Wähle eine Datei zum Hochladen",
+      "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
+      "importVariants": "Produktvarianten importieren"
     },
     "page": {
       "profileTab": "Profile",
@@ -121,7 +149,8 @@
       "downloadFailedLabel": "Fehlgeschlagene Einträge herunterladen",
       "successfulImportsText": "{records} Einträge erfolgreich importiert",
       "failedImportsText": "{failedRecords} Einträge konnten nicht importiert werden. Die fehlgeschlagenen Einträge können heruntergeladen, bearbeitet und erneut importiert werden.",
-      "failedExportText": "Export fehlgeschlagen"
+      "failedExportText": "Export fehlgeschlagen",
+      "showLogFileLabel": "Öffne Log Eintrag"
     }
   }
 }

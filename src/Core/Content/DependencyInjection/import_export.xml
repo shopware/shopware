@@ -115,6 +115,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\SalutationSerializer">
+            <argument type="service" id="salutation.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">
             <argument type="service" id="product_visibility.repository"/>
 
@@ -179,6 +185,9 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
 
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>

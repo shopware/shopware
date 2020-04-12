@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use function Flag\next6050;
 
 class Content extends Bundle
 {
@@ -33,5 +34,9 @@ class Content extends Bundle
         $loader->load('import_export.xml');
         $loader->load('contact_form.xml');
         $loader->load('sitemap.xml');
+
+        if (next6050()) {
+            $loader->load('google_shopping.xml');
+        }
     }
 }

@@ -46,26 +46,15 @@ Component.register('sw-order-create', {
         State.registerModule('swOrder', swOrderState);
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     beforeDestroy() {
         this.unregisterModule();
     },
 
     methods: {
-        createdComponent() {
-            this.checkFlagActive();
-        },
-
         unregisterModule() {
             State.unregisterModule('swOrder');
         },
 
-        checkFlagActive() {
-            if (!this.next5515) this.redirectToOrderList();
-        },
 
         redirectToOrderList() {
             this.$router.push({ name: 'sw.order.index' });

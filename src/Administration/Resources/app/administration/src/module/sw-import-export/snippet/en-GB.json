@@ -16,9 +16,28 @@
         "invalidRecords": "Invalid records"
       },
       "contextMenu": {
+        "showLog": "Open log entry",
         "downloadFile": "Download file",
         "showProfile": "Show profile",
         "downloadInvalidFile": "Download invalid records"
+      },
+      "detail": {
+        "modalTitle": "Log information",
+        "labelClose": "Close",
+        "labelFilename": "Filename",
+        "labelType": "Type",
+        "labelImportRecords": "Successfully imported records",
+        "labelExportRecords": "Successfully exported records",
+        "labelFailedRecords": "Failed records",
+        "labelSize": "File size",
+        "labelUser": "User",
+        "labelDate": "Date / Time",
+        "labelState": "State",
+        "exportLabel": "Export",
+        "importLabel": "Import",
+        "labelDownloadFile": "Download file",
+        "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
+        "labelDownloadInvalidFile": "Download failed records"
       }
     },
     "profile": {
@@ -62,7 +81,7 @@
       "objectTypeFieldTooltipText": "The object type cannot be changed when mapping options are present.",
       "descriptionBlock": "Object types define a mode for importing and exporting data. The defined mode will also affect the mapping options in the table below. Note, that you cannot change the object type after mapping options have been introduced.",
       "mappingDescriptionBlock": "Use the table below to map CSV fields to their respective database counterparts.",
-      "csvDescriptionBlock": "Separators and enclosure characters are used to indicate separate fields within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
+      "csvDescriptionBlock": "Separators are used to separate individual fields. Enclosure characters are used to ignore specific control characters contained therein. For example, if the separator appears in continuous text.",
       "cancelLabel": "Cancel",
       "addMappingLabel": "Add new mapping",
       "deleteLabel": "Delete",
@@ -85,7 +104,12 @@
       "showLogLabel": "Show log file",
       "exportActivityLabel": "Export activity",
       "exportActivityDescription": "Activities older than 30 days will be removed automatically.",
-      "exportLabel": "Export"
+      "exportLabel": "Export",
+      "directExportVariantsLabel": "Export variant settings",
+      "directExportPropertiesLabel": "Export properties",
+      "close": "Close",
+      "variantsWarning": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
+      "exportVariants": "Export product variants"
     },
     "importer": {
       "titleImportSuccess": "Success",
@@ -96,10 +120,15 @@
       "startImportLabel": "Start import",
       "selectProfileLabel": "Select profile",
       "profileLabel": "Profile",
-      "warningBlock": "<strong>Warning:</strong> Imported data sets may conflict with already existing database entries and potentially overwrite them. The changes introduced with this import will be permanent. So be sure to have a database backup at hand before proceeding.",
+      "warningBlock": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in your uploaded CSV file are available in the shop. If this is not the case, you have the possibility to import properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to maintain the product variants manually in the product module after the import.",
       "importActivityLabel": "Import activity",
       "importLabel": "Import",
-      "labelUploadCaption": "Select a file to upload"
+      "directImportVariantsLabel": "Import variant settings",
+      "directImportPropertiesLabel": "Import properties",
+      "close": "Close",
+      "labelUploadCaption": "Select a file to upload",
+      "variantsWarning": "<strong>Attention when importing variants: </strong> If the variants are to be imported completely directly, you should also import them. Use a profile that imports variant settings.<br>If you don't do this, the variants must be created manually by the admin.",
+      "importVariants": "Import product variants"
     },
     "page": {
       "profileTab": "Profiles",
@@ -121,7 +150,8 @@
       "downloadFailedLabel": "Download failed records",
       "successfulImportsText": "{records} records imported successful.",
       "failedImportsText": "{failedRecords} records failed to import. The failed records can be downloaded, edited and re-imported.",
-      "failedExportText": "Export failed"
+      "failedExportText": "Export failed",
+      "showLogFileLabel": "Show log entry"
     }
   }
 }

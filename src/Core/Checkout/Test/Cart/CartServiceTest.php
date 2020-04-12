@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartServiceTest extends TestCase
@@ -238,6 +239,11 @@ class CartServiceTest extends TestCase
         $cart = $cartService->add($cart, $lineItem, $context);
 
         $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+
+        /** @var SystemConfigService $systemConfigService */
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set('core.basicInformation.email', 'test@example.org');
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');

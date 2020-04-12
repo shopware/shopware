@@ -1,7 +1,7 @@
 import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';
 
-const { mapApiErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
  * @private
@@ -75,7 +75,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
     },
 
     computed: {
-        ...mapApiErrors('profile',
+        ...mapPropertyErrors('profile',
             [
                 'name',
                 'sourceEntity',
@@ -92,6 +92,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
         },
 
         mappingLength() {
+            if (!this.profile.mapping) {
+                return 0;
+            }
+
             return this.profile.mapping.length;
         },
 

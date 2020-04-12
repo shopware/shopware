@@ -80,7 +80,7 @@
         "@babel/plugin-transform-runtime": "7.5.5",
         "@babel/preset-env": "7.5.5",
         "@babel/register": "7.5.5",
-        "@shopware-ag/jest-preset-sw6-admin": "1.0.3",
+        "@shopware-ag/jest-preset-sw6-admin": "1.1.1",
         "assets-webpack-plugin": "3.9.10",
         "autoprefixer": "9.6.1",
         "axios-mock-adapter": "1.17.0",

@@ -192,6 +192,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule">
             <tag name="shopware.rule.definition"/>
         </service>

@@ -82,7 +82,8 @@ Shopware.Component.register('sw-import-export-progress', {
                     failed: this.$tc('sw-import-export.progress.failedExportText'),
                     progress: this.$tc('sw-import-export.progress.progressExportText')
                 }
-            }
+            },
+            selectedLog: null
         };
     },
 
@@ -132,6 +133,14 @@ Shopware.Component.register('sw-import-export-progress', {
     methods: {
         getDownloadUrl(id, accessToken) {
             return this.importExport.getDownloadUrl(id, accessToken);
+        },
+
+        onShowLog(item) {
+            this.selectedLog = item;
+        },
+
+        closeSelectedLog() {
+            this.selectedLog = null;
         }
     }
 });

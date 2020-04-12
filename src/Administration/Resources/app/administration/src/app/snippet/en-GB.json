@@ -544,6 +544,8 @@
         "lineItemTagRule": "Line item tag",
         "alwaysValidRule": "Always valid",
         "lineItemPropertyRule": "Line item property",
+        "lineItemNoveltyRule": "Novelties",
+        "lineItemCustomFieldRule": "Line item with attribute",
         "lineItemIsNewRule": "Line item is new",
         "lineItemOfManufacturerRule": "Manufacturer",
         "lineItemPurchasePriceRule": "Line item purchase price",
@@ -559,7 +561,17 @@
         "lineItemDimensionWeightRule": "Line item weight",
         "lineItemListPriceRule": "Line item list price",
         "paymentMethodRule": "Payment method",
-        "shippingMethodRule": "Shipping method"
+        "shippingMethodRule": "Shipping method",
+        "lineItemCustomField": {
+          "field": {
+            "fieldSetSelect": {
+              "placeholder": "Select fieldset..."
+            },
+            "customFieldSelect": {
+              "placeholder": "Select custom field..."
+            }
+          }
+        }
       }
     },
     "sw-product-image": {

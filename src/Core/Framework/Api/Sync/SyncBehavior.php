@@ -9,13 +9,24 @@ class SyncBehavior
      */
     protected $failOnError;
 
-    public function __construct(bool $failOnError)
+    /**
+     * @var bool
+     */
+    protected $singleOperation;
+
+    public function __construct(bool $failOnError, bool $singleOperation = false)
     {
         $this->failOnError = $failOnError;
+        $this->singleOperation = $singleOperation;
     }
 
     public function failOnError(): bool
     {
         return $this->failOnError;
+    }
+
+    public function useSingleOperation(): bool
+    {
+        return $this->singleOperation;
     }
 }

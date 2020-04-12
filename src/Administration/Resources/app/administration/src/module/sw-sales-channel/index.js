@@ -8,12 +8,15 @@ import './component/sw-sales-channel-modal-detail';
 import './component/sw-sales-channel-detail-domains';
 import './component/sw-sales-channel-detail-hreflang';
 
+import './component/sw-sales-channel-detail-protect-link';
+import './component/sw-sales-channel-detail-account-connect';
+import './component/sw-sales-channel-detail-account-disconnect';
+
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-detail-analytics';
 import './view/sw-sales-channel-detail-products';
-import './view/sw-sales-channel-detail-template';
 import './view/sw-sales-channel-create-base';
 import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
@@ -56,10 +59,6 @@ Module.register('sw-sales-channel', {
                 products: {
                     component: 'sw-sales-channel-detail-products',
                     path: 'products'
-                },
-                template: {
-                    component: 'sw-sales-channel-detail-template',
-                    path: 'template'
                 }
             }
         },

@@ -127,43 +127,28 @@
                                 {% endblock %}
 
                                 {% block page_account_overview_newest_order_content %}
-                                    <div class="account-orders-overview">
+
+                                    {# @deprecated tag:v6.4.0 #}
+                                    {% block page_account_overview_newest_order_table_header %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_overview_newest_order_table_header_date %}{% endblock %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_overview_newest_order_table_header_number %}{% endblock %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_overview_newest_order_table_header_payment_method %}{% endblock %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_overview_newest_order_table_header_shipping_method %}{% endblock %}
+
+                                        {# @deprecated tag:v6.4.0 #}
+                                        {% block page_account_overview_newest_order_table_header_actions %}{% endblock %}
+                                    {% endblock %}
+
+                                    {% block page_account_overview_newest_order_table %}
                                         <div class="table order-table">
-                                            {% block page_account_overview_newest_order_table_header %}
-                                                <div class="order-table-header">
-                                                    <div class="row">
-                                                        {% block page_account_overview_newest_order_table_header_date %}
-                                                            <div class="col order-header-date">
-                                                                {{ "account.orderItemColumnDate"|trans|sw_sanitize }}
-                                                            </div>
-                                                        {% endblock %}
-
-                                                        {% block page_account_overview_newest_order_table_header_number %}
-                                                            <div class="col order-header-number">
-                                                                {{ "account.orderItemColumnNumber"|trans|sw_sanitize }}
-                                                            </div>
-                                                        {% endblock %}
-
-                                                        {% block page_account_overview_newest_order_table_header_payment_method %}
-                                                            <div class="col order-header-payment-method">
-                                                                {{ "account.orderItemColumnPaymentMethod"|trans|sw_sanitize }}
-                                                            </div>
-                                                        {% endblock %}
-
-                                                        {% block page_account_overview_newest_order_table_header_shipping_method %}
-                                                            <div class="col order-header-shipping-method">
-                                                                {{ "account.orderItemColumnShippingMethod"|trans|sw_sanitize }}
-                                                            </div>
-                                                        {% endblock %}
-
-                                                        {% block page_account_overview_newest_order_table_header_actions %}
-                                                            <div class="col order-header-actions">
-                                                                {{ "account.orderItemColumnActions"|trans|sw_sanitize }}
-                                                            </div>
-                                                        {% endblock %}
-                                                    </div>
-                                                </div>
-                                            {% endblock %}
 
                                             {% block page_account_overview_newest_order_table_body %}
                                                 <div class="order-table-body"
@@ -174,7 +159,7 @@
                                                 </div>
                                             {% endblock %}
                                         </div>
-                                    </div>
+                                    {% endblock %}
                                 {% endblock %}
                             </div>
                         </div>

@@ -94,7 +94,7 @@
       "titleAccount": "Konto",
       "titleDeleteSalesChannel": "Vertriebskanal löschen",
       "titleProductSync": "Produkt Synchronisierung",
-      "titleProducts": "Produkte",
+      "titleSyncedProducts": "Synchronisierte Produkte",
       "titleCategoryMapping": "Kategoriezuordnung",
       "titleTemplate": "Vorlage",
       "titleDomainHeadline": "Erstelle Domäne URLs",
@@ -237,10 +237,20 @@
         "title": "Wählen Sie eine Storefront für den Checkout-Prozess aus",
         "description": "Für Vertriebskanäle ohne Storefront ist eine verknüpfte Storefront erforderlich, mit der die Kaufabwicklung abgeschlossen wird."
       },
-      "googleShoppingAccount": {
+      "googleShoppingAccountConnect": {
         "title": "Verbinden Sie Ihr Google-Konto, um Google-Programme zu verwenden",
-        "description": "Mit einem Google-Konto können Sie auf Ihre Google Merchant Center- und Google Ads-Konten zugreifen.",
-        "textConnectionButton": "Verbinden"
+        "subTitle": "Mit einem Google-Konto können Sie auf Ihre Google Merchant Center- und Google Ads-Konten zugreifen.",
+        "textConnectButton": "Verbinden"
+      },
+      "googleShoppingAccountDisconnect": {
+        "titleProfiles": "Mit diesem Google-Konto können Sie unter auf Ihr Google Merchant Center-Konto zugreifen",
+        "titleLinkProfiles": "merchants.google.com.",
+        "textDisconnectButton": "Trennen",
+        "titleMerchant": "Ein gesperrtes Google Merchant Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren",
+        "titleLinkMerchant": "über Kontosperrungen.",
+        "textGroupMerchant": "Händler-Center-Konto:",
+        "titleWebsite": "Ihre Website ist mit Ihrem Google Merchant Center-Konto verknüpft. Es muss behauptet werden, Shopping-Anzeigen zu schalten.",
+        "textGroupWebsite": "Webseite:"
       }
     },
     "sw-sales-channel-defaults-select": {

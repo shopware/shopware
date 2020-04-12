@@ -1,0 +1,32 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+
+{% block page_checkout_confirm_shipping_current %}
+    <p class="confirm-shipping-current">
+        {% block page_checkout_confirm_shipping_current_image %}
+            {% if context.shippingMethod.media %}
+                {% sw_thumbnails 'confirm-shipping-current-image-thumbnails' with {
+                    media: context.shippingMethod.media,
+                    sizes: {
+                        'default': '100px'
+                    },
+                    attributes: {
+                        'class': 'confirm-shipping-method-image',
+                        'alt': (context.shippingMethod.media.translated.alt ?: context.shippingMethod.translated.name),
+                        'title': (context.shippingMethod.media.translated.title ?: context.shippingMethod.translated.name)
+                    }
+                } %}
+            {% endif %}
+        {% endblock %}
+
+        {% block page_checkout_confirm_shipping_current_text %}
+            <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
+            {{ context.shippingMethod.translated.name }}
+        {% endblock %}
+
+        {% block page_checkout_confirm_shipping_invalid_tooltip %}{% endblock %}
+    </p>
+{% endblock %}
+
+{% block page_checkout_confirm_shipping_modal_toggle %}{% endblock %}
+
+{% block page_checkout_confirm_shipping_modal %}{% endblock %}

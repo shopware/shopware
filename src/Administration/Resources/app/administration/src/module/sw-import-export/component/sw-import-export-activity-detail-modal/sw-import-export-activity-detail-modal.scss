@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-import-export-activity-detail-modal {
+    .sw-import-export-activity-detail-modal__description-list .sw-color-badge {
+        margin: 0 5px 0 0;
+    }
+}
+
+.sw-import-export-activity-detail-modal__download {
+    color: $color-darkgray-200;
+    text-decoration: none;
+    font-size: 14px;
+}

@@ -51,15 +51,13 @@ class ThemeService
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
         EntityRepositoryInterface $mediaRepository,
-        ThemeCompiler $themeCompiler,
-        CacheInterface $cache
+        ThemeCompiler $themeCompiler
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;
         $this->themeSalesChannelRepository = $themeSalesChannelRepository;
         $this->mediaRepository = $mediaRepository;
         $this->themeCompiler = $themeCompiler;
-        $this->cache = $cache;
     }
 
     public function compileTheme(
@@ -83,10 +81,6 @@ class ThemeService
             $configurationCollection ?? $this->pluginRegistry->getConfigurations(),
             $withAssets
         );
-
-        // invalidate cache and warm up
-        $this->cache->delete('theme.resolved-config.' . $themeId);
-        $this->getResolvedThemeConfiguration($themeId, $context);
     }
 
     public function updateTheme(string $themeId, ?array $config, ?string $parentThemeId, Context $context): void
@@ -201,35 +195,33 @@ class ThemeService
 
     public function getResolvedThemeConfiguration(string $themeId, Context $context): array
     {
-        return $this->cache->get('theme.resolved-config.' . $themeId, function () use ($themeId, $context) {
-            $config = $this->getThemeConfiguration($themeId, false, $context);
-            $resolvedConfig = [];
-            $mediaItems = [];
-            if (!array_key_exists('fields', $config)) {
-                return [];
+        $config = $this->getThemeConfiguration($themeId, false, $context);
+        $resolvedConfig = [];
+        $mediaItems = [];
+        if (!array_key_exists('fields', $config)) {
+            return [];
+        }
+
+        foreach ($config['fields'] as $key => $data) {
+            if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
+                $mediaItems[$data['value']][] = $key;
+            }
+            $resolvedConfig[$key] = $data['value'];
+        }
+
+        $result = $this->mediaRepository->search(new Criteria(array_keys($mediaItems)), $context);
+
+        foreach ($result as $media) {
+            if (!array_key_exists($media->getId(), $mediaItems)) {
+                continue;
             }
 
-            foreach ($config['fields'] as $key => $data) {
-                if ($data['type'] === 'media' && $data['value'] && Uuid::isValid($data['value'])) {
-                    $mediaItems[$data['value']][] = $key;
-                }
-                $resolvedConfig[$key] = $data['value'];
+            foreach ($mediaItems[$media->getId()] as $key) {
+                $resolvedConfig[$key] = $media->getUrl();
             }
+        }
 
-            $result = $this->mediaRepository->search(new Criteria(array_keys($mediaItems)), $context);
-
-            foreach ($result as $media) {
-                if (!array_key_exists($media->getId(), $mediaItems)) {
-                    continue;
-                }
-
-                foreach ($mediaItems[$media->getId()] as $key) {
-                    $resolvedConfig[$key] = $media->getUrl();
-                }
-            }
-
-            return $resolvedConfig;
-        });
+        return $resolvedConfig;
     }
 
     public function getThemeConfigurationStructuredFields(string $themeId, bool $translate, Context $context): array

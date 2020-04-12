@@ -32,8 +32,8 @@ trait DatabaseTransactionBehaviour
         self::assertEquals(
             1,
             $connection->getTransactionNestingLevel(),
-            'Too many Nesting Levels. 
-            Probably one transaction was not closed properly. 
+            'Too many Nesting Levels.
+            Probably one transaction was not closed properly.
             This may affect following Tests in an unpredictable manner!
             Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
         );

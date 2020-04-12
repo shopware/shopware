@@ -7,6 +7,15 @@
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_main_content %}
+
+    {% block base_flashbags_checkout %}
+        <div class="flashbags">
+            {% for type, messages in app.flashes %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+            {% endfor %}
+        </div>
+    {% endblock %}
+
     {% block page_checkout_finish %}
         {% block page_checkout_finish_details %}
             {% sw_include '@Storefront/storefront/page/checkout/finish/finish-details.html.twig' %}

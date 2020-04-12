@@ -185,4 +185,23 @@ class MediaSerializerTest extends TestCase
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
         $eventDispatcher->dispatch($writtenEvent, 'media.written');
     }
+
+    public function testEmpty(): void
+    {
+        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $fileSaver = $this->createMock(FileSaver::class);
+
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
+        $mediaSerializer->setRegistry($serializerRegistry);
+        $config = new Config([], []);
+
+        $actual = $mediaSerializer->deserialize($config, $mediaDefinition, []);
+        static::assertEmpty($actual);
+    }
 }

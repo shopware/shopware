@@ -71,7 +71,12 @@ Component.register('sw-order-detail-base', {
         },
 
         transaction() {
-            return this.order.transactions[0];
+            for (let i = 0; i < this.order.transactions.length; i += 1) {
+                if (this.order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
+                    return this.order.transactions[i];
+                }
+            }
+            return this.order.transactions.last();
         },
 
         shippingCostsDetail() {
@@ -168,6 +173,8 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('transactions.paymentMethod')
                 .addAssociation('documents.documentType')
                 .addAssociation('tags');
+
+            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
             return criteria;
         },

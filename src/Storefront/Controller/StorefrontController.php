@@ -108,7 +108,7 @@ abstract class StorefrontController extends AbstractController
     /**
      * @throws CustomerNotLoggedInException
      */
-    protected function denyAccessUnlessLoggedIn(): void
+    protected function denyAccessUnlessLoggedIn(bool $allowGuest = false): void
     {
         /** @var RequestStack $requestStack */
         $requestStack = $this->get('request_stack');
@@ -121,7 +121,14 @@ abstract class StorefrontController extends AbstractController
         /** @var SalesChannelContext|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        if ($context && $context->getCustomer() && $context->getCustomer()->getGuest() === false) {
+        if (
+            $context
+            && $context->getCustomer()
+            && (
+                $allowGuest === true
+                || $context->getCustomer()->getGuest() === false
+            )
+        ) {
             return;
         }
 

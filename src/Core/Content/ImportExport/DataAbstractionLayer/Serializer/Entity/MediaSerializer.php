@@ -75,10 +75,6 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             $deserialized = iterator_to_array($deserialized);
         }
 
-        $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
-        $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
-            ?? $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
-
         $url = $value['url'] ?? null;
         if ($url === null || !filter_var($url, FILTER_VALIDATE_URL)) {
             return $deserialized;
@@ -90,7 +86,12 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         }
 
         if ($media === null || $media->getUrl() !== $url) {
+            $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
+            $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
+                ?? $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
+
             $deserialized['id'] = $deserialized['id'] ?? Uuid::randomHex();
+
             $parsed = parse_url($url);
             $pathInfo = pathinfo($parsed['path']);
 

@@ -45,6 +45,8 @@ class ImportExportProfileDefinition extends EntityDefinition
 
             (new JsonField('mapping', 'mapping', [], [])),
 
+            (new JsonField('config', 'config', [], [])),
+
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
 
             new CreatedAtField(),

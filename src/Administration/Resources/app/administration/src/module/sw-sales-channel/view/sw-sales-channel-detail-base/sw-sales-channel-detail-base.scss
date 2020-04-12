@@ -1,6 +1,113 @@
 @import "~scss/variables";
+@import "~scss/functions";
+@import "~scss/mixins";
 
 $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
+$google-shopping-connection-gutter: 16px;
+$google-shopping-connection-image-size: 74px;
+
+.sw-sales-channel-detail {
+    .sw-card {
+        .google-shopping {
+            &__instruction-title {
+                margin: 0 0 8px;
+                color: $color-darkgray-200;
+                font-size: $font-size-default;
+                font-weight: $font-weight-bold;
+            }
+
+            &__instruction-subtitle {
+                margin: 0 0 22px;
+                color: $color-darkgray-200;
+                font-size: $font-size-small;
+            }
+
+            &__instruction-subtitle-link {
+                color: $color-shopware-brand-500;
+                text-decoration: none;
+            }
+
+            &__connection {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: $google-shopping-connection-gutter;
+                border: 1px solid $color-gray-300;
+                border-radius: $border-radius-default;
+            }
+
+            &__connection-image {
+                display: inline-block;
+                width: $google-shopping-connection-image-size;
+                height: $google-shopping-connection-image-size - ($google-shopping-connection-gutter * 2);
+                background: image('social-shopping/google.png') no-repeat 0 50%;
+                background-size: 100%;
+            }
+
+            &__profiles {
+                display: flex;
+            }
+
+            &__profiles-info {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                margin-left: 16px;
+            }
+
+            &__profiles-name {
+                margin: 0;
+                line-height: 14px;
+                font-size: $font-size-small;
+                font-weight: $font-weight-semi-bold;
+            }
+
+            &__profiles-email {
+                font-size: $font-size-small;
+            }
+
+            &__label {
+                display: flex;
+                align-items: center;
+                margin: 0;
+                font-weight: $font-weight-semi-bold;
+                line-height: 12px;
+            }
+
+            &__label-badge {
+                margin: 0;
+            }
+
+            &__label-text {
+                margin-left: 4px;
+            }
+
+            &__text-group {
+                max-width: 75%;
+                font-size: $font-size-small;
+                word-break: break-all;
+            }
+
+            &__text-group-highlight {
+                font-weight: $font-weight-semi-bold;
+            }
+        }
+
+        .google-shopping-crossbar {
+            height: 1px;
+            margin: 0 0 16px;
+            background: $color-gray-300;
+        }
+
+        .google-shopping-switcher {
+            margin-bottom: 0;
+        }
+
+        .google-shopping-u-mb-32 {
+            margin-bottom: 32px;
+        }
+    }
+}
 
 .sw-sales-channel-detail-base {
     .sw-sales-channel-detail-base__secret-help-text-alert {
@@ -72,52 +179,6 @@ $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
 
     .sw-sales-channel-detail-base_general__last-generation-text {
         margin-bottom: 22px;
-    }
-
-    .google-shopping {
-        &__instruction-title {
-            margin: 0 0 8px;
-        }
-
-        &__instruction-title-inner {
-            color: $color-darkgray-200;
-            font-size: $font-size-default;
-            font-weight: 700;
-        }
-
-        &__instruction-description {
-            margin: 0 0 22px;
-            color: $color-darkgray-200;
-            font-size: $font-size-small;
-        }
-
-        &__connection {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 74px;
-            padding: 0 16px;
-            border: 1px solid $color-gray-300;
-            border-radius: 4px;
-        }
-
-        &__connection-image {
-            display: inline-block;
-            width: 74px;
-            height: 100%;
-            background: url('/administration/static/img/social-shopping/google.png') no-repeat 0 50%;
-            background-size: 100%;
-        }
-    }
-
-    .google-shopping-crossbar {
-        height: 1px;
-        margin: 0 0 16px;
-        background: $color-gray-300;
-    }
-
-    .google-shopping-switcher {
-        margin-bottom: 0;
     }
 }
 

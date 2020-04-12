@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -330,6 +331,11 @@ class SalesChannelEntity extends Entity
      * @var SalesChannelAnalyticsEntity
      */
     protected $analytics;
+
+    /**
+     * @var GoogleShoppingAccountEntity|null
+     */
+    protected $googleShoppingAccount;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -915,6 +921,16 @@ class SalesChannelEntity extends Entity
     public function setAnalytics(?SalesChannelAnalyticsEntity $analytics): void
     {
         $this->analytics = $analytics;
+    }
+
+    public function getGoogleShoppingAccount(): GoogleShoppingAccountEntity
+    {
+        return $this->googleShoppingAccount;
+    }
+
+    public function setGoogleShoppingAccount(GoogleShoppingAccountEntity $googleShoppingAccount): void
+    {
+        $this->googleShoppingAccount = $googleShoppingAccount;
     }
 
     public function getApiAlias(): string

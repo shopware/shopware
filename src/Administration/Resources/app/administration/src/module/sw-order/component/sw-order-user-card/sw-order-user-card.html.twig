@@ -200,7 +200,7 @@
                                         {% block sw_order_detail_base_secondary_info_payment %}
                                             <template v-if="currentOrder.transactions.length > 0">
                                                 <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
-                                                <dd>{{ currentOrder.transactions[0].paymentMethod.translated.name}}</dd>
+                                                <dd>{{ currentOrder.transactions.last().paymentMethod.translated.name}}</dd>
                                             </template>
                                         {% endblock %}
 

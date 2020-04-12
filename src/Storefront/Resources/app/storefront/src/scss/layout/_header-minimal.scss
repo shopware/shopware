@@ -22,6 +22,15 @@ Contains custom styles for the minimal header which is used on checkout pages.
     display: none;
 }
 
+.header-minimal-back-to-shop {
+    display: flex;
+    justify-content: flex-end;
+
+    &-button {
+        color: $sw-text-color;
+    }
+}
+
 .header-minimal-logo {
     display: flex;
     align-items: center;

@@ -8,4 +8,13 @@
             border: 1px solid $color-gray-300;
         }
     }
+
+    .sw-import-export-importer__link {
+        text-decoration: underline;
+        color: $color-darkgray-200;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
+    }
 }

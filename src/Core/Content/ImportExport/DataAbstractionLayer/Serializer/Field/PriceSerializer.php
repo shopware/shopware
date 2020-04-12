@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,9 +36,11 @@ class PriceSerializer extends FieldSerializer
         }
 
         $isoPrices = [];
-        foreach ($prices as $currencyId => $price) {
+        foreach ($prices as $price) {
+            $price = $price instanceof Struct ? $price->jsonSerialize() : $price;
+            $currencyId = $price['currencyId'];
             $currency = $this->mapToCurrencyIso($currencyId);
-            $isoPrices[$currency] = $price instanceof Struct ? $price->jsonSerialize() : $price;
+            $isoPrices[$currency] = $price;
             if ($currencyId === Defaults::CURRENCY) {
                 $isoPrices['DEFAULT'] = $isoPrices[$currency];
             }
@@ -50,10 +53,14 @@ class PriceSerializer extends FieldSerializer
     {
         $prices = [];
 
+        if (!is_array($record)) {
+            return null;
+        }
+
         foreach ($record as $curIso => $price) {
             $cur = $this->getCurrencyIdFromIso($curIso);
 
-            if ($cur === null) {
+            if ($cur === null || !$this->isValidPrice($price)) {
                 continue;
             }
 
@@ -61,16 +68,27 @@ class PriceSerializer extends FieldSerializer
             $prices[$cur] = $p->jsonSerialize();
         }
 
+        if (empty($prices)) {
+            return null;
+        }
+
         return $prices;
     }
 
     public function supports(Field $field): bool
     {
-        return $field instanceof PriceField;
+        return $field instanceof PriceField
+            || ($field instanceof JsonField && $field->getPropertyName() === 'price');
     }
 
     public function setRegistry(SerializerRegistry $serializerRegistry): void
     {
+    }
+
+    public function isValidPrice(array $price): bool
+    {
+        return filter_var($price['net'] ?? null, FILTER_VALIDATE_FLOAT) !== false
+            && filter_var($price['gross'] ?? null, FILTER_VALIDATE_FLOAT) !== false;
     }
 
     private function mapToCurrencyIso(string $currencyId): string

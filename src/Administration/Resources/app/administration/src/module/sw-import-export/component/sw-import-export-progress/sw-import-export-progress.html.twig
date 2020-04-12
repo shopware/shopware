@@ -73,17 +73,6 @@
                                         }}
                                     </span>
                                 </li>
-                                <li>
-                                    <sw-button variant="primary"
-                                               size="small"
-                                               class="sw-import-export-progress__stats-list-failure-download"
-                                               :link="getDownloadUrl(
-                                                   logEntry.invalidRecordsLog.file.id,
-                                                   logEntry.invalidRecordsLog.file.accessToken
-                                                    )">
-                                        {{  $tc('sw-import-export.progress.downloadFailedLabel')  }}
-                                    </sw-button>
-                                </li>
                             </template>
                         {% endblock %}
                         {% block sw_import_export_progress_stats_export_failed %}
@@ -99,20 +88,43 @@
                         {% endblock %}
                     </ul>
                 </div>
+                {% block sw_import_export_progress_show_log %}
+                    <sw-button size="small"
+                               @click="onShowLog(logEntry)">
+                        {{  $tc('sw-import-export.progress.showLogFileLabel')  }}
+                    </sw-button>
+                {% endblock %}
+                {% block sw_import_export_progress_download_invalid_records%}
+                    <template v-if="activityType === 'import' && logEntry.invalidRecordsLog">
+                        <sw-button variant="primary"
+                                   size="small"
+                                   class="sw-import-export-progress__stats-list-failure-download"
+                                   :link="getDownloadUrl(
+                                                       logEntry.invalidRecordsLog.file.id,
+                                                       logEntry.invalidRecordsLog.file.accessToken
+                                                        )">
+                            {{  $tc('sw-import-export.progress.downloadFailedLabel')  }}
+                        </sw-button>
+                    </template>
+                {% endblock %}
 
-                <div>
-                    {% block sw_import_export_progress_stats_download %}
-                        <template v-if="activityType === 'export'">
-                            <sw-button variant="primary"
-                                       class="sw-import-export-progress__download-action"
-                                       size="small"
-                                       :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
-                                {{  $tc('sw-import-export.progress.downloadFileLabel')  }}
-                            </sw-button>
-                        </template>
-                    {% endblock %}
-                </div>
+                {% block sw_import_export_progress_stats_download %}
+                    <template v-if="activityType === 'export'">
+                        <sw-button variant="primary"
+                                   class="sw-import-export-progress__download-action"
+                                   size="small"
+                                   :link="getDownloadUrl(logEntry.file.id, logEntry.file.accessToken)">
+                            {{  $tc('sw-import-export.progress.downloadFileLabel')  }}
+                        </sw-button>
+                    </template>
+                {% endblock %}
             </template>
+        {% endblock %}
+        {% block sw_import_export_progress_activity_detail_modal %}
+            <sw-import-export-activity-detail-modal
+                :logEntity="selectedLog"
+                @log-close="closeSelectedLog">
+            </sw-import-export-activity-detail-modal>
         {% endblock %}
     </div>
 {% endblock %}

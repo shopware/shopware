@@ -1,0 +1,98 @@
+{% sw_extends '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+
+{% block page_checkout_aside_cancel_order_modal %}
+    <div class="modal fade"
+         id="order-{{ order.id }}"
+         data-backdrop="static"
+         tabindex="-1"
+         role="dialog"
+         aria-hidden="true">
+
+        {% block page_checkout_aside_cancel_order_modal_dialog %}
+            <div class="modal-dialog order-history-cancel-modal" role="dialog">
+
+                {% block page_checkout_aside_cancel_order_modal_content %}
+                    <div class="modal-content">
+
+                        {% block page_checkout_aside_cancel_order_modal_header %}
+                            <div class="modal-header">
+
+                                {% block page_checkout_aside_cancel_order_modal_header_title %}
+                                    <h5 class="modal-title">{{ "account.editOrderCancelOrderModalHeader"|trans|sw_sanitize }}</h5>
+                                {% endblock %}
+
+                                {% block page_checkout_aside_cancel_order_modal_header_close_button %}
+                                    <button class="close"
+                                            type="button"
+                                            data-dismiss="modal"
+                                            aria-label="Close">
+                                        {% sw_icon 'x' %}
+                                    </button>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_aside_cancel_order_modal_body %}
+                            <div class="modal-body">
+
+                                {% block page_checkout_aside_cancel_order_modal_body_text %}
+                                    <p>{{ "account.editOrderCancelOrderModalBodyText"|trans|sw_sanitize }}</p>
+                                {% endblock %}
+
+                                {% block page_checkout_aside_cancel_order_modal_body_question %}
+                                    <p>{{ "account.editOrderCancelOrderModalBodyQuestion"|trans|sw_sanitize }}</p>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_aside_cancel_order_modal_footer %}
+                            <div class="modal-footer">
+
+                                {% block page_checkout_aside_cancel_order_modal_footer_form %}
+                                    <form action="{{ path('frontend.account.order.cancel') }}"
+                                          method="post">
+
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_csrf %}
+                                            {{ sw_csrf('frontend.account.order.cancel') }}
+                                        {% endblock %}
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_deeplinkcode %}
+                                            <input type="hidden"
+                                                   name="deepLinkCode"
+                                                   value="{{ order.deepLinkCode }}">
+                                        {% endblock %}
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_order_id %}
+                                            <input type="hidden"
+                                                   name="orderId"
+                                                   value="{{ order.id }}">
+                                        {% endblock %}
+
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_redirect %}
+                                            <input type="hidden"
+                                                   name="redirectTo"
+                                                   value="frontend.account.order.page">
+                                        {% endblock %}
+
+                                        {% block page_checkout_aside_cancel_order_modal_header_back_button %}
+                                            <button class="btn"
+                                                    type="button"
+                                                    data-dismiss="modal">
+                                                {{ "account.editOrderCancelOrderModalFooterButtonBack"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endblock %}
+
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_button %}
+                                            <button type="submit"
+                                                    class="btn btn-primary">
+                                                {{ "account.editOrderCancelOrderModalFooterButton"|trans|sw_sanitize }}
+                                            </button>
+                                        {% endblock %}
+                                    </form>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

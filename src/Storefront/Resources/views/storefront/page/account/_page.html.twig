@@ -5,7 +5,9 @@
         <div class="account account-content">
             {% block page_account_sidebar %}
                 <div class="account-content-aside">
-                    {% sw_include '@Storefront/storefront/page/account/sidebar.html.twig' %}
+                    {% if context.customer and not context.customer.guest %}
+                        {% sw_include '@Storefront/storefront/page/account/sidebar.html.twig' %}
+                    {% endif %}
                 </div>
             {% endblock %}
 

@@ -4,9 +4,13 @@
             <div class="card-body">
                 {% block page_checkout_finish_header %}
                     <h1 class="finish-header">
-                        {{ "checkout.finishHeader"|trans({
-                            '%shop%': shopware.config.core.basicInformation.shopName
-                        })|sw_sanitize }}
+                        {% if page.changedPayment == true %}
+                            {{ "checkout.finishPaymentHeader"|trans|sw_sanitize }}
+                        {% else %}
+                            {{ "checkout.finishHeader"|trans({
+                                '%shop%': shopware.config.core.basicInformation.shopName
+                            })|sw_sanitize }}
+                        {% endif %}
                     </h1>
                 {% endblock %}
 
@@ -19,19 +23,16 @@
                 {% block page_checkout_finish_content %}
                     <div class="finish-content">
                         {% block page_checkout_finish_teaser %}
-                            <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
+                            {% if page.changedPayment != true %}
+                                <p class="finish-teaser">{{ "checkout.finishInfoConfirmationMail"|trans|sw_sanitize }}</p>
+                            {% endif %}
                         {% endblock %}
 
+                        {# @depracted tag:6.4.0 #}
                         {% block page_checkout_finish_action %}
-                            <div class="finish-action">
-                                {% block page_checkout_finish_action_back %}
-                                    <a href="{{ path('frontend.home.page') }}"
-                                       class="btn btn-primary finish-back-button"
-                                       title="{{ "checkout.finishButtonBackToShop"|trans|striptags }}">
-                                        {{ "checkout.finishButtonBackToShop"|trans|sw_sanitize }}
-                                    </a>
-                                {% endblock %}
-                            </div>
+
+                            {# @depracted tag:6.4.0 #}
+                            {% block page_checkout_finish_action_back %}{% endblock %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -60,7 +61,7 @@
                             {% block page_checkout_finish_order_payment_method %}
                                 <p>
                                     <strong>{{ "checkout.finishInfoPayment"|trans|sw_sanitize }}</strong>
-                                    {{ page.order.transactions.first.paymentMethod.translated.name }}
+                                    {{ page.order.transactions.last.paymentMethod.translated.name }}
                                 </p>
                             {% endblock %}
 

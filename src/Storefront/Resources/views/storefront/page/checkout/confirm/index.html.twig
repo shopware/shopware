@@ -65,7 +65,7 @@
                             <div class="custom-control custom-checkbox">
                                 {% block page_checkout_confirm_tos_control_checkbox %}
                                     <input type="checkbox"
-                                           class="custom-control-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
+                                           class="checkout-confirm-tos-checkbox custom-control-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                            required="required"
                                            id="tos"
                                            form="confirmOrderForm"
@@ -74,7 +74,7 @@
 
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
-                                           class="custom-control-label">
+                                           class="checkout-confirm-tos-label custom-control-label">
                                         {{ "checkout.confirmTerms"|trans({
                                             '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.tosPage })
                                         })|raw }}

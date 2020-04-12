@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -168,6 +169,14 @@ class Criteria extends Struct
     public function getFilters(): array
     {
         return $this->filters;
+    }
+
+    public function hasEqualsFilter($field): bool
+    {
+        return count(array_filter($this->filters, static function (Filter $filter) use ($field) {
+            /* EqualsFilter $filter */
+            return $filter instanceof EqualsFilter && $filter->getField() === $field;
+        })) > 0;
     }
 
     /**

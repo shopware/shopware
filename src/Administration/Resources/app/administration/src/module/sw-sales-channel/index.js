@@ -23,6 +23,11 @@ import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
 
+import './component/sw-sales-channel-google-programs-modal';
+import './component/sw-sales-channel-google-introduction';
+import './component/sw-sales-channel-google-authentication';
+import './component/sw-sales-channel-google-merchant';
+
 const { Module } = Shopware;
 
 Module.register('sw-sales-channel', {
@@ -46,7 +51,21 @@ Module.register('sw-sales-channel', {
             children: {
                 base: {
                     component: 'sw-sales-channel-detail-base',
-                    path: 'base'
+                    path: 'base',
+                    children: {
+                        'step-1': {
+                            component: 'sw-sales-channel-google-introduction',
+                            path: 'step-1'
+                        },
+                        'step-2': {
+                            component: 'sw-sales-channel-google-authentication',
+                            path: 'step-2'
+                        },
+                        'step-3': {
+                            component: 'sw-sales-channel-google-merchant',
+                            path: 'step-3'
+                        }
+                    }
                 },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',

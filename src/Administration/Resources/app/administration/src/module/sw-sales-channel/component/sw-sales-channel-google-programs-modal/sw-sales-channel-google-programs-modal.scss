@@ -1,0 +1,55 @@
+@import '~scss/variables';
+@import "~scss/mixins";
+
+.sw-sales-channel-google-programs-modal {
+    .sw-modal__footer {
+        display: flex !important;
+    }
+
+    .sw-sales-channel-google-programs-modal__footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    &__steps {
+        display: flex;
+        flex-direction: row;
+    }
+
+    &__step-item {
+        @include size(12px);
+
+        border-radius: 6px;
+        border: 1px solid $color-gray-300;
+        background: white;
+
+        &.is--active {
+            background: $color-shopware-brand-500;
+            border: none;
+        }
+
+        margin: 0 4px;
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    a {
+        text-decoration: none;
+        color: $color-shopware-brand-500;
+        font-size: 14px;
+
+        &:hover {
+            color: $color-shopware-brand-600;
+            text-decoration: underline;
+        }
+    }
+}

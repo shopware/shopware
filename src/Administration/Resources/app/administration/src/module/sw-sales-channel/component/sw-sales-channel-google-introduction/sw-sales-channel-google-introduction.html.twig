@@ -1,0 +1,22 @@
+{% block sw_sales_channel_google_introduction %}
+    <sw-container class="sw-sales-channel-google-introduction">
+        {% block sw_sales_channel_google_introduction_top %}
+            <sw-card-section divider="bottom" class="sw-sales-channel-google-introduction__top">
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-1.titleGetStarted') }}</strong>
+                <p>{{ $tc('sw-sales-channel.modalGooglePrograms.step-1.textGetStartedDescription') }}</p>
+
+                <sw-sales-channel-detail-protect-link
+                    href="https://www.google.com/retail/solutions/shopping-campaigns/">
+                    {{ $tc('sw-sales-channel.modalGooglePrograms.step-1.textLearnMore') }}
+                </sw-sales-channel-detail-protect-link>
+            </sw-card-section>
+        {% endblock %}
+
+        {% block sw_sales_channel_google_introduction_bottom %}
+            <sw-card-section class="sw-sales-channel-google-introduction__bottom">
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-1.titleConnectGoogleAccount') }}</strong>
+                <p>{{ $tc('sw-sales-channel.modalGooglePrograms.step-1.textConnectGoogleAccountDescription') }}</p>
+            </sw-card-section>
+        {% endblock %}
+    </sw-container>
+{% endblock %}

@@ -1,0 +1,23 @@
+@import "~scss/variables";
+
+.sw-sales-channel-google-merchant {
+    .sw-card-section {
+        padding: 30px 0;
+    }
+
+    p {
+        margin: 10px 0;
+    }
+
+    .sw-sales-channel-google-merchant__top {
+        padding-top: 0;
+    }
+
+    .sw-sales-channel-google-merchant__bottom {
+        padding-bottom: 0;
+    }
+
+    .sw-sales-channel-google-merchant__select-merchant {
+        margin-bottom: 8px;
+    }
+}

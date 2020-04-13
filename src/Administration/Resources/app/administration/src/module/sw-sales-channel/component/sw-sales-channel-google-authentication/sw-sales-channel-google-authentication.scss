@@ -1,0 +1,21 @@
+@import "~scss/variables";
+
+.sw-sales-channel-google-authentication {
+    .sw-sales-channel-google-authentication__account {
+        margin-top: 10px;
+        margin-bottom: 30px;
+
+        .sw-card__content {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 16px;
+        }
+    }
+
+    .sw-sales-channel-google-authentication__user-info {
+        flex-grow: 1;
+        margin-left: 14px;
+        font-size: 14px;
+    }
+}

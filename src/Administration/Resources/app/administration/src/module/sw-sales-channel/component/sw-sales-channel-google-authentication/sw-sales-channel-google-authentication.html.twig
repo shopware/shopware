@@ -1,0 +1,34 @@
+{% block sw_sales_channel_google_authentication %}
+    <div class="sw-sales-channel-google-authentication">
+        <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-2.titleYourGoogleAccount') }}</strong>
+        {% block sw_sales_channel_google_authentication_account %}
+            <sw-card class="sw-sales-channel-google-authentication__account">
+                {% block sw_sales_channel_google_authentication_account_user_profile %}
+
+                    {% block sw_sales_channel_google_authentication_account_user_avatar %}
+                        <sw-avatar size="40px" :imageUrl="userProfile.picture"></sw-avatar>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_google_authentication_account_user_info %}
+                        <div class="sw-sales-channel-google-authentication__user-info">
+                            <p>{{ userProfile.name }}</p>
+                            <p>{{ userProfile.email }}</p>
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block sw_sales_channel_google_authentication_button_disconnect %}
+                    <sw-button size="small" variant="ghost" @click="onDisconnectAccount">
+                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-2.buttonDisconnect') }}
+                    </sw-button>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_google_authentication_info %}
+            <sw-alert variant="info">
+                {{ $tc('sw-sales-channel.modalGooglePrograms.step-2.textDisconnectInfo') }}
+            </sw-alert>
+        {% endblock %}
+    </div>
+{% endblock %}

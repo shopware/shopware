@@ -1,6 +1,7 @@
 import template from './sw-sales-channel-detail.html.twig';
+import swSalesChannelState from '../../state/salesChannel.store';
 
-const { Component, Mixin, Context, Defaults, Utils } = Shopware;
+const { Component, Mixin, Context, Defaults, Utils, State } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -133,8 +134,16 @@ Component.register('sw-sales-channel-detail', {
         }
     },
 
+    beforeCreate() {
+        State.registerModule('swSalesChannel', swSalesChannelState);
+    },
+
     created() {
         this.createdComponent();
+    },
+
+    beforeDestroy() {
+        this.beforeDestroyComponent();
     },
 
     watch: {
@@ -147,6 +156,10 @@ Component.register('sw-sales-channel-detail', {
         createdComponent() {
             this.loadEntityData();
             this.loadProductExportTemplates();
+        },
+
+        beforeDestroyComponent() {
+            State.unregisterModule('swSalesChannel');
         },
 
         loadEntityData() {

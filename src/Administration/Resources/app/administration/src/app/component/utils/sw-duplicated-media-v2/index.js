@@ -276,6 +276,8 @@ Component.register('sw-duplicated-media-v2', {
             if (!oldTarget.hasFile) {
                 await this.mediaRepository.delete(oldTarget.id, Context.api);
             }
+
+            this.mediaService.cancelUpload(uploadTask.uploadTag, uploadTask);
         },
 
         async replaceFile(uploadTask) {

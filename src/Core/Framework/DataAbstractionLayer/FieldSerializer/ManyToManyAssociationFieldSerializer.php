@@ -46,6 +46,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
 
         if ($value === null) {
             yield from [];
+
             return;
         }
 

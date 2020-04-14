@@ -42,7 +42,7 @@ describe('Product: Duplicate product', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        cy.get('.sw-data-grid__cell--name').contains('Copy of Product name');
+        cy.get('.sw-data-grid__cell--name').contains('Product name Copy');
 
         cy.wait('@getProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -89,12 +89,12 @@ describe('Product: Duplicate product', () => {
         });
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
-            'Copy of What remains of Edith Finch'
+            'What remains of Edith Finch Copy'
         );
 
         cy.contains('Cancel').click();
         cy.get('.sw-data-grid').should('be.visible');
-        cy.get('.sw-data-grid__cell--name').contains('Copy of What remains of Edith Finch');
+        cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch Copy');
         cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch');
     });
 });

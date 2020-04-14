@@ -196,7 +196,7 @@ class ApiController extends AbstractController
      *
      * @throws DefinitionNotFoundException
      */
-    public function clone(Request $request, Context $context, string $entity, string $id, int $version): JsonResponse
+    public function clone(Context $context, string $entity, string $id, int $version, Request $request): JsonResponse
     {
         $overwrites = $request->request->get('overwrites', []);
 

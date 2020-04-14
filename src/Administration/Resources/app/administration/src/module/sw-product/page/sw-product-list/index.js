@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'numberRangeService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -217,7 +217,7 @@ Component.register('sw-product-list', {
             return this.numberRangeService.reserve('product').then((response) => {
                 return this.productRepository.clone(referenceProduct.id, Shopware.Context.api, {
                     productNumber: response.number,
-                    name: `${referenceProduct.name} ${this.$tc('sw-product.general.copyOf')}`,
+                    name: `${referenceProduct.name} ${this.$tc('sw-product.general.copy')}`,
                     productReviews: null,
                     active: false
                 });

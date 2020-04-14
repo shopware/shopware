@@ -1,20 +1,20 @@
-import template from './sw-condition-line-item-topseller.html.twig';
+import template from './sw-condition-line-item-promoted.html.twig';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.extend('sw-condition-line-item-topseller', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-promoted', 'sw-condition-base', {
     template,
 
     computed: {
-        isTopseller: {
+        isPromoted: {
             get() {
                 this.ensureValueExist();
-                return !!this.condition.value.isTopseller;
+                return !!this.condition.value.isPromoted;
             },
-            set(isTopseller) {
+            set(isPromoted) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, isTopseller };
+                this.condition.value = { ...this.condition.value, isPromoted };
             }
         },
         trueOption() {
@@ -28,10 +28,10 @@ Component.extend('sw-condition-line-item-topseller', 'sw-condition-base', {
             return [this.trueOption, this.falseOption];
         },
 
-        ...mapPropertyErrors('condition', ['value.isTopseller']),
+        ...mapPropertyErrors('condition', ['value.isPromoted']),
 
         currentError() {
-            return this.conditionValueIsTopsellerError;
+            return this.conditionValueIsPromotedError;
         }
     }
 });

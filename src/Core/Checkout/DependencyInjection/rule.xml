@@ -148,7 +148,7 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTopsellerRule">
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

@@ -18,7 +18,8 @@
       "placeholderSearchBar": "Search products...",
       "inheritanceModuleName": "This product",
       "backToParent": "Go back to variant overview",
-      "copyOf": "Copy"
+      "copy": "Copy",
+      "variantDuplication": "Duplication of variants is currently not supported"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -180,6 +181,7 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "buttonSaveDuplicate": "Save and duplicate",
+      "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variant generator",

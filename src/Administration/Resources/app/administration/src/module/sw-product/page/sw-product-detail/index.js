@@ -65,8 +65,6 @@ Component.register('sw-product-detail', {
         },
 
         productTitle() {
-            // ToDo: $tc is not availadble here
-
             // when product is variant
             if (this.isChild && this.product) {
                 return this.getInheritTitle();
@@ -169,6 +167,14 @@ Component.register('sw-product-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
+        },
+
+        duplicationDisabledTitle() {
+            if (this.product.childCount > 0) {
+                return this.$tc('sw-product.general.variantDuplication');
+            }
+
+            return '';
         }
     },
 
@@ -588,16 +594,12 @@ Component.register('sw-product-detail', {
             }).then((response) => {
                 return this.productRepository.clone(this.product.id, Shopware.Context.api, {
                     productNumber: response.number,
-                    name: `Copy of ${this.product.name}`,
+                    name: `${this.product.name} ${this.$tc('sw-product.general.copy')}`,
+                    productReviews: null,
                     active: false
                 });
             }).then((duplicate) => {
-                this.$router.push(
-                    {
-                        name: 'sw.product.detail',
-                        params: { id: duplicate.id }
-                    }
-                );
+                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
             });
         }
     }

@@ -253,7 +253,6 @@ Component.register('sw-media-preview-v2', {
         },
 
         mountedComponent() {
-            console.log('this.source', this.source);
             this.width = this.$el.offsetWidth;
         },
 

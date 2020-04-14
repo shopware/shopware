@@ -217,12 +217,21 @@ Component.register('sw-product-list', {
             return this.numberRangeService.reserve('product').then((response) => {
                 return this.productRepository.clone(referenceProduct.id, Shopware.Context.api, {
                     productNumber: response.number,
-                    name: `Copy of ${referenceProduct.name}`,
+                    name: `${referenceProduct.name} ${this.$tc('sw-product.general.copyOf')}`,
+                    productReviews: null,
                     active: false
                 });
-            }).then(() => {
-                this.getList();
+            }).then((duplicate) => {
+                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
             });
+        },
+
+        duplicationDisabledTitle(product) {
+            if (product.childCount > 0) {
+                return this.$tc('sw-product.general.variantDuplication');
+            }
+
+            return '';
         }
     }
 });

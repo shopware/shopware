@@ -33,21 +33,23 @@
                     {% endblock %}
 
                     {% block sw_product_detail_actions_save_context_menu %}
-                    <sw-context-button>
-                        <template slot="button">
-                            <sw-button
-                                class="sw-product-detail__button-context-menu"
-                                square
-                                variant="primary"
-                                :disabled="isLoading">
-                                <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
-                            </sw-button>
-                        </template>
+                        <sw-context-button>
+                            <template slot="button">
+                                <sw-button
+                                    class="sw-product-detail__button-context-menu"
+                                    square
+                                    variant="primary"
+                                    :disabled="isLoading">
+                                    <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
+                                </sw-button>
+                            </template>
 
-                        {% block sw_media_upload_compact_button_context_menu_actions %}
-                            {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
+                        {% block sw_product_detail_actions_save_context_menu_actions %}
+                            {% block sw_product_detail_actions_duplicate %}
                                 <sw-context-menu-item
                                     class="sw-product-detail__save-duplicate-action"
+                                    :disabled="product.childCount > 0"
+                                    :title="duplicationDisabledTitle"
                                     @click="onDuplicate">
                                     {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
                                 </sw-context-menu-item>
@@ -159,6 +161,5 @@
                 </sw-sidebar-media-item>
             </sw-sidebar>
         </template>
-
     </sw-page>
 {% endblock %}

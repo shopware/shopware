@@ -1,4 +1,9 @@
-{% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
+{% if searchResult.criteria.limit == 0 %}
+    {% set limit = 1 %}
+{% else %}
+    {% set limit = searchResult.criteria.limit %}
+{% endif %}
+{% set currentPage = ((searchResult.criteria.offset + 1) / limit )|round(0, 'ceil') %}
 {% set paginationConfig = { page: currentPage }|json_encode %}
 
 {% set listingPagination = {

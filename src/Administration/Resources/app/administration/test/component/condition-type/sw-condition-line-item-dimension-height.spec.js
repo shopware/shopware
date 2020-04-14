@@ -37,7 +37,9 @@ describe('components/rule/condition-type/sw-condition-line-item-dimension-height
             propsData: {
                 condition: {}
             },
-            mocks: {$tc: key => key}
+            mocks: {
+                $tc: key => key
+            }
         });
     });
 

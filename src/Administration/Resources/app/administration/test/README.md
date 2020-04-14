@@ -29,12 +29,12 @@ If you didn't have done this already then you can use this PSH command:
 `./psh.phar administration:install-dependencies`
 
 #### Run all unit tests:  
-This command executes all unit tests and show you an complete code coverage.  
+This command executes all unit tests and show you a complete code coverage.  
 `./psh.phar administration:unit`
 
 
 #### Run only changed files:  
-This command executes only unit tests on changed files. It automatically restarts if an file
+This command executes only unit tests on changed files. It automatically restarts if a file
 get saved. This should be used during the development of unit tests.  
 `./psh.phar administration:unit-watch`
 

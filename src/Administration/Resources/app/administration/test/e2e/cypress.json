@@ -3,7 +3,7 @@
   "viewportWidth": 1920,
   "baseUrl": "http://localhost:8000",
   "watchForFileChanges": false,
-  "requestTimeout": 10000,
+  "requestTimeout": 30000,
   "responseTimeout": 60000,
   "defaultCommandTimeout": 10000,
   "salesChannelName": "Storefront",

@@ -25,22 +25,22 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page',
+            url: '/api/v*/cms-page',
             method: 'post'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('updateData');
 
         cy.route({
-            url: '/api/v1/search/cms-page',
+            url: '/api/v*/search/cms-page',
             method: 'post'
         }).as('reloadPage');
 
         cy.route({
-            url: '/api/v1/search/language',
+            url: '/api/v*/search/language',
             method: 'post'
         }).as('changeLang');
 
@@ -110,17 +110,17 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/search/language',
+            url: '/api/v*/search/language',
             method: 'post'
         }).as('changeLang');
 
         cy.route({
-            url: '/api/v1/category/*',
+            url: '/api/v*/category/*',
             method: 'patch'
         }).as('saveCategory');
 

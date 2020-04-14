@@ -24,7 +24,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/payment-method/**',
+            url: '/api/v*/payment-method/**',
             method: 'patch'
         }).as('saveData');
 
@@ -50,7 +50,7 @@ describe('Payment: Test crud operations', () => {
                 type: 'Is new customer',
                 selector: '.sw-condition',
                 operator: null,
-                value: 'Yes',
+                value: 'Yes'
             });
 
             cy.get('button.sw-button').contains('Save').click();

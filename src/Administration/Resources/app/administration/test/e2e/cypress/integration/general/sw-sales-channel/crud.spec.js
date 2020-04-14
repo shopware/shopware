@@ -19,7 +19,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/sales-channel',
+            url: '/api/v*/sales-channel',
             method: 'post'
         }).as('saveData');
 
@@ -59,7 +59,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/sales-channel/*',
+            url: '/api/v*/sales-channel/*',
             method: 'patch'
         }).as('saveData');
 
@@ -80,7 +80,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/sales-channel/*',
+            url: '/api/v*/sales-channel/*',
             method: 'delete'
         }).as('deleteData');
 

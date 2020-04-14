@@ -42,7 +42,7 @@ describe('Seo: Test crud operations on templates', () => {
 
     it('@settings: update template', () => {
         cy.route({
-            url: '/api/v1/_action/sync',
+            url: '/api/v*/_action/sync',
             method: 'post'
         }).as('templateSaveCall');
 
@@ -76,7 +76,7 @@ describe('Seo: Test crud operations on templates', () => {
 
     it('@base @settings: update template for a sales channel', () => {
         cy.route({
-            url: '/api/v1/_action/sync',
+            url: '/api/v*/_action/sync',
             method: 'post'
         }).as('templateCreateCall');
 
@@ -123,7 +123,7 @@ describe('Seo: Test crud operations on templates', () => {
 
     it('@base @settings: cannot save when the first template is empty', () => {
         cy.route({
-            url: '/api/v1/_action/sync',
+            url: '/api/v*/_action/sync',
             method: 'post'
         }).as('templateSaveCall');
 
@@ -144,7 +144,7 @@ describe('Seo: Test crud operations on templates', () => {
 
     it('@base @settings: cannot save when the second template is empty', () => {
         cy.route({
-            url: '/api/v1/_action/sync',
+            url: '/api/v*/_action/sync',
             method: 'post'
         }).as('templateSaveCall');
 

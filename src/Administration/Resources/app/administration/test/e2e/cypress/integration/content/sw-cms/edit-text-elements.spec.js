@@ -20,12 +20,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@base @content: use text block with headline', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/category/*',
+            url: '/api/v*/category/*',
             method: 'patch'
         }).as('saveCategory');
 
@@ -42,7 +42,7 @@ describe('CMS: Check usage and editing of text elements', () => {
         // Edit headline
         cy.get('.sw-text-editor__content-editor h2')
             .then($target => {
-                let coords = $target[0].getBoundingClientRect();
+                const coords = $target[0].getBoundingClientRect();
 
                 cy.get('.sw-text-editor__content-editor h2').click();
                 cy.get('.sw-text-editor__content-editor h2').type('{uparrow}{uparrow}{uparrow}{uparrow}');
@@ -73,7 +73,7 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.sw-category-detail__save-action').click();
 
         cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204)
+            expect(response).to.have.property('status', 204);
         });
 
         // Verify layout in Storefront
@@ -85,12 +85,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@content: use text block with three columns', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/category/*',
+            url: '/api/v*/category/*',
             method: 'patch'
         }).as('saveCategory');
 

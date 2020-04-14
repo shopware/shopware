@@ -22,7 +22,7 @@ describe('Customer:  Edit in various ways', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/customer/*',
+            url: '/api/v*/customer/*',
             method: 'patch'
         }).as('saveData');
 

@@ -22,7 +22,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/media-folder',
+            url: '/api/v*/media-folder',
             method: 'post'
         }).as('saveData');
 
@@ -42,7 +42,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/media-folder/*',
+            url: '/api/v*/media-folder/*',
             method: 'patch'
         }).as('saveData');
 
@@ -71,7 +71,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/media-folder',
+            url: '/api/v*/media-folder',
             method: 'post'
         }).as('saveData');
 
@@ -94,7 +94,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/media-folder/*',
+            url: '/api/v*/media-folder/*',
             method: 'delete'
         }).as('deleteData');
 

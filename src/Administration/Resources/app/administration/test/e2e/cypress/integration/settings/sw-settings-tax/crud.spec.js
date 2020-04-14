@@ -22,7 +22,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/tax',
+            url: '/api/v*/tax',
             method: 'post'
         }).as('saveData');
 
@@ -51,7 +51,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/tax/*',
+            url: '/api/v*/tax/*',
             method: 'patch'
         }).as('saveData');
 
@@ -81,7 +81,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/tax/*',
+            url: '/api/v*/tax/*',
             method: 'delete'
         }).as('deleteData');
 

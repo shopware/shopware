@@ -23,17 +23,17 @@ describe('Import/Export - Import:', () => {
         it('@base @settings: Perform import with product profile', () => {
             cy.server();
             cy.route({
-                url: '/api/v1/_action/import-export/prepare',
+                url: '/api/v*/_action/import-export/prepare',
                 method: 'post'
             }).as('prepare');
 
             cy.route({
-                url: '/api/v1/_action/import-export/process',
+                url: '/api/v*/_action/import-export/process',
                 method: 'post'
             }).as('process');
 
             cy.route({
-                url: '/api/v1/search/import-export-log',
+                url: '/api/v*/search/import-export-log',
                 method: 'post'
             }).as('importExportLog');
 

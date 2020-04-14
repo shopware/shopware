@@ -15,7 +15,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to user module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/user',
+            url: '/api/v*/search/user',
             method: 'post'
         }).as('getData');
 
@@ -34,7 +34,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to shopware account module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.store',
+            url: '/api/v*/_action/system-config/schema?domain=core.store',
             method: 'get'
         }).as('getData');
 
@@ -53,7 +53,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/log-entry',
+            url: '/api/v*/search/log-entry',
             method: 'post'
         }).as('getData');
 
@@ -75,7 +75,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to shopware update module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.update',
+            url: '/api/v*/_action/system-config/schema?domain=core.update',
             method: 'get'
         }).as('getData');
 
@@ -94,7 +94,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to custom field module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/custom-field-set',
+            url: '/api/v*/search/custom-field-set',
             method: 'post'
         }).as('getData');
 
@@ -113,11 +113,11 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to plugin module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/plugin/refresh',
+            url: '/api/v*/_action/plugin/refresh',
             method: 'post'
         }).as('refresh');
         cy.route({
-            url: '/api/v1/search/plugin',
+            url: '/api/v*/search/plugin',
             method: 'post'
         }).as('getData');
 
@@ -139,7 +139,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to integrations module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/integration',
+            url: '/api/v*/search/integration',
             method: 'post'
         }).as('getData');
 

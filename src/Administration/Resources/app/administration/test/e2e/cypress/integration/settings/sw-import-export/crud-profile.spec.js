@@ -22,7 +22,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Create and read profile', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/import-export-profile',
+            url: '/api/v*/import-export-profile',
             method: 'post'
         }).as('saveData');
 
@@ -70,7 +70,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Update and read profile', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/import-export-profile/*',
+            url: '/api/v*/import-export-profile/*',
             method: 'patch'
         }).as('saveData');
 
@@ -109,7 +109,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Delete profile', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/import-export-profile/*',
+            url: '/api/v*/import-export-profile/*',
             method: 'delete'
         }).as('deleteData');
 

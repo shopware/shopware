@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -201,8 +202,8 @@ class OrderRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertArrayHasKey('success', $response);
-        static::assertTrue($response['success']);
+        static::assertArrayHasKey('success', $response, print_r($response, true));
+        static::assertTrue($response['success'], print_r($response, true));
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -238,6 +239,19 @@ class OrderRouteTest extends TestCase
 
         static::assertArrayHasKey('technicalName', $response);
         static::assertEquals('cancelled', $response['technicalName']);
+    }
+
+    protected function getValidPaymentMethodId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('availabilityRuleId', null))
+            ->addFilter(new EqualsFilter('active', true));
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
     private function createOrder(string $customerId, string $email, string $password): string

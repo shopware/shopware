@@ -61,7 +61,8 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
             $request->get('orderId'),
             new RequestDataBag($request->request->all()),
             $context,
-            $request->get('finishUrl')
+            $request->get('finishUrl'),
+            $request->get('errorUrl')
         );
 
         return new HandlePaymentMethodRouteResponse($response);

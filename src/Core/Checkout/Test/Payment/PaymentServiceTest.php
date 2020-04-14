@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
-use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
@@ -43,7 +43,7 @@ class PaymentServiceTest extends TestCase
     private $paymentService;
 
     /**
-     * @var JWTFactory
+     * @var JWTFactoryV2
      */
     private $tokenFactory;
 
@@ -80,7 +80,7 @@ class PaymentServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
-        $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
+        $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
@@ -165,12 +165,12 @@ class PaymentServiceTest extends TestCase
 
         static::assertEquals(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryTest::createTransaction();
+        $transaction = JWTFactoryV2Test::createTransaction();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
-
-        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();
         $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $salesChannelContext);
 
@@ -198,12 +198,13 @@ class PaymentServiceTest extends TestCase
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryTest::createTransaction();
+        $transaction = JWTFactoryV2Test::createTransaction();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
 
-        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();
         $tokenStruct = $this->paymentService->finalizeTransaction($token, $request, $salesChannelContext);
 
@@ -253,9 +254,9 @@ class PaymentServiceTest extends TestCase
     public function testFinalizeTransactionWithExpiredToken(): void
     {
         $request = new Request();
-        $transaction = JWTFactoryTest::createTransaction();
-
-        $token = $this->tokenFactory->generateToken($transaction, null, -1);
+        $transaction = JWTFactoryV2Test::createTransaction();
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -1);
+        $token = $this->tokenFactory->generateToken($tokenStruct);
 
         $this->expectException(TokenExpiredException::class);
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext('paymentMethodId'));
@@ -275,20 +276,19 @@ class PaymentServiceTest extends TestCase
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryTest::createTransaction();
+        $transaction = JWTFactoryV2Test::createTransaction();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
-
-        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();
         $request->query->set('cancel', true);
 
-        try {
-            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
-            static::fail('exception should be thrown');
-        } catch (CustomerCanceledAsyncPaymentException $e) {
-        }
+        $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+
+        static::assertNotEmpty($response->getException());
+
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');
 
@@ -300,11 +300,11 @@ class PaymentServiceTest extends TestCase
         );
 
         //can fail again
-        try {
-            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
-            static::fail('exception should be thrown');
-        } catch (CustomerCanceledAsyncPaymentException $e) {
-        }
+
+        $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+
+        static::assertNotEmpty($response->getException());
+
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');
 
@@ -343,20 +343,19 @@ class PaymentServiceTest extends TestCase
 
         static::assertEquals(AsyncTestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
-        $transaction = JWTFactoryTest::createTransaction();
+        $transaction = JWTFactoryV2Test::createTransaction();
         $transaction->setId($transactionId);
         $transaction->setPaymentMethodId($paymentMethodId);
         $transaction->setOrderId($orderId);
-
-        $token = $this->tokenFactory->generateToken($transaction, 'testFinishUrl');
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $request = new Request();
         $request->query->set('cancel', true);
 
-        try {
-            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
-            static::fail('exception should be thrown');
-        } catch (CustomerCanceledAsyncPaymentException $e) {
-        }
+        $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+
+        static::assertNotEmpty($response->getException());
+
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');
 
@@ -368,11 +367,10 @@ class PaymentServiceTest extends TestCase
         );
 
         //can fail again
-        try {
-            $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
-            static::fail('exception should be thrown');
-        } catch (CustomerCanceledAsyncPaymentException $e) {
-        }
+        $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+
+        static::assertNotEmpty($response->getException());
+
         $criteria = new Criteria([$transactionId]);
         $criteria->addAssociation('stateMachineState');
 

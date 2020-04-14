@@ -357,7 +357,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added methods `cancelOder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
     * Added methods `cancelOrder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
         
-
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
@@ -439,6 +438,13 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Marked `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface` as internal
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface::sync` function
     * Added `single-operation` header in `_action/sync` endpoint
+    
+    * Added `errorUrl` to `\Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct` to define an explicit redirect for failed payments
+    * Added `exception` to `\Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct` to provide the thrown exception for calling Instances of `\Shopware\Core\Checkout\Payment\PaymentService::finalizeTransaction`
+    * Added `errorUrl` to `\Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor::process` to provide the errorUrl for the TokenStruct
+    * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory` use `\Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2` instead
+    * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface` use `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2` instead  
+     
 * Storefront
     Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

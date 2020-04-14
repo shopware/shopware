@@ -19,7 +19,7 @@
 
         <service id="Shopware\Core\Checkout\Payment\PaymentService">
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="order_transaction.repository"/>
@@ -34,14 +34,14 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="order_customer.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory">
+        <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2">
             <argument type="service" id="shopware.private_key"/>
         </service>
 

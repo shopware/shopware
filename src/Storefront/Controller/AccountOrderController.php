@@ -187,6 +187,10 @@ class AccountOrderController extends StorefrontController
 
         $page = $this->accountEditOrderPageLoader->load($request, $context);
 
+        if ($page->isPaymentChangeable() === false) {
+            $this->addFlash('danger', $this->trans('account.editOrderPaymentNotChangeable'));
+        }
+
         return $this->renderStorefront('@Storefront/storefront/page/account/order/index.html.twig', ['page' => $page]);
     }
 
@@ -217,6 +221,12 @@ class AccountOrderController extends StorefrontController
             'changedPayment' => true,
         ]);
 
+        $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
+            'orderId' => $orderId,
+            'changedPayment' => true,
+            'paymentFailed' => true,
+        ]);
+
         $setPaymentRequest = new Request();
         $setPaymentRequest->request->set('orderId', $request->get('orderId'));
         $setPaymentRequest->request->set('paymentMethodId', $request->get('paymentMethodId'));
@@ -226,13 +236,12 @@ class AccountOrderController extends StorefrontController
         $handlePaymentRequest = new Request();
         $handlePaymentRequest->request->set('orderId', $request->get('orderId'));
         $handlePaymentRequest->request->set('finishUrl', $finishUrl);
+        $handlePaymentRequest->request->set('errorUrl', $errorUrl);
 
         try {
             $routeResponse = $this->handlePaymentMethodRoute->load($handlePaymentRequest, $salesChannelContext);
             $response = $routeResponse->getRedirectResponse();
         } catch (PaymentProcessException $paymentProcessException) {
-            $this->addFlash('danger', $this->trans('error.payment-error'));
-
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true]);
         }
         if ($response !== null) {

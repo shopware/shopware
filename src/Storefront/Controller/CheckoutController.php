@@ -138,6 +138,10 @@ class CheckoutController extends StorefrontController
 
         $page = $this->finishPageLoader->load($request, $context);
 
+        if ($page->isPaymentFailed() === true) {
+            $this->addFlash('danger', $this->trans('checkout.finishPaymentFailed'));
+        }
+
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }
 

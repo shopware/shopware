@@ -59,7 +59,7 @@
                         class="btn btn-light"
                         data-toggle="modal"
                         data-backdrop="static"
-                        {% if page.paymentChangeable != null and page.paymentChangeable == false %}
+                        {% if page.paymentChangeable is not null and page.paymentChangeable == false %}
                             disabled="disabled"
                         {% endif %}
                         data-target="#confirmPaymentModal">

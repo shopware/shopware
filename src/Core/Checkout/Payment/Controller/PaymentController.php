@@ -43,8 +43,15 @@ class PaymentController extends AbstractController
     {
         $paymentToken = $request->get('_sw_payment_token');
 
-        $paymentTokenStruct = $this->paymentService->finalizeTransaction($paymentToken, $request, $salesChannelContext);
+        $paymentTokenStruct = $this->paymentService->finalizeTransaction(
+            $paymentToken,
+            $request,
+            $salesChannelContext
+        );
 
+        if ($paymentTokenStruct->getException() !== null) {
+            return new RedirectResponse($paymentTokenStruct->getErrorUrl());
+        }
         if ($paymentTokenStruct->getFinishUrl()) {
             return new RedirectResponse($paymentTokenStruct->getFinishUrl());
         }

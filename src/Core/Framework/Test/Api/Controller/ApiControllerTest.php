@@ -423,7 +423,7 @@ EOF;
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v1/category/' . $id, $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/');
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);

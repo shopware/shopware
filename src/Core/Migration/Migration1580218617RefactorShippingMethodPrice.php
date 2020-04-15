@@ -41,6 +41,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
             = 'CREATE TRIGGER shipping_method_price_new_price_update BEFORE UPDATE ON shipping_method_price
             FOR EACH ROW
             BEGIN
+                IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN
                 IF (NEW.price != OLD.price OR (NEW.price IS NOT NULL AND OLD.price IS NULL))
                         OR (NEW.currency_id != OLD.currency_id OR (NEW.currency_id IS NOT NULL AND OLD.currency_id IS NULL))
                         AND (NEW.currency_price = OLD.currency_price OR (NEW.currency_price IS NULL AND OLD.currency_price IS NULL)) THEN
@@ -66,6 +67,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
                         CONCAT("$.", JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(NEW.currency_price), "$[0]")), ".currencyId")
                     )));
                 END IF;
+                END IF;
             END;';
 
         $this->createTrigger($connection, $query);
@@ -77,6 +79,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
             = 'CREATE TRIGGER shipping_method_price_new_price_insert BEFORE INSERT ON shipping_method_price
             FOR EACH ROW
             BEGIN
+                IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN
                 IF NEW.price IS NOT NULL AND NEW.currency_id IS NOT NULL AND NEW.currency_price IS NULL THEN
                     SET NEW.currency_price = JSON_OBJECT(
                         CONCAT("c", LOWER(HEX(NEW.currency_id))),
@@ -97,6 +100,7 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
                         NEW.currency_price,
                         CONCAT("$.", JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(NEW.currency_price), "$[0]")), ".currencyId")
                     )));
+                END IF;
                 END IF;
             END;';
 

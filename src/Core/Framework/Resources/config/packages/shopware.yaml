@@ -16,7 +16,7 @@ shopware:
 
     cdn:
         url: ~
-        strategy: "id"
+        strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
 
     api:
         max_limit: 500
@@ -39,3 +39,9 @@ shopware:
         batchsize: 100
         custom_urls:
         excluded_urls:
+
+    deployment:
+        blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
+
+parameters:
+    default_cdn_strategy: "physical_filename"

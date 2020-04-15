@@ -25,7 +25,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $connection->executeUpdate('
                 INSERT INTO `shipping_method_price` (`id`, `shipping_method_id`, `price`, `currency_id`, `created_at`)
-                VALUES (:id, :shippingMethodId, 10.0, :currencyId, NOW())
+                VALUES (:id, :shippingMethodId, 10.999, :currencyId, NOW())
             ', [
             'id' => $shippingPriceId,
             'shippingMethodId' => $shippingMethodId,
@@ -39,8 +39,8 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $expectedCurrencyPrice = [
             'c' . Uuid::fromBytesToHex($currencyId) => [
-                'net' => 10.0,
-                'gross' => 10.0,
+                'net' => 10.999,
+                'gross' => 10.999,
                 'linked' => false,
                 'currencyId' => Uuid::fromBytesToHex($currencyId),
             ],
@@ -50,7 +50,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         static::assertSame($expectedCurrencyPrice, $actualCurrencyPrice);
         static::assertSame($currencyId, $insertedShippingMethodPrice['currency_id']);
-        static::assertSame(10, (int) $insertedShippingMethodPrice['price']);
+        static::assertSame(10.999, (float) $insertedShippingMethodPrice['price']);
     }
 
     public function testInsertTriggerWithNewSchema(): void
@@ -210,8 +210,8 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $currencyPriceBefore = [
             'c' . Uuid::fromBytesToHex($currencyIdBefore) => [
-                'net' => 5,
-                'gross' => 5,
+                'net' => 5.999,
+                'gross' => 5.999,
                 'linked' => false,
                 'currencyId' => Uuid::fromBytesToHex($currencyIdBefore),
             ],
@@ -223,7 +223,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ', [
             'id' => $shippingPriceId,
             'shippingMethodId' => $shippingMethodId,
-            'price' => 5,
+            'price' => 5.999,
             'currencyId' => $currencyIdBefore,
             'currencyPrice' => json_encode($currencyPriceBefore),
         ]);
@@ -233,7 +233,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $connection->executeUpdate('
                 UPDATE `shipping_method_price`
-                SET `price` = 10, `currency_id` = :currencyId WHERE id = :id
+                SET `price` = 10.999, `currency_id` = :currencyId WHERE id = :id
             ', [
             'id' => $shippingPriceId,
             'currencyId' => $updatedCurrencyId,
@@ -246,8 +246,8 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $expectedCurrencyPrice = [
             'c' . Uuid::fromBytesToHex($updatedCurrencyId) => [
-                'net' => 10.0,
-                'gross' => 10.0,
+                'net' => 10.999,
+                'gross' => 10.999,
                 'linked' => false,
                 'currencyId' => Uuid::fromBytesToHex($updatedCurrencyId),
             ],
@@ -279,7 +279,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $connection->executeUpdate('
                 UPDATE `shipping_method_price`
-                SET `price` = 10, `currency_id` = :currencyId WHERE id = :id
+                SET `price` = 10.3, `currency_id` = :currencyId WHERE id = :id
             ', [
             'id' => $shippingPriceId,
             'currencyId' => $currencyId,
@@ -292,8 +292,8 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
 
         $expectedCurrencyPrice = [
             'c' . Uuid::fromBytesToHex($currencyId) => [
-                'net' => 10.0,
-                'gross' => 10.0,
+                'net' => 10.3,
+                'gross' => 10.3,
                 'linked' => false,
                 'currencyId' => Uuid::fromBytesToHex($currencyId),
             ],

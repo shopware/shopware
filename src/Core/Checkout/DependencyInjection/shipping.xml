@@ -30,5 +30,19 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodIndexer">
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <argument type="service" id="shipping_method.repository" />
+            <argument>%shopware.deployment.blue_green%</argument>
+
+            <tag name="shopware.entity_indexer"/>
+        </service>
     </services>
 </container>

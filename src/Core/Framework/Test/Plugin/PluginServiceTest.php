@@ -142,7 +142,7 @@ class PluginServiceTest extends TestCase
         static::assertNotNull($changeLogError);
         static::assertInstanceOf(PluginChangelogInvalidException::class, $changeLogError);
         static::assertStringContainsString(
-            'platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestErrors/CHANGELOG.md" is invalid.',
+            'Framework/Test/Plugin/_fixture/plugins/SwagTestErrors/CHANGELOG.md" is invalid.',
             $changeLogError->getMessage()
         );
 

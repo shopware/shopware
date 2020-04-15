@@ -21,6 +21,8 @@ class DeprecatedTagTest extends TestCase
         'Test/',
         'node_modules/',
         'Common/vendor/',
+        'Recovery/vendor',
+        'recovery/vendor',
     ];
 
     public function testAllPhpFilesInPlatformForDeprecated(): void

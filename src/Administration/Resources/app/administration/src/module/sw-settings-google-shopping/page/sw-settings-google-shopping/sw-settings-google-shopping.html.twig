@@ -1,0 +1,46 @@
+{% block sw_settings_google_shopping_index %}
+    <sw-page class="sw-settings-google-shopping">
+        {% block sw_settings_google_shopping_smart_bar_header %}
+            <template slot="smart-bar-header">
+                {% block sw_settings_google_shopping_smart_bar_header_title %}
+                    <h2>
+                        {% block sw_settings_google_shopping_smart_bar_header_title_text %}
+                                {{ $tc('sw-settings.index.title') }}
+                                <sw-icon name="small-arrow-medium-right" small>
+                                </sw-icon>
+                                {{ $tc('sw-settings-google-shopping.general.textHeadline') }}
+                        {% endblock %}
+                    </h2>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_google_shopping_smart_bar_actions %}
+            <template slot="smart-bar-actions">
+                {% block sw_settings_google_shopping_actions_save %}
+                    <sw-button-process
+                                class="sw-settings-google-shopping__save-action"
+                                :isLoading="isLoading"
+                                :processSuccess="isSaveSuccessful"
+                                :disabled="isLoading"
+                                variant="primary"
+                                @process-finish="saveFinish"
+                                @click="onSave">
+                        {{ $tc('sw-settings-google-shopping.general.buttonSave') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_google_shopping_content %}
+            <template slot="content">
+                <sw-card-view>
+                    <sw-system-config
+                            ref="systemConfig"
+                            domain="core.googleShopping">
+                    </sw-system-config>
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

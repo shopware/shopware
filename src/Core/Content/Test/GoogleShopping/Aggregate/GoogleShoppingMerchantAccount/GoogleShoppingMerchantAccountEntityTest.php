@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountEntity;
@@ -19,14 +18,8 @@ class GoogleShoppingMerchantAccountEntityTest extends TestCase
     use IntegrationTestBehaviour;
     use GoogleShoppingIntegration;
 
-    /** @var Connection */
-    private $connection;
-
     /** @var EntityRepository */
     private $repository;
-
-    /** @var EntityRepository */
-    private $googleAccountRepository;
 
     /** @var Context */
     private $context;
@@ -35,7 +28,6 @@ class GoogleShoppingMerchantAccountEntityTest extends TestCase
     {
         skipTestNext6050($this);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('google_shopping_merchant_account.repository');
         $this->context = Context::createDefaultContext();
     }

@@ -923,12 +923,12 @@ class SalesChannelEntity extends Entity
         $this->analytics = $analytics;
     }
 
-    public function getGoogleShoppingAccount(): GoogleShoppingAccountEntity
+    public function getGoogleShoppingAccount(): ?GoogleShoppingAccountEntity
     {
         return $this->googleShoppingAccount;
     }
 
-    public function setGoogleShoppingAccount(GoogleShoppingAccountEntity $googleShoppingAccount): void
+    public function setGoogleShoppingAccount(?GoogleShoppingAccountEntity $googleShoppingAccount): void
     {
         $this->googleShoppingAccount = $googleShoppingAccount;
     }

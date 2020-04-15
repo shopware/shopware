@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\GoogleShopping;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\GoogleAccountCredential;
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountEntity;
@@ -16,11 +15,7 @@ use function Flag\skipTestNext6050;
 class GoogleShoppingAccountEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
     use GoogleShoppingIntegration;
-
-    /** @var Connection */
-    private $connection;
 
     /** @var EntityRepository */
     private $repository;
@@ -32,7 +27,6 @@ class GoogleShoppingAccountEntityTest extends TestCase
     {
         skipTestNext6050($this);
 
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->repository = $this->getContainer()->get('google_shopping_account.repository');
         $this->context = Context::createDefaultContext();
     }

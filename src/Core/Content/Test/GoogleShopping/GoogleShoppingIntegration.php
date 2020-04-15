@@ -2,31 +2,63 @@
 
 namespace Shopware\Core\Content\Test\GoogleShopping;
 
+use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use function Flag\next6050;
 
 trait GoogleShoppingIntegration
 {
-    public function createGoogleShoppingAccount(string $id): array
+    public function getSampleCredential(): array
     {
-        $googleAccountRepository = $this->getContainer()->get('google_shopping_account.repository');
-
-        $credential = [
+        return [
             'access_token' => 'ya29.a0Adw1xeW4xei7do9ByIQaiPkxjw617yU1pAvYXRn',
             'refresh_token' => '1//0gTTgzGwplfyTCgYIARAAGBASNwF-L9Ir_K8q5k3l5M0ouz4hdlQ4hoE2vrqejreIjA',
             'created' => 1585199421,
-            'id_token' => 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjUzYzY2YWFiNTBjZmRkOTFhMTQzNTBhNjY0ODJkYjM4MDBj',
+            'id_token' => 'GOOGLE.' . base64_encode(json_encode(['name' => 'John Doe', 'email' => 'john.doe@example.com'])) . '.ID_TOKEN',
             'scope' => 'https://www.googleapis.com/auth/content https://www.googleapis.com/auth/adwords',
             'expires_in' => 3599,
         ];
+    }
 
-        $googleAccounts = $this->initGoogleAccountData($id, $credential);
+    public function connectGoogleShoppingMerchantAccount(string $accountId, string $merchantId)
+    {
+        $id = Uuid::randomHex();
 
-        $googleAccountRepository->create($googleAccounts, $this->context);
+        $merchantRepository = $this->getContainer()->get('google_shopping_merchant_account.repository');
 
-        return compact('id', 'credential');
+        $merchantRepository->create([[
+            'id' => $id,
+            'accountId' => $accountId,
+            'merchantId' => $merchantId,
+        ]], $this->context);
+
+        return $id;
+    }
+
+    public function createGoogleShoppingAccount(string $id, ?string $salesChannelId = null): array
+    {
+        $googleAccountRepository = $this->getContainer()->get('google_shopping_account.repository');
+
+        $credential = $this->getSampleCredential();
+
+        $googleAccount = $this->initGoogleAccountData($id, $credential, $salesChannelId);
+
+        $googleAccountRepository->create([$googleAccount], $this->context);
+
+        return compact('id', 'credential', 'googleAccount');
+    }
+
+    /**
+     * @beforeClass
+     */
+    public static function beforeClass(): void
+    {
+        if (!next6050()) {
+            static::markTestSkipped('Skipping feature test "NEXT-6050"');
+        }
     }
 
     public function createSalesChannelGoogleShopping(): string
@@ -58,25 +90,46 @@ trait GoogleShoppingIntegration
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
-        $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
+        $this->getContainer()->get('sales_channel.repository')->create([$data], $this->context);
 
         return $id;
     }
 
-    private function initGoogleAccountData(string $id, array $credential): array
+    public function createGoogleShoppingRequest(?string $salesChannelId)
     {
-        $salesChannelId = $this->createSalesChannelGoogleShopping();
+        if (empty($salesChannelId)) {
+            $salesChannelId = $this->createSalesChannelGoogleShopping();
+        }
 
-        $googleAccount = [
-            [
-                'id' => $id,
-                'salesChannelId' => $salesChannelId,
-                'email' => 'foo@test.co',
-                'name' => 'test',
-                'credential' => $credential,
-            ],
+        $salesChannelEntity = $this->getContainer()->get('sales_channel.repository')->search(new Criteria([$salesChannelId]), $this->context)->first();
+
+        return new GoogleShoppingRequest($this->context, $salesChannelEntity);
+    }
+
+    public function getMockGoogleClient(): void
+    {
+        if ($this->getContainer()->initialized('google_shopping_client')) {
+            return;
+        }
+
+        $this->getContainer()->set(
+            'google_shopping_client',
+            new GoogleShoppingClientMock('clientId', 'clientSecret', 'redirectUrl')
+        );
+    }
+
+    private function initGoogleAccountData(string $id, array $credential, ?string $salesChannelId): array
+    {
+        if (empty($salesChannelId)) {
+            $salesChannelId = $this->createSalesChannelGoogleShopping();
+        }
+
+        return [
+            'id' => $id,
+            'salesChannelId' => $salesChannelId,
+            'email' => 'foo@test.co',
+            'name' => 'test',
+            'credential' => $credential,
         ];
-
-        return $googleAccount;
     }
 }

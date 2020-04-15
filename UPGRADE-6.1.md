@@ -347,6 +347,20 @@ Component.register('my-component', {
 
 ```
 
+**Attention:** If you want to use this, you have to add defer to the JS include. Otherwise the Shopware Object is not yet loaded.
+
+Before:
+
+```
+<script type="text/javascript" src="{{ asset('bundles/bundle/administration/js/bundle.js') }}"></script>
+```
+
+After:
+
+```
+<script type="text/javascript" src="{{ asset('bundles/bundle/administration/js/bundle.js') }}" defer></script>
+```
+
 * Replaced vanilla-colorpicker dependency with custom-build vuejs colorpicker
   * `editorFormat` and `colorCallback` got replaced with `colorOutput`
   * the default value for the property `alpha` is now `true`

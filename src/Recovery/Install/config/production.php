@@ -13,7 +13,7 @@ return [
         'en' => 'https://api.shopware.com/gtc/en_GB.html',
     ],
 
-    'languages' => ['de', 'en', 'cz', 'es', 'fr', 'it', 'nl', 'pl', 'pt', 'sv'],
+    'languages' => ['de', 'en', 'cs', 'es', 'fr', 'it', 'nl', 'pl', 'pt', 'sv'],
 
     'slim' => [
         'settings' => [

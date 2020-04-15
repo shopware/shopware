@@ -75,9 +75,13 @@ $localeForLanguage = static function (string $language): string {
             return 'pt-PT';
         case 'pl':
             return 'pl-PL';
+        case 'sv':
+            return 'sv-SE';
+        case 'cs':
+            return 'cs-CZ';
     }
 
-    return mb_strtolower($language) . '_' . mb_strtoupper($language);
+    return mb_strtolower($language) . '-' . mb_strtoupper($language);
 };
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $localeForLanguage) {

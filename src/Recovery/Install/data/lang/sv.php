@@ -18,6 +18,7 @@ return [
     'forward' => 'Vidare',
     'start' => 'Start',
     'start_installation' => 'Starta installation',
+
     'select_language_de' => 'Tyska',
     'select_language_en' => 'Engelska',
     'select_language_nl' => 'Nederländska',
@@ -25,9 +26,10 @@ return [
     'select_language_fr' => 'Franska',
     'select_language_es' => 'Spanska',
     'select_language_pt' => 'Portugisiska',
-    'select_language_pl' => 'Polska',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_pl' => 'Putsa',
+    'select_language_cs' => 'Tjeck',
+    'select_language_sv' => 'Svenska',
+
     'language-selection_welcome_title' => 'Välkommen till Shopware 6',
     'language-selection_select_language' => 'Installationsguidens språk',
     'language-selection_header' => 'Din Shopware-installation',

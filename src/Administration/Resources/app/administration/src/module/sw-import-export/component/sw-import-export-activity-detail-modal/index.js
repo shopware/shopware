@@ -44,6 +44,12 @@ Shopware.Component.register('sw-import-export-activity-detail-modal', {
 
         getDownloadUrl(file) {
             return this.importExport.getDownloadUrl(file.id, file.accessToken);
+        },
+
+        getStateLabel(state) {
+            const translationKey = `sw-import-export.activity.status.${state}`;
+
+            return this.$te(translationKey) ? this.$tc(translationKey) : state;
         }
     }
 });

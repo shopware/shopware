@@ -38,6 +38,13 @@
         "labelDownloadFile": "Download file",
         "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
         "labelDownloadInvalidFile": "Download failed records"
+      },
+      "status": {
+        "progress": "Processing",
+        "merging_files": "Merging files",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "aborted": "Aborted"
       }
     },
     "profile": {

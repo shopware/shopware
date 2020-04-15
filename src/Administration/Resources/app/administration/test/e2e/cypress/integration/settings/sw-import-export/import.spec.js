@@ -91,7 +91,7 @@ describe('Import/Export - Import:', () => {
             cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName`)
                 .should('contain', 'E2E');
             cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
-                .should('contain', 'succeeded');
+                .should('contain', 'Succeeded');
 
             // Verify that the imported product exists in product listing
             cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

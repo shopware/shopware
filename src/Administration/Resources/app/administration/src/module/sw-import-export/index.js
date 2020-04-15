@@ -1,4 +1,5 @@
 import ImportExportService from './service/importExport.service';
+import ImportExportProfileMappingService from './service/importExportProfileMapping.service';
 import './page/sw-import-export';
 import './component/sw-import-export-exporter';
 import './component/sw-import-export-importer';
@@ -17,6 +18,11 @@ Shopware.Service().register('importExport', () => {
         Shopware.Application.getContainer('init').httpClient,
         Shopware.Service('loginService')
     );
+});
+
+
+Shopware.Service().register('importExportProfileMapping', () => {
+    return new ImportExportProfileMappingService(Shopware.EntityDefinition);
 });
 
 Shopware.Module.register('sw-import-export', {

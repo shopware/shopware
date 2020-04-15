@@ -94,7 +94,10 @@
       "customTypeLabel": "Benutzerdefiniert",
       "defaultTypeLabel": "Standard",
       "propertyLabel": "Eigenschaften",
-      "configuratorSettingLabel": "Variantenkonfiguration"
+      "configuratorSettingLabel": "Variantenkonfiguration",
+      "validationError": "Profil nicht valide",
+      "closeViolation": "Schließen",
+      "violationMessage": "Ihr Profil ist noch nicht gültig. Sie müssen Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:"
     },
     "exporter": {
       "titleExportSuccess": "Erfolg",

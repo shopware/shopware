@@ -128,23 +128,22 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         saveSelectedProfile() {
-            console.log('this.selectedProfile', this.selectedProfile);
-            // this.isLoading = true;
-            // this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
-            //     this.selectedProfile = null;
-            //     this.createNotificationSuccess({
-            //         title: this.$tc('sw-import-export.profile.titleSaveSuccess'),
-            //         message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
-            //     });
-            //     return this.loadProfiles();
-            // }).catch(() => {
-            //     this.createNotificationError({
-            //         title: this.$tc('sw-import-export.profile.titleSaveError'),
-            //         message: this.$tc('sw-import-export.profile.messageSaveError', 0)
-            //     });
-            // }).finally(() => {
-            //     this.isLoading = false;
-            // });
+            this.isLoading = true;
+            this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
+                this.selectedProfile = null;
+                this.createNotificationSuccess({
+                    title: this.$tc('sw-import-export.profile.titleSaveSuccess'),
+                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
+                });
+                return this.loadProfiles();
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-import-export.profile.titleSaveError'),
+                    message: this.$tc('sw-import-export.profile.messageSaveError', 0)
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         getTypeLabel(isSystemDefault) {

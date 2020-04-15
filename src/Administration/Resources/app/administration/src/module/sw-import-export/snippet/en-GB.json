@@ -95,7 +95,10 @@
       "customTypeLabel": "Custom",
       "defaultTypeLabel": "Default",
       "propertyLabel": "Properties",
-      "configuratorSettingLabel": "Variant configuration settings"
+      "configuratorSettingLabel": "Variant configuration settings",
+      "validationError": "Profile not valid",
+      "closeViolation": "Close",
+      "violationMessage": "Your profile is not valid, yet. You need to add mappings to the required fields shown below to save the profile:"
     },
     "exporter": {
       "titleExportSuccess": "Success",

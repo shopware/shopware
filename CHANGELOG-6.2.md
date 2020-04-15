@@ -298,6 +298,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.   
     * Added `media-upload-cancel` to `media.api.service`
     * Fixed a bug in `sw-duplicated-media-v2` to reload media list when user clicked to cancel
+    * Added mapping validation for import/export profiles
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

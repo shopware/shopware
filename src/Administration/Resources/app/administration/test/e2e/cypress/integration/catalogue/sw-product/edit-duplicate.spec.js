@@ -42,11 +42,10 @@ describe('Product: Duplicate product', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        cy.get('.sw-data-grid__cell--name').contains('Product name Copy');
-
         cy.wait('@getProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-data-grid__cell--name').contains('Product name Copy');
+            cy.get('.smart-bar__header').contains('Product name Copy');
+            cy.contains('.sw-button', 'Cancel').click();
             cy.get('.sw-page__smart-bar-amount').contains('2');
         });
     });

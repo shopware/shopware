@@ -127,6 +127,15 @@
         <service id="Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher" decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">
             <argument type="service" id="Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher.inner"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Test\TestCacheClearer">
+            <argument type="collection">
+                <argument type="service" id="cache.object" />
+                <argument type="service" id="cache.http" />
+            </argument>
+            <argument type="service" id="cache_clearer"/>
+            <argument>%kernel.cache_dir%</argument>
+        </service>
     </services>
 
 </container>

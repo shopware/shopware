@@ -121,32 +121,22 @@ class UpdateCommand extends Command
 
     private function migrateDatabase(string $modus): void
     {
-        /** @var MigrationRuntime $migrationManger */
-        $migrationManger = $this->container->get('migration.manager');
-
-        if ($modus === MigrationStep::UPDATE) {
-            $versions = $migrationManger->getExecutableMigrations();
-            $this->IOHelper->writeln('Apply database migrations...');
-        } else {
-            $versions = $migrationManger->getExecutableDestructiveMigrations();
-            $this->IOHelper->writeln('Apply database destructive migrations...');
-        }
-
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
+        $coreCollection = $migrationCollectionLoader->collect('core');
 
-        /** @var array $identifiers */
-        $identifiers = array_column($this->container->get('migration.paths'), 'name');
-
-        foreach ($identifiers as &$identifier) {
-            $identifier = sprintf('Shopware\\%s\\Migration', $identifier);
+        if ($modus === MigrationStep::UPDATE) {
+            $versions = $coreCollection->getExecutableMigrations();
+            $this->IOHelper->writeln('Apply database migrations...');
+        } else {
+            $versions = $coreCollection->getExecutableDestructiveMigrations();
+            $this->IOHelper->writeln('Apply database destructive migrations...');
         }
-        unset($identifier);
 
         $progress = $this->IOHelper->createProgressBar(count($versions));
         $progress->start();
 
-        $step = new MigrationStep($migrationManger, $migrationCollectionLoader, $identifiers);
+        $step = new MigrationStep($coreCollection);
         $offset = 0;
         do {
             $progress->setProgress($offset);

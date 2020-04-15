@@ -6,7 +6,7 @@ use Defuse\Crypto\Key;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Install\Struct\Shop;
 
-class ConfigWriter
+class EnvConfigWriter
 {
     /**
      * @var string

@@ -4,7 +4,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\HttpClient\Client;
-use Shopware\Recovery\Common\MigrationRuntime;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Common\Steps\ErrorResult;
@@ -17,8 +16,8 @@ use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\Requirements;
 use Shopware\Recovery\Install\RequirementsPath;
 use Shopware\Recovery\Install\Service\AdminService;
-use Shopware\Recovery\Install\Service\ConfigWriter;
 use Shopware\Recovery\Install\Service\DatabaseService;
+use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Struct\AdminUser;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
@@ -396,7 +395,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         $shopService = new ShopService($db, $systemConfigService);
         $adminService = new AdminService($db);
 
-        /** @var ConfigWriter $configWriter */
+        /** @var EnvConfigWriter $configWriter */
         $configWriter = $container->offsetGet('config.writer');
         $configWriter->writeConfig($_SESSION['databaseConnectionInfo'], $shop);
 
@@ -507,21 +506,12 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $response = $response->withHeader('Content-Type', 'application/json')
         ->withStatus(200);
 
-    /** @var MigrationRuntime $migrationManger */
-    $migrationManger = $container->get('migration.manager');
-
     /** @var MigrationCollectionLoader $migrationCollectionLoader */
-    $migrationCollectionLoader = $container->get('migration.collection.loader');
+    $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
+
+    $coreMigrations = $migrationCollectionLoader->collect('core');
 
     $resultMapper = new ResultMapper();
-
-    /** @var array $identifiers */
-    $identifiers = array_column($container->get('migration.paths'), 'name');
-
-    foreach ($identifiers as &$identifier) {
-        $identifier = sprintf('Shopware\\%s\\Migration', $identifier);
-    }
-    unset($identifier);
 
     $parameters = $request->getParsedBody();
 
@@ -542,18 +532,15 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
             }
         }
 
-        reset($identifiers);
-        foreach ($identifiers as $identifier) {
-            $migrationCollectionLoader->syncMigrationCollection($identifier);
-        }
+        $coreMigrations->sync();
     }
 
     if (!$total) {
-        $total = \count($migrationManger->getExecutableMigrations(null, null, $identifiers)) * 2;
+        $total = \count($coreMigrations->getExecutableMigrations()) * 2;
     }
 
     try {
-        $result = $migrationManger->migrate(null, 1, $identifiers);
+        $result = $coreMigrations->migrateInSteps(null, 1);
 
         if (iterator_count($result) === 1) {
             return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
@@ -565,7 +552,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     }
 
     try {
-        $result = $migrationManger->migrateDestructive(null, 1, $identifiers);
+        $result = $coreMigrations->migrateDestructiveInSteps(null, 1);
 
         if (iterator_count($result) === 1) {
             return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));

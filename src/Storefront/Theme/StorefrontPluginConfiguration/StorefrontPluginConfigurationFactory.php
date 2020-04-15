@@ -76,6 +76,8 @@ class StorefrontPluginConfigurationFactory
                     foreach ($style as $filename => $additional) {
                         if (!array_key_exists('resolve', $additional)) {
                             $fileCollection->add(new File($filename));
+
+                            continue;
                         }
 
                         foreach ($additional['resolve'] as $resolve => &$resolvePath) {

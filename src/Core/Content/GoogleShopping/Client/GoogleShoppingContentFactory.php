@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\GoogleShopping\Client;
 
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource;
+use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentDatafeedsResource;
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource;
 
 class GoogleShoppingContentFactory
@@ -36,5 +37,10 @@ class GoogleShoppingContentFactory
     public function createShoppingContentShippingSettingResource(): GoogleShoppingContentShippingSettingResource
     {
         return new GoogleShoppingContentShippingSettingResource($this->shoppingContentService->shippingsettings, $this->googleShoppingClient);
+    }
+
+    public function createShoppingContentDatafeedsResource(): GoogleShoppingContentDatafeedsResource
+    {
+        return new GoogleShoppingContentDatafeedsResource($this->shoppingContentService->datafeeds, $this->shoppingContentService->datafeedstatuses, $this->googleShoppingClient);
     }
 }

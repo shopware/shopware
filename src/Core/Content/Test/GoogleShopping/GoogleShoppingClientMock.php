@@ -7,6 +7,8 @@ use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient;
 
 class GoogleShoppingClientMock extends GoogleShoppingClient
 {
+    use GoogleAPIMockResponse;
+
     public function fetchAccessTokenWithAuthCode($code)
     {
         if ($code === 'VALID.AUTHORIZATION.CODE') {
@@ -28,15 +30,35 @@ class GoogleShoppingClientMock extends GoogleShoppingClient
         return false;
     }
 
+    public function asyncRequests(array $asyncRequests = [], ?bool $skipErrors = true, ?int $concurrency = 5): array
+    {
+        $result = [
+            'responses' => [],
+        ];
+
+        foreach ($asyncRequests as $asyncRequest) {
+            $expectedClass = $asyncRequest->getHeaderLine('X-Php-Expected-Class');
+
+            if ($expectedClass && class_exists($expectedClass)) {
+                $expectedResponse = $this->getExpectedResponse($expectedClass);
+                $result['responses'][] = new $expectedClass($expectedResponse);
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @param string $expectedClass
      *
-     * @return \Google_Collection|mixed|object
+     * @return \Google_Collection
      */
     public function execute(RequestInterface $request, $expectedClass = null)
     {
-        if (!empty($expectedClass) && class_exists($expectedClass)) {
-            return new $expectedClass();
+        if ($expectedClass && class_exists($expectedClass)) {
+            $expectedResponse = $this->getExpectedResponse($expectedClass);
+
+            return new $expectedClass($expectedResponse);
         }
 
         return new \Google_Collection();

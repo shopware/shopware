@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\GoogleShopping\Client;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource;
+use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentDatafeedsResource;
 use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient;
 use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
@@ -30,5 +31,17 @@ class GoogleShoppingContentFactoryTest extends TestCase
         $googleContentAccountResource = $factory->createContentAccountResource();
 
         static::assertInstanceOf(GoogleShoppingContentAccountResource::class, $googleContentAccountResource);
+    }
+
+    public function testCreateShoppingContentDatafeedResource(): void
+    {
+        /** @var GoogleShoppingClient $googleShoppingClient */
+        $googleShoppingClient = $this->getContainer()->get('google_shopping_client');
+
+        $factory = new GoogleShoppingContentFactory($googleShoppingClient);
+
+        $googleContentDatafeedResource = $factory->createShoppingContentDatafeedsResource();
+
+        static::assertInstanceOf(GoogleShoppingContentDatafeedsResource::class, $googleContentDatafeedResource);
     }
 }

@@ -38,6 +38,7 @@ class GoogleShoppingMerchantAccountDefinition extends EntityDefinition
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('google_shopping_account_id', 'accountId', GoogleShoppingAccountDefinition::class))->addFlags(new Required()),
             (new StringField('merchant_id', 'merchantId'))->addFlags(new Required()),
+            (new StringField('datafeed_id', 'datafeedId')),
             (new JsonField('custom_fields', 'customFields')),
 
             new OneToOneAssociationField('account', 'google_shopping_account_id', 'id', GoogleShoppingAccountDefinition::class, false),

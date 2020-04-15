@@ -7,7 +7,7 @@ use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\GoogleAccountCrede
 use Shopware\Core\Content\GoogleShopping\Event\GoogleAccountCredentialCreatedEvent;
 use Shopware\Core\Content\GoogleShopping\Event\GoogleAccountCredentialDeletedEvent;
 use Shopware\Core\Content\GoogleShopping\Event\GoogleAccountCredentialRefreshedEvent;
-use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -43,7 +43,7 @@ class GoogleShoppingAccount
         return $this->userProfileResource->get();
     }
 
-    public function create(GoogleAccountCredential $credential, string $salesChannelId, GoogleShoppingRequest $context): void
+    public function create(GoogleAccountCredential $credential, string $salesChannelId, Context $context): void
     {
         $idTokenParts = $credential->getIdTokenParts();
 
@@ -54,31 +54,31 @@ class GoogleShoppingAccount
             'email' => $idTokenParts['email'],
         ];
 
-        $this->googleShoppingAccountRepository->create([$account], $context->getContext());
+        $this->googleShoppingAccountRepository->create([$account], $context);
         $this->eventDispatcher->dispatch(new GoogleAccountCredentialCreatedEvent($credential, $context));
     }
 
-    public function updateCredential(string $id, GoogleAccountCredential $credential, GoogleShoppingRequest $googleShoppingRequest): void
+    public function updateCredential(string $id, GoogleAccountCredential $credential, Context $context): void
     {
         $account = [
             'id' => $id,
             'credential' => $credential,
         ];
 
-        $this->googleShoppingAccountRepository->update([$account], $googleShoppingRequest->getContext());
-        $this->eventDispatcher->dispatch(new GoogleAccountCredentialRefreshedEvent($credential, $googleShoppingRequest));
+        $this->googleShoppingAccountRepository->update([$account], $context);
+        $this->eventDispatcher->dispatch(new GoogleAccountCredentialRefreshedEvent($credential, $context));
     }
 
-    public function delete(string $id, GoogleAccountCredential $googleAccountCredential, GoogleShoppingRequest $googleShoppingRequest): void
+    public function delete(string $id, GoogleAccountCredential $googleAccountCredential, Context $context): void
     {
-        $this->googleShoppingAccountRepository->delete([['id' => $id]], $googleShoppingRequest->getContext());
-        $this->eventDispatcher->dispatch(new GoogleAccountCredentialDeletedEvent($googleAccountCredential, $googleShoppingRequest));
+        $this->googleShoppingAccountRepository->delete([['id' => $id]], $context);
+        $this->eventDispatcher->dispatch(new GoogleAccountCredentialDeletedEvent($googleAccountCredential, $context));
     }
 
-    public function acceptTermOfService(string $id, bool $accept, GoogleShoppingRequest $googleShoppingRequest)
+    public function acceptTermOfService(string $id, bool $accept, Context $context)
     {
         $tosAcceptedAt = $accept ? new \DateTime() : null;
 
-        return $this->googleShoppingAccountRepository->update([['id' => $id, 'tosAcceptedAt' => $tosAcceptedAt]], $googleShoppingRequest->getContext());
+        return $this->googleShoppingAccountRepository->update([['id' => $id, 'tosAcceptedAt' => $tosAcceptedAt]], $context);
     }
 }

@@ -74,7 +74,6 @@ class GoogleShoppingAccountTest extends TestCase
         $salesChannelId = $this->createSalesChannelGoogleShopping();
 
         $cred = new GoogleAccountCredential($this->getSampleCredential());
-        $googleShoppingRequest = $this->createGoogleShoppingRequest($salesChannelId);
 
         $this->eventDispatcher->addListener(GoogleAccountCredentialCreatedEvent::class, $this->callbackFn);
 
@@ -84,7 +83,7 @@ class GoogleShoppingAccountTest extends TestCase
             'IndexStartEvent was dispatched but should not yet.'
         );
 
-        $this->googleShoppingAccountService->create($cred, $salesChannelId, $googleShoppingRequest);
+        $this->googleShoppingAccountService->create($cred, $salesChannelId, $this->context);
 
         $criteria = new Criteria();
 
@@ -109,8 +108,6 @@ class GoogleShoppingAccountTest extends TestCase
     {
         $salesChannelId = $this->createSalesChannelGoogleShopping();
 
-        $googleShoppingRequest = $this->createGoogleShoppingRequest($salesChannelId);
-
         $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
 
         $this->eventDispatcher->addListener(GoogleAccountCredentialRefreshedEvent::class, $this->callbackFn);
@@ -130,7 +127,7 @@ class GoogleShoppingAccountTest extends TestCase
         $this->googleShoppingAccountService->updateCredential(
             $googleAccount['id'],
             $newCredential,
-            $googleShoppingRequest
+            $this->context
         );
 
         $criteria = new Criteria();
@@ -155,8 +152,6 @@ class GoogleShoppingAccountTest extends TestCase
     {
         $salesChannelId = $this->createSalesChannelGoogleShopping();
 
-        $googleShoppingRequest = $this->createGoogleShoppingRequest($salesChannelId);
-
         $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
 
         $this->eventDispatcher->addListener(GoogleAccountCredentialDeletedEvent::class, $this->callbackFn);
@@ -170,7 +165,7 @@ class GoogleShoppingAccountTest extends TestCase
 
         static::assertEquals(1, $account->count());
 
-        $this->googleShoppingAccountService->delete($googleAccount['id'], new GoogleAccountCredential($googleAccount['credential']), $googleShoppingRequest);
+        $this->googleShoppingAccountService->delete($googleAccount['id'], new GoogleAccountCredential($googleAccount['credential']), $this->context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));

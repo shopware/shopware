@@ -79,7 +79,7 @@ class GoogleShoppingAccountController extends AbstractController
 
         $credential = $this->googleShoppingAuthenticator->authorize($code);
 
-        $this->shoppingAccountService->create($credential, $salesChannelId, $googleShoppingRequest);
+        $this->shoppingAccountService->create($credential, $salesChannelId, $googleShoppingRequest->getContext());
 
         return new JsonResponse([
             'data' => $credential->getIdTokenParts(),
@@ -95,7 +95,7 @@ class GoogleShoppingAccountController extends AbstractController
             throw new ConnectedGoogleAccountNotFoundException();
         }
 
-        $this->shoppingAccountService->delete($id = $shoppingAccount->getId(), $shoppingAccount->getCredential(), $googleShoppingRequest);
+        $this->shoppingAccountService->delete($id = $shoppingAccount->getId(), $shoppingAccount->getCredential(), $googleShoppingRequest->getContext());
 
         return new JsonResponse(['id' => $id]);
     }
@@ -111,7 +111,7 @@ class GoogleShoppingAccountController extends AbstractController
 
         $this->validateGoogleAccountAcceptance($request);
 
-        $this->shoppingAccountService->acceptTermOfService($id = $shoppingAccount->getId(), $request->request->get('acceptance', false), $googleShoppingRequest);
+        $this->shoppingAccountService->acceptTermOfService($id = $shoppingAccount->getId(), $request->request->get('acceptance', false), $googleShoppingRequest->getContext());
 
         return new JsonResponse([
             'data' => $id,

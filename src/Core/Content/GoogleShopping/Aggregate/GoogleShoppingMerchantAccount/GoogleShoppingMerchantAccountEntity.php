@@ -21,6 +21,11 @@ class GoogleShoppingMerchantAccountEntity extends Entity
     protected $merchantId;
 
     /**
+     * @var string|null
+     */
+    protected $datafeedId;
+
+    /**
      * @var array|null
      */
     protected $customFields;
@@ -68,5 +73,15 @@ class GoogleShoppingMerchantAccountEntity extends Entity
     public function setAccount(?GoogleShoppingAccountEntity $account): void
     {
         $this->account = $account;
+    }
+
+    public function getDatafeedId(): ?string
+    {
+        return $this->datafeedId;
+    }
+
+    public function setDatafeedId(?string $datafeedId): void
+    {
+        $this->datafeedId = $datafeedId;
     }
 }

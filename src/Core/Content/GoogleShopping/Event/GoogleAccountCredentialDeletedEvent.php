@@ -3,36 +3,34 @@
 namespace Shopware\Core\Content\GoogleShopping\Event;
 
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\GoogleAccountCredential;
-use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
+use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class GoogleAccountCredentialDeletedEvent extends Event
 {
-    public const EVENT_NAME = 'google_shoping.after_credential_deleted';
-
     /**
-     * @var GoogleShoppingRequest
+     * @var Context
      */
-    private $request;
+    private $context;
 
     /**
      * @var GoogleAccountCredential
      */
     private $accountCredential;
 
-    public function __construct(GoogleAccountCredential $accountCredential, GoogleShoppingRequest $request)
+    public function __construct(GoogleAccountCredential $accountCredential, Context $context)
     {
-        $this->request = $request;
+        $this->context = $context;
         $this->accountCredential = $accountCredential;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 
     public function getGoogleAccountCredential(): GoogleAccountCredential
     {
         return $this->accountCredential;
-    }
-
-    public function getGoogleShoppingRequest(): GoogleShoppingRequest
-    {
-        return $this->request;
     }
 }

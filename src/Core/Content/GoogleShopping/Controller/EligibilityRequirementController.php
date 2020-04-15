@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\GoogleShopping\Controller;
 
 use Shopware\Core\Content\GoogleShopping\Exception\ConnectedGoogleAccountNotFoundException;
 use Shopware\Core\Content\GoogleShopping\Exception\ConnectedGoogleMerchantAccountNotFoundException;
-use Shopware\Core\Content\GoogleShopping\Exception\SalesChannelIsNotLinkedToProductExport;
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
 use Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -49,17 +48,13 @@ class EligibilityRequirementController extends AbstractController
             throw new ConnectedGoogleMerchantAccountNotFoundException();
         }
 
-        $productExport = $googleShoppingRequest->getSalesChannel()->getProductExports()->first();
+        $saleChannel = $googleShoppingRequest->getSalesChannel();
 
-        if (!$productExport) {
-            throw new SalesChannelIsNotLinkedToProductExport();
-        }
-
-        $storeFrontSalesChannel = $productExport->getStorefrontSalesChannel();
+        $storeFrontSalesChannel = $this->merchantAccountService->getStorefrontSalesChannel($saleChannel->getId(), $googleShoppingRequest->getContext());
 
         $configurations = $this->systemConfig->getDomain('core.basicInformation', $storeFrontSalesChannel->getId(), true);
 
-        $siteUrl = $productExport->getSalesChannelDomain()->getUrl();
+        $siteUrl = $this->merchantAccountService->getSalesChannelDomain($saleChannel->getId(), $googleShoppingRequest->getContext())->getUrl();
 
         return new JsonResponse([
             'data' => [

@@ -1,39 +1,61 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
+const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-shipping-price-matrix', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
+        Mixin.getByName('notification')
     ],
 
     props: {
         priceGroup: {
             type: Object,
             required: true
-        },
-        priceRuleGroups: {
-            type: Object,
-            required: true
-        },
-        shippingMethod: {
-            type: Object,
-            required: true
         }
     },
 
+    data() {
+        return {
+            calculationTypes: [
+                { label: this.$tc('sw-settings-shipping.priceMatrix.calculationLineItemCount'), value: 1 },
+                { label: this.$tc('sw-settings-shipping.priceMatrix.calculationPrice'), value: 2 },
+                { label: this.$tc('sw-settings-shipping.priceMatrix.calculationWeight'), value: 3 },
+                { label: this.$tc('sw-settings-shipping.priceMatrix.calculationVolume'), value: 4 }
+            ],
+            showDeleteModal: false,
+            isLoading: false
+        };
+    },
+
     computed: {
-        ruleStore() {
-            return StateDeprecated.getStore('rule');
+        ...mapState('swShippingDetail', [
+            'shippingMethod',
+            'currencies'
+        ]),
+
+        ...mapGetters('swShippingDetail', [
+            'defaultCurrency',
+            'usedRules',
+            'unrestrictedPriceMatrixExists',
+            'newPriceMatrixExists'
+        ]),
+
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
         },
-        priceRuleStore() {
-            return this.shippingMethod.getAssociation('prices');
+
+        shippingPriceRepository() {
+            return this.repositoryFactory.create('shipping_method_price');
         },
+
         labelQuantityStart() {
             const calculationType = {
                 1: 'sw-settings-shipping.priceMatrix.columnQuantityStart',
@@ -45,6 +67,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             return calculationType[this.priceGroup.calculation]
                 || 'sw-settings-shipping.priceMatrix.columnQuantityStart';
         },
+
         labelQuantityEnd() {
             const calculationType = {
                 1: 'sw-settings-shipping.priceMatrix.columnQuantityEnd',
@@ -56,28 +79,30 @@ Component.register('sw-settings-shipping-price-matrix', {
             return calculationType[this.priceGroup.calculation]
                 || 'sw-settings-shipping.priceMatrix.columnQuantityEnd';
         },
+
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
             return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm',
                 Number(!!this.priceGroup.rule),
                 { name: name });
         },
+
         ruleColumns() {
             const columns = [];
 
-            if (this.priceGroup && this.priceGroup.prices.some(priceRule => priceRule.calculationRuleId)) {
+            if (this.isRuleMatrix) {
                 columns.push({
-                    property: 'calculationRule.name',
+                    property: 'calculationRule',
                     label: 'sw-settings-shipping.priceMatrix.columnCalculationRule',
                     allowResize: true,
                     primary: true,
-                    rawData: true
+                    rawData: true,
+                    width: '250px'
                 });
             } else {
                 columns.push({
                     property: 'quantityStart',
                     label: this.labelQuantityStart,
-                    inlineEdit: 'number',
                     allowResize: true,
                     primary: true,
                     rawData: true
@@ -85,38 +110,44 @@ Component.register('sw-settings-shipping-price-matrix', {
                 columns.push({
                     property: 'quantityEnd',
                     label: this.labelQuantityEnd,
-                    inlineEdit: 'number',
                     allowResize: true,
-                    rawData: true
+                    rawData: true,
+                    primary: true,
+                    width: '130px'
                 });
             }
 
-            columns.push({
-                property: 'price',
-                label: this.$tc('sw-settings-shipping.priceMatrix.columnPrice'),
-                inlineEdit: 'number',
-                allowResize: true,
-                rawData: true
-            });
+            columns.push(...this.currencyColumns);
 
             return columns;
         },
-        allowInlineEdit() {
-            return !this.priceGroup.prices.some(priceRule => priceRule.calculationRuleId);
-        },
-        showDataGrid() {
-            return this.priceGroup.calculation || this.priceGroup.prices.some(priceRule => priceRule.calculationRuleId);
-        },
-        disableDeleteButton() {
-            return this.priceGroup.prices.length <= 1;
-        },
-        hasNoRuleMatrix() {
-            return Object.values(this.priceRuleGroups).some((priceGroup) => {
-                return !priceGroup.ruleId;
+
+        currencyColumns() {
+            return this.currencies.map((currency) => {
+                let label = currency.translated.name || currency.name;
+                label = `${label} ${this.$tc('sw-settings-shipping.priceMatrix.labelGrossNet')}`;
+                return {
+                    property: `price-${currency.isoCode}`,
+                    label: label,
+                    visible: true,
+                    allowResize: true,
+                    primary: !!currency.isSystemDefault,
+                    rawData: false,
+                    width: '200px'
+                };
             });
         },
 
-        ruleFilter() {
+        showDataGrid() {
+            return !!this.priceGroup.calculation ||
+                this.priceGroup.prices.some(shippingPrice => shippingPrice.calculationRuleId);
+        },
+
+        disableDeleteButton() {
+            return this.priceGroup.prices.length <= 1;
+        },
+
+        ruleFilterCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.multi(
                 'OR',
@@ -129,150 +160,253 @@ Component.register('sw-settings-shipping-price-matrix', {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
+        },
+
+        shippingRuleFilterCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.multi(
+                'OR',
+                [
+                    Criteria.contains('rule.moduleTypes.types', 'shipping'),
+                    Criteria.equals('rule.moduleTypes', null)
+                ]
+            ));
+
+            return criteria;
+        },
+
+        isRuleMatrix() {
+            return !this.priceGroup.calculation;
+        },
+
+        usedCalculationRules() {
+            const rules = [];
+            if (!this.isRuleMatrix) {
+                return rules;
+            }
+
+            this.priceGroup.prices.forEach(shippingPrice => {
+                if (!rules.includes(shippingPrice.calculationRuleId)) {
+                    rules.push(shippingPrice.calculationRuleId);
+                }
+            });
+
+            return rules;
+        },
+
+        mainRulePlaceholder() {
+            if (this.priceGroup.isNew) {
+                return this.$tc('sw-settings-shipping.priceMatrix.chooseOrCreateRule');
+            }
+
+            return this.$tc('sw-settings-shipping.priceMatrix.noRestriction');
         }
     },
 
-    data() {
-        return {
-            propertyStore: new LocalStore([
-                { name: this.$tc('sw-settings-shipping.priceMatrix.calculationLineItemCount'), value: 1 },
-                { name: this.$tc('sw-settings-shipping.priceMatrix.calculationPrice'), value: 2 },
-                { name: this.$tc('sw-settings-shipping.priceMatrix.calculationWeight'), value: 3 },
-                { name: this.$tc('sw-settings-shipping.priceMatrix.calculationVolume'), value: 4 }
-            ], 'value'),
-            showDeleteModal: false,
-            showPriceRuleModal: false,
-            priceRuleId: null,
-            priceRule: null
-        };
-    },
-
-    mounted() {
-        this.mountedComponent();
-    },
-
     methods: {
-        mountedComponent() {
-            this.loadCalculationRules();
+        onAddNewShippingPrice() {
+            const refPrice = this.priceGroup.prices[this.priceGroup.prices.length - 1];
+
+            const newShippingPrice = this.shippingPriceRepository.create(Context.api);
+            newShippingPrice.shippingMethodId = this.shippingMethod.id;
+            newShippingPrice.ruleId = this.priceGroup.ruleId;
+            newShippingPrice.currencyPrice = cloneDeep(refPrice.currencyPrice);
+
+            if (refPrice._inNewMatrix) {
+                newShippingPrice._inNewMatrix = true;
+            }
+
+            if (this.isRuleMatrix) {
+                this.shippingMethod.prices.push(newShippingPrice);
+                return;
+            }
+
+            if (!refPrice.quantityEnd) {
+                console.log('efPrice.quantityStart : ', refPrice.quantityStart);
+                refPrice.quantityEnd = refPrice.quantityStart;
+            }
+            newShippingPrice.calculation = refPrice.calculation;
+            newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
+            newShippingPrice.quantityEnd = null;
+
+            this.shippingMethod.prices.push(newShippingPrice);
         },
 
-        loadCalculationRules() {
-            this.priceGroup.prices.forEach(price => {
-                if (!price.calculationRuleId || price.calculationRule.id) {
-                    return;
-                }
+        onSaveMainRule(ruleId) {
+            // RuleId can not set to null if there is already an unrestricted rule
+            if (!ruleId && this.unrestrictedPriceMatrixExists && this.priceGroup.ruleId !== ruleId) {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsTitle'),
+                    message: this.$tc('sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsMessage')
+                });
+                return;
+            }
 
-                this.ruleStore.getByIdAsync(price.calculationRuleId).then(calculationRule => {
-                    price.calculationRule = calculationRule;
-                    Object.assign(price.original.calculationRule, calculationRule);
+            this.ruleRepository.get(ruleId, Context.api).then(rule => {
+                this.priceGroup.prices.forEach((shippingPrice) => {
+                    shippingPrice.ruleId = ruleId;
+                    shippingPrice.rule = rule;
+                    // Remove "_inNewMatrix" flag, since a rule is now assigned.
+                    if (shippingPrice._inNewMatrix) {
+                        delete shippingPrice._inNewMatrix;
+                    }
                 });
             });
         },
 
-        onAddNewPriceRule() {
-            const price = this.priceGroup.prices[this.priceGroup.prices.length - 1];
-
-            if (price.calculationRuleId) {
-                this.openCreatePriceRuleModal();
-                return;
+        onSaveCustomShippingRule(ruleId, shippingPrice) {
+            // If shippingPrice is empty, the first(and only) price of this priceGroup is used - occurs
+            // when the priceGroup is new and the user has chosen a custom rule for this group.
+            if (!shippingPrice) {
+                shippingPrice = this.priceGroup.prices[0];
             }
 
-            if (!price.quantityEnd) {
-                price.quantityEnd = price.quantityStart + 1;
-            }
-            const newPriceRule = this.priceRuleStore.create();
-            newPriceRule.shippingMethodId = this.shippingMethod.id;
-            newPriceRule.ruleId = this.priceGroup.ruleId;
-            newPriceRule.quantityStart = price.quantityEnd;
-            newPriceRule.quantityEnd = null;
-            newPriceRule.currencyId = price.currencyId;
-            newPriceRule.price = price.price;
-            newPriceRule.calculation = price.calculation;
-
-            this.shippingMethod.prices.push(newPriceRule);
-        },
-        onSaveRule(ruleId) {
-            this.$nextTick(() => {
-                this.$emit('rule-add');
-                this.$emit('rule-change', ruleId, this.priceGroup.ruleId);
+            // Next tick is necessary because otherwise the modal can not be removed from the dom, since it is moved
+            // to the body and Vue cant keep track of it if the parent component is removed(by isLoading)
+            this.$nextTick(() => { this.isLoading = true; });
+            this.ruleRepository.get(ruleId, Context.api).then(rule => {
+                shippingPrice.calculationRuleId = ruleId;
+                shippingPrice.calculationRule = rule;
+                this.isLoading = false;
             });
         },
-        onSavePriceRule(newPriceRule) {
-            newPriceRule.shippingMethodId = this.shippingMethod.id;
-            newPriceRule.ruleId = this.priceGroup.ruleId;
 
-            if (this.isPlaceholderPriceRule()) {
-                this.priceRuleStore.remove(this.priceGroup.prices[0]);
-                Object.assign(this.priceGroup.prices[0], newPriceRule);
-            } else if (!this.priceGroup.prices.some(priceRule => priceRule.id === newPriceRule.id)) {
-                this.shippingMethod.prices.push(newPriceRule);
-            }
-        },
-        isPlaceholderPriceRule() {
-            if (this.priceGroup.prices.length > 1) {
-                return false;
-            }
-
-            const priceRule = this.priceGroup.prices[0];
-            return !(priceRule.calculation || priceRule.calculationRuleId);
-        },
-        onClosePriceRuleModal() {
-            this.showPriceRuleModal = false;
-            this.priceRule = null;
-        },
-        openCreatePriceRuleModal() {
-            this.priceRuleId = null;
-            this.showPriceRuleModal = true;
-        },
-        onModifyPriceRule(item) {
-            this.priceRuleId = item.calculationRuleId;
-            this.priceRule = item;
-            this.showPriceRuleModal = true;
-        },
         onCalculationChange(calculation) {
-            this.priceGroup.prices.forEach(priceRule => {
-                priceRule.calculation = Number(calculation);
-                priceRule.ruleId = this.priceGroup.ruleId;
+            this.priceGroup.prices.forEach(shippingPrice => {
+                shippingPrice.calculation = Number(calculation);
+                shippingPrice.ruleId = this.priceGroup.ruleId;
             });
         },
-        onDuplicatePriceRule(priceRule) {
-            const newPriceRule = this.priceRuleStore.duplicate(priceRule.id);
-            this.shippingMethod.prices.push(newPriceRule);
-        },
+
         onDeletePriceMatrix() {
             this.showDeleteModal = true;
         },
-        onConfirmDeletePriceRule() {
+
+        onConfirmDeleteShippingPrice() {
             this.showDeleteModal = false;
             this.$nextTick(() => {
                 this.$emit('delete-price-matrix', this.priceGroup);
             });
         },
+
         onCloseDeleteModal() {
             this.showDeleteModal = false;
         },
 
-        onDeletePriceRule(priceRule) {
-            // Do not delete the last price
-            const priceRuleGroup = this.priceRuleGroups[priceRule.ruleId];
+        onDeleteShippingPrice(shippingPrice) {
+            // if it is the only item in the priceGroup
+            if (this.priceGroup.prices.length <= 1) {
+                this.createNotificationInfo({
+                    title: this.$tc('sw-settings-shipping.priceMatrix.deletionNotPossibleTitle'),
+                    message: this.$tc('sw-settings-shipping.priceMatrix.deletionNotPossibleMessage')
+                });
 
-            if (priceRuleGroup.prices.length <= 1) {
                 return;
             }
 
-            this.shippingMethod.prices = this.shippingMethod.prices.filter((price) => {
-                return price.id !== priceRule.id;
+            // get actual rule index
+            const actualShippingPriceIndex = this.priceGroup.prices.indexOf(shippingPrice);
+
+            // if it is the last item
+            if (typeof shippingPrice.quantityEnd === 'undefined' || shippingPrice.quantityEnd === null) {
+                // get previous rule
+                const previousRule = this.priceGroup.prices[actualShippingPriceIndex - 1];
+
+                // set the quantityEnd from the previous rule to null
+                previousRule.quantityEnd = null;
+            } else {
+                // get next rule
+                const nextRule = this.priceGroup.prices[actualShippingPriceIndex + 1];
+
+                // set the quantityStart from the next rule to the quantityStart from the actual rule
+                nextRule.quantityStart = shippingPrice.quantityStart;
+            }
+
+            // delete rule
+            this.shippingMethod.prices.remove(shippingPrice.id);
+        },
+
+        convertDefaultPriceToCurrencyPrice(item, currency) {
+            if (!item.currencyPrice) {
+                this.initCurrencyPrice(item);
+            }
+
+            const defaultPrice = item.currencyPrice.find(price => {
+                return price.currencyId === this.defaultCurrency.id;
             });
 
-            this.priceRuleStore.getById(priceRule.id).delete();
+            return this.convertPrice(defaultPrice, currency);
         },
-        onSaveInlineEdit(item) {
-            if (item !== this.priceGroup.prices[this.priceGroup.prices.length - 1]
-                || !item.quantityEnd) {
+
+        /**
+         * Initialises the currencyPrice field with the default currency
+         */
+        initCurrencyPrice(shippingPrice) {
+            shippingPrice.currencyPrice = [{
+                currencyId: this.defaultCurrency.id,
+                gross: 0,
+                linked: false,
+                net: 0
+            }];
+        },
+
+        getPrice(shippingPrice, currency) {
+            const currencyPrice = this.getPriceOfCurrency(shippingPrice, currency);
+            if (currencyPrice) {
+                return currencyPrice;
+            }
+
+            return null;
+        },
+
+        setPrice(shippingPrice, currency, value) {
+            if (!value) {
+                shippingPrice.currencyPrice = shippingPrice.currencyPrice.filter(price => {
+                    return price.currencyId !== currency.id;
+                });
                 return;
             }
 
-            this.onAddNewPriceRule();
+            const price = {
+                currencyId: currency.id,
+                gross: value.gross,
+                linked: false,
+                net: value.net
+            };
+            shippingPrice.currencyPrice.push(price);
+        },
+
+        getPriceOfCurrency(priceArray, currency) {
+            if (!priceArray.currencyPrice) {
+                this.initCurrencyPrice(priceArray);
+            }
+
+            return priceArray.currencyPrice.find(price => {
+                return price.currencyId === currency.id;
+            });
+        },
+
+        convertPrice(value, currency) {
+            const price = {
+                net: value.net * currency.factor,
+                gross: value.gross * currency.factor,
+                currencyId: currency.id,
+                linked: false
+            };
+
+            price.net = Number(price.net.toFixed(currency.decimalPrecision));
+            price.gross = Number(price.gross.toFixed(currency.decimalPrecision));
+
+            return price;
+        },
+
+        onQuantityEndChange(price) {
+            // when not last price
+            if (this.priceGroup.prices.indexOf(price) + 1 !== this.priceGroup.prices.length) {
+                return;
+            }
+
+            this.onAddNewShippingPrice();
         }
     }
 });

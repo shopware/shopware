@@ -22,7 +22,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method?_response=true',
+            url: '/api/v*/shipping-method',
             method: 'post'
         }).as('saveData');
 
@@ -33,7 +33,7 @@ describe('Shipping: Test crud operations', () => {
 
         // Verify shipping method
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click({ force: true });
@@ -65,7 +65,7 @@ describe('Shipping: Test crud operations', () => {
 
         // Verify shipping method
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();

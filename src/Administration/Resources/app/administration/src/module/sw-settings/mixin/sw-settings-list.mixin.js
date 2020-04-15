@@ -35,7 +35,11 @@ Mixin.register('sw-settings-list', {
             return criteria;
         },
         titleSaveSuccess() {
-            return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
+            if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`)) {
+                return this.$tc((`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`));
+            }
+
+            return this.$tc('global.default.success');
         },
         messageSaveSuccess() {
             if (this.deleteEntity) {

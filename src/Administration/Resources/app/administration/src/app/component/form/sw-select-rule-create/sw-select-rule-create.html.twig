@@ -5,6 +5,7 @@
                 entity="rule"
                 :criteria="ruleFilter"
                 :value="ruleId"
+                v-bind="$attrs"
                 @change="onSaveRule">
                     <template #before-item-list>
                         {% block sw_select_rule_create_select_before %}
@@ -13,16 +14,39 @@
                             </div>
                         {% endblock %}
                     </template>
+                    <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                        {% block sw_select_rule_create_select_entity_select_result_list_item %}
+                            <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                                <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
+                                    {% block sw_select_rule_create_select_entity_select_result_item_label %}
+                                        <slot name="result-label-property" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                               :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                               :searchTerm="searchTerm">
+                                            </sw-highlight-text>
+                                            <template v-else>
+                                                {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            </template>
+                                        </slot>
+                                    {% endblock %}
+                                </li>
+                            </slot>
+                        {% endblock %}
+                    </template>
             </sw-entity-single-select>
         {% endblock %}
 
         {% block sw_select_rule_create_rule_modal %}
-            <sw-rule-modal
-                v-if="showRuleModal"
-                @save="onSaveRule"
-                @modal-close="onCloseRuleModal"
-                :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
-            </sw-rule-modal>
+            <slot name="rule-modal" v-bind="{ showRuleModal, onSaveRule, onCloseRuleModal }">
+                {% block sw_select_rule_create_rule_modal_inner%}
+                    <sw-rule-modal
+                        v-if="showRuleModal"
+                        @save="onSaveRule"
+                        @modal-close="onCloseRuleModal"
+                        :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
+                    </sw-rule-modal>
+                {% endblock %}
+            </slot>
         {% endblock %}
     </div>
 {% endblock %}

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\GoogleShopping\Client\Adapter;
 
 use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient;
+use Symfony\Component\HttpFoundation\Request;
 
 class GoogleShoppingContentAccountResource
 {
@@ -59,5 +60,33 @@ class GoogleShoppingContentAccountResource
         }
 
         return array_merge($responses, $subAccounts);
+    }
+
+    public function update(Request $request, string $merchantId, string $accountId): array
+    {
+        $account = $this->resource->get($merchantId, $accountId);
+        $account->setName($request->get('name'));
+        $account->setWebsiteUrl($request->get('websiteUrl'));
+        $account->setAdultContent($request->get('adultContent', false));
+        $this->setBusinessInformationCountry($account, $request->get('country'));
+
+        return (array) $this->resource->update($merchantId, $accountId, $account)->toSimpleObject();
+    }
+
+    private function setBusinessInformationCountry(\Google_Service_ShoppingContent_Account $account, string $country): void
+    {
+        $businessInformation = $account->getBusinessInformation();
+
+        if (empty($businessInformation)) {
+            $businessInformation = new \Google_Service_ShoppingContent_AccountBusinessInformation();
+        }
+
+        $address = $businessInformation->getAddress();
+
+        if (empty($address)) {
+            $address = new \Google_Service_ShoppingContent_AccountAddress();
+        }
+
+        $address->setCountry($country);
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\GoogleShopping\Service;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource;
+use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource;
 use Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
 use Shopware\Core\Framework\Context;
@@ -30,6 +31,11 @@ class GoogleShoppingMerchantAccountTest extends TestCase
     private $googleShoppingContentAccountResource;
 
     /**
+     * @var MockObject
+     */
+    private $googleShoppingContentShippingSettingResource;
+
+    /**
      * @var Context
      */
     private $context;
@@ -40,6 +46,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
         $this->repository = $this->getContainer()->get('google_shopping_merchant_account.repository');
         $this->context = Context::createDefaultContext();
         $this->googleShoppingContentAccountResource = $this->createMock(GoogleShoppingContentAccountResource::class);
+        $this->googleShoppingContentShippingSettingResource = $this->createMock(GoogleShoppingContentShippingSettingResource::class);
     }
 
     public function testGetInfo(): void
@@ -48,7 +55,11 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
         $this->googleShoppingContentAccountResource->expects(static::once())->method('get')->with($merchantId)->willReturn(['storeName' => 'John Doe Store']);
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->googleShoppingContentAccountResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount(
+            $this->repository,
+            $this->googleShoppingContentAccountResource,
+            $this->googleShoppingContentShippingSettingResource
+        );
 
         $merchantInfo = $merchantAccountService->getInfo($merchantId);
 
@@ -75,7 +86,11 @@ class GoogleShoppingMerchantAccountTest extends TestCase
             ],
         ]);
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->googleShoppingContentAccountResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount(
+            $this->repository,
+            $this->googleShoppingContentAccountResource,
+            $this->googleShoppingContentShippingSettingResource
+        );
 
         $list = $merchantAccountService->list();
 
@@ -104,7 +119,11 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
         static::assertEquals(0, $account->count());
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->googleShoppingContentAccountResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount(
+            $this->repository,
+            $this->googleShoppingContentAccountResource,
+            $this->googleShoppingContentShippingSettingResource
+        );
 
         $merchantAccountService->create(Uuid::randomHex(), $googleAccount['id'], $this->context);
 
@@ -126,7 +145,11 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
         static::assertEquals(1, $account->count());
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->googleShoppingContentAccountResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount(
+            $this->repository,
+            $this->googleShoppingContentAccountResource,
+            $this->googleShoppingContentShippingSettingResource
+        );
 
         $merchantAccountService->delete($merchantId, $this->context);
 

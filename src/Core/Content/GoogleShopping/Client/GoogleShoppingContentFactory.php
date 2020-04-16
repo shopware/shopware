@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\GoogleShopping\Client;
 
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource;
+use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource;
 
 class GoogleShoppingContentFactory
 {
@@ -26,5 +27,10 @@ class GoogleShoppingContentFactory
     public function createShoppingContentAccountResource(): GoogleShoppingContentAccountResource
     {
         return new GoogleShoppingContentAccountResource($this->shoppingContentService->accounts, $this->googleShoppingClient);
+    }
+
+    public function createShoppingContentShippingSettingResource(): GoogleShoppingContentShippingSettingResource
+    {
+        return new GoogleShoppingContentShippingSettingResource($this->shoppingContentService->shippingsettings, $this->googleShoppingClient);
     }
 }

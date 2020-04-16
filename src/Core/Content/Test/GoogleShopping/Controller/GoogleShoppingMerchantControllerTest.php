@@ -161,4 +161,195 @@ class GoogleShoppingMerchantControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }
+
+    public function testUpdateMerchantAccountWithoutDataFailure(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/update'
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(3, $response['errors']);
+        static::assertSame('/websiteUrl', $response['errors'][0]['source']['pointer']);
+        static::assertSame('/name', $response['errors'][1]['source']['pointer']);
+        static::assertSame('/country', $response['errors'][2]['source']['pointer']);
+    }
+
+    public function testUpdateMerchantAccountInvalidWebsiteUrlFailure(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/update',
+            $this->getUpdatingMerchantData(['websiteUrl' => 'not_a_url'])
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('/websiteUrl', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testUpdateMerchantAccountWithInvalidAdultContentTypeFailure(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/update',
+            $this->getUpdatingMerchantData(['adultContent' => 'invalid'])
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('/adultContent', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testUpdateMerchantAccountSuccess(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/update',
+            $this->getUpdatingMerchantData()
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSetupShippingWithoutFlatRateFailure(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/setup-shipping',
+            []
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('/flatRate', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testSetupShippingInvalidFlatRateFailure(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/setup-shipping',
+            ['flatRate' => 'not_a_number']
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('/flatRate', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testSetupShippingWithSalesChannelIsNotConnectedMerchantFailure(): void
+    {
+        $salesChannelId = $this->createSalesChannelGoogleShopping();
+        $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $salesChannelId . '/google-shopping/merchant/setup-shipping',
+            ['flatRate' => 10]
+        );
+
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals('CONTENT__GOOGLE_SHOPPING_CONNECTED_MERCHANT_ACCOUNT_NOT_FOUND', $response['errors'][0]['code']);
+    }
+
+    public function testSetupShippingWithSalesChannelIsNotConnectedProductExportFailure(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $merchantId = Uuid::randomHex();
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], $merchantId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/setup-shipping',
+            ['flatRate' => 10]
+        );
+
+        $response = json_decode($this->client->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals('CONTENT__GOOGLE_SHOPPING_SALES_CHANNEL_IS_NOT_LINKED_TO_PRODUCT_EXPORT', $response['errors'][0]['code']);
+    }
+
+    public function testSetupShippingSuccess(): void
+    {
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $this->connectGoogleShoppingMerchantAccount($googleAccounts['googleAccount']['id'], Uuid::randomHex());
+
+        $storefrontSalesChannelId = $this->createStorefrontSalesChannel();
+        $this->createProductExport($googleAccounts['googleAccount']['salesChannelId'], $storefrontSalesChannelId);
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccounts['googleAccount']['salesChannelId'] . '/google-shopping/merchant/setup-shipping',
+            ['flatRate' => 10]
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    private function getUpdatingMerchantData(array $data = []): array
+    {
+        return array_merge([
+            'name' => 'Shopware',
+            'websiteUrl' => 'https://shopware.com',
+            'country' => 'DE',
+            'adultContent' => false,
+        ], $data);
+    }
 }

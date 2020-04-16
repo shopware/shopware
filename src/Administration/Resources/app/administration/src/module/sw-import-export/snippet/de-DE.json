@@ -37,6 +37,13 @@
         "importLabel": "Import",
         "labelDownloadFile": "Datei herunterladen",
         "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen"
+      },
+      "status": {
+        "progress": "Import im Gange",
+        "merging_files": "Dateien zusammenführen",
+        "succeeded": "Erfolgreich",
+        "failed": "Fehlgeschlagen",
+        "aborted": "Abgebrochen"
       }
     },
     "profile": {

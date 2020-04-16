@@ -18,7 +18,42 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-modal': '<div></div>'
             },
             mocks: {
-                $tc: (translationPath) => translationPath,
+                $tc: (key) => {
+                    switch (key) {
+                        case 'sw-import-export.activity.status.progress': {
+                            return 'Progress';
+                        }
+
+                        case 'sw-import-export.activity.status.merging_files': {
+                            return 'Merging files';
+                        }
+
+                        case 'sw-import-export.activity.status.succeeded': {
+                            return 'Succeeded';
+                        }
+
+                        case 'sw-import-export.activity.status.failed': {
+                            return 'Failed';
+                        }
+
+                        case 'sw-import-export.activity.status.aborted': {
+                            return 'Aborted';
+                        }
+
+                        default: {
+                            return key;
+                        }
+                    }
+                },
+                $te: (key) => {
+                    return [
+                        'sw-import-export.activity.status.progress',
+                        'sw-import-export.activity.status.merging_files',
+                        'sw-import-export.activity.status.succeeded',
+                        'sw-import-export.activity.status.failed',
+                        'sw-import-export.activity.status.aborted'
+                    ].includes(key);
+                },
                 date: (date) => date
             },
             provide: {
@@ -72,5 +107,21 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.isVueInstance()).toBeTruthy();
         expect(detailModal.isVueInstance()).toBeTruthy();
         expect(detailModal.vm.logEntity).toEqual(logEntity);
+    });
+
+    it('should show the correct label', () => {
+        const { wrapper } = createWrapper();
+
+        expect(wrapper.vm.getStateLabel('progress')).toEqual('Progress');
+        expect(wrapper.vm.getStateLabel('merging_files')).toEqual('Merging files');
+        expect(wrapper.vm.getStateLabel('succeeded')).toEqual('Succeeded');
+        expect(wrapper.vm.getStateLabel('failed')).toEqual('Failed');
+        expect(wrapper.vm.getStateLabel('aborted')).toEqual('Aborted');
+    });
+
+    it('should show the technical name when no translation exists', () => {
+        const { wrapper } = createWrapper();
+
+        expect(wrapper.vm.getStateLabel('waiting')).toEqual('waiting');
     });
 });

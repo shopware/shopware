@@ -49,7 +49,7 @@
                         <sw-color-badge v-if="item.state === 'failed'" variant="error" rounded></sw-color-badge>
                         <sw-color-badge v-else-if="item.state === 'succeeded'" variant="success" rounded></sw-color-badge>
                         <sw-color-badge v-else rounded></sw-color-badge>
-                        {{ item.state }}
+                        {{ getStateLabel(item.state) }}
                     </template>
                 {% endblock %}
 

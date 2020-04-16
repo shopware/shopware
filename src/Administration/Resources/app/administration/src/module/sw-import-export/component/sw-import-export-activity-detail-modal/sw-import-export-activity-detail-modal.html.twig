@@ -54,7 +54,7 @@
                         <sw-color-badge v-if="logEntity.state === 'failed'" variant="error" rounded></sw-color-badge>
                         <sw-color-badge v-else-if="logEntity.state === 'succeeded'" variant="success" rounded></sw-color-badge>
                         <sw-color-badge v-else rounded></sw-color-badge>
-                        {{ logEntity.state }}
+                        {{ getStateLabel(logEntity.state) }}
                     </dd>
                 {% endblock %}
             </sw-description-list>

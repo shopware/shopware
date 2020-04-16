@@ -182,6 +182,12 @@ Shopware.Component.register('sw-import-export-activity', {
 
         calculateFileSize(size) {
             return format.fileSize(size);
+        },
+
+        getStateLabel(state) {
+            const translationKey = `sw-import-export.activity.status.${state}`;
+
+            return this.$te(translationKey) ? this.$tc(translationKey) : state;
         }
     }
 });

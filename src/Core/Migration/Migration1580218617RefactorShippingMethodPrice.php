@@ -41,7 +41,9 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
             = 'CREATE TRIGGER shipping_method_price_new_price_update BEFORE UPDATE ON shipping_method_price
             FOR EACH ROW
             BEGIN
-                IF NEW.price != OLD.price AND (NEW.currency_price = OLD.currency_price OR (NEW.currency_price IS NULL AND OLD.currency_price IS NULL)) THEN
+                IF (NEW.price != OLD.price OR (NEW.price IS NOT NULL AND OLD.price IS NULL))
+                        OR (NEW.currency_id != OLD.currency_id OR (NEW.currency_id IS NOT NULL AND OLD.currency_id IS NULL))
+                        AND (NEW.currency_price = OLD.currency_price OR (NEW.currency_price IS NULL AND OLD.currency_price IS NULL)) THEN
                     SET NEW.currency_price = JSON_OBJECT(
                         CONCAT("c", LOWER(HEX(NEW.currency_id))),
                         JSON_OBJECT(
@@ -51,7 +53,9 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
                             "currencyId", LOWER(HEX(NEW.currency_id))
                         )
                     );
-                ELSEIF NEW.price = OLD.price AND NEW.currency_id = OLD.currency_id AND NEW.currency_price != OLD.currency_price THEN
+                ELSEIF (NEW.price = OLD.price OR NEW.price IS NULL)
+                        AND (NEW.currency_id = OLD.currency_id OR NEW.currency_id IS NULL)
+                        AND (NEW.currency_price != OLD.currency_price OR (OLD.currency_price IS NULL AND NEW.currency_price IS NOT NULL)) THEN
                     SET NEW.price = JSON_UNQUOTE(JSON_EXTRACT(
                         NEW.currency_price,
                         CONCAT("$.", JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(NEW.currency_price), "$[0]")), ".gross")

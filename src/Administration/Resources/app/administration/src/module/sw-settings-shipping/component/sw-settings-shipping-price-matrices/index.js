@@ -68,8 +68,11 @@ Component.register('sw-settings-shipping-price-matrices', {
         onDeletePriceMatrix(shippingPriceGroup) {
             this.shippingMethod.prices = this.shippingMethod.prices.filter((shippingPrice) => {
                 // If the shipping price group is new and the prices is also flagged new, remove it
-                if (shippingPriceGroup.isNew && shippingPrice._inNewMatrix) {
-                    return false;
+                if (shippingPriceGroup.isNew) {
+                    if (shippingPrice._inNewMatrix) {
+                        return false;
+                    }
+                    return true;
                 }
 
                 return shippingPrice.ruleId !== shippingPriceGroup.ruleId;

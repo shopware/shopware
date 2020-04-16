@@ -98,9 +98,16 @@ class DeliveryCalculator
 
         $shippingPrices = $shippingMethod->getPrices();
 
+        $displayGross = $context->getCurrentCustomerGroup()->getDisplayGross();
+        $currencyId = $context->getCurrency()->getId();
         $shippingPrices->sort(
-            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) {
-                return $priceEntityA->getPrice() <=> $priceEntityB->getPrice();
+            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($displayGross, $currencyId) {
+                $priceA = $priceEntityA->getCurrencyPrice()->getCurrencyPrice($currencyId);
+                $priceA = $displayGross ? $priceA->getGross() : $priceA->getNet();
+                $priceB = $priceEntityB->getCurrencyPrice()->getCurrencyPrice($currencyId);
+                $priceB = $displayGross ? $priceB->getGross() : $priceB->getNet();
+
+                return $priceA <=> $priceB;
             }
         );
 
@@ -116,13 +123,7 @@ class DeliveryCalculator
             $price = $shippingPrice->getCurrencyPrice();
 
             if (!$price) {
-                $price = new PriceCollection();
-                if ($shippingPrice->getPrice() !== null) {
-                    $price->add(new Price(Defaults::CURRENCY, $shippingPrice->getPrice(), $shippingPrice->getPrice(), false));
-                } else {
-                    // ToDo: Throw exception because neither currencyPrice nor price is set
-                    throw new \Exception('No price is set!!');
-                }
+                continue;
             }
 
             $costs = $this->calculateShippingCosts(

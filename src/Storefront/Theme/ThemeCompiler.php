@@ -17,7 +17,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 
-class ThemeCompiler
+class ThemeCompiler implements ThemeCompilerInterface
 {
     /**
      * @var FilesystemInterface

@@ -474,7 +474,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added additional data to the JS plugin events `SearchWidget::handleInputEvent`, `FormValidation::onFormSubmit` and `AddToCart::beforeFormSubmit`
     * Added `\Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory` and deprecated the factory methods of `\Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration` in favor of the new factory class
     * Added `\Shopware\Storefront\Theme\StorefrontPluginRegistryInterface`
-    * Added `\Shopware\Storefront\Theme\ThemeFileImporterInterface` which is used by ThemeCompiler to import theme files
+    * Added `\Shopware\Storefront\Theme\ThemeFileImporterInterface` which is used by `ThemeCompiler`, `ThemeFileResolver` and `ThemeLifecycleService` to import theme files
     * Added `\Shopware\Storefront\Theme\ThemeLifecycleHandler` to handle theme lifecycle.
     * `\Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber` now uses `\Shopware\Storefront\Theme\ThemeLifecycleHandler`, constructor arguments changed because of that.
     * Added Twig Filter `replace_recursive` for editing values in nested Arrays
@@ -502,7 +502,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
 
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
-    
+    * Added `\Shopware\Storefront\Theme\ThemeCompilerInterface`
+
 **Removals**
 
 * Administration

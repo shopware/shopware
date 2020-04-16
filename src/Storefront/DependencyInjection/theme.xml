@@ -32,9 +32,12 @@
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="theme_media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ThemeFileResolver"/>
+        <service id="Shopware\Storefront\Theme\ThemeFileResolver">
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+        </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>

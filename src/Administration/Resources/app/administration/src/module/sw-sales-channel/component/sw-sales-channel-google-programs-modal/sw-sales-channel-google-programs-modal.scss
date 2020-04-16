@@ -45,7 +45,7 @@
     a {
         text-decoration: none;
         color: $color-shopware-brand-500;
-        font-size: 14px;
+        font-size: $font-size-small;
 
         &:hover {
             color: $color-shopware-brand-600;

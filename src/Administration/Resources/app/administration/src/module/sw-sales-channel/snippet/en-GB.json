@@ -270,6 +270,15 @@
         "titleCreateMerchant": "Create a new Google Merchant Center account",
         "textCreateMerchantDescription": "You can choose to create a new Google Merchant Center account if you wish.",
         "buttonCreateMerchant": "Create a new Merchant Center account"
+      },
+      "step-7": {
+        "titleSetting": "Set up your shipping settings",
+        "textSettingDescription": "To show ads to a particular country or region, you must offer shipping and set up shipping costs for that area. Your Merchant Center shipping costs must match the costs you charge on your website.",
+        "textLearnMore": "Learn more",
+        "linkLearnMore": "https://support.google.com/merchants/answer/7050921?hl=en&ref_topic=7293661",
+        "textCurrentStoreOption": "Use current store shipping settings",
+        "textFlatRateOption": "Use a flat rate for all orders",
+        "textSelfSetupOption": "Don’t sync settings from Shopware. I’ll set this up myself in Google Merchant Center"
       }
     },
     "sw-sales-channel-defaults-select": {

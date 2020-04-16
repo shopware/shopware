@@ -280,6 +280,15 @@
         "titleCreateMerchant": "Erstelle ein neues Google Merchant Konto",
         "textCreateMerchantDescription": "Erstelle ein neues Google Merchant Center Konto, wenn du möchtest.",
         "buttonCreateMerchant": "Erstelle ein neuen Google Merchant Center Konto"
+      },
+      "step-7": {
+        "titleSetting": "Versandeinstellungen konfigurieren",
+        "textSettingDescription": "Um Werbung für bestimmte Länder/Regionen zu schalten, musst Du für diese Gebiete den Versand anbieten und Versandkosten konfiguriert haben. Deine Merchant Center Versandkosten müssen mit den Kosten auf Deiner Website übereinstimmen.",
+        "textLearnMore": "Erfahre mehr",
+        "linkLearnMore": "https://support.google.com/merchants/answer/7050921?hl=de&ref_topic=7293661",
+        "textCurrentStoreOption": "Verwende derzeitige Versandeinstellungen des Shops",
+        "textFlatRateOption": "Verwende einen Pauschaltarif für alle Bestellungen",
+        "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten"
       }
     },
     "sw-sales-channel-defaults-select": {

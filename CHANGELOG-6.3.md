@@ -12,11 +12,13 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
+    * Added custom `slot` to `sw-radio-field` component
     * Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal 
     * Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
         * Added `sw-sales-channel-google-introduction` to handle Google account authentication and connection
         * Added `sw-sales-channel-google-authentication` to show Google account profile and handle disconnect functionality
         * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
+        * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
     * Added salesChannel state in `sw-sales-channel` module
 
 * Core    

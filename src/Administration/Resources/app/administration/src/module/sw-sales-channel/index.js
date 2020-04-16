@@ -27,6 +27,7 @@ import './component/sw-sales-channel-google-programs-modal';
 import './component/sw-sales-channel-google-introduction';
 import './component/sw-sales-channel-google-authentication';
 import './component/sw-sales-channel-google-merchant';
+import './component/sw-sales-channel-google-shipping-setting';
 
 const { Module } = Shopware;
 
@@ -64,6 +65,10 @@ Module.register('sw-sales-channel', {
                         'step-3': {
                             component: 'sw-sales-channel-google-merchant',
                             path: 'step-3'
+                        },
+                        'step-7': {
+                            component: 'sw-sales-channel-google-shipping-setting',
+                            path: 'step-7'
                         }
                     }
                 },

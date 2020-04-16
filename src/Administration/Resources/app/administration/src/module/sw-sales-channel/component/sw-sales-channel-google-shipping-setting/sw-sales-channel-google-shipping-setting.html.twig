@@ -1,0 +1,39 @@
+{% block sw_sales_channel_google_shipping_setting %}
+    <div class="sw-sales-channel-google-shipping-setting">
+        {%  block sw_sales_channel_google_shipping_setting_information %}
+            <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-7.titleSetting') }}</strong>
+            <p class="sw-sales-channel-google-shipping-setting__description">
+                {{ $tc('sw-sales-channel.modalGooglePrograms.step-7.textSettingDescription') }}
+            </p>
+
+            <sw-sales-channel-detail-protect-link
+                :href="$tc('sw-sales-channel.modalGooglePrograms.step-7.linkLearnMore')">
+                {{ $tc('sw-sales-channel.modalGooglePrograms.step-7.textLearnMore') }}
+            </sw-sales-channel-detail-protect-link>
+        {% endblock %}
+
+        {%  block sw_sales_channel_google_shipping_setting_select_options %}
+            <sw-radio-field
+                class="sw-sales-channel-google-shipping-setting__options"
+                v-model="selectedSettingOption"
+                :options="settingOptions">
+                {%  block sw_sales_channel_google_shipping_setting_flat_rate_input %}
+                    <template #custom-field-flatRate="{ checked, disabled }">
+                        <sw-number-field
+                            class="sw-sales-channel-google-shipping-setting__rate-input"
+                            size="small"
+                            :min="0"
+                            :disabled="disabled || !checked"
+                            v-model="flatRate">
+                            <template #suffix>
+                                <span class="sw-sales-channel-google-shipping-setting__currency-label">
+                                    {{ currencyIsoCode }}
+                                </span>
+                            </template>
+                        </sw-number-field>
+                    </template>
+                {% endblock %}
+            </sw-radio-field>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -33,6 +33,7 @@
                                         'class': 'product-image is-'~displayMode,
                                         'alt': (cover.translated.alt ?: name),
                                         'title': (cover.translated.title ?: name)
+                                        ,'loading': 'lazy'
                                     } %}
 
                                     {% if displayMode == 'cover' or displayMode == 'contain' %}

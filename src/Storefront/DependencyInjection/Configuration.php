@@ -28,7 +28,17 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-            ->end();
+                ->arrayNode('htmlPurifier')
+                    ->children()
+                        ->variableNode('cacheDir')
+                            ->defaultValue('%kernel.cache_dir%')
+                        ->end()
+                        ->booleanNode('cacheEnabled')
+                            ->defaultTrue()
+                        ->end()
+                    ->end()
+                ->end()
+        ->end();
 
         return $treeBuilder;
     }

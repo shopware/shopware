@@ -73,7 +73,9 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\SwSanitizeTwigFilter" public="false">
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%storefront.htmlPurifier.cacheDir%</argument>
+            <argument>%storefront.htmlPurifier.cacheEnabled%</argument>
+
             <tag name="twig.extension"/>
         </service>
 

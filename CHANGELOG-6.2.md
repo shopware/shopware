@@ -519,6 +519,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     * Added `\Shopware\Storefront\Theme\ThemeCompilerInterface`
+    * Fixed a bug that html purifier config could be overriden for future calls to `sw_sanitize`
+    * Added bundle configuration to `HTMLPurifier`s behaviour
+        * `storefront.htmlPurifier.cacheDir`: Directory to write `HTMLPurifier` cache (defaults to `kernel.cache_dir`)
+        * `storefront.htmlPurifier.enableCache`: Boolean to turn `HTMLPurifier`s cache cache on or off (defaults to `true`)
 
 **Removals**
 

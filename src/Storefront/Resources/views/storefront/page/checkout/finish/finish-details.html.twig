@@ -5,7 +5,7 @@
                 {% block page_checkout_finish_header %}
                     <h1 class="finish-header">
                         {% if page.changedPayment == true %}
-                            {{ "checkout.finishPaymentHeader"|trans|sw_sanitize }}
+                            {{ "checkout.finishUpdateHeader"|trans|sw_sanitize }}
                         {% else %}
                             {{ "checkout.finishHeader"|trans({
                                 '%shop%': shopware.config.core.basicInformation.shopName
@@ -18,6 +18,14 @@
                     <p class="finish-ordernumber">
                         {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}{{ page.order.orderNumber }}
                     </p>
+                {% endblock %}
+
+                {% block page_checkout_finish_subtitle %}
+                    {% if page.changedPayment == true %}
+                        <p class="finish-order-subtitle">
+                            {{ "checkout.finishPaymentHeader"|trans({'%paymentName%': page.order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}
+                        </p>
+                    {% endif %}
                 {% endblock %}
 
                 {% block page_checkout_finish_content %}

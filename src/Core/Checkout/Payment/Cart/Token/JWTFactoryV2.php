@@ -7,14 +7,10 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use League\OAuth2\Server\CryptKey;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @deprecated tag:v6.3.0 will be removed. use TokenFactoryV2 instead
- */
-class JWTFactory implements TokenFactoryInterface
+class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**
      * @var CryptKey
@@ -33,19 +29,17 @@ class JWTFactory implements TokenFactoryInterface
         $this->privateKey = $privateKey;
     }
 
-    public function generateToken(
-        OrderTransactionEntity $transaction,
-        ?string $finishUrl = null,
-        int $expiresInSeconds = 1800
-    ): string {
+    public function generateToken(TokenStruct $tokenStruct): string
+    {
         $jwtToken = (new Builder())
             ->setId(Uuid::randomHex(), true)
             ->setIssuedAt(time())
             ->setNotBefore(time())
-            ->setExpiration(time() + $expiresInSeconds)
-            ->setSubject($transaction->getId())
-            ->set('pmi', $transaction->getPaymentMethodId())
-            ->set('ful', $finishUrl)
+            ->setExpiration(time() + $tokenStruct->getExpires())
+            ->setSubject($tokenStruct->getTransactionId())
+            ->set('pmi', $tokenStruct->getPaymentMethodId())
+            ->set('ful', $tokenStruct->getFinishUrl())
+            ->set('eul', $tokenStruct->getErrorUrl())
             ->sign(new Sha256(), new Key($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase()))
             ->getToken();
 
@@ -66,6 +60,10 @@ class JWTFactory implements TokenFactoryInterface
         if (!$jwtToken->verify(new Sha256(), $this->privateKey->getKeyPath())) {
             throw new InvalidTokenException($token);
         }
+        $errorUrl = null;
+        if ($jwtToken->hasClaim('eul')) {
+            $errorUrl = $jwtToken->getClaim('eul');
+        }
 
         $tokenStruct = new TokenStruct(
             $jwtToken->getClaim('jti'),
@@ -74,7 +72,7 @@ class JWTFactory implements TokenFactoryInterface
             $jwtToken->getClaim('sub'),
             $jwtToken->getClaim('ful'),
             $jwtToken->getClaim('exp'),
-            $jwtToken->getClaim('eul')
+            $errorUrl
         );
 
         return $tokenStruct;

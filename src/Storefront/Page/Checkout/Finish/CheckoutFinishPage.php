@@ -17,6 +17,11 @@ class CheckoutFinishPage extends Page
      */
     protected $changedPayment = false;
 
+    /**
+     * @var bool
+     */
+    protected $paymentFailed = false;
+
     public function getOrder(): OrderEntity
     {
         return $this->order;
@@ -35,5 +40,15 @@ class CheckoutFinishPage extends Page
     public function setChangedPayment(bool $changedPayment): void
     {
         $this->changedPayment = $changedPayment;
+    }
+
+    public function isPaymentFailed(): bool
+    {
+        return $this->paymentFailed;
+    }
+
+    public function setPaymentFailed(bool $paymentFailed): void
+    {
+        $this->paymentFailed = $paymentFailed;
     }
 }

@@ -62,6 +62,8 @@ class CheckoutFinishPageLoader
 
         $page->setChangedPayment((bool) $request->get('changedPayment', false));
 
+        $page->setPaymentFailed((bool) $request->get('paymentFailed', false));
+
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
         );

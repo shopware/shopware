@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
-use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
@@ -36,7 +36,7 @@ class PaymentService
     private $paymentProcessor;
 
     /**
-     * @var TokenFactoryInterface
+     * @var TokenFactoryInterfaceV2
      */
     private $tokenFactory;
 
@@ -62,7 +62,7 @@ class PaymentService
 
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
-        TokenFactoryInterface $tokenFactory,
+        TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $orderTransactionRepository,
@@ -86,14 +86,15 @@ class PaymentService
         string $orderId,
         RequestDataBag $dataBag,
         SalesChannelContext $context,
-        ?string $finishUrl = null
+        ?string $finishUrl = null,
+        ?string $errorUrl = null
     ): ?RedirectResponse {
         if (!Uuid::isValid($orderId)) {
             throw new InvalidOrderException($orderId);
         }
 
         try {
-            return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl);
+            return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
         } catch (PaymentProcessException $e) {
             $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context->getContext());
 
@@ -128,8 +129,9 @@ class PaymentService
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
         } catch (PaymentProcessException $e) {
             $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context);
+            $paymentTokenStruct->setException($e);
 
-            throw $e;
+            return $paymentTokenStruct;
         }
 
         return $paymentTokenStruct;

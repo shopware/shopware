@@ -4,23 +4,24 @@ namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory;
+use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class JWTFactoryTest extends TestCase
+class JWTFactoryV2Test extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @var JWTFactory
+     * @var JWTFactoryV2
      */
     private $tokenFactory;
 
     protected function setUp(): void
     {
-        $this->tokenFactory = $this->getContainer()->get(JWTFactory::class);
+        $this->tokenFactory = $this->getContainer()->get(JWTFactoryV2::class);
     }
 
     /**
@@ -29,7 +30,8 @@ class JWTFactoryTest extends TestCase
     public function testGenerateAndGetToken(): void
     {
         $transaction = self::createTransaction();
-        $token = $this->tokenFactory->generateToken($transaction);
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId());
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $tokenStruct = $this->tokenFactory->parseToken($token);
 
         static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
@@ -53,7 +55,8 @@ class JWTFactoryTest extends TestCase
     public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = self::createTransaction();
-        $token = $this->tokenFactory->generateToken($transaction);
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId());
+        $token = $this->tokenFactory->generateToken($tokenStruct);
         $invalidToken = mb_substr($token, 0, -3);
 
         $this->expectException(InvalidTokenException::class);

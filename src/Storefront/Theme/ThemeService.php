@@ -37,7 +37,7 @@ class ThemeService
     private $mediaRepository;
 
     /**
-     * @var ThemeCompiler
+     * @var ThemeCompilerInterface
      */
     private $themeCompiler;
 
@@ -51,7 +51,7 @@ class ThemeService
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
         EntityRepositoryInterface $mediaRepository,
-        ThemeCompiler $themeCompiler
+        ThemeCompilerInterface $themeCompiler
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;

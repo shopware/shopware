@@ -14,6 +14,16 @@ class ThemeFileResolver
     public const SCRIPT_FILES = 'script';
     public const STYLE_FILES = 'style';
 
+    /**
+     * @var ThemeFileImporterInterface|null will be required in v6.3.0
+     */
+    private $themeFileImporter;
+
+    public function __construct(?ThemeFileImporterInterface $themeFileImporter = null)
+    {
+        $this->themeFileImporter = $themeFileImporter;
+    }
+
     public function resolveFiles(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
@@ -81,7 +91,7 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
-                if (file_exists($filepath)) {
+                if ($this->fileExists($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;
@@ -137,5 +147,14 @@ class ThemeFileResolver
     private function isInclude(string $file): bool
     {
         return mb_strpos($file, '@') === 0;
+    }
+
+    private function fileExists(string $filepath): bool
+    {
+        if (!$this->themeFileImporter) {
+            return file_exists($filepath);
+        }
+
+        return $this->themeFileImporter->fileExists($filepath);
     }
 }

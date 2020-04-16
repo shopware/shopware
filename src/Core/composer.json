@@ -49,6 +49,7 @@
         "doctrine/inflector": "1.3.1",
         "dompdf/dompdf": "0.8.4",
         "enqueue/dbal": "0.10.0",
+        "google/apiclient": "2.4.0",
         "google/cloud-storage": "1.17.0",
         "guzzlehttp/guzzle": "6.5.2",
         "jdorn/sql-formatter": "1.2.17",

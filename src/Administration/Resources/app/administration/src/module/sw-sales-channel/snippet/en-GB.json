@@ -95,7 +95,7 @@
       "titleDomainHeadline": "Create domain URLs",
       "buttonEditDomain": "Edit domain",
       "titleCreateDomain": "Create domain",
-      "titleEditDomain": "Edit \"{name}\" domain",
+      "titleEditDomain": "Edit domain \"{name}\"",
       "textDomainDescription": "Each selected language must have its own domain, in order to work in your online Sales Channel. You can also add custom domains here.",
       "textApiAccessDescription": "In order to get API access, you need the API key shown below. Generating the key anew will overwrite the old key and by that terminate all existing access routes that were set up with it. <strong>This action cannot be undone.</strong>",
       "textActiveDescription": "Switching off a Sales Channel will make it inaccessible to visitors as well as API connections.",

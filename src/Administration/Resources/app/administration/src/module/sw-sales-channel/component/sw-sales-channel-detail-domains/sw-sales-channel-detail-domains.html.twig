@@ -140,7 +140,7 @@
                     {% endblock %}
 
                     {% block sw_sales_channel_detail_domains_create_action_create %}
-                        <sw-button size="small" variant="primary" @click="onClickAddNewDomain">
+                        <sw-button size="small" variant="primary" @click="onClickAddNewDomain" :disabled="disabled">
                             {{ currentDomainModalButtonText }}
                         </sw-button>
                     {% endblock %}

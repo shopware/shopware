@@ -12,7 +12,7 @@ class CacheApiService {
 
     index() {
         const headers = this.getHeaders();
-        return this.httpClient.post('/_action/index', { headers });
+        return this.httpClient.post('/_action/index', {}, { headers });
     }
 
     clear() {

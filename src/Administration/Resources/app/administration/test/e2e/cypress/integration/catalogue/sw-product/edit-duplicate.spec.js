@@ -22,11 +22,11 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/clone/product/*',
+            url: '/api/**/_action/clone/product/*',
             method: 'POST'
         }).as('duplicateProduct');
         cy.route({
-            url: '/api/v1/search/product',
+            url: '/api/**/search/product',
             method: 'POST'
         }).as('getProduct');
 
@@ -56,11 +56,11 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/clone/product/*',
+            url: '/api/**/_action/clone/product/*',
             method: 'POST'
         }).as('duplicateProduct');
         cy.route({
-            url: '/api/v1/search/product',
+            url: '/api/**/search/product',
             method: 'POST'
         }).as('getProduct');
 

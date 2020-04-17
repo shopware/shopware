@@ -4,9 +4,9 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
@@ -21,21 +21,21 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
     private $connection;
 
     /**
-     * @var LoggerInterface
+     * @var ElasticsearchHelper
      */
-    private $logger;
+    private $elasticsearchHelper;
 
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         Client $client,
         Connection $connection,
-        LoggerInterface $logger
+        ElasticsearchHelper $elasticsearchHelper
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->client = $client;
         $this->connection = $connection;
         $this->scheduledTaskRepository = $scheduledTaskRepository;
-        $this->logger = $logger;
+        $this->elasticsearchHelper = $elasticsearchHelper;
     }
 
     public static function getHandledMessages(): iterable
@@ -49,11 +49,11 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $this->handleQueue();
         } catch (\Throwable $e) {
             // catch exception - otherwise the task will never be called again
-            $this->logger->critical($e->getMessage());
+            $this->elasticsearchHelper->logOrThrowException($e);
         }
     }
 
-    private function indexReady(string $index, string $entity, int $expected): bool
+    private function isIndexReady(string $index, string $entity, int $expected): bool
     {
         /** @var array $remote */
         $remote = $this->client->count([
@@ -102,7 +102,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
 
             $this->client->indices()->refresh(['index' => $index]);
 
-            if (!$this->indexReady($index, $entity, $count)) {
+            if (!$this->isIndexReady($index, $entity, $count)) {
                 continue;
             }
 

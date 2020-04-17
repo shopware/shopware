@@ -46,33 +46,24 @@ class IndexerOffset
         LanguageCollection $languages,
         iterable $definitions,
         ?int $timestamp,
-        $lastId = null,
-        ?string $definition = null,
-        ?string $languageId = null
+        $lastId = null
     ) {
         $this->languages = array_values($languages->getIds());
 
         $mapping = [];
-        /** @var AbstractElasticsearchDefinition $loop */
-        foreach ($definitions as $loop) {
-            $mapping[] = $loop->getEntityDefinition()->getEntityName();
+        /** @var AbstractElasticsearchDefinition $definition */
+        foreach ($definitions as $definition) {
+            $mapping[] = $definition->getEntityDefinition()->getEntityName();
         }
 
         $this->allDefinitions = $mapping;
-
-        if (!$languageId) {
-            $languageId = array_shift($this->languages);
-        }
-        if (!$definition) {
-            $definition = array_shift($mapping);
-        }
-
         $this->definitions = $mapping;
-        $this->timestamp = $timestamp;
-        $this->definition = $definition;
 
+        $this->timestamp = $timestamp;
         $this->lastId = $lastId;
-        $this->languageId = $languageId;
+
+        $this->setNextLanguage();
+        $this->setNextDefinition();
     }
 
     public function setNextDefinition(): ?string

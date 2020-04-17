@@ -92,6 +92,9 @@ class ElasticsearchHelper
         return false;
     }
 
+    /**
+     * Created the index alias
+     */
     public function getIndexName(EntityDefinition $definition, string $languageId): string
     {
         return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
@@ -293,13 +296,9 @@ class ElasticsearchHelper
 
     public function isSupported(EntityDefinition $definition): bool
     {
-        foreach ($this->registry->getDefinitions() as $def) {
-            if ($def->getEntityDefinition()->getEntityName() === $definition->getEntityName()) {
-                return true;
-            }
-        }
+        $entityName = $definition->getEntityName();
 
-        return false;
+        return $this->registry->has($entityName);
     }
 
     private function hasIndexDocuments(EntityDefinition $definition, Context $context): bool

@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -38,6 +39,11 @@ abstract class AbstractElasticsearchDefinition
 
     public function extendCriteria(Criteria $criteria): void
     {
+    }
+
+    public function extendEntities(EntityCollection $collection): EntityCollection
+    {
+        return $collection;
     }
 
     public function buildFullText(Entity $entity): FullText

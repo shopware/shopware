@@ -14,7 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
@@ -38,16 +40,30 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private $criteriaParser;
 
+    /**
+     * @var AbstractElasticsearchSearchHydrator
+     */
+    private $hydrator;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         Client $client,
         EntitySearcherInterface $searcher,
         ElasticsearchHelper $helper,
-        CriteriaParser $criteriaParser
+        CriteriaParser $criteriaParser,
+        AbstractElasticsearchSearchHydrator $hydrator,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->client = $client;
         $this->decorated = $searcher;
         $this->helper = $helper;
         $this->criteriaParser = $criteriaParser;
+        $this->hydrator = $hydrator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -57,6 +73,15 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         }
 
         $search = $this->createSearch($criteria, $definition, $context);
+
+        $this->eventDispatcher->dispatch(
+            new ElasticsearchEntitySearcherSearchEvent(
+                $search,
+                $definition,
+                $criteria,
+                $context
+            )
+        );
 
         $search = $this->convertSearch($criteria, $definition, $context, $search);
 
@@ -73,10 +98,10 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return $this->decorated->search($definition, $criteria, $context);
         }
 
-        return $this->hydrate($criteria, $context, $result);
+        return $this->hydrator->hydrate($definition, $criteria, $context, $result);
     }
 
-    protected function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search
+    private function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search
     {
         $search = new Search();
 
@@ -93,71 +118,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         return $search;
     }
 
-    private function hydrate(Criteria $criteria, Context $context, array $result): IdSearchResult
-    {
-        if (!isset($result['hits'])) {
-            return new IdSearchResult(0, [], $criteria, $context);
-        }
-
-        $hits = $this->extractHits($result);
-
-        $data = [];
-        foreach ($hits as $hit) {
-            $id = $hit['_id'];
-
-            $data[$id] = [
-                'primaryKey' => $id,
-                'data' => [
-                    'id' => $id,
-                    '_score' => $hit['_score'],
-                ],
-            ];
-        }
-
-        $total = $this->getTotalValue($criteria, $result);
-
-        if ($criteria->useIdSorting()) {
-            $data = $this->sortByIdArray($criteria->getIds(), $data);
-        }
-
-        return new IdSearchResult($total, $data, $criteria, $context);
-    }
-
-    private function getTotalValue(Criteria $criteria, array $result): int
-    {
-        if (!$criteria->getGroupFields()) {
-            return (int) $result['hits']['total']['value'];
-        }
-
-        if (!$criteria->getPostFilters()) {
-            return (int) $result['aggregations']['total-count']['value'];
-        }
-
-        return (int) $result['aggregations']['total-filtered-count']['total-count']['value'];
-    }
-
-    private function extractHits(array $result): array
-    {
-        $records = [];
-        $hits = $result['hits']['hits'];
-
-        foreach ($hits as $hit) {
-            if (!isset($hit['inner_hits'])) {
-                $records[] = $hit;
-
-                continue;
-            }
-
-            $nested = $this->extractHits($hit['inner_hits']['inner']);
-            foreach ($nested as $inner) {
-                $records[] = $inner;
-            }
-        }
-
-        return $records;
-    }
-
-    private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search)
+    private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
         if (!$criteria->getGroupFields()) {
             return $search->toArray();
@@ -256,22 +217,5 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $filterAgg->addAggregation($aggregation);
 
         return $filterAgg;
-    }
-
-    private function sortByIdArray(array $ids, array $data): array
-    {
-        $sorted = [];
-
-        foreach ($ids as $id) {
-            if (\is_array($id)) {
-                $id = implode('-', $id);
-            }
-
-            if (\array_key_exists($id, $data)) {
-                $sorted[$id] = $data[$id];
-            }
-        }
-
-        return $sorted;
     }
 }

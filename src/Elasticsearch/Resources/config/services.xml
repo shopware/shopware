@@ -46,8 +46,7 @@
             <argument>%elasticsearch.index.config%</argument>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher">
-        </service>
+        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher"/>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
@@ -62,6 +61,14 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"
+        class="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator"/>
+
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"
+            class="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregatorHydrator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
                  decoration-priority="1000">
@@ -70,6 +77,8 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"
@@ -79,7 +88,8 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\SearchKeywordReplacement"
@@ -107,7 +117,7 @@
             <argument type="service" id="scheduled_task.repository" />
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -117,14 +127,14 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry">
-            <argument type="tagged" tag="shopware.es.definition" />
+            <argument type="tagged" tag="shopware.es.definition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
 
-            <tag name="shopware.es.definition" />
+            <tag name="shopware.es.definition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
@@ -158,9 +168,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="messenger.bus.shopware"/>
-            <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-        </service>
 
+            <tag name="shopware.entity_indexer"/>
+        </service>
     </services>
 </container>

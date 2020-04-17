@@ -117,24 +117,25 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return 'elasticsearch.indexer';
     }
 
+    /**
+     * @param null|IndexerOffset $offset
+     */
     public function iterate($offset): ?EntityIndexingMessage
     {
         if (!$this->helper->allowIndexing()) {
             return null;
         }
 
-        $languages = $this->getLanguages();
-
-        /** @var IndexerOffset|null $offset */
         if ($offset === null) {
-            $offset = $this->init($languages);
+            $offset = $this->init();
         }
 
-        $language = $languages->get($offset->getLanguageId());
+        $language = $this->getLanguageForId($offset->getLanguageId());
 
         if (!$language) {
             return null;
         }
+
         $context = $this->createLanguageContext($language);
 
         // current language has next message?
@@ -153,7 +154,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $offset->resetDefinitions();
         $offset->setLastId(null);
 
-        return $this->createIndexingMessage($offset, $context);
+        return $this->iterate($offset);
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -175,9 +176,9 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             foreach ($languages as $language) {
                 $context = $this->createLanguageContext($language);
 
-                $index = $this->helper->getIndexName($definition, $language->getId());
+                $alias = $this->helper->getIndexName($definition, $language->getId());
 
-                $indexing = new IndexingDto($written->getIds(), $index, $definition->getEntityName());
+                $indexing = new IndexingDto($written->getIds(), $alias, $definition->getEntityName());
 
                 $message = new EntityIndexingMessage($indexing, null, $context);
                 $message->setIndexer($this->getName());
@@ -233,6 +234,8 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             return !$entities->has($id);
         });
 
+        $entities = $definition->extendEntities($entities);
+
         $documents = $this->createDocuments($definition, $entities);
 
         $documents = $this->mapExtensionsToRoot($documents);
@@ -284,25 +287,26 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, $context);
         }
 
-        if ($offset->hasNextDefinition()) {
-            // increment definition offset
-            $offset->setNextDefinition();
-
-            // reset last id to start iterator at the beginning
-            $offset->setLastId(null);
-
-            return $this->createIndexingMessage($offset, $context);
+        if (!$offset->hasNextDefinition()) {
+            return null;
         }
 
-        return null;
+        // increment definition offset
+        $offset->setNextDefinition();
+
+        // reset last id to start iterator at the beginning
+        $offset->setLastId(null);
+
+        return $this->createIndexingMessage($offset, $context);
     }
 
-    private function init(LanguageCollection $languages): IndexerOffset
+    private function init(): IndexerOffset
     {
         // reset all other indexing processes
         $this->clearIndexingTasks();
 
         $definitions = $this->registry->getDefinitions();
+        $languages = $this->getLanguages();
 
         $timestamp = new \DateTime();
 
@@ -330,7 +334,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         return new IndexerOffset(
             $languages,
-            $this->registry->getDefinitions(),
+            $definitions,
             $timestamp->getTimestamp()
         );
     }
@@ -434,5 +438,17 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
     private function clearIndexingTasks(): void
     {
         $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
+    }
+
+    private function getLanguageForId(string $languageId): ?LanguageEntity
+    {
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria([$languageId]);
+
+        /** @var LanguageCollection $languages */
+        $languages = $this->languageRepository
+            ->search($criteria, $context);
+
+        return $languages->get($languageId);
     }
 }

@@ -465,7 +465,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `exception` to `\Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct` to provide the thrown exception for calling Instances of `\Shopware\Core\Checkout\Payment\PaymentService::finalizeTransaction`
     * Added `errorUrl` to `\Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor::process` to provide the errorUrl for the TokenStruct
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory` use `\Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2` instead
-    * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface` use `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2` instead  
+    * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface` use `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2` instead
+    
+    * Added new Field `afterOrderEnabled` to `\Shopware\Core\Checkout\Payment\PaymentMethodDefinition`
      
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations

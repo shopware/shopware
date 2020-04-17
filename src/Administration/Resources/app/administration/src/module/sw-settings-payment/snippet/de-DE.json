@@ -29,6 +29,7 @@
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Aktiv",
+      "labelAfterOrderEnabled": "Als nachträgliche Zahlart erlauben ",
       "labelDescription": "Beschreibung",
       "labelLogoUpload": "Logo",
       "sidebar": {

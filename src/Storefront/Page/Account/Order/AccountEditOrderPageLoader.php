@@ -135,7 +135,11 @@ class AccountEditOrderPageLoader
      */
     private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
+        $criteria = new Criteria([]);
+        $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
+
         $request = new Request();
+        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $request->query->set('onlyAvailable', 1);
 
         return $this->paymentMethodRoute->load($request, $salesChannelContext)->getPaymentMethods();

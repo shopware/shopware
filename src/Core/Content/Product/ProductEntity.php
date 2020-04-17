@@ -249,6 +249,11 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
+     * @var string|null
+     */
+    protected $mainVariantId;
+
+    /**
      * @var TaxEntity|null
      */
     protected $tax;
@@ -1042,6 +1047,16 @@ class ProductEntity extends Entity
     public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
     {
         $this->configuratorGroupConfig = $configuratorGroupConfig;
+    }
+
+    public function getMainVariantId(): ?string
+    {
+        return $this->mainVariantId;
+    }
+
+    public function setMainVariantId(?string $mainVariantId): void
+    {
+        $this->mainVariantId = $mainVariantId;
     }
 
     public function getAvailableStock(): ?int

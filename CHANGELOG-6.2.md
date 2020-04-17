@@ -63,7 +63,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `mapCollectionPropertyErrors` to mapErrorService for Entity Collections
     * Fix that user can delete SEO templates accidentally with an empty string in the template text field
     * Changed sw-text-editor to ignore addProtocol when the domainPlaceholder is used as a link
-
     * Added `sw-multi-tag-select` component which can now be used to allow users to enter data into a tagged input field
     * Added `sw-multi-tag-ip-select` as an extension which includes IP-validation
     * The `sw-multi-ip-select`-component is now deprecated and will be removed with version 6.4
@@ -279,7 +278,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Moved "Salutation" settings-item from settings-index page to navigation sidebar
     * Add automatic versions to HttpClient. You can override the default version in the config argument
     * Add `Hide products after clearance` option in `Setting -> Shop -> Listing`
-    * Add `Listing` tab in the `Storefront presentation` modal to configure the variant preselection
+    * Add `Product listings` tab in the `Storefront presentation` modal to configure the variant preselection
     * Updated Node Dependencies
     * Added new `sw-settings-captcha-select` component
         * This component allows users to define active captchas via `Settings -> Basic information`
@@ -313,6 +312,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`
     * The `clone` method of the `ApiController` now passes overwrites to the `EntityRepository`
     * The `clone` method of the `VersionManager` now accepts `overwrites` and combines the overwrites with the cloned data using `array_replace_recursive`.
+* Core
+    * Added variant preselection logic
+        * Added `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader` to handle product variant preselection
+        * Moved the available stock and display group filters from  
+        `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber` to the new 
+        `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader`
+        * These classes use the new `ProductListingLoader` instead of querying over the `SalesChannelRepositoryInterface` for products directly 
+            * `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute`
+            * `Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute`
+            * `Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute`
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration
@@ -459,11 +468,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface` use `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2` instead  
      
 * Storefront
-    Deprecated `$connection->executeQuery()` for write operations
+    * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
     * Added new `\Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to check available attributes in cart 
-
-* Storefront    
     * Deprecated `$connection->executeQuery()` for write operations
     * The `theme.json` now supports a new option for the `style` files. The placeholder `@StorefrontBootstrap` gives you the ability to use the Bootstrap SCSS without the Shopware Storefront "skin":
         ```json

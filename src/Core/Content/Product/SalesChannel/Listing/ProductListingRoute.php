@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,9 +22,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ProductListingRoute extends AbstractProductListingRoute
 {
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var ProductListingLoader
      */
-    private $productRepository;
+    private $listingLoader;
 
     /**
      * @var EventDispatcherInterface
@@ -33,11 +32,11 @@ class ProductListingRoute extends AbstractProductListingRoute
     private $eventDispatcher;
 
     public function __construct(
-        SalesChannelRepositoryInterface $productRepository,
+        ProductListingLoader $listingLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->listingLoader = $listingLoader;
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -72,7 +71,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );
 
-        $result = $this->productRepository->search($criteria, $salesChannelContext);
+        $result = $this->listingLoader->load($criteria, $salesChannelContext);
 
         $result = ProductListingResult::createFrom($result);
 

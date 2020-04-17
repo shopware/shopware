@@ -34,7 +34,7 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         mainVariant() {
-            return this.product.mainVariant;
+            return this.product.mainVariantId;
         },
 
         variantCriteria() {
@@ -85,7 +85,7 @@ Component.register('sw-product-variants-delivery-listing', {
 
     methods: {
         createdComponent() {
-            const listingMode = this.product.mainVariant ? 'single' : 'expanded';
+            const listingMode = this.mainVariant ? 'single' : 'expanded';
 
             this.updateListingMode(listingMode);
         },
@@ -95,7 +95,7 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         updateMainVariant(value) {
-            this.product.mainVariant = value;
+            this.product.mainVariantId = value;
         },
 
         isActiveGroupInListing(groupId) {
@@ -116,15 +116,16 @@ Component.register('sw-product-variants-delivery-listing', {
 
             if (existingGroup) {
                 existingGroup.expressionForListings = value;
-
                 return;
             }
 
-            this.product.configuratorGroupConfig.push({
+            configuratorGroupConfig.push({
                 id: groupId,
                 expressionForListings: value,
                 representation: 'box'
             });
+
+            this.product.configuratorGroupConfig = configuratorGroupConfig;
         },
 
         isActiveListingMode(mode) {

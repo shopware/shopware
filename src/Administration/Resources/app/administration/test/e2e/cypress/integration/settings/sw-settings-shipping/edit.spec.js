@@ -22,7 +22,7 @@ describe('Shipping: Edit in various ways', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/shipping-method/*',
+            url: '/api/v*/shipping-method/*',
             method: 'patch'
         }).as('saveData');
 

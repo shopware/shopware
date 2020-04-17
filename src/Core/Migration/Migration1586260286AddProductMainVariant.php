@@ -21,6 +21,7 @@ class Migration1586260286AddProductMainVariant extends MigrationStep
             ADD CONSTRAINT `fk.product.main_variant_id`
                 FOREIGN KEY (`main_variant_id`)
                 REFERENCES `product` (`id`)
+                ON DELETE SET NULL
         ');
     }
 

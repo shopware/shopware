@@ -297,8 +297,7 @@
         "listingLabelModeExpanded": "Expand property values in product listings",
         "listingPlaceholderSelectMainVariant": "Please select a main variant...",
         "cancel": "Cancel",
-        "save": "Save",
-        "useForListing": "Fan out variants in listings"
+        "save": "Save"
       }
     },
     "crossselling": {

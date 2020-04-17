@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function Flag\skipTestNext6000;
 
 class ProductListingLoaderTest extends TestCase
 {
@@ -61,7 +60,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testMainVariant(): void
     {
-        skipTestNext6000($this);
         $this->createProduct([], true);
 
         $listing = $this->fetchListing();
@@ -78,7 +76,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testMainVariantInactive(): void
     {
-        skipTestNext6000($this);
         $this->createProduct([], true);
 
         // update main variant to be inactive
@@ -100,7 +97,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testMainVariantRemoved(): void
     {
-        skipTestNext6000($this);
         $this->createProduct([], true);
 
         $this->repository->delete([['id' => $this->mainVariantId]], $this->salesChannelContext->getContext());
@@ -118,7 +114,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testMainVariantOutOfStock(): void
     {
-        skipTestNext6000($this);
         $this->createProduct([], true);
 
         $this->systemConfigService->set(
@@ -147,7 +142,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testChangeProductConfigToMainVariant(): void
     {
-        skipTestNext6000($this);
         // no main variant will be set initially
         $this->createProduct(['color', 'size'], false);
 
@@ -172,7 +166,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testChangeProductConfigToVariantGroups(): void
     {
-        skipTestNext6000($this);
         // main variant will be set initially
         $this->createProduct([], true);
 
@@ -198,7 +191,6 @@ class ProductListingLoaderTest extends TestCase
 
     public function testMainVariantAndVariantGroups(): void
     {
-        skipTestNext6000($this);
         // main variant and variant groups be set initially
         $this->createProduct(['color', 'size'], true);
 
@@ -282,7 +274,6 @@ class ProductListingLoaderTest extends TestCase
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
                 ],
-                'mainVariantId' => ($hasMainVariant) ? $this->mainVariantId : null,
                 'configuratorSettings' => [
                     [
                         'option' => [
@@ -381,6 +372,16 @@ class ProductListingLoaderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->salesChannelContext, $tax);
 
         $this->repository->create($data, $this->salesChannelContext->getContext());
+
+        if ($hasMainVariant) {
+            // udpate main variant
+            $this->repository->update([
+                [
+                    'id' => $this->productId,
+                    'mainVariantId' => $this->mainVariantId,
+                ],
+            ], $this->salesChannelContext->getContext());
+        }
     }
 
     private function getListingConfiguration(array $listingProperties): array

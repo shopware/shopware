@@ -74,15 +74,18 @@ Shopware.Component.register('sw-import-export-exporter', {
             this.selectedProfile = profile;
         },
 
-        onStartProcess() {
-            this.isLoading = true;
-
+        resetProgressStats() {
             // Reset progress stats
             this.progressOffset = 0;
             this.progressTotal = 0;
             this.progressText = '';
             this.progressState = '';
             this.progressLogEntry = null;
+        },
+
+        onStartProcess() {
+            this.isLoading = true;
+            this.resetProgressStats();
 
             this.importExport.export(this.selectedProfileId, this.handleProgress, this.config).then(res => {
                 const logEntry = res.data.log;
@@ -90,6 +93,23 @@ Shopware.Component.register('sw-import-export-exporter', {
                 this.logRepository.get(logEntry.id, Shopware.Context.api).then((entry) => {
                     this.progressLogEntry = entry;
                 });
+            }).catch((error) => {
+                if (!error.response || !error.response.data || !error.response.data.errors) {
+                    this.createNotificationError({
+                        title: this.$tc('sw-import-export.exporter.errorNotificationTitle'),
+                        message: error.message
+                    });
+                } else {
+                    error.response.data.errors.forEach((singleError) => {
+                        this.createNotificationError({
+                            title: this.$tc('sw-import-export.exporter.errorNotificationTitle'),
+                            message: `${singleError.code}: ${singleError.detail}`
+                        });
+                    });
+                }
+
+                this.resetProgressStats();
+                this.isLoading = false;
             });
         },
 

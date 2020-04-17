@@ -10,6 +10,7 @@ import 'src/app/component/base/sw-highlight-text';
 
 const repositoryMockFactory = () => {
     return {
+        get: () => Promise.resolve({}),
         search: (criteria) => {
             const profiles = [
                 {
@@ -80,7 +81,27 @@ describe('components/sw-import-export-exporter', () => {
                 $tc: snippetPath => snippetPath
             },
             provide: {
-                importExport: {},
+                importExport: {
+                    export: (profileId, cb, config) => {
+                        if (!config.error) {
+                            return Promise.resolve();
+                        }
+
+                        // eslint-disable-next-line prefer-promise-reject-errors
+                        return Promise.reject({
+                            response: {
+                                data: {
+                                    errors: [
+                                        {
+                                            code: 'This is an error code',
+                                            detail: 'This is an detailed error message'
+                                        }
+                                    ]
+                                }
+                            }
+                        });
+                    }
+                },
                 repositoryFactory: {
                     create: () => repositoryMockFactory()
                 }
@@ -241,5 +262,27 @@ describe('components/sw-import-export-exporter', () => {
         expect(resultNames).toContain('Default configurator settings');
         expect(resultNames).not.toContain('Default category');
         expect(resultNames).not.toContain('Default media');
+    });
+
+    it('should throw an warning if the import fails hard', async () => {
+        wrapper.setData({
+            selectedProfileId: 'a1b2c3d4e5',
+            config: {
+                error: true
+            }
+        });
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onStartProcess();
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'This is an error code: This is an detailed error message',
+            title: 'sw-import-export.exporter.errorNotificationTitle'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
     });
 });

@@ -118,6 +118,23 @@ Shopware.Component.register('sw-import-export-importer', {
                 this.logRepository.get(logEntry.id, Shopware.Context.api, this.logCriteria).then((entry) => {
                     this.progressLogEntry = entry;
                 });
+            }).catch((error) => {
+                if (!error.response || !error.response.data || !error.response.data.errors) {
+                    this.createNotificationError({
+                        title: this.$tc('sw-import-export.importer.errorNotificationTitle'),
+                        message: error.message
+                    });
+                } else {
+                    error.response.data.errors.forEach((singleError) => {
+                        this.createNotificationError({
+                            title: this.$tc('sw-import-export.importer.errorNotificationTitle'),
+                            message: `${singleError.code}: ${singleError.detail}`
+                        });
+                    });
+                }
+
+                this.resetProgressStats();
+                this.isLoading = false;
             });
         },
 

@@ -304,6 +304,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug in `sw-duplicated-media-v2` to reload media list when user clicked to cancel
     * Fixed a bug in `sw-sales-channel-detail-base` for IP whitelist on maintenance mode on new sales channel 
     * Added mapping validation for import/export profiles
+    * Added improved error handling in importer and exporter
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.

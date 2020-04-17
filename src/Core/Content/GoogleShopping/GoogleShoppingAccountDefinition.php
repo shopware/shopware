@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\GoogleShopping;
 use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountDefinition;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\Field\GoogleAccountCredentialField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -43,6 +44,7 @@ class GoogleShoppingAccountDefinition extends EntityDefinition
             (new StringField('email', 'email'))->addFlags(new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new GoogleAccountCredentialField('credential', 'credential'))->addFlags(new Required()),
+            (new DateTimeField('tos_accepted_at', 'tosAcceptedAt')),
             (new JsonField('custom_fields', 'customFields')),
 
             new OneToOneAssociationField('salesChannel', 'sales_channel_id', 'id', SalesChannelDefinition::class, false),

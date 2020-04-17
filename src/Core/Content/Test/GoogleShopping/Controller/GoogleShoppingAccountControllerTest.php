@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\GoogleShopping\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -110,5 +111,71 @@ class GoogleShoppingAccountControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testAccountAgreeTermOfServiceWithoutAcceptanceFailure(): void
+    {
+        $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/accept-term-of-service'
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('/acceptance', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testAccountAgreeTermOfServiceWithInvalidAcceptanceFailure(): void
+    {
+        $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/accept-term-of-service',
+            ['acceptance' => 'not_a_boolean_value']
+        );
+
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertSame('/acceptance', $response['errors'][0]['source']['pointer']);
+    }
+
+    public function testAccountAgreeTermOfServiceSuccess(): void
+    {
+        $googleShoppingAccountRepository = $this->getContainer()->get('google_shopping_account.repository');
+        $context = Context::createDefaultContext();
+        $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/accept-term-of-service',
+            ['acceptance' => true]
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $response = $this->client->getResponse()->getContent();
+        $response = json_decode($response, true);
+        static::assertArrayHasKey('data', $response);
+        static::assertEquals($googleAccount['id'], $response['data']);
+
+        $account = $googleShoppingAccountRepository->search(new Criteria([$googleAccount['id']]), $context)->first();
+        static::assertNotNull($account->getTosAcceptedAt());
+
+        $this->client->request(
+            'POST',
+            '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/accept-term-of-service',
+            ['acceptance' => false]
+        );
+
+        $account = $googleShoppingAccountRepository->search(new Criteria([$googleAccount['id']]), $context)->first();
+        static::assertNull($account->getTosAcceptedAt());
     }
 }

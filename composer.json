@@ -19,6 +19,11 @@
             "dev-master": "6.2.x-dev"
         }
     },
+    "config": {
+        "platform": {
+            "php": "7.2.9"
+        }
+    },
     "require": {
         "php": ">=7.2.0",
         "ext-curl": "*",
@@ -83,7 +88,7 @@
         "symfony/filesystem": "4.4.4",
         "symfony/finder": "4.4.4",
         "symfony/framework-bundle": "4.4.4",
-        "symfony/http-foundation": "4.4.4",
+        "symfony/http-foundation": "4.4.7",
         "symfony/http-kernel": "4.4.4",
         "symfony/inflector": "4.4.4",
         "symfony/messenger": "4.4.4",

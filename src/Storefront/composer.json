@@ -11,6 +11,11 @@
             "*/Test/"
         ]
     },
+    "config": {
+      "platform": {
+        "php": "7.2.9"
+      }
+    },
     "require": {
         "cocur/slugify": "4.0.0",
         "doctrine/dbal": "2.10.1",
@@ -26,7 +31,7 @@
         "symfony/event-dispatcher": "4.4.4",
         "symfony/event-dispatcher-contracts": "1.1.7",
         "symfony/framework-bundle": "4.4.4",
-        "symfony/http-foundation": "4.4.4",
+        "symfony/http-foundation": "4.4.7",
         "symfony/http-kernel": "4.4.4",
         "symfony/routing": "4.4.4",
         "symfony/security-csrf": "4.4.4",

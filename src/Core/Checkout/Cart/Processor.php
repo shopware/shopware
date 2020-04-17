@@ -70,7 +70,6 @@ class Processor
 
         $this->calculateAmount($context, $cart);
 
-        /** @var CartProcessorInterface $processor */
         // start processing, cart will be filled step by step with line items of original cart
         foreach ($this->processors as $processor) {
             $processor->process($cart->getData(), $original, $cart, $context, $behavior);

@@ -302,6 +302,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `media-upload-cancel` to `media.api.service`
     * Fixed a bug in `sw-duplicated-media-v2` to reload media list when user clicked to cancel
     * Fixed a bug in `sw-sales-channel-detail-base` for IP whitelist on maintenance mode on new sales channel 
+    * Added mapping validation for import/export profiles
 
 * Core    
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.

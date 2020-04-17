@@ -70,7 +70,8 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     value: '"',
                     label: this.$tc('sw-import-export.profile.doubleQuoteLabel')
                 }
-            ]
+            ],
+            missingRequiredFields: []
         };
     },
 
@@ -109,6 +110,30 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             return this.isNew ?
                 this.$tc('sw-import-export.profile.addProfileLabel') :
                 this.$tc('sw-import-export.profile.saveProfileLabel');
+        },
+
+        showValidationError() {
+            return this.missingRequiredFields.length > 0;
+        }
+    },
+
+    methods: {
+        saveProfile() {
+            const validationErrors = Shopware.Service('importExportProfileMapping').validate(
+                this.profile.sourceEntity,
+                this.profile.mapping
+            );
+
+            if (validationErrors.missingRequiredFields.length > 0) {
+                this.missingRequiredFields = validationErrors.missingRequiredFields;
+                return;
+            }
+
+            this.$emit('profile-save');
+        },
+
+        resetViolations() {
+            this.missingRequiredFields = [];
         }
     }
 });

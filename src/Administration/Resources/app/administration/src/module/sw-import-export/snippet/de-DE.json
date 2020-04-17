@@ -118,7 +118,8 @@
       "directExportPropertiesLabel": "Eigenschaften exportieren",
       "close": "Schließen",
       "variantsWarning": "<strong>Warnung: </strong> Stelle sicher, dass die in exportierten CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im neuen System vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu exportieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Export manuell im neuen System pflegen.",
-      "exportVariants": "Produktvarianten exportieren"
+      "exportVariants": "Produktvarianten exportieren",
+      "errorNotificationTitle": "Fehler beim Export"
     },
     "importer": {
       "titleExportSuccess": "Erfolg",
@@ -137,7 +138,8 @@
       "close": "Schließen",
       "labelUploadCaption": "Wähle eine Datei zum Hochladen",
       "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
-      "importVariants": "Produktvarianten importieren"
+      "importVariants": "Produktvarianten importieren",
+      "errorNotificationTitle": "Fehler beim Import"
     },
     "page": {
       "profileTab": "Profile",

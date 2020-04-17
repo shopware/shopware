@@ -119,7 +119,8 @@
       "directExportPropertiesLabel": "Export properties",
       "close": "Close",
       "variantsWarning": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
-      "exportVariants": "Export product variants"
+      "exportVariants": "Export product variants",
+      "errorNotificationTitle": "Export error"
     },
     "importer": {
       "titleImportSuccess": "Success",
@@ -138,7 +139,8 @@
       "close": "Close",
       "labelUploadCaption": "Select a file to upload",
       "variantsWarning": "<strong>Attention when importing variants: </strong> If the variants are to be imported completely directly, you should also import them. Use a profile that imports variant settings.<br>If you don't do this, the variants must be created manually by the admin.",
-      "importVariants": "Import product variants"
+      "importVariants": "Import product variants",
+      "errorNotificationTitle": "Import error"
     },
     "page": {
       "profileTab": "Profiles",

@@ -15,7 +15,6 @@ Component.register('sw-settings-shipping-detail', {
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
-        // Mixin.getByName('discard-detail-page-changes')('shippingMethod')
     ],
 
     shortcuts: {
@@ -234,18 +233,9 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         getIncompletePrices() {
-            const incompletePrices = [];
-            this.shippingMethod.prices.forEach(price => {
-                if (!price.calculation && !price.calculationRuleId) {
-                    incompletePrices.push(price);
-                }
-
-                if (price._inNewMatrix) {
-                    incompletePrices.push(price);
-                }
+            return this.shippingMethod.prices.filter(price => {
+                return (!price.calculation && !price.calculationRuleId) || price._inNewMatrix;
             });
-
-            return incompletePrices;
         },
 
         onCancel() {

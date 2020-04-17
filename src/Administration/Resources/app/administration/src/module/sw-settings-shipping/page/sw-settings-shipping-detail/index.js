@@ -160,7 +160,6 @@ Component.register('sw-settings-shipping-detail', {
 
         onSaveRule(ruleId) {
             this.shippingMethod.availabilityRuleId = ruleId;
-            this.$refs.priceMatrices.loadRules();
         },
 
         loadCurrencies() {

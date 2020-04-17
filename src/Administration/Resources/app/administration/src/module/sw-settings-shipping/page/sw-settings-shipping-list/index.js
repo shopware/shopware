@@ -72,23 +72,15 @@ Component.register('sw-settings-shipping-list', {
         }
     },
 
-    created() {
-        // this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.getList();
-        },
-
         getList() {
+            this.isLoading = true;
             this.shippingRepository.search(this.listingCriteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.shippingMethods = items;
-                this.isLoading = false;
 
                 return items;
-            }).catch(() => {
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -118,10 +110,10 @@ Component.register('sw-settings-shipping-list', {
         },
 
         onConfirmDelete(id) {
-            const name = this.items.find((item) => item.id === id).name;
+            const name = this.shippingMethods.find((item) => item.id === id).name;
 
             this.onCloseDeleteModal();
-            this.entityRepository.delete(id, Shopware.Context.api)
+            this.shippingRepository.delete(id, Shopware.Context.api)
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.$tc('sw-settings-shipping.list.titleSaveSuccess'),
@@ -133,9 +125,13 @@ Component.register('sw-settings-shipping-list', {
                         message: this.$tc('sw-settings-shipping.list.messageDeleteError', 0, { name })
                     });
                 }).finally(() => {
-                    this.deleteEntity = null;
+                    this.showDeleteModal = null;
                     this.getList();
                 });
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
         }
     }
 });

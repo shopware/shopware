@@ -52,12 +52,7 @@ describe('Shipping: Test crud operations', () => {
         }).as('saveData');
 
         // Edit base data
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
-        cy.clickContextMenuItem(
-            '.sw-settings-shipping-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
         page.createShippingMethodPriceRule();
 

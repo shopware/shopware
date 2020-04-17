@@ -31,7 +31,7 @@ export default class ShippingMethodPageObject {
 
         cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
-            'Line item count',
+            'Product quantity',
             '.sw-settings-shipping-price-matrix__empty--select-property'
         );
 

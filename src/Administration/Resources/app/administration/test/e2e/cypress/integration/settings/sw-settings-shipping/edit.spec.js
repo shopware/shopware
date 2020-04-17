@@ -42,7 +42,7 @@ describe('Shipping: Edit in various ways', () => {
 
         cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
-            'Line item count',
+            'Product quantity',
             '.sw-settings-shipping-price-matrix__empty--select-property'
         );
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');

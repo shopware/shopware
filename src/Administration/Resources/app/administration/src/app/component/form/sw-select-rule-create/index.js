@@ -56,8 +56,8 @@ Component.register('sw-select-rule-create', {
         },
 
         onSelectRule(event) {
-            if (event.item.index !== -1) {
-                this.onSaveRule(event.item);
+            if (event) {
+                this.onSaveRule(event);
                 return;
             }
 

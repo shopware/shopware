@@ -6,7 +6,7 @@
                 :criteria="ruleFilter"
                 :value="ruleId"
                 v-bind="$attrs"
-                @change="onSaveRule">
+                @change="onSelectRule">
                     <template #before-item-list>
                         {% block sw_select_rule_create_select_before %}
                             <div class="sw-select-rule-create__create-rule-item sw-select-result" @click="openCreateRuleModal">

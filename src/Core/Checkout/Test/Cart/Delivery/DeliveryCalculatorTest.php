@@ -227,6 +227,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
@@ -323,6 +327,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
@@ -380,6 +388,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -427,6 +439,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -477,6 +493,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 2);
         $lineItem->setDeliveryInformation(
@@ -523,6 +543,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -572,6 +596,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 2);
         $lineItem->setDeliveryInformation(
@@ -623,6 +651,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 5);
         $lineItem->setDeliveryInformation(
@@ -676,6 +708,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 50);
         $lineItem->setDeliveryInformation(
@@ -723,6 +759,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -786,6 +826,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
@@ -896,6 +940,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->method('getRuleIds')->willReturn([$ruleId]);
 
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -1008,6 +1056,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->method('getCurrency')->willReturn($currency);
 
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
@@ -1059,6 +1111,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setDisplayGross(true);
 
@@ -1115,9 +1171,11 @@ class DeliveryCalculatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setDisplayGross(false);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
 
-        $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
-
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product');

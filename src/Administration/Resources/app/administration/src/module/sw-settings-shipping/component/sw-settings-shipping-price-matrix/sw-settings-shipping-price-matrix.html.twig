@@ -1,6 +1,6 @@
 {% block sw_settings_shipping_price_matrix %}
     <sw-card
-        :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-settings-shipping.priceMatrix.titleCard')"
+        :title="cardTitle"
         :isLoading="isLoading"
         class="sw-settings-shipping-price-matrix">
         {% block sw_settings_shipping_price_matrix_topbar_alert %}

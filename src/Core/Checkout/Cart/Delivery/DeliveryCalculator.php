@@ -98,14 +98,10 @@ class DeliveryCalculator
 
         $shippingPrices = $shippingMethod->getPrices();
 
-        $displayGross = $context->getCurrentCustomerGroup()->getDisplayGross();
-        $currencyId = $context->getCurrency()->getId();
         $shippingPrices->sort(
-            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($displayGross, $currencyId) {
-                $priceA = $priceEntityA->getCurrencyPrice()->getCurrencyPrice($currencyId);
-                $priceA = $displayGross ? $priceA->getGross() : $priceA->getNet();
-                $priceB = $priceEntityB->getCurrencyPrice()->getCurrencyPrice($currencyId);
-                $priceB = $displayGross ? $priceB->getGross() : $priceB->getNet();
+            function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
+                $priceA = $this->getCurrencyPrice($priceEntityA->getCurrencyPrice(), $context);
+                $priceB = $this->getCurrencyPrice($priceEntityB->getCurrencyPrice(), $context);
 
                 return $priceA <=> $priceB;
             }
@@ -195,12 +191,32 @@ class DeliveryCalculator
             $calculatedLineItems->getPrices()->sum()
         );
 
-        $price = $priceCollection->getCurrencyPrice($context->getCurrency()->getId());
-
-        $price = $context->getCurrentCustomerGroup()->getDisplayGross() ? $price->getGross() : $price->getNet();
+        $price = $this->getCurrencyPrice($priceCollection, $context);
 
         $definition = new QuantityPriceDefinition($price, $rules, $context->getContext()->getCurrencyPrecision(), 1, true);
 
         return $this->priceCalculator->calculate($definition, $context);
+    }
+
+    private function getCurrencyPrice(PriceCollection $priceCollection, SalesChannelContext $context): float
+    {
+        $price = $priceCollection->getCurrencyPrice($context->getCurrency()->getId());
+
+        $value = $this->getPriceForCustomerGroup($price, $context);
+
+        if ($price->getCurrencyId() === Defaults::CURRENCY) {
+            $value *= $context->getContext()->getCurrencyFactor();
+        }
+
+        return $value;
+    }
+
+    private function getPriceForCustomerGroup(Price $price, SalesChannelContext $context): float
+    {
+        if ($context->getCurrentCustomerGroup()->getDisplayGross()) {
+            return $price->getGross();
+        }
+
+        return $price->getNet();
     }
 }

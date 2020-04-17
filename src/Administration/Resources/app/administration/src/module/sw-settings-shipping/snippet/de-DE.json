@@ -69,7 +69,7 @@
       "useRules": "Erstelle eine Regel",
       "emptyText": "Möchtest Du die Preismatrix auf vorgegebenen Warenkorbeigenschaften oder individuell erstellten Regeln basieren lassen? Bitte auswählen:",
       "chooseCustomRule": "Wähle eine individuelle Regel",
-      "calculationLineItemCount": "Anzahl Positionen",
+      "calculationLineItemCount": "Anzahl Produkte",
       "calculationPrice": "Warenkorb Wert",
       "calculationWeight": "Gewicht",
       "calculationVolume": "Volumen",
@@ -100,7 +100,7 @@
       "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
       "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
       "newMatrixAlertTitle": "Achtung",
-      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden."
+      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden.",
     },
     "sidebar": {
       "labelUseAsLogo": "Als Logo verwenden"

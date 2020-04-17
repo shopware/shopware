@@ -53,7 +53,7 @@
     "constants": {
       "weight": "Weight",
       "price": "Price",
-      "lineItemCount": "Line item count"
+      "lineItemCount": "Product quantity"
     },
     "priceMatrix": {
       "titleCard": "Price matrix",
@@ -68,7 +68,7 @@
       "useRules": "Build a rule",
       "emptyText": "Create a price matrix based on predefined cart properties and/or custom built rules. Please choose:",
       "chooseCustomRule": "Choose a custom rule",
-      "calculationLineItemCount": "Line item count",
+      "calculationLineItemCount": "Product quantity",
       "calculationPrice": "Cart price",
       "calculationWeight": "Weight",
       "calculationVolume": "Volume",

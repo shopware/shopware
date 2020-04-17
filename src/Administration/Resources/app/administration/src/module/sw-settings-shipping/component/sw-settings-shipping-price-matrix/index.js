@@ -200,6 +200,14 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             return this.$tc('sw-settings-shipping.priceMatrix.noRestriction');
+        },
+
+        cardTitle() {
+            if (!this.priceGroup.rule && !this.priceGroup.isNew) {
+                return this.$tc('sw-settings-shipping.priceMatrix.noRestriction');
+            }
+
+            return this.priceGroup.rule ? this.priceGroup.rule.name : this.$tc('sw-settings-shipping.priceMatrix.titleCard');
         }
     },
 

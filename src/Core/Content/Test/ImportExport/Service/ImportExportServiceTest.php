@@ -154,6 +154,7 @@ class ImportExportServiceTest extends TestCase
         $profile = [
             'id' => Uuid::randomHex(),
             'name' => 'Test Profile',
+            'label' => 'Test Profile',
             'sourceEntity' => 'product',
             'fileType' => 'text/csv',
             'delimiter' => ';',

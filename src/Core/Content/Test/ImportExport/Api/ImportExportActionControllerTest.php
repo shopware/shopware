@@ -93,6 +93,7 @@ class ImportExportActionControllerTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'name' => 'Foobar' . $i,
+                'label' => 'Foobar' . $i,
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => 'article' . $i,
                 'fileType' => $mimetypes[($i % count($mimetypes))],

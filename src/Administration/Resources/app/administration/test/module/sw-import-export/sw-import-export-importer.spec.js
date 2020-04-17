@@ -14,22 +14,22 @@ const repositoryMockFactory = () => {
         search: (criteria) => {
             const profiles = [
                 {
-                    name: 'Default product',
+                    label: 'Default product',
                     sourceEntity: 'product',
                     config: []
                 },
                 {
-                    name: 'Default configurator settings',
+                    label: 'Default configurator settings',
                     sourceEntity: 'product_configurator_setting',
                     config: []
                 },
                 {
-                    name: 'Default category',
+                    label: 'Default category',
                     sourceEntity: 'category',
                     config: []
                 },
                 {
-                    name: 'Default media',
+                    label: 'Default media',
                     sourceEntity: 'media',
                     config: []
                 }

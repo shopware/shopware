@@ -474,6 +474,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `\Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator::resolveActiveDependants` method
     * Added `\Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException` exception
         * This exception is now thrown before a plugin which other plugins depend on is deactivated
+    * Added a new translatable `label` property to `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition`
+    * Marked `name` property of `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition` as nullable 
     
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations

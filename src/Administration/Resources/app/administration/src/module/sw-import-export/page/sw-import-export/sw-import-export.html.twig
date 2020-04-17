@@ -25,9 +25,15 @@
                 </sw-tabs>
             {% endblock %}
 
-            <router-view></router-view>
+            <router-view ref="tabContent"></router-view>
 
         </sw-card-view>
+
+        {% block sw_import_export_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
 
     </sw-page>
 {% endblock %}

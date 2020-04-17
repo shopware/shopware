@@ -30,6 +30,10 @@
             <tag name="shopware.entity.definition"  entity="import_export_file"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition">
+            <tag name="shopware.entity.definition"  entity="import_export_profile_translation"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\ImportExportLogValidator">
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -3,7 +3,7 @@
         {% block sw_import_export_view_export_exporter %}
             <sw-card :title="$tc('sw-import-export.exporter.exportLabel')">
                 <sw-import-export-exporter
-                    @export-finish="onExportFinish">
+                    @export-finish="reloadContent">
                 </sw-import-export-exporter>
             </sw-card>
         {% endblock %}

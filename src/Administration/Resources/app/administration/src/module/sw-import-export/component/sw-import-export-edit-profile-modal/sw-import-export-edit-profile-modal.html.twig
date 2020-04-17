@@ -52,7 +52,8 @@
                                         required
                                         :disabled="profile.systemDefault"
                                         :error="profileNameError"
-                                        v-model="profile.name">
+                                        :placeholder="profile.translated.label"
+                                        v-model="profile.label">
                                     </sw-field>
                                 {% endblock %}
 

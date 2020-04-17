@@ -26,6 +26,7 @@
                 :disabled="isLoading"
                 :label="$tc('sw-import-export.importer.profileLabel')"
                 entity="import_export_profile"
+                labelProperty="label"
                 :criteria="profileCriteria"
                 @change="onProfileSelect"
                 :value="selectedProfileId"

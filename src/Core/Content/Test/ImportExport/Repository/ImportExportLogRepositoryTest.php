@@ -401,7 +401,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 'profileId' => $profileIds[($i % 2)],
                 'fileId' => $fileIds[($i % 2)],
                 'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'] . $add,
-                'profileName' => $profile['name'] . $add,
+                'profileName' => $profile['label'] . $add,
                 'records' => 10 * $i,
                 'config' => ['profile' => $profile],
             ];
@@ -459,6 +459,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'name' => sprintf('Test name %d', $i),
+                'label' => sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => sprintf('Test entity %d', $i),
                 'fileType' => sprintf('Test file type %d', $i),

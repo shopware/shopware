@@ -26,7 +26,7 @@ describe('Theme: Test loading and saving of theme', () => {
     it('@base @content: saves theme config', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/theme/*',
+            url: '/api/v*/_action/theme/*',
             method: 'patch'
         }).as('saveData');
 

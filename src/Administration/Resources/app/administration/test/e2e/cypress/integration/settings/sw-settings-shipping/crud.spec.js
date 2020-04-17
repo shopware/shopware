@@ -22,7 +22,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/shipping-method?_response=true',
+            url: '/api/v*/shipping-method?_response=true',
             method: 'post'
         }).as('saveData');
 
@@ -47,7 +47,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/shipping-method/*',
+            url: '/api/v*/shipping-method/*',
             method: 'patch'
         }).as('saveData');
 
@@ -57,7 +57,7 @@ describe('Shipping: Test crud operations', () => {
             '.sw-settings-shipping-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
-        );;
+        );
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
         page.createShippingMethodPriceRule();
 
@@ -79,7 +79,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/shipping-method/*',
+            url: '/api/v*/shipping-method/*',
             method: 'delete'
         }).as('deleteData');
 

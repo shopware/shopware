@@ -25,7 +25,7 @@ describe('Product: Tagging product', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product/*',
+            url: '/api/v*/product/*',
             method: 'patch'
         }).as('saveData');
 

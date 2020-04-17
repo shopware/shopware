@@ -24,7 +24,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/property-group',
+            url: '/api/v*/property-group',
             method: 'post'
         }).as('saveData');
 
@@ -48,7 +48,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/search/property-group',
+            url: '/api/v*/search/property-group',
             method: 'post'
         }).as('saveData');
 
@@ -86,7 +86,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/property-group/**',
+            url: '/api/v*/property-group/**',
             method: 'delete'
         }).as('deleteData');
 

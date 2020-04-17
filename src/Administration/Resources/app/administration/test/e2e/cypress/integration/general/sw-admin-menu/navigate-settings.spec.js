@@ -15,7 +15,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to scale unit module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/unit',
+            url: '/api/v*/search/unit',
             method: 'post'
         }).as('getData');
 
@@ -33,7 +33,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to tax module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/tax',
+            url: '/api/v*/search/tax',
             method: 'post'
         }).as('getData');
 
@@ -51,7 +51,7 @@ describe('Administration: Check module navigation in settings', () => {
     it.skip('@navigation: navigate to snippet module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/snippet-set',
+            url: '/api/v*/search/snippet-set',
             method: 'post'
         }).as('getData');
 
@@ -71,7 +71,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to sitemap module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.sitemap',
+            url: '/api/v*/_action/system-config/schema?domain=core.sitemap',
             method: 'get'
         }).as('getData');
 
@@ -89,7 +89,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to shipping module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/shipping-method',
+            url: '/api/v*/search/shipping-method',
             method: 'post'
         }).as('getData');
 
@@ -107,7 +107,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to seo module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/seo-url-template',
+            url: '/api/v*/search/seo-url-template',
             method: 'post'
         }).as('getData');
 
@@ -125,7 +125,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to salutation module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/salutation',
+            url: '/api/v*/search/salutation',
             method: 'post'
         }).as('getData');
 
@@ -143,7 +143,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to rule builder module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/rule',
+            url: '/api/v*/search/rule',
             method: 'post'
         }).as('getData');
 
@@ -162,7 +162,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to payment module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/payment-method',
+            url: '/api/v*/search/payment-method',
             method: 'post'
         }).as('getData');
 
@@ -180,7 +180,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to number ranges module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/number-range',
+            url: '/api/v*/search/number-range',
             method: 'post'
         }).as('getData');
 
@@ -198,7 +198,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.loginRegistration',
+            url: '/api/v*/_action/system-config/schema?domain=core.loginRegistration',
             method: 'get'
         }).as('getData');
 
@@ -216,7 +216,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to listing setting module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.listing',
+            url: '/api/v*/_action/system-config/schema?domain=core.listing',
             method: 'get'
         }).as('getData');
 
@@ -234,7 +234,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to language module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/language',
+            url: '/api/v*/search/language',
             method: 'post'
         }).as('getData');
 
@@ -252,7 +252,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to document module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/document-base-config',
+            url: '/api/v*/search/document-base-config',
             method: 'post'
         }).as('getData');
 
@@ -270,7 +270,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to delivery time module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/delivery-time',
+            url: '/api/v*/search/delivery-time',
             method: 'post'
         }).as('getData');
 
@@ -288,7 +288,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to customer group module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/customer-group',
+            url: '/api/v*/search/customer-group',
             method: 'post'
         }).as('getData');
 
@@ -306,7 +306,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to currency module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/currency',
+            url: '/api/v*/search/currency',
             method: 'post'
         }).as('getData');
 
@@ -324,7 +324,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to country module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/country',
+            url: '/api/v*/search/country',
             method: 'post'
         }).as('getData');
 
@@ -342,7 +342,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to cart settings module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.cart',
+            url: '/api/v*/_action/system-config/schema?domain=core.cart',
             method: 'get'
         }).as('getData');
 
@@ -360,7 +360,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to basic information module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.basicInformation',
+            url: '/api/v*/_action/system-config/schema?domain=core.basicInformation',
             method: 'get'
         }).as('getData');
 
@@ -378,7 +378,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to address settings module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.address',
+            url: '/api/v*/_action/system-config/schema?domain=core.address',
             method: 'get'
         }).as('getData');
 
@@ -396,7 +396,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to email templates module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/mail-template',
+            url: '/api/v*/search/mail-template',
             method: 'post'
         }).as('getData');
 

@@ -15,7 +15,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to category module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/category',
+            url: '/api/v*/search/category',
             method: 'post'
         }).as('getData');
 
@@ -33,7 +33,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to product module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/product',
+            url: '/api/v*/search/product',
             method: 'post'
         }).as('getData');
 
@@ -51,7 +51,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to review module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/product-review',
+            url: '/api/v*/search/product-review',
             method: 'post'
         }).as('getData');
 
@@ -69,7 +69,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to manufacturer module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/product-manufacturer',
+            url: '/api/v*/search/product-manufacturer',
             method: 'post'
         }).as('getData');
 
@@ -87,7 +87,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to property module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/property-group',
+            url: '/api/v*/search/property-group',
             method: 'post'
         }).as('getData');
 
@@ -105,7 +105,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to customer module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/customer',
+            url: '/api/v*/search/customer',
             method: 'post'
         }).as('getData');
 
@@ -122,7 +122,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to order module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/order',
+            url: '/api/v*/search/order',
             method: 'post'
         }).as('getData');
 
@@ -139,7 +139,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to media module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/media',
+            url: '/api/v*/search/media',
             method: 'post'
         }).as('getData');
 
@@ -157,7 +157,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to cms module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/cms-page',
+            url: '/api/v*/search/cms-page',
             method: 'post'
         }).as('getData');
 
@@ -175,7 +175,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to theme module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/theme',
+            url: '/api/v*/search/theme',
             method: 'post'
         }).as('getData');
 
@@ -193,7 +193,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to promotion module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/promotion',
+            url: '/api/v*/search/promotion',
             method: 'post'
         }).as('getData');
 
@@ -211,7 +211,7 @@ describe('Administration: Check module navigation', () => {
     it('@navigation: navigate to newsletter recipients module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/newsletter-recipient',
+            url: '/api/v*/search/newsletter-recipient',
             method: 'post'
         }).as('getData');
 

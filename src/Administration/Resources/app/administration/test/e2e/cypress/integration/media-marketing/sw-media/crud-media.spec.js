@@ -19,7 +19,7 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/media/**/upload?extension=png&fileName=sw-login-background',
+            url: '/api/v*/_action/media/**/upload?extension=png&fileName=sw-login-background',
             method: 'post'
         }).as('saveData');
 
@@ -49,7 +49,7 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/media/*',
+            url: '/api/v*/media/*',
             method: 'patch'
         }).as('saveData');
 
@@ -83,7 +83,7 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/media/*',
+            url: '/api/v*/media/*',
             method: 'delete'
         }).as('deleteData');
 

@@ -15,7 +15,7 @@ describe('Product: Test variants', () => {
             })
             .then(() => {
                 return cy.createPropertyFixture({
-                    name: "Size",
+                    name: 'Size',
                     options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
                 });
             })
@@ -33,7 +33,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product/*',
+            url: '/api/v*/product/*',
             method: 'patch'
         }).as('saveData');
 
@@ -75,7 +75,7 @@ describe('Product: Test variants', () => {
         cy.get('.product-detail-configurator-option-label[title="Yellow"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Green"]')
-            .should('be.visible')
+            .should('be.visible');
     });
 
     it('@base @catalogue: add multidimensional variant to product', () => {
@@ -84,7 +84,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product/*',
+            url: '/api/v*/product/*',
             method: 'patch'
         }).as('saveData');
 
@@ -129,6 +129,6 @@ describe('Product: Test variants', () => {
         cy.get('.product-detail-configurator-option-label[title="M"]')
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="L"]')
-            .should('be.visible')
+            .should('be.visible');
     });
 });

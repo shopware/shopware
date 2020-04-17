@@ -22,7 +22,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/payment-method',
+            url: '/api/v*/payment-method',
             method: 'post'
         }).as('saveData');
 
@@ -51,7 +51,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/payment-method/*',
+            url: '/api/v*/payment-method/*',
             method: 'patch'
         }).as('saveData');
 
@@ -83,7 +83,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/payment-method/*',
+            url: '/api/v*/payment-method/*',
             method: 'delete'
         }).as('deleteData');
 

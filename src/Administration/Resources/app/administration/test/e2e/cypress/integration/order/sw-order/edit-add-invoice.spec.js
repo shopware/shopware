@@ -34,15 +34,15 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/order/**/document/invoice',
+            url: '/api/v*/_action/order/**/document/invoice',
             method: 'post'
         }).as('createDocumentCall');
         cy.route({
-            url: '/api/v1/search/document',
+            url: '/api/v*/search/document',
             method: 'post'
         }).as('findDocumentCall');
         cy.route({
-            url: '/api/v1/search/order',
+            url: '/api/v*/search/order',
             method: 'post'
         }).as('findOrder');
 
@@ -82,14 +82,14 @@ describe('Order: Test order state', () => {
             const documentId = xhr.response.body.documentId;
             const documentDeepLink = xhr.response.body.documentDeepLink;
 
-            return cy.request(`/api/v1/_action/document/${documentId}/${documentDeepLink}`);
+            return cy.request(`/api/v*/_action/document/${documentId}/${documentDeepLink}`);
         }).then((xhr) => {
             expect(xhr).to.have.property('status', 200);
             expect(xhr.headers).to.have.property('content-type', 'application/pdf');
         });
 
         cy.wait('@findDocumentCall').then((xhr) => {
-            cy.log('metal.total' + xhr.responseBody.meta.total);
+            cy.log(`metal.total${xhr.responseBody.meta.total}`);
             expect(xhr).to.have.property('status', 200);
         });
 

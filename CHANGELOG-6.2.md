@@ -380,6 +380,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added methods `cancelOder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
     * Added methods `cancelOrder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
         
+
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
@@ -470,6 +471,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
     * Added new Field `afterOrderEnabled` to `\Shopware\Core\Checkout\Payment\PaymentMethodDefinition`
      
+    * Added `\Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator::resolveActiveDependants` method
+    * Added `\Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException` exception
+        * This exception is now thrown before a plugin which other plugins depend on is deactivated
+    
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

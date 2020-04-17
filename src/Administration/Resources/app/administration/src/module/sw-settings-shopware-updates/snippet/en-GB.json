@@ -17,6 +17,7 @@
     "notifications": {
       "title": "Shopware update",
       "updateStarted": "Update started.",
+      "updateStopped": "Update stopped.",
       "downloadFailed": "Download has failed.",
       "unpackFailed": "Unpacking has failed.",
       "deactivationFailed": "Unable to deactivate plugins.",
@@ -28,7 +29,7 @@
       "requirementsNotMet": "Not all system requirements are met.",
       "progress": {
         "download": "Downloading update file...",
-        "deactivate": "Plugins have been deactivated.",
+        "deactivate": "Deactivating plugins...",
         "unpack": "Unpacking update file..."
       }
     },

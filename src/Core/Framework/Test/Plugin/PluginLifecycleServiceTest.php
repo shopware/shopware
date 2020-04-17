@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -39,6 +40,7 @@ class PluginLifecycleServiceTest extends TestCase
     use KernelTestBehaviour;
 
     private const PLUGIN_NAME = 'SwagTest';
+    private const DEPENDENT_PLUGIN_NAME = self::PLUGIN_NAME . 'Extension';
 
     /**
      * @var ContainerInterface
@@ -367,6 +369,48 @@ class PluginLifecycleServiceTest extends TestCase
 
         $plugin = $this->getTestPlugin($context);
         static::assertFalse($plugin->getActive());
+    }
+
+    public function testDeactivatePluginWithDependencies(): void
+    {
+        $this->addTestPluginToKernel(self::DEPENDENT_PLUGIN_NAME);
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $basePlugin = $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
+        $this->pluginLifecycleService->installPlugin($basePlugin, $this->context);
+        $this->pluginLifecycleService->activatePlugin($basePlugin, $this->context);
+
+        $dependentPlugin = $this->pluginService->getPluginByName(self::DEPENDENT_PLUGIN_NAME, $this->context);
+        $this->pluginLifecycleService->installPlugin($dependentPlugin, $this->context);
+        $this->pluginLifecycleService->activatePlugin($dependentPlugin, $this->context);
+
+        $this->expectException(PluginHasActiveDependantsException::class);
+
+        try {
+            $this->pluginLifecycleService->deactivatePlugin($basePlugin, $this->context);
+        } catch (PluginHasActiveDependantsException $exception) {
+            $params = $exception->getParameters();
+
+            static::assertArrayHasKey('dependency', $params);
+            static::assertArrayHasKey('dependants', $params);
+            static::assertArrayHasKey('dependantNames', $params);
+
+            $dependencyName = $params['dependency'];
+            $dependants = $params['dependants'];
+            $dependantNames = $params['dependantNames'];
+
+            static::assertEquals(self::PLUGIN_NAME, $dependencyName);
+            static::assertCount(1, $dependants);
+            static::assertEquals(sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
+
+            /* @var PluginEntity $dependant */
+            $dependant = array_pop($dependants);
+
+            static::assertInstanceOf(PluginEntity::class, $dependant);
+            static::assertEquals(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
+
+            throw $exception;
+        }
     }
 
     private function installPluginTest(Context $context): void

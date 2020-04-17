@@ -47,6 +47,7 @@
       "messagePluginActivationFailed": "Plugin could not be activated due to error message \"{message}\"",
       "titlePluginDeactivationFailed": "Plugin deactivation failed",
       "messagePluginDeactivationFailed": "Plugin could not be deactivated due to error message \"{message}\"",
+      "messageDeactivationFailedBecauseOfActiveDependants": "The plugin \"{dependency}\" cannot be deactivated, because there are other plugins depending on it. Please deactivate the following plugins before restarting the update: {dependantNames}",
       "titlePluginUpdateFailed": "Plugin update failed",
       "messagePluginUpdateFailed": "Plugin could not be updated due to error message \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Plugin was deactivated."

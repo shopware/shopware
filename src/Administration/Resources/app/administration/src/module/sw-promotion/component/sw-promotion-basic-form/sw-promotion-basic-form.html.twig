@@ -54,6 +54,8 @@
                 {% block sw_promotion_basic_form_max_redemption_global %}
                     <sw-field type="number"
                               :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsGlobal')"
+                              :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsGlobal')"
+                              :helpText="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsGlobal')"
                               numberType="int"
                               v-model="promotion.maxRedemptionsGlobal">
                     </sw-field>
@@ -62,6 +64,8 @@
                 {% block sw_promotion_basic_form_max_redemption_per_customer %}
                     <sw-field type="number"
                               :label="$tc('sw-promotion.detail.main.general.labelMaxRedemptionsPerCustomer')"
+                              :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsPerCustomer')"
+                              :helpText="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsPerCustomer')"
                               numberType="int"
                               v-model="promotion.maxRedemptionsPerCustomer">
                     </sw-field>

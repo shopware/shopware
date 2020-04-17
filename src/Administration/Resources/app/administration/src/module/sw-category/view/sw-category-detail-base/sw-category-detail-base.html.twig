@@ -43,6 +43,7 @@
                         v-if="category && !isLoading"
                         class="sw-category-detail-base__tags"
                         :label="$tc('sw-category.base.general.labelCategoryTags')"
+                        :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
                         v-model="category.tags">
                     </sw-entity-tag-select>
                 {% endblock %}

@@ -57,7 +57,7 @@
       "readAccess": "Read",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "textChangePassword": "By pressing the change button the password be saved immediately.",
+      "textChangePassword": "Pressing the change button will immediately save the new password!",
       "addAccessKey": "New access key",
       "labelAccessKey": "Access key",
       "labelPermissions": "Permissions",

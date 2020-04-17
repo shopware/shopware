@@ -7,6 +7,7 @@
 
         {% block sw_price_field_gross %}
             <sw-field type="number"
+                      :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
                       :label="labelGross"
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"
@@ -38,6 +39,7 @@
 
         {% block sw_price_field_net %}
             <sw-field type="number"
+                      :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
                       :label="labelNet"
                       :validation="validation"
                       :size="compact ? 'small' : 'default'"

@@ -37,7 +37,7 @@
       "isSidebar": "Layout-Sektion - Sidebar",
       "isDefault": "Layout-Sektion - Standard",
       "layoutSection": "Layout-Sektion",
-      "sectionEmptyState": "Noch keine Blöcke und Elemente hinzugefügt"
+      "sectionEmptyState": "Diese Sektion ist leer. Füge Blöcke und Elemente hinzu."
     },
     "sidebar": {
       "contentMenu": {
@@ -87,6 +87,7 @@
         "buttonElementSettingsConfirm": "Fertig",
         "buttonElementChangeAbort": "Abbrechen",
         "blockNameField": "Block-Name",
+        "blockNameFieldPlaceholder": "Gib einen Namen ein ...",
         "blockSizingField": "Größenmodus",
         "blockSizingOptionBoxed": "Zentrierter Inhalt",
         "blockSizingOptionFull": "Volle Breite",

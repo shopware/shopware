@@ -45,6 +45,7 @@
       "labelInputShippingMethods": "Versandarten",
       "labelInputPaymentMethods": "Zahlungsarten",
       "labelInputCountries": "Länder",
+      "countryMultiSelectHelpText": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
       "labelInputTaxCalculation": "Steuerberechnung",
       "labelOptionTaxVertical": "Vertikal",
       "labelOptionTaxHorizontal": "Horizontal",
@@ -92,7 +93,7 @@
       "titleStatus": "Status",
       "titleGeneralInformation": "Allgemeine Information",
       "titleAccount": "Konto",
-      "titleDeleteSalesChannel": "Vertriebskanal löschen",
+      "titleDeleteSalesChannel": "Verkaufskanal löschen",
       "titleProductSync": "Produkt Synchronisierung",
       "titleSyncedProducts": "Synchronisierte Produkte",
       "titleCategoryMapping": "Kategoriezuordnung",
@@ -125,8 +126,8 @@
         "placeholderFileName": "shopware.csv",
         "lastGenerationLabel": "Zeitpunkt der letzten Generierung: ",
         "notYetGenerated": "Dieser Export wurde bisher noch nicht generiert.",
-        "encoding": "Encoding",
-        "placeholderSelectEncoding": "Wähle ein Encoding aus ...",
+        "encoding": "Verschlüsselung",
+        "placeholderSelectEncoding": "Wähle eine Verschlüsselung aus ...",
         "fileFormat": "Dateiformat",
         "placeholderSelectFileFormat": "Wähle ein Dateiformat aus...",
         "accessKey": "Zugangsschlüssel",
@@ -188,7 +189,7 @@
             "google-product-search-de": "Google Shopping (XML)"
           },
           "modal-title": "Template anwenden",
-          "modal-message": "Bei Übernahme der Daten aus dem Template werden vorhandene Daten in diesem Verkaufskanal überschrieben. Es werden sowohl Einstellungen als auch das Template angepasst.",
+          "modal-message": "Bei Übernahme der Daten aus dem Template werden vorhandene Daten in diesem Verkaufskanal überschrieben. Es werden sowohl Einstellungen, als auch das Template angepasst.",
           "modal-confirm": "Template übernehmen",
           "modal-cancel": "Abbrechen",
           "message": {
@@ -203,7 +204,7 @@
       },
       "hreflang": {
         "title": "Hreflang",
-        "titleCard": "Hreflang Integration",
+        "titleCard": "Hreflang-Integration",
         "titleDescription": "Das hreflang-Metatag dient der eindeutigen Zuordnung eines Inhalts zu einer Sprache. Google zeigt die jeweiligen Sprachen explizit in den Suchergebnissen an.",
         "enableCheckbox": "Hreflang aktivieren",
         "defaultDomain": "Standard-Domain für Hreflang",
@@ -217,13 +218,13 @@
       },
       "analytics": {
         "cardTitle": "Google Analytics",
-        "headline": "Google Analytics Integration",
-        "description": "Mit Google Analytics können Sie Daten aus Ihrem Shop sammeln und messen. Um diese Funktion nutzen zu können, benötigen Sie ein Google Analytics-Konto. Wenn Sie noch kein Analytics-Konto haben, können Sie sich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhalten Sie eine Tracking ID, die Sie hier eingeben müssen, um die Integration zu aktivieren.",
+        "headline": "Google Analytics-Integration",
+        "description": "Mit Google Analytics kannst Du Daten aus Deinem Shop sammeln und analysieren. Um diese Funktion nutzen zu können, benötigst Du ein Konto bei Google Analytics. Wenn Du noch kein Konto hast, kannst Du Dich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhältst Du eine Tracking-ID, die Du hier eingeben musst, um die Integration zu aktivieren.",
         "fields": {
           "trackingId": {
-            "label": "Tracking ID",
-            "placeHolder": "Tracking ID eingeben...",
-            "helpText": "Nach der Anmeldung in Ihrem Google Analytics-Konto erhalten Sie eine Tracking ID. Eine Tracking ID kann wie folgt aussehen: UA-12345678-1"
+            "label": "Tracking-ID",
+            "placeHolder": "Tracking-ID eingeben ...",
+            "helpText": "Nach der Anmeldung in Ihrem Google-Analytics-Konto erhalten Sie eine Tracking-ID. Tracking-IDs können wie folgt aussehen: UA-12345678-1"
           },
           "active": {
             "label": "Google Analytics aktivieren"
@@ -235,7 +236,7 @@
       },
       "googleShoppingGeneral": {
         "title": "Wählen Sie eine Storefront für den Checkout-Prozess aus",
-        "description": "Für Vertriebskanäle ohne Storefront ist eine verknüpfte Storefront erforderlich, mit der die Kaufabwicklung abgeschlossen wird."
+        "description": "Für Verkaufskanäle ohne Storefront ist eine verknüpfte Storefront erforderlich, mit der die Kaufabwicklung abgeschlossen wird."
       },
       "googleShoppingAccountConnect": {
         "title": "Verbinden Sie Ihr Google-Konto, um Google-Programme zu verwenden",
@@ -243,52 +244,52 @@
         "textConnectButton": "Verbinden"
       },
       "googleShoppingAccountDisconnect": {
-        "titleProfiles": "Mit diesem Google-Konto können Sie unter auf Ihr Google Merchant Center-Konto zugreifen",
+        "titleProfiles": "Mit diesem Google-Konto kannst Du auf Dein Google-Merchant-Center-Konto zugreifen",
         "titleLinkProfiles": "merchants.google.com.",
         "textDisconnectButton": "Trennen",
         "titleMerchant": "Ein gesperrtes Google Merchant Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren",
         "titleLinkMerchant": "über Kontosperrungen.",
-        "textGroupMerchant": "Händler-Center-Konto:",
+        "textGroupMerchant": "Merchant-Center-Konto:",
         "titleWebsite": "Ihre Website ist mit Ihrem Google Merchant Center-Konto verknüpft. Es muss behauptet werden, Shopping-Anzeigen zu schalten.",
         "textGroupWebsite": "Webseite:"
       }
     },
     "modalGooglePrograms": {
-      "title": "Google Konto verbinden",
+      "title": "Google-Konto verbinden",
       "buttonNext": "Weiter",
       "buttonBack": "Zurück",
       "step-1": {
         "titleGetStarted": "Starte mit Google Programs",
-        "textGetStartedDescription": "Das Handelsangebot von Google kann Dir dabei helfen mehr Kunden auf Deiner Website oder in Deinem Geschäft zu begrüßen. Nach der Einrichtung hast Du Zugriff auf Berichte, damit Du sehen kannst, wie gut Deine Anzeigen laufen.",
+        "textGetStartedDescription": "Das Handelsangebot von Google kann Dir dabei helfen, mehr Kunden auf Deiner Website oder in Deinem Geschäft zu begrüßen. Nach der Einrichtung hast Du Zugriff auf Berichte, damit Du sehen kannst, wie gut Deine Anzeigen laufen.",
         "textLearnMore": "Erfahre mehr",
-        "titleConnectGoogleAccount": "“Verbinde Dein Google Konto, um Google Programs zu nutzen",
-        "textConnectGoogleAccountDescription": "Ein Google Konto gibt Dir Zugriff auf Dein Google Merchant Center und Google Ads Konten.",
+        "titleConnectGoogleAccount": "Verbinde Dein Google-Konto, um Google Programs zu nutzen",
+        "textConnectGoogleAccountDescription": "Ein Google-Konto gibt Dir Zugriff auf Dein Google Merchant Center und Google-Ads-Konten.",
         "buttonConnect": "Konto verbinden"
       },
       "step-2": {
         "titleYourGoogleAccount": "Dein Google-Konto",
         "buttonDisconnect": "Verbindung trennen",
-        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google Konto trennst, werden das Google Merchant Center und die Google Ads konnten ebenfalls getrennt."
+        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google-Konto trennst, werden das Google Merchant Center und die Google-Ads-Konten ebenfalls getrennt."
       },
       "step-3": {
-        "titleGeneral": "Erstelle oder verbinde Dein Google Merchant Center Konto",
+        "titleGeneral": "Erstelle oder verbinde Dein Google-Merchant-Center-Konto",
         "textLearnMore": "Erfahre mehr darüber",
         "textGoogleMerchantCenter": "Google Merchant Center",
-        "titleConnectExistingMerchant": "Verbinde ein existierendes Google Merchant Konto",
-        "textConnectExistingMerchantDescription": "hat bereits Zugriff auf ein oder mehrere Google Merchant Center Konten. Du kannst eines der bereits vorhandenen Google Merchant Center Konten verwenden.",
-        "placeholderSelectMerchant": "Wähle ein existierendes Google Merchant Konto...",
-        "titleCreateMerchant": "Erstelle ein neues Google Merchant Konto",
-        "textCreateMerchantDescription": "Erstelle ein neues Google Merchant Center Konto, wenn du möchtest.",
-        "buttonCreateMerchant": "Erstelle ein neuen Google Merchant Center Konto"
+        "titleConnectExistingMerchant": "Verbinde ein existierendes Google-Merchant-Center-Konto",
+        "textConnectExistingMerchantDescription": "hat bereits Zugriff auf ein oder mehrere Google-Merchant-Center-Konten. Du kannst eines der bereits vorhandenen Google-Merchant-Center-Konten verwenden.",
+        "placeholderSelectMerchant": "Wähle ein existierendes Google-Merchant-Center-Konto ...",
+        "titleCreateMerchant": "Erstelle ein neues Google-Merchant-Center-Konto",
+        "textCreateMerchantDescription": "Erstelle ein neues Google-Merchant-Center-Konto, wenn du möchtest.",
+        "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto"
       },
       "step-7": {
         "titleSetting": "Versandeinstellungen konfigurieren",
-        "textSettingDescription": "Um Werbung für bestimmte Länder/Regionen zu schalten, musst Du für diese Gebiete den Versand anbieten und Versandkosten konfiguriert haben. Deine Merchant Center Versandkosten müssen mit den Kosten auf Deiner Website übereinstimmen.",
+        "textSettingDescription": "Um Werbung für bestimmte Länder/Regionen zu schalten, musst Du den Versand für diese Gebiete anbieten und Versandkosten konfiguriert haben. Deine Merchant-Center-Versandkosten müssen mit den Kosten auf Deiner Website übereinstimmen.",
         "textLearnMore": "Erfahre mehr",
         "linkLearnMore": "https://support.google.com/merchants/answer/7050921?hl=de&ref_topic=7293661",
-        "textCurrentStoreOption": "Verwende derzeitige Versandeinstellungen des Shops",
+        "textCurrentStoreOption": "Verwende die aktuellen Versandeinstellungen des Shops",
         "textFlatRateOption": "Verwende einen Pauschaltarif für alle Bestellungen",
-        "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten"
+        "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten."
       }
     },
     "sw-sales-channel-defaults-select": {

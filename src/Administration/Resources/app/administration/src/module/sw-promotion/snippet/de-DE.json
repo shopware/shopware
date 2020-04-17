@@ -88,7 +88,11 @@
           "labelValidFrom": "Gültig von:",
           "labelValidUntil": "Gültig bis:",
           "labelMaxRedemptionsGlobal": "Anzahl insgesamt",
+          "placeholderMaxRedemptionsGlobal": "Wert eingeben ...",
+          "helpTextMaxRedemptionsGlobal":"Gib '0' ein, um die Aktion unbegrenzt oft zu erlauben.",
           "labelMaxRedemptionsPerCustomer": "Anzahl pro Kunde",
+          "placeholderMaxRedemptionsPerCustomer": "Wert eingeben ...",
+          "helpTextMaxRedemptionsGlobal":"Gib '0' ein, um die Aktion für jeden einzelnen Kunden unbegrenzt oft zu erlauben.",
           "labelPromotionExclusions": "Nicht kombinieren mit",
           "placeholderPromotionExclusions": "Aktion hinzufügen ...",
           "codes": {

@@ -40,6 +40,7 @@
       "labelInputShippingMethods": "Shipping methods",
       "labelInputPaymentMethods": "Payment methods",
       "labelInputCountries": "Countries",
+      "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
       "labelInputTaxCalculation": "Tax calculation",
       "labelOptionTaxVertical": "Vertical",
       "labelOptionTaxHorizontal": "Horizontal",
@@ -207,25 +208,25 @@
       },
       "analytics": {
         "cardTitle": "Google Analytics",
-        "headline": "Google Analytics Integration",
-        "description": "Mit Google Analytics können Sie Daten aus Ihrem Shop sammeln und messen. Um diese Funktion nutzen zu können, benötigen Sie ein Google Analytics-Konto. Wenn Sie noch kein Analytics-Konto haben, können Sie sich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhalten Sie eine Tracking ID, die Sie hier eingeben müssen, um die Integration zu aktivieren.",
+        "headline": "Google Analytics integration",
+        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the intergration.",
         "fields": {
           "trackingId": {
             "label": "Tracking ID",
-            "placeHolder": "Tracking ID eingeben...",
-            "helpText": "Nach der Anmeldung in Ihrem Google Analytics-Konto erhalten Sie eine Tracking ID. Eine Tracking ID kann wie folgt aussehen: UA-12345678-1"
+            "placeHolder": "Enter tracking ID...",
+            "helpText": "When logged in to your Google Analytics account, you will be given access to a tracking ID, which should look like this: UA-12345678-1"
           },
           "active": {
-            "label": "Google Analytics aktivieren"
+            "label": "Activate Google Analytics"
           },
           "trackOrders": {
-            "label": "Bestellungen tracken"
+            "label": "Track orders"
           }
         }
       },
       "googleShoppingGeneral": {
-        "title": "Select a Storefront for the Checkout Proccess",
-        "description": "Sales channels that don’t have a storefront require a linked storefront that will be used to complete the checkout procces."
+        "title": "Select a storefront for the checkout process",
+        "description": "Sales Channels that don’t have a storefront require another linked storefront, which will be used to complete the checkout process."
       },
       "googleShoppingAccountConnect": {
         "title": "Connect your Google Account to use Google Programs",
@@ -236,7 +237,7 @@
         "titleProfiles": "This Google Account can be used to access your Google Merchant Center account at",
         "titleLinkProfiles": "merchants.google.com.",
         "textDisconnectButton": "Disconnect",
-        "titleMerchant": "A suspended Google Merchant Center account cannot run Shopping ads. Learn more",
+        "titleMerchant": "A suspended Google Merchant Center account cannot run shopping ads. Learn more",
         "titleLinkMerchant": "about account suspensions.",
         "textGroupMerchant": "Merchant Center Account:",
         "titleWebsite": "Your website is associated with your Google Merchant Center account. It must be claimed to run Shopping ads.",
@@ -268,7 +269,7 @@
         "textConnectExistingMerchantDescription": "already has access to one or more Google Merchant Center accounts. You can choose to use one of these existing Google Merchant Center accounts if you wish.",
         "placeholderSelectMerchant": "Select an existing Google Merchant Center account...",
         "titleCreateMerchant": "Create a new Google Merchant Center account",
-        "textCreateMerchantDescription": "You can choose to create a new Google Merchant Center account if you wish.",
+        "textCreateMerchantDescription": "Create a new Google Merchant Center account, if you wish.",
         "buttonCreateMerchant": "Create a new Merchant Center account"
       },
       "step-7": {

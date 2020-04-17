@@ -20,7 +20,7 @@
     "config": {
         "autoloader-suffix": "ShopwareRecovery",
         "platform": {
-            "php": "7.2.0"
+            "php": "7.2.9"
         }
     },
     "require-dev": {

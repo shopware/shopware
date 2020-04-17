@@ -11,6 +11,11 @@
             "*/Test/"
         ]
     },
+    "config": {
+        "platform": {
+            "php": "7.2.9"
+        }
+    },
     "require": {
         "cocur/slugify": "4.0.0",
         "composer/composer": "1.9.2",

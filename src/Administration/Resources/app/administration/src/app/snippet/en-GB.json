@@ -4,7 +4,8 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
-      "SHOPWARE_INVALID_IP": "Invalid IP address"
+      "SHOPWARE_INVALID_IP": "Please enter a valid IP address",
+      "INVALID_URL": "Please enter a valid url"
     },
     "default": {
       "add": "Add",

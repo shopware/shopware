@@ -4,7 +4,8 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
-      "SHOPWARE_INVALID_IP": "Invalide IP-Adresse"
+      "SHOPWARE_INVALID_IP": "Bitte gib eine valide IP-Adresse ein",
+      "INVALID_URL": "Bitte gib eine valide Url ein"
     },
     "default": {
       "add": "Hinzufügen",

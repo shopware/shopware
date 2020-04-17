@@ -2,6 +2,7 @@ import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
 const { Component } = Shopware;
+const { ShopwareError } = Shopware.Classes;
 
 /**
  * @public
@@ -19,7 +20,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
     data() {
         return {
             sslActive: true,
-            currentValue: this.value || ''
+            currentValue: this.value || '',
+            errorUrl: null
         };
     },
 
@@ -70,18 +72,31 @@ Component.extend('sw-url-field', 'sw-text-field', {
             this.$emit('input', this.url);
         },
 
-        onChange(event) {
-            this.checkInput(event.target.value);
-            this.$emit('change', this.url);
-        },
-
         checkInput(inputValue) {
             if (inputValue.match(/^\s*https?:\/\//) !== null) {
                 const sslFound = inputValue.match(/^\s*https:\/\//);
                 this.sslActive = (sslFound !== null);
+                this.currentValue = inputValue.replace(/^\s*https?:\/\//, '');
+            } else {
+                this.currentValue = inputValue;
             }
 
-            this.currentValue = inputValue.replace(/^\s*https?:\/\//, '');
+            this.validateCurrentValue();
+        },
+
+        validateCurrentValue() {
+            if (this.currentValue) {
+                try {
+                    const url = new URL(`${this.urlPrefix}${this.currentValue}`);
+                    const path = this.currentValue.endsWith('/') ? url.pathname : url.pathname.replace(/\/$/, '');
+                    this.currentValue = url.hostname + path;
+                    this.errorUrl = null;
+                } catch {
+                    this.errorUrl = new ShopwareError({
+                        code: 'INVALID_URL'
+                    });
+                }
+            }
         },
 
         changeMode(disabled) {

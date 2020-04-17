@@ -27,17 +27,17 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         currentDomainModalTitle() {
-            if (this.currentDomain.url && this.currentDomain.url.length) {
-                return this.$t('sw-sales-channel.detail.titleEditDomain', 0, { name: this.currentDomain.url });
+            if (this.currentDomain.isNew()) {
+                return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
-            return this.$t('sw-sales-channel.detail.titleCreateDomain');
+            return this.$t('sw-sales-channel.detail.titleEditDomain', 0, { name: this.currentDomainBackup.url });
         },
 
         currentDomainModalButtonText() {
-            if (this.currentDomain.url && this.currentDomain.url.length) {
-                return this.$t('sw-sales-channel.detail.buttonEditDomain');
+            if (this.currentDomain.isNew()) {
+                return this.$t('sw-sales-channel.detail.buttonAddDomain');
             }
-            return this.$t('sw-sales-channel.detail.buttonAddDomain');
+            return this.$t('sw-sales-channel.detail.buttonEditDomain');
         },
 
         salesChannelFilterCriteria() {
@@ -61,6 +61,13 @@ Component.register('sw-sales-channel-detail-domains', {
                     helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText')
                 }
             ];
+        },
+
+        disabled() {
+            return !this.currentDomain.currencyId ||
+                !this.currentDomain.snippetSetId ||
+                !this.currentDomain.url ||
+                !this.currentDomain.languageId;
         }
     },
 

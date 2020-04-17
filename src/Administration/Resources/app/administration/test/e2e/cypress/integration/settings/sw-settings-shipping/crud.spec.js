@@ -22,7 +22,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method?_response=true',
+            url: '/api/v*/shipping-method',
             method: 'post'
         }).as('saveData');
 
@@ -33,7 +33,7 @@ describe('Shipping: Test crud operations', () => {
 
         // Verify shipping method
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click({ force: true });
@@ -52,12 +52,7 @@ describe('Shipping: Test crud operations', () => {
         }).as('saveData');
 
         // Edit base data
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
-        cy.clickContextMenuItem(
-            '.sw-settings-shipping-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
         page.createShippingMethodPriceRule();
 
@@ -65,7 +60,7 @@ describe('Shipping: Test crud operations', () => {
 
         // Verify shipping method
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();

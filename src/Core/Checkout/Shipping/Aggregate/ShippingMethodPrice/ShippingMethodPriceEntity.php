@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
 class ShippingMethodPriceEntity extends Entity
@@ -43,7 +44,7 @@ class ShippingMethodPriceEntity extends Entity
     protected $quantityEnd;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $price;
 
@@ -77,6 +78,11 @@ class ShippingMethodPriceEntity extends Entity
      */
     protected $calculationRule;
 
+    /**
+     * @var PriceCollection|null
+     */
+    protected $currencyPrice;
+
     public function getShippingMethodId(): string
     {
         return $this->shippingMethodId;
@@ -107,12 +113,12 @@ class ShippingMethodPriceEntity extends Entity
         $this->quantityEnd = $quantityEnd;
     }
 
-    public function getPrice(): float
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): void
+    public function setPrice(?float $price): void
     {
         $this->price = $price;
     }
@@ -205,6 +211,16 @@ class ShippingMethodPriceEntity extends Entity
     public function setCalculationRule(?RuleEntity $calculationRule): void
     {
         $this->calculationRule = $calculationRule;
+    }
+
+    public function getCurrencyPrice(): ?PriceCollection
+    {
+        return $this->currencyPrice;
+    }
+
+    public function setCurrencyPrice(?PriceCollection $price): void
+    {
+        $this->currencyPrice = $price;
     }
 
     public function getApiAlias(): string

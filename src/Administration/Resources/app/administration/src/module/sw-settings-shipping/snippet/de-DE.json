@@ -21,6 +21,7 @@
       "textDeleteConfirm": "Möchtest Du die Versandart \"{name}\" wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSaveSuccess": "Erfolg",
+      "titleDeleteSuccess": "Erfolg",
       "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Versandart \"{name}\" konnte nicht gespeichert werden.",
       "messageDeleteError": "Die Versandart \"{name}\" konnte nicht gelöscht werden.",
@@ -58,7 +59,7 @@
       "titleCard": "Preismatrix",
       "noRestriction": "Keine Einschränkungen",
       "addNewRule": "Neue Regel erstellen",
-      "addNewPriceRule": "Neue Preisregel hinzufügen",
+      "addNewShippingPrice": "Neue Preisregel hinzufügen",
       "duplicateMatrixContextLabel": "Preismatrix duplizieren",
       "deleteMatrixContextLabel": "Preismatrix löschen",
       "contextMenuDuplicatePrice": "Preisregel duplizieren",
@@ -67,7 +68,8 @@
       "selectProperty": "Warenkorb-Eigenschaft wählen ...",
       "useRules": "Erstelle eine Regel",
       "emptyText": "Möchtest Du die Preismatrix auf vorgegebenen Warenkorbeigenschaften oder individuell erstellten Regeln basieren lassen? Bitte auswählen:",
-      "calculationLineItemCount": "Anzahl Positionen",
+      "chooseCustomRule": "Wähle eine individuelle Regel",
+      "calculationLineItemCount": "Anzahl Produkte",
       "calculationPrice": "Warenkorb Wert",
       "calculationWeight": "Gewicht",
       "calculationVolume": "Volumen",
@@ -79,23 +81,32 @@
       "columnPriceEnd": "bis ...",
       "columnVolumeStart": "Volumen von ...",
       "columnVolumeEnd": "bis ...",
-      "columnPrice": "Preis (Brutto)",
+      "columnPrice": "Preis",
       "columnCalculationRule": "Regel",
       "buttonAddAdditionalPriceMatrix": "Preismatrix hinzufügen",
       "any": "∞",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
       "modalTitleDelete": "Preismatrix löschen",
-      "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?"
+      "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?",
+      "deletionNotPossibleTitle": "Fehler",
+      "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
+      "labelGrossNet": "(Brutto / Netto)",
+      "ruleAlreadyUsed": "Diese Regel wird bereits für eine Preismatrix genutzt",
+      "ruleAlreadyUsedInMatrix": "Diese Regel wird bereits in dieser Preismatrix genutzt",
+      "textOr": "oder",
+      "chooseOrCreateRule": "Wähle oder erstelle eine Regel",
+      "unrestrictedRuleAlreadyExistsTitle": "Zuweisung kann nicht entfernt werden",
+      "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
+      "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
+      "newMatrixAlertTitle": "Achtung",
+      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden.",
     },
     "sidebar": {
       "labelUseAsLogo": "Als Logo verwenden"
     },
-    "priceRuleModal": {
-      "modalTitleNew": "Abstufung hinzufügen",
-      "modalTitleModify": "Preisregel bearbeiten",
-      "labelPrice": "Preis",
-      "placeholderPrice": "Preis eingeben ..."
+    "shippingPriceModal": {
+      "modalTitle": "Abstufung hinzufügen"
     }
   }
 }

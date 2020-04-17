@@ -51,7 +51,7 @@ Component.register('sw-rule-modal', {
         },
 
         modalTitle() {
-            if (!this.rule) {
+            if (this.rule.isNew()) {
                 return this.$tc('sw-rule-modal.modalTitleNew');
             }
             return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));

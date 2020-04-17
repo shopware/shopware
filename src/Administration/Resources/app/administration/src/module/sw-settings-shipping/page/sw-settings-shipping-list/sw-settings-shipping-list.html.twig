@@ -39,28 +39,21 @@
             </template>
         {% endblock %}
 
-        {% block sw_settings_shipping_stream_list_language_switch %}
-            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
-        {% endblock %}
-
         <template slot="content">
             {% block sw_settings_shipping_list_content %}
                 <div class="sw-settings-shipping-list__content">
                     {% block sw_settings_shipping_list_grid %}
-                        <sw-data-grid :dataSource="items"
-                                      :columns="columns"
-                                      :showSelection="false"
-                                      :showSettings="true"
-                                      :fullPage="true"
-                                      :allowInlineEdit="true"
-                                      :sortBy="sortBy"
-                                      :sortDirection="sortDirection"
-                                      :isLoading="isLoading"
-                                      :allowColumnEdit="true"
-                                      identifier="sw-shipping-method-list"
-                                      @column-sort="onSortColumn"
-                                      @inline-edit-save="onInlineEditSave"
-                                      @inline-edit-cancel="onInlineEditCancel">
+                            <sw-entity-listing ref="swSettingsTaxGrid"
+                                               :items="shippingMethods"
+                                               :columns="columns"
+                                               :repository="shippingRepository"
+                                               :sortDirection="sortDirection"
+                                               :fullPage="false"
+                                               detailRoute="sw.settings.shipping.detail"
+                                               :showSelection="false"
+                                               :showSettings="true"
+                                               :allowInlineEdit="false"
+                                               :isLoading="isLoading">
                             {% block sw_setting_shipping_list_grid_columns %}
                                 {% block sw_settings_shipping_list_grid_columns_active %}
                                     <template slot="column-active" slot-scope="{ item, isInlineEdit }">
@@ -78,73 +71,58 @@
                                         {% endblock %}
                                     </template>
                                 {% endblock %}
-                            {% endblock %}
-                            {% block sw_settings_shipping_list_grid_columns_actions %}
-                                <template slot="actions" slot-scope="{ item }">
-                                    {% block sw_settings_shipping_list_grid_columns_actions_edit %}
-                                        <sw-context-menu-item class="sw-settings-shipping-list__edit-action" :routerLink="{ name: 'sw.settings.shipping.detail', params: { id: item.id } }">
-                                            {{ $tc('sw-settings-shipping.list.contextMenuEdit') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
 
-                                    {% block sw_settings_shipping_list_grid_columns_actions_duplicate %}
-                                        <sw-context-menu-item :disabled="true">
-                                            {{ $tc('sw-settings-shipping.list.contextMenuDuplicate') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_settings_shipping_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item @click="onDelete(item.id)" variant="danger">
-                                            {{ $tc('sw-settings-shipping.list.contextMenuDelete') }}
-                                        </sw-context-menu-item>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-
-                            {% block sw_settings_shipping_list_grid_action_modals %}
-                                <template slot="action-modals" slot-scope="{ item }">
-                                    {% block sw_settings_shipping_list_delete_modal %}
-                                    <sw-modal v-if="showDeleteModal === item.id"
-                                              @modal-close="onCloseDeleteModal"
-                                              :title="$tc('sw-settings-shipping.list.modalTitleDelete')"
-                                              variant="small">
-                                        {% block sw_settings_shipping_list_delete_modal_confirm_delete_text %}
-                                            <p class="sw-settings-shipping-list__confirm-delete-text">
-                                                {{ $tc('sw-settings-shipping.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
-                                            </p>
+                                {% block sw_settings_shipping_list_grid_columns_actions %}
+                                    <template #actions="{ item }">
+                                        {% block sw_settings_shipping_list_grid_columns_actions_edit %}
+                                            <sw-context-menu-item
+                                                :routerLink="{ name: 'sw.settings.shipping.detail', params: { id: item.id, edit: 'edit' }}"
+                                                class="sw-settings-shipping-list__edit-action">
+                                                {{ $tc('sw-settings-shipping.list.contextMenuEdit') }}
+                                            </sw-context-menu-item>
                                         {% endblock %}
 
-                                        {% block sw_settings_shipping_list_delete_modal_footer %}
-                                            <template slot="modal-footer">
-                                                {% block sw_settings_shipping_list_delete_modal_cancel %}
-                                                    <sw-button @click="onCloseDeleteModal" size="small">
-                                                        {{ $tc('sw-settings-shipping.list.buttonCancel') }}
-                                                    </sw-button>
-                                                {% endblock %}
-
-                                                {% block sw_settings_shipping_list_delete_modal_confirm %}
-                                                    <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
-                                                        {{ $tc('sw-settings-shipping.list.buttonDelete') }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </template>
+                                        {% block sw_settings_shipping_list_grid_columns_actions_delete %}
+                                            <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                {{ $tc('sw-settings-shipping.list.contextMenuDelete') }}
+                                            </sw-context-menu-item>
                                         {% endblock %}
-                                    </sw-modal>
-                                    {% endblock %}
-                                </template>
-                            {% endblock %}
-
-                            <template slot="pagination">
-                                {% block sw_settings_shipping_list_grid_pagination %}
-                                    <sw-pagination :page="page"
-                                                   :limit="limit"
-                                                   :total="total"
-                                                   :total-visible="7"
-                                                   @page-change="onPageChange">
-                                    </sw-pagination>
+                                    </template>
                                 {% endblock %}
-                            </template>
-                        </sw-data-grid>
+                            {% endblock %}
+                            {% block sw_settings_shipping_list_grid_action_modals %}
+                                <template #action-modals="{ item }">
+                                    {% block sw_settings_shipping_list_delete_modal %}
+                                        <sw-modal v-if="showDeleteModal === item.id"
+                                                  @modal-close="onCloseDeleteModal"
+                                                  :title="$tc('sw-settings-shipping.list.modalTitleDelete')"
+                                                  variant="small">
+                                            {% block sw_settings_shipping_list_delete_modal_confirm_delete_text %}
+                                                <p class="sw-settings-shipping-list__confirm-delete-text">
+                                                    {{ $tc('sw-settings-shipping.list.textDeleteConfirm', 0, { name: item.name }) }}
+                                                </p>
+                                            {% endblock %}
+
+                                            {% block sw_settings_shipping_list_delete_modal_footer %}
+                                                <template #modal-footer>
+                                                    {% block sw_settings_shipping_list_delete_modal_cancel %}
+                                                        <sw-button @click="onCloseDeleteModal" size="small">
+                                                            {{ $tc('sw-settings-shipping.list.buttonCancel') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+
+                                                    {% block sw_settings_shipping_list_delete_modal_confirm %}
+                                                        <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                            {{ $tc('sw-settings-shipping.list.buttonDelete') }}
+                                                        </sw-button>
+                                                    {% endblock %}
+                                                </template>
+                                            {% endblock %}
+                                        </sw-modal>
+                                    {% endblock %}
+                                </template>
+                            {% endblock %}
+                        </sw-entity-listing>
                     {% endblock %}
 
                     {% block sw_settings_shipping_list_empty_state %}

@@ -6,18 +6,21 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-shipping-list', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
-        Mixin.getByName('sw-settings-list'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
         return {
-            entityName: 'shipping_method',
+            shippingMethods: null,
             isLoading: false,
             sortBy: 'name',
             sortDirection: 'ASC',
-            skeletonItemAmount: 3
+            skeletonItemAmount: 3,
+            showDeleteModal: false
         };
     },
 
@@ -28,35 +31,11 @@ Component.register('sw-settings-shipping-list', {
     },
 
     computed: {
+        shippingRepository() {
+            return this.repositoryFactory.create('shipping_method');
+        },
+
         columns() {
-            return this.getColumns();
-        },
-
-        listingCriteria() {
-            const criteria = new Criteria();
-
-            if (this.term) {
-                criteria.setTerm(this.term);
-            }
-
-            criteria.addSorting(
-                Criteria.sort('name', 'ASC')
-            );
-
-            return criteria;
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {
-            this.getList();
-        },
-
-        getColumns() {
             return [{
                 property: 'name',
                 label: 'sw-settings-shipping.list.columnName',
@@ -76,6 +55,34 @@ Component.register('sw-settings-shipping-list', {
                 allowResize: true,
                 align: 'center'
             }];
+        },
+
+        listingCriteria() {
+            const criteria = new Criteria();
+
+            if (this.term) {
+                criteria.setTerm(this.term);
+            }
+
+            criteria.addSorting(
+                Criteria.sort('name', 'ASC')
+            );
+
+            return criteria;
+        }
+    },
+
+    methods: {
+        getList() {
+            this.isLoading = true;
+            this.shippingRepository.search(this.listingCriteria, Shopware.Context.api).then((items) => {
+                this.total = items.total;
+                this.shippingMethods = items;
+
+                return items;
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         onInlineEditSave(item) {
@@ -98,11 +105,15 @@ Component.register('sw-settings-shipping-list', {
                 });
         },
 
+        onDelete(id) {
+            this.showDeleteModal = id;
+        },
+
         onConfirmDelete(id) {
-            const name = this.items.find((item) => item.id === id).name;
+            const name = this.shippingMethods.find((item) => item.id === id).name;
 
             this.onCloseDeleteModal();
-            this.entityRepository.delete(id, Shopware.Context.api)
+            this.shippingRepository.delete(id, Shopware.Context.api)
                 .then(() => {
                     this.createNotificationSuccess({
                         title: this.$tc('sw-settings-shipping.list.titleSaveSuccess'),
@@ -114,9 +125,13 @@ Component.register('sw-settings-shipping-list', {
                         message: this.$tc('sw-settings-shipping.list.messageDeleteError', 0, { name })
                     });
                 }).finally(() => {
-                    this.deleteEntity = null;
+                    this.showDeleteModal = null;
                     this.getList();
                 });
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
         }
     }
 });

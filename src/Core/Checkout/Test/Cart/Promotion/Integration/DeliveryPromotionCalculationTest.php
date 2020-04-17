@@ -190,11 +190,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     }
 
     /**
-     * The combination of auto and code Promotion that have percentag and absolute
+     * The combination of auto and code Promotion that have percentage and absolute
      * discounts would discount our shipping costs beneath 0
      * Because we are aware of this fact, shipping costs are 0
      *
-     * @test
      * @group promotions
      *
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException

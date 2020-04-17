@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
                 ->append($this->createSitemapSection())
+                ->append($this->createDeploymentSection())
             ->end();
 
         return $treeBuilder;
@@ -182,6 +183,18 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(100)
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createDeploymentSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('deployment'))->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('blue_green')->end()
             ->end();
 
         return $rootNode;

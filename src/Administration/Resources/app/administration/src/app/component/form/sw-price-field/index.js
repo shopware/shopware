@@ -79,10 +79,14 @@ Component.register('sw-price-field', {
             default: false
         },
 
+        /**
+         * @deprecated tag:v6.3.0
+         */
         enableInheritance: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
+            deprecated: '6.3.0'
         },
 
         disableSuffix: {

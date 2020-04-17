@@ -63,7 +63,8 @@ Component.register('sw-product-media-form', {
             if (!this.product) {
                 return null;
             }
-            return this.product.media.find(media => media.id === this.product.coverId);
+            const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
+            return this.product.media.find(media => media.id === coverId);
         },
 
         ...mapGetters('swProductDetail', {
@@ -158,6 +159,7 @@ Component.register('sw-product-media-form', {
 
             if (this.productMedia.length === 0) {
                 productMedia.position = 0;
+                this.product.cover = productMedia;
                 this.product.coverId = productMedia.id;
             } else {
                 productMedia.position = this.productMedia.length + 1;
@@ -206,20 +208,23 @@ Component.register('sw-product-media-form', {
         },
 
         removeCover() {
+            this.product.cover = null;
             this.product.coverId = null;
         },
 
         isCover(productMedia) {
-            if (this.product.media.length === 0) {
+            const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
+
+            if (this.product.media.length === 0 || productMedia.isPlaceholder) {
                 return false;
             }
-
-            return productMedia.id === this.product.coverId;
+            return productMedia.mediaId === coverId;
         },
 
         removeFile(productMedia) {
             // remove cover id if mediaId matches
             if (this.product.coverId === productMedia.id) {
+                this.product.cover = null;
                 this.product.coverId = null;
             }
 
@@ -231,6 +236,7 @@ Component.register('sw-product-media-form', {
         },
 
         markMediaAsCover(productMedia) {
+            this.product.cover = productMedia;
             this.product.coverId = productMedia.id;
         },
 
@@ -243,6 +249,7 @@ Component.register('sw-product-media-form', {
             if (this.product.media.length === 0) {
                 // set media item as cover
                 productMedia.position = 0;
+                this.product.cover = productMedia;
                 this.product.coverId = productMedia.id;
             }
 

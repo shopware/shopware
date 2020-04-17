@@ -49,7 +49,8 @@ class AntiJoinBuilder implements JoinBuilderInterface
             $reference = $firstAssociation->getToManyReferenceDefinition();
             $this->innerJoin($mappingAlias, $on, $firstAssociation, $reference, $builder, $context);
         } else {
-            $entityName = $firstAssociation->getReferenceDefinition()->getEntityName();
+            $reference = $firstAssociation->getReferenceDefinition();
+            $entityName = $reference->getEntityName();
             $fromAlias = $on . '.' . $firstAssociation->getPropertyName();
 
             if ($firstAssociation instanceof AssociationField) {
@@ -78,7 +79,7 @@ class AntiJoinBuilder implements JoinBuilderInterface
 
             $subAlias = $subRoot . '.' . $association->getPropertyName();
             $resolver->getJoinBuilder()->join(
-                $definition,
+                $reference,
                 JoinBuilderInterface::INNER_JOIN,
                 $association,
                 $subRoot,
@@ -86,6 +87,9 @@ class AntiJoinBuilder implements JoinBuilderInterface
                 $builder,
                 $context
             );
+            $reference = $association instanceof ManyToManyAssociationField
+                ? $association->getToManyReferenceDefinition()
+                : $association->getReferenceDefinition();
         }
 
         $builder->andWhere($antiJoinInfo->getCondition());

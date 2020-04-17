@@ -216,7 +216,7 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('crossSellings', ProductCrossSellingDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
-            (new OneToManyAssociationField('crossSellingAssignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'product_id')),
+            (new OneToManyAssociationField('crossSellingAssignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),
 
             //associations which are not loaded immediately
             (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))
@@ -226,7 +226,7 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
             (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))
-                ->addFlags(new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited()),
 
             //not inherited associations
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))

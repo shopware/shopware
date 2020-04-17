@@ -17,7 +17,10 @@
       "descriptionTextModule": "Verwaltung von Produkten.",
       "placeholderSearchBar": "Durchsuche alle Produkte ...",
       "inheritanceModuleName": "Dieses Produkt",
-      "backToParent": "zurück zur Variantenübersicht"
+      "backToParent": "zurück zur Variantenübersicht",
+      "copy": "Kopie",
+      "variantDuplication": "Die Duplizierung von Varianten wird derzeit nicht unterstützt."
+
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -154,6 +157,7 @@
       "textTotalProducts": "Keine Produkte | Ein Produkt | {count} Produkte",
       "buttonAddProduct": "Produkt anlegen",
       "buttonCancel": "Abbrechen",
+      "buttonDuplicate": "Duplizieren",
       "buttonDelete": "Löschen",
       "columnName": "Name",
       "columnProductNumber": "Produktnummer",
@@ -177,6 +181,8 @@
       "textHeadline": "Neues Produkt",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
+      "buttonSaveDuplicate": "Speichern und duplizieren",
+      "buttonSaveAndNew": "Speichern und neues erstellen",
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",

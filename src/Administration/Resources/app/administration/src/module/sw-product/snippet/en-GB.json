@@ -17,7 +17,9 @@
       "descriptionTextModule": "Manage products here.",
       "placeholderSearchBar": "Search products...",
       "inheritanceModuleName": "This product",
-      "backToParent": "Go back to variant overview"
+      "backToParent": "Go back to variant overview",
+      "copy": "Copy",
+      "variantDuplication": "Duplication of variants is currently not supported"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -154,6 +156,7 @@
       "textTotalProducts": "No products | One product | {count} products",
       "buttonAddProduct": "Add product",
       "buttonCancel": "Cancel",
+      "buttonDuplicate": "Duplicate",
       "buttonDelete": "Delete",
       "columnName": "Name",
       "columnProductNumber": "Product number",
@@ -177,6 +180,8 @@
       "textHeadline": "New product",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
+      "buttonSaveDuplicate": "Save and duplicate",
+      "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
       "tabVariation": "Variant generator",

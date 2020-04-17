@@ -12,6 +12,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
+    * Added `onDuplicate` to `sw-product-detail` and `sw-product-list`
+    * Added Overwrites parameter to `clone` in `repository.data.js`. Overwrites contain entity field which should be overwritten with the given data. Example in `sw-product-detail` -> `onDuplicate`
     * Added `disabled` attribute of fields to `sw-customer-address-form` component
     * Deprecated `tagStore` in `sw-newsletter-recipient-list`
     * Moved `sw-manufacturer`, it now uses `repositoryFactory` instead of `StateDeprecated` for fetching and editing data
@@ -305,6 +307,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added mapping validation for import/export profiles
 
 * Core    
+    * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
+          
+* Core
+    * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`
+    * The `clone` method of the `ApiController` now passes overwrites to the `EntityRepository`
+    * The `clone` method of the `VersionManager` now accepts `overwrites` and combines the overwrites with the cloned data using `array_replace_recursive`.
     * The `Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter` no longer supports `||` and `&&`.
     * The usage of `entity` in the `shopware.entity.definition` tag is deprecated and will be removed with 6.4. 
     * Added `SalesChannelAnalyticsEntity` to define the Google Analytics configuration

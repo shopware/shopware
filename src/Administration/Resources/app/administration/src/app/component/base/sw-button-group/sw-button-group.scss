@@ -55,6 +55,14 @@
     }
 
     &.sw-button-group--split {
+        > .sw-button {
+            &.sw-button--primary,
+            &.sw-button--danger,
+            &.sw-button--contrast {
+                margin-right: 0;
+            }
+        }
+
         .sw-context-button > .sw-button {
             &.sw-button--primary,
             &.sw-button--danger,

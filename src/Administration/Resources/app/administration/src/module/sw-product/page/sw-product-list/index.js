@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'numberRangeService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -211,6 +211,27 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'right'
             }];
+        },
+
+        onDuplicate(referenceProduct) {
+            return this.numberRangeService.reserve('product').then((response) => {
+                return this.productRepository.clone(referenceProduct.id, Shopware.Context.api, {
+                    productNumber: response.number,
+                    name: `${referenceProduct.name} ${this.$tc('sw-product.general.copy')}`,
+                    productReviews: null,
+                    active: false
+                });
+            }).then((duplicate) => {
+                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+            });
+        },
+
+        duplicationDisabledTitle(product) {
+            if (product.childCount > 0) {
+                return this.$tc('sw-product.general.variantDuplication');
+            }
+
+            return '';
         }
     }
 });

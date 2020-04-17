@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -195,17 +196,23 @@ class ApiController extends AbstractController
      *
      * @throws DefinitionNotFoundException
      */
-    public function clone(Context $context, string $entity, string $id, int $version): JsonResponse
+    public function clone(Context $context, string $entity, string $id, int $version, Request $request): JsonResponse
     {
+        $overwrites = $request->request->get('overwrites', []);
+
         $entity = $this->urlToSnakeCase($entity);
         $this->checkIfRouteAvailableInApiVersion($entity, $version);
 
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $this->validateAclPermissions($context, $definition, AclResourceDefinition::PRIVILEGE_CREATE);
 
-        $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id): EntityWrittenContainerEvent {
-            return $this->definitionRegistry->getRepository($definition->getEntityName())->clone($id, $context);
+        $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $overwrites): EntityWrittenContainerEvent {
+            /** @var EntityRepository $entityRepo */
+            $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
+
+            return $entityRepo->clone($id, $context, null, $overwrites);
         });
+
         $event = $eventContainer->getEventByEntityName($definition->getEntityName());
         if (!$event) {
             throw new NoEntityClonedException($entity, $id);

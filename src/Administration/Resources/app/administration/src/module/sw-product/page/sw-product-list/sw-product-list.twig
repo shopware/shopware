@@ -108,6 +108,20 @@
                                         {% endblock %}
                                     </template>
                                 {% endblock %}
+
+                                {% block sw_product_list_grid_columns_actions %}
+                                    <template #more-actions="{ item }">
+                                        {% block sw_product_list_grid_columns_actions_duplicate %}
+                                            <sw-context-menu-item
+                                                class="sw-product-list-grid__duplicate-action"
+                                                :disabled="item.childCount > 0"
+                                                :title="duplicationDisabledTitle(item)"
+                                                @click="onDuplicate(item)">
+                                                {{ $tc('sw-product.list.buttonDuplicate') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
                             {% endblock %}
                         </sw-entity-listing>
 

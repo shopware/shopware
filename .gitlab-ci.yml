@@ -391,7 +391,7 @@ Storefront (Jest):
         - npm i @shopware-ag/e2e-testsuite-platform@1.2.4 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.0.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
 
 .scheduled_script:
     script: &scheduled_definition
@@ -403,7 +403,7 @@ Storefront (Jest):
         - npm i @shopware-ag/e2e-testsuite-platform@1.2.4 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.0.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition

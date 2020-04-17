@@ -242,7 +242,7 @@ class ImportExportService
         $logEntity->setActivity($activity);
         $logEntity->setState(Progress::STATE_PROGRESS);
         $logEntity->setProfileId($profile->getId());
-        $logEntity->setProfileName($profile->getName());
+        $logEntity->setProfileName($profile->getTranslation('label'));
         $logEntity->setFileId($file->getId());
         $logEntity->setRecords(0);
         $logEntity->setConfig($this->getConfig($profile, $config));
@@ -272,7 +272,7 @@ class ImportExportService
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
         $timestamp = date('Ymd-His');
 
-        return sprintf('%s_%s.%s', $profile->getName(), $timestamp, $extension);
+        return sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
     }
 
     private function findUser(Context $context, string $userId): UserEntity

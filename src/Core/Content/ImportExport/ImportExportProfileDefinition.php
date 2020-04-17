@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
@@ -35,7 +37,8 @@ class ImportExportProfileDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
-            (new StringField('name', 'name'))->setFlags(new Required()),
+            (new StringField('name', 'name')),
+            (new TranslatedField('label'))->setFlags(new Required()),
             new BoolField('system_default', 'systemDefault'),
             (new StringField('source_entity', 'sourceEntity'))->setFlags(new Required()),
             (new StringField('file_type', 'fileType'))->setFlags(new Required()),
@@ -48,6 +51,7 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new JsonField('config', 'config', [], [])),
 
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
+            (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id')),
 
             new CreatedAtField(),
             new UpdatedAtField(),

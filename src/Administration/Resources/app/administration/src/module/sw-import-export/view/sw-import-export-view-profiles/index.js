@@ -52,8 +52,8 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         profilesColumns() {
             return [
                 {
-                    property: 'name',
-                    dataIndex: 'name',
+                    property: 'label',
+                    dataIndex: 'label',
                     label: 'sw-import-export.profile.nameColumn',
                     allowResize: true,
                     primary: true
@@ -85,6 +85,10 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             this.isLoading = false;
         },
 
+        reloadContent() {
+            this.loadProfiles();
+        },
+
         onSearch() {
             this.loadProfiles();
         },
@@ -94,6 +98,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             this.selectedProfile.fileType = 'text/csv';
             this.selectedProfile.mapping = [];
             this.$set(this.selectedProfile, 'config', {});
+            this.$set(this.selectedProfile, 'translated', {});
             this.selectedProfile.delimiter = ';';
             this.selectedProfile.enclosure = '"';
         },
@@ -109,7 +114,8 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         onDuplicateProfile(item) {
             this.selectedProfile = this.profileRepository.create(Shopware.Context.api);
 
-            this.selectedProfile.name = `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.name}`;
+            this.selectedProfile.label = `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || ''}`;
+            this.$set(this.selectedProfile, 'translated', {});
             this.selectedProfile.systemDefault = false;
             this.$set(this.selectedProfile, 'config', Array.isArray(item.config) ? {} : item.config);
             this.selectedProfile.fileType = item.fileType;

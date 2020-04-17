@@ -288,7 +288,7 @@ class ImportExportLogApiTest extends TestCase
                 'profileId' => $profileIds[($i % 2)],
                 'fileId' => $fileIds[($i % 2)],
                 'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'],
-                'profileName' => $profile['name'],
+                'profileName' => $profile['label'],
                 'records' => 10 * $i,
                 'config' => ['profile' => $profile],
             ];
@@ -346,6 +346,7 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'name' => sprintf('Test name %d', $i),
+                'label' => sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => sprintf('Test entity %d', $i),
                 'fileType' => sprintf('Test file type %d', $i),

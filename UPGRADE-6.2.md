@@ -86,6 +86,9 @@ Core
 * Added optional second parameter `$context` to `\Shopware\Core\Framework\Plugin\PluginManagementService::uploadPlugin` and `\Shopware\Core\Framework\Plugin\PluginManagementService::deletePlugin`. It will be required in 6.3.0
 * Deprecated `\Shopware\Core\Framework\Plugin\PluginManagementService::extractPluginZip` which will be private in 6.3.0
 * Added optional third parameter `$definition` to `Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`. It will be required in 6.3.0.
+* Added a new translatable `label` property to `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition`
+    * This property is required
+    * The name may be omitted now
 
 Administration
 --------------

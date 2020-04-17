@@ -55,12 +55,14 @@ class ImportExportProfileApiTest extends TestCase
 
         // read created data from db
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $translationRecords = $this->getTranslationRecords();
 
         // compare expected and resulting data
         static::assertCount($num, $records);
         foreach ($records as $record) {
             $expect = $data[$record['id']];
             static::assertSame($expect['name'], $record['name']);
+            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
             static::assertSame($expect['fileType'], $record['file_type']);
@@ -73,7 +75,7 @@ class ImportExportProfileApiTest extends TestCase
 
     public function testImportExportProfileCreateMissingRequired(): void
     {
-        $requiredProperties = ['name', 'sourceEntity', 'fileType'];
+        $requiredProperties = ['sourceEntity', 'fileType'];
         foreach ($requiredProperties as $property) {
             $entry = current($this->prepareImportExportProfileTestData());
             unset($entry[$property]);
@@ -113,6 +115,7 @@ class ImportExportProfileApiTest extends TestCase
                 $importExportProfile = $content->data[$i];
                 $expect = $expectData[$importExportProfile->_uniqueIdentifier];
                 static::assertSame($expect['name'], $importExportProfile->name);
+                static::assertSame($expect['label'], $importExportProfile->label);
                 static::assertEquals($expect['systemDefault'], (bool) $importExportProfile->systemDefault);
                 static::assertSame($expect['sourceEntity'], $importExportProfile->sourceEntity);
                 static::assertSame($expect['fileType'], $importExportProfile->fileType);
@@ -159,6 +162,7 @@ class ImportExportProfileApiTest extends TestCase
             $importExportProfile = $content->data[$i];
             $expect = $expectData[$importExportProfile->_uniqueIdentifier];
             static::assertSame($expect['name'], $importExportProfile->name);
+            static::assertSame($expect['label'], $importExportProfile->label);
             static::assertEquals($expect['systemDefault'], (bool) $importExportProfile->systemDefault);
             static::assertSame($expect['sourceEntity'], $importExportProfile->sourceEntity);
             static::assertSame($expect['fileType'], $importExportProfile->fileType);
@@ -240,6 +244,7 @@ class ImportExportProfileApiTest extends TestCase
             // compare deatils with expected
             $content = json_decode($response->getContent());
             static::assertSame($expect['name'], $content->data->name);
+            static::assertSame($expect['label'], $content->data->label);
             static::assertEquals($expect['systemDefault'], (bool) $content->data->systemDefault);
             static::assertSame($expect['sourceEntity'], $content->data->sourceEntity);
             static::assertSame($expect['fileType'], $content->data->fileType);
@@ -362,6 +367,7 @@ class ImportExportProfileApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'name' => sprintf('Test name %d %s', $i, $add),
+                'label' => sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => (($i % 2 === 0) ? true : false),
                 'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
                 'fileType' => sprintf('Test file type %d %s', $i, $add),
@@ -379,5 +385,21 @@ class ImportExportProfileApiTest extends TestCase
         array_push($data, array_shift($data));
 
         return array_values($data);
+    }
+
+    /**
+     * Read out the contents of the import_export_profile_translation table
+     */
+    protected function getTranslationRecords(): array
+    {
+        return array_reduce(
+            $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
+            static function ($carry, $translationRecord) {
+                $carry[$translationRecord['import_export_profile_id']] = $translationRecord;
+
+                return $carry;
+            },
+            []
+        );
     }
 }

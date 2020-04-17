@@ -56,10 +56,16 @@ class ImportExportProfileRepositoryTest extends TestCase
             ['id' => $id]
         );
 
+        $translationRecord = $this->connection->fetchAssoc(
+            'SELECT * FROM import_export_profile_translation WHERE import_export_profile_id = :id',
+            ['id' => $id]
+        );
+
         $expect = $data[$id];
         static::assertNotEmpty($record);
         static::assertEquals($id, $record['id']);
         static::assertEquals($expect['name'], $record['name']);
+        static::assertEquals($expect['label'], $translationRecord['label']);
         static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
         static::assertEquals($expect['sourceEntity'], $record['source_entity']);
         static::assertEquals($expect['fileType'], $record['file_type']);
@@ -70,7 +76,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
     public function testImportExportProfileSingleCreateMissingRequired(): void
     {
-        $requiredProperties = ['name', 'sourceEntity', 'fileType'];
+        $requiredProperties = ['sourceEntity', 'fileType'];
         $num = count($requiredProperties);
         $data = $this->prepareImportExportProfileTestData($num);
 
@@ -97,12 +103,14 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAll(
             'SELECT * FROM import_export_profile'
         );
+        $translationRecords = $this->getTranslationRecords();
 
         static::assertEquals($num, count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
             static::assertEquals($expect['name'], $record['name']);
+            static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['sourceEntity'], $record['source_entity']);
             static::assertEquals($expect['fileType'], $record['file_type']);
@@ -117,7 +125,7 @@ class ImportExportProfileRepositoryTest extends TestCase
     {
         $data = $this->prepareImportExportProfileTestData(2);
 
-        $requiredProperties = ['name', 'sourceEntity', 'fileType'];
+        $requiredProperties = ['sourceEntity', 'fileType'];
         $incompleteData = $this->prepareImportExportProfileTestData(count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
@@ -160,6 +168,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             /** @var ImportExportProfileEntity $importExportProfile */
             $importExportProfile = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
             static::assertEquals($expect['name'], $importExportProfile->getName());
+            static::assertEquals($expect['label'], $importExportProfile->getLabel());
             static::assertEquals($expect['systemDefault'], (bool) $importExportProfile->getSystemDefault());
             static::assertEquals($expect['sourceEntity'], $importExportProfile->getSourceEntity());
             static::assertEquals($expect['fileType'], $importExportProfile->getFileType());
@@ -199,12 +208,14 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAll(
             'SELECT * FROM import_export_profile'
         );
+        $translationRecords = $this->getTranslationRecords();
 
         static::assertEquals($num, count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
             static::assertEquals($expect['name'], $record['name']);
+            static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['sourceEntity'], $record['source_entity']);
             static::assertEquals($expect['fileType'], $record['file_type']);
@@ -243,12 +254,14 @@ class ImportExportProfileRepositoryTest extends TestCase
         $this->repository->upsert(array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
+        $translationRecords = $this->getTranslationRecords();
 
         static::assertEquals($num, count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
             static::assertEquals($expect['name'], $record['name']);
+            static::assertEquals($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
             static::assertEquals($expect['sourceEntity'], $record['source_entity']);
             static::assertEquals($expect['fileType'], $record['file_type']);
@@ -332,6 +345,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'name' => sprintf('Test name %d %s', $i, $add),
+                'label' => sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
                 'fileType' => sprintf('Test file type %d %s', $i, $add),
@@ -342,5 +356,21 @@ class ImportExportProfileRepositoryTest extends TestCase
         }
 
         return $data;
+    }
+
+    /**
+     * Read out the contents of the import_export_profile_translation table
+     */
+    protected function getTranslationRecords(): array
+    {
+        return array_reduce(
+            $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
+            static function ($carry, $translationRecord) {
+                $carry[$translationRecord['import_export_profile_id']] = $translationRecord;
+
+                return $carry;
+            },
+            []
+        );
     }
 }

@@ -470,6 +470,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
     * Added new Field `afterOrderEnabled` to `\Shopware\Core\Checkout\Payment\PaymentMethodDefinition`
      
+    * Added a new translatable `label` property to `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition`
+    * Marked `name` property of `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition` as nullable 
+    
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

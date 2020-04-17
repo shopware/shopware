@@ -17,5 +17,13 @@ Shopware.Component.register('sw-import-export', {
         return {
             title: this.$createTitle()
         };
+    },
+
+    methods: {
+        onChangeLanguage() {
+            if (this.$refs.tabContent.reloadContent) {
+                this.$refs.tabContent.reloadContent();
+            }
+        }
     }
 });

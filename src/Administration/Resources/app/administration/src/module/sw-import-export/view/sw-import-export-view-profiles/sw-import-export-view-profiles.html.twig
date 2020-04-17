@@ -43,10 +43,10 @@
                         :showSelection="false"
                         :allowColumnEdit="false">
 
-                        {% block sw_import_export_view_profile_profiles_listing_column_name %}
-                            <template #column-name="{ item }">
+                        {% block sw_import_export_view_profile_profiles_listing_column_label %}
+                            <template #column-label="{ item }">
                                 <a href="#" @click.prevent="onEditProfile(item.id)">
-                                    {{ item.name }}
+                                    {{ item.translated.label }}
                                 </a>
                             </template>
                         {% endblock %}

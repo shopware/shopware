@@ -29,6 +29,11 @@ class ShippingMethodIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    public function tearDown(): void
+    {
+        $this->setBlueGreen(true);
+    }
+
     public function testIterate(): void
     {
         $this->setBlueGreen(false);

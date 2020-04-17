@@ -29,6 +29,7 @@
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Active",
+      "labelAfterOrderEnabled": "Enable After Order Payment",
       "labelDescription": "Description",
       "labelLogoUpload": "Logo",
       "sidebar": {

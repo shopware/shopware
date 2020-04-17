@@ -110,11 +110,18 @@
                                 {% endblock %}
                             </sw-container>
 
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 2fr)" gap="0px 30px">
                                 {% block sw_settings_payment_detail_content_field_active %}
                                 <sw-field type="switch"
                                           :label="$tc('sw-settings-payment.detail.labelActive')"
                                           v-model="paymentMethod.active">
+                                </sw-field>
+                                {% endblock %}
+
+                                {% block sw_settings_payment_detail_content_field_after_order_enabled %}
+                                <sw-field type="switch"
+                                          :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
+                                          v-model="paymentMethod.afterOrderEnabled">
                                 </sw-field>
                                 {% endblock %}
                             </sw-container>

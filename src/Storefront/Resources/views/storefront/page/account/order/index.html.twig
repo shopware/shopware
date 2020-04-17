@@ -52,9 +52,17 @@
 
             <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
 
+            {% set paymentMethodInvalid = true %}
+
+            {% for payment in page.paymentMethods %}
+                {% if payment.id is same as(context.paymentMethod.id) %}
+                    {% set paymentMethodInvalid = false %}
+                {% endif %}
+            {% endfor %}
+
             <button
                 class="btn btn-primary btn-block"
-                {% if page.paymentChangeable == false %}
+                {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
                     disabled="disabled"
                 {% endif %}
                 type="submit">

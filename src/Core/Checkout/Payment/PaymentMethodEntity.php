@@ -47,6 +47,11 @@ class PaymentMethodEntity extends Entity
     protected $active;
 
     /**
+     * @var bool
+     */
+    protected $afterOrderEnabled;
+
+    /**
      * @var PluginEntity|null
      */
     protected $plugin;
@@ -289,5 +294,15 @@ class PaymentMethodEntity extends Entity
     public function getApiAlias(): string
     {
         return 'payment_method';
+    }
+
+    public function getAfterOrderEnabled(): bool
+    {
+        return $this->afterOrderEnabled;
+    }
+
+    public function setAfterOrderEnabled(bool $afterOrderEnabled): void
+    {
+        $this->afterOrderEnabled = $afterOrderEnabled;
     }
 }

@@ -56,7 +56,6 @@ class SalesChannelProxyController extends AbstractController
 
     private const ADMIN_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
-        DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
     ];
 
     /**

@@ -13,12 +13,13 @@ describe('FirstRunWizard Test language Auto-Install', () => {
             });
     });
 
-    it('Tests adding a single language(Dutch)', () => {
-        AddLanguageToLanguageTable('Dutch', 'nl-NL', 'Dutch, Netherlands');
-    });
-
-    it('Tests the auto-install of the first run wizard with dutch', () => {
+    it.skip('@frw: Tests the auto-install of the first run wizard with dutch', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`).then(() => {
+            cy.contains('Language pack Dutch').scrollIntoView();
+            cy.get('.sw-plugin-card:nth-of-type(4) .sw-button').click();
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-first-run-wizard-confirmLanguageSwitch-modal').should('be.visible');
+
             cy.get('.sw-first-run-wizard-welcome__modal-text').contains('SwagI18nDutch').then(() => {
                 cy.get('#sw-field--user-localeId').select('Dutch (Netherlands)');
                 cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content').click().then(() => {
@@ -30,11 +31,12 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         });
     });
 
-    it('should fail to install Lingala', () => {
+    it.skip('@frw: Should fail to install Lingala', () => {
         AddLanguageToLanguageTable('No Plugin Available Language', 'ln-CD', 'Lingala, Democratic Republic of the Congo');
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`).then(() => {
-            cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible');
-            runTroughFirstRunWizard();
+            cy.get('.sw-notifications__notification--0 > .sw-alert__body').should('be.visible').then(() => {
+                runTroughFirstRunWizard();
+            });
             cy.get('.sw-context-button > .sw-icon > svg').click().get('.sw-notification-center-item__title')
                 .contains('error');
         });

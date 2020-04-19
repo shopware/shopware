@@ -19,7 +19,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         page = null;
     });
 
-    it('@settings: Create and read profile', () => {
+    it('@settings @base: Create and read profile', () => {
         cy.server();
         cy.route({
             url: '/api/v*/import-export-profile',
@@ -85,7 +85,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Basic');
     });
 
-    it('@settings: Update and read profile', () => {
+    it('@settings @base: Update and read profile', () => {
         cy.server();
         cy.route({
             url: '/api/v*/import-export-profile/*',
@@ -125,7 +125,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Updated E2E');
     });
 
-    it('@settings: Delete profile', () => {
+    it('@settings @base: Delete profile', () => {
         cy.server();
         cy.route({
             url: '/api/v*/import-export-profile/*',

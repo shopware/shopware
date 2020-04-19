@@ -65,16 +65,16 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
 
         $key = Key::createNewRandomKey();
         $secret = $key->saveToAsciiSafeString();
-        $dbUrl = sprintf(
+        $dbUrl = \sprintf(
             'mysql://%s:%s@%s:%s/%s',
-            rawurlencode($info->username),
-            rawurlencode($info->password),
-            rawurlencode($info->hostname),
-            rawurlencode((string) $info->port),
-            rawurlencode($info->databaseName)
+            \rawurlencode($info->username),
+            \rawurlencode($info->password),
+            \rawurlencode($info->hostname),
+            \rawurlencode((string) $info->port),
+            \rawurlencode($info->databaseName)
         );
 
-        $envFile = sprintf(
+        $envFile = \sprintf(
             $tpl,
             $secret,
             'http://' . $shop->host . $shop->basePath,
@@ -83,6 +83,6 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
             $this->instanceId
         );
 
-        file_put_contents($this->configPath, $envFile);
+        \file_put_contents($this->configPath, $envFile);
     }
 }

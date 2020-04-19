@@ -51,7 +51,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         $result = $this->loadFromCache($definition, $criteria, $context);
 
         // collect all names of aggregations to compare which are not loaded from cache
-        $names = array_map(function (Aggregation $aggregation) {
+        $names = \array_map(function (Aggregation $aggregation) {
             // filter aggregations are stripped when the result get cached
             $aggregation = $this->removeFilterAggregation($aggregation);
 
@@ -59,7 +59,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
         }, $criteria->getAggregations());
 
         //check which aggregations are not loaded from cache
-        $fallback = array_diff(array_values($names), array_values($result->getKeys()));
+        $fallback = \array_diff(\array_values($names), \array_values($result->getKeys()));
 
         if (empty($fallback)) {
             return $result;
@@ -127,7 +127,7 @@ class CachedEntityAggregator implements EntityAggregatorInterface
             $filtered[] = $item->isHit() ? $item->get() : null;
         }
 
-        return new AggregationResultCollection(array_filter($filtered));
+        return new AggregationResultCollection(\array_filter($filtered));
     }
 
     private function getAggregationResult(Aggregation $aggregation, AggregationResultCollection $aggregations): ?AggregationResult

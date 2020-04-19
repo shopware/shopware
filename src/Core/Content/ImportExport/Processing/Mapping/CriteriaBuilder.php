@@ -26,7 +26,7 @@ class CriteriaBuilder
     {
         foreach ($config->getMapping() as $mapping) {
             $tmpDefinition = $this->definition;
-            $parts = explode('.', $mapping->getKey());
+            $parts = \explode('.', $mapping->getKey());
 
             $prefix = '';
 

@@ -20,17 +20,17 @@ class AccessKeyHelper
 
     public static function generateAccessKey(string $identifier): string
     {
-        return self::getIdentifier($identifier) . mb_strtoupper(str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(16))));
+        return self::getIdentifier($identifier) . \mb_strtoupper(\str_replace(['+', '/', '='], ['-', '_', ''], \base64_encode(Random::getAlphanumericString(16))));
     }
 
     public static function generateSecretAccessKey(): string
     {
-        return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(Random::getAlphanumericString(38)));
+        return \str_replace(['+', '/', '='], ['-', '_', ''], \base64_encode(Random::getAlphanumericString(38)));
     }
 
     public static function getOrigin(string $accessKey): string
     {
-        $identifier = mb_substr($accessKey, 0, 4);
+        $identifier = \mb_substr($accessKey, 0, 4);
 
         if (!isset(self::$mapping[$identifier])) {
             throw new \RuntimeException('Access key is invalid and could not be identified.');
@@ -41,7 +41,7 @@ class AccessKeyHelper
 
     private static function getIdentifier(string $origin): string
     {
-        $mapping = array_flip(self::$mapping);
+        $mapping = \array_flip(self::$mapping);
 
         if (!isset($mapping[$origin])) {
             throw new \RuntimeException('Given identifier for access key is invalid.');

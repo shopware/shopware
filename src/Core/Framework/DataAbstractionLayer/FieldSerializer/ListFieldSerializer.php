@@ -41,7 +41,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
         $value = $data->getValue();
 
         if ($value !== null) {
-            $value = array_values($value);
+            $value = \array_values($value);
 
             $this->validateTypes($field, $value, $parameters);
 
@@ -57,7 +57,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
-        return json_decode($value, true);
+        return \json_decode($value, true);
     }
 
     protected function getConstraints(Field $field): array
@@ -88,7 +88,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
                 $kvPair = new KeyValuePair((string) $i, $value, true);
 
                 $x = $listField->getSerializer()->encode($listField, $existence, $kvPair, $nestedParameters);
-                iterator_to_array($x);
+                \iterator_to_array($x);
             } catch (WriteFieldException $exception) {
                 $parameters->getContext()->getExceptions()->add($exception);
             }

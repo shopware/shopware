@@ -36,7 +36,7 @@ class DeleteExpiredFilesService
         $criteria = $this->buildCriteria();
 
         $ids = $this->fileRepository->searchIds($criteria, $context)->getIds();
-        $ids = array_map(function ($id) {
+        $ids = \array_map(function ($id) {
             return ['id' => $id];
         }, $ids);
         $this->fileRepository->delete($ids, $context);
@@ -48,7 +48,7 @@ class DeleteExpiredFilesService
         $criteria->addFilter(new RangeFilter(
             'expireDate',
             [
-                RangeFilter::LT => date(DATE_ATOM),
+                RangeFilter::LT => \date(\DATE_ATOM),
             ]
         ));
 

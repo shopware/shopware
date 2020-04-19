@@ -90,8 +90,8 @@ CREATE TABLE `acl_resource` (
 
         $actual = $this->fetchRoles();
 
-        sort($actual);
-        sort($roles);
+        \sort($actual);
+        \sort($roles);
 
         static::assertEquals($roles, $actual);
     }
@@ -135,7 +135,7 @@ CREATE TABLE `acl_resource` (
             ]);
 
             foreach ($privileges as $privilege) {
-                $priv = explode(':', $privilege);
+                $priv = \explode(':', $privilege);
 
                 $this->connection->insert('acl_resource', [
                     'acl_role_id' => $id,

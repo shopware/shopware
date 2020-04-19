@@ -746,7 +746,7 @@ class VersioningTest extends TestCase
         $products = $this->connection->fetchAll('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(2, $products);
 
-        $versions = array_map(function ($item) {
+        $versions = \array_map(function ($item) {
             return Uuid::fromBytesToHex($item['version_id']);
         }, $products);
 
@@ -756,7 +756,7 @@ class VersioningTest extends TestCase
         $prices = $this->connection->fetchAll('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(4, $prices);
 
-        $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
+        $versionPrices = \array_filter($prices, function (array $price) use ($versionId) {
             $version = Uuid::fromBytesToHex($price['version_id']);
 
             return $version === $versionId;
@@ -802,7 +802,7 @@ class VersioningTest extends TestCase
         );
         static::assertCount(2, $products);
 
-        $versions = array_map(function ($item) {
+        $versions = \array_map(function ($item) {
             return Uuid::fromBytesToHex($item['version_id']);
         }, $products);
 
@@ -1361,7 +1361,7 @@ class VersioningTest extends TestCase
         $product = $this->productRepository->search($Criteria, $versionContext)->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        static::assertCount(3, $product->getCategories(), print_r($product->getId(), true));
+        static::assertCount(3, $product->getCategories(), \print_r($product->getId(), true));
 
         $this->productRepository->merge($versionId, $context);
 
@@ -1972,9 +1972,9 @@ class VersioningTest extends TestCase
             ]
         );
 
-        $data = array_map(function (array $row) {
-            $row['entity_id'] = json_decode($row['entity_id'], true);
-            $row['payload'] = json_decode($row['payload'], true);
+        $data = \array_map(function (array $row) {
+            $row['entity_id'] = \json_decode($row['entity_id'], true);
+            $row['payload'] = \json_decode($row['payload'], true);
 
             return $row;
         }, $data);
@@ -2000,9 +2000,9 @@ class VersioningTest extends TestCase
             ]
         );
 
-        $data = array_map(function (array $row) {
-            $row['entity_id'] = json_decode($row['entity_id'], true);
-            $row['payload'] = json_decode($row['payload'], true);
+        $data = \array_map(function (array $row) {
+            $row['entity_id'] = \json_decode($row['entity_id'], true);
+            $row['payload'] = \json_decode($row['payload'], true);
 
             return $row;
         }, $data);
@@ -2028,9 +2028,9 @@ class VersioningTest extends TestCase
             ]
         );
 
-        $data = array_map(function (array $row) {
-            $row['entity_id'] = json_decode($row['entity_id'], true);
-            $row['payload'] = json_decode($row['payload'], true);
+        $data = \array_map(function (array $row) {
+            $row['entity_id'] = \json_decode($row['entity_id'], true);
+            $row['payload'] = \json_decode($row['payload'], true);
 
             return $row;
         }, $data);
@@ -2045,7 +2045,7 @@ class VersioningTest extends TestCase
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+        $prop->setValue($ruleRegistry, \array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $paymentMethodId,

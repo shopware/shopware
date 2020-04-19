@@ -64,7 +64,7 @@ class MigrationTest extends TestCase
             $response = $app($this->requestFactory('GET', '/database-import/importDatabase'), new Response());
             $content = (string) $response->getBody();
             static::assertSame(200, $response->getStatusCode());
-        } while (strpos($content, '"valid":true,') !== false);
+        } while (\mb_strpos($content, '"valid":true,') !== false);
 
         $this->assertTestMigrationsWereExecuted($app);
     }
@@ -113,14 +113,14 @@ class MigrationTest extends TestCase
 
         for ($i = 0; $i < 2; ++$i) {
             $response = $app(
-                $this->requestFactory('GET', '/applyMigrations', ['offset' => 0, 'total' => PHP_INT_MAX, 'modus' => 'update']),
+                $this->requestFactory('GET', '/applyMigrations', ['offset' => 0, 'total' => \PHP_INT_MAX, 'modus' => 'update']),
                 new Response()
             );
             $content = (string) $response->getBody();
             static::assertStringContainsString('"valid": true,', $content);
 
             $response = $app(
-                $this->requestFactory('GET', '/applyMigrations', ['offset' => 0, 'total' => PHP_INT_MAX, 'modus' => 'update_destructive']),
+                $this->requestFactory('GET', '/applyMigrations', ['offset' => 0, 'total' => \PHP_INT_MAX, 'modus' => 'update_destructive']),
                 new Response()
             );
             $content = (string) $response->getBody();
@@ -162,7 +162,7 @@ class MigrationTest extends TestCase
             $parts[] = $name . '=' . $value;
         }
 
-        $uri .= '?' . implode('&', $parts);
+        $uri .= '?' . \implode('&', $parts);
         $env = Environment::mock();
         $uri = Uri::createFromString($uri);
         $headers = Headers::createFromEnvironment($env);
@@ -195,7 +195,7 @@ class MigrationTest extends TestCase
             return;
         }
 
-        throw new \RuntimeException('Not working with ' . get_class($app));
+        throw new \RuntimeException('Not working with ' . \get_class($app));
     }
 
     protected function dropDatabase(): void
@@ -215,25 +215,25 @@ class MigrationTest extends TestCase
     protected function setUpUpdateGlobals(): void
     {
         // :D an the update
-        if (!defined('UPDATE_IS_MANUAL')) {
-            define('UPDATE_IS_MANUAL', true);
-            define('UPDATE_FILES_PATH', null);
-            define('UPDATE_ASSET_PATH', __DIR__ . '/_update-assets');
-            define('UPDATE_META_FILE', null);
+        if (!\defined('UPDATE_IS_MANUAL')) {
+            \define('UPDATE_IS_MANUAL', true);
+            \define('UPDATE_FILES_PATH', null);
+            \define('UPDATE_ASSET_PATH', __DIR__ . '/_update-assets');
+            \define('UPDATE_META_FILE', null);
         }
 
         $_SERVER['REMOTE_ADDR'] = '6.6.6';
 
         $this->createDatabase();
         $_ENV['DATABASE_URL'] = $this->getDsn();
-        putenv('DATABASE_URL=' . $this->getDsn());
+        \putenv('DATABASE_URL=' . $this->getDsn());
     }
 
     protected function assertTestMigrationsWereExecuted($app): void
     {
         $container = $app->getContainer();
 
-        if (method_exists($container, 'get')) {
+        if (\method_exists($container, 'get')) {
             /** @var \PDO $pdo */
             $pdo = $app->getContainer()->get('db');
         } else {

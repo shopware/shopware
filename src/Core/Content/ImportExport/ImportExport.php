@@ -145,7 +145,7 @@ class ImportExport
                 // TODO: event after import record
             } catch (\Throwable $exception) {
                 // TODO: event on exception - can rethrow
-                $record['_error'] = mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8');
+                $record['_error'] = \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8');
                 $failedRecords[] = $record;
             }
             $this->importExportService->saveProgress($progress);
@@ -220,7 +220,7 @@ class ImportExport
             }
 
             $entities = $result->getEntities();
-            if (count($entities) === 0) {
+            if (\count($entities) === 0) {
                 // this can happen if entities are delete while we export
                 $progress->setTotal($progress->getOffset());
 
@@ -260,12 +260,12 @@ class ImportExport
         $progress->setState(Progress::STATE_MERGING_FILES);
         $this->importExportService->saveProgress($progress);
 
-        $tmpFile = tempnam(sys_get_temp_dir(), '');
-        $tmp = fopen($tmpFile, 'w+b');
+        $tmpFile = \tempnam(\sys_get_temp_dir(), '');
+        $tmp = \fopen($tmpFile, 'w+b');
 
         $target = $logEntity->getFile()->getPath();
 
-        $dir = dirname($target);
+        $dir = \dirname($target);
 
         $partFilePrefix = $target . self::PART_FILE_SUFFIX;
 
@@ -274,7 +274,7 @@ class ImportExport
         foreach ($this->filesystem->listContents($dir) as $meta) {
             if ($meta['type'] !== 'file'
                 || $meta['path'] === $target
-                || strpos($meta['path'], $partFilePrefix) !== 0) {
+                || \mb_strpos($meta['path'], $partFilePrefix) !== 0) {
                 continue;
             }
 
@@ -282,11 +282,11 @@ class ImportExport
         }
 
         // sort by offset
-        natsort($partFiles);
+        \natsort($partFiles);
 
         // concatenate all part files into a temporary file
         foreach ($partFiles as $partFile) {
-            if (stream_copy_to_stream($this->filesystem->readStream($partFile), $tmp) === false) {
+            if (\stream_copy_to_stream($this->filesystem->readStream($partFile), $tmp) === false) {
                 throw new ProcessingException('Failed to merge files');
             }
         }
@@ -294,8 +294,8 @@ class ImportExport
         // copy final file into filesystem
         $this->filesystem->putStream($target, $tmp);
 
-        fclose($tmp);
-        unlink($tmpFile);
+        \fclose($tmp);
+        \unlink($tmpFile);
 
         foreach ($partFiles as $p) {
             $this->filesystem->delete($p);
@@ -357,7 +357,7 @@ class ImportExport
     {
         // created a invalid records export if it doesn't exist
         if (!$this->logEntity->getInvalidRecordsLogId()) {
-            $pathInfo = pathinfo($this->logEntity->getFile()->getOriginalName());
+            $pathInfo = \pathinfo($this->logEntity->getFile()->getOriginalName());
             $newName = $pathInfo['filename'] . '_failed.' . $pathInfo['extension'];
 
             $newPath = $this->logEntity->getFile()->getPath() . '_invalid';

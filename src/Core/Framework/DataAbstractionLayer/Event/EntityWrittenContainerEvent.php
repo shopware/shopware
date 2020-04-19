@@ -62,7 +62,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
         /** @var EntityWriteResult[] $entityWrittenResults */
         foreach ($identifiers as $entityWrittenResults) {
-            if (count($entityWrittenResults) === 0) {
+            if (\count($entityWrittenResults) === 0) {
                 continue;
             }
 
@@ -87,7 +87,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
         /** @var EntityWriteResult[] $data */
         foreach ($identifiers as $data) {
-            if (count($data) === 0) {
+            if (\count($data) === 0) {
                 continue;
             }
 
@@ -129,7 +129,7 @@ class EntityWrittenContainerEvent extends NestedEvent
             $payload = $result->getPayload();
 
             foreach ($properties as $property) {
-                if (array_key_exists($property, $payload)) {
+                if (\array_key_exists($property, $payload)) {
                     return true;
                 }
             }
@@ -149,7 +149,7 @@ class EntityWrittenContainerEvent extends NestedEvent
             }
 
             if (!$closure) {
-                $ids = array_merge($ids, $event->getIds());
+                $ids = \array_merge($ids, $event->getIds());
 
                 continue;
             }

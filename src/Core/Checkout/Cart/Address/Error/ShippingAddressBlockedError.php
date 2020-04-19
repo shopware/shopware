@@ -17,7 +17,7 @@ class ShippingAddressBlockedError extends Error
     {
         $this->name = $name;
 
-        $this->message = sprintf(
+        $this->message = \sprintf(
             'Shippings to shipping address %s are not possible.',
             $name
         );
@@ -37,7 +37,7 @@ class ShippingAddressBlockedError extends Error
 
     public function getKey(): string
     {
-        return sprintf('%s-%s', self::KEY, $this->name);
+        return \sprintf('%s-%s', self::KEY, $this->name);
     }
 
     public function getLevel(): int

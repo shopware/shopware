@@ -4,7 +4,8 @@
  * Enables features for ACL permissions
  */
 
-namespace Flag {
+namespace Flag;
+
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
@@ -37,4 +38,3 @@ namespace Flag {
 
         $test::markTestSkipped('Skipping feature test "next3722"');
     }
-}

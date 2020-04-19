@@ -21,7 +21,7 @@ class SnippetFinder implements SnippetFinderInterface
     {
         $snippetFiles = $this->findSnippetFiles($locale);
 
-        if (!count($snippetFiles)) {
+        if (!\count($snippetFiles)) {
             return [];
         }
 
@@ -35,7 +35,7 @@ class SnippetFinder implements SnippetFinderInterface
 
         foreach ($activePlugins as $plugin) {
             $pluginPath = $plugin->getPath() . '/Resources/app/administration';
-            if (!file_exists($pluginPath)) {
+            if (!\file_exists($pluginPath)) {
                 continue;
             }
 
@@ -53,7 +53,7 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreUnreadableDirs();
 
         if ($locale) {
-            $finder->name(sprintf('%s.json', $locale));
+            $finder->name(\sprintf('%s.json', $locale));
         } else {
             $finder->name('/[a-z]{2}-[A-Z]{2}\.json/');
         }
@@ -77,12 +77,12 @@ class SnippetFinder implements SnippetFinderInterface
         $snippets = [[]];
 
         foreach ($files as $file) {
-            $snippets[] = json_decode(file_get_contents($file), true) ?? [];
+            $snippets[] = \json_decode(\file_get_contents($file), true) ?? [];
         }
 
-        $snippets = array_replace_recursive(...$snippets);
+        $snippets = \array_replace_recursive(...$snippets);
 
-        ksort($snippets);
+        \ksort($snippets);
 
         return $snippets;
     }

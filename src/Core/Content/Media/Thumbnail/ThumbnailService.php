@@ -191,9 +191,9 @@ class ThumbnailService
                     'height' => $size->getHeight(),
                 ];
 
-                imagedestroy($thumbnail);
+                \imagedestroy($thumbnail);
             }
-            imagedestroy($mediaImage);
+            \imagedestroy($mediaImage);
         } finally {
             $mediaData = [
                 'id' => $media->getId(),
@@ -204,7 +204,7 @@ class ThumbnailService
                 $this->mediaRepository->update([$mediaData], $context);
             });
 
-            return count($savedThumbnails);
+            return \count($savedThumbnails);
         }
     }
 
@@ -234,21 +234,21 @@ class ThumbnailService
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
         $file = $this->getFileSystem($media)->read($filePath);
-        $image = @imagecreatefromstring($file);
+        $image = @\imagecreatefromstring($file);
         if (!$image) {
             throw new FileTypeNotSupportedException($media->getId());
         }
 
-        if (function_exists('exif_read_data')) {
+        if (\function_exists('exif_read_data')) {
             try {
-                $exif = exif_read_data($filePath);
+                $exif = \exif_read_data($filePath);
 
                 if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
-                    $image = imagerotate($image, 90, 0);
+                    $image = \imagerotate($image, 90, 0);
                 } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
-                    $image = imagerotate($image, 180, 0);
+                    $image = \imagerotate($image, 180, 0);
                 } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
-                    $image = imagerotate($image, -90, 0);
+                    $image = \imagerotate($image, -90, 0);
                 }
             } catch (\Exception $e) {
                 // Ignore.
@@ -261,8 +261,8 @@ class ThumbnailService
     private function getOriginalImageSize($image): array
     {
         return [
-            'width' => imagesx($image),
-            'height' => imagesy($image),
+            'width' => \imagesx($image),
+            'height' => \imagesy($image),
         ];
     }
 
@@ -283,14 +283,14 @@ class ThumbnailService
 
             return [
                 'width' => $preferredThumbnailSize->getWidth(),
-                'height' => (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio),
+                'height' => (int) \ceil($preferredThumbnailSize->getHeight() * $aspectRatio),
             ];
         }
 
         $aspectRatio = $imageSize['width'] / $imageSize['height'];
 
         return [
-            'width' => (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio),
+            'width' => (int) \ceil($preferredThumbnailSize->getWidth() * $aspectRatio),
             'height' => $preferredThumbnailSize->getHeight(),
         ];
     }
@@ -300,17 +300,17 @@ class ThumbnailService
      */
     private function createNewImage($mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize)
     {
-        $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
+        $thumbnail = \imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
         if (!$type->is(ImageType::TRANSPARENT)) {
-            $colorWhite = imagecolorallocate($thumbnail, 255, 255, 255);
-            imagefill($thumbnail, 0, 0, $colorWhite);
+            $colorWhite = \imagecolorallocate($thumbnail, 255, 255, 255);
+            \imagefill($thumbnail, 0, 0, $colorWhite);
         } else {
-            imagealphablending($thumbnail, false);
+            \imagealphablending($thumbnail, false);
         }
 
-        imagesavealpha($thumbnail, true);
-        imagecopyresampled(
+        \imagesavealpha($thumbnail, true);
+        \imagecopyresampled(
             $thumbnail,
             $mediaImage,
             0,
@@ -331,24 +331,24 @@ class ThumbnailService
      */
     private function writeThumbnail($thumbnail, MediaEntity $media, string $url, int $quality): void
     {
-        ob_start();
+        \ob_start();
         switch ($media->getMimeType()) {
             case 'image/png':
-                imagepng($thumbnail);
+                \imagepng($thumbnail);
 
                 break;
             case 'image/gif':
-                imagegif($thumbnail);
+                \imagegif($thumbnail);
 
                 break;
             case 'image/jpg':
             case 'image/jpeg':
-                imagejpeg($thumbnail, null, $quality);
+                \imagejpeg($thumbnail, null, $quality);
 
                 break;
         }
-        $imageFile = ob_get_contents();
-        ob_end_clean();
+        $imageFile = \ob_get_contents();
+        \ob_end_clean();
 
         if ($this->getFileSystem($media)->put($url, $imageFile) === false) {
             throw new ThumbnailCouldNotBeSavedException($url);

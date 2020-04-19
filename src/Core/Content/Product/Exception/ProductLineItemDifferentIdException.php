@@ -9,7 +9,7 @@ class ProductLineItemDifferentIdException extends ShopwareHttpException
 {
     public function __construct(string $lineItemId)
     {
-        $message = sprintf('The `productId` and `referencedId` of the line item %s are not identical.', $lineItemId);
+        $message = \sprintf('The `productId` and `referencedId` of the line item %s are not identical.', $lineItemId);
         parent::__construct($message);
     }
 

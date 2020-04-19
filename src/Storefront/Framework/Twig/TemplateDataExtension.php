@@ -78,7 +78,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'shopware' => [
                 'config' => $this->getConfig($context),
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
-                'dateFormat' => DATE_ATOM,
+                'dateFormat' => \DATE_ATOM,
                 'csrfEnabled' => $this->csrfEnabled,
                 'csrfMode' => $this->csrfMode,
             ],
@@ -108,7 +108,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         $themePrefix = ThemeCompiler::getThemePrefix($salesChannelId, $themeId);
 
-        $themeConfig = array_merge(
+        $themeConfig = \array_merge(
             $themeConfig,
             [
                 'assets' => [
@@ -153,7 +153,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         $matches = [];
-        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', $controller, $matches);
+        \preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', $controller, $matches);
 
         if ($matches) {
             $controllerInfo->setName($matches[1]);
@@ -165,7 +165,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
     private function getConfig(SalesChannelContext $context): array
     {
-        $config = array_merge(
+        $config = \array_merge(
             $this->getDefaultConfiguration(),
             $this->systemConfigService->all($context->getSalesChannel()->getId())
         );

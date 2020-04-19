@@ -229,7 +229,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $grouped = FetchModeHelper::group($grouped);
 
         foreach ($grouped as $options) {
-            $options = array_column($options, 'id');
+            $options = \array_column($options, 'id');
 
             $criteria->addPostFilter(
                 new MultiFilter(
@@ -340,7 +340,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];
 
-        return array_unique(array_filter(array_merge($options, $properties)));
+        return \array_unique(\array_filter(\array_merge($options, $properties)));
     }
 
     private function setGroupedFlag(ProductListingResultEvent $event): void
@@ -360,7 +360,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function isGrouped(Request $request, ProductEntity $product): bool
     {
         // get all configured expanded groups
-        $groups = array_filter(
+        $groups = \array_filter(
             (array) $product->getConfiguratorGroupConfig(),
             function (array $config) {
                 return $config['expressionForListings'] ?? false;
@@ -368,10 +368,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         );
 
         // get ids of groups for later usage
-        $groups = array_column($groups, 'id');
+        $groups = \array_column($groups, 'id');
 
         // expanded group count matches option count? All variants are displayed
-        if (count($groups) === count($product->getOptionIds())) {
+        if (\count($groups) === \count($product->getOptionIds())) {
             return false;
         }
 
@@ -386,21 +386,21 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $count = 0;
         foreach ($product->getOptions() as $option) {
             // check if this option is filtered
-            if (in_array($option->getId(), $properties, true)) {
+            if (\in_array($option->getId(), $properties, true)) {
                 ++$count;
 
                 continue;
             }
 
             // check if the option contained in the expanded groups
-            if (in_array($option->getGroupId(), $groups, true)) {
+            if (\in_array($option->getGroupId(), $groups, true)) {
                 ++$count;
 
                 continue;
             }
         }
 
-        return $count !== count($product->getOptionIds());
+        return $count !== \count($product->getOptionIds());
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void
@@ -471,11 +471,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = $request->request->get('manufacturer', '');
         }
 
-        if (is_string($ids)) {
-            $ids = explode('|', $ids);
+        if (\is_string($ids)) {
+            $ids = \explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return \array_filter($ids);
     }
 
     private function getPropertyIds(Request $request): array
@@ -485,11 +485,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = $request->request->get('properties', '');
         }
 
-        if (is_string($ids)) {
-            $ids = explode('|', $ids);
+        if (\is_string($ids)) {
+            $ids = \explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return \array_filter($ids);
     }
 
     private function getLimit(Request $request): int

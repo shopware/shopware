@@ -48,7 +48,7 @@ class FieldSerializerTest extends TestCase
             ],
         ];
 
-        $actual = iterator_to_array($fieldSerializer->serialize($config, $priceField, $value));
+        $actual = \iterator_to_array($fieldSerializer->serialize($config, $priceField, $value));
         static::assertArrayHasKey('price', $actual);
         $actualPrice = $actual['price'];
 

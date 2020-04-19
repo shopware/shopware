@@ -43,7 +43,7 @@ class NaturalSortingTest extends TestCase
         $data = [
             'id' => $groupId,
             'name' => 'Content',
-            'options' => array_map(static function ($name) {
+            'options' => \array_map(static function ($name) {
                 return ['name' => $name];
             }, $naturalOrder),
         ];
@@ -68,7 +68,7 @@ class NaturalSortingTest extends TestCase
             return $option->getName();
         });
 
-        static::assertEquals($rawOrder, array_values($actual));
+        static::assertEquals($rawOrder, \array_values($actual));
 
         //check natural sorting
         $criteria = new Criteria();
@@ -80,7 +80,7 @@ class NaturalSortingTest extends TestCase
             return $option->getName();
         });
 
-        static::assertEquals($naturalOrder, array_values($actual));
+        static::assertEquals($naturalOrder, \array_values($actual));
     }
 
     public function sortingFixtures(): array

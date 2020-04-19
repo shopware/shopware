@@ -71,12 +71,12 @@ class RetryMessageHandler extends AbstractMessageHandler
     private function findHandler(string $handlerClass): ?AbstractMessageHandler
     {
         foreach ($this->handler as $handler) {
-            if (get_class($handler) === $handlerClass) {
+            if (\get_class($handler) === $handlerClass) {
                 return $handler;
             }
         }
 
-        $this->logger->warning(sprintf('MessageHandler for class "%s" not found.', $handlerClass));
+        $this->logger->warning(\sprintf('MessageHandler for class "%s" not found.', $handlerClass));
 
         return null;
     }

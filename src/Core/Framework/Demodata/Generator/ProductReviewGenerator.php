@@ -63,13 +63,13 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
                 'title' => $context->getFaker()->sentence,
                 'content' => $context->getFaker()->text,
                 'points' => $context->getFaker()->randomElement($points),
-                'status' => (bool) random_int(0, 1),
+                'status' => (bool) \random_int(0, 1),
             ];
         }
 
         $writeContext = WriteContext::createFromContext($context->getContext());
 
-        foreach (array_chunk($payload, 100) as $chunk) {
+        foreach (\array_chunk($payload, 100) as $chunk) {
             $this->writer->upsert($this->productReviewDefinition, $chunk, $writeContext);
             $context->getConsole()->progressAdvance(\count($chunk));
         }
@@ -83,7 +83,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
 
         $customerIds = $this->connection->fetchAll($sql);
 
-        return array_column($customerIds, 'id');
+        return \array_column($customerIds, 'id');
     }
 
     private function getProductIds(): array
@@ -92,6 +92,6 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
 
         $productIds = $this->connection->fetchAll($sql);
 
-        return array_column($productIds, 'id');
+        return \array_column($productIds, 'id');
     }
 }

@@ -97,8 +97,8 @@ SQL;
     private function insertDefaultFeatureSetTranslations(Connection $connection, string $featureSetId): void
     {
         $languages = $this->fetchLanguageIds($connection, ['en-GB']);
-        $languages[] = hex2bin(Defaults::LANGUAGE_SYSTEM);
-        $languages = array_unique($languages);
+        $languages[] = \hex2bin(Defaults::LANGUAGE_SYSTEM);
+        $languages = \array_unique($languages);
 
         $sql = <<<'SQL'
 REPLACE INTO `product_feature_set_translation` (`product_feature_set_id`, `language_id`, `name`, `description`, `created_at`)
@@ -150,7 +150,7 @@ SQL;
     {
         return [
             'id' => $featureSetId,
-            'features' => json_encode([
+            'features' => \json_encode([
                 [
                     'type' => 'referencePrice',
                     'id' => null,
@@ -184,11 +184,11 @@ SQL;
         $languageId = $connection->fetchColumn(
             $sql,
             [
-                'locale_codes' => implode(', ', $localeCodes),
+                'locale_codes' => \implode(', ', $localeCodes),
             ]
         );
 
-        if (is_array($languageId)) {
+        if (\is_array($languageId)) {
             return $languageId;
         }
 

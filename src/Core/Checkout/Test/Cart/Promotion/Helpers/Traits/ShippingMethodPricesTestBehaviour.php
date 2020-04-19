@@ -24,7 +24,7 @@ trait ShippingMethodPricesTestBehaviour
         );
 
         foreach ($rows as $row) {
-            if (array_key_exists($row['id'], $this->oldValues)) {
+            if (\array_key_exists($row['id'], $this->oldValues)) {
                 continue;
             }
             $this->oldValues[$row['id']] = $row['price'];
@@ -32,7 +32,7 @@ trait ShippingMethodPricesTestBehaviour
 
         $conn->executeUpdate(
             'UPDATE shipping_method_price SET price=:price WHERE id in(:ids)',
-            ['price' => $price, 'ids' => array_keys($this->oldValues)],
+            ['price' => $price, 'ids' => \array_keys($this->oldValues)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
     }

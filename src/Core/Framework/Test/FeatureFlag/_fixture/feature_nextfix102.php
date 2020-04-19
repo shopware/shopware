@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
+namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture;
+
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
@@ -33,4 +34,3 @@ namespace Shopware\Core\Framework\Test\FeatureFlag\_fixture {
 
         $test::markTestSkipped('Skipping feature test "next-fix-102"');
     }
-}

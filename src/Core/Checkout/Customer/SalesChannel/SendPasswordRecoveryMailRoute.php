@@ -150,7 +150,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         if ($validateStorefrontUrl) {
             $validation
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(\array_values($this->getDomainUrls($context))));
         }
 
         $this->dispatchValidationEvent($validation, $context->getContext());
@@ -162,7 +162,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
+        return \array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return $domainEntity->getUrl();
         }, $context->getSalesChannel()->getDomains()->getElements());
     }
@@ -180,7 +180,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     {
         $validations = $validation->getProperties();
 
-        if (!array_key_exists($field, $validations)) {
+        if (!\array_key_exists($field, $validations)) {
             return;
         }
 
@@ -208,7 +208,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = \str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

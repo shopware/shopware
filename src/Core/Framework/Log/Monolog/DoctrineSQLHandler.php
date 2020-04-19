@@ -28,8 +28,8 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
             'message' => $record['message'],
             'level' => $record['level'],
             'channel' => $record['channel'],
-            'context' => json_encode($record['context']),
-            'extra' => json_encode($record['extra']),
+            'context' => \json_encode($record['context']),
+            'extra' => \json_encode($record['extra']),
             'updated_at' => null,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
@@ -37,8 +37,8 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
         try {
             $this->connection->insert('log_entry', $envelope);
         } catch (\Throwable $e) {
-            $envelope['context'] = json_encode([]);
-            $envelope['extra'] = json_encode([]);
+            $envelope['context'] = \json_encode([]);
+            $envelope['extra'] = \json_encode([]);
             $this->connection->insert('log_entry', $envelope);
         }
     }

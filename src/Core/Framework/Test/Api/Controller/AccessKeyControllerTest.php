@@ -13,16 +13,16 @@ class AccessKeyControllerTest extends TestCase
 
     public function testIntegrationAccessKey(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/access-key/intergration',
             PlatformRequest::API_VERSION
         );
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
 
-        static::assertSame(200, $response->getStatusCode(), print_r($body, true));
+        static::assertSame(200, $response->getStatusCode(), \print_r($body, true));
         static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertArrayHasKey('secretAccessKey', $body);
@@ -40,16 +40,16 @@ class AccessKeyControllerTest extends TestCase
 
     public function testUserAccessKey(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/access-key/user',
             PlatformRequest::API_VERSION
         );
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
 
-        static::assertSame(200, $response->getStatusCode(), print_r($body, true));
+        static::assertSame(200, $response->getStatusCode(), \print_r($body, true));
         static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertArrayHasKey('secretAccessKey', $body);
@@ -67,16 +67,16 @@ class AccessKeyControllerTest extends TestCase
 
     public function testSalesChannelAccessKey(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/access-key/sales-channel',
             PlatformRequest::API_VERSION
         );
         $this->getBrowser()->request('GET', $url);
 
         $response = $this->getBrowser()->getResponse();
-        $body = json_decode($response->getContent(), true);
+        $body = \json_decode($response->getContent(), true);
 
-        static::assertSame(200, $response->getStatusCode(), print_r($body, true));
+        static::assertSame(200, $response->getStatusCode(), \print_r($body, true));
         static::assertIsArray($body);
         static::assertArrayHasKey('accessKey', $body);
         static::assertNotEmpty($body['accessKey']);

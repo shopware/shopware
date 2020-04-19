@@ -58,8 +58,8 @@ class CacheController extends AbstractController
     public function info(): JsonResponse
     {
         return new JsonResponse([
-            'environment' => getenv('APP_ENV'),
-            'httpCache' => (bool) getenv('SHOPWARE_HTTP_CACHE_ENABLED'),
+            'environment' => \getenv('APP_ENV'),
+            'httpCache' => (bool) \getenv('SHOPWARE_HTTP_CACHE_ENABLED'),
             'cacheAdapter' => $this->getUsedCache($this->adapter),
         ]);
     }
@@ -134,8 +134,8 @@ class CacheController extends AbstractController
         }
 
         $name = \get_class($adapter);
-        $parts = explode('\\', $name);
-        $name = str_replace('Adapter', '', end($parts));
+        $parts = \explode('\\', $name);
+        $name = \str_replace('Adapter', '', \end($parts));
 
         return $name;
     }

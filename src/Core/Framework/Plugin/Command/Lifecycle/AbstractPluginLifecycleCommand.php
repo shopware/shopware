@@ -55,7 +55,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
     protected function configureCommand(string $lifecycleMethod): void
     {
         $this
-            ->setDescription(sprintf('%ss given plugins', ucfirst($lifecycleMethod)))
+            ->setDescription(\sprintf('%ss given plugins', \ucfirst($lifecycleMethod)))
             ->addArgument(
                 'plugins',
                 InputArgument::REQUIRED | InputArgument::IS_ARRAY,
@@ -101,7 +101,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
             return $plugins;
         }
 
-        $io->text(sprintf('%s %d plugin(s):', ucfirst($lifecycleMethod), \count($plugins)));
+        $io->text(\sprintf('%s %d plugin(s):', \ucfirst($lifecycleMethod), \count($plugins)));
         $io->listing($this->formatPluginList($plugins));
 
         return $plugins;
@@ -133,7 +133,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         }
 
         $io->note(
-            sprintf(
+            \sprintf(
                 'You may want to clear the cache after %s plugin(s). To do so run either the cache:clear command or ./psh.phar cache',
                 $action
             )
@@ -146,11 +146,11 @@ abstract class AbstractPluginLifecycleCommand extends Command
         SymfonyStyle $io,
         Context $context
     ): ?PluginCollection {
-        $plugins = array_unique($arguments);
+        $plugins = \array_unique($arguments);
         $filter = [];
 
         // try exact match first
-        if (count($plugins) === 1) {
+        if (\count($plugins) === 1) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('name', $plugins[0]));
 
@@ -176,16 +176,16 @@ abstract class AbstractPluginLifecycleCommand extends Command
         }
 
         $choiceAbort = 'Cancel.';
-        $choiceSelect = sprintf('Select one Plugin to %s.', $lifecycleMethod);
+        $choiceSelect = \sprintf('Select one Plugin to %s.', $lifecycleMethod);
 
         $choice = $io->askQuestion(
             new ChoiceQuestion(
-                sprintf(
+                \sprintf(
                     '%d plugins were found. How do you want to continue?',
                     $pluginCollection->count()
                 ),
                 [
-                    sprintf('%s all of them.', $lifecycleMethod),
+                    \sprintf('%s all of them.', $lifecycleMethod),
                     $choiceSelect,
                     $choiceAbort,
                 ]
@@ -201,7 +201,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         if ($choice === $choiceSelect) {
             $id = $io->askQuestion(
                 new ChoiceQuestion(
-                    sprintf(
+                    \sprintf(
                         'Which plugin do you want to %s?',
                         $lifecycleMethod
                     ),
@@ -224,7 +224,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
     {
         $pluginList = [];
         foreach ($plugins as $plugin) {
-            $pluginList[] = sprintf('%s (v%s)', $plugin->getLabel(), $plugin->getVersion());
+            $pluginList[] = \sprintf('%s (v%s)', $plugin->getLabel(), $plugin->getVersion());
         }
 
         return $pluginList;

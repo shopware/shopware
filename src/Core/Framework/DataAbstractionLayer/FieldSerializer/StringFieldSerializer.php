@@ -35,7 +35,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
         $value = $data->getValue();
 
         if ($value !== null && !$field->is(AllowHtml::class)) {
-            $value = strip_tags((string) $value);
+            $value = \strip_tags((string) $value);
         }
 
         /* @var StringField $field */

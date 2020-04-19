@@ -151,7 +151,7 @@ class CrossSellingLoader
             return $a->getPosition() <=> $b->getPosition();
         });
 
-        $assignedProductsIds = array_values(array_map(function (ProductCrossSellingAssignedProductsEntity $entity) {
+        $assignedProductsIds = \array_values(\array_map(function (ProductCrossSellingAssignedProductsEntity $entity) {
             return $entity->getProductId();
         }, $crossSelling->getAssignedProducts()->getElements()));
 
@@ -164,7 +164,7 @@ class CrossSellingLoader
         $criteria->addAssociation('visibilities');
         $criteria->addFilter($filter);
 
-        if (!count($assignedProductsIds)) {
+        if (!\count($assignedProductsIds)) {
             return null;
         }
 

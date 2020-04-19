@@ -38,13 +38,13 @@ class GenerateThumbnailsMessage
 
     public function withContext(Context $context): GenerateThumbnailsMessage
     {
-        $this->contextData = serialize($context);
+        $this->contextData = \serialize($context);
 
         return $this;
     }
 
     public function readContext(): Context
     {
-        return unserialize($this->contextData);
+        return \unserialize($this->contextData);
     }
 }

@@ -42,7 +42,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
         $response = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
 
-        $expectedContent = file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestRendered.html.twig');
+        $expectedContent = \file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestRendered.html.twig');
         static::assertEquals(
             $expectedContent,
             $response->getContent()
@@ -50,8 +50,8 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
         $response = $csrfPlaceholderHandler->replaceCsrfToken($response);
 
-        $expectedContent = file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestReplaced.html.twig');
-        $expectedContent = preg_replace(
+        $expectedContent = \file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestReplaced.html.twig');
+        $expectedContent = \preg_replace(
             ['/__token1__/', '/__token2__/', '/__token3__/'],
             [$this->generateToken('token1'), $this->generateToken('token2'), $this->generateToken('token3')],
             $expectedContent

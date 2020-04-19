@@ -67,9 +67,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     {
         $openApi = $this->openApiLoader->load($api);
         $this->openApiBuilder->enrich($openApi, $api, $version);
-        $forSalesChannel = in_array($api, [DefinitionService::SALES_CHANNEL_API, DefinitionService::STORE_API], true);
+        $forSalesChannel = \in_array($api, [DefinitionService::SALES_CHANNEL_API, DefinitionService::STORE_API], true);
 
-        ksort($definitions);
+        \ksort($definitions);
 
         foreach ($definitions as $definition) {
             if (!$this->shouldDefinitionBeIncluded($definition)) {
@@ -83,14 +83,14 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $openApi->components->merge($schema);
         }
 
-        $data = json_decode($openApi->toJson(), true);
+        $data = \json_decode($openApi->toJson(), true);
 
         $finder = (new Finder())->in($this->schemaPath)->name('*.json');
 
         foreach ($finder as $item) {
-            $name = str_replace('.json', '', $item->getFilename());
+            $name = \str_replace('.json', '', $item->getFilename());
 
-            $readData = json_decode(file_get_contents($item->getPathname()), true);
+            $readData = \json_decode(\file_get_contents($item->getPathname()), true);
             $data['definitions'][$name] = $readData;
         }
 
@@ -107,16 +107,16 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
     {
-        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
+        return \ltrim('/', $rootPath) . '/' . \str_replace('_', '-', $definition->getEntityName());
     }
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (\preg_match('/_translation$/', $definition->getEntityName())) {
             return false;
         }
 
-        if (mb_strpos($definition->getEntityName(), 'version') === 0) {
+        if (\mb_strpos($definition->getEntityName(), 'version') === 0) {
             return false;
         }
 
@@ -130,7 +130,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             return true;
         }
 
-        if ($forSalesChannel && !is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+        if ($forSalesChannel && !\is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
             return true;
         }
 

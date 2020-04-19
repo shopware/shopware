@@ -237,11 +237,11 @@ class EntityForeignKeyResolver
         $group = null;
         foreach ($ids as $pk) {
             $part = [];
-            $group = array_keys($pk);
+            $group = \array_keys($pk);
             foreach ($pk as $key => $value) {
                 $param = 'param' . $counter;
 
-                $part[] = sprintf(
+                $part[] = \sprintf(
                     '%s.%s = :%s',
                     $rootAlias,
                     EntityDefinitionQueryHelper::escape($key),
@@ -251,7 +251,7 @@ class EntityForeignKeyResolver
                 $query->setParameter($param, Uuid::fromHexToBytes($value));
                 ++$counter;
             }
-            $query->orWhere(implode(' AND ', $part));
+            $query->orWhere(\implode(' AND ', $part));
         }
 
         foreach ($group as $column) {
@@ -269,24 +269,24 @@ class EntityForeignKeyResolver
             $restrictions = [];
 
             foreach ($row as $key => $value) {
-                $value = array_filter(explode('||', (string) $value));
+                $value = \array_filter(\explode('||', (string) $value));
                 if (empty($value)) {
                     continue;
                 }
 
-                $value = array_map('strtolower', $value);
+                $value = \array_map('strtolower', $value);
 
                 /** @var AssociationField|null $field */
                 $field = $this->queryHelper->getField($key, $definition, $root);
 
                 if (!$field) {
-                    throw new \RuntimeException(sprintf('Field by key %s not found', $key));
+                    throw new \RuntimeException(\sprintf('Field by key %s not found', $key));
                 }
 
                 if ($field instanceof ManyToManyAssociationField) {
                     $referenceDefinition = $field->getReferenceDefinition();
 
-                    if (!array_key_exists($referenceDefinition->getEntityName(), $restrictions)) {
+                    if (!\array_key_exists($referenceDefinition->getEntityName(), $restrictions)) {
                         $restrictions[$referenceDefinition->getEntityName()] = [];
                     }
 
@@ -313,15 +313,15 @@ class EntityForeignKeyResolver
 
                 $class = $field->getReferenceDefinition()->getEntityName();
 
-                if (!array_key_exists($class, $restrictions)) {
+                if (!\array_key_exists($class, $restrictions)) {
                     $restrictions[$class] = [];
                 }
 
                 if ($field instanceof TranslationsAssociationField) {
                     $targetProperty = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
 
-                    $value = array_map(function ($key) use ($targetProperty) {
-                        $key = explode('-', $key);
+                    $value = \array_map(function ($key) use ($targetProperty) {
+                        $key = \explode('-', $key);
 
                         return [
                             $targetProperty->getPropertyName() => $key[0],
@@ -330,7 +330,7 @@ class EntityForeignKeyResolver
                     }, $value);
                 }
 
-                $restrictions[$class] = array_merge_recursive($restrictions[$class], $value);
+                $restrictions[$class] = \array_merge_recursive($restrictions[$class], $value);
             }
 
             if (empty($restrictions)) {
@@ -339,7 +339,7 @@ class EntityForeignKeyResolver
             $mapped[] = ['pk' => $pk, 'restrictions' => $restrictions];
         }
 
-        return array_values($mapped);
+        return \array_values($mapped);
     }
 
     private function extractValuesForUpdate(EntityDefinition $definition, array $result, string $root): array
@@ -352,7 +352,7 @@ class EntityForeignKeyResolver
             $restrictions = [];
 
             foreach ($row as $key => $value) {
-                $value = array_filter(explode('||', (string) $value));
+                $value = \array_filter(\explode('||', (string) $value));
                 if (empty($value)) {
                     continue;
                 }
@@ -361,7 +361,7 @@ class EntityForeignKeyResolver
                 $field = $this->queryHelper->getField($key, $definition, $root);
 
                 if (!$field) {
-                    throw new \RuntimeException(sprintf('Field by key %s not found', $key));
+                    throw new \RuntimeException(\sprintf('Field by key %s not found', $key));
                 }
 
                 if ($field instanceof ManyToManyAssociationField) {
@@ -374,16 +374,16 @@ class EntityForeignKeyResolver
 
                 $values = [];
                 foreach ($value as $id) {
-                    $values[mb_strtolower($id)] = [$field->getReferenceField()];
+                    $values[\mb_strtolower($id)] = [$field->getReferenceField()];
                 }
 
                 $class = $field->getReferenceDefinition()->getEntityName();
 
-                if (!array_key_exists($class, $restrictions)) {
+                if (!\array_key_exists($class, $restrictions)) {
                     $restrictions[$class] = [];
                 }
 
-                $restrictions[$class] = array_merge_recursive($restrictions[$class], $values);
+                $restrictions[$class] = \array_merge_recursive($restrictions[$class], $values);
             }
 
             if (empty($restrictions)) {
@@ -392,6 +392,6 @@ class EntityForeignKeyResolver
             $mapped[] = ['pk' => $pk, 'restrictions' => $restrictions];
         }
 
-        return array_values($mapped);
+        return \array_values($mapped);
     }
 }

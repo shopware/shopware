@@ -52,11 +52,11 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', \array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', \array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
@@ -67,7 +67,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path-2',
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', \array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(2, $seoUrls);
@@ -107,7 +107,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $fks = \array_column($seoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $seoUrlUpdates);
 
         $criteria = new Criteria();
@@ -136,7 +136,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($initialSeoUrlUpdates, 'foreignKey');
+        $fks = \array_column($initialSeoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
 
         $intermediateSeoUrlUpdates = [
@@ -178,7 +178,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $fks = \array_column($seoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls($defaultContext, 'r', $fks, $seoUrlUpdates);
 
         $seoUrlUpdates = [
@@ -188,7 +188,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $fks = \array_column($seoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls($deContext, 'r', $fks, $seoUrlUpdates);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
@@ -215,7 +215,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $fks = \array_column($seoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
 
         $seoUrlUpdates = [
@@ -226,7 +226,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $fks = \array_column($seoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
 
         $seoUrlUpdates = [
@@ -237,7 +237,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $fks = array_column($seoUrlUpdates, 'foreignKey');
+        $fks = \array_column($seoUrlUpdates, 'foreignKey');
         $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
@@ -259,7 +259,7 @@ class SeoUrlPersisterTest extends TestCase
                 'isModified' => false,
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', \array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
@@ -271,7 +271,7 @@ class SeoUrlPersisterTest extends TestCase
                 'isModified' => true,
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', \array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(2, $seoUrls);
@@ -289,7 +289,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
 
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', \array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(2, $seoUrls);

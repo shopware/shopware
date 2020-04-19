@@ -134,7 +134,7 @@ class SyncService implements SyncServiceInterface
     {
         $repository = $this->definitionRegistry->getRepository($operation->getEntity());
 
-        switch (mb_strtolower($operation->getAction())) {
+        switch (\mb_strtolower($operation->getAction())) {
             case 'upsert':
                 return $this->upsertRecords($operation, $context, $repository);
 
@@ -143,7 +143,7 @@ class SyncService implements SyncServiceInterface
 
             default:
                 throw new \RuntimeException(
-                    sprintf('provided action %s is not supported. Following actions are supported: delete, upsert', $operation->getAction())
+                    \sprintf('provided action %s is not supported. Following actions are supported: delete, upsert', $operation->getAction())
                 );
         }
     }
@@ -155,7 +155,7 @@ class SyncService implements SyncServiceInterface
     ): SyncOperationResult {
         $results = [];
 
-        $records = array_values($operation->getPayload());
+        $records = \array_values($operation->getPayload());
         $definition = $repository->getDefinition();
 
         foreach ($records as $index => $record) {
@@ -191,7 +191,7 @@ class SyncService implements SyncServiceInterface
     ): SyncOperationResult {
         $results = [];
 
-        $records = array_values($operation->getPayload());
+        $records = \array_values($operation->getPayload());
         $definition = $repository->getDefinition();
 
         foreach ($records as $index => $record) {
@@ -240,7 +240,7 @@ class SyncService implements SyncServiceInterface
         if ($exception instanceof WriteException) {
             foreach ($exception->getExceptions() as $innerException) {
                 if ($innerException instanceof WriteConstraintViolationException) {
-                    $innerException->setPath(preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath()));
+                    $innerException->setPath(\preg_replace('/^\/0/', "/{$writeIndex}", $innerException->getPath()));
                 }
             }
 
@@ -266,10 +266,10 @@ class SyncService implements SyncServiceInterface
                 $entities[$entity] = [];
             }
 
-            $entities[$entity] = array_merge($entities[$entity], $event->getIds());
+            $entities[$entity] = \array_merge($entities[$entity], $event->getIds());
         }
 
-        ksort($entities);
+        \ksort($entities);
 
         return $entities;
     }

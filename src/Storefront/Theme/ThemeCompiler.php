@@ -104,7 +104,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         bool $withAssets = true
     ): void {
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
-        $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
+        $outputPath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
         if ($withAssets && $this->filesystem->has($outputPath)) {
             $this->filesystem->deleteDir($outputPath);
@@ -119,7 +119,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
-        $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
+        $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
@@ -129,7 +129,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
         }
 
-        $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
+        $scriptFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
         $this->filesystem->put($scriptFilepath, $concatenatedScripts);
 
         // assets
@@ -143,7 +143,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
     {
-        return md5($themeId . $salesChannelId);
+        return \md5($themeId . $salesChannelId);
     }
 
     private function copyAssets(
@@ -156,8 +156,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         foreach ($configuration->getAssetPaths() as $asset) {
-            if (mb_strpos($asset, '@') === 0) {
-                $name = mb_substr($asset, 1);
+            if (\mb_strpos($asset, '@') === 0) {
+                $name = \mb_substr($asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
                     throw new InvalidThemeException($name);
@@ -184,17 +184,17 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
-                if (mb_strpos($originalPath, $resolve) === 0) {
-                    $dirname = $resolvePath . dirname(mb_substr($originalPath, mb_strlen($resolve)));
-                    $filename = basename($originalPath);
-                    $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
-                    $path = $dirname . DIRECTORY_SEPARATOR . $filename . $extension;
-                    if (file_exists($path)) {
+                if (\mb_strpos($originalPath, $resolve) === 0) {
+                    $dirname = $resolvePath . \dirname(\mb_substr($originalPath, \mb_strlen($resolve)));
+                    $filename = \basename($originalPath);
+                    $extension = \pathinfo($filename, \PATHINFO_EXTENSION) === '' ? '.scss' : '';
+                    $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
+                    if (\file_exists($path)) {
                         return $path;
                     }
 
-                    $path = $dirname . DIRECTORY_SEPARATOR . '_' . $filename . $extension;
-                    if (file_exists($path)) {
+                    $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
+                    if (\file_exists($path)) {
                         return $path;
                     }
                 }
@@ -220,14 +220,14 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private function formatVariables(array $variables): array
     {
-        return array_map(function ($value, $key) {
-            return sprintf('$%s: %s;', $key, $value);
-        }, $variables, array_keys($variables));
+        return \array_map(function ($value, $key) {
+            return \sprintf('$%s: %s;', $key, $value);
+        }, $variables, \array_keys($variables));
     }
 
     private function dumpVariables(array $config, string $salesChannelId): string
     {
-        if (!array_key_exists('fields', $config)) {
+        if (!\array_key_exists('fields', $config)) {
             return '';
         }
 
@@ -239,7 +239,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             // Do not include fields which have the scss option set to false
-            if (array_key_exists('scss', $data) && $data['scss'] === false) {
+            if (\array_key_exists('scss', $data) && $data['scss'] === false) {
                 continue;
             }
 
@@ -248,7 +248,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if (in_array($data['type'], ['media', 'textarea'], true)) {
+            if (\in_array($data['type'], ['media', 'textarea'], true)) {
                 if ($data['type'] === 'media') {
                     // Add id of media which needs to be resolved
                     if (Uuid::isValid($data['value'])) {
@@ -263,11 +263,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         // Resolve media urls
-        if (count($mediaIds) > 0) {
+        if (\count($mediaIds) > 0) {
             /** @var MediaCollection $medias */
             $medias = $this->mediaRepository
             ->search(
-                new Criteria(array_values($mediaIds)),
+                new Criteria(\array_values($mediaIds)),
                 Context::createDefaultContext()
             )
             ->getEntities();
@@ -279,15 +279,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         foreach ($this->packages as $key => $package) {
-            $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
+            $variables[\sprintf('sw-asset-%s-url', $key)] = \sprintf('\'%s\'', $package->getUrl(''));
         }
 
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
         $this->eventDispatcher->dispatch($themeVariablesEvent);
 
-        $dump = str_replace(
+        $dump = \str_replace(
             ['#class#', '#variables#'],
-            [self::class, implode(PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
+            [self::class, \implode(\PHP_EOL, $this->formatVariables($themeVariablesEvent->getVariables()))],
             $this->getVariableDumpTemplate()
         );
 

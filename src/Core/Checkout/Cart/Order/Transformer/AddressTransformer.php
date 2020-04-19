@@ -12,14 +12,14 @@ class AddressTransformer
     {
         $output = [];
         foreach ($addresses as $address) {
-            if (array_key_exists($address->getId(), $output)) {
+            if (\array_key_exists($address->getId(), $output)) {
                 continue;
             }
             $output[$address->getId()] = self::transform($address);
         }
 
         if (!$useIdAsKey) {
-            $output = array_values($output);
+            $output = \array_values($output);
         }
 
         return $output;
@@ -27,7 +27,7 @@ class AddressTransformer
 
     public static function transform(CustomerAddressEntity $address): array
     {
-        return array_filter([
+        return \array_filter([
             'id' => Uuid::randomHex(),
             'company' => $address->getCompany(),
             'department' => $address->getDepartment(),

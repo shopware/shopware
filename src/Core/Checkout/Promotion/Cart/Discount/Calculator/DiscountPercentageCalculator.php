@@ -45,7 +45,7 @@ class DiscountPercentageCalculator
             throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
         }
 
-        $definedPercentage = -abs($definition->getPercentage());
+        $definedPercentage = -\abs($definition->getPercentage());
 
         // now simply calculate the price object
         // with that sum for the corresponding line items.
@@ -66,9 +66,9 @@ class DiscountPercentageCalculator
             $actualDiscountPrice = $calculatedPrice->getTotalPrice();
 
             // check if our actual discount is higher than the maximum one
-            if (abs($actualDiscountPrice) > abs($maxValue)) {
+            if (\abs($actualDiscountPrice) > \abs($maxValue)) {
                 $calculatedPrice = $this->absolutePriceCalculator->calculate(
-                    -abs($maxValue),
+                    -\abs($maxValue),
                     $packages->getAffectedPrices(),
                     $context
                 );
@@ -98,7 +98,7 @@ class DiscountPercentageCalculator
         foreach ($packages as $package) {
             foreach ($package->getCartItems() as $lineItem) {
                 $itemTotal = $lineItem->getQuantity() * $lineItem->getPrice()->getUnitPrice();
-                $percentageFactor = abs($percentage) / 100.0;
+                $percentageFactor = \abs($percentage) / 100.0;
 
                 $items[] = new DiscountCompositionItem(
                     $lineItem->getId(),
@@ -114,7 +114,7 @@ class DiscountPercentageCalculator
     private function hasMaxValue(DiscountLineItem $discount): bool
     {
         try {
-            $maxValue = trim($discount->getPayloadValue('maxValue'));
+            $maxValue = \trim($discount->getPayloadValue('maxValue'));
         } catch (PayloadKeyNotFoundException $e) {
             return false;
         }

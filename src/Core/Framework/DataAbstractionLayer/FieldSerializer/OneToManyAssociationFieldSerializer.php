@@ -73,7 +73,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
                 throw new ExpectedArrayException($parameters->getPath() . '/' . $data->getKey());
             }
 
-            if (array_key_exists($fk, $subresources) && $subresources[$fk] === null) {
+            if (\array_key_exists($fk, $subresources) && $subresources[$fk] === null) {
                 $currentId = null;
             }
 

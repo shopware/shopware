@@ -41,7 +41,7 @@ class MediaFolderControllerTest extends TestCase
 
     public function testDissolveWithNonExistingFolder(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media-folder/%s/dissolve',
             PlatformRequest::API_VERSION,
             Uuid::randomHex()
@@ -52,7 +52,7 @@ class MediaFolderControllerTest extends TestCase
             $url
         );
         $response = $this->getBrowser()->getResponse();
-        $responseData = json_decode($response->getContent(), true);
+        $responseData = \json_decode($response->getContent(), true);
 
         static::assertEquals(404, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_FOLDER_NOT_FOUND', $responseData['errors'][0]['code']);
@@ -76,7 +76,7 @@ class MediaFolderControllerTest extends TestCase
             ],
         ], $this->context);
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media-folder/%s/dissolve',
             PlatformRequest::API_VERSION,
             $folderId

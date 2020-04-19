@@ -65,10 +65,10 @@ class LineItemOfTypeRule extends Rule
     {
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return strcasecmp($lineItem->getType(), $this->lineItemType) === 0;
+                return \strcasecmp($lineItem->getType(), $this->lineItemType) === 0;
 
             case self::OPERATOR_NEQ:
-                return strcasecmp($lineItem->getType(), $this->lineItemType) !== 0;
+                return \strcasecmp($lineItem->getType(), $this->lineItemType) !== 0;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

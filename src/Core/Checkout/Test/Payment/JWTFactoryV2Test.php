@@ -37,7 +37,7 @@ class JWTFactoryV2Test extends TestCase
         static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
         static::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
         static::assertEquals($token, $tokenStruct->getToken());
-        static::assertGreaterThan(time(), $tokenStruct->getExpires());
+        static::assertGreaterThan(\time(), $tokenStruct->getExpires());
     }
 
     /**
@@ -57,7 +57,7 @@ class JWTFactoryV2Test extends TestCase
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId());
         $token = $this->tokenFactory->generateToken($tokenStruct);
-        $invalidToken = mb_substr($token, 0, -3);
+        $invalidToken = \mb_substr($token, 0, -3);
 
         $this->expectException(InvalidTokenException::class);
         $this->tokenFactory->parseToken($invalidToken);

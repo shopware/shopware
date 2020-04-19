@@ -178,7 +178,7 @@ EOD;
         $result = $this->html;
 
         foreach ($imageMap as $key => $link) {
-            $result = str_replace($key, $link, $result);
+            $result = \str_replace($key, $link, $result);
         }
 
         return self::GLOBAL_STYLE_CONTENT . $result . self::GLOBAL_SCRIPT_CONTENT;

@@ -57,7 +57,7 @@ class AdminApiSource implements ContextSource
             return true;
         }
 
-        return in_array($privilege, $this->permissions, true);
+        return \in_array($privilege, $this->permissions, true);
     }
 
     public function isAdmin(): bool

@@ -71,7 +71,7 @@ class CacheStore implements StoreInterface
         }
 
         /** @var Response $response */
-        $response = unserialize($item->get());
+        $response = \unserialize($item->get());
 
         if (!$this->stateValidator->isValid($request, $response)) {
             return null;
@@ -93,7 +93,7 @@ class CacheStore implements StoreInterface
         }
 
         $item = $this->cache->getItem($key);
-        $item->set(serialize($response));
+        $item->set(\serialize($response));
         $item->expiresAt($response->getExpires());
 
         $tags = $this->cacheTagCollection->getTags();
@@ -123,7 +123,7 @@ class CacheStore implements StoreInterface
      */
     public function cleanup(): void
     {
-        $keys = array_keys($this->locks);
+        $keys = \array_keys($this->locks);
         $this->cache->deleteItems($keys);
         $this->locks = [];
     }
@@ -179,8 +179,8 @@ class CacheStore implements StoreInterface
 
     public function purge($url)
     {
-        $http = preg_replace('#^https:#', 'http:', $url);
-        $https = preg_replace('#^http:#', 'https:', $url);
+        $http = \preg_replace('#^https:#', 'http:', $url);
+        $https = \preg_replace('#^http:#', 'https:', $url);
 
         $httpPurged = $this->unlock(Request::create($http));
         $httpsPurged = $this->unlock(Request::create($https));
@@ -209,18 +209,18 @@ class CacheStore implements StoreInterface
     {
         $uri = $this->getRequestUri($request) . $this->cacheHash;
 
-        $hash = 'md' . hash('sha256', $uri);
+        $hash = 'md' . \hash('sha256', $uri);
 
         if ($request->cookies->has(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE)) {
-            return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE));
+            return \hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE));
         }
 
         if ($request->cookies->has(CacheResponseSubscriber::CURRENCY_COOKIE)) {
-            return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CURRENCY_COOKIE));
+            return \hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CURRENCY_COOKIE));
         }
 
         if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)) {
-            return hash('sha256', $hash . '-' . $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
+            return \hash('sha256', $hash . '-' . $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
         }
 
         return $hash;
@@ -229,8 +229,8 @@ class CacheStore implements StoreInterface
     private function getRequestUri(Request $request): string
     {
         $params = $request->query->all();
-        if (count($params) === 0) {
-            return sprintf(
+        if (\count($params) === 0) {
+            return \sprintf(
                 '%s%s%s',
                 $request->getSchemeAndHttpHost(),
                 $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
@@ -239,10 +239,10 @@ class CacheStore implements StoreInterface
         }
 
         $params = $request->query->all();
-        ksort($params);
-        $params = http_build_query($params);
+        \ksort($params);
+        $params = \http_build_query($params);
 
-        return sprintf(
+        return \sprintf(
             '%s%s%s%s',
             $request->getSchemeAndHttpHost(),
             $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),

@@ -57,7 +57,7 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -72,11 +72,11 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
 
-        $sources = array_column(array_column($response['errors'], 'source'), 'pointer');
+        $sources = \array_column(\array_column($response['errors'], 'source'), 'pointer');
         static::assertContains('/firstName', $sources);
         static::assertContains('/lastName', $sources);
         static::assertContains('/salutationId', $sources);
@@ -95,12 +95,12 @@ class ChangeProfileRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
         $this->browser->request('GET', '/store-api/v1/account/customer');
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('Max', $customer['firstName']);
         static::assertSame('Mustermann', $customer['lastName']);

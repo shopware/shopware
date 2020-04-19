@@ -288,7 +288,7 @@ class ImageTypeDataResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
         $slot->setType('image');
-        $slot->setConfig(json_decode(json_encode($fieldConfig), true));
+        $slot->setConfig(\json_decode(\json_encode($fieldConfig), true));
         $slot->setFieldConfig($fieldConfig);
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);

@@ -93,7 +93,7 @@ class UrlGenerator implements UrlGeneratorInterface
             return null;
         }
 
-        return rtrim($baseUrl, '/');
+        return \rtrim($baseUrl, '/');
     }
 
     private function getBaseUrl(): string
@@ -111,7 +111,7 @@ class UrlGenerator implements UrlGeneratorInterface
         if ($request) {
             $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
 
-            return rtrim($basePath, '/');
+            return \rtrim($basePath, '/');
         }
 
         return $_SERVER['APP_URL'];
@@ -119,7 +119,7 @@ class UrlGenerator implements UrlGeneratorInterface
 
     private function toPathString(array $parts): string
     {
-        return implode('/', array_filter($parts));
+        return \implode('/', \array_filter($parts));
     }
 
     /**

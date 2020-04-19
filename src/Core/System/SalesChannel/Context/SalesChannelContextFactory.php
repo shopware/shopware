@@ -142,17 +142,17 @@ class SalesChannelContextFactory
             ->get($salesChannelId);
 
         if (!$salesChannel) {
-            throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
+            throw new \RuntimeException(\sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
         }
 
         //load active language, fallback to shop language
-        if (array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
+        if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
             $salesChannel->setLanguageId($options[SalesChannelContextService::LANGUAGE_ID]);
         }
 
         //load active currency, fallback to shop currency
         $currency = $salesChannel->getCurrency();
-        if (array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
+        if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
             $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
 
             $currency = $this->currencyRepository->search(new Criteria([$currencyId]), $context)->get($currencyId);
@@ -160,7 +160,7 @@ class SalesChannelContextFactory
 
         // customer
         $customer = null;
-        if (array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
+        if (\array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
             //load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $context);
         }
@@ -183,7 +183,7 @@ class SalesChannelContextFactory
             $groupId = $customer->getGroupId();
         }
 
-        $groupIds = array_keys(array_flip($groupIds));
+        $groupIds = \array_keys(\array_flip($groupIds));
 
         //fallback customer group is hard coded to 'EK'
         $customerGroups = $this->customerGroupRepository->search(new Criteria($groupIds), $context);
@@ -225,7 +225,7 @@ class SalesChannelContextFactory
             []
         );
 
-        if (array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
+        if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
 
             $event = new SalesChannelContextPermissionsChangedEvent($salesChannelContext, $options[SalesChannelContextService::PERMISSIONS]);
@@ -275,7 +275,7 @@ class SalesChannelContextFactory
     {
         $id = $salesChannel->getPaymentMethodId();
 
-        if (array_key_exists(SalesChannelContextService::PAYMENT_METHOD_ID, $options)) {
+        if (\array_key_exists(SalesChannelContextService::PAYMENT_METHOD_ID, $options)) {
             $id = $options[SalesChannelContextService::PAYMENT_METHOD_ID];
         } elseif ($customer && $customer->getLastPaymentMethodId()) {
             $id = $customer->getLastPaymentMethodId();
@@ -294,7 +294,7 @@ class SalesChannelContextFactory
     {
         $id = $salesChannel->getShippingMethodId();
 
-        if (array_key_exists(SalesChannelContextService::SHIPPING_METHOD_ID, $options)) {
+        if (\array_key_exists(SalesChannelContextService::SHIPPING_METHOD_ID, $options)) {
             $id = $options[SalesChannelContextService::SHIPPING_METHOD_ID];
         }
 
@@ -328,8 +328,8 @@ class SalesChannelContextFactory
         $origin = new SalesChannelApiSource($salesChannelId);
 
         //explode all available languages for the provided sales channel
-        $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : [];
-        $languageIds = array_keys(array_flip($languageIds));
+        $languageIds = $data['sales_channel_language_ids'] ? \explode(',', $data['sales_channel_language_ids']) : [];
+        $languageIds = \array_keys(\array_flip($languageIds));
 
         //check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)
         $defaultLanguageId = Uuid::fromBytesToHex($data['sales_channel_default_language_id']);
@@ -410,7 +410,7 @@ class SalesChannelContextFactory
         SalesChannelEntity $salesChannel
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
-        if (array_key_exists(SalesChannelContextService::COUNTRY_STATE_ID, $options) && $options[SalesChannelContextService::COUNTRY_STATE_ID]) {
+        if (\array_key_exists(SalesChannelContextService::COUNTRY_STATE_ID, $options) && $options[SalesChannelContextService::COUNTRY_STATE_ID]) {
             $state = $this->countryStateRepository->search(new Criteria([$options[SalesChannelContextService::COUNTRY_STATE_ID]]), $context)
                 ->get($options[SalesChannelContextService::COUNTRY_STATE_ID]);
 
@@ -421,7 +421,7 @@ class SalesChannelContextFactory
         }
 
         $countryId = $salesChannel->getCountryId();
-        if (array_key_exists(SalesChannelContextService::COUNTRY_ID, $options) && $options[SalesChannelContextService::COUNTRY_ID]) {
+        if (\array_key_exists(SalesChannelContextService::COUNTRY_ID, $options) && $options[SalesChannelContextService::COUNTRY_ID]) {
             $countryId = $options[SalesChannelContextService::COUNTRY_ID];
         }
 

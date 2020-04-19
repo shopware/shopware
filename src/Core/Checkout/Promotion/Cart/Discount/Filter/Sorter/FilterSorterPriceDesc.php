@@ -17,7 +17,7 @@ class FilterSorterPriceDesc implements FilterSorterInterface
     {
         $sorted = $units->getElements();
 
-        usort($sorted, function (DiscountPackage $a, DiscountPackage $b) {
+        \usort($sorted, function (DiscountPackage $a, DiscountPackage $b) {
             return $a->getTotalPrice() < $b->getTotalPrice();
         });
 

@@ -42,10 +42,10 @@ class LastNameRule extends Rule
 
         switch ($this->operator) {
             case Rule::OPERATOR_EQ:
-                return strcasecmp($this->lastName, $customer->getLastName()) === 0;
+                return \strcasecmp($this->lastName, $customer->getLastName()) === 0;
 
             case Rule::OPERATOR_NEQ:
-                return strcasecmp($this->lastName, $customer->getLastName()) !== 0;
+                return \strcasecmp($this->lastName, $customer->getLastName()) !== 0;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

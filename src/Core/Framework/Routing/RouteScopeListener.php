@@ -77,7 +77,7 @@ class RouteScopeListener implements EventSubscriberInterface
     {
         $controllerCallable = \Closure::fromCallable($event->getController());
         $controllerCallable = new \ReflectionFunction($controllerCallable);
-        $controllerClass = get_class($controllerCallable->getClosureThis());
+        $controllerClass = \get_class($controllerCallable->getClosureThis());
 
         return $controllerClass;
     }

@@ -52,7 +52,7 @@ class AssetService
         $bundle = $this->getBundle($bundleName);
 
         $originDir = $bundle->getPath() . '/Resources/public';
-        if (!is_dir($originDir)) {
+        if (!\is_dir($originDir)) {
             return;
         }
 
@@ -78,7 +78,7 @@ class AssetService
 
     private function getTargetDirectory(BundleInterface $bundle): string
     {
-        $assetDir = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
+        $assetDir = \preg_replace('/bundle$/', '', \mb_strtolower($bundle->getName()));
 
         return 'bundles/' . $assetDir;
     }
@@ -94,9 +94,9 @@ class AssetService
             ->getIterator();
 
         foreach ($files as $file) {
-            $fs = fopen($file->getPathname(), 'rb');
+            $fs = \fopen($file->getPathname(), 'rb');
             $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
-            fclose($fs);
+            \fclose($fs);
         }
     }
 

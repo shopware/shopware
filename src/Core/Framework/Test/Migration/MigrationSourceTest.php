@@ -17,7 +17,7 @@ class MigrationSourceTest extends TestCase
     {
         $pattern = $this->getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core')->getNamespacePattern();
 
-        static::assertSame($shoulMatch, (bool) preg_match("/$pattern/", $subject, $subject));
+        static::assertSame($shoulMatch, (bool) \preg_match("/$pattern/", $subject, $subject));
     }
 
     /**
@@ -33,7 +33,7 @@ class MigrationSourceTest extends TestCase
 
         $pattern = $source->getNamespacePattern();
 
-        static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject, $subject));
+        static::assertSame($shouldMatch, (bool) \preg_match("/$pattern/", $subject, $subject));
     }
 
     public function provideCoreRegexData(): array

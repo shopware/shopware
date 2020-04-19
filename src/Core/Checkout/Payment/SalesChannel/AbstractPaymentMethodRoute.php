@@ -16,8 +16,5 @@ abstract class AbstractPaymentMethodRoute
 {
     abstract public function getDecorated(): AbstractPaymentMethodRoute;
 
-    /**
-     * @param null|Criteria $criteria - Will be implemented in 6.4, can already by used
-     */
     abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): PaymentMethodRouteResponse;
 }

@@ -29,7 +29,7 @@ class Tree extends Struct
             return true;
         }
 
-        $ids = explode('|', $this->active->getPath());
+        $ids = \explode('|', $this->active->getPath());
 
         return \in_array($category->getId(), $ids, true);
     }

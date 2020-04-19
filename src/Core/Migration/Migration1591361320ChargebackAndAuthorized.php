@@ -78,7 +78,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
         );
 
         // import translations for current machine_state
-        $languages = array_unique(array_filter([
+        $languages = \array_unique(\array_filter([
             $this->getLanguageId('en-GB', $connection),
             Defaults::LANGUAGE_SYSTEM,
         ]));
@@ -86,7 +86,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
             $this->insertTranslation($stateId, $state['translations']['en-GB'], $language, $connection);
         }
 
-        $languages = array_filter([$this->getLanguageId('de-DE', $connection)]);
+        $languages = \array_filter([$this->getLanguageId('de-DE', $connection)]);
         foreach ($languages as $language) {
             $this->insertTranslation($stateId, $state['translations']['de-DE'], $language, $connection);
         }
@@ -173,6 +173,6 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
             ['name' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_column($ids, 'id');
+        return \array_column($ids, 'id');
     }
 }

@@ -37,7 +37,7 @@ abstract class MediaType extends Struct
 
     public function addFlags(array $flags): self
     {
-        $this->flags = array_merge($this->flags, $flags);
+        $this->flags = \array_merge($this->flags, $flags);
 
         return $this;
     }

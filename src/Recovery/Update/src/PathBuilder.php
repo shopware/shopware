@@ -31,12 +31,12 @@ class PathBuilder
      */
     public function __construct($basePath, $sourcePath, $backupPath)
     {
-        $baseDir = rtrim($basePath, '/\\') . DIRECTORY_SEPARATOR;
-        $sourceDir = rtrim($sourcePath, '/\\') . DIRECTORY_SEPARATOR;
-        $backupDir = rtrim($backupPath, '/\\') . DIRECTORY_SEPARATOR;
+        $baseDir = \rtrim($basePath, '/\\') . \DIRECTORY_SEPARATOR;
+        $sourceDir = \rtrim($sourcePath, '/\\') . \DIRECTORY_SEPARATOR;
+        $backupDir = \rtrim($backupPath, '/\\') . \DIRECTORY_SEPARATOR;
 
-        $updateDirRelative = str_replace($baseDir, '', $sourceDir);
-        $backupDirRelative = str_replace($baseDir, '', $backupDir);
+        $updateDirRelative = \str_replace($baseDir, '', $sourceDir);
+        $backupDirRelative = \str_replace($baseDir, '', $backupDir);
 
         $this->sourceDir = $sourceDir;
         $this->baseDir = $basePath;
@@ -66,7 +66,7 @@ class PathBuilder
      */
     public function createTargetPath(\SplFileInfo $file)
     {
-        return str_ireplace($this->sourceDir, '', $file->getPathname());
+        return \str_ireplace($this->sourceDir, '', $file->getPathname());
     }
 
     /**

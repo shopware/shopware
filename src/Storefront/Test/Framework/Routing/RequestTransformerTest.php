@@ -320,7 +320,7 @@ class RequestTransformerTest extends TestCase
 
     private function createSalesChannels(array $salesChannels): EntityWrittenContainerEvent
     {
-        $salesChannels = array_map(function ($salesChannelData) {
+        $salesChannels = \array_map(function ($salesChannelData) {
             $defaults = [
                 'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
                 'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
@@ -344,7 +344,7 @@ class RequestTransformerTest extends TestCase
                 'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             ];
 
-            return array_merge_recursive($defaults, $salesChannelData);
+            return \array_merge_recursive($defaults, $salesChannelData);
         }, $salesChannels);
 
         return $this->getContainer()->get('sales_channel.repository')->create($salesChannels, Context::createDefaultContext());

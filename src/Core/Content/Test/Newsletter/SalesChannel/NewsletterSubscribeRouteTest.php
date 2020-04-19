@@ -43,12 +43,12 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(3, $response['errors']);
 
-        $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+        $errors = \array_column(\array_column($response['errors'], 'source'), 'pointer');
 
         static::assertContains('/email', $errors);
         static::assertContains('/option', $errors);
@@ -68,12 +68,12 @@ class NewsletterSubscribeRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
 
-        $errors = array_column(array_column($response['errors'], 'source'), 'pointer');
+        $errors = \array_column(\array_column($response['errors'], 'source'), 'pointer');
         static::assertContains('/storefrontUrl', $errors);
     }
 

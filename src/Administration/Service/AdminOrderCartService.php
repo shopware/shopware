@@ -43,7 +43,7 @@ class AdminOrderCartService
     public function addPermission(string $token, string $permission): void
     {
         $payload = $this->contextPersister->load($token);
-        if (!array_key_exists(SalesChannelContextService::PERMISSIONS, $payload)) {
+        if (!\array_key_exists(SalesChannelContextService::PERMISSIONS, $payload)) {
             $payload[SalesChannelContextService::PERMISSIONS] = [];
         }
 

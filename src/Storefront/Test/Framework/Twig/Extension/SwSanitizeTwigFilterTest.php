@@ -92,7 +92,7 @@ class SwSanitizeTwigFilterTest extends TestCase
         static::assertCount(1, $purifiers);
 
         /** @var HTMLPurifier $newPurifier */
-        $newPurifier = array_pop($purifiers);
+        $newPurifier = \array_pop($purifiers);
 
         static::assertNull($newPurifier->config->get('Cache.DefinitionImpl'));
         static::assertEquals($cacheDir, $newPurifier->config->get('Cache.SerializerPath'));

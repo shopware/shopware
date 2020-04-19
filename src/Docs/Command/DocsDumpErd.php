@@ -62,7 +62,7 @@ class DocsDumpErd extends Command
         $destPath = __DIR__ . '/../Resources/current/2-internals/1-core/10-erd';
 
         $fs = new Filesystem();
-        $fs->remove(glob($destPath . '/erd-*'));
+        $fs->remove(\glob($destPath . '/erd-*'));
         $fs->remove($destPath . '/_puml');
         $fs->mkdir($destPath . '/_puml');
 
@@ -71,7 +71,7 @@ class DocsDumpErd extends Command
 
         $this->updateTranslations($definitions, $descriptionsLong, $descriptionsShort, $modules);
 
-        $io->listing(array_keys($modules));
+        $io->listing(\array_keys($modules));
 
         $this->generateModuleErd($modules, $descriptionsShort, $destPath, $descriptionsLong);
         $this->generateGlobalErd($modules, $descriptionsShort, $destPath, $definitions);
@@ -100,7 +100,7 @@ class DocsDumpErd extends Command
             $descriptionsLong->ensure($definition->toClassName());
         }
 
-        foreach (array_keys($modules) as $moduleName) {
+        foreach (\array_keys($modules) as $moduleName) {
             $descriptionsLong->ensure($moduleName);
             $descriptionsShort->ensure($moduleName);
         }
@@ -116,7 +116,7 @@ class DocsDumpErd extends Command
          */
         foreach ($modules as $moduleName => $moduleDefinition) {
             $dump = $this->erdGenerator->generateFromDefinitions($moduleDefinition, new PlantUmlErdDumper(), $descriptionsShort);
-            file_put_contents(
+            \file_put_contents(
                 $destPath . '/_puml/erd-' . $this->toFileName($moduleName) . '.puml',
                 $dump
             );
@@ -126,7 +126,7 @@ class DocsDumpErd extends Command
                 $descriptionsLong->get($moduleName),
                 'dist/erd-' . $this->toFileName($moduleName) . '.png'
             ), $descriptionsLong);
-            file_put_contents(
+            \file_put_contents(
                 $destPath . '/erd-' . $this->toFileName($moduleName) . '.md',
                 $dump
             );
@@ -135,7 +135,7 @@ class DocsDumpErd extends Command
 
     private function toFileName($moduleName): string
     {
-        return mb_strtolower(str_replace('\\', '-', $moduleName));
+        return \mb_strtolower(\str_replace('\\', '-', $moduleName));
     }
 
     /**
@@ -165,11 +165,11 @@ class DocsDumpErd extends Command
     {
         $definitions = $this->registry->getDefinitions();
 
-        $definitions = array_filter($definitions, function (EntityDefinition $definition) {
+        $definitions = \array_filter($definitions, function (EntityDefinition $definition) {
             return !\in_array($definition->getClass(), $this->ignoredDefinitions, true);
         });
 
-        return array_map(static function (EntityDefinition $definition) {
+        return \array_map(static function (EntityDefinition $definition) {
             return new ErdDefinition($definition);
         }, $definitions);
     }
@@ -177,13 +177,13 @@ class DocsDumpErd extends Command
     private function generateGlobalErd(array $modules, ArrayWriter $descriptionsShort, string $destPath, array $definitions): void
     {
         $dump = $this->erdGenerator->generateFromModules($modules, new PlantUmlErdDumper(), $descriptionsShort);
-        file_put_contents(
+        \file_put_contents(
             $destPath . '/_puml/erd-overview.puml',
             $dump
         );
 
         $dump = $this->erdGenerator->generateFromDefinitions($definitions, new PlantUmlErdDumper(), $descriptionsShort);
-        file_put_contents(
+        \file_put_contents(
             $destPath . '/_puml/erd-all.puml',
             $dump
         );

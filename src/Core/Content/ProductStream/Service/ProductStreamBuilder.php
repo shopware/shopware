@@ -66,7 +66,7 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
                 return new MultiFilter($filterEntity->getOperator(), $queries);
 
             case EqualsAnyFilter::class:
-                return new EqualsAnyFilter($filterEntity->getField(), explode('|', $filterEntity->getValue()));
+                return new EqualsAnyFilter($filterEntity->getField(), \explode('|', $filterEntity->getValue()));
 
             default:
                 return $class::createFrom($filterEntity);
@@ -89,7 +89,7 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
             case 'range':
                 return RangeFilter::class;
             default:
-                if (!in_array(Filter::class, class_implements($type), true)) {
+                if (!\in_array(Filter::class, \class_implements($type), true)) {
                     throw new FilterNotFoundException($type);
                 }
 
@@ -119,14 +119,14 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
 
         $nestedCollection[] = $nestedFilter;
 
-        usort(
+        \usort(
             $nestedCollection,
             function (array $a, array $b) {
                 return $a['position'] <=> $b['position'];
             }
         );
 
-        return array_column($nestedCollection, 'filter');
+        return \array_column($nestedCollection, 'filter');
     }
 
     private function getRootFilter(ProductStreamFilterCollection $filterCollection): ProductStreamFilterEntity

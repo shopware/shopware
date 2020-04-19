@@ -36,11 +36,11 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
             ++$updatedPluginCount;
 
-            $io->text(sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));
+            $io->text(\sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));
         }
 
         if ($updatedPluginCount !== 0) {
-            $io->success(sprintf('Updated %d plugin(s).', $updatedPluginCount));
+            $io->success(\sprintf('Updated %d plugin(s).', $updatedPluginCount));
         }
 
         $this->handleClearCacheOption($input, $io, 'updating');

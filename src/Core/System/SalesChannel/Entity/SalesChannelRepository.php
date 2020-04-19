@@ -186,14 +186,14 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         // process all associations breadth-first
         while (!empty($queue) && --$maxCount > 0) {
-            $cur = array_shift($queue);
+            $cur = \array_shift($queue);
 
             /** @var EntityDefinition $definition */
             $definition = $cur['definition'];
             /** @var Criteria $criteria */
             $criteria = $cur['criteria'];
 
-            if (isset($processed[get_class($definition)])) {
+            if (isset($processed[\get_class($definition)])) {
                 continue;
             }
 
@@ -201,7 +201,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
                 $definition->processCriteria($criteria, $salesChannelContext);
             }
 
-            $processed[get_class($definition)] = true;
+            $processed[\get_class($definition)] = true;
 
             foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
                 // find definition

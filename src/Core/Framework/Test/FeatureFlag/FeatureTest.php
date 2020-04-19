@@ -23,11 +23,11 @@ class FeatureTest extends TestCase
      */
     public function cleanup(): void
     {
-        @unlink(__DIR__ . '/_gen/feature_nextTest101.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest123.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest456.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest789.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest123.js');
+        @\unlink(__DIR__ . '/_gen/feature_nextTest101.php');
+        @\unlink(__DIR__ . '/_gen/feature_nextTest123.php');
+        @\unlink(__DIR__ . '/_gen/feature_nextTest456.php');
+        @\unlink(__DIR__ . '/_gen/feature_nextTest789.php');
+        @\unlink(__DIR__ . '/_gen/feature_nextTest123.js');
     }
 
     /**
@@ -52,9 +52,9 @@ class FeatureTest extends TestCase
         $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-789', __DIR__ . '/_gen/');
         $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-101', __DIR__ . '/_gen/');
 
-        static::assertFalse(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
+        static::assertFalse(\function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
         include_once __DIR__ . '/_gen/feature_nextTest789.php';
-        static::assertTrue(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
+        static::assertTrue(\function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
     }
 
     public function testABoolGetsReturned(): void

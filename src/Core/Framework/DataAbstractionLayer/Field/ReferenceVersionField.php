@@ -39,9 +39,9 @@ class ReferenceVersionField extends FkField
         $entity = $this->versionReferenceDefinition->getEntityName();
         $storageName = $this->storageName ?? $entity . '_version_id';
 
-        $propertyName = explode('_', $storageName);
-        $propertyName = array_map('ucfirst', $propertyName);
-        $propertyName = lcfirst(implode($propertyName));
+        $propertyName = \explode('_', $storageName);
+        $propertyName = \array_map('ucfirst', $propertyName);
+        $propertyName = \lcfirst(\implode($propertyName));
 
         $this->storageName = $storageName;
         $this->propertyName = $propertyName;

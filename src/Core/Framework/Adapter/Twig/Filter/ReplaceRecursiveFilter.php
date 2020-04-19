@@ -16,6 +16,6 @@ class ReplaceRecursiveFilter extends AbstractExtension
 
     public function replaceRecursive(array ...$params): array
     {
-        return array_replace_recursive(...$params);
+        return \array_replace_recursive(...$params);
     }
 }

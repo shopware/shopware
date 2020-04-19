@@ -105,7 +105,7 @@ class PromotionControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $json = json_decode($response->getContent(), true);
+        $json = \json_decode($response->getContent(), true);
 
         static::assertEquals($promotionId, $json['data']['id']);
         static::assertEquals('promotion', $json['data']['type']);
@@ -136,7 +136,7 @@ class PromotionControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         /** @var array $json */
-        $json = json_decode($response->getContent(), true);
+        $json = \json_decode($response->getContent(), true);
 
         // verify that we have 1 total found promotion
         static::assertEquals(1, $json['meta']['total']);

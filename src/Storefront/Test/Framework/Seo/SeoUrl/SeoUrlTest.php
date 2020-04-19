@@ -454,7 +454,7 @@ class SeoUrlTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
             'stock' => 0,
         ];
-        $data = array_merge($defaults, $data);
+        $data = \array_merge($defaults, $data);
 
         return $this->productRepository->upsert([$data], Context::createDefaultContext());
     }
@@ -482,7 +482,7 @@ class SeoUrlTest extends TestCase
             'stock' => 0,
         ];
 
-        $insert = array_merge($insert, $overrides);
+        $insert = \array_merge($insert, $overrides);
 
         $this->productRepository->create([$insert], Context::createDefaultContext());
 

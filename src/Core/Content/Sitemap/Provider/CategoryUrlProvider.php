@@ -111,7 +111,7 @@ class CategoryUrlProvider implements UrlProviderInterface
             return [];
         }
 
-        $excludedUrls = array_filter($excludedUrls, static function (array $excludedUrl) use ($salesChannelId) {
+        $excludedUrls = \array_filter($excludedUrls, static function (array $excludedUrl) use ($salesChannelId) {
             if ($excludedUrl['resource'] !== CategoryEntity::class) {
                 return false;
             }
@@ -123,6 +123,6 @@ class CategoryUrlProvider implements UrlProviderInterface
             return true;
         });
 
-        return array_column($excludedUrls, 'identifier');
+        return \array_column($excludedUrls, 'identifier');
     }
 }

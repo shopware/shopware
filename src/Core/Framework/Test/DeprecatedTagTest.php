@@ -27,7 +27,7 @@ class DeprecatedTagTest extends TestCase
 
     public function testAllPhpFilesInPlatformForDeprecated(): void
     {
-        $dir = dirname(KernelLifecycleManager::getClassLoader()
+        $dir = \dirname(KernelLifecycleManager::getClassLoader()
                 ->findFile(Kernel::class)) . '/../';
 
         $return = [];
@@ -63,33 +63,33 @@ class DeprecatedTagTest extends TestCase
             }
         }
 
-        static::assertEquals([], $return, print_r($return, true));
+        static::assertEquals([], $return, \print_r($return, true));
     }
 
     private function hasDeprecationFalseOrNoTag(string $deprecatedPrefix, string $file): bool
     {
-        $content = file_get_contents($file);
+        $content = \file_get_contents($file);
         $matches = [];
         $pattern = '/' . $deprecatedPrefix . '(?!\s?tag\:)/';
-        preg_match($pattern, $content, $matches);
+        \preg_match($pattern, $content, $matches);
 
-        if (!empty(array_filter($matches))) {
+        if (!empty(\array_filter($matches))) {
             return true;
         }
 
         $pattern = '/' . $deprecatedPrefix . '\s?tag\:v{1}([0-9,\.]{2,5})/';
-        preg_match_all($pattern, $content, $matches);
+        \preg_match_all($pattern, $content, $matches);
 
         $matches = $matches[1];
 
-        if (empty(array_filter($matches))) {
+        if (empty(\array_filter($matches))) {
             return true;
         }
 
         $taggedVersion = $this->getTaggedVersion();
 
         foreach ($matches as $match) {
-            if (version_compare($taggedVersion, $match) !== -1) {
+            if (\version_compare($taggedVersion, $match) !== -1) {
                 return true;
             }
         }
@@ -103,19 +103,19 @@ class DeprecatedTagTest extends TestCase
     private function getTaggedVersion(): string
     {
         $envVersion = $_SERVER['VERSION'] ?? '';
-        if (is_string($envVersion) && $envVersion !== '') {
+        if (\is_string($envVersion) && $envVersion !== '') {
             return $envVersion;
         }
         $tags = $this->exec('git describe --tags $(git rev-list --tags --max-count=50)');
 
-        $highest = str_replace('v', '', $tags[0]);
+        $highest = \str_replace('v', '', $tags[0]);
         foreach ($tags as $tag) {
-            if (strlen($tag) > 8) {
+            if (\mb_strlen($tag) > 8) {
                 continue;
             }
-            $tag = str_replace('v', '', $tag);
+            $tag = \str_replace('v', '', $tag);
 
-            if (version_compare($highest, $tag) === -1) {
+            if (\version_compare($highest, $tag) === -1) {
                 $highest = $tag;
             }
         }
@@ -128,7 +128,7 @@ class DeprecatedTagTest extends TestCase
         $result = [];
         $exitCode = 0;
 
-        exec($command, $result, $exitCode);
+        \exec($command, $result, $exitCode);
 
         if ($exitCode !== 0) {
             throw new \Exception("Could not execute {$command} successfully. EXITING \n");

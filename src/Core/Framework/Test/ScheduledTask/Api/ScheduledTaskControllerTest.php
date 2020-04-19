@@ -39,12 +39,12 @@ class ScheduledTaskControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $url = sprintf('/api/v%s/_action/scheduled-task/run', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_action/scheduled-task/run', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('POST', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
+        static::assertSame(\json_encode(['message' => 'Success']), $client->getResponse()->getContent());
 
         /** @var ScheduledTaskEntity $task */
         $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
@@ -82,11 +82,11 @@ class ScheduledTaskControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $url = sprintf('/api/v%s/_action/scheduled-task/min-run-interval', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_action/scheduled-task/min-run-interval', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(json_encode(['minRunInterval' => 5]), $client->getResponse()->getContent());
+        static::assertSame(\json_encode(['minRunInterval' => 5]), $client->getResponse()->getContent());
     }
 }

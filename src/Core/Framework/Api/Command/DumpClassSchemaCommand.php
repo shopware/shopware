@@ -44,14 +44,14 @@ class DumpClassSchemaCommand extends Command
         $entityClass = $this->getCollectionEntity($input->getArgument('class'));
 
         if ($entityClass === null) {
-            file_put_contents($this->getFilePath($input->getArgument('name')), json_encode($this->dumpProperties($input->getArgument('class')), JSON_PRETTY_PRINT));
+            \file_put_contents($this->getFilePath($input->getArgument('name')), \json_encode($this->dumpProperties($input->getArgument('class')), \JSON_PRETTY_PRINT));
         } else {
             $collection = [
                 'type' => 'array',
                 'items' => $this->dumpProperties($entityClass),
             ];
 
-            file_put_contents($this->getFilePath($input->getArgument('name')), json_encode($collection, JSON_PRETTY_PRINT));
+            \file_put_contents($this->getFilePath($input->getArgument('name')), \json_encode($collection, \JSON_PRETTY_PRINT));
         }
 
         return 0;
@@ -59,7 +59,7 @@ class DumpClassSchemaCommand extends Command
 
     private function getCollectionEntity(string $className): ?string
     {
-        $extends = class_parents($className);
+        $extends = \class_parents($className);
 
         if (!isset($extends[Collection::class])) {
             return null;
@@ -86,7 +86,7 @@ class DumpClassSchemaCommand extends Command
             }
         }
 
-        throw new \InvalidArgumentException(sprintf('Invalid class given %s', $className));
+        throw new \InvalidArgumentException(\sprintf('Invalid class given %s', $className));
     }
 
     private function resolveNames(array $stmts): array
@@ -102,7 +102,7 @@ class DumpClassSchemaCommand extends Command
     {
         $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
 
-        return $this->resolveNames($parser->parse(file_get_contents($filePath)));
+        return $this->resolveNames($parser->parse(\file_get_contents($filePath)));
     }
 
     private function dumpProperties(string $entityClass, int $deep = 1): ?array
@@ -126,7 +126,7 @@ class DumpClassSchemaCommand extends Command
             foreach ($methods as $method) {
                 $methodName = (string) $method->name;
 
-                if (!in_array($methodName, ['get' . ucfirst($name), 'is' . ucfirst($name)], true)) {
+                if (!\in_array($methodName, ['get' . \ucfirst($name), 'is' . \ucfirst($name)], true)) {
                     continue;
                 }
 
@@ -160,7 +160,7 @@ class DumpClassSchemaCommand extends Command
                     continue;
                 }
 
-                if (class_exists($type)) {
+                if (\class_exists($type)) {
                     $isCollection = $this->getCollectionEntity($type);
 
                     if ($isCollection) {
@@ -195,14 +195,14 @@ class DumpClassSchemaCommand extends Command
 
     private function getFileName(string $className): string
     {
-        return str_replace('\\', '_', $className);
+        return \str_replace('\\', '_', $className);
     }
 
     private function getFilePath(string $className): string
     {
-        if (!file_exists($this->schemaPath)) {
-            if (!mkdir($concurrentDirectory = $this->schemaPath, 0777, true) && !is_dir($concurrentDirectory)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+        if (!\file_exists($this->schemaPath)) {
+            if (!\mkdir($concurrentDirectory = $this->schemaPath, 0777, true) && !\is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(\sprintf('Directory "%s" was not created', $concurrentDirectory));
             }
         }
 

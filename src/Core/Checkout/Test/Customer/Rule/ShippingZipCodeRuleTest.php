@@ -51,7 +51,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/zipCodes', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -76,7 +76,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/zipCodes', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -98,7 +98,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/zipCodes', $exceptions[0]['source']['pointer']);
             static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $exceptions[0]['code']);
@@ -120,7 +120,7 @@ class ShippingZipCodeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(3, $exceptions);
             static::assertSame('/0/value/zipCodes', $exceptions[0]['source']['pointer']);
             static::assertSame('/0/value/zipCodes', $exceptions[1]['source']['pointer']);

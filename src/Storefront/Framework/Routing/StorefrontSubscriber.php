@@ -209,7 +209,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $parameters = [
             'redirectTo' => $request->attributes->get('_route'),
-            'redirectParameters' => json_encode($request->attributes->get('_route_params')),
+            'redirectParameters' => \json_encode($request->attributes->get('_route_params')),
         ];
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
@@ -239,7 +239,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $controller = $event->getController();
 
         // happens if Controller is a closure
-        if (!is_array($controller)) {
+        if (!\is_array($controller)) {
             return;
         }
 
@@ -259,7 +259,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         if ($canonical = $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK)) {
-            $canonical = sprintf('<%s>; rel="canonical"', $canonical);
+            $canonical = \sprintf('<%s>; rel="canonical"', $canonical);
             $event->getResponse()->headers->set('Link', $canonical);
         }
     }

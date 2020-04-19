@@ -51,13 +51,13 @@ class TemplateFinder implements TemplateFinderInterface
     public function getTemplateName(string $template): string
     {
         //remove static template inheritance prefix
-        if (mb_strpos($template, '@') !== 0) {
+        if (\mb_strpos($template, '@') !== 0) {
             return $template;
         }
 
-        $template = explode('/', $template);
-        array_shift($template);
-        $template = implode('/', $template);
+        $template = \explode('/', $template);
+        \array_shift($template);
+        $template = \implode('/', $template);
 
         return $template;
     }
@@ -73,11 +73,11 @@ class TemplateFinder implements TemplateFinderInterface
         $queue = $this->getNamespaceHierarchy();
 
         if ($source) {
-            $index = array_search($source, $queue, true);
+            $index = \array_search($source, $queue, true);
 
-            $queue = array_merge(
-                array_slice($queue, $index + 1),
-                array_slice($queue, 0, $index + 1)
+            $queue = \array_merge(
+                \array_slice($queue, $index + 1),
+                \array_slice($queue, 0, $index + 1)
             );
         }
 
@@ -106,7 +106,7 @@ class TemplateFinder implements TemplateFinderInterface
             return $templatePath;
         }
 
-        throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($queue))));
+        throw new LoaderError(\sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, \implode(', ', \array_values($queue))));
     }
 
     private function getNamespaceHierarchy(): array
@@ -115,7 +115,7 @@ class TemplateFinder implements TemplateFinderInterface
             return $this->namespaceHierarchy;
         }
 
-        $namespaceHierarchy = array_unique($this->namespaceHierarchyBuilder->buildHierarchy());
+        $namespaceHierarchy = \array_unique($this->namespaceHierarchyBuilder->buildHierarchy());
         $this->defineCache($namespaceHierarchy);
 
         return $this->namespaceHierarchy = $namespaceHierarchy;
@@ -124,7 +124,7 @@ class TemplateFinder implements TemplateFinderInterface
     private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {
-            $configHash = implode(':', $queue);
+            $configHash = \implode(':', $queue);
 
             $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
             $fileSystemCache->setConfigHash($configHash);

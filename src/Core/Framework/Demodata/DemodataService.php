@@ -73,19 +73,19 @@ class DemodataService
 
             $definition = $this->registry->get($definitionClass);
 
-            $console->section(sprintf('Generating %d items for %s', $numberOfItems, $definition->getEntityName()));
+            $console->section(\sprintf('Generating %d items for %s', $numberOfItems, $definition->getEntityName()));
 
             $generator = $this->generators[$definitionClass] ?? null;
 
             if (!$generator) {
-                throw new \RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass));
+                throw new \RuntimeException(\sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass));
             }
 
-            $start = microtime(true);
+            $start = \microtime(true);
             $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definitionClass));
-            $end = microtime(true) - $start;
+            $end = \microtime(true) - $start;
 
-            $console->note(sprintf('Took %f seconds', (float) $end));
+            $console->note(\sprintf('Took %f seconds', (float) $end));
 
             $demodataContext->setTiming($definition, $numberOfItems, $end);
         }

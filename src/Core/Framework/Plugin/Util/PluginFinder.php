@@ -36,7 +36,7 @@ class PluginFinder
         ExceptionCollection $errors,
         IOInterface $composerIO
     ): array {
-        return array_merge(
+        return \array_merge(
             $this->loadLocalPlugins($pluginDir, $composerIO, $errors),
             $this->loadVendorInstalledPlugins($projectDir, $composerIO, $errors)
         );
@@ -146,7 +146,7 @@ class PluginFinder
         $errors->add(new PluginComposerJsonInvalidException(
             $pluginPath . '/composer.json',
             [
-                sprintf(
+                \sprintf(
                     'Plugin composer.json has invalid "type" (must be "%s"), or invalid "extra/%s" value',
                     self::COMPOSER_TYPE,
                     self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER

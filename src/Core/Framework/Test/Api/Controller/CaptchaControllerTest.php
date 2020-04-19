@@ -25,7 +25,7 @@ class CaptchaControllerTest extends TestCase
 
     public function testList(): void
     {
-        $expected = json_encode([
+        $expected = \json_encode([
             self::CAPTCHA_NAME,
         ]);
         $response = $this->captchaController->list();

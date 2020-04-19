@@ -73,10 +73,10 @@ class WriteException extends ShopwareHttpException
 
         foreach ($this->getErrors() as $index => $error) {
             $pointer = $error['source']['pointer'] ?? '/';
-            $messages[] = sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
+            $messages[] = \sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
         }
 
-        $messagesString = implode(PHP_EOL, $messages);
+        $messagesString = \implode(\PHP_EOL, $messages);
 
         $this->parameters = [
             'errorCount' => \count($this->exceptions),

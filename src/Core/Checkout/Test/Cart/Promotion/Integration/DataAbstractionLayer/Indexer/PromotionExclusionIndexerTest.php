@@ -115,7 +115,7 @@ class PromotionExclusionIndexerTest extends TestCase
             'name' => $name,
         ];
 
-        if (count($exclusions) > 0) {
+        if (\count($exclusions) > 0) {
             $data['exclusionIds'] = $exclusions;
         }
 

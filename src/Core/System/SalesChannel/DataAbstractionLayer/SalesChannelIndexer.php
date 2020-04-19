@@ -69,7 +69,7 @@ class SalesChannelIndexer extends EntityIndexer
             return null;
         }
 
-        return new SalesChannelIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new SalesChannelIndexingMessage(\array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -80,14 +80,14 @@ class SalesChannelIndexer extends EntityIndexer
             return null;
         }
 
-        return new SalesChannelIndexingMessage(array_values($updates), null, $event->getContext());
+        return new SalesChannelIndexingMessage(\array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
 
-        $ids = array_unique(array_filter($ids));
+        $ids = \array_unique(\array_filter($ids));
         if (empty($ids)) {
             return;
         }

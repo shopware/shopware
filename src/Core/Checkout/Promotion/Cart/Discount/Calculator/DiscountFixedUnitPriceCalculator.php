@@ -35,7 +35,7 @@ class DiscountFixedUnitPriceCalculator
             throw new InvalidPriceDefinitionException($discount->getLabel(), $discount->getCode());
         }
 
-        $fixedUnitPrice = (float) abs($priceDefinition->getPrice());
+        $fixedUnitPrice = (float) \abs($priceDefinition->getPrice());
 
         $totalDiscountSum = 0.0;
 
@@ -62,7 +62,7 @@ class DiscountFixedUnitPriceCalculator
         // now calculate the correct price
         // from our collected total discount price
         $discountPrice = $this->absolutePriceCalculator->calculate(
-            -abs($totalDiscountSum),
+            -\abs($totalDiscountSum),
             $packages->getAffectedPrices(),
             $context
         );

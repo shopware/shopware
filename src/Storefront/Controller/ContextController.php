@@ -108,10 +108,10 @@ class ContextController extends StorefrontController
 
         $route = $request->request->get('redirectTo', 'frontend.home.page');
 
-        $params = $request->request->get('redirectParameters', json_encode([]));
+        $params = $request->request->get('redirectParameters', \json_encode([]));
 
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            $params = \json_decode($params, true);
         }
 
         /*
@@ -137,7 +137,7 @@ class ContextController extends StorefrontController
          * http://localhost:8080/en
          * http://localhost:8080/fr
          */
-        $url = str_replace(
+        $url = \str_replace(
             ['http://', 'https://'],
             '',
             $domain->getUrl()

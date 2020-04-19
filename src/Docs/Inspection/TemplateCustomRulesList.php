@@ -50,7 +50,7 @@ EOD;
         /** @var ModuleTagCollection $tags */
         foreach ($ruleCollection as $tags) {
             $bundleName = $tags->getBundleName();
-            $markdown[$bundleName] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $bundleName);
+            $markdown[$bundleName] = \sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $bundleName);
 
             foreach ($tags as $tag) {
                 foreach ($tag->marker('rules') as $ruleFile) {
@@ -58,7 +58,7 @@ EOD;
 
                     $ruleDescriptions->ensure($className);
 
-                    $markdown[] = sprintf(
+                    $markdown[] = \sprintf(
                         self::TEMPLATE_RULE,
                         $className,
                         $className,
@@ -70,11 +70,11 @@ EOD;
 
         $ruleDescriptions->dump(true);
 
-        file_put_contents(
+        \file_put_contents(
             $this->ruleListPath,
-            sprintf(
+            \sprintf(
                 self::TEMPLATE_PAGE,
-                implode(PHP_EOL, $markdown)
+                \implode(\PHP_EOL, $markdown)
             )
         );
     }

@@ -14,13 +14,13 @@ class XmlValidator implements ValidatorInterface
             return;
         }
 
-        $internalErrorsState = libxml_use_internal_errors();
-        libxml_use_internal_errors(true);
+        $internalErrorsState = \libxml_use_internal_errors();
+        \libxml_use_internal_errors(true);
 
-        if (!simplexml_load_string($productExportContent)) {
-            $errors->add(new XmlValidationError($productExportEntity->getId(), libxml_get_errors()));
+        if (!\simplexml_load_string($productExportContent)) {
+            $errors->add(new XmlValidationError($productExportEntity->getId(), \libxml_get_errors()));
         }
 
-        libxml_use_internal_errors($internalErrorsState);
+        \libxml_use_internal_errors($internalErrorsState);
     }
 }

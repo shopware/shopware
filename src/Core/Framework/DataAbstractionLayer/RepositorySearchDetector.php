@@ -41,7 +41,7 @@ class RepositorySearchDetector
             return true;
         }
 
-        $filters = array_merge(
+        $filters = \array_merge(
             $criteria->getFilters(),
             $criteria->getPostFilters()
         );

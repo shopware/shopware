@@ -39,7 +39,7 @@ class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(function ($id) {return ['id' => $id]; }, $emailRecipient->getIds());
+        $emailRecipientIds = \array_map(function ($id) {return ['id' => $id]; }, $emailRecipient->getIds());
 
         $this->newsletterRecipientRepository->delete($emailRecipientIds, Context::createDefaultContext());
     }
@@ -53,7 +53,7 @@ class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
         $criteria->addFilter(new RangeFilter(
             'createdAt',
             [
-                RangeFilter::LTE => $dateTime->format(DATE_ATOM),
+                RangeFilter::LTE => $dateTime->format(\DATE_ATOM),
             ]
         ));
 

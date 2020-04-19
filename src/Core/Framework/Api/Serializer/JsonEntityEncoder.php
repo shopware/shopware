@@ -84,14 +84,14 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 continue;
             }
 
             $object = $struct->getVars()[$property];
 
             if ($object instanceof Collection) {
-                $object = array_values($object->getElements());
+                $object = \array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {
                     $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $object[$index]);
@@ -118,7 +118,7 @@ class JsonEntityEncoder
             return true;
         }
 
-        return in_array($property, $includes[$alias], true);
+        return \in_array($property, $includes[$alias], true);
     }
 
     private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl, int $apiVersion): array

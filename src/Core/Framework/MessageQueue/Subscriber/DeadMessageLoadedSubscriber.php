@@ -18,7 +18,7 @@ class DeadMessageLoadedSubscriber implements EventSubscriberInterface
         /** @var DeadMessageEntity $deadMessage */
         foreach ($event->getEntities() as $deadMessage) {
             if ($deadMessage->getSerializedOriginalMessage()) {
-                $deadMessage->setOriginalMessage(unserialize($deadMessage->getSerializedOriginalMessage()));
+                $deadMessage->setOriginalMessage(\unserialize($deadMessage->getSerializedOriginalMessage()));
             }
         }
     }

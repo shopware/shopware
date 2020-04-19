@@ -29,7 +29,7 @@ class CartRuleLoader
     private $repository;
 
     /**
-     * @var null|RuleCollection
+     * @var RuleCollection|null
      */
     private $rules = null;
 
@@ -117,7 +117,7 @@ class CartRuleLoader
         foreach ($rules as $rule) {
             ++$index;
             $this->logger->info(
-                sprintf('#%s Rule detection: %s with priority %s (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
+                \sprintf('#%s Rule detection: %s with priority %s (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
             );
         }
 

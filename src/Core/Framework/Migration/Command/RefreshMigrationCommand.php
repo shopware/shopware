@@ -20,40 +20,40 @@ class RefreshMigrationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $input->getArgument('path');
-        $filename = basename($path);
-        $className = pathinfo($filename, PATHINFO_FILENAME);
+        $filename = \basename($path);
+        $className = \pathinfo($filename, \PATHINFO_FILENAME);
 
         $output->writeln('Updating timestamp of migration: ' . $filename);
 
-        if (!file_exists($path)) {
+        if (!\file_exists($path)) {
             throw new \RuntimeException('The provided migration file does not exist.');
         }
 
         $timestamp = $this->getCurrentTimestamp($filename);
-        $newTimestamp = (string) time();
+        $newTimestamp = (string) \time();
 
-        $newPath = str_replace($timestamp, $newTimestamp, $path);
+        $newPath = \str_replace($timestamp, $newTimestamp, $path);
 
         $search = [
-            pathinfo($filename, PATHINFO_FILENAME),
+            \pathinfo($filename, \PATHINFO_FILENAME),
             'return ' . $timestamp . ';',
         ];
 
         $replace = [
-            str_replace($timestamp, $newTimestamp, $className),
+            \str_replace($timestamp, $newTimestamp, $className),
             'return ' . $newTimestamp . ';',
         ];
 
         $this->updateMigrationFile($path, $search, $replace);
 
-        rename($path, $newPath);
+        \rename($path, $newPath);
 
         return 0;
     }
 
     private function getCurrentTimestamp(string $filename): string
     {
-        if (!preg_match('#Migration([\d]+).*?\.php#i', $filename, $matches)) {
+        if (!\preg_match('#Migration([\d]+).*?\.php#i', $filename, $matches)) {
             throw new \RuntimeException('Could not determine current timestamp.');
         }
 
@@ -62,8 +62,8 @@ class RefreshMigrationCommand extends Command
 
     private function updateMigrationFile(string $path, array $search, array $replace): void
     {
-        $content = file_get_contents($path);
-        $content = str_replace($search, $replace, $content);
-        file_put_contents($path, $content);
+        $content = \file_get_contents($path);
+        $content = \str_replace($search, $replace, $content);
+        \file_put_contents($path, $content);
     }
 }

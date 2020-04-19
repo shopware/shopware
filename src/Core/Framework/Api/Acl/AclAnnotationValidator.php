@@ -35,7 +35,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
                 throw new InsufficientAuthenticationException(
-                    sprintf('Missing privilege %s', $privilege)
+                    \sprintf('Missing privilege %s', $privilege)
                 );
             }
         }

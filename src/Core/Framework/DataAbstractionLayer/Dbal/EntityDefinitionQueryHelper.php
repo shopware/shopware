@@ -40,7 +40,7 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (mb_strpos($string, '`') !== false) {
+        if (\mb_strpos($string, '`') !== false) {
             throw new \InvalidArgumentException('Backtick not allowed in identifier');
         }
 
@@ -49,9 +49,9 @@ class EntityDefinitionQueryHelper
 
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor): array
     {
-        $parts = explode('.', $accessor);
+        $parts = \explode('.', $accessor);
         if ($definition->getEntityName() === $parts[0]) {
-            array_shift($parts);
+            \array_shift($parts);
         }
 
         $accessorFields = [];
@@ -107,21 +107,21 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+        if (\mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = \mb_substr($fieldName, \mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
 
         $fields = $definition->getFields();
 
-        $isAssociation = mb_strpos($fieldName, '.') !== false;
+        $isAssociation = \mb_strpos($fieldName, '.') !== false;
 
         if (!$isAssociation && $fields->has($fieldName)) {
             return $fields->get($fieldName);
         }
-        $associationKey = explode('.', $fieldName);
-        $associationKey = array_shift($associationKey);
+        $associationKey = \explode('.', $fieldName);
+        $associationKey = \array_shift($associationKey);
 
         $field = $fields->get($associationKey);
 
@@ -168,13 +168,13 @@ class EntityDefinitionQueryHelper
      */
     public function getFieldAccessor(string $fieldName, EntityDefinition $definition, string $root, Context $context): string
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = \str_replace('extensions.', '', $fieldName);
 
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+        if (\mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = \mb_substr($fieldName, \mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -186,11 +186,11 @@ class EntityDefinitionQueryHelper
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
 
-        $parts = explode('.', $fieldName);
-        $associationKey = array_shift($parts);
+        $parts = \explode('.', $fieldName);
+        $associationKey = \array_shift($parts);
 
         if ($associationKey === 'extensions') {
-            $associationKey = array_shift($parts);
+            $associationKey = \array_shift($parts);
         }
 
         if (!$fields->has($associationKey)) {
@@ -205,7 +205,7 @@ class EntityDefinitionQueryHelper
         }
 
         if (!$field instanceof AssociationField) {
-            throw new \RuntimeException(sprintf('Expected field "%s" to be instance of %s', $associationKey, AssociationField::class));
+            throw new \RuntimeException(\sprintf('Expected field "%s" to be instance of %s', $associationKey, AssociationField::class));
         }
 
         $referenceDefinition = $field->getReferenceDefinition();
@@ -243,7 +243,7 @@ class EntityDefinitionQueryHelper
         if ($useVersionFallback) {
             $this->joinVersion($query, $definition, $definition->getEntityName(), $context);
         } elseif ($definition->isVersionAware()) {
-            $versionIdField = array_filter(
+            $versionIdField = \array_filter(
                 $definition->getPrimaryKeys()->getElements(),
                 function ($f) {
                     return $f instanceof VersionField || $f instanceof ReferenceVersionField;
@@ -255,7 +255,7 @@ class EntityDefinitionQueryHelper
             }
 
             /** @var FkField|null $versionIdField */
-            $versionIdField = array_shift($versionIdField);
+            $versionIdField = \array_shift($versionIdField);
 
             $query->andWhere(self::escape($table) . '.' . self::escape($versionIdField->getStorageName()) . ' = :version');
             $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
@@ -275,7 +275,7 @@ class EntityDefinitionQueryHelper
         if ($definition->isBlacklistAware() && $ids) {
             $accessor = self::escape($alias) . '.`blacklist_ids`';
 
-            $param = '(' . implode('|', $ids) . ')';
+            $param = '(' . \implode('|', $ids) . ')';
 
             $conditions[] = '(NOT (' . $accessor . ' REGEXP :rules) OR ' . $accessor . ' IS NULL)';
 
@@ -285,7 +285,7 @@ class EntityDefinitionQueryHelper
         if ($definition->isWhitelistAware() && $ids) {
             $accessor = self::escape($alias) . '.`whitelist_ids`';
 
-            $param = '(' . implode('|', $ids) . ')';
+            $param = '(' . \implode('|', $ids) . ')';
 
             $conditions[] = '(' . $accessor . ' REGEXP :rules OR ' . $accessor . ' IS NULL)';
 
@@ -300,7 +300,7 @@ class EntityDefinitionQueryHelper
             return null;
         }
 
-        return implode(' AND ', $conditions);
+        return \implode(' AND ', $conditions);
     }
 
     /**
@@ -314,14 +314,14 @@ class EntityDefinitionQueryHelper
         QueryBuilder $query,
         Context $context
     ): void {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = \str_replace('extensions.', '', $fieldName);
 
         //example: `product.manufacturer.media.name`
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+        if (\mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = \mb_substr($fieldName, \mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
         }
@@ -329,8 +329,8 @@ class EntityDefinitionQueryHelper
         $fields = $definition->getFields();
 
         if (!$fields->has($fieldName)) {
-            $associationKey = explode('.', $fieldName);
-            $fieldName = array_shift($associationKey);
+            $associationKey = \explode('.', $fieldName);
+            $fieldName = \array_shift($associationKey);
         }
 
         if (!$fields->has($fieldName)) {
@@ -378,8 +378,8 @@ class EntityDefinitionQueryHelper
     ): void {
         foreach ($antiJoinConditions as $antiJoinIdentifier => $antiJoinCondition) {
             $select = $this->getFieldAccessor($fieldName, $definition, $root, $context);
-            [$alias, $field] = explode('`.`', $select);
-            $alias = ltrim($alias, '`');
+            [$alias, $field] = \explode('`.`', $select);
+            $alias = \ltrim($alias, '`');
 
             $selectField = EntityDefinitionQueryHelper::escape($alias) . '.`' . $field;
 
@@ -449,9 +449,9 @@ class EntityDefinitionQueryHelper
                     '#field#' => $field->getPropertyName(),
                 ];
 
-                $selects[] = str_replace(
-                    array_keys($vars),
-                    array_values($vars),
+                $selects[] = \str_replace(
+                    \array_keys($vars),
+                    \array_values($vars),
                     self::escape('#root#.#field#')
                 );
             }
@@ -466,7 +466,7 @@ class EntityDefinitionQueryHelper
 
             //add selection for resolved parent-child and language inheritance
             $query->addSelect(
-                sprintf('COALESCE(%s)', implode(',', $selects)) . ' as '
+                \sprintf('COALESCE(%s)', \implode(',', $selects)) . ' as '
                 . self::escape($root . '.' . $field->getPropertyName())
             );
         }
@@ -494,7 +494,7 @@ class EntityDefinitionQueryHelper
             self::escape($root),
             '(' . $versionQuery->getSQL() . ')',
             self::escape($versionRoot),
-            str_replace(
+            \str_replace(
                 ['#version#', '#root#'],
                 [self::escape($versionRoot), self::escape($root)],
                 '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id`'
@@ -522,7 +522,7 @@ class EntityDefinitionQueryHelper
 
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
-        $count = count($context->getLanguageIdChain()) - 1;
+        $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {
             $chain[] = $root . '.translation.fallback_' . $i;
@@ -541,21 +541,21 @@ class EntityDefinitionQueryHelper
 
     private function getAssociations(string $fieldName, EntityDefinition $definition, string $root): array
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = \str_replace('extensions.', '', $fieldName);
 
         //example: `product.manufacturer.media.name`
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+        if (\mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = \mb_substr($fieldName, \mb_strlen($prefix));
         }
 
         $fields = $definition->getFields();
 
         if (!$fields->has($fieldName)) {
-            $associationKey = explode('.', $fieldName);
-            $fieldName = array_shift($associationKey);
+            $associationKey = \explode('.', $fieldName);
+            $fieldName = \array_shift($associationKey);
         }
 
         if (!$fields->has($fieldName)) {
@@ -574,7 +574,7 @@ class EntityDefinitionQueryHelper
             $referenceDefinition = $field->getToManyReferenceDefinition();
         }
 
-        return array_merge([$root => $field], $this->getAssociations($original, $referenceDefinition, $root . '.' . $field->getPropertyName()));
+        return \array_merge([$root => $field], $this->getAssociations($original, $referenceDefinition, $root . '.' . $field->getPropertyName()));
     }
 
     /**
@@ -589,14 +589,14 @@ class EntityDefinitionQueryHelper
             $accessor = self::escape($definition->getEntityName()) . '.`blacklist_ids`';
 
             if ($this->isInherited($definition, $definition->getFields()->get('blacklistIds'), $context)) {
-                $accessor = sprintf(
+                $accessor = \sprintf(
                     'IFNULL(%s, %s)',
                     self::escape($definition->getEntityName()) . '.`blacklist_ids`',
                     self::escape($definition->getEntityName() . '.parent') . '.`blacklist_ids`'
                 );
             }
 
-            $param = '(' . implode('|', $ids) . ')';
+            $param = '(' . \implode('|', $ids) . ')';
 
             $query->andWhere('NOT ' . $accessor . ' REGEXP :rules OR ' . $accessor . ' IS NULL');
 
@@ -606,14 +606,14 @@ class EntityDefinitionQueryHelper
         if ($definition->isWhitelistAware() && $ids) {
             $accessor = self::escape($definition->getEntityName()) . '.`whitelist_ids`';
             if ($this->isInherited($definition, $definition->getFields()->get('whitelistIds'), $context)) {
-                $accessor = sprintf(
+                $accessor = \sprintf(
                     'IFNULL(%s, %s)',
                     self::escape($definition->getEntityName()) . '.`whitelist_ids`',
                     self::escape($definition->getEntityName() . '.parent') . '.`whitelist_ids`'
                 );
             }
 
-            $param = '(' . implode('|', $ids) . ')';
+            $param = '(' . \implode('|', $ids) . ')';
 
             $query->andWhere($accessor . ' REGEXP :rules OR ' . $accessor . ' IS NULL');
 
@@ -622,7 +622,7 @@ class EntityDefinitionQueryHelper
             $accessor = self::escape($definition->getEntityName()) . '.`whitelist_ids`';
 
             if ($this->isInherited($definition, $definition->getFields()->get('whitelistIds'), $context)) {
-                $accessor = sprintf(
+                $accessor = \sprintf(
                     'IFNULL(%s, %s)',
                     self::escape($definition->getEntityName()) . '.`whitelist_ids`',
                     self::escape($definition->getEntityName() . '.parent') . '.`whitelist_ids`'
@@ -648,7 +648,7 @@ class EntityDefinitionQueryHelper
         foreach ($chain as $part) {
             $select = $this->buildFieldSelector($part, $field, $context, $accessor);
 
-            $selects[] = str_replace(
+            $selects[] = \str_replace(
                 '`.' . self::escape($field->getStorageName()),
                 '.' . $field->getPropertyName() . '`',
                 $select
@@ -663,7 +663,7 @@ class EntityDefinitionQueryHelper
              JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation`.`translated_attributes`, '$.path')) AS datetime(3) # system language
            );
          */
-        return sprintf('COALESCE(%s)', implode(',', $selects));
+        return \sprintf('COALESCE(%s)', \implode(',', $selects));
     }
 
     private function buildInheritedAccessor(
@@ -690,7 +690,7 @@ class EntityDefinitionQueryHelper
 
         $parentSelect = $this->buildFieldSelector($root . '.parent', $field, $context, $original);
 
-        return sprintf('IFNULL(%s, %s)', $select, $parentSelect);
+        return \sprintf('IFNULL(%s, %s)', $select, $parentSelect);
     }
 
     private function buildFieldSelector(string $root, Field $field, Context $context, string $accessor): string

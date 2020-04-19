@@ -17,14 +17,14 @@ class AuthorFilter extends AbstractFilter implements SnippetFilterInterface
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !is_array($requestFilterValue)) {
+        if (empty($requestFilterValue) || !\is_array($requestFilterValue)) {
             return $snippets;
         }
 
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (!in_array($snippet['author'], $requestFilterValue, true)) {
+                if (!\in_array($snippet['author'], $requestFilterValue, true)) {
                     continue;
                 }
                 $result[$setId]['snippets'][$translationKey] = $snippet;

@@ -71,5 +71,11 @@ return Config::create()
         ],
         'single_line_throw' => false,
         'nullable_type_declaration_for_default_null_value' => true,
+        'native_function_invocation' => [
+            'strict' => true,
+        ],
+        'native_constant_invocation' => [
+            'scope' => 'all',
+        ],
     ])
     ->setFinder($finder);

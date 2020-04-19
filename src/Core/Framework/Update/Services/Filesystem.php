@@ -16,16 +16,16 @@ class Filesystem
     {
         $errors = [];
 
-        if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
+        if (!\is_dir($directory) && !\mkdir($directory) && !\is_dir($directory)) {
             $errors[] = $directory;
 
             return $errors;
         }
-        if ($fixPermission && !is_writable($directory)) {
+        if ($fixPermission && !\is_writable($directory)) {
             $fileInfo = new \SplFileInfo($directory);
             $this->fixDirectoryPermission($fileInfo);
         }
-        if (!is_writable($directory)) {
+        if (!\is_writable($directory)) {
             $errors[] = $directory;
 
             return $errors;
@@ -55,7 +55,7 @@ class Filesystem
                 continue;
             }
             // skip VCS dirs
-            if (in_array($fileInfo->getBasename(), $this->VCSDirs, true)) {
+            if (\in_array($fileInfo->getBasename(), $this->VCSDirs, true)) {
                 continue;
             }
             if ($fixPermission && !$fileInfo->isWritable()) {
@@ -66,7 +66,7 @@ class Filesystem
 
                 continue;
             }
-            $errors = array_merge($errors, $this->checkDirectoryPermissions($fileInfo->getPathname(), $fixPermission));
+            $errors = \array_merge($errors, $this->checkDirectoryPermissions($fileInfo->getPathname(), $fixPermission));
         }
 
         return $errors;
@@ -75,7 +75,7 @@ class Filesystem
     private function fixDirectoryPermission(\SplFileInfo $fileInfo): void
     {
         try {
-            $permission = mb_substr(sprintf('%o', $fileInfo->getPerms()), -4);
+            $permission = \mb_substr(\sprintf('%o', $fileInfo->getPerms()), -4);
         } catch (\Exception $e) {
             // cannot get permissions...
             return;
@@ -85,15 +85,15 @@ class Filesystem
         $newPermission[1] = '7';
         // set group-bit to writable
         $newPermission[2] = '7';
-        $newPermission = octdec($newPermission);
-        chmod($fileInfo->getPathname(), $newPermission);
-        clearstatcache(false, $fileInfo->getPathname());
+        $newPermission = \octdec($newPermission);
+        \chmod($fileInfo->getPathname(), $newPermission);
+        \clearstatcache(false, $fileInfo->getPathname());
     }
 
     private function fixFilePermission(\SplFileInfo $fileInfo): void
     {
         try {
-            $permission = mb_substr(sprintf('%o', $fileInfo->getPerms()), -4);
+            $permission = \mb_substr(\sprintf('%o', $fileInfo->getPerms()), -4);
         } catch (\Exception $e) {
             // cannot get permissions...
             return;
@@ -109,8 +109,8 @@ class Filesystem
             // set group-bit to writable/executable
             $newPermission[2] = '7';
         }
-        $newPermission = octdec($newPermission);
-        chmod($fileInfo->getPathname(), $newPermission);
-        clearstatcache(false, $fileInfo->getPathname());
+        $newPermission = \octdec($newPermission);
+        \chmod($fileInfo->getPathname(), $newPermission);
+        \clearstatcache(false, $fileInfo->getPathname());
     }
 }

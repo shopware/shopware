@@ -46,7 +46,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ],
         ];
 
-        $actualCurrencyPrice = json_decode($insertedShippingMethodPrice['currency_price'], true);
+        $actualCurrencyPrice = \json_decode($insertedShippingMethodPrice['currency_price'], true);
 
         static::assertSame($expectedCurrencyPrice, $actualCurrencyPrice);
         static::assertSame($currencyId, $insertedShippingMethodPrice['currency_id']);
@@ -77,7 +77,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ', [
             'id' => $shippingPriceId,
             'shippingMethodId' => $shippingMethodId,
-            'currencyPrice' => json_encode($currencyPrice),
+            'currencyPrice' => \json_encode($currencyPrice),
         ]);
 
         $insertedShippingMethodPrice = $connection->executeQuery(
@@ -85,7 +85,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ['id' => $shippingPriceId]
         )->fetch(FetchMode::ASSOCIATIVE);
 
-        $actualCurrencyPrice = json_decode($insertedShippingMethodPrice['currency_price'], true);
+        $actualCurrencyPrice = \json_decode($insertedShippingMethodPrice['currency_price'], true);
 
         static::assertSame($currencyPrice, $actualCurrencyPrice);
         static::assertSame($currencyId, $insertedShippingMethodPrice['currency_id']);
@@ -123,7 +123,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
                 SET `currency_price` = :currencyPrice WHERE id = :id
             ', [
             'id' => $shippingPriceId,
-            'currencyPrice' => json_encode($currencyPrice),
+            'currencyPrice' => \json_encode($currencyPrice),
         ]);
 
         $insertedShippingMethodPrice = $connection->executeQuery(
@@ -131,7 +131,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ['id' => $shippingPriceId]
         )->fetch(FetchMode::ASSOCIATIVE);
 
-        $actualCurrencyPrice = json_decode($insertedShippingMethodPrice['currency_price'], true);
+        $actualCurrencyPrice = \json_decode($insertedShippingMethodPrice['currency_price'], true);
 
         static::assertSame($currencyPrice, $actualCurrencyPrice);
         static::assertSame($currencyId, $insertedShippingMethodPrice['currency_id']);
@@ -164,7 +164,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             'shippingMethodId' => $shippingMethodId,
             'price' => 5,
             'currencyId' => $currencyIdBefore,
-            'currencyPrice' => json_encode($currencyPriceBefore),
+            'currencyPrice' => \json_encode($currencyPriceBefore),
         ]);
 
         $updatedCurrencyId = $connection->executeQuery('SELECT id FROM currency LIMIT 1 OFFSET 1')->fetch(FetchMode::COLUMN);
@@ -184,7 +184,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
                 SET `currency_price` = :currencyPrice WHERE id = :id
             ', [
             'id' => $shippingPriceId,
-            'currencyPrice' => json_encode($updatedCurrencyPrice),
+            'currencyPrice' => \json_encode($updatedCurrencyPrice),
         ]);
 
         $insertedShippingMethodPrice = $connection->executeQuery(
@@ -192,7 +192,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ['id' => $shippingPriceId]
         )->fetch(FetchMode::ASSOCIATIVE);
 
-        $actualCurrencyPrice = json_decode($insertedShippingMethodPrice['currency_price'], true);
+        $actualCurrencyPrice = \json_decode($insertedShippingMethodPrice['currency_price'], true);
 
         static::assertSame($updatedCurrencyPrice, $actualCurrencyPrice);
         static::assertSame($updatedCurrencyId, $insertedShippingMethodPrice['currency_id']);
@@ -225,7 +225,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             'shippingMethodId' => $shippingMethodId,
             'price' => 5.999,
             'currencyId' => $currencyIdBefore,
-            'currencyPrice' => json_encode($currencyPriceBefore),
+            'currencyPrice' => \json_encode($currencyPriceBefore),
         ]);
 
         $updatedCurrencyId = $connection->executeQuery('SELECT id FROM currency LIMIT 1 OFFSET 1')->fetch(FetchMode::COLUMN);
@@ -253,7 +253,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ],
         ];
 
-        $actualCurrencyPrice = json_decode($insertedShippingMethodPrice['currency_price'], true);
+        $actualCurrencyPrice = \json_decode($insertedShippingMethodPrice['currency_price'], true);
 
         static::assertSame($expectedCurrencyPrice, $actualCurrencyPrice);
         static::assertSame($updatedCurrencyId, $insertedShippingMethodPrice['currency_id']);
@@ -299,7 +299,7 @@ class Migration1580218617RefactorShippingMethodPriceTriggerTest extends TestCase
             ],
         ];
 
-        $actualCurrencyPrice = json_decode($insertedShippingMethodPrice['currency_price'], true);
+        $actualCurrencyPrice = \json_decode($insertedShippingMethodPrice['currency_price'], true);
 
         static::assertSame($expectedCurrencyPrice, $actualCurrencyPrice);
         static::assertSame($currencyId, $insertedShippingMethodPrice['currency_id']);

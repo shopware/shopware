@@ -39,7 +39,7 @@ class DeprecatedConverter extends ApiConverter
     {
         return [
             DeprecatedDefinition::ENTITY_NAME => function (array $payload) {
-                if (array_key_exists('price', $payload)) {
+                if (\array_key_exists('price', $payload)) {
                     $payload['prices'] = [$payload['price']];
                     unset($payload['price']);
                 }

@@ -87,7 +87,7 @@ class PromotionItemBuilder
         // our promotion values are always negative values.
         // either type percentage or absolute needs to be negative to get
         // automatically subtracted within the calculation process
-        $promotionValue = -abs($discount->getValue());
+        $promotionValue = -\abs($discount->getValue());
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
@@ -103,7 +103,7 @@ class PromotionItemBuilder
 
             case PromotionDiscountEntity::TYPE_FIXED:
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
-                $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId));
+                $promotionValue = -\abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId));
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $currencyPrecision, $targetFilter);
 
                 break;

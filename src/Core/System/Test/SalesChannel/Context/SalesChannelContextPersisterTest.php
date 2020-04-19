@@ -39,7 +39,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $this->connection->insert('sales_channel_api_context', [
             'token' => $token,
-            'payload' => json_encode($expected),
+            'payload' => \json_encode($expected),
         ]);
 
         static::assertSame($expected, $this->contextPersister->load($token));
@@ -70,7 +70,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $this->connection->insert('sales_channel_api_context', [
             'token' => $token,
-            'payload' => json_encode([
+            'payload' => \json_encode([
                 'first' => 'test',
                 'second' => 'second test',
             ]),
@@ -87,7 +87,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'third' => 'third test',
         ];
         $actual = $this->contextPersister->load($token);
-        ksort($actual);
+        \ksort($actual);
 
         static::assertSame($expected, $actual);
     }
@@ -108,7 +108,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $this->connection->insert('sales_channel_api_context', [
             'token' => $token,
-            'payload' => json_encode([
+            'payload' => \json_encode([
                 'first' => 'test',
                 'second' => 'second test',
             ]),

@@ -193,7 +193,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($commands as $command) {
                 $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                $uniqueId = \is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
+                $uniqueId = \is_array($primaryKey) ? \implode('-', $primaryKey) : $primaryKey;
 
                 if ($command instanceof JsonUpdateCommand) {
                     $jsonUpdateCommands[$uniqueId] = $command;
@@ -232,9 +232,9 @@ class EntityWriter implements EntityWriterInterface
                 $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
                 $decodedPayload = $field->getSerializer()->decode(
                     $field,
-                    json_encode($command->getPayload(), JSON_PRESERVE_ZERO_FRACTION)
+                    \json_encode($command->getPayload(), \JSON_PRESERVE_ZERO_FRACTION)
                 );
-                $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
+                $mergedPayload = \array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
 
                 $changeSet = [];
                 if ($command instanceof ChangeSetAware) {
@@ -251,7 +251,7 @@ class EntityWriter implements EntityWriterInterface
                 );
             }
 
-            $identifiers[$definition->getEntityName()] = array_values($writeResults);
+            $identifiers[$definition->getEntityName()] = \array_values($writeResults);
         }
 
         return $identifiers;
@@ -288,7 +288,7 @@ class EntityWriter implements EntityWriterInterface
      */
     private function validateWriteInput(array $data): void
     {
-        $valid = array_keys($data) === range(0, \count($data) - 1);
+        $valid = \array_keys($data) === \range(0, \count($data) - 1);
 
         if (!$valid) {
             throw new \InvalidArgumentException('Expected input to be non empty non associative array.');
@@ -351,7 +351,7 @@ class EntityWriter implements EntityWriterInterface
 
             if (!\array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
                 throw new \RuntimeException(
-                    sprintf(
+                    \sprintf(
                         'Primary key field %s::%s not found in payload or command primary key',
                         $command->getDefinition()->getClass(),
                         $primaryKey->getStorageName()
@@ -376,16 +376,16 @@ class EntityWriter implements EntityWriterInterface
 
         $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
-        $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
+        $cascadeDeletes = \array_column($cascadeDeletes, 'restrictions');
         foreach ($cascadeDeletes as $cascadeDelete) {
-            $cascades = array_merge_recursive($cascades, $cascadeDelete);
+            $cascades = \array_merge_recursive($cascades, $cascadeDelete);
         }
 
         foreach ($cascades as $affectedDefinitionClass => $keys) {
             $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
 
             foreach ($keys as $key) {
-                if (!is_array($key)) {
+                if (!\is_array($key)) {
                     $key = ['id' => $key];
                 }
 
@@ -407,9 +407,9 @@ class EntityWriter implements EntityWriterInterface
         $setNulls = [];
         $setNullsPerPk = $this->foreignKeyResolver->getAffectedSetNulls($definition, $resolved, $writeContext->getContext());
 
-        $setNullsPerPk = array_column($setNullsPerPk, 'restrictions');
+        $setNullsPerPk = \array_column($setNullsPerPk, 'restrictions');
         foreach ($setNullsPerPk as $setNull) {
-            $setNulls = array_merge_recursive($setNulls, $setNull);
+            $setNulls = \array_merge_recursive($setNulls, $setNull);
         }
 
         foreach ($setNulls as $affectedDefinitionClass => $restrictions) {
@@ -426,7 +426,7 @@ class EntityWriter implements EntityWriterInterface
                     $payload[$fkField] = null;
 
                     if ($definition->isVersionAware()) {
-                        $versionField = str_replace('_id', '_version_id', $fkField);
+                        $versionField = \str_replace('_id', '_version_id', $fkField);
                         $payload[$versionField] = null;
                     }
                 }
@@ -494,14 +494,14 @@ class EntityWriter implements EntityWriterInterface
         $deleted = [];
         $updated = [];
         foreach ($identifiers as $entityName => $writeResults) {
-            $deletedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
+            $deletedEntities = \array_filter($writeResults, function (EntityWriteResult $result): bool {
                 return $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
             });
             if (!empty($deletedEntities)) {
                 $deleted[$entityName] = $deletedEntities;
             }
 
-            $updatedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
+            $updatedEntities = \array_filter($writeResults, function (EntityWriteResult $result): bool {
                 return $result->getOperation() === EntityWriteResult::OPERATION_UPDATE;
             });
 
@@ -521,7 +521,7 @@ class EntityWriter implements EntityWriterInterface
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
 
             if (!empty($restrictions)) {
-                $restrictions = array_map(function ($restriction) {
+                $restrictions = \array_map(function ($restriction) {
                     return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
                 }, $restrictions);
 
@@ -531,7 +531,7 @@ class EntityWriter implements EntityWriterInterface
 
         $skipped = [];
         foreach ($resolved as $primaryKey) {
-            $mappedBytes = array_map(function ($id) {
+            $mappedBytes = \array_map(function ($id) {
                 return Uuid::fromHexToBytes($id);
             }, $primaryKey);
 

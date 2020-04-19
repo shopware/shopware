@@ -46,7 +46,7 @@ class UserRepository implements UserRepositoryInterface
             return null;
         }
 
-        if (!password_verify($password, $user['password'])) {
+        if (!\password_verify($password, $user['password'])) {
             return null;
         }
 

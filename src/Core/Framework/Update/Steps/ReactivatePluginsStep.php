@@ -60,16 +60,16 @@ class ReactivatePluginsStep
      */
     public function run(int $offset)
     {
-        $requestTime = time();
+        $requestTime = \time();
 
         $deactivatedPlugins = $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
         $failed = $this->systemConfigService->get(self::UPDATE_FAILED_REACTIVATED_PLUGINS) ?: [];
 
-        $deactivatedPlugins = array_unique($deactivatedPlugins);
+        $deactivatedPlugins = \array_unique($deactivatedPlugins);
 
         $plugins = $this->pluginCompatibility->getPluginsToReactivate($deactivatedPlugins, $this->currentVersion, $this->context);
 
-        $pluginCount = count($deactivatedPlugins);
+        $pluginCount = \count($deactivatedPlugins);
 
         foreach ($plugins as $plugin) {
             ++$offset;
@@ -79,10 +79,10 @@ class ReactivatePluginsStep
             } catch (\Throwable $e) {
                 $failed[$plugin->getId()] = $e->getMessage();
             } finally {
-                $deactivatedPlugins = array_diff($deactivatedPlugins, [$plugin->getId()]);
+                $deactivatedPlugins = \array_diff($deactivatedPlugins, [$plugin->getId()]);
             }
 
-            if ($offset < $pluginCount && (time() - $requestTime) >= 1) {
+            if ($offset < $pluginCount && (\time() - $requestTime) >= 1) {
                 return new ValidResult($offset, $pluginCount + $offset);
             }
         }

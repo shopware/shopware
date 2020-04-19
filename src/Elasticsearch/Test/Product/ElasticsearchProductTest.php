@@ -264,7 +264,7 @@ class ElasticsearchProductTest extends TestCase
         // check simple search without any restrictions
         $criteria = new Criteria($data->prefixed('p'));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(count($data->prefixed('p')), $products->getIds());
+        static::assertCount(\count($data->prefixed('p')), $products->getIds());
     }
 
     /**
@@ -280,7 +280,7 @@ class ElasticsearchProductTest extends TestCase
 
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(1, $products->getIds());
-        static::assertSame(count($data->prefixed('p')), $products->getTotal());
+        static::assertSame(\count($data->prefixed('p')), $products->getTotal());
     }
 
     /**
@@ -384,9 +384,9 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($data->get('p2'), $products->getIds());
         static::assertContains($data->get('p3'), $products->getIds());
         static::assertTrue(
-            in_array($data->get('p4'), $products->getIds(), true)
-            || in_array($data->get('p5'), $products->getIds(), true)
-            || in_array($data->get('p6'), $products->getIds(), true)
+            \in_array($data->get('p4'), $products->getIds(), true)
+            || \in_array($data->get('p5'), $products->getIds(), true)
+            || \in_array($data->get('p6'), $products->getIds(), true)
         );
     }
 
@@ -410,8 +410,8 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($data->get('p6'), $products->getIds());
 
         static::assertTrue(
-            in_array($data->get('p4'), $products->getIds(), true)
-            || in_array($data->get('p5'), $products->getIds(), true)
+            \in_array($data->get('p4'), $products->getIds(), true)
+            || \in_array($data->get('p5'), $products->getIds(), true)
         );
     }
 
@@ -620,7 +620,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(3, $result->getBuckets());
 
         $ordered = $data->getList(['m3', 'm2', 'm1']);
-        static::assertEquals(array_values($ordered), $result->getKeys());
+        static::assertEquals(\array_values($ordered), $result->getKeys());
 
         // check simple search without any restrictions
         $criteria = new Criteria($data->prefixed('p'));
@@ -633,7 +633,7 @@ class ElasticsearchProductTest extends TestCase
         /** @var TermsResult $result */
         $result = $aggregations->get('manufacturer-ids');
         $ordered = $data->getList(['m1', 'm2', 'm3']);
-        static::assertEquals(array_values($ordered), $result->getKeys());
+        static::assertEquals(\array_values($ordered), $result->getKeys());
     }
 
     /**
@@ -1083,17 +1083,17 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
-            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertEquals(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
             static::assertTrue($products->has($data->get('p6')));
 
-            $term = strtolower($term);
+            $term = \mb_strtolower($term);
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertEquals(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
             static::assertTrue($products->has($data->get('p6')));
 
-            $term = strtoupper($term);
+            $term = \mb_strtoupper($term);
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertEquals(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
             static::assertTrue($products->has($data->get('p6')));
         }
     }
@@ -1160,7 +1160,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
         /** @var DateHistogramResult $histogram */
-        static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
+        static::assertCount(\count($case->getBuckets()), $histogram->getBuckets(), \print_r($histogram->getBuckets(), true));
 
         foreach ($case->getBuckets() as $key => $count) {
             static::assertTrue($histogram->has($key));
@@ -1490,7 +1490,7 @@ class ElasticsearchProductTest extends TestCase
         array $categoryKeys,
         array $extensions = []
     ): array {
-        $categories = array_map(function ($categoryKey) {
+        $categories = \array_map(function ($categoryKey) {
             return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
         }, $categoryKeys);
 

@@ -46,7 +46,7 @@ class Bucket extends Struct
 
     public function jsonSerialize(): array
     {
-        $data = get_object_vars($this);
+        $data = \get_object_vars($this);
 
         if ($data['result'] === null) {
             unset($data['result']);

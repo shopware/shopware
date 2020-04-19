@@ -33,7 +33,7 @@ class ProductFeatureSetPropertyTest extends TestCase
      */
     public function testEntityIsComplete(string $method): void
     {
-        static::assertTrue(method_exists(ProductEntity::class, $method));
+        static::assertTrue(\method_exists(ProductEntity::class, $method));
     }
 
     /**

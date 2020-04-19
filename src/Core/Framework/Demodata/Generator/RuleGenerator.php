@@ -116,15 +116,15 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         for ($i = 0; $i < 20; ++$i) {
-            $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
+            $rules = \array_slice($pool, \random_int(0, \count($pool) - 2), \random_int(1, 2));
 
-            $classes = array_column($rules, 'rule');
-            $names = array_column($rules, 'name');
+            $classes = \array_column($rules, 'rule');
+            $names = \array_column($rules, 'name');
 
             $ruleData = [
                 'id' => Uuid::randomHex(),
                 'priority' => $i,
-                'name' => implode(' + ', $names),
+                'name' => \implode(' + ', $names),
                 'description' => $context->getFaker()->text(),
             ];
 
@@ -160,9 +160,9 @@ class RuleGenerator implements DemodataGeneratorInterface
             return $rule;
         }
 
-        $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
+        $rules = \array_slice($pool, \random_int(0, \count($pool) - 2), \random_int(1, 2));
 
-        $classes = array_column($rules, 'rule');
+        $classes = \array_column($rules, 'rule');
 
         if ($currentDepth % 2 === 1) {
             $classes[] = $this->buildNestedRule(new OrRule(), $pool, $currentDepth + 1, $depth);

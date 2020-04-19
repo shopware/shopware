@@ -70,7 +70,7 @@ class RequirementsValidator
      */
     public function resolveActiveDependants(PluginEntity $dependency, array $dependants): array
     {
-        return array_filter($dependants, function ($dependant) use ($dependency) {
+        return \array_filter($dependants, function ($dependant) use ($dependency) {
             if (!$dependant->getActive()) {
                 return false;
             }
@@ -87,7 +87,7 @@ class RequirementsValidator
      */
     private function dependsOn(PluginEntity $plugin, PluginEntity $dependency): bool
     {
-        foreach (array_keys($this->getPluginRequirements($plugin)) as $requirement) {
+        foreach (\array_keys($this->getPluginRequirements($plugin)) as $requirement) {
             if ($requirement === $dependency->getComposerName()) {
                 return true;
             }
@@ -143,7 +143,7 @@ class RequirementsValidator
         $packages = $pluginComposer->getRepositoryManager()->getLocalRepository()->getPackages();
 
         // Get PHP extension "packages"
-        $packages = array_merge($packages, (new PlatformRepository())->getPackages());
+        $packages = \array_merge($packages, (new PlatformRepository())->getPackages());
 
         foreach ($packages as $package) {
             $pluginRequirements = $this->checkRequirement(
@@ -264,7 +264,7 @@ class RequirementsValidator
         }
 
         $vendorDir = $this->pluginComposer->getConfig()->get('vendor-dir');
-        if (!is_dir($vendorDir)) {
+        if (!\is_dir($vendorDir)) {
             return $pluginRequirements;
         }
         $pluginRequirements = $this->checkComposerDependencies(

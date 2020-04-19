@@ -315,9 +315,9 @@ class OrderService
 
         $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context);
 
-        if ($paymentMethods->getTotal() !== count(array_unique($idsOfPaymentMethods))) {
+        if ($paymentMethods->getTotal() !== \count(\array_unique($idsOfPaymentMethods))) {
             foreach ($cart->getTransactions() as $paymentMethod) {
-                if (!in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
+                if (!\in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
                     throw new PaymentMethodNotAvailableException($paymentMethod->getPaymentMethodId());
                 }
             }
@@ -378,7 +378,7 @@ class OrderService
 
     private function addCustomerComment(Cart $cart, DataBag $data): void
     {
-        $customerComment = ltrim(rtrim((string) $data->get(self::CUSTOMER_COMMENT_KEY, '')));
+        $customerComment = \ltrim(\rtrim((string) $data->get(self::CUSTOMER_COMMENT_KEY, '')));
 
         if ($customerComment === '') {
             return;
@@ -463,7 +463,7 @@ class OrderService
             ]
         );
 
-        $writes = array_map(static function ($id) {
+        $writes = \array_map(static function ($id) {
             return ['id' => $id, 'sent' => true];
         }, $documentIds);
 
@@ -539,7 +539,7 @@ class OrderService
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context)->first();
         if ($order === null) {
-            throw new OrderNotFoundException(json_encode($criteria));
+            throw new OrderNotFoundException(\json_encode($criteria));
         }
         $orderContext = $this->getOrderContext($context, $order);
         $orderIdCriteria = new Criteria([$order->getId()]);

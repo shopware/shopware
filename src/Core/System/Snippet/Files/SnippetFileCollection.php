@@ -44,7 +44,7 @@ class SnippetFileCollection extends Collection
 
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), function ($file) use ($isBase) {
+        return \array_filter($this->toArray(), function ($file) use ($isBase) {
             return $file['isBase'] === $isBase;
         });
     }
@@ -72,7 +72,7 @@ class SnippetFileCollection extends Collection
      */
     public function getIsoList(): array
     {
-        return array_keys($this->getListSortedByIso());
+        return \array_keys($this->getListSortedByIso());
     }
 
     /**

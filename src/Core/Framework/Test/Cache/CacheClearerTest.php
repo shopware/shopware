@@ -51,7 +51,7 @@ class CacheClearerTest extends TestCase
             $kernel->shutdown();
             $oldCacheDirs[] = $oldCacheDir;
         }
-        $oldCacheDirs = array_unique($oldCacheDirs);
+        $oldCacheDirs = \array_unique($oldCacheDirs);
 
         static::assertCount(2, $oldCacheDirs);
 

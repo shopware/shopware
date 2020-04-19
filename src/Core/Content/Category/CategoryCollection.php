@@ -54,7 +54,7 @@ class CategoryCollection extends EntityCollection
     public function sortByName(): self
     {
         $this->sort(function (CategoryEntity $a, CategoryEntity $b) {
-            return strnatcasecmp($a->getTranslated()['name'], $b->getTranslated()['name']);
+            return \strnatcasecmp($a->getTranslated()['name'], $b->getTranslated()['name']);
         });
 
         return $this;

@@ -96,7 +96,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // and merge them both into a flat list
         $extensionCodes = $cartExtension->getCodes();
         $cartCodes = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->getReferenceIds();
-        $allCodes = array_unique(array_merge(array_values($cartCodes), $extensionCodes));
+        $allCodes = \array_unique(\array_merge(\array_values($cartCodes), $extensionCodes));
 
         $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
@@ -138,7 +138,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // now iterate through all codes that have been added
         // and add errors, if a promotion for that code couldn't be found
         foreach ($allCodes as $code) {
-            if (!in_array($code, $foundCodes, true)) {
+            if (!\in_array($code, $foundCodes, true)) {
                 $this->addPromotionNotFoundError($code, $cart);
             }
         }
@@ -146,7 +146,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // if we do have promotions, set them to be processed
         // otherwise make sure to remove the entry to avoid any processing
         // within our promotions scope
-        if (count($discountLineItems) > 0) {
+        if (\count($discountLineItems) > 0) {
             $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection($discountLineItems));
         } else {
             $data->remove(PromotionProcessor::DATA_KEY);
@@ -212,7 +212,7 @@ class PromotionCollector implements CartDataCollectorInterface
         foreach ($promotionsList->getAllCodes() as $code) {
             // if code is not existing anymore,
             // make sure to remove it in our list
-            if (!in_array($code, $allCodes, true)) {
+            if (!\in_array($code, $allCodes, true)) {
                 $promotionsList->removeCode((string) $code);
             }
         }
@@ -240,7 +240,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // if we have new codes to fetch
         // make sure to load it and assign it to
         // the code in our cache list.
-        if (count($codesToFetch) > 0) {
+        if (\count($codesToFetch) > 0) {
             $salesChannelId = $context->getSalesChannel()->getId();
 
             foreach ($codesToFetch as $currentCode) {
@@ -256,7 +256,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 /** @var PromotionCollection $foundPromotions */
                 $foundPromotions = $this->gateway->get($globalCriteria, $context);
 
-                if (count($foundPromotions->getElements()) <= 0) {
+                if (\count($foundPromotions->getElements()) <= 0) {
                     // no global code, so try with an individual code instead
                     $individualCriteria = (new Criteria())->addFilter(new PermittedIndividualCodePromotions([$currentCode], $salesChannelId));
 
@@ -270,7 +270,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 }
 
                 // if we finally have found promotions add them to our list for the current code
-                if (count($foundPromotions->getElements()) > 0) {
+                if (\count($foundPromotions->getElements()) > 0) {
                     $promotionsList->addCodePromotions($currentCode, $foundPromotions->getElements());
                 }
             }
@@ -351,7 +351,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // add a new discount line item for this discount
             // if we have at least one valid item that will be discounted.
-            if (count($itemIds) <= 0) {
+            if (\count($itemIds) <= 0) {
                 continue;
             }
 

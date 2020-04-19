@@ -30,8 +30,8 @@ class PluginExtractor
     {
         $destination = $this->pluginDir;
 
-        if (!is_writable($destination)) {
-            throw new PluginExtractionException(sprintf('Destination directory "%s" is not writable', $destination));
+        if (!\is_writable($destination)) {
+            throw new PluginExtractionException(\sprintf('Destination directory "%s" is not writable', $destination));
         }
 
         $pluginName = $this->getPluginName($archive);
@@ -48,7 +48,7 @@ class PluginExtractor
             }
 
             if ($delete) {
-                unlink($archive->filename);
+                \unlink($archive->filename);
             }
         } catch (\Exception $e) {
             if ($backupFile !== '') {
@@ -80,7 +80,7 @@ class PluginExtractor
     {
         $entry = $archive->statIndex(0);
 
-        return explode(DIRECTORY_SEPARATOR, $entry['name'])[0];
+        return \explode(\DIRECTORY_SEPARATOR, $entry['name'])[0];
     }
 
     /**
@@ -89,20 +89,20 @@ class PluginExtractor
      */
     private function clearOpcodeCache(): void
     {
-        if (function_exists('opcache_reset')) {
-            opcache_reset();
+        if (\function_exists('opcache_reset')) {
+            \opcache_reset();
         }
 
-        if (function_exists('apcu_clear_cache')) {
+        if (\function_exists('apcu_clear_cache')) {
             apcu_clear_cache();
         }
     }
 
     private function assertPrefix(string $filename, string $prefix): void
     {
-        if (mb_strpos($filename, $prefix) !== 0) {
+        if (\mb_strpos($filename, $prefix) !== 0) {
             throw new PluginExtractionException(
-                sprintf(
+                \sprintf(
                     'Detected invalid file/directory %s in the plugin zip: %s',
                     $filename,
                     $prefix
@@ -113,14 +113,14 @@ class PluginExtractor
 
     private function assertNoDirectoryTraversal(string $filename): void
     {
-        if (mb_strpos($filename, '..' . DIRECTORY_SEPARATOR) !== false) {
+        if (\mb_strpos($filename, '..' . \DIRECTORY_SEPARATOR) !== false) {
             throw new PluginExtractionException('Directory Traversal detected');
         }
     }
 
     private function findOldFile(string $pluginName): string
     {
-        $dir = $this->pluginDir . DIRECTORY_SEPARATOR . $pluginName;
+        $dir = $this->pluginDir . \DIRECTORY_SEPARATOR . $pluginName;
         if ($this->filesystem->exists($dir)) {
             return $dir;
         }
@@ -134,7 +134,7 @@ class PluginExtractor
             return '';
         }
 
-        $backupFile = $oldFile . '.' . uniqid('', true);
+        $backupFile = $oldFile . '.' . \uniqid('', true);
         $this->filesystem->rename($oldFile, $backupFile);
 
         return $backupFile;

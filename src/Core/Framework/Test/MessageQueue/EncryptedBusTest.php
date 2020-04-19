@@ -27,13 +27,13 @@ class EncryptedBusTest extends TestCase
             ->with(static::callback(function (Envelope $envelope) use ($privateKey) {
                 static::assertInstanceOf(EncryptedMessage::class, $envelope->getMessage());
 
-                $key = openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
-                openssl_private_decrypt(
+                $key = \openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
+                \openssl_private_decrypt(
                     $envelope->getMessage()->getMessage(),
                     $decryptedMessage,
                     $key
                 );
-                $message = unserialize($decryptedMessage);
+                $message = \unserialize($decryptedMessage);
 
                 static::assertInstanceOf(TestMessage::class, $message);
 
@@ -63,13 +63,13 @@ class EncryptedBusTest extends TestCase
                 static::assertCount(1, $envelope->all(SerializerStamp::class));
                 static::assertInstanceOf(EncryptedMessage::class, $envelope->getMessage());
 
-                $key = openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
-                openssl_private_decrypt(
+                $key = \openssl_pkey_get_private($privateKey->getKeyPath(), $privateKey->getPassPhrase());
+                \openssl_private_decrypt(
                     $envelope->getMessage()->getMessage(),
                     $decryptedMessage,
                     $key
                 );
-                $message = unserialize($decryptedMessage);
+                $message = \unserialize($decryptedMessage);
 
                 static::assertInstanceOf(TestMessage::class, $message);
 

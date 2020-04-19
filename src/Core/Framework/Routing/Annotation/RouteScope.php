@@ -38,6 +38,6 @@ class RouteScope extends ConfigurationAnnotation
 
     public function hasScope(string $scopeName): bool
     {
-        return in_array($scopeName, $this->scopes, true);
+        return \in_array($scopeName, $this->scopes, true);
     }
 }

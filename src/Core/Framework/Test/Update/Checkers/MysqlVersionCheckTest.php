@@ -15,7 +15,7 @@ class MysqlVersionCheckTest extends TestCase
     {
         $validationResult = (new MysqlVersionCheck($this->getContainer()->get(Connection::class)))->check('5.7.21');
 
-        $validationResultArray = json_decode(json_encode($validationResult), true);
+        $validationResultArray = \json_decode(\json_encode($validationResult), true);
 
         static::assertTrue($validationResultArray['result']);
     }
@@ -26,7 +26,7 @@ class MysqlVersionCheckTest extends TestCase
         $connectionMock->method('fetchColumn')->willReturn('5.7.0');
         $validationResult = (new MysqlVersionCheck($connectionMock))->check('5.7.21');
 
-        $validationResultArray = json_decode(json_encode($validationResult), true);
+        $validationResultArray = \json_decode(\json_encode($validationResult), true);
 
         static::assertFalse($validationResultArray['result']);
     }

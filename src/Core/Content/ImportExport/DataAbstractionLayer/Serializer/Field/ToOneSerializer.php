@@ -29,7 +29,7 @@ class ToOneSerializer extends FieldSerializer
 
         $result = $entitySerializer->serialize($config, $definition, $record);
         if ($record !== null) {
-            yield $toOne->getPropertyName() => iterator_to_array($result);
+            yield $toOne->getPropertyName() => \iterator_to_array($result);
         }
     }
 
@@ -44,8 +44,8 @@ class ToOneSerializer extends FieldSerializer
 
         $result = $entitySerializer->deserialize($config, $definition, $records);
 
-        if (is_iterable($result) && !is_array($result)) {
-            $result = iterator_to_array($result);
+        if (\is_iterable($result) && !\is_array($result)) {
+            $result = \iterator_to_array($result);
         }
         if (empty($result)) {
             return null;

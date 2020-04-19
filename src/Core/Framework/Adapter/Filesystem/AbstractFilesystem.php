@@ -55,7 +55,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     {
         $directory = $this->preparePath($directory);
 
-        return array_map(
+        return \array_map(
             function ($info) {
                 $info['dirname'] = $this->stripPath($info['dirname']);
                 $info['path'] = $this->stripPath($info['path']);
@@ -76,7 +76,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
         $meta = $this->filesystem->getMetadata($path);
         $meta['path'] = $this->stripPath($meta['path']);
 
-        if (array_key_exists('dirname', $meta)) {
+        if (\array_key_exists('dirname', $meta)) {
             $meta['dirname'] = $this->stripPath($meta['dirname']);
         }
 

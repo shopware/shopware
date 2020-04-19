@@ -94,7 +94,7 @@ trait AdminApiTestBehaviour
 
     public function assertEntityExists(KernelBrowser $browser, ...$params): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . \implode('/', $params);
 
         $browser->request('GET', $url);
 
@@ -107,7 +107,7 @@ trait AdminApiTestBehaviour
 
     public function assertEntityNotExists(KernelBrowser $browser, ...$params): void
     {
-        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . implode('/', $params);
+        $url = '/api/v' . PlatformRequest::API_VERSION . '/' . \implode('/', $params);
 
         $browser->request('GET', $url);
 
@@ -138,7 +138,7 @@ trait AdminApiTestBehaviour
             'last_name' => '',
             'email' => 'admin@example.com',
             'username' => $username,
-            'password' => password_hash($password, PASSWORD_BCRYPT),
+            'password' => \password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -156,21 +156,21 @@ trait AdminApiTestBehaviour
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = \json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
-                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
+                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . \print_r($data, true))
             );
         }
 
-        if (!array_key_exists('refresh_token', $data)) {
+        if (!\array_key_exists('refresh_token', $data)) {
             throw new \RuntimeException(
                 'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $data['access_token']));
     }
 
     /**
@@ -191,7 +191,7 @@ trait AdminApiTestBehaviour
             'id' => $id,
             'write_access' => true,
             'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretAccessKey, PASSWORD_BCRYPT),
+            'secret_access_key' => \password_hash($secretAccessKey, \PASSWORD_BCRYPT),
             'label' => 'test integration',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
@@ -206,15 +206,15 @@ trait AdminApiTestBehaviour
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = \json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
-                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
+                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . \print_r($data, true))
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $data['access_token']));
     }
 
     abstract protected function getKernel(): KernelInterface;

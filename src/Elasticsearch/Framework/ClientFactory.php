@@ -9,7 +9,7 @@ class ClientFactory
 {
     public static function createClient($hosts): Client
     {
-        $hosts = array_filter(explode(',', $hosts));
+        $hosts = \array_filter(\explode(',', $hosts));
 
         $clientBuilder = ClientBuilder::create();
         $clientBuilder->setHosts($hosts);

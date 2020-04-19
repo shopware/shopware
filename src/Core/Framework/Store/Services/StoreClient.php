@@ -92,7 +92,7 @@ class StoreClient
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $userToken = new ShopUserTokenStruct();
         $userToken->assign($data['shopUserToken']);
@@ -117,7 +117,7 @@ class StoreClient
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $licenseList = [];
         $installedPlugins = [];
@@ -133,12 +133,12 @@ class StoreClient
             $licenseStruct = new StoreLicenseStruct();
             $licenseStruct->assign($license);
 
-            $licenseStruct->setInstalled(array_key_exists($licenseStruct->getTechnicalPluginName(), $installedPlugins));
+            $licenseStruct->setInstalled(\array_key_exists($licenseStruct->getTechnicalPluginName(), $installedPlugins));
             if (isset($license['availableVersion'])) {
                 if ($licenseStruct->getInstalled()) {
                     $installedVersion = $installedPlugins[$licenseStruct->getTechnicalPluginName()];
 
-                    $licenseStruct->setUpdateAvailable(version_compare($installedVersion, $licenseStruct->getAvailableVersion()) === -1);
+                    $licenseStruct->setUpdateAvailable(\version_compare($installedVersion, $licenseStruct->getAvailableVersion()) === -1);
                 } else {
                     $licenseStruct->setUpdateAvailable(false);
                 }
@@ -181,12 +181,12 @@ class StoreClient
             self::SBP_API_URL_PLUGIN_UPDATES,
             [
                 'query' => $query,
-                'body' => json_encode(['plugins' => $pluginArray]),
+                'body' => \json_encode(['plugins' => $pluginArray]),
                 'headers' => $this->getHeaders($storeToken),
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $updateList = [];
         foreach ($data['data'] as $update) {
@@ -242,12 +242,12 @@ class StoreClient
             self::SBP_API_URL_PLUGIN_VIOLATIONS,
             [
                 'query' => $query,
-                'body' => json_encode(['plugins' => $pluginData]),
+                'body' => \json_encode(['plugins' => $pluginData]),
                 'headers' => $this->getHeaders($storeToken),
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         return $this->getViolations($data['notices']);
     }
@@ -255,14 +255,14 @@ class StoreClient
     public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $checkLicenseDomain = true): PluginDownloadDataStruct
     {
         $response = $this->client->get(
-            str_replace('{pluginName}', $pluginName, self::SBP_API_URL_PLUGIN_DOWNLOAD_INFO),
+            \str_replace('{pluginName}', $pluginName, self::SBP_API_URL_PLUGIN_DOWNLOAD_INFO),
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, $checkLicenseDomain),
                 'headers' => $this->getHeaders($storeToken),
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
         $dataStruct = new PluginDownloadDataStruct();
         $dataStruct->assign($data);
 
@@ -292,7 +292,7 @@ class StoreClient
             ]
         );
 
-        return json_decode((string) $response->getBody(), true);
+        return \json_decode((string) $response->getBody(), true);
     }
 
     public function isShopUpgradeable(): bool
@@ -302,7 +302,7 @@ class StoreClient
             'headers' => $this->getHeaders(),
         ]);
 
-        return json_decode((string) $response->getBody(), true)['updateAllowed'];
+        return \json_decode((string) $response->getBody(), true)['updateAllowed'];
     }
 
     /**

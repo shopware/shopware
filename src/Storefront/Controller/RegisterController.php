@@ -108,7 +108,7 @@ class RegisterController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
-            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'redirectParameters' => $request->get('redirectParameters', \json_encode([])),
             'page' => $page,
             'data' => $data,
         ]);

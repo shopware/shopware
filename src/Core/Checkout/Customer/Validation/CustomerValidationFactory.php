@@ -68,9 +68,9 @@ class CustomerValidationFactory implements DataValidationFactoryInterface
         foreach ($profileDefinition->getProperties() as $key => $constraints) {
             $parameters = [];
             $parameters[] = $key;
-            $parameters = array_merge($parameters, $constraints);
+            $parameters = \array_merge($parameters, $constraints);
 
-            call_user_func_array([$definition, 'add'], $parameters);
+            \call_user_func_array([$definition, 'add'], $parameters);
         }
     }
 }

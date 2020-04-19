@@ -8,7 +8,7 @@ class PluginZipDetector
     {
         $entry = $archive->statIndex(0);
 
-        $pluginName = explode('/', $entry['name'])[0];
+        $pluginName = \explode('/', $entry['name'])[0];
         $composerFile = $pluginName . '/composer.json';
 
         $statComposerFile = $archive->statName($composerFile);

@@ -81,7 +81,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $languagePlugins,
-            'total' => count($languagePlugins),
+            'total' => \count($languagePlugins),
         ]);
     }
 
@@ -103,7 +103,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $languagePlugins,
-            'total' => count($languagePlugins),
+            'total' => \count($languagePlugins),
         ]);
     }
 
@@ -122,7 +122,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $recommendationRegions,
-            'total' => count($recommendationRegions),
+            'total' => \count($recommendationRegions),
         ]);
     }
 
@@ -146,7 +146,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $recommendations,
-            'total' => count($recommendations),
+            'total' => \count($recommendations),
         ]);
     }
 
@@ -197,7 +197,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $domains,
-            'total' => count($domains),
+            'total' => \count($domains),
         ]);
     }
 

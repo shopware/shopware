@@ -80,16 +80,16 @@ class StoreApi
             'method' => 'call',
             'arg0' => 'GET',
             'arg1' => 'product',
-            'arg2' => json_encode($requestPayload),
+            'arg2' => \json_encode($requestPayload),
         ];
 
-        $queryParams = http_build_query($queryParams, null, '&');
+        $queryParams = \http_build_query($queryParams, null, '&');
 
         $url = $this->baseUrl . '?' . $queryParams;
 
         $response = $this->client->post($url);
 
-        $result = simplexml_load_string($response->getBody());
+        $result = \simplexml_load_string($response->getBody());
         $result = $result->call;
 
         if ($result->status === 'failed') {
@@ -97,8 +97,8 @@ class StoreApi
         }
 
         $result = $result->response->_search_result;
-        $result = json_decode($result);
-        $result = json_decode($result->_products, true);
+        $result = \json_decode($result);
+        $result = \json_decode($result->_products, true);
 
         return $result;
     }

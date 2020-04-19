@@ -199,7 +199,7 @@ class ApiVersionConverterTest extends TestCase
         $conversionException = new ApiConversionException();
         $this->apiVersionConverter->convertPayload($deprecatedDefinition, $payload, 2, $conversionException);
 
-        $errors = iterator_to_array($conversionException->getErrors());
+        $errors = \iterator_to_array($conversionException->getErrors());
         static::assertCount(3, $errors);
 
         static::assertEquals('FRAMEWORK__WRITE_REMOVED_FIELD', $errors[0]['code']);
@@ -361,7 +361,7 @@ class ApiVersionConverterTest extends TestCase
 
         static::assertInstanceOf(SearchRequestException::class, $exception);
 
-        $errors = iterator_to_array($exception->getErrors());
+        $errors = \iterator_to_array($exception->getErrors());
         static::assertCount(3, $errors);
 
         static::assertEquals('FRAMEWORK__QUERY_REMOVED_FIELD', $errors[0]['code']);
@@ -410,7 +410,7 @@ class ApiVersionConverterTest extends TestCase
 
         static::assertInstanceOf(SearchRequestException::class, $exception);
 
-        $errors = iterator_to_array($exception->getErrors());
+        $errors = \iterator_to_array($exception->getErrors());
         static::assertCount(3, $errors);
 
         static::assertEquals('FRAMEWORK__QUERY_FUTURE_FIELD', $errors[0]['code']);

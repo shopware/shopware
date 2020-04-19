@@ -46,7 +46,7 @@ class DiscountCompositionBuilder
             $compositionItems[] = new DiscountCompositionItem(
                 $item->getId(),
                 $item->getQuantity(),
-                abs($itemTotal) * $factor
+                \abs($itemTotal) * $factor
             );
         }
 
@@ -64,7 +64,7 @@ class DiscountCompositionBuilder
 
         /** @var DiscountCompositionItem $item */
         foreach ($items as $item) {
-            if (!array_key_exists($item->getId(), $aggregated)) {
+            if (!\array_key_exists($item->getId(), $aggregated)) {
                 $aggregated[$item->getId()] = $item;
             } else {
                 $existing = $aggregated[$item->getId()];
@@ -77,6 +77,6 @@ class DiscountCompositionBuilder
             }
         }
 
-        return array_values($aggregated);
+        return \array_values($aggregated);
     }
 }

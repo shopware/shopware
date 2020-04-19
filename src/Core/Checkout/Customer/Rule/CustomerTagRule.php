@@ -51,10 +51,10 @@ class CustomerTagRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return !empty(array_intersect($tagIds, $this->identifiers));
+                return !empty(\array_intersect($tagIds, $this->identifiers));
 
             case self::OPERATOR_NEQ:
-                return empty(array_intersect($tagIds, $this->identifiers));
+                return empty(\array_intersect($tagIds, $this->identifiers));
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

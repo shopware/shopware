@@ -21,13 +21,13 @@ class SalesChannelContextPersister
     {
         $existing = $this->load($token);
 
-        $parameters = array_replace_recursive($existing, $parameters);
+        $parameters = \array_replace_recursive($existing, $parameters);
 
         $this->connection->executeUpdate(
             'REPLACE INTO sales_channel_api_context (`token`, `payload`) VALUES (:token, :payload)',
             [
                 'token' => $token,
-                'payload' => json_encode($parameters),
+                'payload' => \json_encode($parameters),
             ]
         );
     }
@@ -59,7 +59,7 @@ class SalesChannelContextPersister
         if ($affected === 0) {
             $this->connection->insert('sales_channel_api_context', [
                 'token' => $newToken,
-                'payload' => json_encode([]),
+                'payload' => \json_encode([]),
             ]);
         }
 
@@ -87,7 +87,7 @@ class SalesChannelContextPersister
             return [];
         }
 
-        return array_filter(json_decode($parameter, true));
+        return \array_filter(\json_decode($parameter, true));
     }
 
     public function revokeAllCustomerTokens(string $customerId, string ...$preserveTokens): void
@@ -103,7 +103,7 @@ class SalesChannelContextPersister
             ->update('sales_channel_api_context')
             ->set('payload', ':payload')
             ->where('JSON_EXTRACT(payload, :customerPath) = :customerId')
-            ->setParameter(':payload', json_encode($revokeParams))
+            ->setParameter(':payload', \json_encode($revokeParams))
             ->setParameter(':customerPath', '$.customerId')
             ->setParameter(':customerId', $customerId);
 

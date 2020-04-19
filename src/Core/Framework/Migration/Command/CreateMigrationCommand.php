@@ -59,7 +59,7 @@ class CreateMigrationCommand extends Command
         $namespace = (string) $input->getArgument('namespace');
         $name = $input->getOption('name') ?? '';
 
-        if (!preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
+        if (!\preg_match('/^[a-zA-Z0-9\_]*$/', $name)) {
             throw new \InvalidArgumentException('Migrationname contains forbidden characters!');
         }
 
@@ -69,38 +69,38 @@ class CreateMigrationCommand extends Command
 
         // Both dir and namespace were given
         if ($directory) {
-            $this->createMigrationFile($name, $output, realpath($directory), $namespace);
+            $this->createMigrationFile($name, $output, \realpath($directory), $namespace);
         }
 
         $pluginName = $input->getOption('plugin');
         if ($pluginName) {
-            $pluginBundles = array_filter($this->kernelPluginCollection->all(), function (Plugin $value) use ($pluginName) {
-                return (int) (mb_strpos($value->getName(), $pluginName) === 0);
+            $pluginBundles = \array_filter($this->kernelPluginCollection->all(), function (Plugin $value) use ($pluginName) {
+                return (int) (\mb_strpos($value->getName(), $pluginName) === 0);
             });
 
-            if (count($pluginBundles) === 0) {
-                throw new \RuntimeException(sprintf('Plugin "%s" could not be found.', $pluginName));
+            if (\count($pluginBundles) === 0) {
+                throw new \RuntimeException(\sprintf('Plugin "%s" could not be found.', $pluginName));
             }
 
-            if (count($pluginBundles) > 1) {
+            if (\count($pluginBundles) > 1) {
                 throw new \RuntimeException(
-                    sprintf(
+                    \sprintf(
                         'More than one pluginname starting with "%s" was found: %s',
                         $pluginName,
-                        implode(';', array_keys($pluginBundles))
+                        \implode(';', \array_keys($pluginBundles))
                     )
                 );
             }
 
-            $pluginBundle = array_values($pluginBundles)[0];
+            $pluginBundle = \array_values($pluginBundles)[0];
 
             $directory = $pluginBundle->getMigrationPath();
-            if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
-                throw new \RuntimeException(sprintf('Migrationdirectory "%s" could not be created', $directory));
+            if (!\file_exists($directory) && !\mkdir($directory) && !\is_dir($directory)) {
+                throw new \RuntimeException(\sprintf('Migrationdirectory "%s" could not be created', $directory));
             }
 
             $namespace = $pluginBundle->getMigrationNamespace();
-            $output->writeln(sprintf('Creating plugin-migration with namespace %s in path %s...', $namespace, $directory));
+            $output->writeln(\sprintf('Creating plugin-migration with namespace %s in path %s...', $namespace, $directory));
         } else {
             // We create a core-migration in case no plugin was given
             $directory = $this->projectDir . '/vendor/shopware/platform/src/Core/Migration/';
@@ -117,17 +117,17 @@ class CreateMigrationCommand extends Command
     private function createMigrationFile(string $name, OutputInterface $output, string $directory, string $namespace): void
     {
         $timestamp = (new \DateTime())->getTimestamp();
-        $path = rtrim($directory, '/') . '/Migration' . $timestamp . $name . '.php';
-        $file = fopen($path, 'wb');
+        $path = \rtrim($directory, '/') . '/Migration' . $timestamp . $name . '.php';
+        $file = \fopen($path, 'wb');
 
-        $template = file_get_contents(dirname(__DIR__) . '/Template/MigrationTemplate.txt');
+        $template = \file_get_contents(\dirname(__DIR__) . '/Template/MigrationTemplate.txt');
         $params = [
             '%%namespace%%' => $namespace,
             '%%timestamp%%' => $timestamp,
             '%%name%%' => $name,
         ];
-        fwrite($file, str_replace(array_keys($params), array_values($params), $template));
-        fclose($file);
+        \fwrite($file, \str_replace(\array_keys($params), \array_values($params), $template));
+        \fclose($file);
 
         $output->writeln('Migration created: "' . $path . '"');
     }

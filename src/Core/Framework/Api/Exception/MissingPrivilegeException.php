@@ -8,6 +8,6 @@ class MissingPrivilegeException extends AccessDeniedHttpException
 {
     public function __construct(string $privilege)
     {
-        parent::__construct(sprintf('Missing privilege %s', $privilege));
+        parent::__construct(\sprintf('Missing privilege %s', $privilege));
     }
 }

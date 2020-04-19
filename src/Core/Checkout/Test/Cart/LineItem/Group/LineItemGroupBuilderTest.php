@@ -227,7 +227,7 @@ class LineItemGroupBuilderTest extends TestCase
         $result = $this->unitTestBuilder->findGroupPackages([$groupDefinition], $cart, $this->context);
 
         /** @var LineItemQuantity[] $items */
-        $items = array_values($result->getGroupTotalResult($groupDefinition));
+        $items = \array_values($result->getGroupTotalResult($groupDefinition));
 
         static::assertCount(2, $items);
     }
@@ -249,7 +249,7 @@ class LineItemGroupBuilderTest extends TestCase
         $result = $this->unitTestBuilder->findGroupPackages([$groupDefinition], $cart, $this->context);
 
         /** @var LineItemQuantity[] $items */
-        $items = array_values($result->getGroupTotalResult($groupDefinition));
+        $items = \array_values($result->getGroupTotalResult($groupDefinition));
 
         static::assertCount(6, $items);
     }

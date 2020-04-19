@@ -31,8 +31,8 @@ class RatingMatrixTest extends TestCase
     public function testMatrixCalculation(float $expectedScore, int $reviewCounts, int $total, array $aggregation): void
     {
         $matrix = new RatingMatrix($aggregation);
-        $expectedScore = round($expectedScore, 4);
-        $actual = round($matrix->getAverageRating(), 4);
+        $expectedScore = \round($expectedScore, 4);
+        $actual = \round($matrix->getAverageRating(), 4);
         static::assertEquals($expectedScore, $actual, 'expected Score does not match');
         static::assertEquals($reviewCounts, $matrix->getTotalReviewCount(), 'expected total review count does not match');
         static::assertEquals($total, $matrix->getTotalPoints(), 'expected total review points does not match');
@@ -87,10 +87,10 @@ class RatingMatrixTest extends TestCase
 
         for ($i = 1; $i <= $matrix->getMaxPoints(); ++$i) {
             $matrixElement = $matrixElements[$i];
-            $expected = round(($ratingCounts[$i] * 100 / $totalReviews), 4);
-            static::assertEquals($i, $matrixElement->getPoints(), sprintf('The rating with %d point has errors !', $i));
-            static::assertEquals($ratingCounts[$i], $matrixElement->getCount(), sprintf('The count of reviews with %d point has errors !', $i));
-            static::assertEquals($expected, round($matrixElement->getPercent(), 4), sprintf('Calculation of percentage with %d point has errors !', $i));
+            $expected = \round(($ratingCounts[$i] * 100 / $totalReviews), 4);
+            static::assertEquals($i, $matrixElement->getPoints(), \sprintf('The rating with %d point has errors !', $i));
+            static::assertEquals($ratingCounts[$i], $matrixElement->getCount(), \sprintf('The count of reviews with %d point has errors !', $i));
+            static::assertEquals($expected, \round($matrixElement->getPercent(), 4), \sprintf('Calculation of percentage with %d point has errors !', $i));
         }
     }
 
@@ -108,7 +108,7 @@ class RatingMatrixTest extends TestCase
         $matrix = new RatingMatrix([$twoStars, $threeStars]);
 
         static::assertCount(5, $matrix->getMatrix());
-        static::assertEquals(3.0, round($matrix->getAverageRating(), 1));
+        static::assertEquals(3.0, \round($matrix->getAverageRating(), 1));
         static::assertEquals(6, $matrix->getTotalReviewCount());
         static::assertEquals(18, $matrix->getTotalPoints());
     }

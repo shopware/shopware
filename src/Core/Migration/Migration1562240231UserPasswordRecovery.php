@@ -37,7 +37,7 @@ SQL;
 
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
         if (!$languageId) {
-            throw new \RuntimeException(sprintf('Language for locale "%s" not found.', $locale));
+            throw new \RuntimeException(\sprintf('Language for locale "%s" not found.', $locale));
         }
 
         return $languageId;
@@ -50,7 +50,7 @@ SQL;
         $connection->insert('mail_template_type', [
             'id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'technical_name' => 'user.recovery.request',
-            'available_entities' => json_encode(['userRecovery' => 'user_recovery']),
+            'available_entities' => \json_encode(['userRecovery' => 'user_recovery']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -111,7 +111,7 @@ SQL;
             'id' => Uuid::randomBytes(),
             'event_name' => 'user.recovery.request',
             'action_name' => 'action.mail.send',
-            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
+            'config' => \json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

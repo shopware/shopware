@@ -77,10 +77,10 @@ EOD;
     {
         $constantName = $this->getEnvironmentName($featureName);
         $lowerCamelCaseName = $this->toLowerCamelCase($featureName);
-        $upperCamelCase = ucfirst($lowerCamelCaseName);
+        $upperCamelCase = \ucfirst($lowerCamelCaseName);
         $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.php";
 
-        $contents = sprintf(
+        $contents = \sprintf(
             self::TEMPLATE_PHP,
             $namespace,
             $lowerCamelCaseName,
@@ -96,7 +96,7 @@ EOD;
             $featureName
         );
 
-        file_put_contents($featureFilePath, $contents);
+        \file_put_contents($featureFilePath, $contents);
 
         return $featureFilePath;
     }
@@ -104,11 +104,11 @@ EOD;
     public function exportJs(string $featureName, string $destinationPath): string
     {
         $lowerCamelCaseName = $this->toLowerCamelCase($featureName);
-        $upperCamelCase = ucfirst($lowerCamelCaseName);
-        $capitalName = mb_strtoupper($lowerCamelCaseName);
+        $upperCamelCase = \ucfirst($lowerCamelCaseName);
+        $capitalName = \mb_strtoupper($lowerCamelCaseName);
         $featureFilePath = $destinationPath . "/feature_$lowerCamelCaseName.js";
 
-        $contents = sprintf(
+        $contents = \sprintf(
             self::TEMPLATE_JS,
             $capitalName,
             $lowerCamelCaseName,
@@ -124,24 +124,24 @@ EOD;
             $upperCamelCase
         );
 
-        file_put_contents($featureFilePath, $contents);
+        \file_put_contents($featureFilePath, $contents);
 
         return $featureFilePath;
     }
 
     public function getEnvironmentName(string $string): string
     {
-        return 'FEATURE_' . str_replace(' ', '_', mb_strtoupper(trim(preg_replace('/[^\da-z]/i', ' ', $string))));
+        return 'FEATURE_' . \str_replace(' ', '_', \mb_strtoupper(\trim(\preg_replace('/[^\da-z]/i', ' ', $string))));
     }
 
     private function toLowerCamelCase(string $string): string
     {
-        $cleanedFeatureName = mb_strtolower(preg_replace('/[^\da-z]/i', ' ', $string));
+        $cleanedFeatureName = \mb_strtolower(\preg_replace('/[^\da-z]/i', ' ', $string));
 
-        $parts = explode(' ', $cleanedFeatureName);
+        $parts = \explode(' ', $cleanedFeatureName);
 
-        $camelCasedName = implode('', array_map('ucfirst', $parts));
+        $camelCasedName = \implode('', \array_map('ucfirst', $parts));
 
-        return lcfirst($camelCasedName);
+        return \lcfirst($camelCasedName);
     }
 }

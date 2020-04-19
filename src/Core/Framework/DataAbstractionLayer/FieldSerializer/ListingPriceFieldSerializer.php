@@ -43,14 +43,14 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
             return new ListingPriceCollection();
         }
 
-        $value = json_decode((string) $value, true);
+        $value = \json_decode((string) $value, true);
 
         $structs = [];
         foreach ($value as $ruleId => $rows) {
             if ($ruleId === 'default') {
                 $ruleId = null;
             } else {
-                $ruleId = substr($ruleId, 1);
+                $ruleId = \mb_substr($ruleId, 1);
             }
 
             foreach ($rows as $row) {

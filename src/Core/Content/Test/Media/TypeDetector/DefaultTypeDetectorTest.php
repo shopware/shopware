@@ -174,9 +174,9 @@ class DefaultTypeDetectorTest extends TestCase
     {
         return new MediaFile(
             $filePath,
-            mime_content_type($filePath),
-            pathinfo($filePath, PATHINFO_EXTENSION),
-            filesize($filePath)
+            \mime_content_type($filePath),
+            \pathinfo($filePath, \PATHINFO_EXTENSION),
+            \filesize($filePath)
         );
     }
 }

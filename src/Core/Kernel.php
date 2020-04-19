@@ -74,7 +74,7 @@ class Kernel extends HttpKernel
         ?Connection $connection = null,
         ?string $projectDir = null
     ) {
-        date_default_timezone_set('UTC');
+        \date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
         self::$connection = $connection;
@@ -118,18 +118,18 @@ class Kernel extends HttpKernel
     {
         if ($this->booted === true) {
             if ($this->debug) {
-                $this->startTime = microtime(true);
+                $this->startTime = \microtime(true);
             }
 
             return;
         }
 
         if ($this->debug) {
-            $this->startTime = microtime(true);
+            $this->startTime = \microtime(true);
         }
 
         if ($this->debug && !isset($_ENV['SHELL_VERBOSITY']) && !isset($_SERVER['SHELL_VERBOSITY'])) {
-            putenv('SHELL_VERBOSITY=3');
+            \putenv('SHELL_VERBOSITY=3');
             $_ENV['SHELL_VERBOSITY'] = 3;
             $_SERVER['SHELL_VERBOSITY'] = 3;
         }
@@ -157,7 +157,7 @@ class Kernel extends HttpKernel
         if (!self::$connection) {
             $url = $_ENV['DATABASE_URL']
                 ?? $_SERVER['DATABASE_URL']
-                ?? getenv('DATABASE_URL');
+                ?? \getenv('DATABASE_URL');
             $parameters = [
                 'url' => $url,
                 'charset' => 'utf8mb4',
@@ -171,7 +171,7 @@ class Kernel extends HttpKernel
 
     public function getCacheDir(): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/var/cache/%s_h%s',
             $this->getProjectDir(),
             $this->getEnvironment(),
@@ -261,7 +261,7 @@ class Kernel extends HttpKernel
 
         $pluginDir = $this->pluginLoader->getPluginDir($this->getProjectDir());
 
-        return array_merge(
+        return \array_merge(
             $parameters,
             [
                 'kernel.cache.hash' => $this->getCacheHash(),
@@ -279,12 +279,12 @@ class Kernel extends HttpKernel
 
     protected function getCacheHash()
     {
-        $pluginHash = md5(implode('', array_keys($this->pluginLoader->getPluginInstances()->getActives())));
+        $pluginHash = \md5(\implode('', \array_keys($this->pluginLoader->getPluginInstances()->getActives())));
 
-        return md5(json_encode([
+        return \md5(\json_encode([
             $this->cacheId,
-            mb_substr($this->shopwareVersionRevision, 0, 8),
-            mb_substr($pluginHash, 0, 8),
+            \mb_substr($this->shopwareVersionRevision, 0, 8),
+            \mb_substr($pluginHash, 0, 8),
         ]));
     }
 
@@ -300,7 +300,7 @@ class Kernel extends HttpKernel
 
         $activeMigrations = $this->container->getParameter('migration.active');
 
-        $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
+        $activeNonDestructiveMigrations = \array_intersect($activeMigrations, $nonDestructiveMigrations);
 
         $setSessionVariables = $_SERVER['SQL_SET_DEFAULT_SESSION_VARIABLES'] ?? true;
         $connectionVariables = [];
@@ -311,16 +311,16 @@ class Kernel extends HttpKernel
         }
 
         foreach ($activeNonDestructiveMigrations as $migration) {
-            $connectionVariables[] = sprintf(
+            $connectionVariables[] = \sprintf(
                 'SET %s = TRUE',
-                sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
+                \sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
             );
         }
 
         if (empty($connectionVariables)) {
             return;
         }
-        $connection->executeQuery(implode(';', $connectionVariables));
+        $connection->executeQuery(\implode(';', $connectionVariables));
     }
 
     private function addApiRoutes(RouteCollectionBuilder $routes): void
@@ -350,19 +350,19 @@ class Kernel extends HttpKernel
     private function parseShopwareVersion(?string $version): void
     {
         // does not come from composer, was set manually
-        if ($version === null || mb_strpos($version, '@') === false) {
+        if ($version === null || \mb_strpos($version, '@') === false) {
             $this->shopwareVersion = self::SHOPWARE_FALLBACK_VERSION;
-            $this->shopwareVersionRevision = str_repeat('0', 32);
+            $this->shopwareVersionRevision = \str_repeat('0', 32);
 
             return;
         }
 
-        [$version, $hash] = explode('@', $version);
-        $version = ltrim($version, 'v');
-        $version = (string) str_replace('+', '-', $version);
+        [$version, $hash] = \explode('@', $version);
+        $version = \ltrim($version, 'v');
+        $version = (string) \str_replace('+', '-', $version);
 
         // checks if the version is a valid version pattern
-        if (!preg_match('#\d+\.\d+\.\d+(-\w+)?#', $version)) {
+        if (!\preg_match('#\d+\.\d+\.\d+(-\w+)?#', $version)) {
             $version = self::SHOPWARE_FALLBACK_VERSION;
         }
 

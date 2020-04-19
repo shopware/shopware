@@ -23,22 +23,22 @@ class PluginTest extends TestCase
         self::$swagTestPluginPath = $pluginsDir . '/SwagTest';
 
         self::$symlinkedSwagTestPluginPath = $pluginsDir . '/SymlinkedSwagTest';
-        if (file_exists(self::$symlinkedSwagTestPluginPath)) {
-            if (is_link(self::$symlinkedSwagTestPluginPath)) {
-                unlink(self::$symlinkedSwagTestPluginPath);
+        if (\file_exists(self::$symlinkedSwagTestPluginPath)) {
+            if (\is_link(self::$symlinkedSwagTestPluginPath)) {
+                \unlink(self::$symlinkedSwagTestPluginPath);
             } else {
                 static::fail(self::$symlinkedSwagTestPluginPath . ' is not a symbolic link.');
             }
         }
-        symlink(self::$swagTestPluginPath, self::$symlinkedSwagTestPluginPath);
+        \symlink(self::$swagTestPluginPath, self::$symlinkedSwagTestPluginPath);
 
         require_once self::$swagTestPluginPath . '/src/SwagTest.php';
     }
 
     public static function tearDownAfterClass(): void
     {
-        if (file_exists(self::$symlinkedSwagTestPluginPath) && is_link(self::$symlinkedSwagTestPluginPath)) {
-            unlink(self::$symlinkedSwagTestPluginPath);
+        if (\file_exists(self::$symlinkedSwagTestPluginPath) && \is_link(self::$symlinkedSwagTestPluginPath)) {
+            \unlink(self::$symlinkedSwagTestPluginPath);
         }
     }
 

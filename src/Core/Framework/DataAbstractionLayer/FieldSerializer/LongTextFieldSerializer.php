@@ -33,7 +33,7 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
         if ($value !== null && !$field->is(AllowHtml::class)) {
-            $value = strip_tags((string) $value);
+            $value = \strip_tags((string) $value);
         }
 
         yield $field->getStorageName() => $value;

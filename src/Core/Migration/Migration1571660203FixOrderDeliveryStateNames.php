@@ -75,7 +75,7 @@ SQL;
 
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
         if (!$languageId) {
-            throw new \RuntimeException(sprintf('Language for locale "%s" not found.', $locale));
+            throw new \RuntimeException(\sprintf('Language for locale "%s" not found.', $locale));
         }
 
         return $languageId;

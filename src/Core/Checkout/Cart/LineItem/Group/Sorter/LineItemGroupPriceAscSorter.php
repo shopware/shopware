@@ -17,7 +17,7 @@ class LineItemGroupPriceAscSorter implements LineItemGroupSorterInterface
     {
         $sorted = $items->getElements();
 
-        usort($sorted, function (LineItem $a, LineItem $b) {
+        \usort($sorted, function (LineItem $a, LineItem $b) {
             if ($a->getPrice() === null) {
                 return false;
             }

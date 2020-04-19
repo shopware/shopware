@@ -44,7 +44,7 @@ class SitemapHandle implements SitemapHandleInterface
         $this->filesystem = $filesystem;
 
         $filePath = $this->getTmpFilePath();
-        $this->handle = gzopen($filePath, 'ab');
+        $this->handle = \gzopen($filePath, 'ab');
         $this->printHeader();
 
         if ($this->handle === false) {
@@ -61,15 +61,15 @@ class SitemapHandle implements SitemapHandleInterface
     public function write(array $urls): void
     {
         foreach ($urls as $url) {
-            gzwrite($this->handle, (string) $url);
+            \gzwrite($this->handle, (string) $url);
             ++$this->urlCount;
 
             if ($this->urlCount % self::MAX_URLS === 0) {
                 $this->printFooter();
-                gzclose($this->handle);
+                \gzclose($this->handle);
                 ++$this->index;
                 $path = $this->getTmpFilePath();
-                $this->handle = gzopen($path, 'ab');
+                $this->handle = \gzopen($path, 'ab');
                 $this->printHeader();
                 $this->tmpFiles[] = $path;
             }
@@ -79,9 +79,9 @@ class SitemapHandle implements SitemapHandleInterface
     public function finish(): void
     {
         $this->cleanUp();
-        if (is_resource($this->handle)) {
+        if (\is_resource($this->handle)) {
             $this->printFooter();
-            gzclose($this->handle);
+            \gzclose($this->handle);
         }
 
         foreach ($this->tmpFiles as $i => $tmpFile) {
@@ -90,8 +90,8 @@ class SitemapHandle implements SitemapHandleInterface
                 $this->filesystem->delete($sitemapPath);
             }
 
-            $this->filesystem->write($sitemapPath, file_get_contents($tmpFile));
-            @unlink($tmpFile);
+            $this->filesystem->write($sitemapPath, \file_get_contents($tmpFile));
+            @\unlink($tmpFile);
         }
     }
 
@@ -107,22 +107,22 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function getTmpFilePath(): string
     {
-        return rtrim(sys_get_temp_dir(), '/') . '/' . $this->getFileName();
+        return \rtrim(\sys_get_temp_dir(), '/') . '/' . $this->getFileName();
     }
 
     private function getFileName(?int $index = null): string
     {
-        return sprintf(self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
+        return \sprintf(self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
     }
 
     private function printHeader(): void
     {
-        gzwrite($this->handle, '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+        \gzwrite($this->handle, '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
     }
 
     private function printFooter(): void
     {
-        gzwrite($this->handle, '</urlset>');
+        \gzwrite($this->handle, '</urlset>');
     }
 
     private function cleanUp(): void

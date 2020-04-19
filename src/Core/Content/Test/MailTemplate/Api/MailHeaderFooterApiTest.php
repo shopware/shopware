@@ -70,7 +70,7 @@ class MailHeaderFooterApiTest extends TestCase
         );
 
         // compare expected and resulting data
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
         foreach ($records as $record) {
             $expect = $data[$record['id']];
             static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
@@ -92,7 +92,7 @@ class MailHeaderFooterApiTest extends TestCase
         // Create test data.
         $num = 10;
         $data = $this->prepareHeaderFooterTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -101,11 +101,11 @@ class MailHeaderFooterApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $content = json_decode($response->getContent());
+        $content = \json_decode($response->getContent());
 
         // Prepare expected data.
         $expextData = [];
-        foreach (array_values($data) as $entry) {
+        foreach (\array_values($data) as $entry) {
             $expextData[$entry['id']] = $entry;
         }
 
@@ -132,10 +132,10 @@ class MailHeaderFooterApiTest extends TestCase
         // create test data
         $num = 10;
         $data = $this->prepareHeaderFooterTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $ids = array_column($data, 'id');
-        shuffle($data);
+        $ids = \array_column($data, 'id');
+        \shuffle($data);
 
         $expextData = [];
         foreach ($ids as $idx => $id) {
@@ -155,7 +155,7 @@ class MailHeaderFooterApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = \json_decode($response->getContent());
 
         // Compare expected and received data.
         static::assertEquals($num, $content->total);
@@ -180,9 +180,9 @@ class MailHeaderFooterApiTest extends TestCase
         // create test data
         $num = 2;
         $data = $this->prepareHeaderFooterTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        foreach (array_values($data) as $expect) {
+        foreach (\array_values($data) as $expect) {
             // Request details
             $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
@@ -191,7 +191,7 @@ class MailHeaderFooterApiTest extends TestCase
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
             // compare deatils with expected
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static::assertEquals($expect['systemDefault'], $content->data->systemDefault);
             static::assertEquals($expect['name'], $content->data->name);
             static::assertEquals($expect['description'], $content->data->description);
@@ -209,10 +209,10 @@ class MailHeaderFooterApiTest extends TestCase
     {
         // create test data
         $data = $this->prepareHeaderFooterTestData();
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         // Use last entry for search filters.
-        $searchData = array_pop($data);
+        $searchData = \array_pop($data);
         $filter = [];
         foreach ($searchData as $key => $value) {
             // Search call
@@ -222,7 +222,7 @@ class MailHeaderFooterApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static ::assertEquals(1, $content->total);
         }
     }
@@ -234,8 +234,8 @@ class MailHeaderFooterApiTest extends TestCase
     {
         // create test data
         $data = $this->prepareHeaderFooterTestData();
-        $this->repository->create(array_values($data), $this->context);
-        $deleteId = array_column($data, 'id')[0];
+        $this->repository->create(\array_values($data), $this->context);
+        $deleteId = \array_column($data, 'id')[0];
 
         // Test request
         $this->getBrowser()->request('GET', $this->prepareRoute() . $deleteId, [], [], [
@@ -280,12 +280,12 @@ class MailHeaderFooterApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'systemDefault' => (($i % 2 === 0) ? false : true),
-                'name' => sprintf('Test-Template %d %s', $i, $add),
-                'description' => sprintf('John Doe %d %s', $i, $add),
-                'headerPlain' => sprintf('Test header 123 %d %s', $i, $add),
-                'headerHtml' => sprintf('<h1>Test header %d %s </h1>', $i, $add),
-                'footerPlain' => sprintf('Test footer 123 %d %s', $i, $add),
-                'footerHtml' => sprintf('<h1>Test footer %d %s </h1>', $i, $add),
+                'name' => \sprintf('Test-Template %d %s', $i, $add),
+                'description' => \sprintf('John Doe %d %s', $i, $add),
+                'headerPlain' => \sprintf('Test header 123 %d %s', $i, $add),
+                'headerHtml' => \sprintf('<h1>Test header %d %s </h1>', $i, $add),
+                'footerPlain' => \sprintf('Test footer 123 %d %s', $i, $add),
+                'footerHtml' => \sprintf('<h1>Test footer %d %s </h1>', $i, $add),
             ];
         }
 

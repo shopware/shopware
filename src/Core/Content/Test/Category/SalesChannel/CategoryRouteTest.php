@@ -55,7 +55,7 @@ class CategoryRouteTest extends TestCase
             '/store-api/v1/category/' . $this->ids->get('category')
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($this->ids->get('category'), $response['id']);
         static::assertIsArray($response['cmsPage']);
@@ -98,7 +98,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
 
@@ -110,13 +110,13 @@ class CategoryRouteTest extends TestCase
         $manufacturers = $listing['aggregations']['manufacturer'];
 
         foreach ($manufacturers['entities'] as $manufacturer) {
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($manufacturer));
+            static::assertEquals(['name', 'id', 'apiAlias'], \array_keys($manufacturer));
         }
 
         $products = $listing['elements'];
         foreach ($products as $product) {
-            static::assertEquals(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], array_keys($product));
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($product['tax']));
+            static::assertEquals(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], \array_keys($product));
+            static::assertEquals(['name', 'id', 'apiAlias'], \array_keys($product['tax']));
         }
     }
 
@@ -136,7 +136,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
         static::assertCount(1, $listing['elements']);
@@ -154,7 +154,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($this->ids->get('category'), $response['id']);
         static::assertIsArray($response['cmsPage']);
@@ -196,7 +196,7 @@ class CategoryRouteTest extends TestCase
 
         $products = [];
         for ($i = 0; $i < 5; ++$i) {
-            $products[] = array_merge(
+            $products[] = \array_merge(
                 [
                     'id' => $this->ids->create('product' . $i),
                     'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],

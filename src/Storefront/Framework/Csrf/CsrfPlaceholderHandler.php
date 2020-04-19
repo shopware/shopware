@@ -45,7 +45,7 @@ class CsrfPlaceholderHandler
         $content = $response->getContent();
 
         // https://regex101.com/r/fefx3V/1
-        $content = preg_replace_callback(
+        $content = \preg_replace_callback(
             '/' . self::CSRF_PLACEHOLDER . '(?<intent>[^#]*)#/',
             function ($matches) use ($response) {
                 $token = $this->getToken($matches['intent']);

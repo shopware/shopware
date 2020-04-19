@@ -97,12 +97,12 @@ class SalesChannelListCommand extends Command
         foreach ($data as $row) {
             $jsonItem = [];
             foreach ($row as $item => $value) {
-                $jsonItem[strtolower((string) ($headers[$item] ?? $item))] = $value;
+                $jsonItem[\mb_strtolower((string) ($headers[$item] ?? $item))] = $value;
             }
             $json[] = $jsonItem;
         }
 
-        $output->write(json_encode($json));
+        $output->write(\json_encode($json));
 
         return 0;
     }
@@ -115,8 +115,8 @@ class SalesChannelListCommand extends Command
         // Normalize data
         foreach ($data as $rowKey => $row) {
             foreach ($row as $columnKey => $column) {
-                if (is_array($column)) {
-                    $data[$rowKey][$columnKey] = implode(', ', $column);
+                if (\is_array($column)) {
+                    $data[$rowKey][$columnKey] = \implode(', ', $column);
                 }
             }
         }

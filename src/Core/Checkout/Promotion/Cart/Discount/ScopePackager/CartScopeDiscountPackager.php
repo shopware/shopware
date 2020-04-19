@@ -80,7 +80,7 @@ class CartScopeDiscountPackager extends DiscountPackager
     {
         // if the price definition doesnt allow filters,
         // then return valid for the item
-        if (!method_exists($priceDefinition, 'getFilter')) {
+        if (!\method_exists($priceDefinition, 'getFilter')) {
             return true;
         }
 

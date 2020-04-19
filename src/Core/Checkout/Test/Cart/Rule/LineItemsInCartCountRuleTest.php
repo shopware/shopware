@@ -62,7 +62,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -87,7 +87,7 @@ class LineItemsInCartCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
 
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
@@ -110,9 +110,9 @@ class LineItemsInCartCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            static::assertGreaterThan(0, count($stackException->getExceptions()));
+            static::assertGreaterThan(0, \count($stackException->getExceptions()));
             foreach ($stackException->getExceptions() as $_exception) {
-                $exceptions = iterator_to_array($stackException->getErrors());
+                $exceptions = \iterator_to_array($stackException->getErrors());
 
                 static::assertCount(2, $exceptions);
                 static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);

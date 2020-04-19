@@ -149,7 +149,7 @@ class ProductReviewLoader
     {
         $points = $request->get('points', []);
 
-        if (is_array($points) && count($points) > 0) {
+        if (\is_array($points) && \count($points) > 0) {
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new EqualsFilter('points', $point);

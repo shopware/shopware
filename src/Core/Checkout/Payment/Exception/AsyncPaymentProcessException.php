@@ -8,7 +8,7 @@ class AsyncPaymentProcessException extends PaymentProcessException
     {
         parent::__construct(
             $orderTransactionId,
-            'The asynchronous payment process was interrupted due to the following error:' . PHP_EOL . '{{ errorMessage }}',
+            'The asynchronous payment process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage]
         );
     }

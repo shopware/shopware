@@ -160,7 +160,7 @@ class ProductPageConfiguratorLoader
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                        return \strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_NUMERIC) {
@@ -182,10 +182,10 @@ class ProductPageConfiguratorLoader
             return $collection;
         }
 
-        $sortedGroupIds = array_column($config, 'id');
+        $sortedGroupIds = \array_column($config, 'id');
 
         // ensure all ids are in the array (but only once)
-        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $collection->getIds()));
+        $sortedGroupIds = \array_unique(\array_merge($sortedGroupIds, $collection->getIds()));
 
         $collection->sortByIdArray($sortedGroupIds);
 

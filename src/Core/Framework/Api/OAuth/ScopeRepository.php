@@ -100,6 +100,6 @@ class ScopeRepository implements ScopeRepositoryInterface
             $uniqueScopes[$scope->getIdentifier()] = $scope;
         }
 
-        return array_values($uniqueScopes);
+        return \array_values($uniqueScopes);
     }
 }

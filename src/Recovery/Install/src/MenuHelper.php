@@ -34,7 +34,7 @@ class MenuHelper
         $result = [];
         $complete = true;
         foreach ($this->entries as $entry) {
-            $active = ($entry === current($this->entries));
+            $active = ($entry === \current($this->entries));
             if ($active) {
                 $complete = false;
             }
@@ -59,20 +59,20 @@ class MenuHelper
      */
     public function setCurrent($name): void
     {
-        if (!in_array($name, $this->entries, true)) {
+        if (!\in_array($name, $this->entries, true)) {
             throw new \Exception('could not find entry');
         }
 
-        reset($this->entries);
-        while ($name !== current($this->entries)) {
-            next($this->entries);
+        \reset($this->entries);
+        while ($name !== \current($this->entries)) {
+            \next($this->entries);
         }
     }
 
     public function getNextUrl(array $params = []): string
     {
         $entries = $this->entries;
-        $currentEntry = next($entries);
+        $currentEntry = \next($entries);
 
         return $this->slim->getContainer()->get('router')->pathFor($currentEntry, $params);
     }
@@ -80,7 +80,7 @@ class MenuHelper
     public function getPreviousUrl(array $params = []): string
     {
         $entries = $this->entries;
-        $currentEntry = prev($entries);
+        $currentEntry = \prev($entries);
 
         return $this->slim->getContainer()->get('router')->pathFor($currentEntry, $params);
     }
@@ -88,7 +88,7 @@ class MenuHelper
     public function getCurrentUrl(array $data = [], array $queryParams = []): string
     {
         $entries = $this->entries;
-        $currentEntry = current($entries);
+        $currentEntry = \current($entries);
 
         return $this->slim->getContainer()->get('router')->pathFor($currentEntry, $data, $queryParams);
     }

@@ -12,14 +12,14 @@ class CsvReaderTest extends TestCase
 
     public function testSimpleCsv(): void
     {
-        $content = implode(PHP_EOL, [
+        $content = \implode(\PHP_EOL, [
             'foo;bar',
             '1;2',
             '"asdf";"zxcv"',
         ]);
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
         $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -29,32 +29,32 @@ class CsvReaderTest extends TestCase
 
     public function testIncremental(): void
     {
-        $content = 'foo;bar' . PHP_EOL;
-        $content .= '1;2' . PHP_EOL;
-        $content .= '"asdf";"zxcv"' . PHP_EOL;
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= '"asdf";"zxcv"' . \PHP_EOL;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
         $record = $this->getFirst($reader->read(new Config([], []), $resource, 0));
         static::assertSame(['foo' => '1', 'bar' => '2'], $record);
 
         $offset = $reader->getOffset();
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
         $record = $this->getFirst($reader->read(new Config([], []), $resource, $offset));
         static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $record);
 
         $offset = $reader->getOffset();
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
         $record = $this->getFirst($reader->read(new Config([], []), $resource, $offset));
         static::assertNull($record);
     }
 
     public function testHeader(): void
     {
-        $content = implode(PHP_EOL, [
+        $content = \implode(\PHP_EOL, [
             'foo;bar',
             '1;2',
             '"asdf";"zxcv"',
@@ -68,7 +68,7 @@ class CsvReaderTest extends TestCase
         ]);
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
 
         $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
 
@@ -102,7 +102,7 @@ class CsvReaderTest extends TestCase
         $content .= '"asdf";"zxcv"' . $eol;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
         $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -112,14 +112,14 @@ class CsvReaderTest extends TestCase
 
     public function testUtf8BOMIsRemoved(): void
     {
-        $content = 'foo;bar' . PHP_EOL;
-        $content .= '1;2' . PHP_EOL;
-        $content .= '"asdf";"zxcv"' . PHP_EOL;
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= '"asdf";"zxcv"' . \PHP_EOL;
 
         $bomContent = self::BOM_UTF8 . $content;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $bomContent, 'rb');
+        $resource = \fopen('data://text/plain,' . $bomContent, 'rb');
         $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -129,12 +129,12 @@ class CsvReaderTest extends TestCase
 
     public function testUf8BomOnlyRemovedAtBeginning(): void
     {
-        $content = 'foo;bar' . PHP_EOL;
-        $content .= '1;2' . PHP_EOL;
-        $content .= self::BOM_UTF8 . 'asdf;"zxcv"' . PHP_EOL;
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= self::BOM_UTF8 . 'asdf;"zxcv"' . \PHP_EOL;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = \fopen('data://text/plain,' . $content, 'rb');
         $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
 
         static::assertCount(2, $result);

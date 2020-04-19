@@ -16,7 +16,7 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 {
     public function fileExists(string $filePath): bool
     {
-        return file_exists($filePath) && !is_dir($filePath);
+        return \file_exists($filePath) && !\is_dir($filePath);
     }
 
     public function getRealPath(string $filePath): string
@@ -26,20 +26,20 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 
     public function getConcatenableStylePath(File $file, StorefrontPluginConfiguration $configuration): string
     {
-        return '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
+        return '@import \'' . $file->getFilepath() . '\';' . \PHP_EOL;
     }
 
     public function getConcatenableScriptPath(File $file, StorefrontPluginConfiguration $configuration): string
     {
-        return file_get_contents($file->getFilepath()) . PHP_EOL;
+        return \file_get_contents($file->getFilepath()) . \PHP_EOL;
     }
 
     public function getCopyBatchInputsForAssets(string $assetPath, string $outputPath, StorefrontPluginConfiguration $configuration): array
     {
-        if (!is_dir($assetPath)) {
+        if (!\is_dir($assetPath)) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
-                sprintf('Unable to find asset. Path: "%s"', $assetPath)
+                \sprintf('Unable to find asset. Path: "%s"', $assetPath)
             );
         }
 
@@ -49,13 +49,13 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 
         foreach ($files as $file) {
             $relativePathname = $file->getRelativePathname();
-            $assetDir = basename($assetPath);
+            $assetDir = \basename($assetPath);
 
             $assets[] = new CopyBatchInput(
-                $assetPath . DIRECTORY_SEPARATOR . $relativePathname,
+                $assetPath . \DIRECTORY_SEPARATOR . $relativePathname,
                 [
-                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
+                    'bundles' . \DIRECTORY_SEPARATOR . \mb_strtolower($configuration->getTechnicalName()) . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
+                    $outputPath . \DIRECTORY_SEPARATOR . $assetDir . \DIRECTORY_SEPARATOR . $relativePathname,
                 ]
             );
         }

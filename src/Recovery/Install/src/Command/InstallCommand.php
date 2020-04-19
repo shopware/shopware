@@ -165,7 +165,7 @@ class InstallCommand extends Command
                 $hasError = true;
             }
 
-            $this->IOHelper->writeln(sprintf(
+            $this->IOHelper->writeln(\sprintf(
                 '%s: %s %s%s required. %s',
                 $status,
                 $checkResult['group'],
@@ -247,7 +247,7 @@ class InstallCommand extends Command
         $adminUser->firstName = $input->getOption('admin-firstname');
         $adminUser->lastName = $input->getOption('admin-lastname');
 
-        if ($adminUser->locale && !in_array($adminUser->locale, Locale::getValidLocales(), true)) {
+        if ($adminUser->locale && !\in_array($adminUser->locale, Locale::getValidLocales(), true)) {
             throw new \RuntimeException('Invalid admin-locale provided');
         }
 
@@ -302,13 +302,13 @@ class InstallCommand extends Command
         $this->IOHelper->writeln('<info>=== Shop Information ===</info>');
 
         $shop->locale = $this->askForShopShopLocale(Locale::getValidLocales(), $shop->locale);
-        $shop->host = $this->IOHelper->ask(sprintf('Shop host (%s): ', $shop->host), $shop->host);
-        $shop->basePath = $this->IOHelper->ask(sprintf('Shop base path (%s): ', $shop->basePath), $shop->basePath);
-        $shop->name = $this->IOHelper->ask(sprintf('Shop name (%s): ', $shop->name), $shop->name);
-        $shop->email = $this->IOHelper->ask(sprintf('Shop email (%s): ', $shop->email), $shop->email);
+        $shop->host = $this->IOHelper->ask(\sprintf('Shop host (%s): ', $shop->host), $shop->host);
+        $shop->basePath = $this->IOHelper->ask(\sprintf('Shop base path (%s): ', $shop->basePath), $shop->basePath);
+        $shop->name = $this->IOHelper->ask(\sprintf('Shop name (%s): ', $shop->name), $shop->name);
+        $shop->email = $this->IOHelper->ask(\sprintf('Shop email (%s): ', $shop->email), $shop->email);
 
         $question = new ChoiceQuestion(
-            sprintf('Shop currency (%s): ', $shop->currency),
+            \sprintf('Shop currency (%s): ', $shop->currency),
             Currency::getValidCurrencies(),
             $shop->currency
         );
@@ -327,7 +327,7 @@ class InstallCommand extends Command
         $shop->locale = $input->getOption('shop-locale');
         $shop->currency = $input->getOption('shop-currency');
 
-        if ($shop->locale && !in_array($shop->locale, Locale::getValidLocales(), true)) {
+        if ($shop->locale && !\in_array($shop->locale, Locale::getValidLocales(), true)) {
             throw new \RuntimeException('Invalid shop-locale provided');
         }
 
@@ -382,7 +382,7 @@ class InstallCommand extends Command
                 $pdo = $databaseFactory->createPDOConnection($databaseConnectionInformation);
             } catch (\PDOException $e) {
                 $IOHelper->writeln('');
-                $IOHelper->writeln(sprintf('Got database error: %s', $e->getMessage()));
+                $IOHelper->writeln(\sprintf('Got database error: %s', $e->getMessage()));
                 $IOHelper->writeln('');
 
                 $databaseConnectionInformation = $databaseInteractor->askDatabaseConnectionInformation(
@@ -398,13 +398,13 @@ class InstallCommand extends Command
 
         $defaultChoice = null;
         if ($connectionInfo->databaseName) {
-            if (in_array($connectionInfo->databaseName, $databaseNames, true)) {
-                $defaultChoice = array_search($connectionInfo->databaseName, $databaseNames, true);
+            if (\in_array($connectionInfo->databaseName, $databaseNames, true)) {
+                $defaultChoice = \array_search($connectionInfo->databaseName, $databaseNames, true);
             }
         }
 
         $choices = $databaseNames;
-        array_unshift($choices, '[create new database]');
+        \array_unshift($choices, '[create new database]');
         $question = new ChoiceQuestion('Please select your database', $choices, $defaultChoice);
         $question->setErrorMessage('Database %s is invalid.');
         $databaseName = $databaseInteractor->askQuestion($question);
@@ -465,7 +465,7 @@ class InstallCommand extends Command
      */
     protected function loadConfiguration($configPath)
     {
-        if (!is_file($configPath)) {
+        if (!\is_file($configPath)) {
             return false;
         }
 
@@ -680,7 +680,7 @@ EOT;
 
         $coreMigrations->sync();
 
-        $total = count($coreMigrations->getExecutableMigrations());
+        $total = \count($coreMigrations->getExecutableMigrations());
 
         $progress = $this->IOHelper->createProgressBar($total);
         $progress->setRedrawFrequency(20);
@@ -701,7 +701,7 @@ EOT;
 
         $this->IOHelper->cls();
         $this->IOHelper->printBanner();
-        $this->IOHelper->writeln(sprintf('<info>Welcome to the Shopware %s installer</info>', $version));
+        $this->IOHelper->writeln(\sprintf('<info>Welcome to the Shopware %s installer</info>', $version));
         $this->IOHelper->writeln('');
         $this->IOHelper->ask(new Question('Press return to start installation.'));
         $this->IOHelper->cls();

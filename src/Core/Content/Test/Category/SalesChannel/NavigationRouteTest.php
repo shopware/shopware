@@ -47,7 +47,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertSame('Toys', $response[0]['name']);
@@ -67,12 +67,12 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(3, $response);
         static::assertArrayHasKey('name', $response[0]);
-        $ids = array_column($response, 'id');
-        $names = array_column($response, 'name');
+        $ids = \array_column($response, 'id');
+        $names = \array_column($response, 'name');
 
         static::assertContains($this->ids->get('category'), $ids);
         static::assertContains($this->ids->get('category2'), $ids);
@@ -94,12 +94,12 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(3, $response);
         static::assertArrayHasKey('name', $response[0]);
-        $ids = array_column($response, 'id');
-        $names = array_column($response, 'name');
+        $ids = \array_column($response, 'id');
+        $names = \array_column($response, 'name');
 
         static::assertContains($this->ids->get('category'), $ids);
         static::assertContains($this->ids->get('category2'), $ids);
@@ -120,7 +120,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_UUID', $response['errors'][0]['code']);
@@ -136,7 +136,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertSame('Toys', $response[0]['name']);
@@ -156,7 +156,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         // root is Toys
         static::assertCount(1, $response);
@@ -175,7 +175,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         // root is Toys
         static::assertCount(1, $response);
@@ -197,7 +197,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -214,7 +214,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertEmpty($response[0]['tags']);
 
@@ -229,7 +229,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($response[0]['tags']);
         static::assertCount(1, $response[0]['tags']);

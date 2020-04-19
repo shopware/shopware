@@ -27,7 +27,7 @@ trait AggregationTestBehaviour
 
         $taxRepository->create($payload, $context);
 
-        return array_column($payload, 'id');
+        return \array_column($payload, 'id');
     }
 
     public function setupGroupByFixtures(Context $context): array
@@ -134,6 +134,6 @@ trait AggregationTestBehaviour
         ];
         $productRepository->create($products, $context);
 
-        return array_column($categories, 'id');
+        return \array_column($categories, 'id');
     }
 }

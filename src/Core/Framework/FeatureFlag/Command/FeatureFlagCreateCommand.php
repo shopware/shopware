@@ -52,8 +52,8 @@ class FeatureFlagCreateCommand extends Command
         $io->table(
             ['Type', 'Value'],
             [
-                ['PHP-Flag', realpath($phpFlag)],
-                ['JS-Flag', realpath($jsFlag)],
+                ['PHP-Flag', \realpath($phpFlag)],
+                ['JS-Flag', \realpath($jsFlag)],
                 ['Constant', $envName],
             ]
         );

@@ -74,7 +74,7 @@ class PluginController extends AbstractController
         $file = $request->files->get('file');
 
         if ($file->getMimeType() !== 'application/zip') {
-            unlink($file->getPathname());
+            \unlink($file->getPathname());
 
             throw new PluginNotAZipFileException($file->getMimeType());
         }
@@ -82,7 +82,7 @@ class PluginController extends AbstractController
         try {
             $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
-            unlink($file->getPathname());
+            \unlink($file->getPathname());
 
             throw $e;
         }

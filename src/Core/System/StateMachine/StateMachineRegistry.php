@@ -170,7 +170,7 @@ class StateMachineRegistry
 
         if (empty($transition->getTransitionName())) {
             $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
+            $transitionNames = \array_map(function (StateMachineTransitionEntity $transition) {
                 return $transition->getActionName();
             }, $transitions);
 
@@ -291,7 +291,7 @@ class StateMachineRegistry
         }
 
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
-        $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
+        $transitionNames = \array_map(function (StateMachineTransitionEntity $transition) {
             return $transition->getActionName();
         }, $transitions);
 

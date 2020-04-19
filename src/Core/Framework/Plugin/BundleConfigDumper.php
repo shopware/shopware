@@ -38,9 +38,9 @@ class BundleConfigDumper implements EventSubscriberInterface
     {
         $config = $this->bundleConfigGenerator->getConfig();
 
-        file_put_contents(
+        \file_put_contents(
             $this->cacheDir . '/../../plugins.json',
-            json_encode($config, JSON_PRETTY_PRINT)
+            \json_encode($config, \JSON_PRETTY_PRINT)
         );
     }
 }

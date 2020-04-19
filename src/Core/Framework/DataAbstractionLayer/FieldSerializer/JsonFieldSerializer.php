@@ -32,7 +32,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
      */
-    public static function encodeJson($value, int $options = JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION): string
+    public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION): string
     {
         return \json_encode($value, $options);
     }
@@ -72,7 +72,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             return $field->getDefault();
         }
 
-        $raw = json_decode($value, true);
+        $raw = \json_decode($value, true);
         $decoded = $raw;
         if (empty($field->getPropertyMapping())) {
             return $raw;
@@ -90,7 +90,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             $embedded->compile($this->definitionRegistry);
             $decodedValue = $embedded->getSerializer()->decode($embedded, $value);
             if ($decodedValue instanceof \DateTimeInterface) {
-                $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : DATE_ATOM;
+                $format = $embedded instanceof DateField ? Defaults::STORAGE_DATE_FORMAT : \DATE_ATOM;
                 $decodedValue = $decodedValue->format($format);
             }
 
@@ -113,7 +113,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         array $data,
         WriteParameterBag $parameters
     ): array {
-        if (array_key_exists('_class', $data)) {
+        if (\array_key_exists('_class', $data)) {
             unset($data['_class']);
         }
 
@@ -121,13 +121,13 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         $existence = new EntityExistence(null, [], false, false, false, []);
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
-        $propertyKeys = array_map(function (Field $field) {
+        $propertyKeys = \array_map(function (Field $field) {
             return $field->getPropertyName();
         }, $field->getPropertyMapping());
 
         // If a mapping is defined, you should not send properties that are undefined.
         // Sending undefined fields will throw an UnexpectedFieldException
-        $keyDiff = array_diff(array_keys($data), $propertyKeys);
+        $keyDiff = \array_diff(\array_keys($data), $propertyKeys);
         if (\count($keyDiff)) {
             foreach ($keyDiff as $fieldName) {
                 $parameters->getContext()->getExceptions()->add(
@@ -174,7 +174,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
 
                 foreach ($encoded as $fieldKey => $fieldValue) {
                     if ($nestedField instanceof JsonField && $fieldValue !== null) {
-                        $fieldValue = json_decode($fieldValue, true);
+                        $fieldValue = \json_decode($fieldValue, true);
                     }
 
                     $stack->update($fieldKey, $fieldValue);

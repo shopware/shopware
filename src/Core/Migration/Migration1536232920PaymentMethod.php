@@ -18,7 +18,7 @@ class Migration1536232920PaymentMethod extends MigrationStep
         $connection->executeUpdate('
             CREATE TABLE `payment_method` (
                 `id`                    BINARY(16)                              NOT NULL,
-                `handler_identifier`    VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT "' . str_replace('\\', '\\\\', DefaultPayment::class) . '",
+                `handler_identifier`    VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT "' . \str_replace('\\', '\\\\', DefaultPayment::class) . '",
                 `position`              INT(11)                                 NOT NULL DEFAULT 1,
                 `active`                TINYINT(1)                              NOT NULL DEFAULT 0,
                 `availability_rule_id`  BINARY(16)                              NULL,

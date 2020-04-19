@@ -23,7 +23,7 @@ class ListingTestData
 
     public function getKey(string $id)
     {
-        $ids = array_flip($this->ids);
+        $ids = \array_flip($this->ids);
 
         return $ids[$id];
     }
@@ -31,7 +31,7 @@ class ListingTestData
     public function getKeyList(array $ids): array
     {
         $keys = [];
-        $flipped = array_flip($this->ids);
+        $flipped = \array_flip($this->ids);
         foreach ($ids as $id) {
             $keys[] = $flipped[$id];
         }

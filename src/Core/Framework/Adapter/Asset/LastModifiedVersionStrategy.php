@@ -37,10 +37,10 @@ class LastModifiedVersionStrategy implements VersionStrategyInterface
     {
         $localFile = $this->bundlePath . '/Resources/public/' . $path;
 
-        if (!file_exists($localFile)) {
+        if (!\file_exists($localFile)) {
             return $path;
         }
 
-        return $path . '?' . filemtime($localFile) . filesize($localFile);
+        return $path . '?' . \filemtime($localFile) . \filesize($localFile);
     }
 }

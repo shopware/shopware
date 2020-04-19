@@ -30,9 +30,9 @@ class RepositoryIteratorTest extends TestCase
 
         $x = 0;
         while (($result = $iterator->fetch()) !== null) {
-            $expectedCriteriaJsonActual = str_replace('XXOFFSETXX', ++$x, $expectedCriteriaJson);
+            $expectedCriteriaJsonActual = \str_replace('XXOFFSETXX', ++$x, $expectedCriteriaJson);
             static::assertNotEmpty($result->first()->getId());
-            static::assertEquals($expectedCriteriaJsonActual, json_encode($criteria));
+            static::assertEquals($expectedCriteriaJsonActual, \json_encode($criteria));
         }
     }
 }

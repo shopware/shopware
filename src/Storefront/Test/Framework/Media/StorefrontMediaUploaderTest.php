@@ -107,7 +107,7 @@ class StorefrontMediaUploaderTest extends TestCase
         }
 
         $this->getContainer()->get('media.repository')->delete(
-            array_map(static function (string $id) {
+            \array_map(static function (string $id) {
                 return ['id' => $id];
             }, $ids),
             Context::createDefaultContext()

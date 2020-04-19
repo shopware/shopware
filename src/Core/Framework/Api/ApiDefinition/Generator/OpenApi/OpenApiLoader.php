@@ -6,8 +6,8 @@ use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use OpenApi\Annotations\Schema;
-use function OpenApi\scan;
 use const OpenApi\Annotations\UNDEFINED;
+use function OpenApi\scan;
 
 class OpenApiLoader
 {
@@ -47,7 +47,7 @@ class OpenApiLoader
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
-                if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
+                if ($operation instanceof Operation && !\in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
 
@@ -58,7 +58,7 @@ class OpenApiLoader
                         }
                     }
 
-                    $operation->tags = array_values($operation->tags);
+                    $operation->tags = \array_values($operation->tags);
                 }
 
                 $allUndefined = ($pathItem->$key === UNDEFINED && $allUndefined === true);
@@ -166,7 +166,7 @@ class OpenApiLoader
                             'schema' => new Schema(['type' => 'string']),
                         ]);
 
-                        array_unshift($operation->parameters, $page, $limit, $term, $filter, $postFilter, $associations, $aggregations, $query, $grouping);
+                        \array_unshift($operation->parameters, $page, $limit, $term, $filter, $postFilter, $associations, $aggregations, $query, $grouping);
                     }
                 }
             }

@@ -130,7 +130,7 @@ class OrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         $newToken = $this->contextPersister->replace($response['contextToken']);
         $this->contextPersister->save(
             $newToken,
@@ -155,7 +155,7 @@ class OrderRouteTest extends TestCase
                 $this->requestCriteriaBuilder->toArray($criteria)
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -172,13 +172,13 @@ class OrderRouteTest extends TestCase
             ->request(
                 'GET',
                 '/store-api/v1/order',
-                array_merge(
+                \array_merge(
                     $this->requestCriteriaBuilder->toArray($criteria),
                     ['checkPromotion' => true]
                 )
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('orders', $response);
         static::assertArrayHasKey('elements', $response['orders']);
@@ -187,7 +187,7 @@ class OrderRouteTest extends TestCase
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
         static::assertArrayHasKey('paymentChangeable', $response);
         static::assertCount(1, $response['paymentChangeable']);
-        static::assertTrue(array_pop($response['paymentChangeable']));
+        static::assertTrue(\array_pop($response['paymentChangeable']));
     }
 
     public function testSetPaymentOrder(): void
@@ -203,10 +203,10 @@ class OrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertArrayHasKey('success', $response, print_r($response, true));
-        static::assertTrue($response['success'], print_r($response, true));
+        static::assertArrayHasKey('success', $response, \print_r($response, true));
+        static::assertTrue($response['success'], \print_r($response, true));
 
         $criteria = new Criteria([$this->orderId]);
         $criteria->addAssociation('transactions');
@@ -229,7 +229,7 @@ class OrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -245,7 +245,7 @@ class OrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('technicalName', $response);
         static::assertEquals('cancelled', $response['technicalName']);
@@ -296,8 +296,8 @@ class OrderRouteTest extends TestCase
                         'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(DATE_ISO8601),
-                        'shippingDateLatest' => date(DATE_ISO8601),
+                        'shippingDateEarliest' => \date(\DATE_ISO8601),
+                        'shippingDateLatest' => \date(\DATE_ISO8601),
                         'shippingOrderAddress' => [
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',

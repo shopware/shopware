@@ -42,7 +42,7 @@ class SalutationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(3, $response);
         static::assertArrayHasKey('salutationKey', $response[0]);
@@ -63,7 +63,7 @@ class SalutationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(3, $response);
         static::assertArrayHasKey('id', $response[0]);
@@ -82,7 +82,7 @@ class SalutationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertArrayHasKey('id', $response[0]);

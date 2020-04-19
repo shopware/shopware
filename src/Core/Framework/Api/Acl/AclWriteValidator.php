@@ -46,7 +46,7 @@ class AclWriteValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (is_subclass_of($command->getDefinition(), EntityTranslationDefinition::class)) {
+            if (\is_subclass_of($command->getDefinition(), EntityTranslationDefinition::class)) {
                 $resource = $command->getDefinition()->getParentDefinition()->getEntityName();
 
                 if ($privilege !== AclRoleDefinition::PRIVILEGE_DELETE) {
@@ -78,7 +78,7 @@ class AclWriteValidator implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
+            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,
@@ -113,7 +113,7 @@ class AclWriteValidator implements EventSubscriberInterface
     private function getPrivilegeForParentWriteOperation(WriteCommand $command, array $commands): string
     {
         $pathSuffix = '/translations/' . Uuid::fromBytesToHex($command->getPrimaryKey()['language_id']);
-        $parentCommandPath = str_replace($pathSuffix, '', $command->getPath());
+        $parentCommandPath = \str_replace($pathSuffix, '', $command->getPath());
         $parentCommand = $this->findCommandByPath($parentCommandPath, $commands);
 
         // writes to translation need privilege from parent command

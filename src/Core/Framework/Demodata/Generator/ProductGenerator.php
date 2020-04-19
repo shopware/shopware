@@ -76,15 +76,15 @@ class ProductGenerator implements DemodataGeneratorInterface
 
             $productProperties = [];
             foreach ($properties as $options) {
-                $productProperties = array_merge(
+                $productProperties = \array_merge(
                     $productProperties,
                     $context->getFaker()->randomElements($options, 3)
                 );
             }
 
-            $productProperties = array_slice($productProperties, 0, 20);
+            $productProperties = \array_slice($productProperties, 0, 20);
 
-            $product['properties'] = array_map(function ($config) {
+            $product['properties'] = \array_map(function ($config) {
                 return ['id' => $config];
             }, $productProperties);
 
@@ -126,7 +126,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $price = $context->getFaker()->randomFloat(2, 1, 1000);
         $rules = $context->getIds('rule');
-        $tax = $taxes->get(array_rand($taxes->getIds()));
+        $tax = $taxes->get(\array_rand($taxes->getIds()));
         $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
 
         $faker = $context->getFaker();
@@ -161,8 +161,8 @@ class ProductGenerator implements DemodataGeneratorInterface
         $output = '';
         for ($i = 0; $i < $count; ++$i) {
             $tag = Random::getRandomArrayElement($tags);
-            $text = $context->getFaker()->words(random_int(1, 10), true);
-            $output .= sprintf('<%1$s>%2$s</%1$s>', $tag, $text);
+            $text = $context->getFaker()->words(\random_int(1, 10), true);
+            $output .= \sprintf('<%1$s>%2$s</%1$s>', $tag, $text);
             $output .= '<br/>';
         }
 
@@ -174,12 +174,12 @@ class ProductGenerator implements DemodataGeneratorInterface
         $prices = [];
         $rules = \array_slice(
             $rules,
-            random_int(0, \count($rules) - 5),
-            random_int(1, 5)
+            \random_int(0, \count($rules) - 5),
+            \random_int(1, 5)
         );
 
         foreach ($rules as $ruleId) {
-            $gross = random_int(500, 1000);
+            $gross = \random_int(500, 1000);
 
             $prices[] = [
                 'ruleId' => $ruleId,
@@ -188,7 +188,7 @@ class ProductGenerator implements DemodataGeneratorInterface
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $gross, 'net' => $gross / $reverseTaxRate, 'linked' => true]],
             ];
 
-            $gross = random_int(1, 499);
+            $gross = \random_int(1, 499);
 
             $prices[] = [
                 'ruleId' => $ruleId,
@@ -216,7 +216,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM sales_channel LIMIT 100');
 
-        return array_map(function ($id) {
+        return \array_map(function ($id) {
             return ['salesChannelId' => $id['id'], 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
         }, $ids);
     }

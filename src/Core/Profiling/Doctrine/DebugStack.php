@@ -27,10 +27,10 @@ class DebugStack extends DoctrineDebugStack
             return;
         }
 
-        $stack = debug_backtrace();
+        $stack = \debug_backtrace();
 
-        $stack = array_map(function ($caller) {
-            if (!is_array($caller)) {
+        $stack = \array_map(function ($caller) {
+            if (!\is_array($caller)) {
                 return null;
             }
             if (!isset($caller['class']) || !isset($caller['function']) || !isset($caller['line'])) {
@@ -40,29 +40,29 @@ class DebugStack extends DoctrineDebugStack
             return $caller['class'] . '::' . $caller['function'] . ' (line ' . $caller['line'] . ')';
         }, $stack);
 
-        $stack = array_filter($stack);
+        $stack = \array_filter($stack);
 
         $this->queries[$this->currentQuery]['stack'] = $stack;
     }
 
     private function ensureMasterSlaveCompatibility(string $query): void
     {
-        $sqlMethod = debug_backtrace()[2]['function'];
+        $sqlMethod = \debug_backtrace()[2]['function'];
         if ($sqlMethod !== 'executeQuery') {
             return;
         }
 
-        $matches = preg_match_all(self::$writeSqlRegex, $query);
+        $matches = \preg_match_all(self::$writeSqlRegex, $query);
 
         if ($matches) {
-            if (getenv('APP_ENV') === 'test') {
+            if (\getenv('APP_ENV') === 'test') {
                 throw new \RuntimeException(
-                    sprintf('Write operations are not supported when using executeQuery. Query: %s', $query)
+                    \sprintf('Write operations are not supported when using executeQuery. Query: %s', $query)
                 );
             }
 
             // will throw an exception with 6.3.0
-            @trigger_error('Write operations are not supported when using executeQuery.', E_USER_DEPRECATED);
+            @\trigger_error('Write operations are not supported when using executeQuery.', \E_USER_DEPRECATED);
         }
     }
 }

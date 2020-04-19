@@ -233,7 +233,7 @@ class EntityAggregatorTest extends TestCase
         static::assertCount(4, $categoryAgg->getBuckets());
 
         foreach ($categoryAgg->getBuckets() as $bucket) {
-            $current = array_shift($order);
+            $current = \array_shift($order);
             static::assertSame($current, $bucket->getKey());
         }
 
@@ -263,7 +263,7 @@ class EntityAggregatorTest extends TestCase
         static::assertCount(4, $categoryAgg->getBuckets());
 
         foreach ($categoryAgg->getBuckets() as $bucket) {
-            $current = array_shift($order);
+            $current = \array_shift($order);
             static::assertSame($current, $bucket->getKey());
         }
 
@@ -1008,7 +1008,7 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
         /** @var DateHistogramResult $histogram */
-        static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
+        static::assertCount(\count($case->getBuckets()), $histogram->getBuckets(), \print_r($histogram->getBuckets(), true));
 
         foreach ($case->getBuckets() as $key => $count) {
             static::assertTrue($histogram->has($key));
@@ -1170,7 +1170,7 @@ class EntityAggregatorTest extends TestCase
 
     private function getProduct(string $key, string $taxKey, string $manufacturerKey, float $price, array $categoryKeys, string $releaseDate): array
     {
-        $categories = array_map(function ($categoryKey) {
+        $categories = \array_map(function ($categoryKey) {
             return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
         }, $categoryKeys);
 

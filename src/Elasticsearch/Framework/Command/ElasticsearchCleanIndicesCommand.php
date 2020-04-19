@@ -60,19 +60,19 @@ class ElasticsearchCleanIndicesCommand extends Command
             return 0;
         }
 
-        $this->io->table(['Indices to be deleted:'], array_map(static function (string $name) {
+        $this->io->table(['Indices to be deleted:'], \array_map(static function (string $name) {
             return [$name];
         }, $indices));
 
         if (!$input->getOption('force')) {
-            if (!$this->io->confirm(sprintf('Delete these %d indices?', count($indices)), false)) {
+            if (!$this->io->confirm(\sprintf('Delete these %d indices?', \count($indices)), false)) {
                 $this->io->writeln('Deletion aborted.');
 
                 return 1;
             }
         }
 
-        $this->client->indices()->delete(['index' => implode(',', $indices)]);
+        $this->client->indices()->delete(['index' => \implode(',', $indices)]);
 
         $this->io->writeln('Indices deleted.');
 

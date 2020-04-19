@@ -63,41 +63,41 @@ class CurlClient implements Client
      */
     private function call($url, $method = self::METHOD_GET, array $header = [], $data = null)
     {
-        if (!function_exists('curl_init')) {
+        if (!\function_exists('curl_init')) {
             throw new ClientException('curl not loaded');
         }
 
-        if (!in_array($method, $this->validMethods, true)) {
+        if (!\in_array($method, $this->validMethods, true)) {
             throw new ClientException('Invalid HTTP-METHOD: ' . $method);
         }
 
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        if (!\filter_var($url, \FILTER_VALIDATE_URL)) {
             throw new ClientException('Invalid URL given');
         }
 
         //Initializes the cURL instance
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($curl, CURLOPT_HEADER, true);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Shopware Installer');
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        $curl = \curl_init();
+        \curl_setopt($curl, \CURLOPT_HTTPHEADER, $header);
+        \curl_setopt($curl, \CURLOPT_RETURNTRANSFER, true);
+        \curl_setopt($curl, \CURLOPT_FOLLOWLOCATION, true);
+        \curl_setopt($curl, \CURLOPT_HEADER, true);
+        \curl_setopt($curl, \CURLOPT_USERAGENT, 'Shopware Installer');
+        \curl_setopt($curl, \CURLOPT_URL, $url);
+        \curl_setopt($curl, \CURLOPT_CUSTOMREQUEST, $method);
+        \curl_setopt($curl, \CURLOPT_POSTFIELDS, $data);
 
-        $content = curl_exec($curl);
+        $content = \curl_exec($curl);
 
-        $error = curl_errno($curl);
-        $errmsg = curl_error($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $error = \curl_errno($curl);
+        $errmsg = \curl_error($curl);
+        $httpCode = \curl_getinfo($curl, \CURLINFO_HTTP_CODE);
 
-        curl_close($curl);
+        \curl_close($curl);
         if ($content === false) {
             throw new ClientException($errmsg, $error);
         }
 
-        list($header, $body) = explode("\r\n\r\n", $content, 2);
+        list($header, $body) = \explode("\r\n\r\n", $content, 2);
 
         return new Response($body, $httpCode, $header);
     }

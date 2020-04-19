@@ -78,9 +78,9 @@ class HttpKernel
         } catch (ConnectionException $e) {
             $connection = self::getConnection();
 
-            $message = str_replace([$connection->getParams()['password'], $connection->getParams()['user']], '******', $e->getMessage());
+            $message = \str_replace([$connection->getParams()['password'], $connection->getParams()['user']], '******', $e->getMessage());
 
-            throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
+            throw new \RuntimeException(\sprintf('Could not connect to database. Message from SQL Server: %s', $message));
         }
     }
 
@@ -105,7 +105,7 @@ class HttpKernel
 
         $url = $_ENV['DATABASE_URL']
             ?? $_SERVER['DATABASE_URL']
-            ?? getenv('DATABASE_URL');
+            ?? \getenv('DATABASE_URL');
 
         $parameters = [
             'url' => $url,
@@ -193,12 +193,12 @@ class HttpKernel
         if ($this->projectDir === null) {
             $r = new \ReflectionObject($this);
 
-            if (!file_exists($dir = $r->getFileName())) {
-                throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
+            if (!\file_exists($dir = $r->getFileName())) {
+                throw new \LogicException(\sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
             }
 
             $dir = $rootDir = \dirname($dir);
-            while (!file_exists($dir . '/composer.json')) {
+            while (!\file_exists($dir . '/composer.json')) {
                 if ($dir === \dirname($dir)) {
                     return $this->projectDir = $rootDir;
                 }

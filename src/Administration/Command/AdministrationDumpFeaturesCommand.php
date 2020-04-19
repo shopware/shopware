@@ -35,9 +35,9 @@ class AdministrationDumpFeaturesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        file_put_contents(
+        \file_put_contents(
             $this->kernel->getCacheDir() . '/../../config_administration_features.json',
-            json_encode(FeatureConfig::getAll())
+            \json_encode(FeatureConfig::getAll())
         );
 
         $style = new ShopwareStyle($input, $output);

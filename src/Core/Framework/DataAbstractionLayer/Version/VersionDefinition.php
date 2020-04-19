@@ -42,7 +42,7 @@ class VersionDefinition extends EntityDefinition
         $dateTime = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         return [
-            'name' => sprintf('Draft %s', $dateTime),
+            'name' => \sprintf('Draft %s', $dateTime),
             'createdAt' => $dateTime,
         ];
     }

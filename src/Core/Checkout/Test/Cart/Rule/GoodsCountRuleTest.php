@@ -65,7 +65,7 @@ class GoodsCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
             static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
@@ -90,7 +90,7 @@ class GoodsCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
@@ -112,7 +112,7 @@ class GoodsCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/count', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
@@ -197,7 +197,7 @@ class GoodsCountRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
             static::assertSame(Choice::NO_SUCH_CHOICE_ERROR, $exceptions[0]['code']);

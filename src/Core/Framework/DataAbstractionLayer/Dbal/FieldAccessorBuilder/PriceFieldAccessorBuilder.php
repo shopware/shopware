@@ -21,10 +21,10 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $jsonAccessor = 'gross';
         }
 
-        $parts = explode('.', $accessor);
+        $parts = \explode('.', $accessor);
 
         // filter / search / sort for list prices? => extend selector
-        $listPrice = array_pop($parts) === 'listPrice';
+        $listPrice = \array_pop($parts) === 'listPrice';
         if ($listPrice) {
             $jsonAccessor = 'listPrice.' . $jsonAccessor;
         }
@@ -37,7 +37,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
          *
          * We can indirectly cast to float by adding 0.0
          */
-        $select[] = sprintf(
+        $select[] = \sprintf(
             '(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s.%s")) %s)',
             $root,
             $field->getStorageName(),
@@ -47,9 +47,9 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         );
 
         if ($context->getCurrencyId() !== Defaults::CURRENCY) {
-            $currencyFactor = sprintf('* %F', $context->getCurrencyFactor());
+            $currencyFactor = \sprintf('* %F', $context->getCurrencyFactor());
 
-            $select[] = sprintf(
+            $select[] = \sprintf(
                 '(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s.%s")) %s)',
                 $root,
                 $field->getStorageName(),
@@ -59,6 +59,6 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        return sprintf('(COALESCE(%s))', implode(',', $select));
+        return \sprintf('(COALESCE(%s))', \implode(',', $select));
     }
 }

@@ -64,7 +64,7 @@ trait SalesChannelApiTestBehaviour
             throw new \LogicException('The sales channel id con only be requested after calling `createSalesChannelApiClient`.');
         }
 
-        return end($this->salesChannelIds);
+        return \end($this->salesChannelIds);
     }
 
     public function createCustomSalesChannelBrowser(array $salesChannelOverride = []): KernelBrowser
@@ -135,7 +135,7 @@ trait SalesChannelApiTestBehaviour
 
         $this->salesChannelIds[] = $salesChannel['id'];
 
-        $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $header = 'HTTP_' . \str_replace('-', '_', \mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $salesChannelApiClient->setServerParameter($header, $salesChannel['accessKey']);
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
@@ -155,7 +155,7 @@ trait SalesChannelApiTestBehaviour
             echo $salesChannelIds->firstId();
         }
 
-        $salesChannel = array_merge([
+        $salesChannel = \array_merge([
             'id' => Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'API Test case sales channel',
@@ -191,7 +191,7 @@ trait SalesChannelApiTestBehaviour
         $browser = $customBrowser ?: $this->getSalesChannelBrowser();
         $browser->request('GET', '/sales-channel-api/v1/context');
         $response = $browser->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
     }
 }

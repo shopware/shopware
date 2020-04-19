@@ -52,7 +52,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesMediaId(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/%s/upload',
             PlatformRequest::API_VERSION,
             $this->mediaId
@@ -65,9 +65,9 @@ class MediaUploadControllerTest extends TestCase
             [],
             [
                 'HTTP_CONTENT-TYPE' => 'image/png',
-                'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
+                'HTTP_CONTENT-LENGTH' => \filesize(self::TEST_IMAGE),
             ],
-            file_get_contents(self::TEST_IMAGE)
+            \file_get_contents(self::TEST_IMAGE)
         );
         $media = $this->getMediaEntity();
 
@@ -80,7 +80,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesFileName(): void
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/%s/upload',
             PlatformRequest::API_VERSION,
             $this->mediaId
@@ -93,9 +93,9 @@ class MediaUploadControllerTest extends TestCase
             [],
             [
                 'HTTP_CONTENT-TYPE' => 'image/png',
-                'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
+                'HTTP_CONTENT-LENGTH' => \filesize(self::TEST_IMAGE),
             ],
-            file_get_contents(self::TEST_IMAGE)
+            \file_get_contents(self::TEST_IMAGE)
         );
         $media = $this->getMediaEntity();
 
@@ -109,11 +109,11 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromURL(): void
     {
         $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
-        copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
+        \copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
 
         $baseUrl = $_SERVER['APP_URL'] ?? '';
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/%s/upload',
             PlatformRequest::API_VERSION,
             $this->mediaId
@@ -128,11 +128,11 @@ class MediaUploadControllerTest extends TestCase
                 [
                     'HTTP_CONTENT-TYPE' => 'application/json',
                 ],
-                json_encode(['url' => $baseUrl . '/shopware-logo.png'])
+                \json_encode(['url' => $baseUrl . '/shopware-logo.png'])
             );
             $response = $this->getBrowser()->getResponse();
         } finally {
-            unlink($target);
+            \unlink($target);
         }
 
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
@@ -154,7 +154,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/%s/rename',
             PlatformRequest::API_VERSION,
             $media->getId()
@@ -172,7 +172,7 @@ class MediaUploadControllerTest extends TestCase
         );
 
         $response = $this->getBrowser()->getResponse();
-        $responseData = json_decode($response->getContent(), true);
+        $responseData = \json_decode($response->getContent(), true);
 
         static::assertEquals(400, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_EMPTY_FILE', $responseData['errors'][0]['code']);
@@ -186,7 +186,7 @@ class MediaUploadControllerTest extends TestCase
 
         $this->getPublicFilesystem()->put($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/%s/rename',
             PlatformRequest::API_VERSION,
             $media->getId()
@@ -217,7 +217,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/provide-name?fileName=%s&extension=png',
             PlatformRequest::API_VERSION,
             $media->getFileName()
@@ -231,7 +231,7 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $result = json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true);
         static::assertEquals($media->getFileName() . '_(1)', $result['fileName']);
     }
 
@@ -241,7 +241,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/media/provide-name?fileName=%s&extension=png&mediaId=%s',
             PlatformRequest::API_VERSION,
             $media->getFileName(),
@@ -256,7 +256,7 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $result = json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true);
         static::assertEquals($media->getFileName(), $result['fileName']);
     }
 
@@ -284,37 +284,37 @@ class MediaUploadControllerTest extends TestCase
             "/api/v1/media/{$this->mediaId}"
         );
 
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertCount(
             3,
             $responseData['data']['attributes']['metaData'],
-            print_r($responseData['data']['attributes'], true)
+            \print_r($responseData['data']['attributes'], true)
         );
         static::assertSame(
             499,
             $responseData['data']['attributes']['metaData']['width'],
-            print_r($responseData['data']['attributes'], true)
+            \print_r($responseData['data']['attributes'], true)
         );
         static::assertCount(
             3,
             $responseData['data']['attributes']['mediaType'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            \print_r($responseData['data']['attributes']['mediaType'], true)
         );
         static::assertSame(
             'IMAGE',
             $responseData['data']['attributes']['mediaType']['name'],
-            print_r($responseData['data']['attributes']['mediaType'], true)
+            \print_r($responseData['data']['attributes']['mediaType'], true)
         );
         static::assertCount(
             1,
             $responseData['data']['attributes']['mediaType']['flags'],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            \print_r($responseData['data']['attributes']['mediaType']['flags'], true)
         );
         static::assertSame(
             ImageType::TRANSPARENT,
             $responseData['data']['attributes']['mediaType']['flags'][0],
-            print_r($responseData['data']['attributes']['mediaType']['flags'], true)
+            \print_r($responseData['data']['attributes']['mediaType']['flags'], true)
         );
     }
 }

@@ -79,7 +79,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         ];
 
         $current = $this->client->indices()->getAlias(['name' => $alias]);
-        $current = array_keys($current);
+        $current = \array_keys($current);
 
         foreach ($current as $value) {
             $actions[] = ['remove' => ['index' => $value, 'alias' => $alias]];

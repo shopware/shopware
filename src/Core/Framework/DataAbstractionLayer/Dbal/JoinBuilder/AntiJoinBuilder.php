@@ -30,7 +30,7 @@ class AntiJoinBuilder implements JoinBuilderInterface
         $associations = $antiJoinInfo->getAssociations();
 
         /** @var AssociationField $firstAssociation */
-        $firstAssociation = array_shift($associations);
+        $firstAssociation = \array_shift($associations);
         if ($firstAssociation instanceof ManyToManyAssociationField) {
             $mapping = $firstAssociation->getMappingDefinition();
             $mappingAlias = $on . '.' . $firstAssociation->getPropertyName() . '.mapping';
@@ -126,9 +126,9 @@ class AntiJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 '(' . $subQuery . ')',
                 EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
+                \str_replace(
+                    \array_keys($parameters),
+                    \array_values($parameters),
                     '#source# = #alias#.#reference_column# ' . $versionJoinCondition
                 )
             );
@@ -137,9 +137,9 @@ class AntiJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 '(' . $subQuery . ')',
                 EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
+                \str_replace(
+                    \array_keys($parameters),
+                    \array_values($parameters),
                     '#source# = #alias#.#reference_column# ' . $versionJoinCondition
                 )
             );
@@ -176,7 +176,7 @@ class AntiJoinBuilder implements JoinBuilderInterface
             if ($fk && $fk->is(Required::class)) {
                 $parent = $on . '.parent';
 
-                $inherited = sprintf(
+                $inherited = \sprintf(
                     'IFNULL(%s, %s)',
                     $source,
                     EntityDefinitionQueryHelper::escape($parent) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
@@ -186,7 +186,7 @@ class AntiJoinBuilder implements JoinBuilderInterface
             return $inherited;
         }
 
-        throw new \RuntimeException(sprintf('Unexpected field in %s::%s given', self::class, __METHOD__));
+        throw new \RuntimeException(\sprintf('Unexpected field in %s::%s given', self::class, __METHOD__));
     }
 
     private function innerJoin(string $joinAlias, string $root, ManyToManyAssociationField $association, EntityDefinition $referenceDefinition, QueryBuilder $builder, Context $context): void
@@ -220,9 +220,9 @@ class AntiJoinBuilder implements JoinBuilderInterface
             EntityDefinitionQueryHelper::escape($joinAlias),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
+            \str_replace(
+                \array_keys($parameters),
+                \array_values($parameters),
                 '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition
             )
         );

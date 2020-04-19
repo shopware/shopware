@@ -29,19 +29,19 @@ class SnippetValidator implements SnippetValidatorInterface
         foreach ($this->snippetFiles as $snippetFile) {
             $availableIsos[] = $snippetFile->getIso();
 
-            if (!array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
+            if (!\array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
                 $snippetFileMappings[$snippetFile->getIso()] = [];
             }
 
-            $json = json_decode(file_get_contents($snippetFile->getPath()), true);
+            $json = \json_decode(\file_get_contents($snippetFile->getPath()), true);
 
-            $jsonError = json_last_error();
+            $jsonError = \json_last_error();
             if ($jsonError !== 0) {
-                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $snippetFile->getPath(), $jsonError));
+                throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $snippetFile->getPath(), $jsonError));
             }
 
             foreach ($this->getRecursiveArrayKeys($json) as $keyPath) {
-                $snippetFileMappings[$snippetFile->getIso()][$keyPath] = str_ireplace($this->projectDir, '', $snippetFile->getPath());
+                $snippetFileMappings[$snippetFile->getIso()][$keyPath] = \str_ireplace($this->projectDir, '', $snippetFile->getPath());
             }
         }
 
@@ -55,13 +55,13 @@ class SnippetValidator implements SnippetValidatorInterface
         foreach ($dataSet as $key => $data) {
             $key = $keyString . $key;
 
-            if (!is_array($data)) {
+            if (!\is_array($data)) {
                 $keyPaths[] = $key;
 
                 continue;
             }
 
-            $keyPaths = array_merge($keyPaths, $this->getRecursiveArrayKeys($data, $key . '.'));
+            $keyPaths = \array_merge($keyPaths, $this->getRecursiveArrayKeys($data, $key . '.'));
         }
 
         return $keyPaths;
@@ -77,7 +77,7 @@ class SnippetValidator implements SnippetValidatorInterface
                 unset($tempIsos[$isoKey]);
 
                 foreach ($tempIsos as $tempIso) {
-                    if (!array_key_exists($snippetKeyPath, $snippetFileMappings[$tempIso])) {
+                    if (!\array_key_exists($snippetKeyPath, $snippetFileMappings[$tempIso])) {
                         $missingSnippetsArray[$tempIso][$snippetKeyPath] = $snippetFileMapping;
                     }
                 }

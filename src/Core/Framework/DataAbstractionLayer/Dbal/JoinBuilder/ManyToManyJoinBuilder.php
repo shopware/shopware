@@ -65,9 +65,9 @@ class ManyToManyJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
+                \str_replace(
+                    \array_keys($parameters),
+                    \array_values($parameters),
                     '#source# = #alias#.#reference_column# ' . $versionJoinCondition
                 )
             );
@@ -76,9 +76,9 @@ class ManyToManyJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($on),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
+                \str_replace(
+                    \array_keys($parameters),
+                    \array_values($parameters),
                     '#source# = #alias#.#reference_column# ' . $versionJoinCondition
                 )
             );
@@ -120,9 +120,9 @@ class ManyToManyJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($joinAlias),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
+                \str_replace(
+                    \array_keys($parameters),
+                    \array_values($parameters),
                     '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $ruleCondition
                 )
             );
@@ -131,9 +131,9 @@ class ManyToManyJoinBuilder implements JoinBuilderInterface
                 EntityDefinitionQueryHelper::escape($joinAlias),
                 EntityDefinitionQueryHelper::escape($table),
                 EntityDefinitionQueryHelper::escape($alias),
-                str_replace(
-                    array_keys($parameters),
-                    array_values($parameters),
+                \str_replace(
+                    \array_keys($parameters),
+                    \array_values($parameters),
                     '#mapping#.#source_column# = #alias#.#reference_column# ' . $versionJoinCondition . $ruleCondition
                 )
             );

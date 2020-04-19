@@ -185,7 +185,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url): Event
     {
-        $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
+        $url .= \sprintf('/registration/confirm?em=%s&hash=%s', \hash('sha1', $customer->getEmail()), $customer->getHash());
 
         if ($customer->getGuest()) {
             $event = new DoubleOptInGuestOrderEvent($customer, $context, $url);
@@ -235,7 +235,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(\array_values($this->getDomainUrls($context))));
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
@@ -255,7 +255,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
+        return \array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return $domainEntity->getUrl();
         }, $context->getSalesChannel()->getDomains()->getElements());
     }
@@ -270,7 +270,7 @@ class RegisterRoute extends AbstractRegisterRoute
             return null;
         }
 
-        return new \DateTime(sprintf(
+        return new \DateTime(\sprintf(
             '%s-%s-%s',
             $birthdayYear,
             $birthdayMonth,

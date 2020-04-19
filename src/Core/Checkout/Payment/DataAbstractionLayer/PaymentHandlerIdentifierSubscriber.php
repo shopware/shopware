@@ -20,18 +20,18 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
     {
         /** @var PaymentMethodEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
+            $explodedHandlerIdentifier = \explode('\\', $entity->getHandlerIdentifier());
 
-            if (count($explodedHandlerIdentifier) < 2) {
+            if (\count($explodedHandlerIdentifier) < 2) {
                 $entity->setFormattedHandlerIdentifier($entity->getHandlerIdentifier());
 
                 continue;
             }
 
             $formattedHandlerIdentifier = 'handler_'
-                . mb_strtolower(array_shift($explodedHandlerIdentifier))
+                . \mb_strtolower(\array_shift($explodedHandlerIdentifier))
                 . '_'
-                . mb_strtolower(array_pop($explodedHandlerIdentifier));
+                . \mb_strtolower(\array_pop($explodedHandlerIdentifier));
 
             $entity->setFormattedHandlerIdentifier($formattedHandlerIdentifier);
         }

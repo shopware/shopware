@@ -53,7 +53,7 @@ class UpdateCommand extends Command
             $this->getHelper('question')
         );
 
-        if (!is_dir(UPDATE_ASSET_PATH)) {
+        if (!\is_dir(UPDATE_ASSET_PATH)) {
             $ioService->writeln('No update files found.');
 
             return 1;
@@ -65,7 +65,7 @@ class UpdateCommand extends Command
             $ioService->cls();
             $ioService->printBanner();
             $ioService->writeln('<info>Welcome to the Shopware updater </info>');
-            $ioService->writeln(sprintf('Shopware Version %s', $version));
+            $ioService->writeln(\sprintf('Shopware Version %s', $version));
             $ioService->writeln('');
             $ioService->ask('Press return to start the update.');
             $ioService->cls();
@@ -83,14 +83,14 @@ class UpdateCommand extends Command
         $ioService->writeln('');
         $ioService->writeln('<info>The update has been finished successfully.</info>');
         $ioService->writeln('Your shop is currently in maintenance mode.');
-        $ioService->writeln(sprintf('Please delete <question>%s</question> to finish the update.', UPDATE_ASSET_PATH));
+        $ioService->writeln(\sprintf('Please delete <question>%s</question> to finish the update.', UPDATE_ASSET_PATH));
         $ioService->writeln('');
     }
 
     private function unpackFiles(): void
     {
         $this->IOHelper->writeln('Replace system files...');
-        if (!UPDATE_FILES_PATH || !is_dir(UPDATE_FILES_PATH)) {
+        if (!UPDATE_FILES_PATH || !\is_dir(UPDATE_FILES_PATH)) {
             $this->IOHelper->writeln('skipped...');
 
             return;
@@ -133,7 +133,7 @@ class UpdateCommand extends Command
             $this->IOHelper->writeln('Apply database destructive migrations...');
         }
 
-        $progress = $this->IOHelper->createProgressBar(count($versions));
+        $progress = $this->IOHelper->createProgressBar(\count($versions));
         $progress->start();
 
         $step = new MigrationStep($coreCollection);
@@ -178,21 +178,21 @@ class UpdateCommand extends Command
         $lastGeneratedVersionFile = SW_PATH . '/config/jwt/version';
         $lastGeneratedVersion = null;
 
-        if (is_readable($lastGeneratedVersionFile)) {
-            $lastGeneratedVersion = file_get_contents($lastGeneratedVersionFile);
+        if (\is_readable($lastGeneratedVersionFile)) {
+            $lastGeneratedVersion = \file_get_contents($lastGeneratedVersionFile);
         }
 
         $requiredVersion = '6.0.0 ea1.1';
-        if (!$lastGeneratedVersion || version_compare($lastGeneratedVersion, $requiredVersion) === -1) {
+        if (!$lastGeneratedVersion || \version_compare($lastGeneratedVersion, $requiredVersion) === -1) {
             $jwtCertificateService = $this->container->get('jwt_certificate.writer');
             $jwtCertificateService->generate();
-            file_put_contents($lastGeneratedVersionFile, $this->container->get('shopware.version'));
+            \file_put_contents($lastGeneratedVersionFile, $this->container->get('shopware.version'));
         }
     }
 
     private function writeLockFile(): void
     {
-        if (is_dir(SW_PATH . '/recovery/install')) {
+        if (\is_dir(SW_PATH . '/recovery/install')) {
             /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
             $systemLocker = $this->container->get('system.locker');
             $systemLocker();

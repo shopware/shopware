@@ -139,15 +139,15 @@ class InfoController extends AbstractController
                 continue;
             }
 
-            $bundleName = mb_strtolower($bundle->getName());
+            $bundleName = \mb_strtolower($bundle->getName());
 
-            $styles = array_map(static function (string $filename) use ($package, $bundleName) {
+            $styles = \array_map(static function (string $filename) use ($package, $bundleName) {
                 $url = 'bundles/' . $bundleName . '/' . $filename;
 
                 return $package->getUrl($url);
             }, $this->getAdministrationStyles($bundle));
 
-            $scripts = array_map(static function (string $filename) use ($package, $bundleName) {
+            $scripts = \array_map(static function (string $filename) use ($package, $bundleName) {
                 $url = 'bundles/' . $bundleName . '/' . $filename;
 
                 return $package->getUrl($url);
@@ -168,10 +168,10 @@ class InfoController extends AbstractController
 
     private function getAdministrationStyles(Bundle $bundle): array
     {
-        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
+        $path = 'administration/css/' . \str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
         $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
+        if (!\file_exists($bundlePath . '/Resources/public/' . $path)) {
             return [];
         }
 
@@ -182,10 +182,10 @@ class InfoController extends AbstractController
 
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
+        $path = 'administration/js/' . \str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
         $bundlePath = $bundle->getPath();
 
-        if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
+        if (!\file_exists($bundlePath . '/Resources/public/' . $path)) {
             return [];
         }
 

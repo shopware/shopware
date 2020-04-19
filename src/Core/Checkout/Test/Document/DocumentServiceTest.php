@@ -318,10 +318,10 @@ class DocumentServiceTest extends TestCase
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $id = Uuid::randomHex();
 
-            $price = random_int(100, 200000) / 100.0;
+            $price = \random_int(100, 200000) / 100.0;
 
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
+            \shuffle($keywords);
+            $name = \ucfirst(\implode(' ', $keywords) . ' product');
 
             $products[] = [
                 'id' => $id,
@@ -340,7 +340,7 @@ class DocumentServiceTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, \end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')

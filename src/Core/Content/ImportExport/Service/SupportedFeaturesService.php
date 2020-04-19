@@ -21,10 +21,10 @@ class SupportedFeaturesService
     {
         $this->entities = [];
         foreach ($entities as $entityName) {
-            if (!is_string($entityName)) {
-                throw new \InvalidArgumentException(sprintf(
+            if (!\is_string($entityName)) {
+                throw new \InvalidArgumentException(\sprintf(
                     'Supported entities should be collection of strings. %s given.',
-                    gettype($entityName)
+                    \gettype($entityName)
                 ));
             }
             $this->entities[] = $entityName;
@@ -32,10 +32,10 @@ class SupportedFeaturesService
 
         $this->fileTypes = [];
         foreach ($fileTypes as $fileType) {
-            if (!is_string($fileType)) {
-                throw new \InvalidArgumentException(sprintf(
+            if (!\is_string($fileType)) {
+                throw new \InvalidArgumentException(\sprintf(
                     'Supported file types should be collection of strings. %s given',
-                    gettype($fileType)
+                    \gettype($fileType)
                 ));
             }
             $this->fileTypes[] = $fileType;
@@ -55,26 +55,26 @@ class SupportedFeaturesService
     public function getUploadFileSizeLimit(): int
     {
         $values = [
-            self::toBytes(ini_get('upload_max_filesize')),
-            self::toBytes(ini_get('post_max_size')),
+            self::toBytes(\ini_get('upload_max_filesize')),
+            self::toBytes(\ini_get('post_max_size')),
             2 * 1024 * 1024 * 1024, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 
-        $limits = array_filter($values, function (int $value) {
+        $limits = \array_filter($values, function (int $value) {
             return $value > 0;
         });
 
-        return min(...$limits);
+        return \min(...$limits);
     }
 
     private static function toBytes(string $value): int
     {
-        if (is_numeric($value)) {
+        if (\is_numeric($value)) {
             return (int) $value;
         }
-        $length = mb_strlen($value);
-        $qty = (int) mb_substr($value, 0, $length - 1);
-        $unit = mb_strtolower(mb_substr($value, $length - 1));
+        $length = \mb_strlen($value);
+        $qty = (int) \mb_substr($value, 0, $length - 1);
+        $unit = \mb_strtolower(\mb_substr($value, $length - 1));
         switch ($unit) {
             case 'k':
                 $qty *= 1024;

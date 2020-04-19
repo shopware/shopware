@@ -211,7 +211,7 @@ class EntityLoadedEventTest extends TestCase
         $subEvent = $event->getEvents()->first();
 
         // check if sub events are marked as nested so they don't create nested events again
-        $property = ReflectionHelper::getProperty(get_class($subEvent), 'nested');
+        $property = ReflectionHelper::getProperty(\get_class($subEvent), 'nested');
         static::assertFalse($property->getValue($subEvent));
 
         // there should be no more events as they are dispatched within the $root event

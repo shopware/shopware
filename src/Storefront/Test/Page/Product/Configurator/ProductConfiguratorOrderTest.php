@@ -97,8 +97,8 @@ class ProductConfiguratorOrderTest extends TestCase
 
     private static function ashuffle(array &$a)
     {
-        $keys = array_keys($a);
-        shuffle($keys);
+        $keys = \array_keys($a);
+        \shuffle($keys);
         $shuffled = [];
         foreach ($keys as $key) {
             $shuffled[$key] = $a[$key];
@@ -135,7 +135,7 @@ class ProductConfiguratorOrderTest extends TestCase
             ];
 
             if ($groupPositionOrder) {
-                $group['position'] = array_search($groupName, $groupPositionOrder, true);
+                $group['position'] = \array_search($groupName, $groupPositionOrder, true);
             }
 
             // 2 options for each group
@@ -190,7 +190,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(function (array $group) {
+                'options' => \array_map(function (array $group) {
                     // Assign first option from each group
                     return ['id' => $group[0]];
                 }, $optionIds),
@@ -207,7 +207,7 @@ class ProductConfiguratorOrderTest extends TestCase
         $groups = $this->productPageConfiguratorLoader->load($salesChannelProduct, $this->context);
 
         // return array of group names
-        return array_values(array_map(function (PropertyGroupEntity $propertyGroupEntity) {
+        return \array_values(\array_map(function (PropertyGroupEntity $propertyGroupEntity) {
             return $propertyGroupEntity->getName();
         }, $groups->getElements()));
     }

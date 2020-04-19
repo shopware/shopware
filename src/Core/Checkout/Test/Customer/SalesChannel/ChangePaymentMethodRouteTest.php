@@ -62,7 +62,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -77,7 +77,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_UUID', $response['errors'][0]['code']);
@@ -86,7 +86,7 @@ class ChangePaymentMethodRouteTest extends TestCase
     public function testChangePayment(): void
     {
         $this->browser->request('GET', '/store-api/v1/account/customer');
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($this->ids->get('payment'), $customer['defaultPaymentMethodId']);
 
@@ -98,12 +98,12 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertTrue($response['success']);
 
         $this->browser->request('GET', '/store-api/v1/account/customer');
-        $customer = json_decode($this->browser->getResponse()->getContent(), true);
+        $customer = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($this->ids->get('payment2'), $customer['defaultPaymentMethodId']);
     }

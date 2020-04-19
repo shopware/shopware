@@ -160,7 +160,7 @@ class ProductCartProcessorTest extends TestCase
             $this->createCustomField([]);
         }
 
-        $this->createProduct(array_merge([
+        $this->createProduct(\array_merge([
             'featureSets' => [
                 $this->createFeatureSet([$testedFeature]),
             ],
@@ -170,7 +170,7 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->get($this->ids->get('product'));
 
         $features = $lineItem->getPayload()['features'];
-        $feature = array_pop($features);
+        $feature = \array_pop($features);
 
         static::assertArrayHasKey('label', $feature);
         static::assertArrayHasKey('value', $feature);
@@ -405,7 +405,7 @@ class ProductCartProcessorTest extends TestCase
 
     private function createProduct(?array $additionalData = []): void
     {
-        $data = array_merge([
+        $data = \array_merge([
             'id' => $this->ids->create('product'),
             'name' => 'test',
             'productNumber' => Uuid::randomHex(),
@@ -435,7 +435,7 @@ class ProductCartProcessorTest extends TestCase
 
     private function createCustomField(?array $additionalData = []): void
     {
-        $data = array_merge([
+        $data = \array_merge([
             'id' => self::CUSTOM_FIELD_ID,
             'name' => 'lorem_ipsum',
             'type' => CustomFieldTypes::TEXT,
@@ -478,7 +478,7 @@ class ProductCartProcessorTest extends TestCase
             [
                 [
                     'id' => $id,
-                    'name' => sprintf('name-%s', $id),
+                    'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
                     'translationCode' => [

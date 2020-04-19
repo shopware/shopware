@@ -68,7 +68,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame($expect['fileType'], $record['file_type']);
             static::assertSame($expect['delimiter'], $record['delimiter']);
             static::assertSame($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(\json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -77,7 +77,7 @@ class ImportExportProfileApiTest extends TestCase
     {
         $requiredProperties = ['sourceEntity', 'fileType'];
         foreach ($requiredProperties as $property) {
-            $entry = current($this->prepareImportExportProfileTestData());
+            $entry = \current($this->prepareImportExportProfileTestData());
             unset($entry[$property]);
             $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
@@ -91,7 +91,7 @@ class ImportExportProfileApiTest extends TestCase
             // Create test data.
             $data = $this->prepareImportExportProfileTestData($num);
             if (!empty($data)) {
-                $this->repository->create(array_values($data), $this->context);
+                $this->repository->create(\array_values($data), $this->context);
             }
 
             $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
@@ -101,11 +101,11 @@ class ImportExportProfileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
 
             // Prepare expected data.
             $expectData = [];
-            foreach (array_values($data) as $entry) {
+            foreach (\array_values($data) as $entry) {
                 $expectData[$entry['id']] = $entry;
             }
 
@@ -121,7 +121,7 @@ class ImportExportProfileApiTest extends TestCase
                 static::assertSame($expect['fileType'], $importExportProfile->fileType);
                 static::assertSame($expect['delimiter'], $importExportProfile->delimiter);
                 static::assertSame($expect['enclosure'], $importExportProfile->enclosure);
-                static::assertEquals(json_decode(json_encode($expect['mapping'])), $importExportProfile->mapping);
+                static::assertEquals(\json_decode(\json_encode($expect['mapping'])), $importExportProfile->mapping);
             }
         }
     }
@@ -131,9 +131,9 @@ class ImportExportProfileApiTest extends TestCase
         // create test data
         $num = 5;
         $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $data = $this->rotateTestdata($data);
 
         $expectData = [];
@@ -154,7 +154,7 @@ class ImportExportProfileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = \json_decode($response->getContent());
 
         // Compare expected and received data.
         static::assertSame($num, $content->total);
@@ -168,7 +168,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame($expect['fileType'], $importExportProfile->fileType);
             static::assertSame($expect['delimiter'], $importExportProfile->delimiter);
             static::assertSame($expect['enclosure'], $importExportProfile->enclosure);
-            static::assertEquals(json_decode(json_encode($expect['mapping'])), $importExportProfile->mapping);
+            static::assertEquals(\json_decode(\json_encode($expect['mapping'])), $importExportProfile->mapping);
         }
     }
 
@@ -177,17 +177,17 @@ class ImportExportProfileApiTest extends TestCase
         // create test data
         $num = 5;
         $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $data = $this->rotateTestdata($data);
 
-        $properties = array_keys(current($data));
+        $properties = \array_keys(\current($data));
         $expectProperties = $properties;
 
         $expectData = [];
         foreach ($ids as $idx => $id) {
-            $removedProperty = array_pop($properties);
+            $removedProperty = \array_pop($properties);
             $expectData[$id] = $data[$idx];
             unset($data[$idx][$removedProperty]);
             unset($data[$idx]['id']);
@@ -204,7 +204,7 @@ class ImportExportProfileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), true);
+            $content = \json_decode($response->getContent(), true);
 
             $importExportProfile = $content['data'];
             $expect = $expectData[$id];
@@ -231,9 +231,9 @@ class ImportExportProfileApiTest extends TestCase
         // create test data
         $num = 2;
         $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        foreach (array_values($data) as $expect) {
+        foreach (\array_values($data) as $expect) {
             // Request details
             $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
@@ -242,7 +242,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
             // compare deatils with expected
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static::assertSame($expect['name'], $content->data->name);
             static::assertSame($expect['label'], $content->data->label);
             static::assertEquals($expect['systemDefault'], (bool) $content->data->systemDefault);
@@ -250,7 +250,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame($expect['fileType'], $content->data->fileType);
             static::assertSame($expect['delimiter'], $content->data->delimiter);
             static::assertSame($expect['enclosure'], $content->data->enclosure);
-            static::assertEquals(json_decode(json_encode($expect['mapping'])), $content->data->mapping);
+            static::assertEquals(\json_decode(\json_encode($expect['mapping'])), $content->data->mapping);
         }
     }
 
@@ -268,16 +268,16 @@ class ImportExportProfileApiTest extends TestCase
         $data = $this->prepareImportExportProfileTestData(2);
 
         // Prepare invalid search data
-        $invalidData = array_pop($data);
+        $invalidData = \array_pop($data);
 
         // Prepare valid serach data
-        $this->repository->create(array_values($data), $this->context);
-        $searchData = array_pop($data);
+        $this->repository->create(\array_values($data), $this->context);
+        $searchData = \array_pop($data);
 
         $searchExcludes = ['mapping'];
         $filter = [];
         foreach ($searchData as $key => $value) {
-            if (!in_array($key, $searchExcludes, true)) {
+            if (!\in_array($key, $searchExcludes, true)) {
                 // Search call without result
                 $filter['filter'][$key] = $invalidData[$key];
                 $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
@@ -285,7 +285,7 @@ class ImportExportProfileApiTest extends TestCase
                 ]);
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-                $content = json_decode($response->getContent());
+                $content = \json_decode($response->getContent());
                 static::assertSame(0, $content->total);
 
                 // Search call
@@ -295,7 +295,7 @@ class ImportExportProfileApiTest extends TestCase
                 ]);
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-                $content = json_decode($response->getContent());
+                $content = \json_decode($response->getContent());
                 static::assertSame(1, $content->total);
             }
         }
@@ -306,7 +306,7 @@ class ImportExportProfileApiTest extends TestCase
         // create test data
         $num = 2;
         $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         $deleted = 0;
         foreach ($data as $profile) {
@@ -366,13 +366,13 @@ class ImportExportProfileApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => sprintf('Test name %d %s', $i, $add),
-                'label' => sprintf('Test label %d %s', $i, $add),
+                'name' => \sprintf('Test name %d %s', $i, $add),
+                'label' => \sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => (($i % 2 === 0) ? true : false),
-                'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
-                'fileType' => sprintf('Test file type %d %s', $i, $add),
-                'delimiter' => sprintf('Test delimiter %d %s', $i, $add),
-                'enclosure' => sprintf('Test enclosure %d %s', $i, $add),
+                'sourceEntity' => \sprintf('Test entity %d %s', $i, $add),
+                'fileType' => \sprintf('Test file type %d %s', $i, $add),
+                'delimiter' => \sprintf('Test delimiter %d %s', $i, $add),
+                'enclosure' => \sprintf('Test enclosure %d %s', $i, $add),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
         }
@@ -382,9 +382,9 @@ class ImportExportProfileApiTest extends TestCase
 
     protected function rotateTestdata(array $data): array
     {
-        array_push($data, array_shift($data));
+        \array_push($data, \array_shift($data));
 
-        return array_values($data);
+        return \array_values($data);
     }
 
     /**
@@ -392,7 +392,7 @@ class ImportExportProfileApiTest extends TestCase
      */
     protected function getTranslationRecords(): array
     {
-        return array_reduce(
+        return \array_reduce(
             $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
             static function ($carry, $translationRecord) {
                 $carry[$translationRecord['import_export_profile_id']] = $translationRecord;

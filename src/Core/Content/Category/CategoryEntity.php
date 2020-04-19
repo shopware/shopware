@@ -469,7 +469,7 @@ class CategoryEntity extends Entity
 
     public function getBreadcrumb(): array
     {
-        return array_values($this->getBreadcrumbMapping());
+        return \array_values($this->getBreadcrumbMapping());
     }
 
     public function getPlainBreadcrumb(): array
@@ -493,16 +493,16 @@ class CategoryEntity extends Entity
         }
 
         // root case
-        if (count($categoryBreadcrumb) < 2) {
+        if (\count($categoryBreadcrumb) < 2) {
             return null;
         }
 
         // Check where this category is located in relation to the navigation entry point of the sales channel
-        $salesChannelPos = array_search($navigationCategoryId, array_keys($categoryBreadcrumb), true);
+        $salesChannelPos = \array_search($navigationCategoryId, \array_keys($categoryBreadcrumb), true);
 
         if ($salesChannelPos !== false) {
             // Remove all breadcrumbs preceding the navigation category
-            return array_slice($categoryBreadcrumb, $salesChannelPos + 1);
+            return \array_slice($categoryBreadcrumb, $salesChannelPos + 1);
         }
 
         return $categoryBreadcrumb;
@@ -582,7 +582,7 @@ class CategoryEntity extends Entity
             return $breadcrumb;
         }
 
-        $parts = array_slice(explode('|', $this->path), 1, -1);
+        $parts = \array_slice(\explode('|', $this->path), 1, -1);
 
         $filtered = [];
         foreach ($parts as $id) {

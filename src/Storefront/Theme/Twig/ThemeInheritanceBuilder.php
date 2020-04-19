@@ -31,9 +31,9 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
      */
     public function build(array $bundles, array $themes): array
     {
-        $keys = array_keys($themes);
+        $keys = \array_keys($themes);
 
-        $theme = array_shift($keys);
+        $theme = \array_shift($keys);
 
         $inheritance = $this->getThemeInheritance($theme, $themes);
 
@@ -63,12 +63,12 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             }
         }
 
-        return array_reverse($flat);
+        return \array_reverse($flat);
     }
 
     private function getThemeInheritance(string $theme, array $themes): ?array
     {
-        $names = array_keys($themes);
+        $names = \array_keys($themes);
 
         $default = [
             // ensure storefront to be first
@@ -101,11 +101,11 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         } else {
             // try to load inheritance from theme.json file
             $file = $bundle->getPath() . '/Resources/theme.json';
-            if (!file_exists($file)) {
+            if (!\file_exists($file)) {
                 return $default;
             }
 
-            $config = json_decode(file_get_contents($file), true);
+            $config = \json_decode(\file_get_contents($file), true);
             if (!isset($config['views'])) {
                 return $default;
             }
@@ -129,7 +129,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
     {
         $bundles = $this->kernel->getBundles();
 
-        if (array_key_exists($name, $bundles)) {
+        if (\array_key_exists($name, $bundles)) {
             return $this->kernel->getBundle($name);
         }
 

@@ -49,11 +49,11 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
-        static::assertContains($this->ids->get('currency'), array_column($response, 'id'));
-        static::assertContains('FO', array_column($response, 'isoCode'));
+        static::assertContains($this->ids->get('currency'), \array_column($response, 'id'));
+        static::assertContains('FO', \array_column($response, 'isoCode'));
     }
 
     public function testIncludes(): void
@@ -69,11 +69,11 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertArrayNotHasKey('id', $response[0]);
-        static::assertContains('te', array_column($response, 'isoCode'));
+        static::assertContains('te', \array_column($response, 'isoCode'));
     }
 
     public function testLimit(): void
@@ -87,7 +87,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
     }

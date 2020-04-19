@@ -839,11 +839,11 @@ class BlacklistRuleFieldTest extends TestCase
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
-        $default2 = array_merge($default, ['productNumber' => Uuid::randomHex()]);
+        $default2 = \array_merge($default, ['productNumber' => Uuid::randomHex()]);
 
-        $withRules = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+        $withRules = \array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
 
-        $withRules2 = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+        $withRules2 = \array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
 
         $products = [
             $default,

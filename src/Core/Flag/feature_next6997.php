@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Flag {
+namespace Flag;
+
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 
@@ -33,4 +34,3 @@ namespace Flag {
 
         $test::markTestSkipped('Skipping feature test "NEXT-6997"');
     }
-}

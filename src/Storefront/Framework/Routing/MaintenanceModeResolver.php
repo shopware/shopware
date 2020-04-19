@@ -50,7 +50,7 @@ class MaintenanceModeResolver
             return false;
         }
 
-        return mb_strpos($route, 'frontend.maintenance') !== false;
+        return \mb_strpos($route, 'frontend.maintenance') !== false;
     }
 
     private function isXmlHttpRequest(Request $request): bool
@@ -75,7 +75,7 @@ class MaintenanceModeResolver
 
     private function isClientAllowed(Request $request): bool
     {
-        return in_array(
+        return \in_array(
             $request->getClientIp(),
             $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest()),
             true
@@ -94,6 +94,6 @@ class MaintenanceModeResolver
             return [];
         }
 
-        return json_decode($whitelist, true) ?? [];
+        return \json_decode($whitelist, true) ?? [];
     }
 }

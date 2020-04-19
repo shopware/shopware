@@ -55,7 +55,7 @@ class ImportExportFileApiTest extends TestCase
             $expect = $data[$record['id']];
             static::assertSame($expect['originalName'], $record['original_name']);
             static::assertSame($expect['path'], $record['path']);
-            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
+            static::assertEquals(\strtotime($expect['expireDate']), \strtotime($record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertSame($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
@@ -66,7 +66,7 @@ class ImportExportFileApiTest extends TestCase
     {
         $requiredProperties = ['originalName', 'path'];
         foreach ($requiredProperties as $property) {
-            $entry = current($this->prepareImportExportFileTestData());
+            $entry = \current($this->prepareImportExportFileTestData());
             unset($entry[$property]);
             $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
@@ -79,7 +79,7 @@ class ImportExportFileApiTest extends TestCase
         foreach ([0, 5] as $num) {
             $data = $this->prepareImportExportFileTestData($num);
             if (!empty($data)) {
-                $this->repository->create(array_values($data), $this->context);
+                $this->repository->create(\array_values($data), $this->context);
             }
 
             $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
@@ -89,10 +89,10 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
 
             $expectData = [];
-            foreach (array_values($data) as $entry) {
+            foreach (\array_values($data) as $entry) {
                 $expectData[$entry['id']] = $entry;
             }
 
@@ -102,7 +102,7 @@ class ImportExportFileApiTest extends TestCase
                 $expect = $expectData[$importExportFile->_uniqueIdentifier];
                 static::assertSame($expect['originalName'], $importExportFile->originalName);
                 static::assertSame($expect['path'], $importExportFile->path);
-                static::assertEquals(strtotime($expect['expireDate']), strtotime($importExportFile->expireDate));
+                static::assertEquals(\strtotime($expect['expireDate']), \strtotime($importExportFile->expireDate));
                 static::assertEquals($expect['size'], $importExportFile->size);
                 static::assertSame($expect['accessToken'], $importExportFile->accessToken);
             }
@@ -113,9 +113,9 @@ class ImportExportFileApiTest extends TestCase
     {
         $num = 3;
         $data = $this->prepareImportExportFileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $data = $this->rotateTestdata($data);
 
         $expectData = [];
@@ -136,7 +136,7 @@ class ImportExportFileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = \json_decode($response->getContent());
 
         static::assertEquals($num, $content->total);
         for ($i = 0; $i < $num; ++$i) {
@@ -144,7 +144,7 @@ class ImportExportFileApiTest extends TestCase
             $expect = $expectData[$importExportFile->_uniqueIdentifier];
             static::assertSame($expect['originalName'], $importExportFile->originalName);
             static::assertSame($expect['path'], $importExportFile->path);
-            static::assertEquals(strtotime($expect['expireDate']), strtotime($importExportFile->expireDate));
+            static::assertEquals(\strtotime($expect['expireDate']), \strtotime($importExportFile->expireDate));
             static::assertEquals($expect['size'], $importExportFile->size);
             static::assertSame($expect['accessToken'], $importExportFile->accessToken);
         }
@@ -154,17 +154,17 @@ class ImportExportFileApiTest extends TestCase
     {
         $num = 3;
         $data = $this->prepareImportExportFileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $data = $this->rotateTestdata($data);
 
-        $properties = array_keys(current($data));
+        $properties = \array_keys(\current($data));
         $expectProperties = $properties;
 
         $expectData = [];
         foreach ($ids as $idx => $id) {
-            $removedProperty = array_pop($properties);
+            $removedProperty = \array_pop($properties);
             $expectData[$id] = $data[$idx];
             unset($data[$idx][$removedProperty]);
             unset($data[$idx]['id']);
@@ -181,7 +181,7 @@ class ImportExportFileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), true);
+            $content = \json_decode($response->getContent(), true);
 
             $importExportFile = $content['data'];
             $expect = $expectData[$id];
@@ -192,8 +192,8 @@ class ImportExportFileApiTest extends TestCase
                 $currentValue = $importExportFile[$property];
                 $expectValue = $expect[$property];
                 if ($property === 'expireDate') {
-                    $currentValue = strtotime($currentValue);
-                    $expectValue = strtotime($expectValue);
+                    $currentValue = \strtotime($currentValue);
+                    $expectValue = \strtotime($expectValue);
                 }
                 if ($property === $removedProperty) {
                     static::assertNotEquals($expectValue, $currentValue);
@@ -208,19 +208,19 @@ class ImportExportFileApiTest extends TestCase
     {
         $num = 2;
         $data = $this->prepareImportExportFileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        foreach (array_values($data) as $expect) {
+        foreach (\array_values($data) as $expect) {
             $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static::assertSame($expect['originalName'], $content->data->originalName);
             static::assertSame($expect['path'], $content->data->path);
-            static::assertEquals(strtotime($expect['expireDate']), strtotime($content->data->expireDate));
+            static::assertEquals(\strtotime($expect['expireDate']), \strtotime($content->data->expireDate));
             static::assertEquals($expect['size'], $content->data->size);
             static::assertSame($expect['accessToken'], $content->data->accessToken);
         }
@@ -239,10 +239,10 @@ class ImportExportFileApiTest extends TestCase
     {
         $data = $this->prepareImportExportFileTestData(2);
 
-        $invalidData = array_pop($data);
+        $invalidData = \array_pop($data);
 
-        $this->repository->create(array_values($data), $this->context);
-        $searchData = array_pop($data);
+        $this->repository->create(\array_values($data), $this->context);
+        $searchData = \array_pop($data);
 
         $filter = [];
         foreach ($searchData as $key => $value) {
@@ -252,7 +252,7 @@ class ImportExportFileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static ::assertEquals(0, $content->total);
 
             $filter['filter'][$key] = $value;
@@ -261,7 +261,7 @@ class ImportExportFileApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static ::assertEquals(1, $content->total);
         }
     }
@@ -270,8 +270,8 @@ class ImportExportFileApiTest extends TestCase
     {
         $num = 3;
         $data = $this->prepareImportExportFileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
-        $deleteId = array_column($data, 'id')[0];
+        $this->repository->create(\array_values($data), $this->context);
+        $deleteId = \array_column($data, 'id')[0];
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . Uuid::randomHex(), [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -280,7 +280,7 @@ class ImportExportFileApiTest extends TestCase
         static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -289,7 +289,7 @@ class ImportExportFileApiTest extends TestCase
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
-        static::assertEquals($num - 1, count($records));
+        static::assertEquals($num - 1, \count($records));
     }
 
     protected function prepareRoute(bool $search = false): string
@@ -313,9 +313,9 @@ class ImportExportFileApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%d.xml', $i),
-                'path' => sprintf('/test/%d/%s', $i, $add),
-                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => \sprintf('file%d.xml', $i),
+                'path' => \sprintf('/test/%d/%s', $i, $add),
+                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];
@@ -326,8 +326,8 @@ class ImportExportFileApiTest extends TestCase
 
     protected function rotateTestdata(array $data): array
     {
-        array_push($data, array_shift($data));
+        \array_push($data, \array_shift($data));
 
-        return array_values($data);
+        return \array_values($data);
     }
 }

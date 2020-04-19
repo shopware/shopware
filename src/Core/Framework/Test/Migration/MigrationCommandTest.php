@@ -63,7 +63,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $command->run(new ArrayInput(['until' => \PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -110,7 +110,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $command->run(new ArrayInput(['until' => \PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }

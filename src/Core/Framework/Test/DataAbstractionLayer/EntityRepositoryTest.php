@@ -515,7 +515,7 @@ class EntityRepositoryTest extends TestCase
 
         static::assertCount(3, $written->getIds());
         $newId = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME)->getIds();
-        $newId = array_shift($newId);
+        $newId = \array_shift($newId);
         static::assertNotEquals($id, $newId);
 
         $criteria = new Criteria([$id, $newId]);
@@ -854,7 +854,7 @@ class EntityRepositoryTest extends TestCase
             ['id' => Uuid::fromHexToBytes($id)]
         );
         static::assertCount(7, $conditions);
-        $withParent = array_filter($conditions, static function ($condition) {
+        $withParent = \array_filter($conditions, static function ($condition) {
             return $condition['parent_id'] !== null;
         });
         static::assertCount(6, $withParent);
@@ -896,8 +896,8 @@ class EntityRepositoryTest extends TestCase
 
         static::assertCount(7, $newConditions);
 
-        $parentIds = array_column($conditions, 'parent_id');
-        $ids = array_column($conditions, 'id');
+        $parentIds = \array_column($conditions, 'parent_id');
+        $ids = \array_column($conditions, 'id');
 
         //check that parent ids and ids of all new conditions are new
         foreach ($newConditions as $condition) {

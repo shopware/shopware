@@ -165,7 +165,7 @@ class MailService implements MailServiceInterface
                     . 'Template source:'
                     . $template . "\n"
                     . "Template data: \n"
-                    . json_encode($templateData) . "\n"
+                    . \json_encode($templateData) . "\n"
                 );
 
                 return null;

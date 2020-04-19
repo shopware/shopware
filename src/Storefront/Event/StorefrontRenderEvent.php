@@ -32,7 +32,7 @@ class StorefrontRenderEvent extends NestedEvent
     public function __construct(string $view, array $parameters, Request $request, SalesChannelContext $context)
     {
         $this->view = $view;
-        $this->parameters = array_merge(['context' => $context], $parameters);
+        $this->parameters = \array_merge(['context' => $context], $parameters);
         $this->request = $request;
         $this->context = $context;
     }

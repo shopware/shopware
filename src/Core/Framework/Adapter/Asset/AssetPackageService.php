@@ -26,7 +26,7 @@ class AssetPackageService
 
     public function addAssetPackage(string $bundleName, string $bundlePath): void
     {
-        $path = $this->package->getUrl('/bundles/' . mb_strtolower($bundleName));
+        $path = $this->package->getUrl('/bundles/' . \mb_strtolower($bundleName));
         $this->packages->addPackage(
             '@' . $bundleName,
             new UrlPackage($path, new LastModifiedVersionStrategy($bundlePath))

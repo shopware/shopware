@@ -21,7 +21,7 @@ class ErdDefinition
 
     public function isTranslation(): bool
     {
-        return is_a(
+        return \is_a(
             $this->definition,
             EntityTranslationDefinition::class,
             true
@@ -35,7 +35,7 @@ class ErdDefinition
 
     public function isMapping(): bool
     {
-        return is_a($this->definition, MappingEntityDefinition::class, true);
+        return \is_a($this->definition, MappingEntityDefinition::class, true);
     }
 
     public function toClassName(): string
@@ -55,12 +55,12 @@ class ErdDefinition
 
     public function toModuleName(): string
     {
-        $parts = explode('\\', $this->definition->getClass());
+        $parts = \explode('\\', $this->definition->getClass());
 
-        if (mb_strpos($this->definition->getClass(), 'Shopware\\Core') === 0) {
-            $moduleName = implode('\\', \array_slice($parts, 0, 4));
+        if (\mb_strpos($this->definition->getClass(), 'Shopware\\Core') === 0) {
+            $moduleName = \implode('\\', \array_slice($parts, 0, 4));
         } else {
-            $moduleName = implode('\\', \array_slice($parts, 0, 2));
+            $moduleName = \implode('\\', \array_slice($parts, 0, 2));
         }
 
         return $moduleName;

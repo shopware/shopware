@@ -64,11 +64,11 @@ class MailSendSubscriber implements EventSubscriberInterface
         $mailEvent = $event->getEvent();
 
         if (!$mailEvent instanceof MailActionInterface) {
-            throw new MailEventConfigurationException('Not a instance of MailActionInterface', get_class($mailEvent));
+            throw new MailEventConfigurationException('Not a instance of MailActionInterface', \get_class($mailEvent));
         }
 
         if (!\array_key_exists('mail_template_type_id', $event->getConfig())) {
-            throw new MailEventConfigurationException('Configuration mail_template_type_id missing.', get_class($mailEvent));
+            throw new MailEventConfigurationException('Configuration mail_template_type_id missing.', \get_class($mailEvent));
         }
 
         $mailTemplateTypeId = $event->getConfig()['mail_template_type_id'];
@@ -150,12 +150,12 @@ class MailSendSubscriber implements EventSubscriberInterface
     {
         $data = [];
         /* @var EventDataType $item */
-        foreach (array_keys($event::getAvailableData()->toArray()) as $key) {
-            $getter = 'get' . ucfirst($key);
-            if (method_exists($event, $getter)) {
+        foreach (\array_keys($event::getAvailableData()->toArray()) as $key) {
+            $getter = 'get' . \ucfirst($key);
+            if (\method_exists($event, $getter)) {
                 $data[$key] = $event->$getter();
             } else {
-                throw new MailEventConfigurationException('Data for ' . $key . ' not available.', get_class($event));
+                throw new MailEventConfigurationException('Data for ' . $key . ' not available.', \get_class($event));
             }
         }
 

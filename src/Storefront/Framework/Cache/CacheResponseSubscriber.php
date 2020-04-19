@@ -87,7 +87,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         /** @var HttpCache $cache */
-        $cache = array_shift($config);
+        $cache = \array_shift($config);
 
         if ($this->hasInvalidationState($cache, $states)) {
             return;
@@ -100,14 +100,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $response->headers->addCacheControlDirective('must-revalidate');
         $response->headers->set(
             self::INVALIDATION_STATES_HEADER,
-            implode(',', $cache->getStates())
+            \implode(',', $cache->getStates())
         );
     }
 
     private function hasInvalidationState(HttpCache $cache, array $states): bool
     {
         foreach ($states as $state) {
-            if (in_array($state, $cache->getStates(), true)) {
+            if (\in_array($state, $cache->getStates(), true)) {
                 return true;
             }
         }
@@ -117,7 +117,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private function buildCacheHash(SalesChannelContext $context): string
     {
-        return md5(json_encode([
+        return \md5(\json_encode([
             $context->getRuleIds(),
             $context->getContext()->getVersionId(),
             $context->getCurrency()->getId(),
@@ -142,7 +142,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         $response->headers->setCookie(
-            Cookie::create(self::SYSTEM_STATE_COOKIE, implode(',', $states))
+            Cookie::create(self::SYSTEM_STATE_COOKIE, \implode(',', $states))
         );
 
         return $states;
@@ -152,15 +152,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $states = [];
         if ($request->cookies->has(self::SYSTEM_STATE_COOKIE)) {
-            $states = explode(',', $request->cookies->get(self::SYSTEM_STATE_COOKIE));
-            $states = array_flip($states);
+            $states = \explode(',', $request->cookies->get(self::SYSTEM_STATE_COOKIE));
+            $states = \array_flip($states);
         }
 
         $states = $this->switchState($states, self::STATE_LOGGED_IN, $context->getCustomer() !== null);
 
         $states = $this->switchState($states, self::STATE_CART_FILLED, $cart->getLineItems()->count() > 0);
 
-        return array_keys($states);
+        return \array_keys($states);
     }
 
     private function switchState(array $states, string $key, bool $match): array

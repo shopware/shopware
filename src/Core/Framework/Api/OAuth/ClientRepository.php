@@ -76,7 +76,7 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        if (!password_verify($clientSecret, $key['secret_access_key'])) {
+        if (!\password_verify($clientSecret, $key['secret_access_key'])) {
             throw OAuthServerException::invalidCredentials();
         }
 
@@ -101,7 +101,7 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        if (!password_verify($clientSecret, $key['secret_access_key'])) {
+        if (!\password_verify($clientSecret, $key['secret_access_key'])) {
             throw OAuthServerException::invalidCredentials();
         }
 

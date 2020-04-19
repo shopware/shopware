@@ -61,13 +61,13 @@ class ImportEntityCommand extends Command
         try {
             $expireDate = new \DateTimeImmutable($input->getArgument('expireDate'));
         } catch (\Exception $e) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(\sprintf(
                 '"%s" is not a valid date. Please use format Y-m-d',
                 $input->getArgument('expireDate')
             ));
         }
 
-        $file = new UploadedFile($filePath, basename($filePath), $profile->getFileType());
+        $file = new UploadedFile($filePath, \basename($filePath), $profile->getFileType());
 
         $log = $this->initiationService->prepareImport(
             $context,
@@ -76,14 +76,14 @@ class ImportEntityCommand extends Command
             $file
         );
 
-        $startTime = time();
+        $startTime = \time();
 
         $importExport = $this->importExportFactory->create($log->getId());
 
-        $total = filesize($filePath);
+        $total = \filesize($filePath);
         $progressBar = $io->createProgressBar($total);
 
-        $io->title(sprintf('Starting import of size %d ', $total));
+        $io->title(\sprintf('Starting import of size %d ', $total));
 
         $records = 0;
 
@@ -94,9 +94,9 @@ class ImportEntityCommand extends Command
             $records += $progress->getProcessedRecords();
         } while (!$progress->isFinished());
 
-        $elapsed = time() - $startTime;
+        $elapsed = \time() - $startTime;
         $io->newLine(2);
-        $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
+        $io->success(\sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
 
         return 0;
     }
@@ -110,7 +110,7 @@ class ImportEntityCommand extends Command
             $byName[$profile->getName()] = $profile;
         }
 
-        $answer = $io->choice('Please choose a profile', array_keys($byName));
+        $answer = $io->choice('Please choose a profile', \array_keys($byName));
 
         return $byName[$answer];
     }

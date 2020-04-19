@@ -47,7 +47,7 @@ class EntityScoreQueryBuilder
             $select = $root . '.' . $field->getPropertyName();
 
             if ($field instanceof ManyToManyAssociationField) {
-                $queries = array_merge(
+                $queries = \array_merge(
                     $queries,
                     $this->buildScoreQueries($term, $field->getToManyReferenceDefinition(), $select, $context, $ranking)
                 );
@@ -56,7 +56,7 @@ class EntityScoreQueryBuilder
             }
 
             if ($field instanceof AssociationField) {
-                $queries = array_merge(
+                $queries = \array_merge(
                     $queries,
                     $this->buildScoreQueries($term, $field->getReferenceDefinition(), $select, $context, $ranking)
                 );

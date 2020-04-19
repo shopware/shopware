@@ -186,7 +186,7 @@ class CartLineItemController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
-        $productId = array_shift($data);
+        $productId = \array_shift($data);
 
         $product = $this->productLineItemFactory->create($productId);
 
@@ -289,7 +289,7 @@ class CartLineItemController extends StorefrontController
         /** @var array $allCodes */
         $allCodes = $this->container->get('session')->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
 
-        return in_array($code, $allCodes, true);
+        return \in_array($code, $allCodes, true);
     }
 
     private function traceErrors(Cart $cart): bool

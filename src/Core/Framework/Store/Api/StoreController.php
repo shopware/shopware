@@ -196,7 +196,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $licenseList,
-            'total' => count($licenseList),
+            'total' => \count($licenseList),
         ]);
     }
 
@@ -224,7 +224,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $updatesList,
-            'total' => count($updatesList),
+            'total' => \count($updatesList),
         ]);
     }
 
@@ -297,7 +297,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $violations,
-            'total' => count($violations),
+            'total' => \count($violations),
         ]);
     }
 

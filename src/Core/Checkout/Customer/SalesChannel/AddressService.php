@@ -112,7 +112,7 @@ class AddressService
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
         $definition = $this->getValidationDefinition($accountType, $isCreate, $context);
-        $this->validator->validate(array_merge(['id' => $id], $data->all()), $definition);
+        $this->validator->validate(\array_merge(['id' => $id], $data->all()), $definition);
 
         $addressData = [
             'salutationId' => $data->get('salutationId'),

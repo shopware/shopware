@@ -35,7 +35,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         return [
             '_source' => ['includes' => ['id']],
-            'properties' => array_merge(
+            'properties' => \array_merge(
                 $this->mapper->mapFields($definition, $context),
                 [
                     'categoriesRo' => $this->mapper->mapField($definition, $definition->getField('categoriesRo'), $context),

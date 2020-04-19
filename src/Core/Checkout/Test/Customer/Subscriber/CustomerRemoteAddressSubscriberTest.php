@@ -77,7 +77,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $this->addProduct($productId);
         $this->order();
 
-        $order = json_decode($this->browser->getResponse()->getContent(), true);
+        $order = \json_decode($this->browser->getResponse()->getContent(), true);
         $orderCustomer = $order['data']['orderCustomer'];
 
         static::assertSame($email, $orderCustomer['email']);
@@ -117,7 +117,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
 

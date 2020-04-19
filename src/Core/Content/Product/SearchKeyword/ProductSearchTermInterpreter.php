@@ -51,7 +51,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         foreach ($combines as $token) {
             $tokens[] = $token;
         }
-        $tokens = array_keys(array_flip($tokens));
+        $tokens = \array_keys(\array_flip($tokens));
 
         $scoring = $this->score($tokens, $matches);
 
@@ -72,7 +72,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     private function permute($arg): array
     {
-        $array = \is_string($arg) ? str_split($arg) : $arg;
+        $array = \is_string($arg) ? \mb_str_split($arg) : $arg;
 
         if (\count($array) === 1) {
             return $array;
@@ -80,7 +80,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $result = [];
         foreach ($array as $key => $item) {
-            $nested = $this->permute(array_diff_key($array, [$key => $item]));
+            $nested = $this->permute(\array_diff_key($array, [$key => $item]));
 
             foreach ($nested as $p) {
                 $result[] = $item . ' ' . $p;
@@ -120,7 +120,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
                 }
             }
 
-            $token = strrev($token);
+            $token = \strrev($token);
             for ($i = 1; $i <= $length - 2; $i += $steps) {
                 for ($i2 = 1; $i2 <= $slopSize; ++$i2) {
                     $placeholder = '';
@@ -155,7 +155,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         }
 
         $query->andWhere('language_id = :language');
-        $query->andWhere('(' . implode(' OR ', $wheres) . ')');
+        $query->andWhere('(' . \implode(' OR ', $wheres) . ')');
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 
@@ -175,7 +175,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             }
 
             foreach ($tokens as $token) {
-                $levenshtein = levenshtein($match, (string) $token);
+                $levenshtein = \levenshtein($match, (string) $token);
                 if ($levenshtein === 0) {
                     $score += 6;
 
@@ -196,7 +196,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, function ($a, $b) {
+        \uasort($scoring, function ($a, $b) {
             return $b <=> $a;
         });
 

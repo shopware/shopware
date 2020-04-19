@@ -66,10 +66,10 @@ class LanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
-        $ids = array_column($response, 'id');
-        $names = array_column($response, 'name');
+        $ids = \array_column($response, 'id');
+        $names = \array_column($response, 'name');
 
         static::assertCount(2, $response);
         static::assertContains($this->ids->get('language'), $ids);
@@ -93,7 +93,7 @@ class LanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -113,7 +113,7 @@ class LanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertArrayHasKey('locale', $response[0]);

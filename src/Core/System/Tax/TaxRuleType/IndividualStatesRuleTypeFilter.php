@@ -21,7 +21,7 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
         $stateId = $this->getStateId($shippingLocation);
         $states = $taxRuleEntity->getData()['states'];
 
-        if (!in_array($stateId, $states, true)) {
+        if (!\in_array($stateId, $states, true)) {
             return false;
         }
 

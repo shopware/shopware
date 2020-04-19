@@ -213,14 +213,14 @@ class AggregationParserTest extends TestCase
         static::assertCount(2, $aggregation->getFilter());
 
         $filters = $aggregation->getFilter();
-        $filter = array_shift($filters);
+        $filter = \array_shift($filters);
 
         static::assertInstanceOf(ContainsFilter::class, $filter);
         /** @var ContainsFilter $filter */
         static::assertSame('product.foo', $filter->getField());
         static::assertSame('bar', $filter->getValue());
 
-        $filter = array_shift($filters);
+        $filter = \array_shift($filters);
 
         static::assertInstanceOf(EqualsAnyFilter::class, $filter);
         /** @var EqualsAnyFilter $filter */

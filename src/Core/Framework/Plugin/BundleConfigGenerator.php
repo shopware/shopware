@@ -58,20 +58,20 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
 
             // dont include deactivated plugins
-            if ($bundle instanceof Plugin && !in_array($bundle->getName(), $activePlugins, true)) {
+            if ($bundle instanceof Plugin && !\in_array($bundle->getName(), $activePlugins, true)) {
                 continue;
             }
 
             $path = $bundle->getPath();
-            if (mb_strpos($bundle->getPath(), $projectDir) === 0) {
+            if (\mb_strpos($bundle->getPath(), $projectDir) === 0) {
                 // make relative
-                $path = ltrim(mb_substr($path, mb_strlen($projectDir)), '/');
+                $path = \ltrim(\mb_substr($path, \mb_strlen($projectDir)), '/');
             }
 
             $bundles[$bundle->getName()] = [
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
-                'technicalName' => str_replace('_', '-', $bundle->getContainerPrefix()),
+                'technicalName' => \str_replace('_', '-', $bundle->getContainerPrefix()),
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
                     'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/administration/src'),
@@ -91,20 +91,20 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private function getEntryFile(Bundle $bundle, string $componentPath): ?string
     {
-        $path = trim($componentPath, '/');
+        $path = \trim($componentPath, '/');
         $absolutePath = $bundle->getPath() . '/' . $path;
 
-        return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
-            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
+        return \file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
+            : (\file_exists($absolutePath . '/main.js') ? $path . '/main.js'
             : null);
     }
 
     private function getWebpackConfig(Bundle $bundle, string $componentPath): ?string
     {
-        $path = trim($componentPath, '/');
+        $path = \trim($componentPath, '/');
         $absolutePath = $bundle->getPath() . '/' . $path;
 
-        if (!file_exists($absolutePath . '/build/webpack.config.js')) {
+        if (!\file_exists($absolutePath . '/build/webpack.config.js')) {
             return null;
         }
 
@@ -124,8 +124,8 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
         }
 
-        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        if (is_dir($path)) {
+        $path = $bundle->getPath() . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        if (\is_dir($path)) {
             $finder = new Finder();
             $finder->in($path)->files()->depth(0);
 

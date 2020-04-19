@@ -32,7 +32,7 @@ class EntityHandler
     public function addEntryToMap(string $hash, int $entryId): void
     {
         $this->idMapperClient->post(
-            sprintf('/%s/addEntry/%s', $this->entityName, $this->environment),
+            \sprintf('/%s/addEntry/%s', $this->entityName, $this->environment),
             [
                 'form_params' => [
                     'hash' => $hash,
@@ -45,7 +45,7 @@ class EntityHandler
     public function getEntityForHash(string $hash): int
     {
         try {
-            $response = $this->idMapperClient->get(sprintf('/%s/getEntry/%s/%s', $this->entityName, $hash, $this->environment));
+            $response = $this->idMapperClient->get(\sprintf('/%s/getEntry/%s/%s', $this->entityName, $hash, $this->environment));
         } catch (ClientException $e) {
             if ($e->getResponse()->getStatusCode() !== 404) {
                 throw $e;
@@ -54,23 +54,23 @@ class EntityHandler
             return 0;
         }
 
-        return (int) json_decode($response->getBody()->getContents(), true)['mapped_id'];
+        return (int) \json_decode($response->getBody()->getContents(), true)['mapped_id'];
     }
 
     public function deleteEntityHash(string $hash): void
     {
-        $this->idMapperClient->delete(sprintf('/%s/%s/%s', $this->entityName, $hash, $this->environment));
+        $this->idMapperClient->delete(\sprintf('/%s/%s/%s', $this->entityName, $hash, $this->environment));
     }
 
     public function getAllEntityHashes(): array
     {
-        $response = $this->idMapperClient->get(sprintf('/%s/getAll/%s', $this->entityName, $this->environment));
+        $response = $this->idMapperClient->get(\sprintf('/%s/getAll/%s', $this->entityName, $this->environment));
 
-        return json_decode($response->getBody()->getContents(), true);
+        return \json_decode($response->getBody()->getContents(), true);
     }
 
     public function deleteById(int $id): void
     {
-        $this->idMapperClient->delete(sprintf('/%s/deleteById/%d/%s', $this->entityName, $id, $this->environment));
+        $this->idMapperClient->delete(\sprintf('/%s/deleteById/%d/%s', $this->entityName, $id, $this->environment));
     }
 }

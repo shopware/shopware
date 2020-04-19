@@ -21,7 +21,7 @@ class RenameService
 {
     public function __construct(array $info)
     {
-        if (!array_key_exists('deprecatedService', $info) || !array_key_exists('replacedBy', $info)) {
+        if (!\array_key_exists('deprecatedService', $info) || !\array_key_exists('replacedBy', $info)) {
             throw new \Exception('RenameService annotation must be created with a hint on the "deprecatedService" and the service it is "replacedBy".');
         }
     }

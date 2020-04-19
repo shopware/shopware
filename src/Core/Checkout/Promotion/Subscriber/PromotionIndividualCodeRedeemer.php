@@ -105,7 +105,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         /** @var PromotionIndividualCodeCollection $result */
         $result = $this->codesRepository->search($criteria, $context)->getEntities();
 
-        if (count($result->getElements()) <= 0) {
+        if (\count($result->getElements()) <= 0) {
             throw new PromotionCodeNotFoundException($code);
         }
 

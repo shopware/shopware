@@ -29,16 +29,16 @@ class FieldSerializer extends AbstractFieldSerializer
 
         if ($field instanceof ManyToManyAssociationField && $value !== null) {
             $referenceIdField = $field->getReferenceField();
-            $ids = implode('|', array_map(static function ($e) use ($referenceIdField) {
+            $ids = \implode('|', \array_map(static function ($e) use ($referenceIdField) {
                 if ($e instanceof Entity) {
                     return $e->getUniqueIdentifier();
                 }
-                if (is_array($e)) {
+                if (\is_array($e)) {
                     return $e[$referenceIdField];
                 }
 
                 return null;
-            }, is_array($value) ? $value : iterator_to_array($value)));
+            }, \is_array($value) ? $value : \iterator_to_array($value)));
 
             yield $key => $ids;
 
@@ -70,7 +70,7 @@ class FieldSerializer extends AbstractFieldSerializer
         } elseif ($field instanceof BoolField) {
             yield $key => $value === true ? '1' : '0';
         } elseif ($field instanceof JsonField) {
-            yield $key => $value === null ? null : json_encode($value);
+            yield $key => $value === null ? null : \json_encode($value);
         } else {
             $value = $value === null ? $value : (string) $value;
             yield $key => $value;
@@ -94,8 +94,8 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof ManyToManyAssociationField) {
-            return array_filter(
-                array_map(
+            return \array_filter(
+                \array_map(
                     function ($id) {
                         $id = $this->normalizeId($id);
                         if ($id === '') {
@@ -104,7 +104,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return ['id' => $id];
                     },
-                    explode('|', $value)
+                    \explode('|', $value)
                 )
             );
         }
@@ -117,7 +117,7 @@ class FieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
-        if (is_string($value) && $value === '') {
+        if (\is_string($value) && $value === '') {
             return null;
         }
 
@@ -126,7 +126,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof BoolField) {
-            $value = strtolower($value);
+            $value = \mb_strtolower($value);
 
             return !($value === '0' || $value === 'false' || $value === 'n' || $value === 'no');
         }
@@ -153,6 +153,6 @@ class FieldSerializer extends AbstractFieldSerializer
 
     private function normalizeId(?string $id): string
     {
-        return strtolower(trim((string) $id));
+        return \mb_strtolower(\trim((string) $id));
     }
 }

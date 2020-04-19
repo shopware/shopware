@@ -50,10 +50,10 @@ trait CriteriaQueryHelper
             $criteria->addQuery(...$queries);
         }
 
-        $filters = array_merge($criteria->getFilters(), $criteria->getPostFilters());
+        $filters = \array_merge($criteria->getFilters(), $criteria->getPostFilters());
         $filter = $this->antiJoinTransform(
             $definition,
-            count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
+            \count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
         );
 
         $criteria->resetFilters();
@@ -94,7 +94,7 @@ trait CriteriaQueryHelper
     {
         $primaryKeys = $criteria->getIds();
 
-        $primaryKeys = array_values($primaryKeys);
+        $primaryKeys = \array_values($primaryKeys);
 
         if (empty($primaryKeys)) {
             return;
@@ -103,8 +103,8 @@ trait CriteriaQueryHelper
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
             if ($primaryKeyField instanceof IdField) {
-                $primaryKeys = array_map(function ($id) {
-                    if (is_array($id)) {
+                $primaryKeys = \array_map(function ($id) {
+                    if (\is_array($id)) {
                         return Uuid::fromHexToBytes($id[0]);
                     }
 
@@ -116,13 +116,13 @@ trait CriteriaQueryHelper
                 throw new \RuntimeException('Primary key fields has to be an instance of StorageAware');
             }
 
-            $query->andWhere(sprintf(
+            $query->andWhere(\sprintf(
                 '%s.%s IN (:ids)',
                 EntityDefinitionQueryHelper::escape($definition->getEntityName()),
                 EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
             ));
 
-            $query->setParameter('ids', array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('ids', \array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
 
             return;
         }
@@ -142,7 +142,7 @@ trait CriteriaQueryHelper
             return;
         }
 
-        $query->andWhere(implode(' AND ', $parsed->getWheres()));
+        $query->andWhere(\implode(' AND ', $parsed->getWheres()));
         foreach ($parsed->getParameters() as $key => $value) {
             $query->setParameter($key, $value, $parsed->getType($key));
         }
@@ -153,7 +153,7 @@ trait CriteriaQueryHelper
         $wheres = [];
 
         foreach ($criteria->getIds() as $primaryKey) {
-            if (!is_array($primaryKey)) {
+            if (!\is_array($primaryKey)) {
                 $primaryKey = ['id' => $primaryKey];
             }
 
@@ -175,10 +175,10 @@ trait CriteriaQueryHelper
                 $query->setParameter($key, $value);
             }
 
-            $wheres[] = '(' . implode(' AND ', $where) . ')';
+            $wheres[] = '(' . \implode(' AND ', $where) . ')';
         }
 
-        $wheres = implode(' OR ', $wheres);
+        $wheres = \implode(' OR ', $wheres);
 
         $query->andWhere($wheres);
     }
@@ -197,7 +197,7 @@ trait CriteriaQueryHelper
 
         $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
 
-        $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
+        $select = 'SUM(' . \implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as _score');
 
         // Sort by _score primarily if the criteria has a score query or search term
@@ -205,11 +205,11 @@ trait CriteriaQueryHelper
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $minScore = array_map(function (ScoreQuery $query) {
+        $minScore = \array_map(function (ScoreQuery $query) {
             return $query->getScore();
         }, $criteria->getQueries());
 
-        $minScore = min($minScore);
+        $minScore = \min($minScore);
 
         $query->andHaving('_score >= :_minScore');
         $query->setParameter('_minScore', $minScore);
@@ -285,11 +285,11 @@ trait CriteriaQueryHelper
             $fields[] = $field->getFields();
         }
 
-        if (count($fields) === 0) {
+        if (\count($fields) === 0) {
             return [];
         }
 
-        return array_unique(array_merge(...$fields));
+        return \array_unique(\array_merge(...$fields));
     }
 
     private function hasScoreSorting(Criteria $criteria): bool
@@ -308,7 +308,7 @@ trait CriteriaQueryHelper
      */
     private function validateSortingDirection(string $direction): void
     {
-        if (!in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
+        if (!\in_array(\mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {
             throw new InvalidSortingDirectionException($direction);
         }
     }
@@ -335,7 +335,7 @@ trait CriteriaQueryHelper
             $groupedFilter = [];
             /** @var Filter $f */
             foreach ($antiJoin->getQueries() as $f) {
-                $field = @current($f->getFields());
+                $field = @\current($f->getFields());
                 if (!isset($groupedFilter[$field])) {
                     $groupedFilter[$field] = [];
                 }
@@ -354,7 +354,7 @@ trait CriteriaQueryHelper
                     $result[$fieldName] = [];
                 }
 
-                $result[$fieldName][$antiJoin->getIdentifier()] = implode(' AND ', $parseResult->getWheres());
+                $result[$fieldName][$antiJoin->getIdentifier()] = \implode(' AND ', $parseResult->getWheres());
             }
         }
 
@@ -393,9 +393,9 @@ trait CriteriaQueryHelper
             /** @var Filter $childFilter */
             foreach ($notFilter->getQueries() as $childFilter) {
                 $fields = $childFilter->getFields();
-                $field = @current($fields);
+                $field = @\current($fields);
                 if ($childFilter instanceof MultiFilter
-                    || count($fields) !== 1
+                    || \count($fields) !== 1
                     || ($childFilter instanceof EqualsFilter && $childFilter->getValue() === null)
                     || !$this->isAssociationPath($definition, $field)
                 ) {
@@ -426,17 +426,17 @@ trait CriteriaQueryHelper
 
     private function isAssociationPath(EntityDefinition $definition, string $fieldName): bool
     {
-        $fieldName = str_replace('extensions.', '', $fieldName);
+        $fieldName = \str_replace('extensions.', '', $fieldName);
         $prefix = $definition->getEntityName() . '.';
 
-        if (mb_strpos($fieldName, $prefix) === 0) {
-            $fieldName = mb_substr($fieldName, \mb_strlen($prefix));
+        if (\mb_strpos($fieldName, $prefix) === 0) {
+            $fieldName = \mb_substr($fieldName, \mb_strlen($prefix));
         }
 
         $fields = $definition->getFields();
         if (!$fields->has($fieldName)) {
-            $associationKey = explode('.', $fieldName);
-            $fieldName = array_shift($associationKey);
+            $associationKey = \explode('.', $fieldName);
+            $fieldName = \array_shift($associationKey);
         }
 
         $field = $fields->get($fieldName);
@@ -452,10 +452,10 @@ trait CriteriaQueryHelper
     private function mapBottomUp(Filter $filter, \Closure $mapFunction): ?Filter
     {
         if ($filter instanceof MultiFilter) {
-            $mapped = array_map(function ($f) use ($mapFunction) {
+            $mapped = \array_map(function ($f) use ($mapFunction) {
                 return $this->mapBottomUp($f, $mapFunction);
             }, $filter->getQueries());
-            $filtered = array_filter($mapped);
+            $filtered = \array_filter($mapped);
 
             if (empty($filtered)) {
                 return null;

@@ -34,8 +34,8 @@ class MigrationRuntime
         $this->setDefaultStorageEngine();
 
         foreach ($migrations as $migration) {
-            if (!class_exists($migration)) {
-                $this->logger->notice(sprintf('Migration "%s" does not exists. Ignoring it', $migration));
+            if (!\class_exists($migration)) {
+                $this->logger->notice(\sprintf('Migration "%s" does not exists. Ignoring it', $migration));
 
                 continue;
             }
@@ -63,8 +63,8 @@ class MigrationRuntime
         $this->setDefaultStorageEngine();
 
         foreach ($migrations as $migration) {
-            if (!class_exists($migration)) {
-                $this->logger->notice(sprintf('Migration "%s" does not exists. Ignoring it', $migration));
+            if (!\class_exists($migration)) {
+                $this->logger->notice(\sprintf('Migration "%s" does not exists. Ignoring it', $migration));
 
                 continue;
             }
@@ -134,7 +134,7 @@ class MigrationRuntime
         $this->connection->update(
             'migration',
             [
-                '`message`' => utf8_encode($message),
+                '`message`' => \utf8_encode($message),
             ],
             [
                 '`class`' => \get_class($migration),

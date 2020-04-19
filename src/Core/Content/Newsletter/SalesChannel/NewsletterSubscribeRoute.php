@@ -121,13 +121,13 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             return new NoContentResponse();
         }
 
-        $url = $data['storefrontUrl'] . str_replace(
+        $url = $data['storefrontUrl'] . \str_replace(
             [
                 '%%HASHEDEMAIL%%',
                 '%%SUBSCRIBEHASH%%',
             ],
             [
-                hash('sha1', $data['email']),
+                \hash('sha1', $data['email']),
                 $data['hash'],
             ],
             '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
@@ -143,11 +143,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())));
+            ->add('option', new NotBlank(), new Choice(\array_keys($this->getOptionSelection())));
 
         if ($validateStorefrontUrl) {
             $definition
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(\array_values($this->getDomainUrls($context))));
         }
 
         return $definition;
@@ -208,7 +208,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     private function getDomainUrls(SalesChannelContext $context): array
     {
-        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
+        return \array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return $domainEntity->getUrl();
         }, $context->getSalesChannel()->getDomains()->getElements());
     }

@@ -37,7 +37,7 @@ class EntityProtectionValidator implements EventSubscriberInterface
                 }
 
                 throw new AccessDeniedHttpException(
-                    sprintf('API access for entity "%s" not allowed.', $pathSegment['entity'])
+                    \sprintf('API access for entity "%s" not allowed.', $pathSegment['entity'])
                 );
             }
         }
@@ -51,7 +51,7 @@ class EntityProtectionValidator implements EventSubscriberInterface
 
         if ($readProtection && !$readProtection->isAllowed($context->getScope())) {
             throw new AccessDeniedHttpException(
-                sprintf(
+                \sprintf(
                     'Read access to entity "%s" not allowed for scope "%s".',
                     $definition->getEntityName(),
                     $context->getScope()
@@ -77,7 +77,7 @@ class EntityProtectionValidator implements EventSubscriberInterface
             $writeProtection = $command->getDefinition()->getProtections()->get(WriteProtection::class);
             if ($writeProtection && !$writeProtection->isAllowed($event->getContext()->getScope())) {
                 throw new AccessDeniedHttpException(
-                    sprintf(
+                    \sprintf(
                         'Write access to entity "%s" are not allowed in scope "%s".',
                         $command->getDefinition()->getEntityName(),
                         $event->getContext()->getScope()
@@ -100,7 +100,7 @@ class EntityProtectionValidator implements EventSubscriberInterface
             $readProtection = $associationDefinition->getProtections()->get(ReadProtection::class);
             if ($readProtection && !$readProtection->isAllowed($context->getScope())) {
                 throw new AccessDeniedHttpException(
-                    sprintf(
+                    \sprintf(
                         'Read access to nested association "%s" on entity "%s" not allowed for scope "%s".',
                         $associationName,
                         $definition->getEntityName(),

@@ -69,9 +69,9 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
-        $ids = array_column($response, 'id');
+        $ids = \array_column($response, 'id');
 
         static::assertCount(2, $response);
         static::assertContains($this->ids->get('shipping'), $ids);
@@ -94,7 +94,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -114,7 +114,7 @@ class ShippingMethodRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertNotEmpty($response[0]['availabilityRule']);

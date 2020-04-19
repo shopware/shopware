@@ -40,14 +40,14 @@ class ImportExportActionControllerTest extends TestCase
     public function testUploadingFileWithUnexpectedMimeTypeFails(): void
     {
         $data = $this->prepareImportExportActionControllerTestData(2);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         foreach ($data as $entry) {
             $client = $this->getBrowser();
             $client->request(
                 'POST',
                 '/api/v1/_action/import-export/prepare',
-                ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s')],
+                ['profileId' => $entry['id'], 'expireDate' => \date('Y-m-d H:i:s')],
                 ['file' => $this->getUploadFile('text/html', 'test.xml')],
                 ['Content-Type' => 'multipart/formdata']
             );
@@ -62,14 +62,14 @@ class ImportExportActionControllerTest extends TestCase
     {
         $data = $this->prepareImportExportActionControllerTestData(2);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         foreach ($data as $entry) {
             $client = $this->getBrowser();
             $client->request(
                 'POST',
                 '/api/v1/_action/import-export/prepare',
-                ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s')],
+                ['profileId' => $entry['id'], 'expireDate' => \date('Y-m-d H:i:s')],
                 ['file' => $this->getUploadFile($entry['fileType'])],
                 ['Content-Type' => 'multipart/formdata']
             );
@@ -96,10 +96,10 @@ class ImportExportActionControllerTest extends TestCase
                 'label' => 'Foobar' . $i,
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => 'article' . $i,
-                'fileType' => $mimetypes[($i % count($mimetypes))],
+                'fileType' => $mimetypes[($i % \count($mimetypes))],
                 'delimiter' => ';',
                 'enclosure' => '"',
-                'createdAt' => date('Y-m-d H:i:s'),
+                'createdAt' => \date('Y-m-d H:i:s'),
             ];
         }
 
@@ -113,7 +113,7 @@ class ImportExportActionControllerTest extends TestCase
 
     private function getUploadFile(string $type = 'text/csv', string $forceFileName = ''): UploadedFile
     {
-        $file = tempnam(sys_get_temp_dir(), 'upl');
+        $file = \tempnam(\sys_get_temp_dir(), 'upl');
 
         switch ($type) {
             case 'text/html':
@@ -131,7 +131,7 @@ class ImportExportActionControllerTest extends TestCase
                 $content = '"foo";"bar";"123"';
                 $fileName = 'test.csv';
         }
-        file_put_contents($file, $content);
+        \file_put_contents($file, $content);
 
         if (!empty($forceFileName)) {
             $fileName = $forceFileName;

@@ -32,9 +32,9 @@ class EncryptedMessageHandlerTest extends TestCase
         $testMsg = new TestMessage();
 
         $publicKey = $this->getContainer()->get('shopware.public_key');
-        $serializedMessage = serialize($testMsg);
-        $key = openssl_pkey_get_public($publicKey->getKeyPath($testMsg));
-        openssl_public_encrypt(
+        $serializedMessage = \serialize($testMsg);
+        $key = \openssl_pkey_get_public($publicKey->getKeyPath($testMsg));
+        \openssl_public_encrypt(
             $serializedMessage,
             $encryptedMessage,
             $key

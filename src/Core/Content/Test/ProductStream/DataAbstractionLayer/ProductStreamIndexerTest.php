@@ -443,7 +443,7 @@ class ProductStreamIndexerTest extends TestCase
                 'id' => Uuid::randomBytes(),
                 'type' => 'range',
                 'field' => 'price.gross',
-                'parameters' => json_encode([RangeFilter::GTE => 10]),
+                'parameters' => \json_encode([RangeFilter::GTE => 10]),
                 'position' => 1,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

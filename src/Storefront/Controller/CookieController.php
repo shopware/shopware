@@ -79,11 +79,11 @@ class CookieController extends StorefrontController
 
         foreach ($cookieGroups as $cookieGroup) {
             if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
-                $cookieGroup['entries'] = array_filter($cookieGroup['entries'], function ($item) {
+                $cookieGroup['entries'] = \array_filter($cookieGroup['entries'], function ($item) {
                     return $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics';
                 });
                 // Only add statistics cookie group if it has entries
-                if (count($cookieGroup['entries']) > 0) {
+                if (\count($cookieGroup['entries']) > 0) {
                     $filteredGroups[] = $cookieGroup;
                 }
 

@@ -106,7 +106,7 @@ class ThemeTest extends TestCase
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), true, $this->context);
 
-        static::assertGreaterThan(0, count($themeConfiguration));
+        static::assertGreaterThan(0, \count($themeConfiguration));
 
         foreach ($themeConfiguration['fields'] as $item) {
             static::assertStringNotContainsString('sw-theme', $item['label']);
@@ -493,7 +493,7 @@ class ThemeTest extends TestCase
                     'technicalName' => $name,
                     'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'configValues' => $parentTheme->getConfigValues(),
-                    'baseConfig' => array_merge_recursive($parentTheme->getBaseConfig(), $customConfig),
+                    'baseConfig' => \array_merge_recursive($parentTheme->getBaseConfig(), $customConfig),
                     'description' => $parentTheme->getDescription(),
                     'author' => $parentTheme->getAuthor(),
                     'labels' => $parentTheme->getLabels(),

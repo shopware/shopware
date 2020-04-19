@@ -186,7 +186,7 @@ class AccountRegistrationServiceTest extends TestCase
         $this->createDoubleOptInCustomer($salesChannelContext, $email, 'shopware', $hash);
 
         $customerConfirmData = [
-            'em' => hash('sha1', $email),
+            'em' => \hash('sha1', $email),
             'hash' => $hash,
         ];
 

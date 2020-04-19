@@ -23,7 +23,7 @@ class StringTemplateRenderer
         $this->disableTestMode();
 
         foreach ($environment->getExtensions() as $extension) {
-            if ($this->twig->hasExtension(get_class($extension))) {
+            if ($this->twig->hasExtension(\get_class($extension))) {
                 continue;
             }
             $this->twig->addExtension($extension);
@@ -35,7 +35,7 @@ class StringTemplateRenderer
      */
     public function render(string $templateSource, array $data, Context $context): string
     {
-        $name = md5($templateSource);
+        $name = \md5($templateSource);
         $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
 
         $this->twig->addGlobal('context', $context);

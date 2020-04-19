@@ -15,7 +15,7 @@ class CustomerTransformer
         }
 
         if (!$useIdAsKey) {
-            $output = array_values($output);
+            $output = \array_values($output);
         }
 
         return $output;

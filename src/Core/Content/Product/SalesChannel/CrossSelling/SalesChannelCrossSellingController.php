@@ -123,7 +123,7 @@ class SalesChannelCrossSellingController extends AbstractController
         $product = $this->productRepository->search($productCriteria, $context)->get($id);
 
         if (!$product) {
-            throw new NotFoundHttpException(sprintf('Product with id "%s" not found.', $id));
+            throw new NotFoundHttpException(\sprintf('Product with id "%s" not found.', $id));
         }
 
         $data = [];

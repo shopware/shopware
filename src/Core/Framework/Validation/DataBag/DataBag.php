@@ -32,7 +32,7 @@ class DataBag extends ParameterBag
 
     public function only(string ...$keys): array
     {
-        return array_intersect_key($this->parameters, array_flip($keys));
+        return \array_intersect_key($this->parameters, \array_flip($keys));
     }
 
     public function toRequestDataBag(): RequestDataBag

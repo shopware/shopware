@@ -81,7 +81,7 @@ class PriceActionController extends AbstractController
         $taxes = $this->taxRepository->search(new Criteria([$taxId]), $context);
         $tax = $taxes->get($taxId);
         if (!$tax instanceof TaxEntity) {
-            throw new \InvalidArgumentException(sprintf('Tax rule with id %s not found taxId missing', $taxId));
+            throw new \InvalidArgumentException(\sprintf('Tax rule with id %s not found taxId missing', $taxId));
         }
 
         $calculator = $this->grossCalculator;
@@ -99,7 +99,7 @@ class PriceActionController extends AbstractController
 
         $calculated = $calculator->calculate($definition);
 
-        $data = json_decode(json_encode($calculated, JSON_PRESERVE_ZERO_FRACTION), true);
+        $data = \json_decode(\json_encode($calculated, \JSON_PRESERVE_ZERO_FRACTION), true);
 
         return new JsonResponse(
             ['data' => $data]
@@ -119,7 +119,7 @@ class PriceActionController extends AbstractController
             ->get($currencyId);
 
         if (!$currency) {
-            throw new NotFoundHttpException(sprintf('Currency for id %s not found', $currencyId));
+            throw new NotFoundHttpException(\sprintf('Currency for id %s not found', $currencyId));
         }
 
         /* @var CurrencyEntity $currency */

@@ -26,7 +26,7 @@ class ReadProtection extends EntityProtection
 
     public function getAllowedScopes(): array
     {
-        return array_keys($this->allowedScopes);
+        return \array_keys($this->allowedScopes);
     }
 
     public function isAllowed(string $scope): bool

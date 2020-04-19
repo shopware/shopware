@@ -257,10 +257,10 @@ class EntityReader implements EntityReaderInterface
                 if ($field instanceof JsonField) {
                     // merged in hydrator
                     $parentFieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.inherited');
-                    $query->addSelect(sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
+                    $query->addSelect(\sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
                 }
                 //add selection for resolved parent-child inheritance field
-                $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
+                $query->addSelect(\sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
                 continue;
             }
@@ -361,9 +361,9 @@ class EntityReader implements EntityReaderInterface
         ];
 
         $query->addSelect(
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
+            \str_replace(
+                \array_keys($parameters),
+                \array_values($parameters),
                 '(SELECT GROUP_CONCAT(HEX(#alias#.#mapping_reference_column#) SEPARATOR \'||\')
                   FROM #mapping_table# #alias#
                   WHERE #alias#.#mapping_local_column# = #source#'
@@ -436,7 +436,7 @@ class EntityReader implements EntityReaderInterface
         //build orm property accessor to add field sortings and conditions `customer_address.customerId`
         $propertyAccessor = $association->getReferenceDefinition()->getEntityName() . '.' . $propertyName;
 
-        $ids = array_values($collection->getIds());
+        $ids = \array_values($collection->getIds());
 
         $isInheritanceAware = $definition->isInheritanceAware();
 
@@ -445,9 +445,9 @@ class EntityReader implements EntityReaderInterface
                 return $entity->get('parentId');
             });
 
-            $parentIds = array_values(array_filter($parentIds));
+            $parentIds = \array_values(\array_filter($parentIds));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = \array_unique(\array_merge($ids, $parentIds));
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -509,7 +509,7 @@ class EntityReader implements EntityReaderInterface
         $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
 
         //inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
-        $sorting = array_merge(
+        $sorting = \array_merge(
             [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
             $fieldCriteria->getSorting()
         );
@@ -518,7 +518,7 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->addSorting(...$sorting);
 
         //add terms query to filter reference table to loaded root entities: `customer_address.customerId IN (:loadedIds)`
-        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, array_values($collection->getIds())));
+        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, \array_values($collection->getIds())));
 
         $mapping = $this->fetchPaginatedOneToManyMapping($definition, $association, $context, $collection, $fieldCriteria);
 
@@ -529,7 +529,7 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $fieldCriteria->setIds(array_filter($ids));
+        $fieldCriteria->setIds(\array_filter($ids));
         $fieldCriteria->resetSorting();
         $fieldCriteria->resetFilters();
         $fieldCriteria->resetPostFilters();
@@ -645,7 +645,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!$reference) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'No inverse many to many association found, for association %s',
                     $association->getPropertyName()
                 )
@@ -679,7 +679,7 @@ class EntityReader implements EntityReaderInterface
         $orderBy = '';
         $parts = $query->getQueryPart('orderBy');
         if (!empty($parts)) {
-            $orderBy = ' ORDER BY ' . implode(', ', $parts);
+            $orderBy = ' ORDER BY ' . \implode(', ', $parts);
             $query->resetQueryPart('orderBy');
         }
         // order by is handled in group_concat
@@ -704,9 +704,9 @@ class EntityReader implements EntityReaderInterface
                 $root,
                 '(' . $limitQuery . ')',
                 'counter_table',
-                str_replace(
-                    array_keys($params),
-                    array_values($params),
+                \str_replace(
+                    \array_keys($params),
+                    \array_values($params),
                     'counter_table.#source_column# = #table#.#source_column# AND
                      counter_table.#reference_column# = #table#.#reference_column# AND
                      counter_table.id_count <= :limit'
@@ -722,7 +722,7 @@ class EntityReader implements EntityReaderInterface
 
         $ids = [];
         foreach ($mapping as &$row) {
-            $row = array_filter(explode(',', $row));
+            $row = \array_filter(\explode(',', $row));
             foreach ($row as $id) {
                 $ids[] = $id;
             }
@@ -750,7 +750,7 @@ class EntityReader implements EntityReaderInterface
 
             $parentId = $struct->has('parentId') ? $struct->get('parentId') : '';
 
-            if (array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
+            if (\array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
                 //filter mapping list of whole data array
                 $structData = $data->getList($mapping[$id]);
 
@@ -887,9 +887,9 @@ class EntityReader implements EntityReaderInterface
 
         $query = new QueryBuilder($this->connection);
         $query->select([
-            str_replace(
-                array_keys($params),
-                array_values($params),
+            \str_replace(
+                \array_keys($params),
+                \array_values($params),
                 '@n:=IF(@c=#table#.#source_column#, @n+1, IF(@c:=#table#.#source_column#,1,1)) as id_count'
             ),
             $table . '.' . $referenceColumn,
@@ -915,7 +915,7 @@ class EntityReader implements EntityReaderInterface
 
         if (!$ref) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Reference field %s not found in definition %s for definition %s',
                     $association->getReferenceField(),
                     $reference->getEntityName(),
@@ -953,12 +953,12 @@ class EntityReader implements EntityReaderInterface
         FieldCollection $fields
     ): FieldCollection {
         foreach ($criteria->getAssociations() as $fieldName => $_fieldCriteria) {
-            $regex = sprintf('#^(%s\.)?(extensions\.)?#i', $definition->getEntityName());
-            $fieldName = preg_replace($regex, '', $fieldName);
+            $regex = \sprintf('#^(%s\.)?(extensions\.)?#i', $definition->getEntityName());
+            $fieldName = \preg_replace($regex, '', $fieldName);
 
-            $dotPosition = mb_strpos($fieldName, '.');
+            $dotPosition = \mb_strpos($fieldName, '.');
             if ($dotPosition !== false) {
-                $fieldName = mb_substr($fieldName, 0, $dotPosition);
+                $fieldName = \mb_substr($fieldName, 0, $dotPosition);
             }
 
             $field = $definition->getFields()->get($fieldName);
@@ -1005,7 +1005,7 @@ class EntityReader implements EntityReaderInterface
             return $entity->get($association->getPropertyName());
         });
 
-        $related = array_filter($related);
+        $related = \array_filter($related);
 
         $referenceDefinition = $association->getReferenceDefinition();
         $collectionClass = $referenceDefinition->getCollectionClass();

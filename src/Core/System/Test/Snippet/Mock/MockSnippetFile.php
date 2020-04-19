@@ -26,7 +26,7 @@ class MockSnippetFile implements SnippetFileInterface
         $this->name = $name;
         $this->iso = $iso ?? $name;
         $this->isBase = $isBase;
-        file_put_contents($this->getPath(), $content);
+        \file_put_contents($this->getPath(), $content);
     }
 
     public function getName(): string
@@ -36,7 +36,7 @@ class MockSnippetFile implements SnippetFileInterface
 
     public function getPath(): string
     {
-        return sprintf('%s/_fixtures/%s.json', __DIR__, $this->getName());
+        return \sprintf('%s/_fixtures/%s.json', __DIR__, $this->getName());
     }
 
     public function getIso(): string

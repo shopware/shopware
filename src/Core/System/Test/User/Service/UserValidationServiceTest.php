@@ -32,7 +32,7 @@ class UserValidationServiceTest extends TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getIds();
-        $firstLocale = array_pop($localeIds);
+        $firstLocale = \array_pop($localeIds);
 
         $this->userRepository->create([
             [
@@ -58,7 +58,7 @@ class UserValidationServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getIds();
 
-        $firstLocale = array_pop($localeIds);
+        $firstLocale = \array_pop($localeIds);
 
         $this->userRepository->create([
             [
@@ -82,7 +82,7 @@ class UserValidationServiceTest extends TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getIds();
-        $firstLocale = array_pop($localeIds);
+        $firstLocale = \array_pop($localeIds);
 
         $this->userRepository->create([
             [
@@ -107,7 +107,7 @@ class UserValidationServiceTest extends TestCase
 
         $context = Context::createDefaultContext();
         $localeIds = $this->localeRepository->searchIds(new Criteria(), $context)->getIds();
-        $firstLocale = array_pop($localeIds);
+        $firstLocale = \array_pop($localeIds);
 
         $this->userRepository->create([
             [

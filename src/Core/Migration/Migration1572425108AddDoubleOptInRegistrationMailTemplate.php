@@ -65,7 +65,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
         $englishLanguageId = $this->fetchLanguageIdByName(self::ENGLISH_LANGUAGE_NAME, $connection);
         $germanLanguageId = $this->fetchLanguageIdByName(self::GERMAN_LANGUAGE_NAME, $connection);
 
-        if (!in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
+        if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $connection->insert(
                 'mail_template_type_translation',
                 [
@@ -119,7 +119,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
         $englishLanguageId = $this->fetchLanguageIdByName(self::ENGLISH_LANGUAGE_NAME, $connection);
         $germanLanguageId = $this->fetchLanguageIdByName(self::GERMAN_LANGUAGE_NAME, $connection);
 
-        if (!in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
+        if (!\in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $connection->insert(
                 'mail_template_translation',
                 [
@@ -176,7 +176,7 @@ class Migration1572425108AddDoubleOptInRegistrationMailTemplate extends Migratio
                 'id' => Uuid::randomBytes(),
                 'event_name' => CustomerDoubleOptInRegistrationEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($templateTypeId),
                 ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

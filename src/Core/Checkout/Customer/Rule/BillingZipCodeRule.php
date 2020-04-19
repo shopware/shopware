@@ -40,14 +40,14 @@ class BillingZipCodeRule extends Rule
         }
 
         $zipCode = $customer->getActiveBillingAddress()->getZipcode();
-        $this->zipCodes = array_map('strtolower', $this->zipCodes);
+        $this->zipCodes = \array_map('strtolower', $this->zipCodes);
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array(mb_strtolower($zipCode), $this->zipCodes, true);
+                return \in_array(\mb_strtolower($zipCode), $this->zipCodes, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array(mb_strtolower($zipCode), $this->zipCodes, true);
+                return !\in_array(\mb_strtolower($zipCode), $this->zipCodes, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

@@ -193,7 +193,7 @@ class PromotionCalculator
 
             $promotionId = $discountItem->getPayloadValue('promotionId');
 
-            if (array_key_exists($promotionId, $exclusions)) {
+            if (\array_key_exists($promotionId, $exclusions)) {
                 $calculated->addErrors(new PromotionNotEligibleError($discountItem->getDescription()));
 
                 continue;
@@ -204,7 +204,7 @@ class PromotionCalculator
             // if our price is 0,00 because of whatever reason, make sure to skip it.
             // this can be if the price-definition filter is none,
             // or if a fixed price is set to the price of the product itself.
-            if (abs($result->getPrice()->getTotalPrice()) === 0.0) {
+            if (\abs($result->getPrice()->getTotalPrice()) === 0.0) {
                 continue;
             }
 
@@ -385,7 +385,7 @@ class PromotionCalculator
 
         // if our price is larger than the max discount value,
         // then use the max discount value as negative discount
-        if (abs($result->getPrice()->getTotalPrice()) > abs($maxDiscountValue)) {
+        if (\abs($result->getPrice()->getTotalPrice()) > \abs($maxDiscountValue)) {
             $result = $this->limitDiscountResult($maxDiscountValue, $packages->getAffectedPrices(), $result, $context);
         }
 
@@ -415,7 +415,7 @@ class PromotionCalculator
     private function limitDiscountResult(float $maxDiscountValue, PriceCollection $priceCollection, DiscountCalculatorResult $originalResult, SalesChannelContext $context): DiscountCalculatorResult
     {
         $price = $this->absolutePriceCalculator->calculate(
-            -abs($maxDiscountValue),
+            -\abs($maxDiscountValue),
             $priceCollection,
             $context
         );

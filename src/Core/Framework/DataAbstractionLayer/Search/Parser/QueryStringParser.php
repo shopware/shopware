@@ -27,7 +27,7 @@ class QueryStringParser
                     throw new InvalidFilterQueryException('Parameter "field" for equals filter is missing.', $path . '/field');
                 }
 
-                if (!array_key_exists('value', $query) || $query['value'] === '') {
+                if (!\array_key_exists('value', $query) || $query['value'] === '') {
                     throw new InvalidFilterQueryException('Parameter "value" for equals filter is missing.', $path . '/value');
                 }
 
@@ -36,7 +36,7 @@ class QueryStringParser
                 $queries = [];
                 $operator = MultiFilter::CONNECTION_AND;
 
-                if (isset($query['operator']) && mb_strtoupper($query['operator']) === MultiFilter::CONNECTION_OR) {
+                if (isset($query['operator']) && \mb_strtoupper($query['operator']) === MultiFilter::CONNECTION_OR) {
                     $operator = MultiFilter::CONNECTION_OR;
                 }
 
@@ -64,7 +64,7 @@ class QueryStringParser
             case 'not':
                 return new NotFilter(
                     $query['operator'] ?? 'AND',
-                    array_map(function (array $query) use ($path, $exception, $definition) {
+                    \array_map(function (array $query) use ($path, $exception, $definition) {
                         return self::fromArray($definition, $query, $exception, $path);
                     }, $query['queries'])
                 );
@@ -81,7 +81,7 @@ class QueryStringParser
 
                 $values = $query['value'];
                 if (\is_string($values)) {
-                    $values = array_filter(explode('|', $values));
+                    $values = \array_filter(\explode('|', $values));
                 }
 
                 if (!\is_array($values)) {
@@ -95,7 +95,7 @@ class QueryStringParser
                 return new EqualsAnyFilter(self::buildFieldName($definition, $query['field']), $values);
         }
 
-        throw new InvalidFilterQueryException(sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
+        throw new InvalidFilterQueryException(\sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
     }
 
     public static function toArray(Filter $query): array
@@ -110,7 +110,7 @@ class QueryStringParser
             case $query instanceof NotFilter:
                 return [
                     'type' => 'not',
-                    'queries' => array_map(function (Filter $nested) {
+                    'queries' => \array_map(function (Filter $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
                     'operator' => $query->getOperator(),
@@ -118,7 +118,7 @@ class QueryStringParser
             case $query instanceof MultiFilter:
                 return [
                     'type' => 'multi',
-                    'queries' => array_map(function (Filter $nested) {
+                    'queries' => \array_map(function (Filter $nested) {
                         return self::toArray($nested);
                     }, $query->getQueries()),
                     'operator' => $query->getOperator(),
@@ -139,10 +139,10 @@ class QueryStringParser
                 return [
                     'type' => 'equalsAny',
                     'field' => $query->getField(),
-                    'value' => implode('|', $query->getValue()),
+                    'value' => \implode('|', $query->getValue()),
                 ];
             default:
-                throw new \RuntimeException(sprintf('Unsupported filter type %s', \get_class($query)));
+                throw new \RuntimeException(\sprintf('Unsupported filter type %s', \get_class($query)));
         }
     }
 
@@ -150,7 +150,7 @@ class QueryStringParser
     {
         $prefix = $definition->getEntityName() . '.';
 
-        if (mb_strpos($fieldName, $prefix) === false) {
+        if (\mb_strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;
         }
 

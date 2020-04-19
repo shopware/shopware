@@ -176,7 +176,7 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $email = 'unit@test.foo';
         $dataBag = new RequestDataBag([
-            'em' => hash('sha1', $email),
+            'em' => \hash('sha1', $email),
             'hash' => 'b4b45f58088d41289490db956ca19af7',
         ]);
 
@@ -263,13 +263,13 @@ class NewsletterRecipientServiceTest extends TestCase
 
     private function installTestData(): void
     {
-        $this->getContainer()->get(Connection::class)->exec(file_get_contents(__DIR__ . '/../fixtures/salutation.sql'));
+        $this->getContainer()->get(Connection::class)->exec(\file_get_contents(__DIR__ . '/../fixtures/salutation.sql'));
 
-        $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
-        $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
+        $recipientSql = \file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
+        $recipientSql = \str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
         $this->getContainer()->get(Connection::class)->exec($recipientSql);
 
-        $templateSql = file_get_contents(__DIR__ . '/../fixtures/template.sql');
+        $templateSql = \file_get_contents(__DIR__ . '/../fixtures/template.sql');
         $this->getContainer()->get(Connection::class)->exec($templateSql);
     }
 }

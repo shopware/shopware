@@ -291,7 +291,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         /** @var MigrationSource $source */
         $source = $this->getContainer()->get(MigrationSource::class . '.core');
 
-        iterator_to_array($runtime->migrate($source), true);
+        \iterator_to_array($runtime->migrate($source), true);
     }
 
     private function getMigrations(): array

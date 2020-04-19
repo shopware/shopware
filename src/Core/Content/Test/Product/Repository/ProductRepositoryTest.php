@@ -452,7 +452,7 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->create($data, $this->context);
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $criteria = new Criteria($ids);
         $criteria->addAssociation('tax');
         $products = $this->repository->search($criteria, $this->context);
@@ -534,7 +534,7 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->create($data, $this->context);
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $criteria = new Criteria($ids);
         $criteria->addAssociation('manufacturer');
 
@@ -860,7 +860,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], json_decode($row['price'], true));
+        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], \json_decode($row['price'], true));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
@@ -876,7 +876,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true));
+        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], \json_decode($row['price'], true));
 
         $row = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertEmpty($row);
@@ -1186,7 +1186,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'c' . Defaults::CURRENCY => ['net' => 9, 'gross' => 10, 'linked' => true, 'currencyId' => Defaults::CURRENCY],
             ],
-            json_decode($row['price'], true)
+            \json_decode($row['price'], true)
         );
         static::assertSame($parentTax, Uuid::fromBytesToHex($row['tax_id']));
 
@@ -1224,7 +1224,7 @@ class ProductRepositoryTest extends TestCase
 
         $taxes = $this->repository->create($data, Context::createDefaultContext())->getEventByEntityName(TaxDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $taxes);
-        static::assertCount(1, array_unique($taxes->getIds()));
+        static::assertCount(1, \array_unique($taxes->getIds()));
     }
 
     public function testProductMediaAssociationWithSortingAndPagination(): void
@@ -1266,7 +1266,7 @@ class ProductRepositoryTest extends TestCase
         });
 
         $order = [$a, $b, $c];
-        static::assertEquals($order, array_values($ids));
+        static::assertEquals($order, \array_values($ids));
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('media')
@@ -1281,7 +1281,7 @@ class ProductRepositoryTest extends TestCase
         });
 
         $order = [$d, $c, $b];
-        static::assertEquals($order, array_values($ids));
+        static::assertEquals($order, \array_values($ids));
     }
 
     public function testVariantInheritanceWithMedia(): void
@@ -1512,23 +1512,23 @@ class ProductRepositoryTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        static::assertSame([$parentCategory], array_values($parent->getCategories()->getIds()));
-        static::assertSame([$parentCategory], array_values($red->getCategories()->getIds()));
-        static::assertSame([$greenCategory], array_values($green->getCategories()->getIds()));
+        static::assertSame([$parentCategory], \array_values($parent->getCategories()->getIds()));
+        static::assertSame([$parentCategory], \array_values($red->getCategories()->getIds()));
+        static::assertSame([$greenCategory], \array_values($green->getCategories()->getIds()));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertContains($parentCategory, json_decode($row['category_tree'], true));
+        static::assertContains($parentCategory, \json_decode($row['category_tree'], true));
         static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertContains($parentCategory, json_decode($row['category_tree'], true));
+        static::assertContains($parentCategory, \json_decode($row['category_tree'], true));
         static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array $row */
         $row = $this->connection->fetchAssoc('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertContains($greenCategory, json_decode($row['category_tree'], true));
+        static::assertContains($greenCategory, \json_decode($row['category_tree'], true));
         static::assertSame($greenId, Uuid::fromBytesToHex($row['categories']));
     }
 
@@ -2295,11 +2295,11 @@ class ProductRepositoryTest extends TestCase
             'manufacturer' => ['name' => 'test', 'id' => $manufacturerId],
         ];
 
-        $withRules = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+        $withRules = \array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
 
-        $withRules2 = array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
+        $withRules2 = \array_merge($default, ['blacklistIds' => [$ruleId], 'productNumber' => Uuid::randomHex()]);
 
-        $default2 = array_merge($default, ['productNumber' => Uuid::randomHex()]);
+        $default2 = \array_merge($default, ['productNumber' => Uuid::randomHex()]);
 
         $products = [
             $default,
@@ -2378,7 +2378,7 @@ class ProductRepositoryTest extends TestCase
 
         $count = $this->connection->fetchAll('SELECT * FROM category');
 
-        static::assertCount(1, $count, print_r($count, true));
+        static::assertCount(1, $count, \print_r($count, true));
     }
 
     public function testDuplicateProductNumber(): void
@@ -2425,10 +2425,10 @@ class ProductRepositoryTest extends TestCase
         $ids = new TestDataCollection();
 
         $data = [
-            array_replace_recursive($defaults, ['id' => $ids->create('a'), 'price' => [['gross' => 99.96]], 'productNumber' => $ids->get('a')]),
-            array_replace_recursive($defaults, ['id' => $ids->create('b'), 'price' => [['gross' => 99.92]], 'productNumber' => $ids->get('b')]),
-            array_replace_recursive($defaults, ['id' => $ids->create('c'), 'price' => [['gross' => 99.95]], 'productNumber' => $ids->get('c')]),
-            array_replace_recursive($defaults, ['id' => $ids->create('d'), 'price' => [['gross' => 99.91]], 'productNumber' => $ids->get('d')]),
+            \array_replace_recursive($defaults, ['id' => $ids->create('a'), 'price' => [['gross' => 99.96]], 'productNumber' => $ids->get('a')]),
+            \array_replace_recursive($defaults, ['id' => $ids->create('b'), 'price' => [['gross' => 99.92]], 'productNumber' => $ids->get('b')]),
+            \array_replace_recursive($defaults, ['id' => $ids->create('c'), 'price' => [['gross' => 99.95]], 'productNumber' => $ids->get('c')]),
+            \array_replace_recursive($defaults, ['id' => $ids->create('d'), 'price' => [['gross' => 99.91]], 'productNumber' => $ids->get('d')]),
         ];
 
         $this->repository->create($data, Context::createDefaultContext());
@@ -2439,7 +2439,7 @@ class ProductRepositoryTest extends TestCase
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(
-            array_values($ids->getList(['d', 'b', 'c', 'a'])),
+            \array_values($ids->getList(['d', 'b', 'c', 'a'])),
             $result->getIds()
         );
 
@@ -2449,7 +2449,7 @@ class ProductRepositoryTest extends TestCase
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
         static::assertEquals(
-            array_values($ids->getList(['a', 'c', 'b', 'd'])),
+            \array_values($ids->getList(['a', 'c', 'b', 'd'])),
             $result->getIds()
         );
     }

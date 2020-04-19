@@ -32,7 +32,7 @@ class FormControllerTest extends TestCase
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = (array) \json_decode($responseContent);
         $type = $content[0]->type;
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -55,7 +55,7 @@ class FormControllerTest extends TestCase
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = (array) \json_decode($responseContent);
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -102,7 +102,7 @@ class FormControllerTest extends TestCase
         );
 
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = (array) \json_decode($responseContent);
         $type = $content[0]->type;
 
         static::assertInstanceOf(JsonResponse::class, $response);
@@ -130,9 +130,9 @@ class FormControllerTest extends TestCase
         );
 
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = (array) \json_decode($responseContent);
         $type = $content[0]->type;
-        $messageCount = mb_substr_count($content[0]->alert, '<li>');
+        $messageCount = \mb_substr_count($content[0]->alert, '<li>');
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());

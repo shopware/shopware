@@ -19,7 +19,7 @@ class MissingSystemTranslationException extends WriteConstraintViolationExceptio
         $parameters = ['{{ systemLanguage }}' => Defaults::LANGUAGE_SYSTEM];
         $constraintViolationList = new ConstraintViolationList([
             new ConstraintViolation(
-                str_replace(array_keys($parameters), array_values($parameters), $template),
+                \str_replace(\array_keys($parameters), \array_values($parameters), $template),
                 $template,
                 $parameters,
                 null,

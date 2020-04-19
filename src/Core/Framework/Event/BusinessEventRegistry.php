@@ -41,7 +41,7 @@ class BusinessEventRegistry
      */
     public function getEventNames(): array
     {
-        return array_keys($this->events);
+        return \array_keys($this->events);
     }
 
     /**
@@ -93,7 +93,7 @@ class BusinessEventRegistry
             $compiledEventData = [];
 
             foreach ($eventData as $key => $data) {
-                if (!in_array($data['type'], ['collection', 'entity'], true)) {
+                if (!\in_array($data['type'], ['collection', 'entity'], true)) {
                     $compiledEventData[$key] = $data;
 
                     continue;
@@ -109,6 +109,6 @@ class BusinessEventRegistry
         }
 
         $this->rawEventData = [];
-        ksort($this->events);
+        \ksort($this->events);
     }
 }

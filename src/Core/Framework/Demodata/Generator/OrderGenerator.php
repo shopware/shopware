@@ -83,16 +83,16 @@ SQL;
 
         $products = $this->connection->fetchAll($sql);
         $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200');
-        $customerIds = array_column($customerIds, 'id');
+        $customerIds = \array_column($customerIds, 'id');
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $context->getConsole()->progressStart($numberOfItems);
 
-        $lineItems = array_map(
+        $lineItems = \array_map(
             function ($product) {
                 $productId = $product['id'];
 
-                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, random_int(1, 10)))
+                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, \random_int(1, 10)))
                     ->setStackable(true)
                     ->setRemovable(true);
             },
@@ -118,13 +118,13 @@ SQL;
             } else {
                 $salesChannelContext = $this->contextFactory->create($token, Defaults::SALES_CHANNEL, $options);
                 $taxStates = [CartPrice::TAX_STATE_FREE, CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET];
-                $salesChannelContext->setTaxState($taxStates[array_rand($taxStates)]);
+                $salesChannelContext->setTaxState($taxStates[\array_rand($taxStates)]);
                 $contexts[$customerId] = $salesChannelContext;
             }
 
-            $itemCount = random_int(3, 5);
+            $itemCount = \random_int(3, 5);
 
-            $offset = random_int(0, $lineItems->count()) - 10;
+            $offset = \random_int(0, $lineItems->count()) - 10;
 
             $new = $lineItems->slice($offset, $itemCount);
 
@@ -134,7 +134,7 @@ SQL;
             $cart = $this->cartService->recalculate($cart, $salesChannelContext);
 
             $tempOrder = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
-            $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . \random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
             $payload[] = $tempOrder;
 

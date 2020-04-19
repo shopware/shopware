@@ -10,7 +10,6 @@ use Shopware\Core\Content\Sitemap\Provider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function sprintf;
 
 class SitemapExporter implements SitemapExporterInterface
 {
@@ -119,7 +118,7 @@ class SitemapExporter implements SitemapExporterInterface
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
     {
-        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
+        return \sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
     }
 
     private function getHost(SalesChannelContext $salesChannelContext): string

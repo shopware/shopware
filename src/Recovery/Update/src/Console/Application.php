@@ -83,9 +83,9 @@ class Application extends BaseApplication
 
     private function registerErrorHandler(): void
     {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
+        \set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
             // error was suppressed with the @-operator
-            if (error_reporting() === 0) {
+            if (\error_reporting() === 0) {
                 return false;
             }
 

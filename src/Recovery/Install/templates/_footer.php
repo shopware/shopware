@@ -4,9 +4,9 @@
 
 <div class="footer-main">
     <?php foreach ($languages as $language): ?>
-        <a href="<?= $menuHelper->getCurrentUrl([], ['language' => mb_strtolower($language)]); ?>"
+        <a href="<?= $menuHelper->getCurrentUrl([], ['language' => \mb_strtolower($language)]); ?>"
            class="language-item <?= ($selectedLanguage === $language) ? 'is--active' : ''; ?>">
-            <?= mb_strtoupper($language); ?>
+            <?= \mb_strtoupper($language); ?>
         </a>
     <?php endforeach; ?>
 </div>

@@ -80,7 +80,7 @@ class ApiVersionConverter
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
-            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+            if (!\array_key_exists($field->getPropertyName(), $payload) || !\is_array($payload[$field->getPropertyName()])) {
                 continue;
             }
 
@@ -99,7 +99,7 @@ class ApiVersionConverter
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
-            if (!array_key_exists($field->getPropertyName(), $payload) || !is_array($payload[$field->getPropertyName()])) {
+            if (!\array_key_exists($field->getPropertyName(), $payload) || !\is_array($payload[$field->getPropertyName()])) {
                 continue;
             }
 
@@ -189,10 +189,10 @@ class ApiVersionConverter
 
     private function validateQueryField(EntityDefinition $definition, string $concatenatedFields, int $apiVersion, SearchRequestException $searchException, string $pointer = ''): void
     {
-        $parts = explode('.', $concatenatedFields);
-        $fieldName = array_shift($parts);
+        $parts = \explode('.', $concatenatedFields);
+        $fieldName = \array_shift($parts);
         if ($fieldName === $definition->getEntityName()) {
-            $fieldName = array_shift($parts);
+            $fieldName = \array_shift($parts);
         }
 
         if ($this->isFromFuture($definition->getEntityName(), $fieldName, $apiVersion)) {
@@ -209,7 +209,7 @@ class ApiVersionConverter
             );
         }
 
-        if (count($parts) === 0) {
+        if (\count($parts) === 0) {
             return;
         }
 
@@ -221,7 +221,7 @@ class ApiVersionConverter
 
         $definition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
 
-        $this->validateQueryField($definition, implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
+        $this->validateQueryField($definition, \implode('.', $parts), $apiVersion, $searchException, $pointer . '/' . $fieldName);
     }
 
     private function stripNotAllowedFields(EntityDefinition $definition, array $payload, int $apiVersion): array
@@ -249,7 +249,7 @@ class ApiVersionConverter
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
-            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
+            if (\array_key_exists($field->getPropertyName(), $payload) && \is_array($payload[$field->getPropertyName()])) {
                 $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
                     $field->getReferenceDefinition(),
                     $payload[$field->getPropertyName()],
@@ -264,7 +264,7 @@ class ApiVersionConverter
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {
-            if (array_key_exists($field->getPropertyName(), $payload) && is_array($payload[$field->getPropertyName()])) {
+            if (\array_key_exists($field->getPropertyName(), $payload) && \is_array($payload[$field->getPropertyName()])) {
                 foreach ($payload[$field->getPropertyName()] as $entityPayload) {
                     $payload[$field->getPropertyName()] = $this->stripNotAllowedFields(
                         $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition(),

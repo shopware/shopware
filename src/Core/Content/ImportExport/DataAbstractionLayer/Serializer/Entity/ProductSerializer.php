@@ -61,7 +61,7 @@ class ProductSerializer extends EntitySerializer
 
         foreach (self::VISIBILITY_MAPPING as $type => $key) {
             if (isset($groups[$type])) {
-                $result[$key] = implode('|', $groups[$type]);
+                $result[$key] = \implode('|', $groups[$type]);
             }
         }
 
@@ -72,13 +72,13 @@ class ProductSerializer extends EntitySerializer
 
     public function deserialize(Config $config, EntityDefinition $definition, $value)
     {
-        $value = is_array($value) ? $value : iterator_to_array($value);
+        $value = \is_array($value) ? $value : \iterator_to_array($value);
 
         yield from parent::deserialize($config, $definition, $value);
 
         $productId = $value['id'] ?? null;
 
-        $mapping = array_flip(self::VISIBILITY_MAPPING);
+        $mapping = \array_flip(self::VISIBILITY_MAPPING);
 
         $visibilities = [];
 
@@ -87,7 +87,7 @@ class ProductSerializer extends EntitySerializer
                 continue;
             }
 
-            $ids = array_filter(explode('|', $value['visibilities'][$key]));
+            $ids = \array_filter(\explode('|', $value['visibilities'][$key]));
             foreach ($ids as $salesChannelId) {
                 $visibility = [
                     'salesChannelId' => $salesChannelId,

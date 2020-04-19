@@ -215,7 +215,7 @@ class FileSaver
 
         foreach ($currentMedia->getThumbnails() as $thumbnail) {
             try {
-                $renamedFiles = array_merge(
+                $renamedFiles = \array_merge(
                     $renamedFiles,
                     $this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)
                 );
@@ -281,7 +281,7 @@ class FileSaver
 
     private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media): void
     {
-        $stream = fopen($mediaFile->getFileName(), 'rb');
+        $stream = \fopen($mediaFile->getFileName(), 'rb');
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
         try {
@@ -289,8 +289,8 @@ class FileSaver
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
-            if (is_resource($stream)) {
-                fclose($stream);
+            if (\is_resource($stream)) {
+                \fclose($stream);
             }
         }
     }
@@ -320,7 +320,7 @@ class FileSaver
             'fileSize' => $mediaFile->getFileSize(),
             'fileName' => $destination,
             'metaData' => $metadata,
-            'mediaTypeRaw' => serialize($mediaType),
+            'mediaTypeRaw' => \serialize($mediaType),
             'uploadedAt' => new \DateTime(),
         ];
 
@@ -383,7 +383,7 @@ class FileSaver
      */
     private function validateFileName(string $destination): string
     {
-        $destination = rtrim($destination);
+        $destination = \rtrim($destination);
         $this->fileNameValidator->validateFileName($destination);
 
         return $destination;
@@ -398,7 +398,7 @@ class FileSaver
         $this->eventDispatcher->dispatch($event);
 
         foreach ($event->getWhitelist() as $extension) {
-            if (strtolower($mediaFile->getFileExtension()) === strtolower($extension)) {
+            if (\mb_strtolower($mediaFile->getFileExtension()) === \mb_strtolower($extension)) {
                 return;
             }
         }

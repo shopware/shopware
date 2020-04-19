@@ -783,7 +783,7 @@ class Migration1536233560BasicData extends MigrationStep
 
         $ruleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0 (Payment)', 'priority' => 100, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => \json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $debit = Uuid::randomBytes();
         $connection->insert('payment_method', ['id' => $debit, 'handler_identifier' => DebitPayment::class, 'position' => 4, 'active' => 0, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -815,7 +815,7 @@ class Migration1536233560BasicData extends MigrationStep
         $ruleId = Uuid::randomBytes();
 
         $connection->insert('rule', ['id' => $ruleId, 'name' => 'Cart >= 0', 'priority' => 100, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $ruleId, 'type' => 'cartCartAmount', 'value' => \json_encode(['operator' => '>=', 'amount' => 0]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDE = Uuid::fromHexToBytes($this->deDeLanguageId);
@@ -1014,14 +1014,14 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function getMediaFolderName(string $entity): string
     {
-        $capitalizedEntityParts = array_map(
+        $capitalizedEntityParts = \array_map(
             static function ($part) {
-                return ucfirst($part);
+                return \ucfirst($part);
             },
-            explode('_', $entity)
+            \explode('_', $entity)
         );
 
-        return implode(' ', $capitalizedEntityParts) . ' Media';
+        return \implode(' ', $capitalizedEntityParts) . ' Media';
     }
 
     private function createOrderStateMachine(Connection $connection): void
@@ -1045,13 +1045,13 @@ class Migration1536233560BasicData extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->insert('state_machine_translation', array_merge($translationDE, [
+        $connection->insert('state_machine_translation', \array_merge($translationDE, [
             'state_machine_id' => $stateMachineId,
             'name' => 'Bestellstatus',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]));
 
-        $connection->insert('state_machine_translation', array_merge($translationEN, [
+        $connection->insert('state_machine_translation', \array_merge($translationEN, [
             'state_machine_id' => $stateMachineId,
             'name' => 'Order state',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -1059,20 +1059,20 @@ class Migration1536233560BasicData extends MigrationStep
 
         // states
         $connection->insert('state_machine_state', ['id' => $openId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderStates::STATE_OPEN, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $openId, 'name' => 'Offen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $openId, 'name' => 'Open']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $openId, 'name' => 'Offen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $openId, 'name' => 'Open']));
 
         $connection->insert('state_machine_state', ['id' => $completedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderStates::STATE_COMPLETED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $completedId, 'name' => 'Abgeschlossen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $completedId, 'name' => 'Done']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $completedId, 'name' => 'Abgeschlossen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $completedId, 'name' => 'Done']));
 
         $connection->insert('state_machine_state', ['id' => $inProgressId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderStates::STATE_IN_PROGRESS, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $inProgressId, 'name' => 'In Bearbeitung']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $inProgressId, 'name' => 'In progress']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $inProgressId, 'name' => 'In Bearbeitung']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $inProgressId, 'name' => 'In progress']));
 
         $connection->insert('state_machine_state', ['id' => $canceledId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderStates::STATE_CANCELLED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $canceledId, 'name' => 'Abgebrochen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $canceledId, 'name' => 'Cancelled']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $canceledId, 'name' => 'Abgebrochen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $canceledId, 'name' => 'Cancelled']));
 
         // transitions
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'process', 'from_state_id' => $openId, 'to_state_id' => $inProgressId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -1112,13 +1112,13 @@ class Migration1536233560BasicData extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->insert('state_machine_translation', array_merge($translationDE, [
+        $connection->insert('state_machine_translation', \array_merge($translationDE, [
             'state_machine_id' => $stateMachineId,
             'name' => 'Bestellstatus',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]));
 
-        $connection->insert('state_machine_translation', array_merge($translationEN, [
+        $connection->insert('state_machine_translation', \array_merge($translationEN, [
             'state_machine_id' => $stateMachineId,
             'name' => 'Order state',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -1126,28 +1126,28 @@ class Migration1536233560BasicData extends MigrationStep
 
         // states
         $connection->insert('state_machine_state', ['id' => $openId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderDeliveryStates::STATE_OPEN, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $openId, 'name' => 'Offen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $openId, 'name' => 'Open']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $openId, 'name' => 'Offen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $openId, 'name' => 'Open']));
 
         $connection->insert('state_machine_state', ['id' => $shippedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderDeliveryStates::STATE_SHIPPED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $shippedId, 'name' => 'Versandt']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $shippedId, 'name' => 'Shipped']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $shippedId, 'name' => 'Versandt']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $shippedId, 'name' => 'Shipped']));
 
         $connection->insert('state_machine_state', ['id' => $shippedPartiallyId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderDeliveryStates::STATE_PARTIALLY_SHIPPED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $shippedPartiallyId, 'name' => 'Teilweise versandt']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $shippedPartiallyId, 'name' => 'Shipped (partially)']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $shippedPartiallyId, 'name' => 'Teilweise versandt']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $shippedPartiallyId, 'name' => 'Shipped (partially)']));
 
         $connection->insert('state_machine_state', ['id' => $returnedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderDeliveryStates::STATE_RETURNED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $returnedId, 'name' => 'Retour']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $returnedId, 'name' => 'Returned']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $returnedId, 'name' => 'Retour']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $returnedId, 'name' => 'Returned']));
 
         $connection->insert('state_machine_state', ['id' => $returnedPartiallyId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $returnedPartiallyId, 'name' => 'Teilretour']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $returnedPartiallyId, 'name' => 'Returned (partially)']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $returnedPartiallyId, 'name' => 'Teilretour']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $returnedPartiallyId, 'name' => 'Returned (partially)']));
 
         $connection->insert('state_machine_state', ['id' => $cancelledId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderDeliveryStates::STATE_CANCELLED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $cancelledId, 'name' => 'Abgebrochen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $cancelledId, 'name' => 'Cancelled']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $cancelledId, 'name' => 'Abgebrochen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $cancelledId, 'name' => 'Cancelled']));
 
         // transitions
         // from "open" to *
@@ -1196,13 +1196,13 @@ class Migration1536233560BasicData extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->insert('state_machine_translation', array_merge($translationDE, [
+        $connection->insert('state_machine_translation', \array_merge($translationDE, [
             'state_machine_id' => $stateMachineId,
             'name' => 'Zahlungsstatus',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]));
 
-        $connection->insert('state_machine_translation', array_merge($translationEN, [
+        $connection->insert('state_machine_translation', \array_merge($translationEN, [
             'state_machine_id' => $stateMachineId,
             'name' => 'Payment state',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -1210,32 +1210,32 @@ class Migration1536233560BasicData extends MigrationStep
 
         // states
         $connection->insert('state_machine_state', ['id' => $openId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_OPEN, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $openId, 'name' => 'Offen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $openId, 'name' => 'Open']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $openId, 'name' => 'Offen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $openId, 'name' => 'Open']));
 
         $connection->insert('state_machine_state', ['id' => $paidId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_PAID, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $paidId, 'name' => 'Bezahlt']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $paidId, 'name' => 'Paid']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $paidId, 'name' => 'Bezahlt']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $paidId, 'name' => 'Paid']));
 
         $connection->insert('state_machine_state', ['id' => $paidPartiallyId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_PARTIALLY_PAID, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Teilweise bezahlt']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Paid (partially)']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Teilweise bezahlt']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $paidPartiallyId, 'name' => 'Paid (partially)']));
 
         $connection->insert('state_machine_state', ['id' => $refundedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_REFUNDED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $refundedId, 'name' => 'Erstattet']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $refundedId, 'name' => 'Refunded']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $refundedId, 'name' => 'Erstattet']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $refundedId, 'name' => 'Refunded']));
 
         $connection->insert('state_machine_state', ['id' => $refundedPartiallyId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_PARTIALLY_REFUNDED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Teilweise erstattet']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Refunded (partially)']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Teilweise erstattet']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $refundedPartiallyId, 'name' => 'Refunded (partially)']));
 
         $connection->insert('state_machine_state', ['id' => $cancelledId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_CANCELLED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $cancelledId, 'name' => 'Abgebrochen']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $cancelledId, 'name' => 'Cancelled']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $cancelledId, 'name' => 'Abgebrochen']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $cancelledId, 'name' => 'Cancelled']));
 
         $connection->insert('state_machine_state', ['id' => $remindedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_REMINDED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationDE, ['state_machine_state_id' => $remindedId, 'name' => 'Erinnert']));
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $remindedId, 'name' => 'Reminded']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationDE, ['state_machine_state_id' => $remindedId, 'name' => 'Erinnert']));
+        $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $remindedId, 'name' => 'Reminded']));
 
         // transitions
         // from "open" to *
@@ -1278,16 +1278,16 @@ class Migration1536233560BasicData extends MigrationStep
     {
         $sundaySaleRuleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $sundaySaleRuleId, 'name' => 'Sunday sales', 'priority' => 2, 'invalid' => 0, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $sundaySaleRuleId, 'type' => 'dayOfWeek', 'value' => json_encode(['operator' => '=', 'dayOfWeek' => 7]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $sundaySaleRuleId, 'type' => 'dayOfWeek', 'value' => \json_encode(['operator' => '=', 'dayOfWeek' => 7]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $allCustomersRuleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $allCustomersRuleId, 'name' => 'All customers', 'priority' => 1, 'invalid' => 0, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $allCustomersRuleId, 'type' => 'customerCustomerGroup', 'value' => json_encode(['operator' => '=', 'customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $allCustomersRuleId, 'type' => 'customerCustomerGroup', 'value' => \json_encode(['operator' => '=', 'customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $usaCountryId = $connection->executeQuery('SELECT LOWER(hex(id)) FROM country WHERE `iso3` = "USA"')->fetchColumn();
         $usaRuleId = Uuid::randomBytes();
         $connection->insert('rule', ['id' => $usaRuleId, 'name' => 'Customers from USA', 'priority' => 100, 'invalid' => 0, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $usaRuleId, 'type' => 'customerBillingCountry', 'value' => json_encode(['operator' => '=', 'countryIds' => [$usaCountryId]]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('rule_condition', ['id' => Uuid::randomBytes(), 'rule_id' => $usaRuleId, 'type' => 'customerBillingCountry', 'value' => \json_encode(['operator' => '=', 'countryIds' => [$usaCountryId]]), 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
     }
 
     private function createSalutation(Connection $connection): void
@@ -1858,8 +1858,8 @@ class Migration1536233560BasicData extends MigrationStep
 
         foreach ($definitionMailTypes as $typeName => $mailType) {
             $availableEntities = null;
-            if (array_key_exists('availableEntities', $mailType)) {
-                $availableEntities = json_encode($mailType['availableEntities']);
+            if (\array_key_exists('availableEntities', $mailType)) {
+                $availableEntities = \json_encode($mailType['availableEntities']);
             }
 
             $connection->insert(
@@ -1939,9 +1939,9 @@ class Migration1536233560BasicData extends MigrationStep
         $stornoConfig = $defaultConfig;
         $stornoConfig['referencedDocumentType'] = InvoiceGenerator::INVOICE;
 
-        $configJson = json_encode($defaultConfig);
-        $deliveryNoteConfigJson = json_encode($deliveryNoteConfig);
-        $stornoConfigJson = json_encode($stornoConfig);
+        $configJson = \json_encode($defaultConfig);
+        $deliveryNoteConfigJson = \json_encode($deliveryNoteConfig);
+        $stornoConfigJson = \json_encode($stornoConfig);
 
         $connection->insert('document_base_config', ['id' => $stornoConfigId, 'name' => StornoGenerator::STORNO, 'global' => 1, 'filename_prefix' => StornoGenerator::STORNO . '_', 'document_type_id' => $stornoId, 'config' => $stornoConfigJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('document_base_config', ['id' => $invoiceConfigId, 'name' => InvoiceGenerator::INVOICE, 'global' => 1, 'filename_prefix' => InvoiceGenerator::INVOICE . '_', 'document_type_id' => $invoiceId, 'config' => $configJson, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -2134,7 +2134,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'event_name' => CheckoutOrderPlacedEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]['id'],
                 ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2307,7 +2307,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'event_name' => CustomerRegisterEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER]['id'],
                 ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2320,7 +2320,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'event_name' => NewsletterEvents::NEWSLETTER_REGISTER_EVENT,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterDoubleOptIn']['id'],
                 ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -2333,7 +2333,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'event_name' => NewsletterEvents::NEWSLETTER_CONFIRM_EVENT,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterRegister']['id'],
                 ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -3013,7 +3013,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => json_encode([
+                'config' => \json_encode([
                     'boxLayout' => ['source' => 'static', 'value' => 'standard'],
                 ]),
             ],
@@ -3022,7 +3022,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => json_encode([
+                'config' => \json_encode([
                     'media' => ['source' => 'mapped', 'value' => 'category.media'],
                     'displayMode' => ['source' => 'static', 'value' => 'cover'],
                     'url' => ['source' => 'static', 'value' => null],
@@ -3035,7 +3035,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => json_encode([
+                'config' => \json_encode([
                     'content' => ['source' => 'mapped', 'value' => 'category.description'],
                 ]),
             ],

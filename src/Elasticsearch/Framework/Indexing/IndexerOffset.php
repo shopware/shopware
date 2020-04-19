@@ -48,7 +48,7 @@ class IndexerOffset
         ?int $timestamp,
         $lastId = null
     ) {
-        $this->languages = array_values($languages->getIds());
+        $this->languages = \array_values($languages->getIds());
 
         $mapping = [];
         /** @var AbstractElasticsearchDefinition $definition */
@@ -68,13 +68,13 @@ class IndexerOffset
 
     public function setNextDefinition(): ?string
     {
-        return $this->definition = array_shift($this->definitions);
+        return $this->definition = \array_shift($this->definitions);
     }
 
     public function resetDefinitions(): void
     {
         $this->definitions = $this->allDefinitions;
-        $this->definition = array_shift($this->definitions);
+        $this->definition = \array_shift($this->definitions);
     }
 
     public function hasNextDefinition(): bool
@@ -84,7 +84,7 @@ class IndexerOffset
 
     public function setNextLanguage(): string
     {
-        return $this->languageId = array_shift($this->languages);
+        return $this->languageId = \array_shift($this->languages);
     }
 
     public function hasNextLanguage(): bool

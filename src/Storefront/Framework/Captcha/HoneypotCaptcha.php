@@ -49,12 +49,12 @@ class HoneypotCaptcha extends AbstractCaptcha
     {
         $activeCaptchas = $this->systemConfigService->get('core.basicInformation.activeCaptchas');
 
-        if (empty($activeCaptchas) || !is_array($activeCaptchas)) {
+        if (empty($activeCaptchas) || !\is_array($activeCaptchas)) {
             return false;
         }
 
         return $request->isMethod(Request::METHOD_POST)
-            && in_array(self::CAPTCHA_NAME, $activeCaptchas, true);
+            && \in_array(self::CAPTCHA_NAME, $activeCaptchas, true);
     }
 
     /**
@@ -64,7 +64,7 @@ class HoneypotCaptcha extends AbstractCaptcha
     {
         $this->honeypotValue = $request->get(self::CAPTCHA_REQUEST_PARAMETER);
 
-        return count($this->validator->validate($this)) < 1;
+        return \count($this->validator->validate($this)) < 1;
     }
 
     /**

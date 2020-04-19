@@ -66,7 +66,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
                 $id = $result->getPrimaryKey();
 
                 if (\is_array($id)) {
-                    $id = implode('-', $id);
+                    $id = \implode('-', $id);
                 }
 
                 $keys[] = $this->cacheKeyGenerator->getEntityTag($id, $definition->getEntityName());
@@ -90,7 +90,7 @@ class InvalidateCacheSubscriber implements EventSubscriberInterface
             }
         }
 
-        $keys = array_filter(array_keys(array_flip($keys)));
+        $keys = \array_filter(\array_keys(\array_flip($keys)));
         $this->cache->invalidateTags($keys);
     }
 }

@@ -122,7 +122,7 @@ class DocumentService
             $config->jsonSerialize()
         );
 
-        if (property_exists($documentConfiguration, 'referencedDocumentType')) {
+        if (\property_exists($documentConfiguration, 'referencedDocumentType')) {
             if ($referencedDocumentId === null) {
                 throw new DocumentGenerationException(
                     'referencedDocumentId must not be null for documents of type ' . $documentTypeName
@@ -383,7 +383,7 @@ class DocumentService
 
         if (!$referencedDocument) {
             throw new DocumentGenerationException(
-                sprintf(
+                \sprintf(
                     'The given referenced document with id %s with type %s for order %s could not be found',
                     $referencedDocumentId,
                     $referencedDocumentType,

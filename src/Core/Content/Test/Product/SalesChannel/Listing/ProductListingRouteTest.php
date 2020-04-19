@@ -47,7 +47,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/v' . PlatformRequest::API_VERSION . '/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(5, $response['elements']);
@@ -83,7 +83,7 @@ class ProductListingRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertArrayNotHasKey('elements', $response);
@@ -104,7 +104,7 @@ class ProductListingRouteTest extends TestCase
 
         $products = [];
         for ($i = 0; $i < 5; ++$i) {
-            $products[] = array_merge(
+            $products[] = \array_merge(
                 [
                     'id' => $this->ids->create('product' . $i),
                     'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],

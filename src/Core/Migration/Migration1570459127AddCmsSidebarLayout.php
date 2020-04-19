@@ -227,7 +227,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => json_encode([
+                'config' => \json_encode([
                     'media' => ['source' => 'mapped', 'value' => 'category.media'],
                     'displayMode' => ['source' => 'static', 'value' => 'cover'],
                     'url' => ['source' => 'static', 'value' => null],
@@ -240,7 +240,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => json_encode([
+                'config' => \json_encode([
                     'content' => ['source' => 'mapped', 'value' => 'category.description'],
                 ]),
             ],
@@ -256,7 +256,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageEn,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'config' => json_encode([
+                'config' => \json_encode([
                     'boxLayout' => ['source' => 'static', 'value' => 'standard'],
                 ]),
             ],

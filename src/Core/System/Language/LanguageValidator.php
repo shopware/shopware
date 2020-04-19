@@ -95,7 +95,7 @@ class LanguageValidator implements EventSubscriberInterface
 
             if ($command instanceof UpdateCommand && $id === Defaults::LANGUAGE_SYSTEM) {
                 $payload = $command->getPayload();
-                if (array_key_exists('parent_id', $payload) && $payload['parent_id'] !== null) {
+                if (\array_key_exists('parent_id', $payload) && $payload['parent_id'] !== null) {
                     $violations->add(
                         $this->buildViolation(
                             'The default language {{ id }} cannot inherit from another language.',
@@ -207,7 +207,7 @@ class LanguageValidator implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
+            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,

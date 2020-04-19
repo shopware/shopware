@@ -12,7 +12,7 @@ trait SortArrayByKeysTrait
     {
         $sorted = [];
         foreach ($sortedKeys as $index) {
-            if (array_key_exists($index, $indexedArray)) {
+            if (\array_key_exists($index, $indexedArray)) {
                 $sorted[$index] = $indexedArray[$index];
             }
         }

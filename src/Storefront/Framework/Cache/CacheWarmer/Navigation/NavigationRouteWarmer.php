@@ -39,7 +39,7 @@ class NavigationRouteWarmer implements CacheRouteWarmer
             return null;
         }
 
-        $ids = array_map(function ($id) {
+        $ids = \array_map(function ($id) {
             return ['navigationId' => $id];
         }, $ids);
 

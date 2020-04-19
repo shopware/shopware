@@ -19,12 +19,12 @@ class IndexTableOperator
 
     public function getIndexName(string $table, int $timestamp): string
     {
-        return sprintf('%s_%s', $table, $timestamp);
+        return \sprintf('%s_%s', $table, $timestamp);
     }
 
     public function createTable(string $table, string $indexName): void
     {
-        $sql = str_replace(
+        $sql = \str_replace(
             ['#indexName#', '#table#'],
             [EntityDefinitionQueryHelper::escape($indexName), EntityDefinitionQueryHelper::escape($table)],
             'DROP TABLE IF EXISTS #indexName#;

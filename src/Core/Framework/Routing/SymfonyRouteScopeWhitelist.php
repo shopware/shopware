@@ -9,6 +9,6 @@ class SymfonyRouteScopeWhitelist implements RouteScopeWhitelistInterface
      */
     public function applies(string $controllerClass): bool
     {
-        return strncmp($controllerClass, 'Symfony\\', 8) === 0;
+        return \strncmp($controllerClass, 'Symfony\\', 8) === 0;
     }
 }

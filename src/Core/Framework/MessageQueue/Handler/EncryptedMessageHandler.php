@@ -53,13 +53,13 @@ class EncryptedMessageHandler extends AbstractMessageHandler
 
     private function decryptMessage(EncryptedMessage $message): object
     {
-        $key = openssl_pkey_get_private($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase());
-        openssl_private_decrypt(
+        $key = \openssl_pkey_get_private($this->privateKey->getKeyPath(), $this->privateKey->getPassPhrase());
+        \openssl_private_decrypt(
             $message->getMessage(),
             $decryptedMessage,
             $key
         );
 
-        return unserialize($decryptedMessage);
+        return \unserialize($decryptedMessage);
     }
 }

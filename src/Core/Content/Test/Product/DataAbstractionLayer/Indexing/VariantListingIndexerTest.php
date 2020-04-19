@@ -335,15 +335,15 @@ class VariantListingIndexerTest extends TestCase
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
 
-        $optionIds = array_map(function ($item) {
-            return json_decode((string) $item['option_ids'], true);
+        $optionIds = \array_map(function ($item) {
+            return \json_decode((string) $item['option_ids'], true);
         }, $listing);
 
         if (!empty($optionIds)) {
-            $optionIds = array_merge(...$optionIds);
+            $optionIds = \array_merge(...$optionIds);
         }
 
-        return new Listing(array_column($listing, 'id'), $optionIds);
+        return new Listing(\array_column($listing, 'id'), $optionIds);
     }
 }
 

@@ -27,13 +27,13 @@ class UserControllerTest extends TestCase
      */
     public function testMe(): void
     {
-        $url = sprintf('/api/v%s/_info/me', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_info/me', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = \json_decode($client->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('attributes', $content['data']);
         static::assertSame('user', $content['data']['type']);

@@ -65,10 +65,10 @@ class ProductExporterTest extends TestCase
 
         $this->service->export($this->salesChannelContext, new ExportBehavior());
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
-        $csvRows = explode(PHP_EOL, $fileContent);
+        $csvRows = \explode(\PHP_EOL, $fileContent);
 
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->has($filePath));
@@ -88,11 +88,11 @@ class ProductExporterTest extends TestCase
 
         $service->export($this->salesChannelContext, new ExportBehavior());
 
-        $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
+        $filePath = \sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
 
         static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
         static::assertTrue($this->fileSystem->has($filePath));
-        static::assertCount(4, explode(PHP_EOL, $this->fileSystem->read($filePath)));
+        static::assertCount(4, \explode(\PHP_EOL, $this->fileSystem->read($filePath)));
     }
 
     public function testExportNotFound(): void
@@ -108,7 +108,7 @@ class ProductExporterTest extends TestCase
         $id = Uuid::randomHex();
 
         static::expectException(ExportNotFoundException::class);
-        static::expectExceptionMessage(sprintf('Product export with ID %s not found', $id));
+        static::expectExceptionMessage(\sprintf('Product export with ID %s not found', $id));
 
         $this->service->export($this->salesChannelContext, new ExportBehavior(), $id);
     }
@@ -165,7 +165,7 @@ class ProductExporterTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $randomProductIds = implode('|', array_slice(array_column($this->createProducts(), 'id'), 0, 2));
+        $randomProductIds = \implode('|', \array_slice(\array_column($this->createProducts(), 'id'), 0, 2));
 
         $connection->exec("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)

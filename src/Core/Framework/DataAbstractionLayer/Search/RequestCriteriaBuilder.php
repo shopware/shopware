@@ -86,30 +86,30 @@ class RequestCriteriaBuilder
             $array['includes'] = $criteria->getIncludes();
         }
 
-        if (count($criteria->getIds())) {
+        if (\count($criteria->getIds())) {
             $array['ids'] = $criteria->getIds();
         }
 
-        if (count($criteria->getFilters())) {
-            $array['filter'] = array_map(static function (Filter $filter) {
+        if (\count($criteria->getFilters())) {
+            $array['filter'] = \array_map(static function (Filter $filter) {
                 return QueryStringParser::toArray($filter);
             }, $criteria->getFilters());
         }
 
-        if (count($criteria->getPostFilters())) {
-            $array['post-filter'] = array_map(static function (Filter $filter) {
+        if (\count($criteria->getPostFilters())) {
+            $array['post-filter'] = \array_map(static function (Filter $filter) {
                 return QueryStringParser::toArray($filter);
             }, $criteria->getPostFilters());
         }
 
-        if (count($criteria->getAssociations())) {
+        if (\count($criteria->getAssociations())) {
             foreach ($criteria->getAssociations() as $assocName => $association) {
                 $array['associations'][$assocName] = $this->toArray($association);
             }
         }
 
-        if (count($criteria->getSorting())) {
-            $array['sort'] = json_decode(json_encode($criteria->getSorting()), true);
+        if (\count($criteria->getSorting())) {
+            $array['sort'] = \json_decode(\json_encode($criteria->getSorting()), true);
 
             foreach ($array['sort'] as &$sort) {
                 $sort['order'] = $sort['direction'];
@@ -118,17 +118,17 @@ class RequestCriteriaBuilder
             unset($sort);
         }
 
-        if (count($criteria->getQueries())) {
+        if (\count($criteria->getQueries())) {
             $array['query'] = [];
 
             foreach ($criteria->getQueries() as $query) {
-                $arrayQuery = json_decode(json_encode($query), true);
+                $arrayQuery = \json_decode(\json_encode($query), true);
                 $arrayQuery['query'] = QueryStringParser::toArray($query->getQuery());
                 $array['query'][] = $arrayQuery;
             }
         }
 
-        if (count($criteria->getGroupFields())) {
+        if (\count($criteria->getGroupFields())) {
             $array['grouping'] = [];
 
             foreach ($criteria->getGroupFields() as $groupField) {
@@ -136,7 +136,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (count($criteria->getAggregations())) {
+        if (\count($criteria->getAggregations())) {
             $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
         }
 
@@ -148,8 +148,8 @@ class RequestCriteriaBuilder
         $searchException = new SearchRequestException();
 
         if (isset($payload['ids'])) {
-            if (is_string($payload['ids'])) {
-                $ids = array_filter(explode('|', $payload['ids']));
+            if (\is_string($payload['ids'])) {
+                $ids = \array_filter(\explode('|', $payload['ids']));
             } else {
                 $ids = $payload['ids'];
             }
@@ -199,7 +199,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['term'])) {
-            $term = trim((string) $payload['term']);
+            $term = \trim((string) $payload['term']);
             $criteria->setTerm($term);
         }
 
@@ -244,7 +244,7 @@ class RequestCriteriaBuilder
             $order = $sort['order'] ?? 'asc';
             $naturalSorting = $sort['naturalSorting'] ?? false;
 
-            if (strcasecmp($order, 'desc') === 0) {
+            if (\strcasecmp($order, 'desc') === 0) {
                 $order = FieldSorting::DESCENDING;
             } else {
                 $order = FieldSorting::ASCENDING;
@@ -262,7 +262,7 @@ class RequestCriteriaBuilder
 
     private function parseSimpleSorting(EntityDefinition $definition, string $query): array
     {
-        $parts = array_filter(explode(',', $query));
+        $parts = \array_filter(\explode(',', $query));
 
         if (empty($parts)) {
             throw new InvalidSortQueryException();
@@ -270,12 +270,12 @@ class RequestCriteriaBuilder
 
         $sorting = [];
         foreach ($parts as $part) {
-            $first = mb_substr($part, 0, 1);
+            $first = \mb_substr($part, 0, 1);
 
             $direction = $first === '-' ? FieldSorting::DESCENDING : FieldSorting::ASCENDING;
 
             if ($direction === FieldSorting::DESCENDING) {
-                $part = mb_substr($part, 1);
+                $part = \mb_substr($part, 1);
             }
 
             $sorting[] = new FieldSorting($this->buildFieldName($definition, $part), $direction);
@@ -293,13 +293,13 @@ class RequestCriteriaBuilder
             ++$index;
 
             if ($field === '') {
-                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The key for filter at position "%s" must not be blank.', $index)), '/filter/' . $index);
+                $searchRequestException->add(new InvalidFilterQueryException(\sprintf('The key for filter at position "%s" must not be blank.', $index)), '/filter/' . $index);
 
                 continue;
             }
 
             if ($value === '') {
-                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must not be blank.', $field)), '/filter/' . $field);
+                $searchRequestException->add(new InvalidFilterQueryException(\sprintf('The value for filter "%s" must not be blank.', $field)), '/filter/' . $field);
 
                 continue;
             }
@@ -318,7 +318,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if (!is_numeric($payload['page'])) {
+        if (!\is_numeric($payload['page'])) {
             $searchRequestException->add(new InvalidPageQueryException($payload['page']), '/page');
 
             return;
@@ -345,7 +345,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if (!is_numeric($payload['limit'])) {
+        if (!\is_numeric($payload['limit'])) {
             $searchRequestException->add(new InvalidLimitQueryException($payload['limit']), '/limit');
 
             return;
@@ -423,7 +423,7 @@ class RequestCriteriaBuilder
 
     private function hasNumericIndex(array $data): bool
     {
-        return array_keys($data) === range(0, \count($data) - 1);
+        return \array_keys($data) === \range(0, \count($data) - 1);
     }
 
     private function addSorting(array $payload, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
@@ -453,7 +453,7 @@ class RequestCriteriaBuilder
 
         $prefix = $definition->getEntityName() . '.';
 
-        if (mb_strpos($fieldName, $prefix) === false) {
+        if (\mb_strpos($fieldName, $prefix) === false) {
             return $prefix . $fieldName;
         }
 

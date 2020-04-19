@@ -46,7 +46,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     public function getRandomSet(): ?array
     {
-        return $this->attributeSets ? $this->attributeSets[array_rand($this->attributeSets)] : null;
+        return $this->attributeSets ? $this->attributeSets[\array_rand($this->attributeSets)] : null;
     }
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
@@ -63,7 +63,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $console->progressFinish();
 
         $relations = $options['relations'];
-        $sum = array_sum($relations);
+        $sum = \array_sum($relations);
         if ($sum <= 0) {
             return;
         }
@@ -96,7 +96,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         ];
 
         $name = $context->getFaker()->unique()->words(3, true);
-        $type = $types[array_rand($types)];
+        $type = $types[\array_rand($types)];
 
         switch ($type) {
             case CustomFieldTypes::INT:
@@ -175,7 +175,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
         return [
             'id' => Uuid::randomHex(),
-            'name' => mb_strtolower($prefix) . '_' . str_replace(' ', '_', $name),
+            'name' => \mb_strtolower($prefix) . '_' . \str_replace(' ', '_', $name),
             'type' => $type,
             'config' => $config,
         ];
@@ -183,12 +183,12 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     private function generateCustomFieldSet(array $options, DemodataContext $context): void
     {
-        $relationNames = array_keys($options['relations']);
-        $relations = array_map(function ($rel) {
+        $relationNames = \array_keys($options['relations']);
+        $relations = \array_map(function ($rel) {
             return ['id' => Uuid::randomHex(), 'entityName' => $rel];
         }, $relationNames);
 
-        $attributeCount = random_int(1, 5);
+        $attributeCount = \random_int(1, 5);
         $attributes = [];
 
         $setName = $context->getFaker()->unique()->category;
@@ -218,11 +218,11 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
         $repo = $this->definitionRegistry->getRepository($entityName);
 
         $ids = $this->connection->executeQuery(
-            sprintf('SELECT LOWER(HEX(id)) FROM `%s` ORDER BY rand() LIMIT %s', $entityName, $count)
+            \sprintf('SELECT LOWER(HEX(id)) FROM `%s` ORDER BY rand() LIMIT %s', $entityName, $count)
         )->fetchAll(FetchMode::COLUMN);
 
         $chunkSize = 50;
-        foreach (array_chunk($ids, $chunkSize) as $chunk) {
+        foreach (\array_chunk($ids, $chunkSize) as $chunk) {
             $updates = [];
             $attributeValues = [];
             foreach ($attributes as $attribute) {
@@ -240,13 +240,13 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
     {
         switch ($type) {
             case CustomFieldTypes::BOOL:
-                return (bool) random_int(0, 1);
+                return (bool) \random_int(0, 1);
 
             case CustomFieldTypes::FLOAT:
                 return $faker->randomFloat();
 
             case CustomFieldTypes::INT:
-                return random_int(-1000000, 1000000);
+                return \random_int(-1000000, 1000000);
 
             case CustomFieldTypes::DATETIME:
                 return $faker->dateTime;

@@ -207,7 +207,7 @@ class CmsPageEntity extends Entity
     {
         $elements = $this->getElementsOfType($type);
 
-        return array_shift($elements);
+        return \array_shift($elements);
     }
 
     public function getElementsOfType(string $type): array

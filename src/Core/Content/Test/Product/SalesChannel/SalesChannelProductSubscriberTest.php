@@ -49,7 +49,7 @@ class SalesChannelProductSubscriberTest extends TestCase
         foreach ($cases as $i => $case) {
             $id = $ids->create('product-' . $i);
 
-            $data = array_merge($defaults, [
+            $data = \array_merge($defaults, [
                 'id' => $id,
                 'productNumber' => $id,
 
@@ -141,7 +141,7 @@ class SalesChannelProductSubscriberTest extends TestCase
             // create a new product for this case
             $id = $ids->create('product-' . $i);
 
-            $data = array_merge($defaults, [
+            $data = \array_merge($defaults, [
                 'id' => $id,
                 'productNumber' => $id,
                 'price' => [

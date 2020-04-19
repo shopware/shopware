@@ -48,7 +48,7 @@ class Zip
      */
     public function isDir()
     {
-        return mb_substr($this->name, -1) === '/';
+        return \mb_substr($this->name, -1) === '/';
     }
 
     /**
@@ -56,7 +56,7 @@ class Zip
      */
     public function isFile()
     {
-        return mb_substr($this->name, -1) !== '/';
+        return \mb_substr($this->name, -1) !== '/';
     }
 
     /**
@@ -65,8 +65,8 @@ class Zip
     public function getName()
     {
         $name = $this->name;
-        if (mb_strpos($name, './') === 0) {
-            $name = mb_substr($name, 2);
+        if (\mb_strpos($name, './') === 0) {
+            $name = \mb_substr($name, 2);
         }
 
         return $name;

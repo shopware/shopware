@@ -94,7 +94,7 @@ class CategoryIndexer extends EntityIndexer
             return null;
         }
 
-        return new CategoryIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new CategoryIndexingMessage(\array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -133,16 +133,16 @@ class CategoryIndexer extends EntityIndexer
 
         $children = $this->fetchChildren($ids, $event->getContext()->getVersionId());
 
-        $ids = array_unique(array_merge($ids, $children));
+        $ids = \array_unique(\array_merge($ids, $children));
 
-        return new CategoryIndexingMessage(array_values($ids), null, $event->getContext(), \count($ids) > 20);
+        return new CategoryIndexingMessage(\array_values($ids), null, $event->getContext(), \count($ids) > 20);
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
 
-        $ids = array_unique(array_filter($ids));
+        $ids = \array_unique(\array_filter($ids));
         if (empty($ids)) {
             return;
         }
@@ -182,7 +182,7 @@ class CategoryIndexer extends EntityIndexer
             $query->setParameter($key, '%|' . $id . '|%');
         }
 
-        $query->andWhere('(' . implode(' OR ', $wheres) . ')');
+        $query->andWhere('(' . \implode(' OR ', $wheres) . ')');
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', Uuid::fromHexToBytes($versionId));
 

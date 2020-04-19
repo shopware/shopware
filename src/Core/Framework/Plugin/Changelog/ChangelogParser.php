@@ -37,26 +37,26 @@ class ChangelogParser
 
     private function parse(string $path): \Generator
     {
-        $file = fopen($path, 'rb');
+        $file = \fopen($path, 'rb');
 
         if ($file === false) {
             throw new FileNotFoundException(null, 0, null, $path);
         }
 
-        while ($line = fgets($file)) {
+        while ($line = \fgets($file)) {
             yield $line;
         }
 
-        fclose($file);
+        \fclose($file);
     }
 
     private function parseTitle($line): string
     {
-        return mb_strtolower(trim(mb_substr($line, 1)));
+        return \mb_strtolower(\trim(\mb_substr($line, 1)));
     }
 
     private function parseItem($line): string
     {
-        return trim(mb_substr($line, 1));
+        return \trim(\mb_substr($line, 1));
     }
 }

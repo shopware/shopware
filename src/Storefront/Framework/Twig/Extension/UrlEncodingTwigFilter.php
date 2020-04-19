@@ -22,14 +22,14 @@ class UrlEncodingTwigFilter extends AbstractExtension
             return null;
         }
 
-        $urlInfo = parse_url($mediaUrl);
-        $segments = explode('/', $urlInfo['path']);
+        $urlInfo = \parse_url($mediaUrl);
+        $segments = \explode('/', $urlInfo['path']);
 
         foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
+            $segments[$index] = \rawurlencode($segment);
         }
 
-        $path = implode('/', $segments);
+        $path = \implode('/', $segments);
         if (isset($urlInfo['query'])) {
             $path .= "?{$urlInfo['query']}";
         }

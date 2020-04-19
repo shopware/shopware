@@ -86,7 +86,7 @@ class SetScopeDiscountPackager extends DiscountPackager
 
                 $itemsInGroup = $groupResult[$i]->getItems();
 
-                $itemsInSet = array_merge($itemsInSet, $itemsInGroup);
+                $itemsInSet = \array_merge($itemsInSet, $itemsInGroup);
             }
 
             $units[] = new DiscountPackage(new LineItemQuantityCollection($itemsInSet));

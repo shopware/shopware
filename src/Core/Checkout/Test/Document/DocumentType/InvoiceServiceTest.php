@@ -136,7 +136,7 @@ class InvoiceServiceTest extends TestCase
         );
         foreach ($possibleTaxes as $possibleTax) {
             static::assertStringContainsString(
-                sprintf('plus %d%% VAT', $possibleTax),
+                \sprintf('plus %d%% VAT', $possibleTax),
                 $processedTemplate
             );
         }
@@ -147,7 +147,7 @@ class InvoiceServiceTest extends TestCase
         $generatorOutput = $pdfGenerator->generate($generatedDocument);
         static::assertNotEmpty($generatorOutput);
 
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
     }
 
@@ -170,10 +170,10 @@ class InvoiceServiceTest extends TestCase
         foreach ($taxes as $tax) {
             $id = Uuid::randomHex();
 
-            $price = random_int(100, 200000) / 100.0;
+            $price = \random_int(100, 200000) / 100.0;
 
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
+            \shuffle($keywords);
+            $name = \ucfirst(\implode(' ', $keywords) . ' product');
 
             $products[] = [
                 'id' => $id,
@@ -192,7 +192,7 @@ class InvoiceServiceTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, \end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')
@@ -256,7 +256,7 @@ class InvoiceServiceTest extends TestCase
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+        $prop->setValue($ruleRegistry, \array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $shippingMethodId,
@@ -316,7 +316,7 @@ class InvoiceServiceTest extends TestCase
 
         $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
         $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+        $prop->setValue($ruleRegistry, \array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [
             'id' => $paymentMethodId,

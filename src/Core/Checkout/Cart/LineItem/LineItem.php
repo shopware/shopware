@@ -136,7 +136,7 @@ class LineItem extends Struct
     {
         $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
-        foreach (get_object_vars($lineItem) as $property => $value) {
+        foreach (\get_object_vars($lineItem) as $property => $value) {
             $self->$property = $value;
         }
 
@@ -260,7 +260,7 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value): self
     {
-        if ($value !== null && !is_scalar($value) && !\is_array($value)) {
+        if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
             throw new InvalidPayloadException($key, $this->getId());
         }
 
@@ -287,7 +287,7 @@ class LineItem extends Struct
 
     public function replacePayload(array $payload): self
     {
-        $this->payload = array_replace_recursive($this->payload, $payload);
+        $this->payload = \array_replace_recursive($this->payload, $payload);
 
         return $this;
     }
@@ -478,7 +478,7 @@ class LineItem extends Struct
         int $newParentQuantity
     ): void {
         foreach ($lineItems as $lineItem) {
-            $newQuantity = intdiv($lineItem->getQuantity(), $oldParentQuantity) * $newParentQuantity;
+            $newQuantity = \intdiv($lineItem->getQuantity(), $oldParentQuantity) * $newParentQuantity;
 
             if ($lineItem->hasChildren()) {
                 $this->refreshChildQuantity($lineItem->getChildren(), $lineItem->getQuantity(), $newQuantity);

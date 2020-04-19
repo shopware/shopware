@@ -22,8 +22,8 @@ class SnippetServiceTest extends TestCase
 
     public function tearDown(): void
     {
-        foreach (glob(__DIR__ . '/Mock/_fixtures/*.json') as $mockFile) {
-            unlink($mockFile);
+        foreach (\glob(__DIR__ . '/Mock/_fixtures/*.json') as $mockFile) {
+            \unlink($mockFile);
         }
     }
 
@@ -173,7 +173,7 @@ json
     public function testStorefrontSnippetFallback(): void
     {
         $service = $this->getSnippetService(
-            new MockSnippetFile('test-fallback-en', 'en-GB', json_encode([
+            new MockSnippetFile('test-fallback-en', 'en-GB', \json_encode([
                 'foo' => 'en-foo',
                 'not-exists' => 'en-bar',
                 'storefront' => [
@@ -185,7 +185,7 @@ json
                     ],
                 ],
             ])),
-            new MockSnippetFile('test-fallback-de', 'de-DE', json_encode([
+            new MockSnippetFile('test-fallback-de', 'de-DE', \json_encode([
                 'storefront' => [
                     'account' => [
                         'overview' => 'Übersicht',
@@ -526,7 +526,7 @@ json
         $result = $service->getList(2, 3, Context::createDefaultContext(), [], []);
         static::assertSame(5, $result['total']);
         static::assertCount(2, $result['data']);
-        $data = array_merge($data, $result['data']);
+        $data = \array_merge($data, $result['data']);
 
         $result = $service->getList(4, 3, Context::createDefaultContext(), [], []);
         static::assertSame(5, $result['total']);
@@ -595,7 +595,7 @@ json
             'foo.ab',
             'foo.bas',
             'foo.baz',
-        ], array_keys($result['data']));
+        ], \array_keys($result['data']));
     }
 
     public function testGetListSortsByTranslationKeyDESC(): void
@@ -654,7 +654,7 @@ json
             'foo.bas',
             'foo.ab',
             'bar.zz',
-        ], array_keys($result['data']));
+        ], \array_keys($result['data']));
     }
 
     public function testGetListSortsBySnippetSetId(): void
@@ -715,7 +715,7 @@ json
             'foo.ab',
             'foo.bas',
             'foo.baz',
-        ], array_keys($result['data']));
+        ], \array_keys($result['data']));
     }
 
     public function testGetListSortsBySnippetSetIdDESC(): void
@@ -776,7 +776,7 @@ json
             'foo.bas',
             'foo.ab',
             'bar.zz',
-        ], array_keys($result['data']));
+        ], \array_keys($result['data']));
     }
 
     public function testGetListIgnoresSortingForNotExistingSnippetSetId(): void
@@ -834,7 +834,7 @@ json
             'foo.ab',
             'foo.bas',
             'foo.baz',
-        ], array_keys($result['data']));
+        ], \array_keys($result['data']));
     }
 
     public function testGetListFilters(): void

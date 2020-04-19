@@ -46,7 +46,7 @@ class ProductExportEventListener implements EventSubscriberInterface
             }
 
             $primaryKey = $writeResult->getPrimaryKey();
-            $primaryKey = is_array($primaryKey) ? $primaryKey['id'] : $primaryKey;
+            $primaryKey = \is_array($primaryKey) ? $primaryKey['id'] : $primaryKey;
 
             $this->productExportRepository->update(
                 [
@@ -73,6 +73,6 @@ class ProductExportEventListener implements EventSubscriberInterface
     {
         return $writeResult->getEntityName() === 'product_export'
             && $writeResult->getOperation() !== EntityWriteResult::OPERATION_DELETE
-            && !array_key_exists('generatedAt', $writeResult->getPayload());
+            && !\array_key_exists('generatedAt', $writeResult->getPayload());
     }
 }

@@ -28,12 +28,12 @@ class ParseResult
 
     public function getTypes(): array
     {
-        return array_filter($this->types);
+        return \array_filter($this->types);
     }
 
     public function getWheres(): array
     {
-        return array_filter($this->wheres);
+        return \array_filter($this->wheres);
     }
 
     public function getType(string $key)

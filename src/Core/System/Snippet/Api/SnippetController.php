@@ -62,7 +62,7 @@ class SnippetController extends AbstractController
         $filter = $this->snippetService->getRegionFilterItems($context);
 
         return new JsonResponse([
-            'total' => count($filter),
+            'total' => \count($filter),
             'data' => $filter,
         ]);
     }
@@ -77,7 +77,7 @@ class SnippetController extends AbstractController
 
         return new JsonResponse([
             'items' => $files,
-            'total' => count($files),
+            'total' => \count($files),
         ]);
     }
 
@@ -90,7 +90,7 @@ class SnippetController extends AbstractController
         $authors = $this->snippetService->getAuthors($context);
 
         return new JsonResponse([
-            'total' => count($authors),
+            'total' => \count($authors),
             'data' => $authors,
         ]);
     }

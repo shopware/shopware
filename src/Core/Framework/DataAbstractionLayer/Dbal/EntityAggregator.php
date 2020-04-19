@@ -122,7 +122,7 @@ class EntityAggregator implements EntityAggregatorInterface
             case DateHistogramAggregation::PER_QUARTER:
                 $month = (int) $date->format('m');
 
-                return $date->format('Y') . ' ' . ceil($month / 3);
+                return $date->format('Y') . ' ' . \ceil($month / 3);
             case DateHistogramAggregation::PER_YEAR:
                 return $date->format('Y-01-01 00:00:00');
             default:
@@ -248,7 +248,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 break;
 
             default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', get_class($aggregation)));
+                throw new InvalidAggregationQueryException(\sprintf('Aggregation of type %s not supported', \get_class($aggregation)));
         }
     }
 
@@ -301,11 +301,11 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($groupBy);
 
         $key = $aggregation->getName() . '.key';
-        $query->addSelect(sprintf('MIN(%s) as `%s`', $accessor, $key));
+        $query->addSelect(\sprintf('MIN(%s) as `%s`', $accessor, $key));
 
         $key = $aggregation->getName() . '.count';
         $countAccessor = $this->helper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $query->addSelect(sprintf('COUNT(%s) as `%s`', $countAccessor, $key));
+        $query->addSelect(\sprintf('COUNT(%s) as `%s`', $countAccessor, $key));
 
         if ($aggregation->getSorting()) {
             $this->addSorting($aggregation->getSorting(), $definition, $query, $context);
@@ -330,12 +330,12 @@ class EntityAggregator implements EntityAggregatorInterface
             $keyAccessor = 'LOWER(HEX(' . $keyAccessor . '))';
         }
 
-        $query->addSelect(sprintf('%s as `%s`', $keyAccessor, $key));
+        $query->addSelect(\sprintf('%s as `%s`', $keyAccessor, $key));
 
         $key = $aggregation->getName() . '.count';
 
         $countAccessor = $this->helper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $query->addSelect(sprintf('COUNT(%s) as `%s`', $countAccessor, $key));
+        $query->addSelect(\sprintf('COUNT(%s) as `%s`', $countAccessor, $key));
 
         if ($aggregation->getLimit()) {
             $query->setMaxResults($aggregation->getLimit());
@@ -354,35 +354,35 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('AVG(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(\sprintf('AVG(%s) as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function parseSumAggregation(SumAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('SUM(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(\sprintf('SUM(%s) as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function parseMaxAggregation(MaxAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MAX(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(\sprintf('MAX(%s) as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function parseMinAggregation(MinAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MIN(%s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(\sprintf('MIN(%s) as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function parseCountAggregation(CountAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('COUNT(DISTINCT %s) as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(\sprintf('COUNT(DISTINCT %s) as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function parseStatsAggregation(StatsAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
@@ -390,16 +390,16 @@ class EntityAggregator implements EntityAggregatorInterface
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
         if ($aggregation->fetchAvg()) {
-            $query->addSelect(sprintf('AVG(%s) as `%s.avg`', $accessor, $aggregation->getName()));
+            $query->addSelect(\sprintf('AVG(%s) as `%s.avg`', $accessor, $aggregation->getName()));
         }
         if ($aggregation->fetchMin()) {
-            $query->addSelect(sprintf('MIN(%s) as `%s.min`', $accessor, $aggregation->getName()));
+            $query->addSelect(\sprintf('MIN(%s) as `%s.min`', $accessor, $aggregation->getName()));
         }
         if ($aggregation->fetchMax()) {
-            $query->addSelect(sprintf('MAX(%s) as `%s.max`', $accessor, $aggregation->getName()));
+            $query->addSelect(\sprintf('MAX(%s) as `%s.max`', $accessor, $aggregation->getName()));
         }
         if ($aggregation->fetchSum()) {
-            $query->addSelect(sprintf('SUM(%s) as `%s.sum`', $accessor, $aggregation->getName()));
+            $query->addSelect(\sprintf('SUM(%s) as `%s.sum`', $accessor, $aggregation->getName()));
         }
     }
 
@@ -409,7 +409,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $query->addGroupBy($accessor);
 
         $accessor = 'LOWER(HEX(' . $accessor . '))';
-        $query->addSelect(sprintf('%s as `%s`', $accessor, $aggregation->getName()));
+        $query->addSelect(\sprintf('%s as `%s`', $accessor, $aggregation->getName()));
     }
 
     private function hydrateResult(Aggregation $aggregation, EntityDefinition $definition, array $rows, Context $context): AggregationResult
@@ -470,13 +470,13 @@ class EntityAggregator implements EntityAggregatorInterface
                 /* @var EntityAggregation $aggregation */
                 return $this->hydrateEntityAggregation($aggregation, $rows, $context);
             default:
-                throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', get_class($aggregation)));
+                throw new InvalidAggregationQueryException(\sprintf('Aggregation of type %s not supported', \get_class($aggregation)));
         }
     }
 
     private function hydrateEntityAggregation(EntityAggregation $aggregation, array $rows, Context $context): EntityResult
     {
-        $ids = array_filter(array_column($rows, $aggregation->getName()));
+        $ids = \array_filter(\array_column($rows, $aggregation->getName()));
 
         if (empty($ids)) {
             return new EntityResult($aggregation->getName(), new EntityCollection());
@@ -538,7 +538,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $buckets[] = new Bucket((string) $value, $count, $nested);
         }
 
-        return new TermsResult($aggregation->getName(), array_values($buckets));
+        return new TermsResult($aggregation->getName(), \array_values($buckets));
     }
 
     private function addSorting(FieldSorting $sorting, EntityDefinition $definition, QueryBuilder $query, Context $context): void
@@ -550,7 +550,7 @@ class EntityAggregator implements EntityAggregatorInterface
         }
 
         $countAccessor = $this->helper->getFieldAccessor('id', $definition, $definition->getEntityName(), $context);
-        $countAccessor = sprintf('COUNT(%s)', $countAccessor);
+        $countAccessor = \sprintf('COUNT(%s)', $countAccessor);
 
         $direction = $sorting->getDirection() === FieldSorting::ASCENDING ? FieldSorting::ASCENDING : FieldSorting::DESCENDING;
 

@@ -110,7 +110,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $navigation = $this->navigationLoader->load($serviceId, $context, $serviceId, 1);
 
-        return new CategoryCollection(array_map(static function (TreeItem $treeItem) {
+        return new CategoryCollection(\array_map(static function (TreeItem $treeItem) {
             return $treeItem->getCategory();
         }, $navigation->getTree()));
     }

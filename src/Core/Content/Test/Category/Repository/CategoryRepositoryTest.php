@@ -58,7 +58,7 @@ class CategoryRepositoryTest extends TestCase
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $child = array_shift($child);
+        $child = \array_shift($child);
 
         static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
@@ -109,7 +109,7 @@ class CategoryRepositoryTest extends TestCase
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $child = array_shift($child);
+        $child = \array_shift($child);
         static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete(
@@ -161,7 +161,7 @@ class CategoryRepositoryTest extends TestCase
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
-        $child = array_shift($child);
+        $child = \array_shift($child);
 
         static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
@@ -211,7 +211,7 @@ class CategoryRepositoryTest extends TestCase
         /** @var CategoryCollection $children */
         $children = $first->getChildren();
         $children->sortByPosition();
-        $childrenArray = array_values($children->getElements());
+        $childrenArray = \array_values($children->getElements());
         static::assertEquals($recordA, $childrenArray[0]->getId());
         static::assertEquals(2, $childrenArray[0]->getLevel());
         static::assertEquals($recordB, $childrenArray[1]->getId());

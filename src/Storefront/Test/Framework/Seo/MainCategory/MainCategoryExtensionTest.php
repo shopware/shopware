@@ -264,7 +264,7 @@ class MainCategoryExtensionTest extends TestCase
             'stock' => 0,
         ];
 
-        $payload = array_merge_recursive($payload, $additionalPayload);
+        $payload = \array_merge_recursive($payload, $additionalPayload);
 
         $this->productRepository->create([
             $payload,

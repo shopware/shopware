@@ -55,7 +55,7 @@ class RulePayloadUpdater
                 //ensure the root rule is an AndRule
                 $nested = new AndRule($nested);
 
-                $serialized = serialize($nested);
+                $serialized = \serialize($nested);
             } catch (ConditionTypeNotFound $exception) {
                 $invalid = true;
             } finally {
@@ -89,7 +89,7 @@ class RulePayloadUpdater
 
             if ($rule['value'] !== null) {
                 /* @var Rule $object */
-                $object->assign(json_decode($rule['value'], true));
+                $object->assign(\json_decode($rule['value'], true));
             }
 
             if ($object instanceof ContainerInterface) {

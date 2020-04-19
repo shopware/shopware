@@ -153,7 +153,7 @@ class ElasticsearchHelper
         }
 
         $query = $this->parser->parseFilter(
-            new EqualsAnyFilter('id', array_values($ids)),
+            new EqualsAnyFilter('id', \array_values($ids)),
             $definition,
             $definition->getEntityName(),
             $context
@@ -297,7 +297,7 @@ class ElasticsearchHelper
         }
 
         $count = $this->client->count(['index' => $index]);
-        if (!array_key_exists('count', $count)) {
+        if (!\array_key_exists('count', $count)) {
             return false;
         }
 

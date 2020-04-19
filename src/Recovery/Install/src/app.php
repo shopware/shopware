@@ -27,10 +27,10 @@ use Shopware\Recovery\Install\Struct\Shop;
 use Slim\Container;
 
 if (empty($_SESSION)) {
-    $sessionPath = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+    $sessionPath = \str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
 
-    session_set_cookie_params(600, $sessionPath);
-    session_start();
+    \session_set_cookie_params(600, $sessionPath);
+    \session_start();
 }
 
 $config = require __DIR__ . '/../config/production.php';
@@ -60,7 +60,7 @@ if (isset($_SESSION['databaseConnectionInfo'])) {
 }
 
 $localeForLanguage = static function (string $language): string {
-    switch (mb_strtolower($language)) {
+    switch (\mb_strtolower($language)) {
         case 'de':
             return 'de-DE';
         case 'en':
@@ -83,7 +83,7 @@ $localeForLanguage = static function (string $language): string {
             return 'cs-CZ';
     }
 
-    return mb_strtolower($language) . '-' . mb_strtoupper($language);
+    return \mb_strtolower($language) . '-' . \mb_strtoupper($language);
 };
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $localeForLanguage) {
@@ -93,14 +93,14 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
          */
         $selectedLanguage = 'de';
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $selectedLanguage = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
-            $selectedLanguage = mb_strtolower(mb_substr($selectedLanguage[0], 0, 2));
+            $selectedLanguage = \explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $selectedLanguage = \mb_strtolower(\mb_substr($selectedLanguage[0], 0, 2));
         }
-        if (empty($selectedLanguage) || !in_array($selectedLanguage, $allowedLanguages, true)) {
+        if (empty($selectedLanguage) || !\in_array($selectedLanguage, $allowedLanguages, true)) {
             $selectedLanguage = 'en';
         }
 
-        if (isset($_REQUEST['language']) && in_array($_REQUEST['language'], $allowedLanguages, true)) {
+        if (isset($_REQUEST['language']) && \in_array($_REQUEST['language'], $allowedLanguages, true)) {
             $selectedLanguage = $_REQUEST['language'];
 
             if (isset($_SESSION['parameters']['c_config_shop_currency'])) {
@@ -115,7 +115,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
             return $selectedLanguage;
         }
 
-        if (isset($_SESSION['language']) && in_array($_SESSION['language'], $allowedLanguages, true)) {
+        if (isset($_SESSION['language']) && \in_array($_SESSION['language'], $allowedLanguages, true)) {
             $selectedLanguage = $_SESSION['language'];
 
             return $selectedLanguage;
@@ -127,7 +127,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
 
     if ($request->getParsedBody()) {
         foreach ($request->getParsedBody() as $key => $value) {
-            if (mb_strpos($key, 'c_') !== false) {
+            if (\mb_strpos($key, 'c_') !== false) {
                 $_SESSION['parameters'][$key] = $value;
             }
         }
@@ -138,7 +138,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
 
     $container->offsetSet('install.language', $selectedLanguage);
 
-    $cookie = new SetCookie('installed-locale', $localeForLanguage($selectedLanguage), time() + 7200, '/');
+    $cookie = new SetCookie('installed-locale', $localeForLanguage($selectedLanguage), \time() + 7200, '/');
     $cookie->addToResponse($response);
 
     $viewAttributes = [];
@@ -147,7 +147,7 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
     $viewAttributes['t'] = $container->offsetGet('translation.service');
     $viewAttributes['menuHelper'] = $container->offsetGet('menu.helper');
     $viewAttributes['languages'] = $allowedLanguages;
-    $viewAttributes['languageIsos'] = array_map($localeForLanguage, $allowedLanguages);
+    $viewAttributes['languageIsos'] = \array_map($localeForLanguage, $allowedLanguages);
     $viewAttributes['selectedLanguage'] = $selectedLanguage;
     $viewAttributes['translations'] = $container->offsetGet('translations');
     $viewAttributes['baseUrl'] = Utils::getBaseUrl();
@@ -229,7 +229,7 @@ $app->any('/license', function (ServerRequestInterface $request, ResponseInterfa
     $tosUrls = $container->offsetGet('config')['tos.urls'];
     $tosUrl = $tosUrls['en'];
 
-    if (array_key_exists($container->offsetGet('install.language'), $tosUrls)) {
+    if (\array_key_exists($container->offsetGet('install.language'), $tosUrls)) {
         $tosUrl = $tosUrls[$container->offsetGet('install.language')];
     }
     $viewAttributes['tosUrl'] = $tosUrl;
@@ -398,10 +398,10 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
     $statement->execute();
 
     // formatting string e.g. "en-GB" to "GB"
-    $localeIsoCode = substr($localeForLanguage($_SESSION['language']), -2, 2);
+    $localeIsoCode = \mb_substr($localeForLanguage($_SESSION['language']), -2, 2);
 
     // flattening array
-    $countryIsos = array_map(function ($country) use ($localeIsoCode) {
+    $countryIsos = \array_map(function ($country) use ($localeIsoCode) {
         return [
             'iso3' => $country['iso3'],
             'default' => $country['iso'] === $localeIsoCode ? true : false,
@@ -429,7 +429,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'country' => $_SESSION['parameters']['c_config_shop_country'],
             'email' => $_SESSION['parameters']['c_config_mail'],
             'host' => $_SERVER['HTTP_HOST'],
-            'basePath' => str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
+            'basePath' => \str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
         ]);
 
         $systemConfigService = new SystemConfigService($db);
@@ -466,7 +466,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
     }
 
     $domain = $_SERVER['HTTP_HOST'];
-    $basepath = str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']);
+    $basepath = \str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']);
 
     // Load shop-url
     $viewAttributes['shop'] = ['domain' => $domain, 'basepath' => $basepath];
@@ -500,7 +500,7 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
     $menuHelper = $container->offsetGet('menu.helper');
     $menuHelper->setCurrent('finish');
 
-    $basepath = str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']);
+    $basepath = \str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']);
 
     /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
     $systemLocker = $container->offsetGet('system.locker');
@@ -515,15 +515,15 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
 
     $schema = 'http';
     // This is for supporting Apache 2.2
-    if (array_key_exists('HTTPS', $_SERVER) && mb_strtolower($_SERVER['HTTPS']) === 'on') {
+    if (\array_key_exists('HTTPS', $_SERVER) && \mb_strtolower($_SERVER['HTTPS']) === 'on') {
         $schema = 'https';
     }
-    if (array_key_exists('REQUEST_SCHEME', $_SERVER)) {
+    if (\array_key_exists('REQUEST_SCHEME', $_SERVER)) {
         $schema = $_SERVER['REQUEST_SCHEME'];
     }
 
     $url = $schema . '://' . $_SERVER['HTTP_HOST'] . $basepath . '/api/oauth/token';
-    $data = json_encode([
+    $data = \json_encode([
         'grant_type' => 'password',
         'client_id' => 'administration',
         'scopes' => 'write',
@@ -531,13 +531,13 @@ $app->any('/finish/', function (ServerRequestInterface $request, ResponseInterfa
         'password' => $_SESSION['parameters']['c_config_admin_password'],
     ]);
 
-    session_destroy();
+    \session_destroy();
 
     /** @var \Shopware\Recovery\Common\HttpClient\Client $client */
     $client = $container->offsetGet('http-client');
     $loginResponse = $client->post($url, $data, ['Content-Type: application/json']);
 
-    $data = json_decode($loginResponse->getBody(), true);
+    $data = \json_decode($loginResponse->getBody(), true);
     $loginTokenData = [
         'access' => $data['access_token'], 'refresh' => $data['refresh_token'], 'expiry' => $data['expires_in'],
     ];
@@ -603,28 +603,28 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     try {
         $result = $coreMigrations->migrateInSteps(null, 1);
 
-        if (iterator_count($result) === 1) {
-            return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
+        if (\iterator_count($result) === 1) {
+            return $response->write(\json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
         }
     } catch (\Throwable $e) {
         return $response
             ->withStatus(500)
-            ->write(json_encode($resultMapper->toExtJs(new ErrorResult($e->getMessage(), $e))));
+            ->write(\json_encode($resultMapper->toExtJs(new ErrorResult($e->getMessage(), $e))));
     }
 
     try {
         $result = $coreMigrations->migrateDestructiveInSteps(null, 1);
 
-        if (iterator_count($result) === 1) {
-            return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
+        if (\iterator_count($result) === 1) {
+            return $response->write(\json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
         }
     } catch (\Throwable $e) {
         return $response
             ->withStatus(500)
-            ->write(json_encode($resultMapper->toExtJs(new ErrorResult($e->getMessage(), $e))));
+            ->write(\json_encode($resultMapper->toExtJs(new ErrorResult($e->getMessage(), $e))));
     }
 
-    return $response->write(json_encode($resultMapper->toExtJs(new FinishResult($offset, $total))));
+    return $response->write(\json_encode($resultMapper->toExtJs(new FinishResult($offset, $total))));
 })->setName('applyMigrations');
 
 $app->post('/check-database-connection', function (ServerRequestInterface $request, ResponseInterface $response) use ($container) {
@@ -643,7 +643,7 @@ $app->post('/check-database-connection', function (ServerRequestInterface $reque
     } catch (\Exception $e) {
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(200)
-            ->write(json_encode([]));
+            ->write(\json_encode([]));
     }
 
     // Init db in container
@@ -667,7 +667,7 @@ $app->post('/check-database-connection', function (ServerRequestInterface $reque
 
     return $response->withHeader('Content-Type', 'application/json')
         ->withStatus(200)
-        ->write(json_encode($result));
+        ->write(\json_encode($result));
 })->setName('database');
 
 return $app;

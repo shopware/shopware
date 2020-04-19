@@ -10,7 +10,7 @@ class VersionSanitizer
         $regex = '/(\.\d+)/';
         $counter = 1;
 
-        return preg_replace_callback(
+        return \preg_replace_callback(
             $regex,
             static function ($match) use (&$counter) {
                 // Third occurrence of a dot with following digits will be removed.

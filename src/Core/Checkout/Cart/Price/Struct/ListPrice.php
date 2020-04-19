@@ -34,7 +34,7 @@ class ListPrice extends Struct
         return new self(
             $listPrice,
             ($listPrice - $unitPrice) * -1,
-            round(100 - $unitPrice / $listPrice * 100, 2)
+            \round(100 - $unitPrice / $listPrice * 100, 2)
         );
     }
 

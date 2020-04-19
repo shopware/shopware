@@ -29,7 +29,7 @@ class ChainPipe extends AbstractPipe
 
     public function out(Config $config, iterable $record): iterable
     {
-        $pipes = array_reverse($this->chain);
+        $pipes = \array_reverse($this->chain);
 
         $generator = $record;
 

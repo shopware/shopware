@@ -29,23 +29,23 @@ class RequirementsController
 
     public function checkRequirements(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $checks = include dirname(__DIR__, 3) . '/Common/requirements.php';
+        $checks = include \dirname(__DIR__, 3) . '/Common/requirements.php';
         $paths = $checks['paths'];
 
-        clearstatcache();
+        \clearstatcache();
         $systemCheckPathResults = Utils::checkPaths($paths, SW_PATH);
 
         foreach ($systemCheckPathResults as $value) {
             if (!$value['result']) {
                 $fileName = SW_PATH . '/' . $value['name'];
-                if (!mkdir($fileName, 0777, true) && !is_dir($fileName)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $fileName));
+                if (!\mkdir($fileName, 0777, true) && !\is_dir($fileName)) {
+                    throw new \RuntimeException(\sprintf('Directory "%s" was not created', $fileName));
                 }
-                @chmod($fileName, 0777);
+                @\chmod($fileName, 0777);
             }
         }
 
-        clearstatcache();
+        \clearstatcache();
         $systemCheckPathResults = Utils::checkPaths($paths, SW_PATH);
 
         $hasErrors = false;
@@ -68,7 +68,7 @@ class RequirementsController
             $filePath = SW_PATH . '/' . $directory;
 
             Utils::deleteDir($filePath, $deleteDirecory);
-            if ($deleteDirecory && is_dir($filePath)) {
+            if ($deleteDirecory && \is_dir($filePath)) {
                 $result = false;
                 $hasErrors = true;
             }

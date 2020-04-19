@@ -11,7 +11,7 @@ class CsrfFunctionExtensionTest extends \PHPUnit\Framework\TestCase
     public function testCreatePlaceholderInputMode(): void
     {
         $function = new CsrfFunctionExtension();
-        $expectedPlaceholder = sprintf(
+        $expectedPlaceholder = \sprintf(
             '<input type="hidden" name="_csrf_token" value="%stest#">',
             CsrfPlaceholderHandler::CSRF_PLACEHOLDER
         );
@@ -21,7 +21,7 @@ class CsrfFunctionExtensionTest extends \PHPUnit\Framework\TestCase
     public function testCreatePlaceholderTokenMode(): void
     {
         $function = new CsrfFunctionExtension();
-        $expectedPlaceholder = sprintf(
+        $expectedPlaceholder = \sprintf(
             '%stest#',
             CsrfPlaceholderHandler::CSRF_PLACEHOLDER
         );
@@ -31,7 +31,7 @@ class CsrfFunctionExtensionTest extends \PHPUnit\Framework\TestCase
     public function testCreatePlaceholderWithoutMode(): void
     {
         $function = new CsrfFunctionExtension();
-        $expectedPlaceholder = sprintf(
+        $expectedPlaceholder = \sprintf(
             '<input type="hidden" name="_csrf_token" value="%stest#">',
             CsrfPlaceholderHandler::CSRF_PLACEHOLDER
         );

@@ -58,10 +58,10 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalCurrency['id'], $ids);
     }
 
@@ -73,11 +73,11 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $content);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalLanguage['id'], $ids);
     }
 
@@ -89,10 +89,10 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('data', $content);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalCountry['id'], $ids);
     }
 
@@ -115,7 +115,7 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         $states = $content['data'];
 
         $originalStates = $originalCountryWithStates['states'];
@@ -134,10 +134,10 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
 
         static::assertContains($originalPaymentMethod['id'], $ids);
     }
@@ -150,10 +150,10 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
 
         static::assertContains($originalShippingMethod['id'], $ids);
     }
@@ -167,11 +167,11 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $content);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalShippingMethod['id'], $ids);
     }
 
@@ -184,12 +184,12 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertGreaterThanOrEqual(1, count($content['data']));
+        static::assertGreaterThanOrEqual(1, \count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalShippingMethod['id'], $ids);
     }
 
@@ -200,7 +200,7 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertCount(2, $content['data']);
         static::assertEquals(2, $content['total']);
     }
@@ -214,12 +214,12 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertCount(6, $content['data'], print_r($content['data'], true));
+        static::assertCount(6, $content['data'], \print_r($content['data'], true));
 
         static::assertArrayHasKey('data', $content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalPaymentMethod['id'], $ids);
     }
 
@@ -230,15 +230,15 @@ class SalesChannelControllerTest extends TestCase
 
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/payment-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertEquals(200, $response->getStatusCode(), print_r($content, true));
+        static::assertEquals(200, $response->getStatusCode(), \print_r($content, true));
 
-        static::assertGreaterThanOrEqual(5, count($content['data']));
+        static::assertGreaterThanOrEqual(5, \count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
         static::assertArrayHasKey('data', $content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($originalPaymentMethod['id'], $ids);
     }
 
@@ -249,9 +249,9 @@ class SalesChannelControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertGreaterThanOrEqual(3, count($content['data']));
+        static::assertGreaterThanOrEqual(3, \count($content['data']));
         static::assertCount($content['total'], $content['data']);
 
         foreach ($content['data'] as $salutation) {
@@ -261,8 +261,8 @@ class SalesChannelControllerTest extends TestCase
 
     private function sortById(&$array): void
     {
-        usort($array, function ($a, $b) {
-            return strcmp($a['id'], $b['id']);
+        \usort($array, function ($a, $b) {
+            return \strcmp($a['id'], $b['id']);
         });
     }
 
@@ -369,7 +369,7 @@ class SalesChannelControllerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
         $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
-        $paymentMethods = array_map(function (string $id) {
+        $paymentMethods = \array_map(function (string $id) {
             return ['id' => Uuid::fromBytesToHex($id)];
         }, $paymentMethods);
 

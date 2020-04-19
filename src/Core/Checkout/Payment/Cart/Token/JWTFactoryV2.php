@@ -33,9 +33,9 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
     {
         $jwtToken = (new Builder())
             ->setId(Uuid::randomHex(), true)
-            ->setIssuedAt(time())
-            ->setNotBefore(time())
-            ->setExpiration(time() + $tokenStruct->getExpires())
+            ->setIssuedAt(\time())
+            ->setNotBefore(\time())
+            ->setExpiration(\time() + $tokenStruct->getExpires())
             ->setSubject($tokenStruct->getTransactionId())
             ->set('pmi', $tokenStruct->getPaymentMethodId())
             ->set('ful', $tokenStruct->getFinishUrl())

@@ -6,9 +6,9 @@ use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
 
-date_default_timezone_set('Europe/Berlin');
-ini_set('display_errors', '1');
-error_reporting(-1);
+\date_default_timezone_set('Europe/Berlin');
+\ini_set('display_errors', '1');
+\error_reporting(-1);
 
 $config = require __DIR__ . '/../config/config.php';
 $container = new Container(new \Slim\Container(), $config);
@@ -21,24 +21,24 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
 
     $lang = null;
     if (!UPDATE_IS_MANUAL) {
-        if (!is_file(UPDATE_META_FILE)) {
-            $shopPath = str_replace('/recovery/update/', '/', $baseUrl);
-            $shopPath = str_replace('/recovery/update', '/', $shopPath);
+        if (!\is_file(UPDATE_META_FILE)) {
+            $shopPath = \str_replace('/recovery/update/', '/', $baseUrl);
+            $shopPath = \str_replace('/recovery/update', '/', $shopPath);
 
             return $response->withRedirect($shopPath);
         }
 
-        $file = file_get_contents(UPDATE_META_FILE);
-        $updateConfig = json_decode($file, true);
+        $file = \file_get_contents(UPDATE_META_FILE);
+        $updateConfig = \json_decode($file, true);
         $container->setParameter('update.config', $updateConfig);
-        $lang = $updateConfig['locale'] ? mb_substr($updateConfig['locale'], 0, 2) : null;
+        $lang = $updateConfig['locale'] ? \mb_substr($updateConfig['locale'], 0, 2) : null;
     }
 
-    session_set_cookie_params(7200, $baseUrl);
+    \session_set_cookie_params(7200, $baseUrl);
 
     // Silence errors during session start, Work around session_start(): ps_files_cleanup_dir: opendir(/var/lib/php5) failed: Permission denied (13)
-    @session_start();
-    @set_time_limit(0);
+    @\session_start();
+    @\set_time_limit(0);
 
     // load 'en' as fallback translation
     $fallbackTranslation = require __DIR__ . '/../data/lang/en.php';
@@ -105,18 +105,18 @@ $app->any('/done', function (ServerRequestInterface $request, ResponseInterface 
     $lastGeneratedVersionFile = SW_PATH . '/config/jwt/version';
     $lastGeneratedVersion = null;
 
-    if (is_readable($lastGeneratedVersionFile)) {
-        $lastGeneratedVersion = file_get_contents($lastGeneratedVersionFile);
+    if (\is_readable($lastGeneratedVersionFile)) {
+        $lastGeneratedVersion = \file_get_contents($lastGeneratedVersionFile);
     }
 
     $requiredVersion = '6.0.0 ea1.1';
-    if (!$lastGeneratedVersion || version_compare($lastGeneratedVersion, $requiredVersion) === -1) {
+    if (!$lastGeneratedVersion || \version_compare($lastGeneratedVersion, $requiredVersion) === -1) {
         $jwtCertificateService = $container->get('jwt_certificate.writer');
         $jwtCertificateService->generate();
-        file_put_contents($lastGeneratedVersionFile, $container->get('shopware.version'));
+        \file_put_contents($lastGeneratedVersionFile, $container->get('shopware.version'));
     }
 
-    if (is_dir(SW_PATH . '/recovery/install')) {
+    if (\is_dir(SW_PATH . '/recovery/install')) {
         /** @var \Shopware\Recovery\Common\SystemLocker $systemLocker */
         $systemLocker = $container->get('system.locker');
         $systemLocker();
@@ -131,32 +131,32 @@ $app->any('/done', function (ServerRequestInterface $request, ResponseInterface 
 
 $app->get('/finish', function (ServerRequestInterface $request, ResponseInterface $response) use ($container) {
     $baseUrl = \Shopware\Recovery\Common\Utils::getBaseUrl();
-    $shopPath = str_replace('/recovery/update/', '/', $baseUrl);
-    $shopPath = str_replace('/recovery/update', '/', $shopPath);
+    $shopPath = \str_replace('/recovery/update/', '/', $baseUrl);
+    $shopPath = \str_replace('/recovery/update', '/', $shopPath);
 
-    $updateToken = bin2hex(random_bytes(16));
+    $updateToken = \bin2hex(\random_bytes(16));
     /** @var SystemConfigService $systemConfig */
     $systemConfig = $container->get('system.config');
     $systemConfig->set('core.update.token', $updateToken);
     $redirectUrl = $shopPath . 'api/v3/_action/update/finish/' . $updateToken;
 
-    if (UPDATE_META_FILE && file_exists(UPDATE_META_FILE)) {
-        @unlink(UPDATE_META_FILE);
+    if (UPDATE_META_FILE && \file_exists(UPDATE_META_FILE)) {
+        @\unlink(UPDATE_META_FILE);
     }
 
     $assetsDir = SW_PATH . '/update-assets';
-    if (is_dir($assetsDir)) {
+    if (\is_dir($assetsDir)) {
         $di = new RecursiveDirectoryIterator($assetsDir, FilesystemIterator::SKIP_DOTS);
         $ri = new RecursiveIteratorIterator($di, RecursiveIteratorIterator::CHILD_FIRST);
         /** @var SplFileInfo $file */
         foreach ($ri as $file) {
-            $file->isDir() ? @rmdir($file->getPathname()) : @unlink($file->getPathname());
+            $file->isDir() ? @\rmdir($file->getPathname()) : @\unlink($file->getPathname());
         }
 
-        @rmdir($assetsDir);
+        @\rmdir($assetsDir);
     }
 
-    session_destroy();
+    \session_destroy();
 
     return $response->withRedirect($redirectUrl);
 })->setName('finish');

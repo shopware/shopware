@@ -57,7 +57,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $productExport->getHeaderTemplate(),
                 $headerContext->getContext(),
                 $salesChannelContext->getContext()
-            ) . PHP_EOL;
+            ) . \PHP_EOL;
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
@@ -90,7 +90,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $productExport->getFooterTemplate(),
                 $footerContext->getContext(),
                 $salesChannelContext->getContext()
-            ) . PHP_EOL;
+            ) . \PHP_EOL;
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
@@ -111,7 +111,7 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $productExport->getBodyTemplate(),
                 $data,
                 $salesChannelContext->getContext()
-            ) . PHP_EOL;
+            ) . \PHP_EOL;
 
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {

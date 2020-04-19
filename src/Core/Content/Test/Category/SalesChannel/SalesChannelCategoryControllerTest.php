@@ -50,7 +50,7 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -69,9 +69,9 @@ class SalesChannelCategoryControllerTest extends TestCase
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category/' . $id);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertSame(200, $response->getStatusCode(), print_r($content, true));
+        static::assertSame(200, $response->getStatusCode(), \print_r($content, true));
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('data', $content);
@@ -100,17 +100,17 @@ class SalesChannelCategoryControllerTest extends TestCase
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $params);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
         $params['sort'] = '-name';
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $params);
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
 
         static::assertSame([$categoryC, $categoryB, $categoryA], $ids);
     }
@@ -130,12 +130,12 @@ class SalesChannelCategoryControllerTest extends TestCase
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', ['term' => 'Matching']);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertSame(2, $content['total']);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($categoryC, $ids);
         static::assertContains($categoryB, $ids);
     }
@@ -162,11 +162,11 @@ class SalesChannelCategoryControllerTest extends TestCase
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $params);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
         static::assertSame(1, $content['total']);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($categoryC, $ids);
     }
 
@@ -189,7 +189,7 @@ class SalesChannelCategoryControllerTest extends TestCase
                 [
                     'type' => 'equalsAny',
                     'field' => 'category.id',
-                    'value' => implode('|', [$categoryA, $categoryB]),
+                    'value' => \implode('|', [$categoryA, $categoryB]),
                 ],
             ],
         ];
@@ -197,10 +197,10 @@ class SalesChannelCategoryControllerTest extends TestCase
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertContains($categoryA, $ids);
         static::assertContains($categoryB, $ids);
 
@@ -219,11 +219,11 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
         static::assertSame([$categoryA2, $categoryB], $ids);
 
         $body = [
@@ -241,11 +241,11 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
 
         static::assertContains($categoryA2, $ids);
         static::assertContains($categoryB, $ids);
@@ -265,12 +265,12 @@ class SalesChannelCategoryControllerTest extends TestCase
 
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $content['total']);
 
-        $ids = array_column($content['data'], 'id');
+        $ids = \array_column($content['data'], 'id');
 
         static::assertContains($categoryA2, $ids);
         static::assertContains($categoryB, $ids);
@@ -278,7 +278,7 @@ class SalesChannelCategoryControllerTest extends TestCase
         static::assertArrayHasKey('aggregations', $content);
         static::assertArrayHasKey('category-names', $content['aggregations']);
 
-        usort($content['aggregations']['category-names']['buckets'], function ($a, $b) {
+        \usort($content['aggregations']['category-names']['buckets'], function ($a, $b) {
             return $a['key'] <=> $b['key'];
         });
 
@@ -297,7 +297,7 @@ class SalesChannelCategoryControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertSame(404, $response->getStatusCode());
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('errors', $content);

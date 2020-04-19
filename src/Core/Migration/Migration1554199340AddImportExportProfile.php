@@ -88,7 +88,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
             'file_type' => 'text/csv',
             'delimiter' => ';',
             'enclosure' => '"',
-            'mapping' => json_encode($mapping),
+            'mapping' => \json_encode($mapping),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
@@ -127,8 +127,8 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
     {
         $result = [];
         foreach ($connection->fetchAll('SELECT * FROM payment_method') as $row) {
-            $key = mb_substr(mb_strrchr($row['handler_identifier'], '\\'), 1);
-            $key = str_replace('payment', '', mb_strtolower($key));
+            $key = \mb_substr(\mb_strrchr($row['handler_identifier'], '\\'), 1);
+            $key = \str_replace('payment', '', \mb_strtolower($key));
             $result[$key] = Uuid::fromBytesToHex($row['id']);
         }
 

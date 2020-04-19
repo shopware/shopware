@@ -38,7 +38,7 @@ class ProductControllerTest extends TestCase
         $taxId = Uuid::randomHex();
 
         $client = $this->getSalesChannelBrowser();
-        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+        $salesChannelId = $this->salesChannelIds[\count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
@@ -59,7 +59,7 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = \json_decode($client->getResponse()->getContent(), true);
 
         static::assertNotEmpty($content);
         static::assertArrayHasKey('total', $content);
@@ -84,7 +84,7 @@ class ProductControllerTest extends TestCase
         $taxId = Uuid::randomHex();
 
         $client = $this->getSalesChannelBrowser();
-        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+        $salesChannelId = $this->salesChannelIds[\count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [
@@ -105,7 +105,7 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = \json_decode($client->getResponse()->getContent(), true);
 
         static::assertEquals($productId, $content['data']['id']);
         static::assertEquals(10, $content['data']['calculatedPrice']['totalPrice']);
@@ -120,7 +120,7 @@ class ProductControllerTest extends TestCase
         $taxId = Uuid::randomHex();
 
         $client = $this->getSalesChannelBrowser();
-        $salesChannelId = $this->salesChannelIds[count($this->salesChannelIds) - 1];
+        $salesChannelId = $this->salesChannelIds[\count($this->salesChannelIds) - 1];
 
         $this->productRepository->create([
             [

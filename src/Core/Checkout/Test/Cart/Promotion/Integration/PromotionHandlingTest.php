@@ -83,7 +83,7 @@ class PromotionHandlingTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         /** @var array $ids */
-        $ids = array_keys($cart->getLineItems()->getElements());
+        $ids = \array_keys($cart->getLineItems()->getElements());
 
         // remove our first item (product)
         $cart = $this->cartService->remove($cart, $ids[0], $this->context);

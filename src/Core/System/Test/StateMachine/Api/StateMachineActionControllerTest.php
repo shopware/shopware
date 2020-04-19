@@ -74,7 +74,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/order/' . Uuid::randomHex() . '/actions/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertEquals(Response::HTTP_NOT_FOUND, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -90,7 +90,7 @@ class StateMachineActionControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertCount(2, $response['transitions']);
         static::assertEquals('cancel', $response['transitions'][0]['actionName']);
@@ -107,7 +107,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         $actionUrl = $response['transitions'][0]['url'];
         $transitionTechnicalName = $response['transitions'][0]['technicalName'];
@@ -115,7 +115,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', $actionUrl);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertEquals(
             Response::HTTP_OK,
@@ -138,7 +138,7 @@ class StateMachineActionControllerTest extends TestCase
 
         static::assertCount(1, $history->getElements(), 'Expected history to be written');
         /** @var StateMachineHistoryEntity $historyEntry */
-        $historyEntry = array_values($history->getElements())[0];
+        $historyEntry = \array_values($history->getElements())[0];
 
         static::assertEquals($destinationStateTechnicalName, $historyEntry->getToStateMachineState()->getTechnicalName());
 
@@ -156,7 +156,7 @@ class StateMachineActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/state-machine/order/' . $orderId . '/state/foo');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertEquals(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);

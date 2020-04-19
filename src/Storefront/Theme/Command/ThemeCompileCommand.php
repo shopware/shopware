@@ -51,7 +51,7 @@ class ThemeCompileCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $context = Context::createDefaultContext();
         $this->io->writeln('Start theme compilation');
-        $start = microtime(true);
+        $start = \microtime(true);
 
         $salesChannels = $this->getSalesChannels($context);
         foreach ($salesChannels as $salesChannel) {
@@ -63,7 +63,7 @@ class ThemeCompileCommand extends Command
             $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $context, null, !$input->getOption('keep-assets'));
         }
 
-        $this->io->note(sprintf('Took %f seconds', (float) microtime(true) - $start));
+        $this->io->note(\sprintf('Took %f seconds', (float) \microtime(true) - $start));
 
         return 0;
     }

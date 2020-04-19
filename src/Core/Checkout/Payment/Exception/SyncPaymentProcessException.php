@@ -8,7 +8,7 @@ class SyncPaymentProcessException extends PaymentProcessException
     {
         parent::__construct(
             $orderTransactionId,
-            'The synchronous payment process was interrupted due to the following error:' . PHP_EOL . '{{ errorMessage }}',
+            'The synchronous payment process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage]
         );
     }

@@ -135,7 +135,7 @@ class Migration1572193798TaxRule extends MigrationStep
             ];
             $connection->insert(TaxRuleTypeDefinition::ENTITY_NAME, $typeData);
 
-            if (!in_array($languageSystem, [$languageIdDe, $languageIdEn], true)) {
+            if (!\in_array($languageSystem, [$languageIdDe, $languageIdEn], true)) {
                 $this->insertTranslation($connection, $dataEn[$technicalName], $typeId, $languageSystem);
             }
 
@@ -170,7 +170,7 @@ class Migration1572193798TaxRule extends MigrationStep
             return;
         }
 
-        $data = array_merge($data, [
+        $data = \array_merge($data, [
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'language_id' => $languageId,
             'tax_rule_type_id' => $typeId,

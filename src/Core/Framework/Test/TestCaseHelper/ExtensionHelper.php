@@ -43,7 +43,7 @@ class ExtensionHelper
      */
     public function removeExtensions($object): void
     {
-        if (is_scalar($object)) {
+        if (\is_scalar($object)) {
             return;
         }
 
@@ -54,10 +54,10 @@ class ExtensionHelper
         }
 
         if ($object instanceof Struct) {
-            $properties = $this->propertyInfoExtractor->getProperties(get_class($object));
+            $properties = $this->propertyInfoExtractor->getProperties(\get_class($object));
 
             foreach ($properties as $property) {
-                if (in_array($property, self::IGNORED_PROPERTIES, true)) {
+                if (\in_array($property, self::IGNORED_PROPERTIES, true)) {
                     continue;
                 }
 

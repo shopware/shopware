@@ -25,7 +25,7 @@ class CacheRouteWarmerRegistry
     public function getWarmer(string $class): ?CacheRouteWarmer
     {
         foreach ($this->getWarmers() as $warmer) {
-            if (get_class($warmer) === $class) {
+            if (\get_class($warmer) === $class) {
                 return $warmer;
             }
         }

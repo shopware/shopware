@@ -122,7 +122,7 @@ class ProductVisibilityEntityTest extends TestCase
             }
         );
 
-        $container = $this->visibilityRepository->delete(array_values($ids), $context);
+        $container = $this->visibilityRepository->delete(\array_values($ids), $context);
 
         $event = $container->getEventByEntityName(ProductVisibilityDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $event);

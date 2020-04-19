@@ -39,7 +39,7 @@ SQL;
         foreach ($plugins as $i => $plugin) {
             $plugins[$i]['active'] = (bool) $plugin['active'];
             $plugins[$i]['managedByComposer'] = (bool) $plugin['managedByComposer'];
-            $plugins[$i]['autoload'] = json_decode($plugin['autoload'], true);
+            $plugins[$i]['autoload'] = \json_decode($plugin['autoload'], true);
         }
 
         $this->pluginInfos = $plugins;

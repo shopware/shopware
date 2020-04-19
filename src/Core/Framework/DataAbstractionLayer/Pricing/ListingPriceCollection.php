@@ -51,7 +51,7 @@ class ListingPriceCollection extends Collection
     {
         $prices = $this->filterByCurrencyId($prices, $currencyId);
 
-        return array_shift($prices);
+        return \array_shift($prices);
     }
 
     private function filterByCurrencyId(iterable $prices, string $currencyId): array

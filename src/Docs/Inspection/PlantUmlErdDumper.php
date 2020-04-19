@@ -119,10 +119,10 @@ EOD;
             $tables[] = $this->renderForeignTable($definition, $name);
         }
 
-        return sprintf(
+        return \sprintf(
             self::TEMPLATE,
-            implode(PHP_EOL, $tables),
-            implode(PHP_EOL, $this->associations)
+            \implode(\PHP_EOL, $tables),
+            \implode(\PHP_EOL, $this->associations)
         );
     }
 
@@ -135,8 +135,8 @@ EOD;
         $association = "$definition --> $referenceDefinition";
 
         $keys = [$definition, $referenceDefinition];
-        sort($keys);
-        $hash = md5(implode('', $keys));
+        \sort($keys);
+        $hash = \md5(\implode('', $keys));
 
         $this->foreignTables[$definition] = $name;
         $this->foreignTables[$referenceDefinition] = $referenceName;
@@ -146,17 +146,17 @@ EOD;
 
     private function renderTable(array $table): string
     {
-        $table[3] = implode(PHP_EOL . '   ', $table[3]);
+        $table[3] = \implode(\PHP_EOL . '   ', $table[3]);
         $isTranslation = $table[4];
 
         if ($isTranslation) {
-            return sprintf(
+            return \sprintf(
                 self::TEMPLATE_TRANSLATION_TABLE,
                 ...$table
             );
         }
 
-        return sprintf(
+        return \sprintf(
             self::TEMPLATE_TABLE,
             ...$table
         );
@@ -164,7 +164,7 @@ EOD;
 
     private function renderForeignTable(string $id, string $name): string
     {
-        return sprintf(
+        return \sprintf(
             self::TEMPLATE_FOREIGN_TABLE,
             $id,
             $name

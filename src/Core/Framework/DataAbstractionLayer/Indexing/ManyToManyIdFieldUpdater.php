@@ -40,14 +40,14 @@ class ManyToManyIdFieldUpdater
             return;
         }
 
-        $ids = array_unique($ids);
+        $ids = \array_unique($ids);
 
         if ($definition instanceof MappingEntityDefinition) {
             $fkFields = $definition->getFields()->filterInstance(FkField::class);
 
             /** @var FkField $field */
             foreach ($fkFields as $field) {
-                $foreignKeys = array_column($ids, $field->getPropertyName());
+                $foreignKeys = \array_column($ids, $field->getPropertyName());
                 $this->update($field->getReferenceDefinition()->getEntityName(), $foreignKeys, $context);
             }
 
@@ -81,7 +81,7 @@ SQL;
             $resetTemplate .= ' AND #table#.version_id = :version';
         }
 
-        $bytes = array_map(function ($id) {
+        $bytes = \array_map(function ($id) {
             return Uuid::fromHexToBytes($id);
         }, $ids);
 
@@ -91,7 +91,7 @@ SQL;
             $association = $definition->getFields()->get($field->getAssociationName());
 
             if (!$association instanceof ManyToManyAssociationField) {
-                throw new \RuntimeException(sprintf('Can not find association by property name %s', $field->getAssociationName()));
+                throw new \RuntimeException(\sprintf('Can not find association by property name %s', $field->getAssociationName()));
             }
             $parameters = ['ids' => $bytes];
 
@@ -115,17 +115,17 @@ SQL;
                 $replacement['#unescaped_table#'] = $definition->getEntityName();
             }
 
-            $tableTemplate = str_replace('#version_aware#', $versionCondition, $template);
+            $tableTemplate = \str_replace('#version_aware#', $versionCondition, $template);
 
-            $sql = str_replace(
-                array_keys($replacement),
-                array_values($replacement),
+            $sql = \str_replace(
+                \array_keys($replacement),
+                \array_values($replacement),
                 $tableTemplate
             );
 
-            $resetSql = str_replace(
-                array_keys($replacement),
-                array_values($replacement),
+            $resetSql = \str_replace(
+                \array_keys($replacement),
+                \array_values($replacement),
                 $resetTemplate
             );
 

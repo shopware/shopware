@@ -22,6 +22,6 @@ class ReflectionHelper
 
     public static function getPropertyValue(object $object, string $propertyName)
     {
-        return static::getProperty(get_class($object), $propertyName)->getValue($object);
+        return static::getProperty(\get_class($object), $propertyName)->getValue($object);
     }
 }

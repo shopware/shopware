@@ -233,7 +233,7 @@ EOF;
             'entityName' => 'foobar',
             'entityId' => ['id' => $id, 'foo' => 'bar'],
             'action' => 'create',
-            'payload' => json_encode(['foo' => 'bar']),
+            'payload' => \json_encode(['foo' => 'bar']),
             'createdAt' => $dt,
         ];
 
@@ -242,7 +242,7 @@ EOF;
         $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($entityId);
 
-        $entityId = json_decode($entityId, true);
+        $entityId = \json_decode($entityId, true);
 
         static::assertEquals(
             $data['entityId'],
@@ -333,13 +333,13 @@ EOF;
         $criteria = new Criteria();
 
         $connection = $this->getContainer()->get(Connection::class);
-        $insertInjection = sprintf(
+        $insertInjection = \sprintf(
             'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", %s)',
             $connection->quote($taxId),
             $taxRate,
             (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
-        $keyWithQuotes = sprintf(
+        $keyWithQuotes = \sprintf(
             'data.%s\')) = "%s"); %s; SELECT 1 FROM ((("',
             $randomKey,
             'bar',

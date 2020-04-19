@@ -92,7 +92,7 @@ class SalesChannelApiController
 
         return new JsonResponse([
             'total' => $result->getTotal(),
-            'data' => array_values($result->getIds()),
+            'data' => \array_values($result->getIds()),
         ]);
     }
 
@@ -150,7 +150,7 @@ class SalesChannelApiController
 
     private function urlToSnakeCase(string $name): string
     {
-        return str_replace('-', '_', $name);
+        return \str_replace('-', '_', $name);
     }
 
     private function checkProtectedAssociations(Criteria $criteria, EntityDefinition $definition): Criteria
@@ -176,9 +176,9 @@ class SalesChannelApiController
                 $aggregationAccessors[] = $field;
             }
         }
-        $acessors = array_merge(
+        $acessors = \array_merge(
             $criteria->getSearchQueryFields(),
-            array_keys($criteria->getAssociations()),
+            \array_keys($criteria->getAssociations()),
             $aggregationAccessors
         );
 
@@ -202,7 +202,7 @@ class SalesChannelApiController
                     $referenceDefinition = $field->getToManyReferenceDefinition();
                 }
 
-                if (in_array($referenceDefinition->getClass(), self::PROTECTION_BLACKLIST, true)) {
+                if (\in_array($referenceDefinition->getClass(), self::PROTECTION_BLACKLIST, true)) {
                     throw new ReadProtectedException($field->getPropertyName(), SalesChannelApiSource::class);
                 }
             }

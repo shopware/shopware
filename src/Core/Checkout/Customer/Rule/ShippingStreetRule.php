@@ -41,10 +41,10 @@ class ShippingStreetRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return strcasecmp($this->streetName, $location->getStreet()) === 0;
+                return \strcasecmp($this->streetName, $location->getStreet()) === 0;
 
             case self::OPERATOR_NEQ:
-                return strcasecmp($this->streetName, $location->getStreet()) !== 0;
+                return \strcasecmp($this->streetName, $location->getStreet()) !== 0;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

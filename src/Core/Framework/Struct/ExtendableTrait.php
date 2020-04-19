@@ -59,7 +59,7 @@ trait ExtendableTrait
 
     public function hasExtensionOfType(string $name, string $type): bool
     {
-        return $this->hasExtension($name) && get_class($this->getExtension($name)) === $type;
+        return $this->hasExtension($name) && \get_class($this->getExtension($name)) === $type;
     }
 
     /**

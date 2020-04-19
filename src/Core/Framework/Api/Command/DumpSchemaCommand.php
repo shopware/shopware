@@ -53,10 +53,10 @@ class DumpSchemaCommand extends Command
             throw new \InvalidArgumentException('Invalid "format-type" given. Aborting.');
         }
 
-        $jsonFlags = $input->getOption('pretty') ? JSON_PRETTY_PRINT : 0;
+        $jsonFlags = $input->getOption('pretty') ? \JSON_PRETTY_PRINT : 0;
 
         $output->writeln('Writing definition to file ...');
-        file_put_contents($outFile, json_encode($definitionContents, $jsonFlags));
+        \file_put_contents($outFile, \json_encode($definitionContents, $jsonFlags));
         $output->writeln('Done!');
 
         return 0;

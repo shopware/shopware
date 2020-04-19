@@ -40,11 +40,11 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
         /** @var RuleEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            if (!$entity->getPayload() || !is_string($entity->getPayload())) {
+            if (!$entity->getPayload() || !\is_string($entity->getPayload())) {
                 continue;
             }
 
-            $unserialized = unserialize($entity->getPayload());
+            $unserialized = \unserialize($entity->getPayload());
 
             $entity->setPayload($unserialized);
         }
@@ -61,16 +61,16 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (!count($rules)) {
+        if (!\count($rules)) {
             return;
         }
 
-        $updated = $this->updater->update(array_keys($rules));
+        $updated = $this->updater->update(\array_keys($rules));
 
         foreach ($updated as $id => $entity) {
             $rules[$id]->assign($entity);
         }
 
-        $this->cacheClearer->invalidateIds(array_keys($updated), RuleDefinition::ENTITY_NAME);
+        $this->cacheClearer->invalidateIds(\array_keys($updated), RuleDefinition::ENTITY_NAME);
     }
 }

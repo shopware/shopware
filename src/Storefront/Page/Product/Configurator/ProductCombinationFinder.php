@@ -65,6 +65,6 @@ class ProductCombinationFinder
 
         $ids = $this->productRepository->searchIds($criteria, $salesChannelContext)->getIds();
 
-        return array_shift($ids);
+        return \array_shift($ids);
     }
 }

@@ -240,7 +240,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         $actual = $promotion->getOrdersPerCustomerCount();
 
-        static::assertEquals(ksort($expected), ksort($actual));
+        static::assertEquals(\ksort($expected), \ksort($actual));
     }
 
     /**

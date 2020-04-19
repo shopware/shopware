@@ -18,13 +18,13 @@ class ConfigurableFilesystemCache extends FilesystemCache
 
     public function __construct(string $directory, int $options = 0)
     {
-        $this->cacheDirectory = rtrim($directory, '\/') . '/';
+        $this->cacheDirectory = \rtrim($directory, '\/') . '/';
         parent::__construct($directory, $options);
     }
 
     public function generateKey($name, $className): string
     {
-        $hash = hash('sha256', $className . $this->configHash);
+        $hash = \hash('sha256', $className . $this->configHash);
 
         return $this->cacheDirectory . $hash[0] . $hash[1] . '/' . $hash . '.php';
     }

@@ -54,7 +54,7 @@ class RequeueDeadMessagesService
         $criteria->addFilter(new RangeFilter(
             'nextExecutionTime',
             [
-                RangeFilter::LT => (new \DateTime())->format(DATE_ATOM),
+                RangeFilter::LT => (new \DateTime())->format(\DATE_ATOM),
             ]
         ));
         if ($messageClass) {

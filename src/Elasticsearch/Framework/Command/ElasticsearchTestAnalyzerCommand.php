@@ -62,7 +62,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
 
                 $rows[] = [
                     'Analyzer' => $analyzer,
-                    'Tokens' => implode(' ', array_column($analyzed['tokens'], 'token')),
+                    'Tokens' => \implode(' ', \array_column($analyzed['tokens'], 'token')),
                 ];
             }
 

@@ -50,7 +50,7 @@ class SalesChannelApiControllerTest extends TestCase
             '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?filter[visibilities.id]=' . Uuid::randomHex()
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
     }
@@ -64,7 +64,7 @@ class SalesChannelApiControllerTest extends TestCase
             '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?post-filter[visibilities.id]=' . Uuid::randomHex()
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
     }
@@ -78,7 +78,7 @@ class SalesChannelApiControllerTest extends TestCase
             '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?associations[options][associations][group][]'
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayNotHasKey('errors', $response);
     }
 
@@ -91,7 +91,7 @@ class SalesChannelApiControllerTest extends TestCase
             '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?associations[visibilities][]=' . Uuid::randomHex()
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
     }
@@ -105,7 +105,7 @@ class SalesChannelApiControllerTest extends TestCase
             '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '?sort=visibilities.id'
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');
@@ -121,7 +121,7 @@ class SalesChannelApiControllerTest extends TestCase
             . '?aggregations[0][name]=test&aggregations[0][field]=visibilities.id&aggregations[0][type]=count'
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__READ_PROTECTED', $response['errors'][0]['code']);
@@ -137,7 +137,7 @@ class SalesChannelApiControllerTest extends TestCase
             . '?associations[categories][]&associations[categories][filter][navigationSalesChannels.id]=' . $id
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__READ_PROTECTED');

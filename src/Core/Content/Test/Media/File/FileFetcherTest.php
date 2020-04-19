@@ -28,17 +28,17 @@ class FileFetcherTest extends TestCase
 
     public function testFetchRequestData(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
         $request->expects(static::once())
             ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
+            ->willReturn(\fopen(self::TEST_IMAGE, 'rb'));
 
         $request->query = new ParameterBag([
             'extension' => 'png',
         ]);
 
-        $fileSize = filesize(self::TEST_IMAGE);
+        $fileSize = \filesize(self::TEST_IMAGE);
         $request->headers = new HeaderBag();
         $request->headers->set('content-length', $fileSize);
 
@@ -47,12 +47,12 @@ class FileFetcherTest extends TestCase
                 $request,
                 $tempFile
             );
-            $mimeType = mime_content_type($tempFile);
+            $mimeType = \mime_content_type($tempFile);
 
             static::assertEquals('image/png', $mimeType);
             static::assertFileExists($tempFile);
         } finally {
-            unlink($tempFile);
+            \unlink($tempFile);
         }
     }
 
@@ -61,11 +61,11 @@ class FileFetcherTest extends TestCase
         $this->expectException(UploadException::class);
         $this->expectExceptionMessage('expected content-length did not match actual size');
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
         $request->expects(static::once())
             ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
+            ->willReturn(\fopen(self::TEST_IMAGE, 'rb'));
 
         $request->query = new ParameterBag([
             'extension' => 'png',
@@ -84,12 +84,12 @@ class FileFetcherTest extends TestCase
     {
         $this->expectException(MissingFileExtensionException::class);
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
 
         $request->query = new ParameterBag();
 
-        $fileSize = filesize(self::TEST_IMAGE);
+        $fileSize = \filesize(self::TEST_IMAGE);
         $request->headers = new HeaderBag();
         $request->headers->set('content-length', $fileSize);
 
@@ -108,13 +108,13 @@ class FileFetcherTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->expects(static::once())
             ->method('getContent')
-            ->willReturn(fopen(self::TEST_IMAGE, 'rb'));
+            ->willReturn(\fopen(self::TEST_IMAGE, 'rb'));
 
         $request->query = new ParameterBag([
             'extension' => 'png',
         ]);
 
-        $fileSize = filesize(self::TEST_IMAGE);
+        $fileSize = \filesize(self::TEST_IMAGE);
         $request->headers = new HeaderBag();
         $request->headers->set('content-length', $fileSize);
 
@@ -128,7 +128,7 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://assets.shopware.com/sw_logo_white.png';
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
         $request->query = new ParameterBag([
             'extension' => 'png',
@@ -143,7 +143,7 @@ class FileFetcherTest extends TestCase
                 $request,
                 $tempFile
             );
-            $mimeType = mime_content_type($tempFile);
+            $mimeType = \mime_content_type($tempFile);
 
             $correctMimes = [
                 'image/png',
@@ -152,7 +152,7 @@ class FileFetcherTest extends TestCase
             static::assertGreaterThan(0, $mediaFile->getFileSize());
             static::assertFileExists($tempFile);
         } finally {
-            unlink($tempFile);
+            \unlink($tempFile);
         }
     }
 

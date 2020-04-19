@@ -51,8 +51,8 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
 
                 // correct pointer for json fields with pre-defined structure
                 if ($violation->getPropertyPath()) {
-                    $property = str_replace('][', '/', $violation->getPropertyPath());
-                    $property = trim($property, '][');
+                    $property = \str_replace('][', '/', $violation->getPropertyPath());
+                    $property = \trim($property, '][');
                     $fieldName .= '/' . $property;
                 }
 

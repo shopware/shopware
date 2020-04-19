@@ -152,7 +152,7 @@ class TaskSchedulerTest extends TestCase
     public function testScheduleTasksThrowsExceptionWhenTryingToScheduleWrongClass(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(sprintf(
+        $this->expectExceptionMessage(\sprintf(
             'Tried to schedule "%s", but class does not extend ScheduledTask',
             TestMessage::class
         ));
@@ -211,7 +211,7 @@ class TaskSchedulerTest extends TestCase
         $result = $this->scheduler->getNextExecutionTime();
         static::assertInstanceOf(\DateTime::class, $result);
         // when saving the Date to the DB the microseconds aren't saved, so we can't simply compare the datetime objects
-        static::assertEquals($nextExecutionTime->format(DATE_ATOM), $result->format(DATE_ATOM));
+        static::assertEquals($nextExecutionTime->format(\DATE_ATOM), $result->format(\DATE_ATOM));
     }
 
     public function testGetNextExecutionTimeIgnoresNotScheduledTasks(): void

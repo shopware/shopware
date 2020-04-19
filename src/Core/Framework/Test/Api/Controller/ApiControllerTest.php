@@ -174,11 +174,11 @@ EOF;
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/country-state/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/country/' . $id . '/states/');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         static::assertArrayHasKey('data', $responseData);
-        static::assertCount(1, $responseData['data'], sprintf('Expected country %s has only one state', $id));
+        static::assertCount(1, $responseData['data'], \sprintf('Expected country %s has only one state', $id));
 
         static::assertArrayHasKey('data', $responseData);
         static::assertEquals(1, $responseData['meta']['total']);
@@ -352,8 +352,8 @@ EOF;
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/product-manufacturer/' . $manufacturer, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/manufacturer');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . PHP_EOL . $this->getBrowser()->getResponse()->getContent());
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . \PHP_EOL . $this->getBrowser()->getResponse()->getContent());
 
         static::assertArrayHasKey('data', $responseData, $this->getBrowser()->getResponse()->getContent());
         static::assertArrayHasKey(0, $responseData['data'], $this->getBrowser()->getResponse()->getContent());
@@ -405,8 +405,8 @@ EOF;
         $this->assertEntityNotExists($browser, 'product-manufacturer', $manufacturer);
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/manufacturer');
-        $responseData = json_decode($browser->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . PHP_EOL . $browser->getResponse()->getContent());
+        $responseData = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Read manufacturer of product failed id: ' . $id . \PHP_EOL . $browser->getResponse()->getContent());
 
         static::assertArrayHasKey('data', $responseData, $browser->getResponse()->getContent());
         static::assertArrayHasKey(0, $responseData['data'], $browser->getResponse()->getContent());
@@ -445,13 +445,13 @@ EOF;
         static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         static::assertArrayHasKey('data', $responseData);
         static::assertCount(1, $responseData['data']);
         static::assertArrayHasKey('attributes', $responseData['data'][0]);
-        static::assertArrayHasKey('name', $responseData['data'][0]['attributes'], print_r($responseData, true));
+        static::assertArrayHasKey('name', $responseData['data'][0]['attributes'], \print_r($responseData, true));
         static::assertSame($data['name'], $responseData['data'][0]['attributes']['name']);
         static::assertSame($data['id'], $responseData['data'][0]['id']);
     }
@@ -501,7 +501,7 @@ EOF;
         $this->assertEntityNotExists($browser, 'category', $id);
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/');
-        $responseData = json_decode($browser->getResponse()->getContent(), true);
+        $responseData = \json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
         static::assertArrayHasKey('data', $responseData);
@@ -560,7 +560,7 @@ EOF;
         $this->assertEntityExists($browser, 'product', $id);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/product/' . $id);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
         static::assertArrayHasKey('versionId', $response);
         static::assertArrayHasKey('versionName', $response);
@@ -570,7 +570,7 @@ EOF;
         $versionId = $response['versionId'];
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/version/' . $response['versionId'] . '/product/' . $id);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
         static::assertEmpty($response);
 
@@ -636,7 +636,7 @@ EOF;
             ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], \json_encode($data));
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -883,9 +883,9 @@ EOF;
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $this->getBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertArrayHasKey('meta', $content, \print_r($content, true));
         static::assertEquals(1, $content['meta']['total']);
         static::assertEquals($id, $content['data'][0]['id']);
     }
@@ -963,9 +963,9 @@ EOF;
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $this->getBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertArrayHasKey('meta', $content, print_r($content, true));
+        static::assertArrayHasKey('meta', $content, \print_r($content, true));
         static::assertEquals(1, $content['meta']['total']);
         static::assertEquals($id, $content['data'][0]['id']);
 
@@ -1044,13 +1044,13 @@ EOF;
             ],
         ];
 
-        $product1 = array_merge($productBase, [
+        $product1 = \array_merge($productBase, [
             'id' => Uuid::randomHex(),
             'productNumber' => 'product-1',
         ]);
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $product1);
 
-        $product2 = array_merge($productBase, [
+        $product2 = \array_merge($productBase, [
             'id' => Uuid::randomHex(),
             'productNumber' => 'product-2',
         ]);
@@ -1080,7 +1080,7 @@ EOF;
 
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $this->getBrowser()->getResponse();
-        $searchResult = json_decode($response->getContent(), true);
+        $searchResult = \json_decode($response->getContent(), true);
         static::assertCount(2, $searchResult['data']);
     }
 
@@ -1125,8 +1125,8 @@ EOF;
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/prices';
         $this->getBrowser()->request('GET', $path);
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), \print_r($responseData, true));
 
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
@@ -1145,9 +1145,9 @@ EOF;
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/prices';
         $this->getBrowser()->request('POST', $path, $filter);
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), \print_r($responseData, true));
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(1, $responseData['meta']['total']);
@@ -1289,8 +1289,8 @@ EOF;
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/prices';
         $this->getBrowser()->request('GET', $path);
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), \print_r($responseData, true));
 
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
@@ -1309,9 +1309,9 @@ EOF;
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/prices';
         $this->getBrowser()->request('POST', $path, $filter);
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), \print_r($responseData, true));
         static::assertArrayHasKey('aggregations', $responseData);
         static::assertArrayHasKey('price_stats', $responseData['aggregations']);
     }
@@ -1341,8 +1341,8 @@ EOF;
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories';
         $this->getBrowser()->request('GET', $path);
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), \print_r($responseData, true));
 
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
@@ -1361,9 +1361,9 @@ EOF;
 
         $path = '/api/v' . PlatformRequest::API_VERSION . '/search/product/' . $id . '/categories';
         $this->getBrowser()->request('POST', $path, $filter);
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
-        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), \print_r($responseData, true));
         static::assertArrayHasKey('meta', $responseData);
         static::assertArrayHasKey('total', $responseData['meta']);
         static::assertSame(1, $responseData['meta']['total']);
@@ -1486,7 +1486,7 @@ EOF;
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
         $response = $this->getBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertEquals(1, $content['meta']['total']);
         static::assertEquals($id, $content['data'][0]['id']);
     }
@@ -1544,15 +1544,15 @@ EOF;
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/product', $data);
         $response = $this->getBrowser()->getResponse();
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), \print_r($response->getContent(), true));
         static::assertNotEmpty($content);
 
         static::assertArrayHasKey('aggregations', $content);
         $aggregations = $content['aggregations'];
 
-        static::assertArrayHasKey('product_count', $aggregations, print_r($aggregations, true));
+        static::assertArrayHasKey('product_count', $aggregations, \print_r($aggregations, true));
         $productCount = $aggregations['product_count'];
         static::assertEquals(2, $productCount['count']);
 
@@ -1601,7 +1601,7 @@ EOF;
         $id = Uuid::randomHex();
         $insertData = ['id' => $id, 'name' => 'test'];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], \json_encode($insertData));
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -1611,7 +1611,7 @@ EOF;
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $respData = json_decode($response->getContent(), true);
+        $respData = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
@@ -1641,11 +1641,11 @@ EOF;
             ['name' => 'test_2'],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData[0]));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], \json_encode($insertData[0]));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], json_encode($insertData[1]));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/category', [], [], [], \json_encode($insertData[1]));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1653,7 +1653,7 @@ EOF;
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $respData = json_decode($response->getContent(), true);
+        $respData = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('data', $respData);
         static::assertArrayHasKey('links', $respData);
         static::assertArrayHasKey('included', $respData);
@@ -1689,10 +1689,10 @@ EOF;
 
         $this->getBrowser()->request(
             'POST',
-            sprintf('/api/v%s/_action/version/category/%s', PlatformRequest::API_VERSION, $id)
+            \sprintf('/api/v%s/_action/version/category/%s', PlatformRequest::API_VERSION, $id)
         );
         $response = $this->getBrowser()->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
         static::assertTrue(Uuid::isValid($content['versionId']));
@@ -1710,7 +1710,7 @@ EOF;
             'taxRate' => 15,
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1718,15 +1718,15 @@ EOF;
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $tax = json_decode($response->getContent(), true);
+        $tax = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('data', $tax);
         static::assertEquals($id, $tax['data']['id']);
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/clone/tax/' . $id, [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/clone/tax/' . $id, [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $data = json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('id', $data);
         static::assertNotEquals($id, $data['id']);
 
@@ -1735,7 +1735,7 @@ EOF;
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $data = json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true);
         static::assertEquals(15, $data['data']['attributes']['taxRate']);
     }
 
@@ -1763,7 +1763,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId, [], [], [], json_encode($data));
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId, [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1780,9 +1780,9 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/sales-channel', [], [], [], json_encode($filter));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/sales-channel', [], [], [], \json_encode($filter));
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true);
         $data = $result['data'];
 
         static::assertCount(1, $data);
@@ -1792,7 +1792,7 @@ EOF;
         static::assertCount(2, $included);
 
         // sort the included entities alphabetically by type
-        usort($included, function ($a, $b) {
+        \usort($included, function ($a, $b) {
             return $a['type'] > $b['type'];
         });
 
@@ -1806,7 +1806,7 @@ EOF;
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true);
         $data = $result['data'];
 
         static::assertCount(1, $data);
@@ -1838,7 +1838,7 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId, [], [], [], json_encode($data));
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId, [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1855,9 +1855,9 @@ EOF;
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/sales-channel', [], [], [], json_encode($filter));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/sales-channel', [], [], [], \json_encode($filter));
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true);
         $data = $result['data'];
 
         static::assertCount(1, $data);
@@ -1867,7 +1867,7 @@ EOF;
         static::assertCount(2, $included);
 
         // sort the included entities alphabetically by type
-        usort($included, function ($a, $b) {
+        \usort($included, function ($a, $b) {
             return $a['type'] > $b['type'];
         });
 
@@ -1881,7 +1881,7 @@ EOF;
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/sales-channel/' . $salesChannelId . '/extensions/seo-urls');
         $response = $this->getBrowser()->getResponse();
-        $result = json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true);
         $data = $result['data'];
 
         static::assertCount(1, $data);
@@ -1901,7 +1901,7 @@ EOF;
         ];
 
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], \json_encode($data));
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1915,11 +1915,11 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $tax = json_decode($response->getContent(), true);
+        $tax = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('data', $tax);
         static::assertEquals($id, $tax['data']['id']);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/clone/tax/' . $id, [], [], [], json_encode($data));
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/clone/tax/' . $id, [], [], [], \json_encode($data));
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
     }
@@ -1938,7 +1938,7 @@ EOF;
             ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
-        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], \json_encode($data));
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
@@ -1950,7 +1950,7 @@ EOF;
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $tax = json_decode($response->getContent(), true);
+        $tax = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('data', $tax);
         static::assertEquals('test tax', $tax['data']['attributes']['name']);
     }
@@ -1986,10 +1986,10 @@ EOF;
             'total-count-mode' => 1,
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/order', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/order', [], [], [], \json_encode($data));
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertArrayHasKey('aggregations', $response);
         static::assertArrayHasKey('order_count_month', $response['aggregations']);
     }

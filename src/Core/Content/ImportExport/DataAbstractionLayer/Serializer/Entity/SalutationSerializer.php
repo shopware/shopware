@@ -31,15 +31,15 @@ class SalutationSerializer extends EntitySerializer
     {
         $deserialized = parent::deserialize($config, $definition, $record);
 
-        if (is_iterable($deserialized)) {
-            $deserialized = iterator_to_array($deserialized);
+        if (\is_iterable($deserialized)) {
+            $deserialized = \iterator_to_array($deserialized);
         }
 
         if (!isset($deserialized['id']) && isset($deserialized['salutationKey'])) {
             $id = $this->getSalutationId($deserialized['salutationKey']);
 
             // if we dont find it by salutationKey, only set the id to the fallback if we dont have any other data
-            if (!$id && count($deserialized) === 1) {
+            if (!$id && \count($deserialized) === 1) {
                 $id = $this->getSalutationId('not_specified');
             }
 

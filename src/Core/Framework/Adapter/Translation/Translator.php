@@ -107,7 +107,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
 
         $fallbackLocale = $this->getFallbackLocale();
 
-        $localization = mb_substr($fallbackLocale, 0, 2);
+        $localization = \mb_substr($fallbackLocale, 0, 2);
         if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $localization)) {
             $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
         } else {
@@ -142,7 +142,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
     {
         if (!$this->formatter instanceof ChoiceMessageFormatterInterface) {
-            throw new LogicException(sprintf('The formatter "%s" does not support plural translations.', \get_class($this->formatter)));
+            throw new LogicException(\sprintf('The formatter "%s" does not support plural translations.', \get_class($this->formatter)));
         }
 
         if ($domain === null) {
@@ -216,7 +216,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
 
     private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
     {
-        return mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;
+        return \mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;
     }
 
     /**
@@ -226,7 +226,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private function isShopwareLocaleCatalogue(MessageCatalogueInterface $catalog): bool
     {
-        return mb_strpos($catalog->getLocale(), '-') !== false;
+        return \mb_strpos($catalog->getLocale(), '-') !== false;
     }
 
     private function resolveSnippetSetId(string $salesChannelId, string $languageId, string $locale, Context $context): void
@@ -249,7 +249,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
             return $catalog;
         }
 
-        if (array_key_exists($snippetSetId, $this->isCustomized)) {
+        if (\array_key_exists($snippetSetId, $this->isCustomized)) {
             return $this->isCustomized[$snippetSetId];
         }
 

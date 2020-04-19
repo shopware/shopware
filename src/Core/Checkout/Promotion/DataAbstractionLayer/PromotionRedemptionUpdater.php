@@ -40,7 +40,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
     public function update(array $ids, Context $context): void
     {
-        $ids = array_filter(array_unique($ids));
+        $ids = \array_filter(\array_unique($ids));
 
         if (empty($ids) || $context->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
@@ -77,12 +77,12 @@ SQL;
         $promotions = $this->groupByPromotion($promotions);
 
         foreach ($promotions as $id => $totals) {
-            $total = array_sum($totals);
+            $total = \array_sum($totals);
 
             $update->execute([
                 'id' => Uuid::fromHexToBytes($id),
                 'count' => (int) $total,
-                'customerCount' => json_encode($totals),
+                'customerCount' => \json_encode($totals),
             ]);
         }
     }

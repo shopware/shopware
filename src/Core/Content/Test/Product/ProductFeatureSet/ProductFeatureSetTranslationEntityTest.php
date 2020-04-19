@@ -28,7 +28,7 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
     {
         $definition = $this->getContainer()->get(ProductFeatureSetTranslationDefinition::class);
 
-        static::assertTrue(method_exists($definition, $method));
+        static::assertTrue(\method_exists($definition, $method));
         static::assertEquals($returnValue, $definition->$method());
     }
 
@@ -59,7 +59,7 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
      */
     public function testEntityIsComplete(string $method): void
     {
-        static::assertTrue(method_exists(ProductFeatureSetTranslationEntity::class, $method));
+        static::assertTrue(\method_exists(ProductFeatureSetTranslationEntity::class, $method));
     }
 
     public function testCollectionExists(): void

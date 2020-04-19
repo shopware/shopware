@@ -48,8 +48,8 @@ class ConverterV4 extends ApiConverter
     {
         return [
             '_test_bundle' => function (array $payload): array {
-                if (array_key_exists('pseudoPrice', $payload)) {
-                    if (array_key_exists('prices', $payload)) {
+                if (\array_key_exists('pseudoPrice', $payload)) {
+                    if (\array_key_exists('prices', $payload)) {
                         foreach ($payload['prices'] as $key => $price) {
                             if (($price['quantityStart'] ?? 1) === 0) {
                                 $price['pseudoPrice'] = $payload['pseudoPrice'];
@@ -61,7 +61,7 @@ class ConverterV4 extends ApiConverter
                         }
                     }
 
-                    if (array_key_exists('id', $payload)) {
+                    if (\array_key_exists('id', $payload)) {
                         $priceId = $this->getFirstPriceIdForBundleId($payload['id']);
 
                         if ($priceId) {

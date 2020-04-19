@@ -35,7 +35,7 @@ class MigrationControllerTest extends TestCase
     {
         $client = $this->getBrowser();
 
-        $url = sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_action/database/sync-migration', PlatformRequest::API_VERSION);
 
         $client->request('POST', $url, ['identifier' => self::INTEGRATION_IDENTIFIER()]);
 
@@ -49,7 +49,7 @@ class MigrationControllerTest extends TestCase
         $client->request(
             'POST',
             '/api/v' . PlatformRequest::API_VERSION . '/_action/database/migrate',
-            ['until' => PHP_INT_MAX]
+            ['until' => \PHP_INT_MAX]
         );
 
         static::assertSame(204, $client->getResponse()->getStatusCode());
@@ -62,7 +62,7 @@ class MigrationControllerTest extends TestCase
         $client->request(
             'POST',
             '/api/v' . PlatformRequest::API_VERSION . '/_action/database/migrate-destructive',
-            ['until' => PHP_INT_MAX]
+            ['until' => \PHP_INT_MAX]
         );
 
         static::assertSame(204, $client->getResponse()->getStatusCode());

@@ -79,7 +79,7 @@ class MediaFolderIndexer extends EntityIndexer
             return null;
         }
 
-        return new MediaIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new MediaIndexingMessage(\array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -90,16 +90,16 @@ class MediaFolderIndexer extends EntityIndexer
             return null;
         }
 
-        $updates = array_merge($updates, $this->fetchChildren($updates));
+        $updates = \array_merge($updates, $this->fetchChildren($updates));
 
-        return new MediaIndexingMessage(array_values($updates), null, $event->getContext());
+        return new MediaIndexingMessage(\array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
 
-        $ids = array_filter(array_unique($ids));
+        $ids = \array_filter(\array_unique($ids));
 
         if (empty($ids)) {
             return;
@@ -152,10 +152,10 @@ class MediaFolderIndexer extends EntityIndexer
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $childIds = array_column($childIds, 'id');
+        $childIds = \array_column($childIds, 'id');
 
         if (!empty($childIds)) {
-            $childIds = array_merge($childIds, $this->fetchChildren($childIds));
+            $childIds = \array_merge($childIds, $this->fetchChildren($childIds));
         }
 
         return $childIds;

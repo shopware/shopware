@@ -19,7 +19,7 @@ class IncompleteLineItemError extends Error
     {
         $this->key = $key;
         $this->property = $property;
-        $this->message = sprintf('Line item "%s" incomplete. Property "%s" missing.', $key, $property);
+        $this->message = \sprintf('Line item "%s" incomplete. Property "%s" missing.', $key, $property);
 
         parent::__construct($this->message);
     }

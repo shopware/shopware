@@ -141,7 +141,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     {
         $validations = $validation->getProperties();
 
-        if (!array_key_exists($field, $validations)) {
+        if (!\array_key_exists($field, $validations)) {
             return;
         }
 
@@ -169,7 +169,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = \str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

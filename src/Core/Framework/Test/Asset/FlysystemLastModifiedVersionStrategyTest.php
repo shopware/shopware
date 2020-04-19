@@ -24,8 +24,8 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
 
     public function setUp(): void
     {
-        $this->fs = new Filesystem(new Local(sys_get_temp_dir() . '/' . uniqid(self::class, true)));
-        $this->asset = new UrlPackage(['http://shopware.com'], new FlysystemLastModifiedVersionStrategy('test', $this->fs, new FilesystemTagAwareAdapter('test', 0, sys_get_temp_dir() . '/cache-' . uniqid(self::class, true))));
+        $this->fs = new Filesystem(new Local(\sys_get_temp_dir() . '/' . \uniqid(self::class, true)));
+        $this->asset = new UrlPackage(['http://shopware.com'], new FlysystemLastModifiedVersionStrategy('test', $this->fs, new FilesystemTagAwareAdapter('test', 0, \sys_get_temp_dir() . '/cache-' . \uniqid(self::class, true))));
     }
 
     public function testNonExistentFile(): void

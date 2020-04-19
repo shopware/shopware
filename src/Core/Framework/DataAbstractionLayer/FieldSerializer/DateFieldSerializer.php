@@ -30,7 +30,7 @@ class DateFieldSerializer extends AbstractFieldSerializer
             $value = new \DateTimeImmutable($value);
         }
 
-        if (is_array($value) && array_key_exists('date', $value)) {
+        if (\is_array($value) && \array_key_exists('date', $value)) {
             $value = new \DateTimeImmutable($value['date']);
         }
 

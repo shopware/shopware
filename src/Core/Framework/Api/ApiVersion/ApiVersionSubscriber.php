@@ -31,21 +31,21 @@ class ApiVersionSubscriber implements EventSubscriberInterface
         $path = $event->getRequest()->getPathInfo();
         $matches = [];
         // https://regex101.com/r/BHG1ab/1
-        if (!preg_match('/^\/(api|sales-channel-api)\/v(?P<version>\d)\/.*$/', $path, $matches)) {
+        if (!\preg_match('/^\/(api|sales-channel-api)\/v(?P<version>\d)\/.*$/', $path, $matches)) {
             return;
         }
 
         $requestedVersion = (int) $matches['version'];
 
-        if (in_array($requestedVersion, $this->supportedApiVersions, true)) {
+        if (\in_array($requestedVersion, $this->supportedApiVersions, true)) {
             return;
         }
 
         throw new NotFoundHttpException(
-            sprintf(
+            \sprintf(
                 'Requested api version v%d not available, available versions are v%s.',
                 $requestedVersion,
-                implode(', v', $this->supportedApiVersions)
+                \implode(', v', $this->supportedApiVersions)
             )
         );
     }

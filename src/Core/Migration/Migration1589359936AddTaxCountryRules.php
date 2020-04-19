@@ -77,7 +77,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
-            if (array_key_exists('reduced1', $countryTax)) {
+            if (\array_key_exists('reduced1', $countryTax)) {
                 $connection->insert('tax_rule', [
                     'id' => Uuid::randomBytes(),
                     'tax_id' => $reducedRate,
@@ -88,7 +88,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
                 ]);
             }
 
-            if (array_key_exists('reduced2', $countryTax)) {
+            if (\array_key_exists('reduced2', $countryTax)) {
                 $connection->insert('tax_rule', [
                     'id' => Uuid::randomBytes(),
                     'tax_id' => $reducedRate2,

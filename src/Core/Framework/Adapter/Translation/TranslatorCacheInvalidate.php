@@ -66,7 +66,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
 
     private function clearCache(array $snippetSetIds): void
     {
-        $snippetSetIds = array_unique($snippetSetIds);
+        $snippetSetIds = \array_unique($snippetSetIds);
 
         foreach ($snippetSetIds as $id) {
             $this->cache->deleteItem('translation.catalog.' . $id);

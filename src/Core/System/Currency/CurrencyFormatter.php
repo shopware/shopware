@@ -71,7 +71,7 @@ class CurrencyFormatter
     private function getFormatter(string $locale, int $format, ?string $pattern, ?int $digits = null): \NumberFormatter
     {
         // @deprecated tag:v6.4.0 - As soon as only the function 'formatCurrencyByLanguage' is left we can minimize the internal caches. Here we can remove the pattern and digits from the hash.
-        $hash = md5(json_encode([$locale, $format, $pattern, $digits]));
+        $hash = \md5(\json_encode([$locale, $format, $pattern, $digits]));
 
         if (isset($this->formatter[$hash])) {
             return $this->formatter[$hash];
@@ -86,7 +86,7 @@ class CurrencyFormatter
 
     private function getLocale(string $languageId, Context $context): string
     {
-        if (array_key_exists($languageId, $this->localeCache)) {
+        if (\array_key_exists($languageId, $this->localeCache)) {
             return $this->localeCache[$languageId];
         }
 

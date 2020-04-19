@@ -56,7 +56,7 @@ class FloatComparatorTest extends TestCase
     {
         $equalsData = $this->equalsDataProvider();
 
-        return array_map(
+        return \array_map(
             function ($testData) {
                 return [$testData[0], $testData[1], !$testData[2]];
             },

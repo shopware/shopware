@@ -29,7 +29,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function addAutomaticPromotions(array $promotions): void
     {
-        $this->automaticPromotions = array_merge($this->automaticPromotions, $promotions);
+        $this->automaticPromotions = \array_merge($this->automaticPromotions, $promotions);
     }
 
     /**
@@ -57,14 +57,14 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function addCodePromotions(string $code, array $promotions): void
     {
-        if (!array_key_exists($code, $this->codePromotions)) {
+        if (!\array_key_exists($code, $this->codePromotions)) {
             $this->codePromotions[$code] = [];
         }
 
         /** @var array $existing */
         $existing = $this->codePromotions[$code];
 
-        $this->codePromotions[$code] = array_merge($existing, $promotions);
+        $this->codePromotions[$code] = \array_merge($existing, $promotions);
     }
 
     /**
@@ -96,7 +96,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function hasCode(string $code): bool
     {
-        return array_key_exists($code, $this->codePromotions);
+        return \array_key_exists($code, $this->codePromotions);
     }
 
     /**
@@ -105,7 +105,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function removeCode(string $code): void
     {
-        if (!array_key_exists($code, $this->codePromotions)) {
+        if (!\array_key_exists($code, $this->codePromotions)) {
             return;
         }
 
@@ -117,7 +117,7 @@ class CartPromotionsDataDefinition extends Struct
      */
     public function getAllCodes(): array
     {
-        return array_keys($this->codePromotions);
+        return \array_keys($this->codePromotions);
     }
 
     public function getApiAlias(): string

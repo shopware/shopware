@@ -12,7 +12,7 @@ abstract class ApiConverter
     public function isDeprecated(string $entityName, ?string $fieldName = null): bool
     {
         if ($fieldName === null) {
-            return array_key_exists($entityName, $this->getDeprecations()) && !is_array($this->getDeprecations()[$entityName]);
+            return \array_key_exists($entityName, $this->getDeprecations()) && !\is_array($this->getDeprecations()[$entityName]);
         }
 
         return \in_array($fieldName, $this->getDeprecations()[$entityName] ?? [], true);
@@ -21,7 +21,7 @@ abstract class ApiConverter
     public function isFromFuture(string $entityName, ?string $fieldName = null): bool
     {
         if ($fieldName === null) {
-            return array_key_exists($entityName, $this->getNewFields()) && !is_array($this->getNewFields()[$entityName]);
+            return \array_key_exists($entityName, $this->getNewFields()) && !\is_array($this->getNewFields()[$entityName]);
         }
 
         return \in_array($fieldName, $this->getNewFields()[$entityName] ?? [], true);
@@ -30,7 +30,7 @@ abstract class ApiConverter
     public function convert(string $entityName, array $payload): array
     {
         $converterFns = $this->getConverterFunctions();
-        if (array_key_exists($entityName, $converterFns)) {
+        if (\array_key_exists($entityName, $converterFns)) {
             $payload = $converterFns[$entityName]($payload);
         }
 

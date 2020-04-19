@@ -250,8 +250,8 @@ class ProductLoadedSubscriberTest extends TestCase
         $variation = $productEntity->getVariation();
 
         if ($sort) {
-            sort($variation);
-            sort($expected);
+            \sort($variation);
+            \sort($expected);
         }
 
         static::assertEquals($expected, $variation);
@@ -281,7 +281,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
         return [
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -307,7 +307,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -337,7 +337,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -394,7 +394,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -445,7 +445,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -496,7 +496,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -553,7 +553,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -600,7 +600,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -674,7 +674,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -742,7 +742,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -810,7 +810,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),
@@ -884,7 +884,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 $language,
             ],
             [
-                array_merge($defaults, [
+                \array_merge($defaults, [
                     'options' => [
                         [
                             'id' => $ids->get('red'),

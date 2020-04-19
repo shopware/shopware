@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class TestError extends Error
 {
-    public const LEVEL_UNKNOWN = PHP_INT_MAX;
+    public const LEVEL_UNKNOWN = \PHP_INT_MAX;
 
     /**
      * @var int
@@ -41,7 +41,7 @@ class TestError extends Error
 
     public function getId(): string
     {
-        return sha1('foo_' . $this->level . Uuid::randomHex());
+        return \sha1('foo_' . $this->level . Uuid::randomHex());
     }
 
     public function getMessageKey(): string

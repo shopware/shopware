@@ -115,7 +115,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->order($browser);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = \json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -178,7 +178,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = \json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -244,10 +244,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->addProduct($browser, $productId, $quantity);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->guestOrder($browser, array_merge($personal, $billing));
+        $this->guestOrder($browser, \array_merge($personal, $billing));
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = \json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
         static::assertArrayHasKey(PlatformRequest::HEADER_CONTEXT_TOKEN, $order);
 
@@ -267,7 +267,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         static::assertEquals($firstName, $customer->getFirstName());
         static::assertEquals($lastName, $customer->getLastName());
-        static::assertEquals($countryId, $order['addresses'][0]['country']['id'], print_r($order['addresses'], true));
+        static::assertEquals($countryId, $order['addresses'][0]['country']['id'], \print_r($order['addresses'], true));
         static::assertEquals($street, $order['addresses'][0]['street']);
         static::assertEquals($zipcode, $order['addresses'][0]['zipcode']);
         static::assertEquals($city, $order['addresses'][0]['city']);
@@ -325,7 +325,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->guestOrder($browser, $personal);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = \json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -467,10 +467,10 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->addProduct($browser, $productId, $quantity);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $this->guestOrder($browser, array_merge($personal, $billing));
+        $this->guestOrder($browser, \array_merge($personal, $billing));
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = \json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('data', $order);
 
         $order = $order['data'];
@@ -514,24 +514,24 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->order($browser);
         static::assertSame(400, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
 
-        static::assertArrayHasKey('CHECKOUT__CART_EMPTY', array_flip(array_column($response['errors'], 'code')));
+        static::assertArrayHasKey('CHECKOUT__CART_EMPTY', \array_flip(\array_column($response['errors'], 'code')));
     }
 
     public function testDeepLinkGuestOrderWithoutAccessKey(): void
     {
         $expectedOrder = $this->createGuestOrder();
 
-        $accessHeader = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $accessHeader = 'HTTP_' . \str_replace('-', '_', \mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
         $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
         $response = $this->getSalesChannelBrowser()->getResponse();
-        static::assertSame(500, $response->getStatusCode(), print_r($response, true));
+        static::assertSame(500, $response->getStatusCode(), \print_r($response, true));
     }
 
     public function testDeepLinkGuestOrderWithAccessKey(): void
@@ -544,7 +544,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
-        $actualOrder = json_decode($response->getContent(), true);
+        $actualOrder = \json_decode($response->getContent(), true);
 
         $actualOrder = $actualOrder['data'];
         $expectedOrder = $expectedOrder['data'];
@@ -569,8 +569,8 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
-        static::assertEquals(sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
+        $content = \json_decode($response->getContent(), true);
+        static::assertEquals(\sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
     }
 
     public function testDeepLinkGuestOrderWithoutCode(): void
@@ -583,8 +583,8 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
-        static::assertEquals(sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
+        $content = \json_decode($response->getContent(), true);
+        static::assertEquals(\sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
     }
 
     public function testDeepLinkGuestOrderWithWrongOrderId(): void
@@ -598,8 +598,8 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
-        static::assertEquals(sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
+        $content = \json_decode($response->getContent(), true);
+        static::assertEquals(\sprintf('Order with id "%s" not found.', $orderId), $content['errors'][0]['detail']);
     }
 
     private function createGuestOrder()
@@ -657,7 +657,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->guestOrder($browser, $personal);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
-        $order = json_decode($browser->getResponse()->getContent(), true);
+        $order = \json_decode($browser->getResponse()->getContent(), true);
 
         static::assertNotEmpty($order['data']);
 
@@ -705,7 +705,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         if ($browser === null) {
             $browser = clone $salesChannelClient;
@@ -743,7 +743,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'password' => $password,
         ]);
         $response = $browser->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
     }

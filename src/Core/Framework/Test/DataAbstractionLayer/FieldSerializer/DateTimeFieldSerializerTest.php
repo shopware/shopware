@@ -117,7 +117,7 @@ class DateTimeFieldSerializerTest extends TestCase
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
         $decoded = $this->serializer->decode($this->field, $encoded);
 
-        static::assertEquals($input[1], $decoded, 'Output should be ' . print_r($input[1], true));
+        static::assertEquals($input[1], $decoded, 'Output should be ' . \print_r($input[1], true));
     }
 
     /**

@@ -75,13 +75,13 @@ class Entity extends Struct
         }
 
         throw new \InvalidArgumentException(
-            sprintf('Property %s do not exist in class %s', $property, static::class)
+            \sprintf('Property %s do not exist in class %s', $property, static::class)
         );
     }
 
     public function has(string $property): bool
     {
-        return property_exists($this, $property);
+        return \property_exists($this, $property);
     }
 
     public function getTranslated(): array
@@ -141,7 +141,7 @@ class Entity extends Struct
         }
 
         foreach ($extension->all() as $key => $value) {
-            if (array_key_exists($key, $data)) {
+            if (\array_key_exists($key, $data)) {
                 continue;
             }
             $data[$key] = $value;

@@ -175,7 +175,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     {
         $validations = $validation->getProperties();
 
-        if (!array_key_exists($field, $validations)) {
+        if (!\array_key_exists($field, $validations)) {
             return;
         }
 
@@ -203,7 +203,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = \str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

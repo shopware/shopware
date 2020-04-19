@@ -55,10 +55,10 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $config->setStorefrontEntryFilepath($this->getEntryFile($path));
         $config->setBasePath($path);
 
-        $stylesPath = $path . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
         $config->setStyleFiles(FileCollection::createFromArray($this->getFilesInDir($stylesPath)));
 
-        $scriptPath = $path . DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
+        $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
         $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));
 
         return $config;
@@ -69,24 +69,24 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
      */
     public function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
     {
-        $pathname = $path . DIRECTORY_SEPARATOR . 'Resources/theme.json';
+        $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
 
-        if (!file_exists($pathname)) {
+        if (!\file_exists($pathname)) {
             throw new InvalidThemeBundleException($name);
         }
 
         $config = new StorefrontPluginConfiguration($name);
 
         try {
-            $data = json_decode(file_get_contents($pathname), true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            $data = \json_decode(\file_get_contents($pathname), true);
+            if (\json_last_error() !== \JSON_ERROR_NONE) {
                 throw new ThemeCompileException(
                     $name,
-                    'Unable to parse theme.json. Message: ' . json_last_error_msg()
+                    'Unable to parse theme.json. Message: ' . \json_last_error_msg()
                 );
             }
 
-            $basePath = realpath(pathinfo($pathname, PATHINFO_DIRNAME));
+            $basePath = \realpath(\pathinfo($pathname, \PATHINFO_DIRNAME));
 
             $config->setBasePath($basePath);
             $config->setStorefrontEntryFilepath($this->getEntryFile($path));
@@ -94,17 +94,17 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             $config->setName($data['name']);
             $config->setAuthor($data['author']);
 
-            if (array_key_exists('style', $data) && is_array($data['style'])) {
+            if (\array_key_exists('style', $data) && \is_array($data['style'])) {
                 $fileCollection = new FileCollection();
                 foreach ($data['style'] as $style) {
-                    if (!is_array($style)) {
+                    if (!\is_array($style)) {
                         $fileCollection->add(new File($style));
 
                         continue;
                     }
 
                     foreach ($style as $filename => $additional) {
-                        if (!array_key_exists('resolve', $additional)) {
+                        if (!\array_key_exists('resolve', $additional)) {
                             $fileCollection->add(new File($filename));
 
                             continue;
@@ -121,24 +121,24 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                 $config->setStyleFiles($this->addBasePathToCollection($fileCollection, $basePath));
             }
 
-            if (array_key_exists('script', $data) && is_array($data['script'])) {
+            if (\array_key_exists('script', $data) && \is_array($data['script'])) {
                 $fileCollection = FileCollection::createFromArray($data['script']);
                 $config->setScriptFiles($this->addBasePathToCollection($fileCollection, $basePath));
             }
 
-            if (array_key_exists('asset', $data)) {
+            if (\array_key_exists('asset', $data)) {
                 $config->setAssetPaths($this->addBasePathToArray($data['asset'], $basePath));
             }
 
-            if (array_key_exists('previewMedia', $data)) {
-                $config->setPreviewMedia($basePath . DIRECTORY_SEPARATOR . $data['previewMedia']);
+            if (\array_key_exists('previewMedia', $data)) {
+                $config->setPreviewMedia($basePath . \DIRECTORY_SEPARATOR . $data['previewMedia']);
             }
 
-            if (array_key_exists('config', $data)) {
+            if (\array_key_exists('config', $data)) {
                 $config->setThemeConfig($data['config']);
             }
 
-            if (array_key_exists('views', $data)) {
+            if (\array_key_exists('views', $data)) {
                 $config->setViewInheritance($data['views']);
             }
         } catch (ThemeCompileException $e) {
@@ -146,7 +146,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         } catch (\Exception $e) {
             throw new ThemeCompileException(
                 $name,
-                sprintf(
+                \sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',
                     $e->getMessage()
                 )
@@ -158,14 +158,14 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
     private function getEntryFile(string $path): ?string
     {
-        $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src';
+        $path = \rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src';
 
-        if (file_exists($path . DIRECTORY_SEPARATOR . 'main.ts')) {
-            return $path . DIRECTORY_SEPARATOR . 'main.ts';
+        if (\file_exists($path . \DIRECTORY_SEPARATOR . 'main.ts')) {
+            return $path . \DIRECTORY_SEPARATOR . 'main.ts';
         }
 
-        if (file_exists($path . DIRECTORY_SEPARATOR . 'main.js')) {
-            return $path . DIRECTORY_SEPARATOR . 'main.js';
+        if (\file_exists($path . \DIRECTORY_SEPARATOR . 'main.js')) {
+            return $path . \DIRECTORY_SEPARATOR . 'main.js';
         }
 
         return null;
@@ -174,7 +174,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     private function addBasePathToCollection(FileCollection $fileCollection, string $basePath): FileCollection
     {
         foreach ($fileCollection as $file) {
-            if (mb_strpos($file->getFilepath(), '@') === 0) {
+            if (\mb_strpos($file->getFilepath(), '@') === 0) {
                 continue;
             }
             $file->setFilepath($this->addBasePath($file->getFilepath(), $basePath));
@@ -185,8 +185,8 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
     private function addBasePathToArray(array $files, string $basePath): array
     {
-        array_walk($files, function (&$path) use ($basePath): void {
-            if (mb_strpos($path, '@') === 0) {
+        \array_walk($files, function (&$path) use ($basePath): void {
+            if (\mb_strpos($path, '@') === 0) {
                 return;
             }
             $path = self::addBasePath($path, $basePath);
@@ -197,12 +197,12 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
     private function addBasePath(string $path, string $basePath): string
     {
-        return $basePath . DIRECTORY_SEPARATOR . $path;
+        return $basePath . \DIRECTORY_SEPARATOR . $path;
     }
 
     private function getFilesInDir(string $path): array
     {
-        if (!is_dir($path)) {
+        if (!\is_dir($path)) {
             return [];
         }
         $finder = new Finder();

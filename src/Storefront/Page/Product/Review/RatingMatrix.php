@@ -54,12 +54,12 @@ class RatingMatrix extends Struct
                 }
             }
 
-            if (!array_key_exists($points, $this->matrix)) {
+            if (!\array_key_exists($points, $this->matrix)) {
                 $this->matrix[$points] = new MatrixElement($points, 0);
             }
         }
 
-        array_walk($this->matrix, function (MatrixElement &$rating): void {
+        \array_walk($this->matrix, function (MatrixElement &$rating): void {
             if ($this->totalReviewCount > 0) {
                 $rating->setPercent($rating->getCount() / $this->totalReviewCount * 100);
             } else {

@@ -31,7 +31,7 @@ class RequirementsPath
      */
     public function __construct($basePath, $sourceFile)
     {
-        $this->basePath = rtrim($basePath, '/') . '/';
+        $this->basePath = \rtrim($basePath, '/') . '/';
 
         $this->files = $this->readList($sourceFile);
     }
@@ -65,6 +65,6 @@ class RequirementsPath
     {
         $name = $this->basePath . $name;
 
-        return file_exists($name) && is_readable($name) && is_writable($name);
+        return \file_exists($name) && \is_readable($name) && \is_writable($name);
     }
 }

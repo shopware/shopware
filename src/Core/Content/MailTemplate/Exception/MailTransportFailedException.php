@@ -11,7 +11,7 @@ class MailTransportFailedException extends ShopwareHttpException
     {
         parent::__construct(
             'Failed sending mail to following recipients: {{ recipients }}',
-            ['recipients' => $failedRecipients, 'recipientsString' => implode(', ', $failedRecipients)]
+            ['recipients' => $failedRecipients, 'recipientsString' => \implode(', ', $failedRecipients)]
         );
     }
 

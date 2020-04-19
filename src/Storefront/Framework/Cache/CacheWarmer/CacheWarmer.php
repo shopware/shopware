@@ -116,7 +116,7 @@ class CacheWarmer extends AbstractMessageHandler
         $kernel = $this->createHttpCacheKernel($message->getCacheId());
 
         foreach ($message->getParameters() as $parameters) {
-            $url = rtrim($message->getDomain(), '/') . $this->router->generate($message->getRoute(), $parameters);
+            $url = \rtrim($message->getDomain(), '/') . $this->router->generate($message->getRoute(), $parameters);
 
             $request = $this->requestTransformer->transform(Request::create($url));
 

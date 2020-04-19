@@ -69,7 +69,7 @@ class ProductListingLoader
 
         $variantIds = $ids->getIds();
 
-        $mapping = array_combine($ids->getIds(), $ids->getIds());
+        $mapping = \array_combine($ids->getIds(), $ids->getIds());
 
         if (!$this->hasOptionFilter($criteria)) {
             list($variantIds, $mapping) = $this->resolvePreviews($ids->getIds(), $context);
@@ -95,8 +95,8 @@ class ProductListingLoader
     {
         $fields = $criteria->getFilterFields();
 
-        $fields = array_map(function (string $field) {
-            return preg_replace('/^product./', '', $field);
+        $fields = \array_map(function (string $field) {
+            return \preg_replace('/^product./', '', $field);
         }, $fields);
 
         if (\in_array('options.id', $fields, true)) {
@@ -145,7 +145,7 @@ class ProductListingLoader
 
     private function resolvePreviews(array $ids, SalesChannelContext $context): array
     {
-        $ids = array_combine($ids, $ids);
+        $ids = \array_combine($ids, $ids);
 
         $config = $this->connection->fetchAll(
             '# product-listing-loader::resolve-previews
@@ -159,7 +159,7 @@ class ProductListingLoader
              WHERE child.version_id = :version
              AND child.id IN (:ids)',
             [
-                'ids' => Uuid::fromHexToBytesList(array_values($ids)),
+                'ids' => Uuid::fromHexToBytesList(\array_values($ids)),
                 'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
             ],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -175,11 +175,11 @@ class ProductListingLoader
 
         // now we have a mapping for "child => main variant"
         if (empty($mapping)) {
-            return [$ids, array_combine($ids, $ids)];
+            return [$ids, \array_combine($ids, $ids)];
         }
 
         // filter inactive and not available variants
-        $criteria = new Criteria(array_values($mapping));
+        $criteria = new Criteria(\array_values($mapping));
         $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannel()->getId()));
         $this->handleAvailableStock($criteria, $context);
 
@@ -209,7 +209,7 @@ class ProductListingLoader
             }
 
             // main variant is configured and available - add main variant id
-            if (!in_array($main, $sorted, true)) {
+            if (!\in_array($main, $sorted, true)) {
                 $remapped[$id] = $main;
                 $sorted[] = $main;
             }

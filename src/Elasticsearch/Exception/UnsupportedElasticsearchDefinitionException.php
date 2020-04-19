@@ -10,7 +10,7 @@ class UnsupportedElasticsearchDefinitionException extends ShopwareHttpException
 
     public function __construct(string $entity)
     {
-        parent::__construct(sprintf('Entity %s is not supported for elastic search', $entity));
+        parent::__construct(\sprintf('Entity %s is not supported for elastic search', $entity));
     }
 
     public function getErrorCode(): string

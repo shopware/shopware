@@ -75,7 +75,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
@@ -107,7 +107,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(20, $response['price']['totalPrice']);
@@ -138,7 +138,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(403, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('INSUFFICIENT_PERMISSION', $response['errors'][0]['code']);
     }
@@ -167,7 +167,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(100, $response['price']['totalPrice']);
     }
@@ -299,7 +299,7 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(790, $response['price']['totalPrice']);

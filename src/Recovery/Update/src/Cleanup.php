@@ -51,13 +51,13 @@ class Cleanup
         $this->useTimer = $useTimer;
 
         if ($this->useTimer) {
-            $this->timeTarget = time() + 5;
+            $this->timeTarget = \time() + 5;
         }
 
         try {
             $result = $this->deleteCacheDirectories(0);
             if (!$result->getIsReady() && $this->useTimer) {
-                return json_encode([
+                return \json_encode([
                     'deletedFiles' => $result->getFileCount(),
                     'ready' => $result->getIsReady(),
                     'error' => false,
@@ -66,7 +66,7 @@ class Cleanup
 
             $result = $this->deleteTemporaryBackupDirectory($result->getFileCount());
             if ($this->useTimer) {
-                return json_encode([
+                return \json_encode([
                     'deletedFiles' => $result->getFileCount(),
                     'ready' => $result->getIsReady(),
                     'error' => false,
@@ -74,7 +74,7 @@ class Cleanup
             }
         } catch (\Exception $exception) {
             if ($this->useTimer) {
-                return json_encode([
+                return \json_encode([
                     'deletedFiles' => 0,
                     'ready' => false,
                     'error' => true,
@@ -168,7 +168,7 @@ class Cleanup
         }
 
         $deleteResult->setReady();
-        @rmdir($this->backupDirectory);
+        @\rmdir($this->backupDirectory);
         $deleteResult->countUp();
 
         return $deleteResult;
@@ -179,7 +179,7 @@ class Cleanup
      */
     private function delete(\SplFileInfo $file, DeleteResult &$deleteResult): void
     {
-        $file->isFile() ? @unlink($file->getRealPath()) : @rmdir($file->getRealPath());
+        $file->isFile() ? @\unlink($file->getRealPath()) : @\rmdir($file->getRealPath());
         $deleteResult->countUp();
     }
 
@@ -190,7 +190,7 @@ class Cleanup
      */
     private function getDirectoryIterator($path)
     {
-        if (is_dir($path)) {
+        if (\is_dir($path)) {
             return new \DirectoryIterator($path);
         }
 
@@ -206,6 +206,6 @@ class Cleanup
             return false;
         }
 
-        return $this->timeTarget < time();
+        return $this->timeTarget < \time();
     }
 }

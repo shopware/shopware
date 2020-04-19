@@ -57,7 +57,7 @@ class DateRangeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(3, $exceptions);
 
             static::assertSame('/0/value/fromDate', $exceptions[0]['source']['pointer']);
@@ -88,7 +88,7 @@ class DateRangeRuleTest extends TestCase
                 ], $this->context);
                 static::fail('Exception was not thrown');
             } catch (WriteException $stackException) {
-                $exceptions = iterator_to_array($stackException->getErrors());
+                $exceptions = \iterator_to_array($stackException->getErrors());
                 static::assertCount(1, $exceptions);
                 static::assertSame('/0/value/fromDate', $exceptions[0]['source']['pointer']);
                 static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
@@ -113,7 +113,7 @@ class DateRangeRuleTest extends TestCase
                 ], $this->context);
                 static::fail('Exception was not thrown');
             } catch (WriteException $stackException) {
-                $exceptions = iterator_to_array($stackException->getErrors());
+                $exceptions = \iterator_to_array($stackException->getErrors());
                 static::assertCount(1, $exceptions);
                 static::assertSame('/0/value/toDate', $exceptions[0]['source']['pointer']);
                 static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
@@ -137,7 +137,7 @@ class DateRangeRuleTest extends TestCase
             ], $this->context);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
+            $exceptions = \iterator_to_array($stackException->getErrors());
             static::assertCount(1, $exceptions);
             static::assertSame('/0/value/useTime', $exceptions[0]['source']['pointer']);
             static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);

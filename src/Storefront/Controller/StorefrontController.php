@@ -96,7 +96,7 @@ abstract class StorefrontController extends AbstractController
 
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
-        $attributes = array_merge(
+        $attributes = \array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
             $route,
             $attributes,
@@ -142,8 +142,8 @@ abstract class StorefrontController extends AbstractController
     {
         $params = $request->get($param);
 
-        if (is_string($params)) {
-            $params = json_decode($params, true);
+        if (\is_string($params)) {
+            $params = \json_decode($params, true);
         }
 
         if (empty($params)) {

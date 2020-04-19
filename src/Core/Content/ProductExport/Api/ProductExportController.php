@@ -65,8 +65,8 @@ class ProductExportController extends AbstractController
 
         if ($result->hasErrors()) {
             $errors = $result->getErrors();
-            $errorMessages = array_merge(
-                ...array_map(
+            $errorMessages = \array_merge(
+                ...\array_map(
                     function (Error $error) {
                         return $error->getErrorMessages();
                     },
@@ -76,7 +76,7 @@ class ProductExportController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'content' => mb_convert_encoding(
+                    'content' => \mb_convert_encoding(
                         $result->getContent(),
                         'UTF-8',
                         $dataBag->get('encoding')
@@ -103,8 +103,8 @@ class ProductExportController extends AbstractController
 
         if ($result->hasErrors()) {
             $errors = $result->getErrors();
-            $errorMessages = array_merge(
-                ...array_map(
+            $errorMessages = \array_merge(
+                ...\array_map(
                     function (Error $error) {
                         return $error->getErrorMessages();
                     },
@@ -115,7 +115,7 @@ class ProductExportController extends AbstractController
 
         return new JsonResponse(
             [
-                'content' => mb_convert_encoding(
+                'content' => \mb_convert_encoding(
                     $result->getContent(),
                     'UTF-8',
                     $dataBag->get('encoding')

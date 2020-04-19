@@ -68,7 +68,7 @@ class MediaExtensionTest extends TestCase
 
         $originalLoader = $twig->getLoader();
         $twig->setLoader(new ArrayLoader([
-            'test.html.twig' => file_get_contents(__DIR__ . '/fixture/' . $template),
+            'test.html.twig' => \file_get_contents(__DIR__ . '/fixture/' . $template),
         ]));
         $output = $twig->render('test.html.twig', $data);
         $twig->setLoader($originalLoader);

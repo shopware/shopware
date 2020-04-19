@@ -13,12 +13,12 @@ class PaymentHandlerRegistry
 
     public function __construct(ServiceProviderInterface $syncHandlers, ServiceProviderInterface $asyncHandlers)
     {
-        foreach (array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
+        foreach (\array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $syncHandlers->get($serviceId);
             $this->handlers[$serviceId] = $handler;
         }
 
-        foreach (array_keys($asyncHandlers->getProvidedServices()) as $serviceId) {
+        foreach (\array_keys($asyncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $asyncHandlers->get($serviceId);
             $this->handlers[$serviceId] = $handler;
         }
@@ -26,7 +26,7 @@ class PaymentHandlerRegistry
 
     public function getHandler(string $handlerId)
     {
-        if (!array_key_exists($handlerId, $this->handlers)) {
+        if (!\array_key_exists($handlerId, $this->handlers)) {
             return null;
         }
 

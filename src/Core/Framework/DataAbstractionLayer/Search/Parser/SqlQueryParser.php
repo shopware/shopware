@@ -60,14 +60,14 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote($query->getScore()), $field)
+                        \sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote($query->getScore()), $field)
                     );
 
                     continue;
                 }
 
                 $result->addWhere(
-                    sprintf('IF(%s , %s, 0)', $where, $this->connection->quote($query->getScore()))
+                    \sprintf('IF(%s , %s, 0)', $where, $this->connection->quote($query->getScore()))
                 );
             }
 
@@ -105,7 +105,7 @@ class SqlQueryParser
             case $query instanceof MultiFilter:
                 return $this->parseMultiFilter($query, $definition, $root, $context);
             default:
-                throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
+                throw new \RuntimeException(\sprintf('Unsupported query %s', \get_class($query)));
         }
     }
 
@@ -141,7 +141,7 @@ class SqlQueryParser
             $result->addParameter($key, $query->getParameter(RangeFilter::LTE));
         }
 
-        $where = '(' . implode(' AND ', $where) . ')';
+        $where = '(' . \implode(' AND ', $where) . ')';
         $result->addWhere($where);
 
         return $result;
@@ -156,7 +156,7 @@ class SqlQueryParser
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key);
 
-        $escaped = addcslashes($query->getValue(), '\\_%');
+        $escaped = \addcslashes($query->getValue(), '\\_%');
         $result->addParameter($key, '%' . $escaped . '%');
 
         return $result;
@@ -176,10 +176,10 @@ class SqlQueryParser
 
                 foreach ($query->getValue() as $value) {
                     $key = $this->getKey();
-                    $where[] = sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
+                    $where[] = \sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
                     $result->addParameter($key, $value);
                 }
-                $result->addWhere('(' . implode(' OR ', $where) . ')');
+                $result->addWhere('(' . \implode(' OR ', $where) . ')');
 
                 return $result;
             }
@@ -192,9 +192,9 @@ class SqlQueryParser
 
         $result->addWhere($select . ' IN (:' . $key . ')');
 
-        $value = array_values($query->getValue());
+        $value = \array_values($query->getValue());
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = array_map(function (string $id) {
+            $value = \array_map(function (string $id) {
                 return Uuid::fromHexToBytes($id);
             }, $value);
         }
@@ -245,7 +245,7 @@ class SqlQueryParser
 
         $glue = ' ' . $query->getOperator() . ' ';
         if (!empty($wheres)) {
-            $result->addWhere('(' . implode($glue, $wheres) . ')');
+            $result->addWhere('(' . \implode($glue, $wheres) . ')');
         }
 
         return $result;
@@ -262,7 +262,7 @@ class SqlQueryParser
         $glue = ' ' . $query->getOperator() . ' ';
 
         if (!empty($wheres)) {
-            $result->addWhere('NOT (' . implode($glue, $wheres) . ')');
+            $result->addWhere('NOT (' . \implode($glue, $wheres) . ')');
         }
 
         return $result;
@@ -295,16 +295,16 @@ class SqlQueryParser
 
         /** @var Filter $child */
         foreach ($antiJoin->getQueries() as $child) {
-            $field = @current($child->getFields());
-            $field = str_replace('extensions.', '', $field);
+            $field = @\current($child->getFields());
+            $field = \str_replace('extensions.', '', $field);
 
             $select = $this->queryHelper->getFieldAccessor($field, $definition, $root, $context);
-            $accessor = str_replace('`.`', '_' . $antiJoin->getIdentifier() . '`.`', $select);
+            $accessor = \str_replace('`.`', '_' . $antiJoin->getIdentifier() . '`.`', $select);
 
             $wheres[$accessor] = $accessor . ' IS NULL';
         }
 
-        $result->addWhere(implode(' AND ', $wheres));
+        $result->addWhere(\implode(' AND ', $wheres));
 
         return $result;
     }

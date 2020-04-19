@@ -239,7 +239,7 @@ class NavigationRoute extends AbstractNavigationRoute
 
         unset($metaInfo[$rootId], $metaInfo[$activeId]);
 
-        $childIds = array_keys($metaInfo);
+        $childIds = \array_keys($metaInfo);
 
         // Fetch all parents and first-level children of the active category, if they're not already fetched
         $missing = $this->getMissingIds($activeId, $active['path'], $childIds, $categories);
@@ -256,18 +256,18 @@ class NavigationRoute extends AbstractNavigationRoute
 
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {
-        $parentIds = array_filter(explode('|', $path ?? ''));
+        $parentIds = \array_filter(\explode('|', $path ?? ''));
 
-        $haveToBeIncluded = array_merge($childIds, $parentIds, [$activeId]);
+        $haveToBeIncluded = \array_merge($childIds, $parentIds, [$activeId]);
         $included = $alreadyLoaded->getIds();
-        $included = array_flip($included);
+        $included = \array_flip($included);
 
-        return array_diff($haveToBeIncluded, $included);
+        return \array_diff($haveToBeIncluded, $included);
     }
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        $ids = array_filter([
+        $ids = \array_filter([
             $context->getSalesChannel()->getFooterCategoryId(),
             $context->getSalesChannel()->getServiceCategoryId(),
             $context->getSalesChannel()->getNavigationCategoryId(),
@@ -292,7 +292,7 @@ class NavigationRoute extends AbstractNavigationRoute
             return false;
         }
 
-        if (mb_strpos($path, '|' . $rootId . '|') !== false) {
+        if (\mb_strpos($path, '|' . $rootId . '|') !== false) {
             return true;
         }
 

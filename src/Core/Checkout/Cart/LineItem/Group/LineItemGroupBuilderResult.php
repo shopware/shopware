@@ -28,7 +28,7 @@ class LineItemGroupBuilderResult
 
         // prepare root entry
         // if no data exists for this group
-        if (!array_key_exists($key, $this->results)) {
+        if (!\array_key_exists($key, $this->results)) {
             $this->results[$key] = [
                 'groups' => [],
                 'total' => [],
@@ -55,7 +55,7 @@ class LineItemGroupBuilderResult
     {
         $key = $groupDefinition->getId();
 
-        if (!array_key_exists($key, $this->results)) {
+        if (!\array_key_exists($key, $this->results)) {
             return [];
         }
 
@@ -72,7 +72,7 @@ class LineItemGroupBuilderResult
     {
         $key = $groupDefinition->getId();
 
-        if (!array_key_exists($key, $this->results)) {
+        if (!\array_key_exists($key, $this->results)) {
             return [];
         }
 
@@ -105,7 +105,7 @@ class LineItemGroupBuilderResult
     {
         $key = $groupDefinition->getId();
 
-        if (array_key_exists($key, $this->countResults)) {
+        if (\array_key_exists($key, $this->countResults)) {
             return $this->countResults[$key]['count'];
         }
 
@@ -143,7 +143,7 @@ class LineItemGroupBuilderResult
     private function addGroupCount(string $key): void
     {
         // also increase our count of found items
-        if (!array_key_exists($key, $this->countResults)) {
+        if (!\array_key_exists($key, $this->countResults)) {
             $this->countResults[$key] = ['count' => 1];
         } else {
             ++$this->countResults[$key]['count'];
@@ -164,7 +164,7 @@ class LineItemGroupBuilderResult
             // either create new entries
             // or just increase the quantity of an existing entry in
             // the result set of our group definition.
-            if (!array_key_exists($tuple->getLineItemId(), $total)) {
+            if (!\array_key_exists($tuple->getLineItemId(), $total)) {
                 // add as new entry to avoid pointer references
                 // to our single groups list
                 $total[$tuple->getLineItemId()] = new LineItemQuantity(

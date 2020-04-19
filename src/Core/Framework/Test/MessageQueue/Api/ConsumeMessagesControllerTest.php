@@ -36,17 +36,17 @@ class ConsumeMessagesControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $url = sprintf('/api/v%s/_action/scheduled-task/run', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_action/scheduled-task/run', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('POST', $url);
 
         // consume the queued task
-        $url = sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_action/message-queue/consume', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'default']);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true);
         static::assertArrayHasKey('handledMessages', $response);
         static::assertIsInt($response['handledMessages']);
         static::assertEquals(1, $response['handledMessages']);

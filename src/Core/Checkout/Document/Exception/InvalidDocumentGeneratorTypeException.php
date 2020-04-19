@@ -9,7 +9,7 @@ class InvalidDocumentGeneratorTypeException extends ShopwareHttpException
 {
     public function __construct(string $type)
     {
-        $message = sprintf('Unable to find a document generator with type "%s"', $type);
+        $message = \sprintf('Unable to find a document generator with type "%s"', $type);
         parent::__construct($message);
     }
 

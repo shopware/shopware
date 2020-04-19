@@ -99,7 +99,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 ];
             });
 
-            return array_values($names);
+            return \array_values($names);
         }
 
         // collect option names in order of the configuration

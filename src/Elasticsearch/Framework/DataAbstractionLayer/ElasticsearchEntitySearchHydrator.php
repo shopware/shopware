@@ -85,7 +85,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
 
         foreach ($ids as $id) {
             if (\is_array($id)) {
-                $id = implode('-', $id);
+                $id = \implode('-', $id);
             }
 
             if (\array_key_exists($id, $data)) {

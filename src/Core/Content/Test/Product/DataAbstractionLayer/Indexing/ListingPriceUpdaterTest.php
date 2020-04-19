@@ -448,7 +448,7 @@ class ListingPriceUpdaterTest extends TestCase
         $listing = $this->getContainer()->get('product.repository')
             ->search($criteria, $ids->context);
 
-        $sorted = array_values($listing->getIds());
+        $sorted = \array_values($listing->getIds());
 
         static::assertEquals(
             [$ids->get('simple-1'), $ids->get('child'), $ids->get('simple-2')],
@@ -462,7 +462,7 @@ class ListingPriceUpdaterTest extends TestCase
         $listing = $this->getContainer()->get('product.repository')
             ->search($criteria, $ids->context);
 
-        $sorted = array_values($listing->getIds());
+        $sorted = \array_values($listing->getIds());
 
         static::assertEquals(
             [$ids->get('simple-2'), $ids->get('child'), $ids->get('simple-1')],
@@ -687,7 +687,7 @@ class ListingPriceUpdaterTest extends TestCase
         $prices = $this->filterByCurrencyId($prices, Defaults::CURRENCY);
 
         static::assertCount(1, $prices);
-        $price = array_shift($prices);
+        $price = \array_shift($prices);
 
         /** @var ListingPrice $price */
         static::assertEquals(10, $price->getFrom()->getGross());
@@ -714,7 +714,7 @@ class ListingPriceUpdaterTest extends TestCase
         $prices = $this->filterByCurrencyId($prices, Defaults::CURRENCY);
 
         static::assertCount(1, $prices);
-        $price = array_shift($prices);
+        $price = \array_shift($prices);
 
         /** @var ListingPrice $price */
         static::assertEquals(100, $price->getFrom()->getGross());
@@ -870,7 +870,7 @@ class ListingPriceUpdaterTest extends TestCase
         $result = $this->getContainer()->get('product.repository')
             ->searchIds($criteria, $context);
 
-        static::assertEquals(array_values($expected), array_values($result->getIds()));
+        static::assertEquals(\array_values($expected), \array_values($result->getIds()));
 
         $criteria = clone $original;
         $criteria->addSorting(new FieldSorting('product.listingPrices', FieldSorting::DESCENDING));
@@ -878,6 +878,6 @@ class ListingPriceUpdaterTest extends TestCase
         $result = $this->getContainer()->get('product.repository')
             ->searchIds($criteria, $context);
 
-        static::assertEquals(array_reverse(array_values($expected)), array_values($result->getIds()));
+        static::assertEquals(\array_reverse(\array_values($expected)), \array_values($result->getIds()));
     }
 }

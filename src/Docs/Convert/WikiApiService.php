@@ -53,20 +53,20 @@ class WikiApiService
             $this->getAllCategories()
         );
 
-        echo 'Deleting ' . \count($articleList) . ' articles ...' . PHP_EOL;
+        echo 'Deleting ' . \count($articleList) . ' articles ...' . \PHP_EOL;
         foreach ($articleList as $article) {
             $this->disableArticle($article);
             $this->deleteArticle($article);
             $this->articleHandler->deleteById($article);
         }
 
-        echo 'Deleting categories...' . PHP_EOL;
+        echo 'Deleting categories...' . \PHP_EOL;
         $this->deleteCategoryChildren();
     }
 
     public function syncFilesWithServer(DocumentTree $tree): void
     {
-        echo 'Remove deleted articles and categories...' . PHP_EOL;
+        echo 'Remove deleted articles and categories...' . \PHP_EOL;
         $this->removeDeletedEntities($tree);
 
         $this->syncArticles($tree);
@@ -76,7 +76,7 @@ class WikiApiService
 
     private function buildArticleVersionUrl(array $articleInfo): string
     {
-        return vsprintf(
+        return \vsprintf(
             '/wiki/entries/%d/localizations/%d/versions/%d',
             [
                 $articleInfo['articleId'],
@@ -92,7 +92,7 @@ class WikiApiService
         $response = $this->client->get($articleInLocaleWithVersionUrl, ['headers' => $this->getBasicHeaders()]);
         $responseContents = $response->getBody()->getContents();
 
-        return json_decode($responseContents, true);
+        return \json_decode($responseContents, true);
     }
 
     private function updateArticleVersion(array $articleInfo, array $payload): void
@@ -108,7 +108,7 @@ class WikiApiService
             'selectedVersion' => $currentArticleVersionContents,
         ];
 
-        $articleContents = array_merge($currentArticleVersionContents, $requiredContents, $payload);
+        $articleContents = \array_merge($currentArticleVersionContents, $requiredContents, $payload);
 
         $this->client->put(
             $articleInLocaleWithVersionUrl,
@@ -122,7 +122,7 @@ class WikiApiService
     private function updateArticleLocale(array $articleInfo, array $payload): void
     {
         // create english lang
-        $articleLocalUrl = vsprintf(
+        $articleLocalUrl = \vsprintf(
             '/wiki/entries/%d/localizations/%d',
             [
                 $articleInfo['articleId'],
@@ -136,7 +136,7 @@ class WikiApiService
         );
         $responseJson = $response->getBody()->getContents();
 
-        $articleContents = array_merge(json_decode($responseJson, true), $payload);
+        $articleContents = \array_merge(\json_decode($responseJson, true), $payload);
 
         $this->client->put(
             $articleLocalUrl,
@@ -149,7 +149,7 @@ class WikiApiService
 
     private function updateArticlePriority(array $articleInfo, int $priority): void
     {
-        $priorityUrl = vsprintf('/wiki/entries/%d/orderPriority/%d', [$articleInfo['articleId'], $priority]);
+        $priorityUrl = \vsprintf('/wiki/entries/%d/orderPriority/%d', [$articleInfo['articleId'], $priority]);
 
         $this->client->put($priorityUrl, ['headers' => $this->getBasicHeaders()]);
     }
@@ -158,7 +158,7 @@ class WikiApiService
     {
         $mediaEndpoint = $this->buildArticleVersionUrl($articleInfo) . '/media';
 
-        $body = fopen($filePath, 'rb');
+        $body = \fopen($filePath, 'rb');
         $response = $this->client->post(
             $mediaEndpoint,
             [
@@ -174,14 +174,14 @@ class WikiApiService
 
         $responseContents = $response->getBody()->getContents();
 
-        return json_decode($responseContents, true)[0]['fileLink'];
+        return \json_decode($responseContents, true)[0]['fileLink'];
     }
 
     private function uploadCategoryMedia(int $categoryId, int $localizationId, string $filePath): string
     {
-        $mediaEndpoint = vsprintf('wiki/categories/%d/localizations/%d/media', [$categoryId, $localizationId]);
+        $mediaEndpoint = \vsprintf('wiki/categories/%d/localizations/%d/media', [$categoryId, $localizationId]);
 
-        $body = fopen($filePath, 'rb');
+        $body = \fopen($filePath, 'rb');
         $response = $this->client->post(
             $mediaEndpoint,
             [
@@ -197,7 +197,7 @@ class WikiApiService
 
         $responseContents = $response->getBody()->getContents();
 
-        return json_decode($responseContents, true)[0]['fileLink'];
+        return \json_decode($responseContents, true)[0]['fileLink'];
     }
 
     private function getAllCategories(): array
@@ -207,7 +207,7 @@ class WikiApiService
             ['headers' => $this->getBasicHeaders()]
         )->getBody()->getContents();
 
-        return json_decode($response, true);
+        return \json_decode($response, true);
     }
 
     private function updateCategory(
@@ -232,7 +232,7 @@ class WikiApiService
         $images = $document->getHtml()->render($tree)->getImages();
         $imageMap = [];
         if (\count($images)) {
-            echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
+            echo '=> Uploading ' . \count($images) . ' media file(s) ...' . \PHP_EOL;
             foreach ($images as $key => $mediaFile) {
                 $mediaLink = $this->uploadCategoryMedia($categoryId, $oldContentEn['id'], $mediaFile);
                 $imageMap[$key] = $mediaLink;
@@ -263,8 +263,8 @@ class WikiApiService
             'metaDescription' => $documentMetadata->getMetaDescriptionDe(),
         ];
 
-        $payloadDe = array_merge($oldContentDe, $payloadDe);
-        $payloadEn = array_merge($oldContentEn, $payloadEn);
+        $payloadDe = \array_merge($oldContentDe, $payloadDe);
+        $payloadEn = \array_merge($oldContentEn, $payloadEn);
 
         $contents = [
             'id' => $categoryId,
@@ -275,10 +275,10 @@ class WikiApiService
             ],
         ];
 
-        $contents = array_merge($oldContents, $contents, $payloadGlobal);
+        $contents = \array_merge($oldContents, $contents, $payloadGlobal);
 
         $this->client->put(
-            vsprintf('/wiki/categories/%d', [$categoryId]),
+            \vsprintf('/wiki/categories/%d', [$categoryId]),
             [
                 'json' => $contents,
                 'headers' => $this->getBasicHeaders(),
@@ -296,7 +296,7 @@ class WikiApiService
         $this->removeAllPreviousCategories($articleInfo['articleId']);
 
         $this->client->post(
-            vsprintf('/wiki/categories/%s/entries', [$categoryId]),
+            \vsprintf('/wiki/categories/%s/entries', [$categoryId]),
             [
                 'json' => [
                     'id' => $articleInfo['articleId'],
@@ -313,7 +313,7 @@ class WikiApiService
     {
         $prevEntryId = $this->rootCategoryId;
 
-        $chain = array_filter($document->createParentChain(), static function (Document $document): bool {
+        $chain = \array_filter($document->createParentChain(), static function (Document $document): bool {
             return $document->isCategory();
         });
 
@@ -397,7 +397,7 @@ class WikiApiService
         );
 
         $responseContents = $response->getBody()->getContents();
-        $responseJson = json_decode($responseContents, true);
+        $responseJson = \json_decode($responseContents, true);
 
         return $responseJson['id'];
     }
@@ -415,11 +415,11 @@ class WikiApiService
         );
 
         $responseContents = $response->getBody()->getContents();
-        $articleId = json_decode($responseContents, true)['id'];
+        $articleId = \json_decode($responseContents, true)['id'];
 
         // create english lang
-        $articleUrl = vsprintf('/wiki/entries/%d', [$articleId]);
-        $articleLocalizationUrl = vsprintf('%s/localizations', [$articleUrl]);
+        $articleUrl = \vsprintf('/wiki/entries/%d', [$articleId]);
+        $articleLocalizationUrl = \vsprintf('%s/localizations', [$articleUrl]);
 
         [$localeIdEn, $versionIdEn] = $this->createArticleLocale(
             $seoEn,
@@ -459,7 +459,7 @@ class WikiApiService
         );
 
         $responseContents = $response->getBody()->getContents();
-        $localeId = json_decode($responseContents, true)['id'];
+        $localeId = \json_decode($responseContents, true)['id'];
         $articleInLocaleUrl = $articleLocalizationUrl . '/' . $localeId;
         $articleVersioningUrl = $articleInLocaleUrl . '/versions';
 
@@ -475,7 +475,7 @@ class WikiApiService
         );
 
         $responseContents = $response->getBody()->getContents();
-        $versionId = json_decode($responseContents, true)['id'];
+        $versionId = \json_decode($responseContents, true)['id'];
 
         return [$localeId, $versionId];
     }
@@ -498,7 +498,7 @@ class WikiApiService
             $this->deleteArticle($article);
         }
 
-        foreach (array_keys($categoriesToDelete) as $category) {
+        foreach (\array_keys($categoriesToDelete) as $category) {
             $this->deleteCategory($category);
             $this->categoryHandler->deleteById($category);
         }
@@ -511,7 +511,7 @@ class WikiApiService
         $idStack = [$rootId];
 
         while (\count($idStack) > 0) {
-            $parentId = array_shift($idStack);
+            $parentId = \array_shift($idStack);
 
             foreach ($categoryJson as $category) {
                 $parent = $category['parent'];
@@ -532,16 +532,16 @@ class WikiApiService
             }
         }
 
-        $categoryList = array_reverse($categoryList, true);
+        $categoryList = \array_reverse($categoryList, true);
 
         // also delete articles in the root category
-        $idColumn = array_column($categoryJson, 'id');
-        $rootCategoryIndex = array_search($rootId, $idColumn, true);
+        $idColumn = \array_column($categoryJson, 'id');
+        $rootCategoryIndex = \array_search($rootId, $idColumn, true);
         if ($rootCategoryIndex !== false) {
             $articleList[] = $categoryJson[$rootCategoryIndex]['entryIds'];
         }
 
-        $articleList = array_unique(array_merge(...$articleList));
+        $articleList = \array_unique(\array_merge(...$articleList));
 
         return [$categoryList, $articleList];
     }
@@ -553,7 +553,7 @@ class WikiApiService
         }
 
         $this->client->delete(
-            vsprintf('/wiki/entries/%d', [$articleId]),
+            \vsprintf('/wiki/entries/%d', [$articleId]),
             ['headers' => $this->getBasicHeaders()]
         );
     }
@@ -561,10 +561,10 @@ class WikiApiService
     private function disableArticle($articleId): void
     {
         $response = $this->client->get(
-            vsprintf('/wiki/entries/%s', [$articleId]),
+            \vsprintf('/wiki/entries/%s', [$articleId]),
             ['headers' => $this->getBasicHeaders()]
         )->getBody()->getContents();
-        $responseJson = json_decode($response, true);
+        $responseJson = \json_decode($response, true);
 
         if (!\array_key_exists('localizations', $responseJson) || $responseJson['localizations'] === null) {
             return;
@@ -590,7 +590,7 @@ class WikiApiService
     private function deleteCategory(string $categoryId): void
     {
         $this->client->delete(
-            vsprintf('/wiki/categories/%s', [$categoryId]),
+            \vsprintf('/wiki/categories/%s', [$categoryId]),
             ['headers' => $this->getBasicHeaders()]
         );
     }
@@ -601,7 +601,7 @@ class WikiApiService
         /** @var Document $document */
         foreach ($tree->getArticles() as $document) {
             ++$i;
-            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . PHP_EOL;
+            echo 'Syncing article (' . $i . '/' . \count($tree->getArticles()) . ') ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . \PHP_EOL;
 
             $documentMetadata = $document->getMetadata();
 
@@ -624,7 +624,7 @@ class WikiApiService
             $images = $document->getHtml()->render($tree)->getImages();
             $imageMap = [];
             if (\count($images)) {
-                echo '=> Uploading ' . \count($images) . ' media file(s) ...' . PHP_EOL;
+                echo '=> Uploading ' . \count($images) . ' media file(s) ...' . \PHP_EOL;
                 foreach ($images as $key => $mediaFile) {
                     $imageMap[$key] = $this->uploadArticleMedia($articleInfo, $mediaFile);
                 }
@@ -657,7 +657,7 @@ class WikiApiService
 
     private function syncCategories(DocumentTree $tree): void
     {
-        echo 'Syncing ' . \count($tree->getCategories()) . ' categories ...' . PHP_EOL;
+        echo 'Syncing ' . \count($tree->getCategories()) . ' categories ...' . \PHP_EOL;
 
         $this->addEmptyCategories($tree);
         $this->syncCategoryContents($tree);
@@ -677,10 +677,10 @@ class WikiApiService
     private function syncCategoryContents(DocumentTree $tree): void
     {
         $oldCategories = $this->getAllCategories();
-        $categoryIds = array_column($oldCategories, 'id');
+        $categoryIds = \array_column($oldCategories, 'id');
 
         foreach ($tree->getCategories() as $document) {
-            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . PHP_EOL;
+            echo 'Syncing category ' . $document->getFile()->getRelativePathname() . ' with priority ' . $document->getPriority() . ' ... ' . \PHP_EOL;
             $parentId = $this->rootCategoryId;
             $categoryId = $document->getCategoryId();
 
@@ -700,7 +700,7 @@ class WikiApiService
                 continue;
             }
 
-            $baseContents = $oldCategories[array_search($categoryId, $categoryIds, true)];
+            $baseContents = $oldCategories[\array_search($categoryId, $categoryIds, true)];
 
             if (!$baseContents) {
                 throw new \RuntimeException('Unable to update category, no contents found');
@@ -721,9 +721,9 @@ class WikiApiService
         $root = $tree->getRoot();
 
         $oldCategories = $this->getAllCategories();
-        $categoryIds = array_column($oldCategories, 'id');
+        $categoryIds = \array_column($oldCategories, 'id');
 
-        $index = array_search($this->rootCategoryId, $categoryIds, true);
+        $index = \array_search($this->rootCategoryId, $categoryIds, true);
         /** @var array[] $category */
         $category = $oldCategories[$index];
 
@@ -738,7 +738,7 @@ class WikiApiService
         $category['localizations'][$enIndex]['content'] = $root->getHtml()->render($tree)->getContents();
 
         $this->client->put(
-            vsprintf('/wiki/categories/%d', [$this->rootCategoryId]),
+            \vsprintf('/wiki/categories/%d', [$this->rootCategoryId]),
             [
                 'json' => $category,
                 'headers' => $this->getBasicHeaders(),
@@ -749,13 +749,13 @@ class WikiApiService
     private function getArticleInfo(int $articleId): array
     {
         $response = $this->client->get(
-            sprintf('/wiki/entries/%d', $articleId),
+            \sprintf('/wiki/entries/%d', $articleId),
             [
                 'headers' => $this->getBasicHeaders(),
             ]
         );
 
-        $responseJson = json_decode($response->getBody()->getContents(), true);
+        $responseJson = \json_decode($response->getBody()->getContents(), true);
 
         return [
             'articleId' => $articleId,
@@ -767,16 +767,16 @@ class WikiApiService
     private function removeAllPreviousCategories(int $articleId): void
     {
         $response = $this->client->get(
-            sprintf('/wiki/entries/%d', $articleId),
+            \sprintf('/wiki/entries/%d', $articleId),
             [
                 'headers' => $this->getBasicHeaders(),
             ]
         );
-        $body = json_decode($response->getBody()->getContents(), true);
+        $body = \json_decode($response->getBody()->getContents(), true);
 
         foreach ($body['categories'] as $category) {
             $this->client->delete(
-                vsprintf(
+                \vsprintf(
                     '/wiki/categories/%d/entries/%d',
                     [
                         $category['id'],

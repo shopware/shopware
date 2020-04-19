@@ -90,7 +90,7 @@ class TaskRegistryTest extends TestCase
     public function testWithWrongClass(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(sprintf(
+        $this->expectExceptionMessage(\sprintf(
             'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
             TestMessage::class
         ));

@@ -180,12 +180,12 @@ class CmsSlotsDataResolver
         }
 
         foreach ($directReads as $definition => $idLists) {
-            $directReads[$definition] = array_merge(...$idLists);
+            $directReads[$definition] = \array_merge(...$idLists);
         }
 
         return [
-            array_filter($directReads),
-            array_filter($searches),
+            \array_filter($directReads),
+            \array_filter($searches),
         ];
     }
 
@@ -214,7 +214,7 @@ class CmsSlotsDataResolver
             return false;
         }
 
-        $filters = array_merge(
+        $filters = \array_merge(
             $criteria->getFilters(),
             $criteria->getPostFilters()
         );
@@ -248,11 +248,11 @@ class CmsSlotsDataResolver
     {
         $flattened = [];
 
-        $criteriaCollections = array_values($criteriaCollections);
+        $criteriaCollections = \array_values($criteriaCollections);
 
         foreach ($criteriaCollections as $collections) {
             foreach ($collections as $definition => $criteriaObjects) {
-                $flattened[$definition] = array_merge($flattened[$definition] ?? [], array_values($criteriaObjects));
+                $flattened[$definition] = \array_merge($flattened[$definition] ?? [], \array_values($criteriaObjects));
             }
         }
 
@@ -309,7 +309,7 @@ class CmsSlotsDataResolver
 
                 $ids = $criteria->getIds();
                 $filtered = $entities[$definition]->filter(function (Entity $entity) use ($ids) {
-                    return in_array($entity->getUniqueIdentifier(), $ids, true);
+                    return \in_array($entity->getUniqueIdentifier(), $ids, true);
                 });
 
                 $result->add($key, $filtered);
@@ -319,6 +319,6 @@ class CmsSlotsDataResolver
 
     private function hash(Criteria $criteria): string
     {
-        return md5(serialize($criteria));
+        return \md5(\serialize($criteria));
     }
 }

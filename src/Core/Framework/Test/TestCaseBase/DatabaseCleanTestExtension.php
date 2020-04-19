@@ -36,8 +36,8 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
             $diff = $this->createDiff($stateResult);
 
             if (!empty($diff)) {
-                echo PHP_EOL . $test . PHP_EOL;
-                print_r($diff);
+                echo \PHP_EOL . $test . \PHP_EOL;
+                \print_r($diff);
             }
         }
 
@@ -52,7 +52,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
         $stateResult = [];
 
         foreach ($rawTables as $nested) {
-            $tableName = end($nested);
+            $tableName = \end($nested);
             $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn();
 
             $stateResult[$tableName] = $count;
@@ -64,20 +64,20 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     private function createDiff(array $state): array
     {
         $diff = [];
-        $addedTables = array_diff(array_keys($state), array_keys($this->lastDataPoint));
+        $addedTables = \array_diff(\array_keys($state), \array_keys($this->lastDataPoint));
         if ($addedTables) {
             $diff['added'] = $addedTables;
         }
-        $deletedTables = array_diff(array_keys($this->lastDataPoint), array_keys($state));
+        $deletedTables = \array_diff(\array_keys($this->lastDataPoint), \array_keys($state));
         if ($deletedTables) {
             $diff['deleted'] = $deletedTables;
         }
 
-        $commonTables = array_intersect(array_keys($state), array_keys($this->lastDataPoint));
+        $commonTables = \array_intersect(\array_keys($state), \array_keys($this->lastDataPoint));
         $changed = [];
         foreach ($commonTables as $table) {
             $countDiff = $state[$table] - $this->lastDataPoint[$table];
-            if ($countDiff > 0 && !in_array($table, self::IGNORED, true)) {
+            if ($countDiff > 0 && !\in_array($table, self::IGNORED, true)) {
                 $changed[$table] = $countDiff;
             }
         }

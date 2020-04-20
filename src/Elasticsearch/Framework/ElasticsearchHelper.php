@@ -7,7 +7,6 @@ use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Search;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -195,13 +194,11 @@ class ElasticsearchHelper
         $search->addPostFilter($query, BoolQuery::FILTER);
     }
 
-    public function addTerm(Criteria $criteria, Search $search, Context $context/*, EntityDefinition $definition*/): void
+    public function addTerm(Criteria $criteria, Search $search, Context $context): void
     {
         if (!$criteria->getTerm()) {
             return;
         }
-
-        $definition = \func_num_args() > 2 ? func_get_arg(2) : null;
 
         $bool = new BoolQuery();
 
@@ -220,12 +217,10 @@ class ElasticsearchHelper
             BoolQuery::SHOULD
         );
 
-        if ($definition instanceof ProductDefinition) {
-            $bool->add(
-                new MatchQuery('description', $criteria->getTerm()),
-                BoolQuery::SHOULD
-            );
-        }
+        $bool->add(
+            new MatchQuery('description', $criteria->getTerm()),
+            BoolQuery::SHOULD
+        );
 
         $bool->addParameter('minimum_should_match', 1);
 

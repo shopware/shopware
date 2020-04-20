@@ -245,7 +245,7 @@ class BaseClass extends Plugin
 
 You can use this method, to configure routing for your plugin.
 Per default, you can configure your routes in `YourPlugin/src/Resources/config/routes.xml`.
-Click [here](../../4-how-to/020-api-controller.md#Loading the controllers via routes.xml) if you want to learn more.
+Click [here](./../../4-how-to/020-api-controller.md#Loading the controllers via routes.xml) if you want to learn more.
 
 ```php
 <?php declare(strict_types=1);

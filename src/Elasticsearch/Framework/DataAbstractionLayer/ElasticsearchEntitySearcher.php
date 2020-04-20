@@ -110,7 +110,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $this->helper->addPostFilters($definition, $criteria, $search, $context);
         $this->helper->addQueries($definition, $criteria, $search, $context);
         $this->helper->addSortings($definition, $criteria, $search, $context);
-        $this->helper->addTerm($criteria, $search, $context, $definition);
+        $this->helper->addTerm($criteria, $search, $context);
 
         $search->setSize($criteria->getLimit());
         $search->setFrom($criteria->getOffset());

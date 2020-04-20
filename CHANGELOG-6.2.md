@@ -308,12 +308,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
-          
-* Core
     * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`
     * The `clone` method of the `ApiController` now passes overwrites to the `EntityRepository`
     * The `clone` method of the `VersionManager` now accepts `overwrites` and combines the overwrites with the cloned data using `array_replace_recursive`.
-* Core
     * Added variant preselection logic
         * Added `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader` to handle product variant preselection
         * Moved the available stock and display group filters from  
@@ -379,8 +376,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Framework\Plugin\BundleConfigGenerator` to generate webpack bundle config and moved the according logic from `\Shopware\Core\Framework\Plugin\BundleConfigDumper` to the new class
     * Added methods `cancelOder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
     * Added methods `cancelOrder` and `setPaymentMethod` in `Shopware\Core\Checkout\Order\SalesChannel\OrderService`
-        
-
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`, use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$includes` instead
     * Added a `dynamic_mapping` for elasticsearch fields which converts all none mapped string fields to keyword fields instead of text fields. This allows developers to filter to customFields or none mapped associations with elasticsearch.
     * We changed the PaymentHandlerRegistry: This change uses the handler identifier as formatted handler identifier in case it is not splittable by \\. Furthermore the PaymentHandlerRegistry retrieves the payment handlers via the tagged_locator selector which include the id of the payment handler. This change allows paymentHandler to use different ids while using the same Class
@@ -454,29 +449,25 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
     * Added `customerComment` property to the `Shopware\Core\Checkout\Order\OrderEntity.php`
-    
     * Added `BLUE_GREEN_DEPLOYMENT` environment variable
     * `bin/setup` asks if you want to enable blue/green deployment
     * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
-
     * Marked `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface` as internal
     * Added `\Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface::sync` function
     * Added `single-operation` header in `_action/sync` endpoint
-    
     * Added `errorUrl` to `\Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct` to define an explicit redirect for failed payments
     * Added `exception` to `\Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct` to provide the thrown exception for calling Instances of `\Shopware\Core\Checkout\Payment\PaymentService::finalizeTransaction`
     * Added `errorUrl` to `\Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor::process` to provide the errorUrl for the TokenStruct
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory` use `\Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2` instead
     * Deprecated `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface` use `\Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2` instead
-    
     * Added new Field `afterOrderEnabled` to `\Shopware\Core\Checkout\Payment\PaymentMethodDefinition`
-     
     * Added `\Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator::resolveActiveDependants` method
     * Added `\Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException` exception
         * This exception is now thrown before a plugin which other plugins depend on is deactivated
     * Added a new translatable `label` property to `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition`
     * Marked `name` property of `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition` as nullable 
-    
+    * Added possibility to write all sync operation in a single transaction by providing the `single-operation` header
+    * Added possibility to move dal indexing to message queue when using the sync api by providing the `indexing-behavior` header 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

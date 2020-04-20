@@ -10,7 +10,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
-    public const USE_INDEXING_QUEUE = 'use-indexing-queue';
+    public const USE_INDEXING_QUEUE = 'use-queue-indexing';
+    public const DISABLE_INDEXING = 'disable-indexing';
 
     /**
      * @var EntityIndexer[]
@@ -72,6 +73,10 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         $this->working = true;
+
+        if ($event->getContext()->hasExtension(self::DISABLE_INDEXING)) {
+            return;
+        }
 
         $useQueue = $event->getContext()->hasExtension(self::USE_INDEXING_QUEUE);
 

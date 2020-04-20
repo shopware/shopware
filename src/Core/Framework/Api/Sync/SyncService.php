@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -64,6 +65,10 @@ class SyncService implements SyncServiceInterface
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
+        if ($behavior->getIndexingBehavior() !== null) {
+            $context->addExtension($behavior->getIndexingBehavior(), new ArrayEntity());
+        }
+
         // allows to execute all writes inside a single transaction and a single entity write event
         if ($behavior->useSingleOperation()) {
             $result = $this->writer->sync($operations, WriteContext::createFromContext($context));

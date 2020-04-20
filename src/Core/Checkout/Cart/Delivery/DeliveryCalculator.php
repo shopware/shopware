@@ -227,9 +227,6 @@ class DeliveryCalculator
 
         $costs = null;
         foreach ($shippingPrices as $shippingPrice) {
-            if ($shippingPrice->getRuleId() !== null && !in_array($shippingPrice->getRuleId(), $context->getRuleIds(), true)) {
-                continue;
-            }
             if (!$this->matches($delivery, $shippingPrice, $context)) {
                 continue;
             }

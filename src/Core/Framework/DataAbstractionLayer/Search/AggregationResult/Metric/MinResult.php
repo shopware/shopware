@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 
 class MinResult extends AggregationResult
 {
-    /**
-     * @var mixed
-     */
     protected $min;
 
     public function __construct(string $name, $min)

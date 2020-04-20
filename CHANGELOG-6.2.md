@@ -305,6 +305,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug in `sw-sales-channel-detail-base` for IP whitelist on maintenance mode on new sales channel 
     * Added mapping validation for import/export profiles
     * Added improved error handling in importer and exporter
+    * Fixed a bug in `sw-media-quickinfo-usage` to show media in used information
+    * Added prop `routerLinkTarget` attribute to `sw-media-quickinfo-usage` for can set `target` options in `<router-link>`
+    * `sw-media-modal-delete` now shows where media is used
+    * For batch delete `sw-media-modal-delete` shows all used media entities
+    * Fixed `entity-hydrator.data.js` to check `row` parameter exist data
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.

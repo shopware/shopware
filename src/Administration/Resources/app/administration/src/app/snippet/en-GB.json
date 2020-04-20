@@ -228,6 +228,8 @@
         "folder": "Are you sure you want to delete the folder \"{name}\"?<br>All subfolders and contained media items will be deleted too. | Are you sure you want to delete {count} folders?<br>All subfolders and contained media items will be deleted too.",
         "mediaAndFolder": "Are you sure you want to delete {mediaCount} media items and {folderCount} folders?<br>All subfolders and all media items within will be deleted too."
       },
+      "mediaQuickInfoMessage": "The media file is currently still in use and is linked as follows",
+      "mediaInUsagesMessage": "The following media files are still in use",
       "notification": {
         "errorSingle": {
           "message": {

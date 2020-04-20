@@ -19,7 +19,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         page = null;
     });
 
-    it('@settings: Create and read profile', () => {
+    it('@settings @base: Create and read profile', () => {
         cy.server();
         cy.route({
             url: '/api/v*/import-export-profile',
@@ -37,20 +37,38 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.disabled');
 
         // Fill in name and object type
-        cy.get('[name="sw-field--profile-name"]').type('Basic');
+        cy.get('#sw-field--profile-label').type('Basic');
         cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-            .typeSingleSelectAndCheck('Product', '.sw-import-export-edit-profile-modal__object-type-select');
+            .typeSingleSelectAndCheck(
+                'Media',
+                '.sw-import-export-edit-profile-modal__object-type-select'
+            );
+
+        // Fill in all required mappings
+        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.enabled');
+
+        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
+        cy.get('#mappedKey-0').type('id');
+        cy.get('.sw-import-export-entity-path-select__selection')
+            .first().typeSingleSelectAndCheck(
+            'id',
+            '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+        );
+
+        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
+        cy.get('#mappedKey-1').should('exist');
+        cy.get('#mappedKey-0').type('createdAt');
+        cy.get('.sw-import-export-entity-path-select__selection').first()
+            .typeSingleSelectAndCheck(
+                'createdAt',
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+            );
 
         // Perform add new mapping
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
 
         // Expect a new grid row to be visible
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
-
-        // Fill in mapping
-        cy.get(`${page.elements.dataGridRow}--0 [name="mappedKey-0"]`).type('id');
-        cy.get('.sw-import-export-entity-path-select')
-            .typeSingleSelectAndCheck('id', '.sw-import-export-entity-path-select');
 
         // Save the profile
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
@@ -67,7 +85,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Basic');
     });
 
-    it('@settings: Update and read profile', () => {
+    it('@settings @base: Update and read profile', () => {
         cy.server();
         cy.route({
             url: '/api/v*/import-export-profile/*',
@@ -79,6 +97,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Search for given profile
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').typeAndCheck('E2E');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
         // Perform open action
         cy.clickContextMenuItem(
@@ -91,7 +110,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal').should('be.visible');
 
         // Update the profile with a new name
-        cy.get('[name="sw-field--profile-name"]').clearTypeAndCheck('Updated E2E');
+        cy.get('[name="sw-field--profile-label"]').clearTypeAndCheck('Updated E2E');
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
@@ -106,7 +125,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Updated E2E');
     });
 
-    it('@settings: Delete profile', () => {
+    it('@settings @base: Delete profile', () => {
         cy.server();
         cy.route({
             url: '/api/v*/import-export-profile/*',
@@ -118,6 +137,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Search for given profile
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').typeAndCheck('E2E');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
         // Perform delete action
         cy.clickContextMenuItem(

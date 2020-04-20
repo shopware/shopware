@@ -17,17 +17,6 @@
 
         {% block sw_product_variants_delivery_media_media %}
             <div class="sw-product-variants-delivery-media__media" v-if="activeOptions.length">
-
-                <sw-container v-if="!next6000"
-                              columns="16px 1fr"
-                              gap="0px 10px"
-                              class="sw-product-variants-delivery-media__listing">
-                    <sw-field type="checkbox"
-                              :value="isActiveGroupInListing"
-                              @change="onChangeGroupListing"></sw-field>
-                    <p>{{ $tc('sw-product.variations.deliveryModal.useForListing') }}</p>
-                </sw-container>
-
                 {% block sw_product_variants_delivery_media_data_grid %}
                     <sw-data-grid :data-source="activeOptions"
                                   :columns="optionColumns"

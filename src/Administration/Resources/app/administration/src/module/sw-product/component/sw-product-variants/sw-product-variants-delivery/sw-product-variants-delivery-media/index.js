@@ -23,7 +23,6 @@ Component.register('sw-product-variants-delivery-media', {
     data() {
         return {
             activeGroup: {},
-            isActiveGroupInListing: false, // TODO: remove with feature-flag next6000
             isLoading: false
         };
     },
@@ -91,16 +90,9 @@ Component.register('sw-product-variants-delivery-media', {
 
         activeGroup: {
             handler() {
-                // TODO: remove with feature-flag next6000
-                if (!this.product.configuratorGroupConfig) {
-                    return;
-                }
-
-                const activeGroupConfig = this.product.configuratorGroupConfig.find((group) => {
+                this.product.configuratorGroupConfig.find((group) => {
                     return group.id === this.activeGroup.id;
                 });
-
-                this.isActiveGroupInListing = activeGroupConfig ? activeGroupConfig.expressionForListings : false;
             }
         }
     },
@@ -139,14 +131,8 @@ Component.register('sw-product-variants-delivery-media', {
         },
 
         onChangeGroupListing(value) {
-            // TODO: remove with feature-flag next6000
-            let configuratorGroupConfig = this.product.configuratorGroupConfig;
-
-            if (!configuratorGroupConfig) {
-                configuratorGroupConfig = [];
-            }
-
-            const existingIndex = configuratorGroupConfig.findIndex((group) => group.id === this.activeGroup.id);
+            const existingIndex = this.product.configuratorGroupConfig
+                .findIndex((group) => group.id === this.activeGroup.id);
 
             if (existingIndex >= 0) {
                 const existingConfig = this.product.configuratorGroupConfig[existingIndex];
@@ -157,14 +143,12 @@ Component.register('sw-product-variants-delivery-media', {
                     representation: existingConfig.representation
                 };
             } else {
-                this.product.configuratorGroupConfig = [...configuratorGroupConfig, {
+                this.product.configuratorGroupConfig = [...this.product.configuratorGroupConfig, {
                     id: this.activeGroup.id,
                     expressionForListings: value,
                     representation: 'box'
                 }];
             }
-
-            this.isActiveGroupInListing = value;
         }
     }
 });

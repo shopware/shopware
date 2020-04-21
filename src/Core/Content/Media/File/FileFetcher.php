@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FileFetcher
 {
-    private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
+    private const ALLOWED_PROTOCOLS = ['file', 'http', 'https', 'ftp', 'sftp'];
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile
     {

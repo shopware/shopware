@@ -19,9 +19,6 @@ class FieldConfig extends Struct
      */
     protected $source;
 
-    /**
-     * @var mixed
-     */
     protected $value;
 
     public function __construct(string $name, string $source, $value)

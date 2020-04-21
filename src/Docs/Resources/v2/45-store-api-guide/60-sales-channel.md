@@ -112,4 +112,24 @@ POST /store-api/v1/currency
 
 ### Switch context
 
+When you want to switch the context you can use this route: `store-api.switch-context`
+
+This route needs the following parameters:
+* `currencyId`: id of the currency 
+* `languageId`: id of the language
+* `billingAddressId`: id of the billing address id
+* `shippingAddressId`: id of the billing address
+* `paymentMethodId`: id of the payment method
+* `shippingMethodId`: id of the shipping method
+* `countryId`: id of the country
+* `countryStateId`: id of the country state
+
+Note, for this route to work the customer has to be logged in.
+
+```
+POST /store-api/v1/context
+
+
+```
+
 ### Seo resolving

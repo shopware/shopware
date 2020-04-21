@@ -263,6 +263,60 @@ GET /store-api/v1/order
 
 ### Newsletter
 
+#### Subscribing to a newsletter
+
+You can use the `store-api.newsletter.subscribe` route to sign up customer to an newsletter.
+
+This route has a few parameters:
+* `email`: the email of the customer
+* `salutationId`: id of a salutation
+* `firstName`: the first name of the customer
+* `lastName`: the last name of the customer 
+* `street`: street address of the customer 
+* `city`: city of the customer
+* `zipCode`: zip code of the customer
+* `option`: the type of the email
+* `storefrontUrl`: url to your storefront
+
+```
+POST /store-api/v1/newsletter/subscribe
+
+{
+    "email": "test@example.com",
+    "salutationId": "306f47866a8c4089bcbec14a10f19e0d",
+    "firstName": "Jon",
+    "lastName": "Doe",
+    "street": "Random Street",
+    "city": "San Francisco",
+    "zipCode": "12345",
+    "option": "subscribe",
+    "storefrontUrl": "http://shopware.local"
+}
+
+{
+    "apiAlias": "array_struct"
+}
+```
+
+#### Unsubscribe customer from newsletter
+
+You can unsubscribe your customer from a newsletter with this route: `store-api.newsletter.unsubscribe`
+
+This route has only one parameter: 
+* `email`: the email of the customer
+
+```
+POST /store-api/v1/newsletter/unsubscribe
+
+{
+    "email": "test@example.com"
+}
+
+{
+    "apiAlias": "array_struct"
+}
+```
+
 ### Contact form
 Use this route `store-api.contact.form` if you want that customers can send messages to your shop.
 

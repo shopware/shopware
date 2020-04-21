@@ -14,10 +14,19 @@ class SyncBehavior
      */
     protected $singleOperation;
 
-    public function __construct(bool $failOnError, bool $singleOperation = false)
-    {
+    /**
+     * @var string|null
+     */
+    protected $indexingBehavior;
+
+    public function __construct(
+        bool $failOnError,
+        bool $singleOperation = false,
+        ?string $indexingBehavior = null
+    ) {
         $this->failOnError = $failOnError;
         $this->singleOperation = $singleOperation;
+        $this->indexingBehavior = $indexingBehavior;
     }
 
     public function failOnError(): bool
@@ -28,5 +37,10 @@ class SyncBehavior
     public function useSingleOperation(): bool
     {
         return $this->singleOperation;
+    }
+
+    public function getIndexingBehavior(): ?string
+    {
+        return $this->indexingBehavior;
     }
 }

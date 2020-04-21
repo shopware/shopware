@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -547,7 +548,7 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_message-queue-indexing' => 'true'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',

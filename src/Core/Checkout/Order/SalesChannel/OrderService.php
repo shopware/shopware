@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
+use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
@@ -56,6 +57,11 @@ class OrderService
     private $cartService;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
+
+    /**
      * @var StateMachineRegistry
      */
     private $stateMachineRegistry;
@@ -93,6 +99,7 @@ class OrderService
         $orderValidationFactory,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
+        EntityRepositoryInterface $paymentMethodRepository,
         StateMachineRegistry $stateMachineRegistry,
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $mailTemplateRepository,
@@ -104,6 +111,7 @@ class OrderService
         $this->orderValidationFactory = $orderValidationFactory;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
+        $this->paymentMethodRepository = $paymentMethodRepository;
         $this->stateMachineRegistry = $stateMachineRegistry;
         $this->orderRepository = $orderRepository;
         $this->mailTemplateRepository = $mailTemplateRepository;
@@ -122,6 +130,8 @@ class OrderService
         $cart = $this->cartService->getCart($context->getToken(), $context);
         $this->addCustomerComment($cart, $data);
         $this->addAffiliateTracking($cart, $data);
+
+        $this->validateCart($cart, $context->getContext());
 
         return $this->cartService->order($cart, $context);
     }
@@ -289,6 +299,30 @@ class OrderService
         }
 
         return $toPlace;
+    }
+
+    private function validateCart(Cart $cart, Context $context): void
+    {
+        $idsOfPaymentMethods = [];
+
+        foreach ($cart->getTransactions() as $paymentMethod) {
+            $idsOfPaymentMethods[] = $paymentMethod->getPaymentMethodId();
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('active', true)
+        );
+
+        $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context);
+
+        if ($paymentMethods->getTotal() !== count(array_unique($idsOfPaymentMethods))) {
+            foreach ($cart->getTransactions() as $paymentMethod) {
+                if (!in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
+                    throw new PaymentMethodNotAvailableException($paymentMethod->getPaymentMethodId());
+                }
+            }
+        }
     }
 
     /**

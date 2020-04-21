@@ -41,20 +41,6 @@
         flex: 1;
     }
 
-    .sw-product-variants-delivery-media__listing {
-        // TODO: remove with feature-flag next6000
-        padding: 20px;
-        border-bottom: 1px solid $color-steam-cloud;
-
-        .sw-field--checkbox {
-            margin-bottom: 0;
-        }
-
-        p {
-            line-height: 16px;
-        }
-    }
-
     .sw-media-upload-v2 {
         width: 100%;
     }

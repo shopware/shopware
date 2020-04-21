@@ -228,6 +228,8 @@
         "folder": "Möchtest Du den Ordner \"{name}\" wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht. | Möchtest Du diese {count} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht.",
         "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Dateien aus den Ordner gelöscht."
       },
+      "mediaQuickInfoMessage": "Die Mediendatei wird derzeit noch verwendet und ist wie folgt verknüpft",
+      "mediaInUsagesMessage": "Die folgenden Mediendateien werden derzeit noch verwendet",
       "notification": {
         "errorSingle": {
           "message": {

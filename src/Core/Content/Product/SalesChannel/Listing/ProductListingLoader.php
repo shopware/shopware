@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function Flag\next6000;
 
 class ProductListingLoader
 {
@@ -68,7 +67,7 @@ class ProductListingLoader
 
         $variantIds = $ids->getIds();
 
-        if (!$this->hasOptionFilter($criteria) && next6000()) {
+        if (!$this->hasOptionFilter($criteria)) {
             $variantIds = $this->resolvePreviews($ids->getIds(), $context);
         }
 

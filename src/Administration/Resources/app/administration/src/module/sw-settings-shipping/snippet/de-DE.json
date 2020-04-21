@@ -100,7 +100,7 @@
       "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
       "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
       "newMatrixAlertTitle": "Achtung",
-      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden.",
+      "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden."
     },
     "sidebar": {
       "labelUseAsLogo": "Als Logo verwenden"

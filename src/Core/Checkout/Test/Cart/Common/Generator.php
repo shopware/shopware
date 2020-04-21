@@ -111,6 +111,7 @@ class Generator extends TestCase
                     'id' => '19d144ffe15f4772860d59fca7f207c1',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'name' => 'Generated Payment',
+                    'active' => true,
                 ]
             );
         }

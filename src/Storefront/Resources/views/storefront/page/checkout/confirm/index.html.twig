@@ -194,7 +194,7 @@
                         class="btn btn-primary btn-block btn-lg"
                         form="confirmOrderForm"
                     {% if page.cart.errors|length > 0 %}
-                        disabled="disabled"
+                        disabled
                     {% endif %}
                         type="submit">
                     {{ "checkout.confirmSubmit"|trans|sw_sanitize }}

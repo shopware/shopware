@@ -78,6 +78,7 @@ class PaymentMethodValidatorTest extends TestCase
                 'id' => $this->getValidPaymentMethodId(),
                 'handlerIdentifier' => SyncTestPaymentHandler::class,
                 'name' => 'Generated Payment',
+                'active' => true,
             ]
         );
 

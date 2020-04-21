@@ -11,7 +11,7 @@
                         {% block sw_product_modal_delivery_sidebar_tabs_items %}
                             <sw-tabs-item :active="activeTab == 'order'" @click="activeTab = 'order'">{{ $tc('sw-product.variations.deliveryModal.order') }}</sw-tabs-item>
                             <sw-tabs-item :active="activeTab == 'media'" @click="activeTab = 'media'">{{ $tc('sw-product.variations.deliveryModal.media') }}</sw-tabs-item>
-                            <sw-tabs-item v-if="next6000" :active="activeTab == 'listing'" @click="activeTab = 'listing'">{{ $tc('sw-product.variations.deliveryModal.listing') }}</sw-tabs-item>
+                            <sw-tabs-item :active="activeTab == 'listing'" @click="activeTab = 'listing'">{{ $tc('sw-product.variations.deliveryModal.listing') }}</sw-tabs-item>
                         {% endblock %}
                     </sw-tabs>
                 {% endblock %}
@@ -23,7 +23,7 @@
                     <p v-if="activeTab == 'media'">
                         {{ $tc('sw-product.variations.deliveryModal.mediaExplanation') }}
                     </p>
-                    <p v-if="next6000 && activeTab == 'listing'">
+                    <p v-if="activeTab == 'listing'">
                         {{ $tc('sw-product.variations.deliveryModal.listingExplanation') }}
                     </p>
                 {% endblock %}
@@ -50,7 +50,7 @@
 
                 {% block sw_product_modal_delivery_listing %}
                     <sw-product-variants-delivery-listing
-                        v-if="next6000 && activeTab == 'listing'"
+                        v-if="activeTab == 'listing'"
                         :product="product"
                         :selectedGroups="selectedGroups">
                     </sw-product-variants-delivery-listing>

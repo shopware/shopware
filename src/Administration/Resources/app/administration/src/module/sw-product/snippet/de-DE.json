@@ -298,8 +298,7 @@
         "listingLabelModeExpanded": "Auffächern der Eigenschaften in Produktliste",
         "listingPlaceholderSelectMainVariant": "Wähle eine Hauptvariante ...",
         "cancel": "Abbrechen",
-        "save": "Speichern",
-        "useForListing": "Varianten im Listing auffächern"
+        "save": "Speichern"
       }
     },
     "crossselling": {

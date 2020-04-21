@@ -26,9 +26,6 @@ class ThemeConfigField extends Struct
      */
     protected $type;
 
-    /**
-     * @var mixed
-     */
     protected $value;
 
     /**

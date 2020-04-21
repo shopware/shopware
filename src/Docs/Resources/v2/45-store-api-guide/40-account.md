@@ -168,7 +168,10 @@ POST /store-api/v1/account/recovery-password
     "storefrontUrl": "http://shopware.local"
 }
 
-// Response fehlt noch
+{
+    "success": true,
+    "apiAlias": "array_struct"
+}
 ```
 
 After that, you do a request on this route `store-api.account.recovery.password`.
@@ -184,13 +187,16 @@ It needs the following parameters:
 POST /store-api/v1/account/recovery-password-confirm
 
 {
-    "hash": "",
-    "newPassword": "newPassword",
-    "newPasswordConfirm": "newPassword",
-    "storefrontUrl": "http://shopware.local"
+	"hash": "J18339ctUmiD82fSxsPU0VnOmhEG4XXt",
+	"newPassword": "newPassword",
+	"newPasswordConfirm": "newPassword",
+	"storefrontUrl": "http://shopware.local"
 }
 
-// Response fehlt noch
+{
+    "success": true,
+    "apiAlias": "array_struct"
+}
 ```
 
 ### Change default payment

@@ -4,7 +4,12 @@ namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -188,6 +193,23 @@ class CheckoutControllerTest extends TestCase
 
         $productId = $this->createProduct();
         $cart->add(new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
+
+        $cart->setTransactions($this->createTransaction());
+    }
+
+    private function createTransaction(): TransactionCollection
+    {
+        return new TransactionCollection([
+            new Transaction(
+                new CalculatedPrice(
+                    13.37,
+                    13.37,
+                    new CalculatedTaxCollection(),
+                    new TaxRuleCollection()
+                ),
+                $this->getValidPaymentMethodId()
+            ),
+        ]);
     }
 
     private function createRequestDataBag($customerComment): RequestDataBag

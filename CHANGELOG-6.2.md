@@ -454,6 +454,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed a bug when the criteria contains a list of ids and no sortings, queries or a term, the search result will be sorted by the provided ids
     * Added new route `/api/v{version}/_action/container_cache` which clears the Symfony Container cache
     * Added `customerComment` property to the `Shopware\Core\Checkout\Order\OrderEntity.php`
+    * Added `page_checkout_confirm_shipping_invalid_tooltip`
+    * Changed level of `ShippingMethodBlockedError` from `LEVEL_ERROR` to `LEVEL_WARNING`
+    * Added `CheckoutConfirmControllerTest`
+    
     * Added `BLUE_GREEN_DEPLOYMENT` environment variable
     * `bin/setup` asks if you want to enable blue/green deployment
     * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
@@ -522,6 +526,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader`
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage`
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
+    * Deprecated `page_checkout_confirm_payment_invalid_tooltip` twig block
+    * Deprecated `page_checkout_confirm_shipping_invalid_tooltip` twig block
 
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     * Added `\Shopware\Storefront\Theme\ThemeCompilerInterface`

@@ -218,8 +218,17 @@ class DeliveryCalculator
     {
         $shippingPrices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
-                $priceA = $this->getCurrencyPrice($priceEntityA->getCurrencyPrice(), $context);
-                $priceB = $this->getCurrencyPrice($priceEntityB->getCurrencyPrice(), $context);
+                $priceA = null;
+                $priceB = null;
+
+                /* @deprecated tag:v6.3.0 currencyPrice  will be mandatory in 6.3.0 */
+                if ($priceEntityA->getCurrencyPrice()) {
+                    $priceA = $this->getCurrencyPrice($priceEntityA->getCurrencyPrice(), $context);
+                }
+
+                if ($priceEntityB->getCurrencyPrice()) {
+                    $priceB = $this->getCurrencyPrice($priceEntityB->getCurrencyPrice(), $context);
+                }
 
                 return $priceA <=> $priceB;
             }

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -74,13 +75,20 @@ class CheckoutControllerTest extends TestCase
         static::assertSame(self::CUSTOMER_NAME, $order->getOrderCustomer()->getLastName());
     }
 
+    public function testOrderWithInactivePaymentMethod(): void
+    {
+        $this->expectException(PaymentMethodNotAvailableException::class);
+
+        $this->performOrder('', true);
+    }
+
     public function testAffiliateOrder(): void
     {
         $request = $this->createRequest();
         $request->getSession()->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, self::TEST_AFFILIATE_CODE);
         $request->getSession()->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, self::TEST_CAMPAIGN_CODE);
 
-        $order = $this->performOrder('', $request);
+        $order = $this->performOrder('', false, $request);
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
@@ -89,11 +97,11 @@ class CheckoutControllerTest extends TestCase
     /**
      * @param string|float|int|bool|null $customerComment
      */
-    private function performOrder($customerComment, ?Request $request = null): OrderEntity
+    private function performOrder($customerComment, ?bool $useInactivePaymentMethod = false, ?Request $request = null): OrderEntity
     {
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken);
+        $this->fillCart($contextToken, $useInactivePaymentMethod);
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
@@ -187,13 +195,18 @@ class CheckoutControllerTest extends TestCase
         return $productId;
     }
 
-    private function fillCart(string $contextToken): void
+    private function fillCart(string $contextToken, ?bool $useInactivePaymentMethod = false): void
     {
         $cart = $this->getContainer()->get(CartService::class)->createNew($contextToken);
 
         $productId = $this->createProduct();
         $cart->add(new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
 
+        if ($useInactivePaymentMethod) {
+            $cart->setTransactions($this->createTransactionWithInactivePaymentMethod());
+
+            return;
+        }
         $cart->setTransactions($this->createTransaction());
     }
 
@@ -208,6 +221,21 @@ class CheckoutControllerTest extends TestCase
                     new TaxRuleCollection()
                 ),
                 $this->getValidPaymentMethodId()
+            ),
+        ]);
+    }
+
+    private function createTransactionWithInactivePaymentMethod(): TransactionCollection
+    {
+        return new TransactionCollection([
+            new Transaction(
+                new CalculatedPrice(
+                    13.37,
+                    13.37,
+                    new CalculatedTaxCollection(),
+                    new TaxRuleCollection()
+                ),
+                $this->getInactivePaymentMethodId()
             ),
         ]);
     }

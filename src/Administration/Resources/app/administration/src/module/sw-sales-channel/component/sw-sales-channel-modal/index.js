@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-modal.html.twig';
 import './sw-sales-channel-modal.scss';
 
-const { Component } = Shopware;
+const { Component, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-modal', {
@@ -28,6 +28,22 @@ Component.register('sw-sales-channel-modal', {
 
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
+        },
+
+        addChannelAction() {
+            return {
+                loading: (salesChannelTypeId) => {
+                    return (this.isGoogleShoppingSalesChannelType(salesChannelTypeId) ||
+                        this.isProductComparisonSalesChannelType(salesChannelTypeId)) &&
+                        this.productStreamsLoading;
+                },
+
+                disabled: (salesChannelTypeId) => {
+                    return (this.isGoogleShoppingSalesChannelType(salesChannelTypeId) ||
+                        this.isProductComparisonSalesChannelType(salesChannelTypeId)) &&
+                        !this.productStreamsExist;
+                }
+            };
         }
     },
 
@@ -63,7 +79,11 @@ Component.register('sw-sales-channel-modal', {
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === 'ed535e5722134ac1aa6524f73e26881b';
+            return salesChannelTypeId === Defaults.productComparisonTypeId;
+        },
+
+        isGoogleShoppingSalesChannelType(salesChannelTypeId) {
+            return salesChannelTypeId === Defaults.googleShoppingTypeId;
         }
     }
 });

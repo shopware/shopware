@@ -37,12 +37,12 @@
                         size="small"
                         variant="primary"
                         @click="onAddChannel(item.id)"
-                        :isLoading="isProductComparisonSalesChannelType(item.id) && productStreamsLoading"
-                        :disabled="isProductComparisonSalesChannelType(item.id) && !productStreamsExist"
+                        :isLoading="addChannelAction.loading(item.id)"
+                        :disabled="addChannelAction.disabled(item.id)"
                         v-tooltip="{
                             message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
                             showOnDisabledElements: true,
-                            disabled: !isProductComparisonSalesChannelType(item.id) && !productStreamsExist
+                            disabled: !addChannelAction.disabled(item.id)
                         }">
                         {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                     </sw-button>

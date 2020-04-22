@@ -101,6 +101,11 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
+        // Hotfix: Normal behaviour should be automatically logging in
+        cy.get('.sw-login__content').should('be.visible');
+        cy.get('#sw-field--username').clear().type('admin');
+        cy.get('#sw-field--password').clear().type('shopware');
+        cy.get('.sw-button__content').click();
 
         // @frw: welcome
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');

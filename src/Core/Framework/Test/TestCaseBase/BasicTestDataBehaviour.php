@@ -42,6 +42,18 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
+    protected function getInactivePaymentMethodId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', false));
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
     protected function getAvailablePaymentMethod(): PaymentMethodEntity
     {
         /** @var EntityRepositoryInterface $repository */

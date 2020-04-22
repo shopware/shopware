@@ -20,7 +20,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
         * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
     * Added salesChannel state in `sw-sales-channel` module
-
+    * Added `google-auth.service` to support Google OAuth 2.0
+    * Added `google-shopping.api.service` to handle Google Shopping API
+        * Added method `connectGoogle`
+        * Added method `disconnectGoogle`
+        * Added method `disconnectGoogle`
+        * Added method `getMerchantList`
+        * Added method `assignMerchant`
+        * Added method `unassignMerchant`
+             
 * Core    
 
 * Storefront

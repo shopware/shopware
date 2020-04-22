@@ -37,7 +37,7 @@
       "titleProductComparisonPreview": "Vorschau",
       "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
       "labelAccessKeyField": "API-Zugangs-ID",
-      "titleAPIError": "Fehler",
+
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
       "titleGeneralSettings": "Grundeinstellungen",
       "labelInputName": "Name",
@@ -258,18 +258,22 @@
       "title": "Google-Konto verbinden",
       "buttonNext": "Weiter",
       "buttonBack": "Zurück",
+      "titleError": "Fehler",
       "step-1": {
         "titleGetStarted": "Starte mit Google Programs",
         "textGetStartedDescription": "Das Handelsangebot von Google kann Dir dabei helfen, mehr Kunden auf Deiner Website oder in Deinem Geschäft zu begrüßen. Nach der Einrichtung hast Du Zugriff auf Berichte, damit Du sehen kannst, wie gut Deine Anzeigen laufen.",
         "textLearnMore": "Erfahre mehr",
         "titleConnectGoogleAccount": "Verbinde Dein Google-Konto, um Google Programs zu nutzen",
         "textConnectGoogleAccountDescription": "Ein Google-Konto gibt Dir Zugriff auf Dein Google Merchant Center und Google-Ads-Konten.",
-        "buttonConnect": "Konto verbinden"
+        "buttonConnect": "Konto verbinden",
+        "messageErrorGoogleAuth": "Fehlermeldung vom Google Dienst erhalten: {error}",
+        "messageErrorDefault": "Während der Verbindung mit dem Google Konto trat ein Fehler auf"
       },
       "step-2": {
         "titleYourGoogleAccount": "Dein Google-Konto",
         "buttonDisconnect": "Verbindung trennen",
-        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google-Konto trennst, werden das Google Merchant Center und die Google-Ads-Konten ebenfalls getrennt."
+        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google-Konto trennst, werden das Google Merchant Center und die Google-Ads-Konten ebenfalls getrennt.",
+        "messageErrorDefault": "Während der Trennung mit dem Google Konto trat ein Fehler auf"
       },
       "step-3": {
         "titleGeneral": "Erstelle oder verbinde Dein Google-Merchant-Center-Konto",
@@ -280,7 +284,8 @@
         "placeholderSelectMerchant": "Wähle ein existierendes Google-Merchant-Center-Konto ...",
         "titleCreateMerchant": "Erstelle ein neues Google-Merchant-Center-Konto",
         "textCreateMerchantDescription": "Erstelle ein neues Google-Merchant-Center-Konto, wenn du möchtest.",
-        "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto"
+        "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto",
+        "messageErrorDefault": "Während der Zuweisung des Google Merchant trat ein Fehler auf"
       },
       "step-7": {
         "titleSetting": "Versandeinstellungen konfigurieren",

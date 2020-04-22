@@ -1,10 +1,15 @@
 import template from './sw-sales-channel-google-authentication.html.twig';
 import './sw-sales-channel-google-authentication.scss';
 
-const { Component, State } = Shopware;
+const { Component, State, Service, Mixin, Utils } = Shopware;
+const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-authentication', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         salesChannel: {
@@ -13,9 +18,26 @@ Component.register('sw-sales-channel-google-authentication', {
         }
     },
 
+    data() {
+        return {
+            isLoading: false,
+            isProcessSuccessful: false
+        };
+    },
+
     computed: {
-        userProfile() {
-            return State.get('swSalesChannel').googleShoppingAccount;
+        ...mapState('swSalesChannel', [
+            'googleShoppingAccount'
+        ])
+    },
+
+    watch: {
+        isLoading: {
+            handler: 'updateButtons'
+        },
+
+        isProcessSuccessful: {
+            handler: 'updateButtons'
         }
     },
 
@@ -34,21 +56,43 @@ Component.register('sw-sales-channel-google-authentication', {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonNext'),
                     variant: 'primary',
                     action: 'sw.sales.channel.detail.base.step-3',
-                    disabled: false
+                    disabled: this.isLoading || this.isProcessSuccessful
                 },
                 left: {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonBack'),
                     variant: null,
                     action: 'sw.sales.channel.detail.base.step-1',
-                    disabled: false
+                    disabled: this.isLoading || this.isProcessSuccessful
                 }
             };
 
             this.$emit('buttons-update', buttonConfig);
         },
 
-        onDisconnectAccount() {
-            // TODO: Call disconnect account API
+        async onDisconnectAccount() {
+            this.isLoading = true;
+            this.isProcessSuccessful = false;
+
+            try {
+                await Service('googleShoppingService').disconnectGoogle(this.salesChannel.id);
+
+                this.isProcessSuccessful = true;
+            } catch (error) {
+                const errorDetail = Utils.get(error, 'response.data.errors[0].detail', '');
+
+                this.createNotificationError({
+                    title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
+                    message: errorDetail || this.$tc('sw-sales-channel.modalGooglePrograms.step-2.messageErrorDefault')
+                });
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        processFinish() {
+            this.isProcessSuccessful = false;
+
+            State.commit('swSalesChannel/removeGoogleShoppingAccount');
             this.$router.push({ name: 'sw.sales.channel.detail.base.step-1' });
         }
     }

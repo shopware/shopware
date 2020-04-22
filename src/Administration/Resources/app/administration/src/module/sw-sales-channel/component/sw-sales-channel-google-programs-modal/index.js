@@ -2,6 +2,7 @@ import template from './sw-sales-channel-google-programs-modal.html.twig';
 import './sw-sales-channel-google-programs-modal.scss';
 
 const { Component, Utils } = Shopware;
+const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-programs-modal', {
     template,
@@ -48,13 +49,17 @@ Component.register('sw-sales-channel-google-programs-modal', {
 
         buttonRight() {
             return Utils.get(this.buttonConfig, 'right');
-        }
+        },
+
+        ...mapGetters('swSalesChannel', [
+            'needToCompleteTheSetup'
+        ])
     },
 
     watch: {
         '$route'(to) {
             const toName = to.name.replace('sw.sales.channel.detail.base.', '');
-            this.currentStep = this.stepper[toName];
+            this.checkStep(toName);
         }
     },
 
@@ -64,14 +69,8 @@ Component.register('sw-sales-channel-google-programs-modal', {
 
     methods: {
         mountedComponent() {
-            if (this.$route.name === 'sw.sales.channel.detail.base') {
-                // TODO: Implement handle navigation logic in another MR
-                this.currentStep = this.stepper['step-1'];
-                this.$router.push({ name: this.stepper['step-1'].name });
-            } else {
-                const step = this.$route.name.replace('sw.sales.channel.detail.base.', '');
-                this.currentStep = this.stepper[step];
-            }
+            const step = this.$route.name.replace('sw.sales.channel.detail.base.', '');
+            this.checkStep(step);
         },
 
         updateButtons(buttonConfig) {
@@ -103,6 +102,30 @@ Component.register('sw-sales-channel-google-programs-modal', {
             return {
                 'is--active': item.navigationIndex === this.currentStep.navigationIndex
             };
+        },
+
+        getCorrectStep(step) {
+            if (step === 'sw.sales.channel.detail.base') {
+                return this.needToCompleteTheSetup || 'step-1';
+            }
+
+            if (this.needToCompleteTheSetup) {
+                if (this.stepper[step].navigationIndex <= this.stepper[this.needToCompleteTheSetup].navigationIndex) {
+                    return step;
+                }
+                return this.needToCompleteTheSetup;
+            }
+
+            return step;
+        },
+
+        checkStep(step) {
+            const validStep = this.getCorrectStep(step);
+            this.currentStep = this.stepper[validStep];
+
+            if (step !== validStep) {
+                this.redirect(`sw.sales.channel.detail.base.${validStep}`);
+            }
         }
     }
 });

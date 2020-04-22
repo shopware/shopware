@@ -34,44 +34,41 @@ export default class GoogleAuthenService {
     }
 
     initClient(config) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             window.gapi.load('auth2', () => {
                 window.gapi.auth2.init(config)
                     .then(() => {
                         resolve(window.gapi);
+                    })
+                    .catch((error) => {
+                        reject(error);
                     });
             });
         });
     }
 
-    load(options) {
-        // Default config and Prompt
-        let googleAuthConfig = null;
-        const googleAuthDefaultConfig = {
-            scope: 'profile email',
-            discoveryDocs: [GOOGLE_DISCOVERY_DOCS_URL]
-        };
-        let prompt = 'select_account';
-        if (typeof options === 'object') {
-            googleAuthConfig = Object.assign(googleAuthDefaultConfig, options);
-            if (options.scope) {
-                googleAuthConfig.scope = options.scope;
-            }
-            if (options.prompt) {
-                prompt = options.prompt;
-            }
-        } else {
-            console.error('invalid option type. Object type accepted only');
+    async load(options = {}) {
+        if (typeof options !== 'object') {
+            console.error('Invalid option type. Object type accepted only');
         }
-        this.installClient()
-            .then(() => {
-                return this.initClient(googleAuthConfig);
-            })
-            .then((gapi) => {
-                this.googleAuth = gapi.auth2.getAuthInstance();
-                this.isInit = true;
-                this.prompt = prompt;
-            });
+
+        const googleAuthConfig = {
+            scope: 'profile email',
+            discoveryDocs: [GOOGLE_DISCOVERY_DOCS_URL],
+            ...options
+        };
+
+        try {
+            await this.installClient();
+            const gapi = await this.initClient(googleAuthConfig);
+            this.googleAuth = gapi.auth2.getAuthInstance();
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+
+        this.isInit = true;
+        this.prompt = options.prompt ? options.prompt : 'select_account';
     }
 
     getAuthCode(successCallback, errorCallback) {
@@ -83,6 +80,7 @@ export default class GoogleAuthenService {
                 reject();
                 return;
             }
+
             this.googleAuth.grantOfflineAccess({ prompt: this.prompt })
                 .then((response) => {
                     if (typeof successCallback === 'function') {
@@ -95,6 +93,7 @@ export default class GoogleAuthenService {
                         errorCallback(error);
                         return;
                     }
+
                     reject(error);
                 });
         });

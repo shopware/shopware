@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemInterface;
 
-/** @deprecated tag:v6.2.0 will be removed in v6.3.0 */
+/** @deprecated tag:v6.3.0 */
 class SitemapNameGenerator implements SitemapNameGeneratorInterface
 {
     /**

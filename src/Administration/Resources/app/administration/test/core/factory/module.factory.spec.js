@@ -353,4 +353,65 @@ describe('core/factory/module.factory.js', () => {
             }
         });
     });
+
+    test('should add settings item if feature flag is active', () => {
+        Shopware.FeatureConfig.init({ testFlag: true });
+        Shopware.State.get('settingsItems').settingsGroups = {};
+
+        register('sw-foo', {
+            name: 'fooBar',
+            title: 'barFoo',
+            settingsItem: {
+                group: 'fooGroup',
+                to: 'foo.bar',
+                icon: 'fooIcon'
+            },
+            flag: 'testFlag',
+            routes: {
+                index: {
+                    component: 'sw-foo-bar',
+                    path: 'index'
+                }
+            }
+        });
+
+        const expectedSettingsItem = {
+            fooGroup:
+                [
+                    {
+                        group: 'fooGroup',
+                        icon: 'fooIcon',
+                        id: 'sw-foo',
+                        label: 'barFoo',
+                        name: 'fooBar',
+                        to: 'foo.bar'
+                    }
+                ]
+        };
+        expect(Shopware.State.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
+    });
+
+    test('should not add settings item if feature flag is deactivated', () => {
+        Shopware.FeatureConfig.init({ testFlag: false });
+        Shopware.State.get('settingsItems').settingsGroups = {};
+
+        register('sw-foo', {
+            name: 'fooBar',
+            title: 'barFoo',
+            settingsItem: {
+                group: 'fooGroup',
+                to: 'foo.bar',
+                icon: 'fooIcon'
+            },
+            flag: 'testFlag',
+            routes: {
+                index: {
+                    component: 'sw-foo-bar',
+                    path: 'index'
+                }
+            }
+        });
+
+        expect(Shopware.State.get('settingsItems').settingsGroups).toEqual({});
+    });
 });

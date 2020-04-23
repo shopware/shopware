@@ -381,6 +381,10 @@ function getModuleSnippets() {
  * @returns void
  */
 function addSettingsItemsToStore(moduleId, module) {
+    if (hasOwnProperty(module, 'flag') && !Shopware.FeatureConfig.isActive(module.flag)) {
+        return;
+    }
+
     if (!Array.isArray(module.settingsItem)) {
         module.settingsItem = [module.settingsItem];
     }

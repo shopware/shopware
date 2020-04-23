@@ -101,7 +101,7 @@
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory" />
 
-        <service id="core_mailer_transport" class="\Swift_Transport" decorates="swiftmailer.transport">
+        <service id="core_mailer_transport" class="\Swift_Transport" decorates="swiftmailer.mailer.default.transport">
             <factory service="Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory" method="create"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="core_mailer_transport.inner"/>

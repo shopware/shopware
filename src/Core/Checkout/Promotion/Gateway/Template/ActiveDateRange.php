@@ -18,9 +18,7 @@ class ActiveDateRange extends MultiFilter
     {
         $today = new \DateTime();
         $today = $today->setTimezone(new \DateTimeZone('UTC'));
-
-        $todayStart = $today->format('Y-m-d 0:0:0');
-        $todayEnd = $today->format('Y-m-d 23:59:59');
+        $today = $today->format('Y-m-d H:i:s');
 
         $filterNoDateRange = new MultiFilter(
             MultiFilter::CONNECTION_AND,
@@ -33,7 +31,7 @@ class ActiveDateRange extends MultiFilter
         $filterStartedNoEndDate = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new RangeFilter('validFrom', ['lte' => $todayStart]),
+                new RangeFilter('validFrom', ['lte' => $today]),
                 new EqualsFilter('validUntil', null),
             ]
         );
@@ -42,15 +40,15 @@ class ActiveDateRange extends MultiFilter
             MultiFilter::CONNECTION_AND,
             [
                 new EqualsFilter('validFrom', null),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validUntil', ['gte' => $today]),
             ]
         );
 
         $activeDateRangeFilter = new MultiFilter(
             MultiFilter::CONNECTION_AND,
             [
-                new RangeFilter('validFrom', ['lte' => $todayStart]),
-                new RangeFilter('validUntil', ['gte' => $todayEnd]),
+                new RangeFilter('validFrom', ['lte' => $today]),
+                new RangeFilter('validUntil', ['gte' => $today]),
             ]
         );
 

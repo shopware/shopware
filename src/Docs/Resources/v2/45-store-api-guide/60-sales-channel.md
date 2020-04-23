@@ -127,9 +127,20 @@ This route needs the following parameters:
 Note, for this route to work the customer has to be logged in.
 
 ```
-POST /store-api/v1/context
+PATCH /store-api/v1/context
 
+{
+    "currencyId": "9f42e5f57d834c509541068ef3344683",
+    "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
+    "billingAddressId": "4dafdad28ea54902b4188b0c68c6e18e",
+    "shippingAddressId": "4dafdad28ea54902b4188b0c68c6e18e",
+    "paymentMethodId": "388ea8341ae64e4daa45d613110245f6",
+    "shippingMethodId": "b6adaa7ae5c043f58c2c49a046605e99",
+    "countryId": "70f1db3abab542239b4681359975dd7e",
+    "countryStateId": "3e3ea21ccb41424eab273ad0cab7fcee"
+}
 
+// Response fehlt
 ```
 
 ### Seo resolving

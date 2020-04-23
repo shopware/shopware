@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  *
- * @deprecated tag:v6.2.0 can be replaced with Definition::getProtections()
+ * @deprecated tag:v6.3.0 can be replaced with Definition::getProtections()
  */
 class ImportExportLogValidator implements EventSubscriberInterface
 {

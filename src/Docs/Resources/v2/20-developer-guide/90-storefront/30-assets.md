@@ -1,19 +1,14 @@
 [titleEn]: <>(Assets)
 [hash]: <>(article:developer_storefront_assets)
 
-Its a common use case to change some storefront templates in your plugin - Enabling customisation.
-Your plugin may require some custom styling to look decent and a few lines of JavaScript to add special features.
+Your plugin can include custom SCSS, JavaScript and other assets. It may require some custom styling 
+to look decent and a few lines of JavaScript to add special features.
 
 ## Injecting into the storefront
 
-When it comes to CSS and SCSS, they are processed by a PHP SASS compiler.
-
-JavaScript cannot be compiled by PHP, so [webpack](https://webpack.js.org/) is being used for that.
-This also implies that you must ship your plugin with the JavaScript already compiled. If you do not wish 
-to create a custom webpack configuration, you are able to use the Shopware Webpack build 
-Configuration. You need to define an entry point so that Webpack knows where to start.
 
 ## Using custom SCSS
+When it comes to CSS and SCSS, they are processed by a PHP SASS compiler.
 
 In order to add some custom SCSS in your plugin, you just need to add a `base.scss` with your custom styles in the
 following place:
@@ -28,7 +23,6 @@ following place:
     │   │           └── scss
     │   │               └── base.scss <-- SCSS entry
     │   ├── config
-    │   │   └── services.xml
     │   └── views
     │       └── storefront
     │           └── base.html.twig
@@ -47,6 +41,10 @@ should be available then.
 
 ## Using custom JS
 
+JavaScript cannot be compiled by PHP, so [webpack](https://webpack.js.org/) is being used for that.
+By default your plugin is using shopware's default webpack configuration, as you must ship your plugin 
+with the JavaScript already compiled. 
+
 Since Shopware knows where your style files are located, they are automatically compiled, compressed 
 and loaded into the storefront. In the case of JavaScript, 
 you have your 'main.js' as entry point within the following directory:
@@ -61,7 +59,6 @@ you have your 'main.js' as entry point within the following directory:
     │   │           └── js
     │   │               └── main.js <-- JS entry
     │   ├── config
-    │   │   └── services.xml
     │   └── views
     │       └── storefront
     │           └── base.html.twig
@@ -81,7 +78,7 @@ It is detected by Shopware automatically.
 
 ## Using custom assets
 
-If you want to use custom assets, please put thouse assets here:
+If you want to use custom assets, please put those assets here:
 ​
 ```
 # PluginRoot
@@ -94,7 +91,7 @@ If you want to use custom assets, please put thouse assets here:
     └── YourPlugin.php
 ```
 ​
-Next, please ruun `bin/console asset:install` command. This will copy your plugin assets over to the platform 
+Next, please run `bin/console asset:install` command. This will copy your plugin assets over to the 
 `public/bundles` folder:
 ​
 ```

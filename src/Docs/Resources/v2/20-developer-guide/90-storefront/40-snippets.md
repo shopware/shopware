@@ -26,7 +26,6 @@ MyPlugin
    │  │              ├─ de-DE.json
    │  │              └─ en-GB.json
    │  ├─ config
-   │  │  └─ services.xml
    │  └─ snippet
    │     ├─ de_DE
    │     │  ├─ SnippetFile_de_DE.php
@@ -72,9 +71,7 @@ you will have to implement the following five methods:
 - `getPath`: Return its path here. We suggest using the name already chosen in `getName` for your file name.
 - `getIso`: Return the ISO string of the supported locale here.  
 - `getAuthor`: Return your vendor name here.
-- `isBase`: Return `true` here, if your plugin implements a whole new language, such as providing french snippets for the
-whole Shopware 6. Don't forget to watch your `getName` method then! Most of the times, you're just adding your own snippets to an existent language, then `false` will be
-your way to go.
+- `isBase`: Return `true` here, if your plugin implements a whole new language.
 
 ### Registering your service
 

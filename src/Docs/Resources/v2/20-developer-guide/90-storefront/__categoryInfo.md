@@ -13,9 +13,7 @@ rendering, JavaScript enhancements (along the lines of
 
 ## Building Blocks 
 
-The Storefront is the least fancy of the components of Shopware 6. If you did some backend development in PHP 
-in the last few years you should find yourself instantly familiar with its structure. 
-The Storefronts main concerns are:
+The Storefront's main concerns are:
 
 **[Page and pagelets](./20-page-pagelet.md)** 
     ([Page](https://github.com/shopware/platform/tree/master/src/Storefront/Page), 
@@ -23,7 +21,7 @@ The Storefronts main concerns are:
    : Contrary to API calls that result in single resource data, a whole page in Storefront displays multiple different 
    data sets on a single page.
    
-**[Mapping Requests to the Core](./30-writing-data.md)** 
+**[Mapping Requests to the Core](../../60-references-internals/200-storefront-writing-data.md)** 
 ([Pagecontroller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController), 
 [PageletController](https://github.com/shopware/platform/tree/master/src/Storefront/PageletController))
    : The Storefront uses the SalesChannel API internally and forwards possibly slightly changed requests to the core.
@@ -53,28 +51,24 @@ gain a better understanding how the Storefront works. When opening the directory
 
 ```
 <platform/src/Storefront/Resources>
-└── assets
+└── app
+    └── administration
+    └── storefront
+        └── build
+        └── dist
+        └── src
+        └── test
 └── build
 └── config
 └── src
     └── script
     └── style
-└── tests
+└── snippets
 └── views
-└── .babelrc.js
 └── .browserlistrc
-└── .eslintignore
-└── .eslintrc.js
 └── .gitignore
-└── jest.config.js
-└── package-lock.json
-└── package.json
-└── postcss.config.js
-└── stylelint.config.js
-└── webpack.config.js
+└── theme.json
 ```
 
-It is a **node application** for build purposes only! Again, long time web developers find a familiar structure, 
-with `assets` (static images and icons), `views` (Twig) and `src` (JavaScript and SCSS) among a few internally 
-important files. The Storefront template is based on the [**Bootstrap toolkit**](https://www.getbootstrap.com/) 
+The Storefront template is based on the [**Bootstrap toolkit**](https://www.getbootstrap.com/) 
 and therefore fully skinable.

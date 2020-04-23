@@ -2,7 +2,7 @@
 [metaDescriptionEn]: <>(Twig templates in the Shopware 6 storefront)
 [hash]: <>(article:developer_storefront_templates)
 
-The storefront theme is implemented as a skin on top of the [Boostrap toolkit](https://getbootstrap.com/). 
+The storefront theme is using [Boostrap](https://getbootstrap.com/). 
 Therefore the template structure is a derivate of the 
 [bootstrap starter template](https://getbootstrap.com/docs/4.3/getting-started/introduction/#starter-template). 
 The templating engine used is [Twig](https://twig.symfony.com/).
@@ -26,8 +26,8 @@ The templates can be found in
 └── base.html.twig
 ```
 
-`block`, `element`
-  : Part of the content management system
+`block`, `element`, `section` 
+  : Parts of the experience worlds
   
 `component`
   : Shared content templates form the basis of the pages.
@@ -39,9 +39,6 @@ The templates can be found in
   : The concrete templates rendered by the page controllers. This directory contains full page templates 
   as well as private local includes and the pagelet ajax response templates if necessary.  
 
-`section`  
-  : Storefront templates of the sections of the experience worlds can be found in this folder.   
-
 `utilities`  
   : Technical necessities used across the content and across all domain concepts.   
 
@@ -51,7 +48,7 @@ The templates can be found in
 
 ### Page templates
 
-The page directory contains the entry points of the templating system. These are referenced by page controllers 
+The page directory contains the entry points which are referenced by page controllers 
 and rendered through the Twig engine. The structure is derived from the 
 [page controller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController) naming.
 
@@ -66,10 +63,10 @@ and rendered through the Twig engine. The structure is derived from the
 └── search
 ```
 
-Inside of the directories are the actual templates rendered by the storefront. The inner structure is dependant 
-on the complexity of the domain context, therefore a system can not be clearly inferred from here on.
+Inside the directories are the actual templates rendered by the storefront. The inner structure depends on 
+the domain context.
 
-### Template multi inheritance
+### Override and extend templates
 
 Due to the plugin and theme system in shopware it is possible that one storefront template gets extended by 
 multiple plugins or themes, but [Twig](https://twig.symfony.com/) does not allow multi inheritance out of the box. 
@@ -77,12 +74,49 @@ Therefore we created custom twig functions `sw_extends` and `sw_include`, that w
 native [`extends`](https://twig.symfony.com/doc/2.x/tags/extends.html) or 
 [`include`](https://twig.symfony.com/doc/2.x/tags/include.html), except that they allow for multi inheritance. 
 So it is really important to use the `sw_extends` and `sw_include`, instead of the native `extends` and `include`. 
-You can find more details about `sw_extends`and `sw_include` in following paragraphs.
+
+#### sw_extends
+
+To inherit a template file, you need to use `{% sw_extends %}`.
+
+Example:
+```twig
+{# YourPlugin/Resources/views/storefront/layout/header/logo.html.twig #}
+
+{% sw_extends '@Storefront/storefront/layout/header/logo.html.twig' %}
+
+{# Add an <h2> with underneath the logo image block #}
+{% block layout_header_logo_image %}
+    {{ parent() }}
+    <h2>Additional headline</h2>
+{% endblock %}
+
+```
+
+#### sw_include
+
+If you build your own feature and you need e.g. an element to display the price of the current product you can
+include existing partials with `sw_include` like this.
+
+Example:
+```twig
+{# MyPlugin/Resources/views/storefront/page/product-detail/index.html.twig #}
+
+<div class="my-theme an-alternative-product-view">
+    ...
+
+    {% block component_product_box_price %}
+        {# use sw_include to include template partials #}
+        {% sw_include '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
+    {% endblock %}
+
+    ...
+</div>
+```
 
 #### Inheritance order
 
-The order of the inheritance is determined by the order the plugins or themes are loaded in the plugin list 
-through `bin/console plugin:refresh`.
+The order of the inheritance is determined by the order you set in the `theme.json` of your active theme. 
 
 ## Styles Top Level
 
@@ -109,8 +143,8 @@ base. For further information just take a look at the excellent description at
 ## Scripts Top Level
 
 The storefront includes a set of JavaScript plugins providing different functionalities to the storefronts templates 
-on the client side. These concerns are classical enhancements as well as some Web 2.0 ajax handling. 
-All scripts are written as **ES6 classes** in **vanilla JavaScript**. Additionally since bootstrap is distributed 
+on the client side.
+The plugins are written as **ES6 classes** in **vanilla JavaScript**. Additionally since bootstrap is distributed 
 with the [jQuery library](https://jquery.com/) the storefront also contains this library.
 
 The `script` root looks like this: 
@@ -126,101 +160,16 @@ The `script` root looks like this:
 └── base.js
 ```
 
-All scripting logic is written to help the plugins and keep them tidily bundled to the use case. 
+## Sanitize content
 
-## Template filters
-
-### sw_include
-
-If you build your own feature and you need e.g. an element to display the price of the current product you can
-include existing partials with `sw_include` like this.
-
-#### Usage
-
-`{% sw_include '@Storefront/storefront/component/path/of/file-to-include.html.twig' %}` : Include the file's 
-content 
-
-#### Example
-
-```twig
-    <div class="my-theme an-alternative-product-view">
-        ...
-
-        {% block component_product_box_price %}
-            {# use sw_include to include template partials #}
-            {% sw_include '@Storefront/storefront/component/product/card/price-unit.html.twig' %}
-        {% endblock %}
-
-        ...
-    </div>
-```
-
-### sw_extends
-
-To inherit a template file, you need to use `{% sw_extends %}`.
-
-#### Usage
-
-{% sw_extends '@Storefront/storefront/file/you/wantToExtend.html.twig' %}` : Inherit from the given file
-
-#### Example
-
-```twig
-{% sw_extends '@Storefront/storefront/layout/header/logo.html.twig' %}
-
-{{ parent }}
-```
-
-### sw_sanitize
-
-Filters tags and attributes from given variable.
+Filters tags and attributes from a given string.
 
 The filter can be found in 
 [`/src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php`](https://github.com/shopware/platform/blob/master/src/Storefront/Framework/Twig/Extension/SwSanitizeTwigFilter.php)
 
-#### Usage
-`{{ unfilteredHTML|sw_sanitize }}` : Uses the default config
-  
-  
-`{{ unfilteredHTML|sw_sanitize(mixed options = null, bool override = false) }}`
-
-1. options: 
-    - tag => attribute array that is specifically allowed
-    - `*` as tag = all tags
-2. override: 
-    - true => uses the options as the config
-    - false (default) => merges the default config with the options 
-
-#### Examples
+Examples:
 `{{ unfilteredHTML|sw_sanitize }}` 
   : Uses the default config
   
-***
-
 `{{ unfilteredHTML|sw_sanitize( {'div': ['style', ...]}, true ) }}`
   : **allow only** div tags + style attribute for div
-
-`{{ unfilteredHTML|sw_sanitize( {'div': ['style', ...]} ) }}`
-  : **merge** options into default config
-
-***
-
-`{{ unfilteredHTML|sw_sanitize( {'*': ['style', ...]}, true ) }}` 
-  : **won't work** because there are no tags 
-
-`{{ unfilteredHTML|sw_sanitize( {'*': ['style', ...]} ) }}` 
-  : **merge** options into default config 
-  
-***
-  
-`{{ unfilteredHTML|sw_sanitize( {'div': ['class'], '*': ['style', ...]}, true ) }}`
-  : **allow only** div tags + class attribute + allow style attribute for all tags
-  
-`{{ unfilteredHTML|sw_sanitize( {'div': ['class'], '*': ['style', ...]} ) }}`
-  : **merge** options into default config
-  
-***
-
-`{{ unfilteredHTML|sw_sanitize('', true) }}`
-  : **special case :** filters all tags and attributes, because there are no allowed tags or attributes 
-    - override => true, empty options array

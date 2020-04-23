@@ -144,3 +144,36 @@ PATCH /store-api/v1/context
 ```
 
 ### Seo resolving
+
+When you want to get Information about your SEO Urls then you can use this route: `store-api.seo.url`
+
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+
+```
+GET /store-api/v1/seo-url
+
+{
+    "includes": {
+        "seo_url": [
+            "routeName",
+            "pathInfo",
+            "id"
+        ]
+    }
+}
+
+[
+    {
+        "routeName": "frontend.navigation.page",
+        "pathInfo": "/navigation/4d7ec66a7b854e59b8cf1b8b90fc651e",
+        "id": "013b993661f44cfb9ab2880ab8e00843",
+        "apiAlias": "seo_url"
+    },
+    {
+        "routeName": "frontend.navigation.page",
+        "pathInfo": "/navigation/298d3206940a48a3aab5b5e5919f18e4",
+        "id": "03ce5a4f4a35447288e5df2f39ad0975",
+        "apiAlias": "seo_url"
+    },
+]
+```

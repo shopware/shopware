@@ -17,7 +17,7 @@ handling creation of page structs and the `PageEvent`
 ([`\Shopware\Core\Framework\Event\NestedEvent`](https://github.com/shopware/platform/blob/master/src/Core/Framework/Event/NestedEvent.php)) 
 adding a clean extension point to pages. For the address page this looks like this:
 
-![page classes](./dist/page-class.png)
+![page classes](./img/page-class.png)
 
 ### Composition
 
@@ -25,15 +25,15 @@ Of course the address page from above needs multiple data structures to load and
 Composition is handled through the page loaders themselves, by triggering loading of associated data internally. 
 A full representation of the address page with header and footer looks like this:
 
-![page loader classes](./dist/page-loader-classes.png)
+![page loader classes](./img/page-loader-classes.png)
 
 That results in this structure:
 
-![page classes](./dist/page-classes.png)
+![page classes](./img/page-classes.png)
 
 The sequence in which loading is triggered is this:
 
-![page load sequence](./dist/page-load-sequence.png)
+![page load sequence](./img/page-load-sequence.png)
 
 ### Pagelet
 

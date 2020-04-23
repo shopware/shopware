@@ -21,6 +21,7 @@ The templates can be found in
 └── element
 └── layout
 └── page
+└── section
 └── utilities
 └── base.html.twig
 ```
@@ -37,6 +38,9 @@ The templates can be found in
 `page`  
   : The concrete templates rendered by the page controllers. This directory contains full page templates 
   as well as private local includes and the pagelet ajax response templates if necessary.  
+
+`section`  
+  : Storefront templates of the sections of the experience worlds can be found in this folder.   
 
 `utilities`  
   : Technical necessities used across the content and across all domain concepts.   

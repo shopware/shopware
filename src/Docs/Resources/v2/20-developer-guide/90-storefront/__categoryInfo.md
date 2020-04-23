@@ -39,7 +39,7 @@ The Storefronts main concerns are:
    
 These concerns are mapped to a *Web-MVC* structure:
 
-![components storefront](./dist/storefront-component.png)
+![components storefront](./img/storefront-component.png)
 
 The `Core` in this case acts as if it was the *domain model* wrapping all the sales channel logic. 
 The `Page` and `Pagelet` represent the *read model*, the `PageController` and `PageletController` work 

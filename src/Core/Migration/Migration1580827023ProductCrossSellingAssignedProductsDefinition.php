@@ -14,7 +14,7 @@ class Migration1580827023ProductCrossSellingAssignedProductsDefinition extends M
 
     public function update(Connection $connection): void
     {
-        $connection->exec('CREATE TABLE `product_cross_selling_assigned_products` (
+        $connection->exec('CREATE TABLE IF NOT EXISTS `product_cross_selling_assigned_products` (
   `id` binary(16) NOT NULL,
   `cross_selling_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,

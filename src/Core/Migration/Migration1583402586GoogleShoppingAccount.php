@@ -15,7 +15,7 @@ class Migration1583402586GoogleShoppingAccount extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE `google_shopping_account` (
+            CREATE TABLE IF NOT EXISTS `google_shopping_account` (
               `id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NULL,
               `email` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,

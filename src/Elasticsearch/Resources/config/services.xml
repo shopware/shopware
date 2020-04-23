@@ -7,10 +7,33 @@
     <parameters>
         <parameter key="elasticsearch.index.config" type="collection">
             <parameter key="settings" type="collection">
-                <parameter key="number_of_shards">3</parameter>
-                <parameter key="number_of_replicas">3</parameter>
-                <parameter key="mapping.total_fields.limit">5000</parameter>
-                <parameter key="mapping.nested_fields.limit">500</parameter>
+                <parameter key="index" type="collection">
+                    <parameter key="number_of_shards">3</parameter>
+                    <parameter key="number_of_replicas">3</parameter>
+                    <parameter key="mapping.total_fields.limit">5000</parameter>
+                    <parameter key="mapping.nested_fields.limit">500</parameter>
+                </parameter>
+
+                <parameter key="analysis" type="collection">
+                    <parameter key="analyzer" type="collection">
+                        <parameter key="sw_ngram_analyzer" type="collection">
+                            <parameter key="type">custom</parameter>
+                            <parameter key="tokenizer">whitespace</parameter>
+                            <parameter key="filter" type="collection">
+                                <parameter>lowercase</parameter>
+                                <parameter>sw_ngram_filter</parameter>
+                            </parameter>
+                        </parameter>
+                    </parameter>
+
+                    <parameter key="filter" type="collection">
+                        <parameter key="sw_ngram_filter" type="collection">
+                            <parameter key="type">ngram</parameter>
+                            <parameter key="min_gram">4</parameter>
+                            <parameter key="max_gram">5</parameter>
+                        </parameter>
+                    </parameter>
+                </parameter>
             </parameter>
         </parameter>
     </parameters>

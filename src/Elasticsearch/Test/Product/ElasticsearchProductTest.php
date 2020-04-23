@@ -1065,6 +1065,36 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testTermAlgorithm(TestDataCollection $data): void
+    {
+        $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+
+        $searcher = $this->createEntitySearcher();
+
+        foreach ($terms as $term) {
+            $criteria = new Criteria();
+            $criteria->setTerm($term);
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+
+            $term = strtolower($term);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+
+            $term = strtoupper($term);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testFilterAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -1381,9 +1411,9 @@ class ElasticsearchProductTest extends TestCase
         $expected = [
             $data->get('p4'),
             $data->get('p5'),
-            $data->get('p6'),
             $data->get('p2'),
             $data->get('p1'),
+            $data->get('p6'),
             $data->get('p3'),
         ];
 
@@ -1458,7 +1488,7 @@ class ElasticsearchProductTest extends TestCase
             $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
             $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
-            $this->createProduct('p6', 'Grouped 3', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
         ], Context::createDefaultContext());
     }
 }

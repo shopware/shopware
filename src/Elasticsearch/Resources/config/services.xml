@@ -61,6 +61,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Product\ProductUpdater">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"
         class="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator"/>
 

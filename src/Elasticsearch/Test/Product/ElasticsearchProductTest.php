@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -327,33 +326,39 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testQueries(TestDataCollection $data): void
+    public function testContainsFilter(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Silk'), 1000));
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'tilk'));
+
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
         static::assertContains($data->get('p3'), $products->getIds());
 
-        $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Slik'), 1000));
-        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
-        static::assertContains($data->get('p3'), $products->getIds());
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'subber'));
 
-        $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Skill'), 1000));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Rubar'), 1000));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(3, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
+        static::assertCount(0, $products->getIds());
+        static::assertSame(0, $products->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'Rubb'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
         static::assertContains($data->get('p2'), $products->getIds());
-        static::assertContains($data->get('p3'), $products->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'bber'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
+        static::assertContains($data->get('p2'), $products->getIds());
     }
 
     /**

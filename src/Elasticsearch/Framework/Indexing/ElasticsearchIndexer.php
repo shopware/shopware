@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -157,13 +158,14 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return $this->iterate($offset);
     }
 
+    /**
+     * @deprecated tag:v6.3.0 - Each entity has to handle the update process by itself
+     */
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
         if (!$this->helper->allowIndexing()) {
             return null;
         }
-
-        $languages = $this->getLanguages();
 
         /** @var EntityWrittenEvent $written */
         foreach ($event->getEvents() as $written) {
@@ -173,21 +175,42 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
                 continue;
             }
 
-            foreach ($languages as $language) {
-                $context = $this->createLanguageContext($language);
+            $esDefinition = $this->registry->get($written->getEntityName());
 
-                $alias = $this->helper->getIndexName($definition, $language->getId());
+            // @deprecated tag:v6.3.0 - Whole if condition will be removed, entities without elastic search definition are not supported
+            if (!$esDefinition) {
+                $this->sendIndexingMessages($definition, $written->getIds());
 
-                $indexing = new IndexingDto($written->getIds(), $alias, $definition->getEntityName());
-
-                $message = new EntityIndexingMessage($indexing, null, $context);
-                $message->setIndexer($this->getName());
-
-                $this->messageBus->dispatch($message);
+                continue;
             }
+
+            // @deprecated tag:v6.3.0 - While if condition will be removed, each entity has to handle the update process by itself
+            if ($esDefinition->hasNewIndexerPattern()) {
+                continue;
+            }
+
+            $this->sendIndexingMessages($definition, $written->getIds());
         }
 
         return null;
+    }
+
+    public function sendIndexingMessages(EntityDefinition $definition, array $ids): void
+    {
+        $languages = $this->getLanguages();
+
+        foreach ($languages as $language) {
+            $context = $this->createLanguageContext($language);
+
+            $alias = $this->helper->getIndexName($definition, $language->getId());
+
+            $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
+
+            $message = new EntityIndexingMessage($indexing, null, $context);
+            $message->setIndexer($this->getName());
+
+            $this->messageBus->dispatch($message);
+        }
     }
 
     public function handle(EntityIndexingMessage $message): void

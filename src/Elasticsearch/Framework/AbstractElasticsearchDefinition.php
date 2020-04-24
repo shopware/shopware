@@ -2,6 +2,10 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -37,13 +41,50 @@ abstract class AbstractElasticsearchDefinition
         ];
     }
 
+    /**
+     * This function defines which data should be selected and provided to the elasticsearch server
+     */
     public function extendCriteria(Criteria $criteria): void
     {
     }
 
+    /**
+     * Allows to add none database specific data to the entities.
+     * This function is typically used to build elasticsearch completion fields,
+     * n-grams or other calculated fields for the search engine
+     */
     public function extendEntities(EntityCollection $collection): EntityCollection
     {
         return $collection;
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 - Removed in 6.3.0, each definition has to handle the update event by itself
+     */
+    public function hasNewIndexerPattern(): bool
+    {
+        return false;
+    }
+
+    public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
+    {
+        $bool = new BoolQuery();
+
+        $queries = [
+            new MatchQuery('fullTextBoosted', $criteria->getTerm(), ['boost' => 10]), // boosted word matches
+            new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 5]), // whole word matches
+            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto', 'boost' => 3]), // word matches not exactly =>
+            new MatchPhrasePrefixQuery('fullText', $criteria->getTerm(), ['boost' => 1, 'slop' => 5]), // one of the words begins with: "Spachtel" => "Spachtelmasse"
+            new WildcardQuery('fullText', '*' . strtolower($criteria->getTerm()) . '*'), // part of a word matches: "masse" => "Spachtelmasse"
+        ];
+
+        foreach ($queries as $query) {
+            $bool->add($query, BoolQuery::SHOULD);
+        }
+
+        $bool->addParameter('minimum_should_match', 1);
+
+        return $bool;
     }
 
     public function buildFullText(Entity $entity): FullText

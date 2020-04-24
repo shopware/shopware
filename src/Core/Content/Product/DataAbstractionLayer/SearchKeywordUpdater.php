@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\DeadlockException;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -151,7 +150,7 @@ class SearchKeywordUpdater
         // try batch insert
         try {
             $queue->execute();
-        } catch (DeadlockException $e) {
+        } catch (\Exception $e) {
             // catch deadlock exception and retry with single insert
             $query = new RetryableQuery(
                 $this->connection->prepare('
@@ -176,7 +175,7 @@ class SearchKeywordUpdater
         // try batch insert
         try {
             $queue->execute();
-        } catch (DeadlockException $e) {
+        } catch (\Exception $e) {
             // catch deadlock exception and retry with single insert
             $query = new RetryableQuery(
                 $this->connection->prepare('INSERT IGNORE INTO `product_keyword_dictionary` (`id`, `language_id`, `keyword`) VALUES (:id, :language_id, :keyword)')

@@ -1022,24 +1022,6 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-//        $associations = $fields->filter(static function (Field $field) {
-//            return $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField;
-//        });
-//
-//        foreach ($associations as $association) {
-//            $this->loadToOne($association, $context, $collection, $criteria);
-//        }
-//
-//        $associations = $fields->filterInstance(OneToManyAssociationField::class);
-//        foreach ($associations as $association) {
-//            $this->loadOneToMany($criteria, $definition, $association, $context, $collection);
-//        }
-//
-//        $associations = $fields->filterInstance(ManyToManyAssociationField::class);
-//        foreach ($associations as $association) {
-//            $this->loadManyToMany($criteria, $association, $context, $collection);
-//        }
-
         foreach ($collection as $struct) {
             $struct->removeExtension(self::INTERNAL_MAPPING_STORAGE);
         }

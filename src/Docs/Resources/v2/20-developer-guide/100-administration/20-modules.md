@@ -14,7 +14,7 @@ Add the following `import` statement to the `main.js` file of your plugin.
 import './module/swag-plugin';
 ```
 
-Now your module's `index.js` will be executed.
+Now your module's `src/Resources/app/administration/src/swag-plugin/index.js` will be executed.
 
 ## Registering the module
 
@@ -68,30 +68,9 @@ Shopware.Module.register('swag-plugin', {
 });
 ```
 
-As mentioned already, the key for defining routes is `routes`. It has to be an object, where each key
-represents the name for a new route. Thus `list` is the name of a new route from the `swag-plugin` module.
-The respective value is the actual configuration of the route. A route points to a [component](https://vuejs.org/v2/guide/components.html) using the key `component`, which is the component to be shown when this
-route is requested. The key `path` represents the actual path, that's going to be used for this route. Do not get confused just because it is equal to the
-route name in the first route.
+The `routes` uses the same api as the [vue router](https://router.vuejs.org).
 
-Have a look at this example route configuration:
-```js
-Shopware.Module.register('example', {
-    routes: {
-        exampleRoute: {
-            component: 'my-custom-component',
-            path: 'foo'
-        }
-    }
-});
-```
-
-In this example, there's a new route with the name `exampleRoute`, which will open the `my-custom-component` component and is executed by browsing to the following link:
-`https://example.shop/admin/#/example/foo`
-
-The second route, `detail`, even comes with a dynamic parameter as part of the route. When you want to open a detail page of a plugin, the route also has to contain
-the ID of the plugin.
-Furthermore, the `detail` route comes with another new configuration, which is called `meta`. As the name suggests, you can use this object to apply
+The `detail` route comes with another new configuration, which is called `meta`. As the name suggests, you can use this object to apply
 more meta information for your route. In this case the `parentPath` is filled. Its purpose is to link the path of the actual parent route.
 In the administration, this results in a "back" button on the top left of your module when being on the detail page. This button will then link back to the list
 route and the icon defined earlier will also be used for this button.
@@ -168,3 +147,28 @@ Shopware.Module.register('swag-plugin', {
     }]
 });
 ```
+
+## Link you module into settings 
+
+Maybe want to link your module in the `settings` section of the administration. You can add the `settingsItem` option to
+the module configuration like this.
+
+```js
+import './page/swag-plugin-list';
+import './page/swag-plugin-detail';
+
+Shopware.Module.register('swag-plugin', {
+    ...
+
+    settingsItem: {
+        group: 'system',
+        to: 'swag.plugin.list',
+        icon: 'default-object-rocket'
+    }
+});
+```
+
+The `group` property targets to the group section the item will be display in ('shop', 'system').
+The `to` gets the link path of the route. The `icon` contains the icon name which will be display. 
+You can view the icon-set [here](https://component-library.shopware.com/icons/). 
+

@@ -18,4 +18,5 @@ Component.register('my-custom-component', {
 Now you component is registered to the [component factory](./../../60-references-internals/110-administration-component-factory.md).
 you can make use of it like a normal VueJS component. The component factory build generate a VueJS component for every registered component.
 
-To share state across different components you can use the [VueX](https://vuex.vuejs.org) plugin which is includes in Shopware6.
+To share state across different components you can use `Shopware.State` to subscribe to stores or create new ones.
+`Shopware.State` is a wrapper for the [VueX](https://vuex.vuejs.org) plugin which Shopware 6 uses behind the scenes.

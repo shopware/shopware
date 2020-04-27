@@ -191,16 +191,16 @@ However you really should use the cli-Worker in production setups, because the A
 The recommended way to consume messages is through the cli command. 
 You can configure the command just to run a certain amount of time or to stop if it exceeds a certain memory limit like:
 ```bash
-bin\console messenger:consume-messages default --time-limit=60
+bin/console messenger:consume-messages default --time-limit=60
 ```
 
 ```bash
-bin\console messenger:consume-messages default --memory-limit=128M
+bin/console messenger:consume-messages default --memory-limit=128M
 ```
 
 For more information about the command and its configuration use the `-h` option:
 ```bash
-bin\console messenger:consume-messages -h
+bin/console messenger:consume-messages -h
 ```
 
 You should use the limit option to periodically restart the worker processes, because of the memory leak issues of long running php processes.

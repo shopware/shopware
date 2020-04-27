@@ -159,7 +159,7 @@ POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
                     "slots": [
                         {
                             "data": {
-                                "content": "<h2>Right of rescission</h2><hr><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>",
+                                "content": "<h2>Right of rescission</h2><p>Lorem ipsum dolor sit amet... </p>",
                                 "apiAlias": "cms_text"
                             },
                             "id": "b5053f6a571f4bb5b109fe7a39f3c542",

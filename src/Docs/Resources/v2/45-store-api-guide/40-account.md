@@ -29,6 +29,10 @@ POST /store-api/v1/account/login
 
 ### Register
 
+To register a customer you need three routes: `store-api.account.register`, `store-api.account.register.confirm` and `store-api.salutation`
+
+
+
 ### Logout
 Using this route `store-api.account.logout` you can log out a customer.
 

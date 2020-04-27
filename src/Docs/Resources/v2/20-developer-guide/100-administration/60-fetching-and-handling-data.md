@@ -1,5 +1,5 @@
-[titleEn]: <>(Data handling)
-[hash]: <>(article:administration_data_handling)
+[titleEn]: <>(Fetching and Handling Data)
+[hash]: <>(article:developer_administration_fetching_and_handling_data)
 
 The data handling was created with **predictability** as its main design goal. It uses a *repository pattern* which is strongly based on the [Database Abstraction Layer](./../../1-core/20-data-abstraction-layer/__categoryInfo.md) from the core.
 
@@ -30,7 +30,7 @@ The data handling was created with **predictability** as its main design goal. I
 
 To create a repository it is required to inject the RepositoryFactory:
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -42,7 +42,7 @@ Component.register('sw-show-case-list', {
 
 You can also change some options in the third parameter:
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -61,7 +61,7 @@ Component.register('sw-show-case-list', {
 
 To fetch data from the server, the repository has a `search` function. Each repository function requires the api `context`. This can be get from the Shopware object:
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -82,7 +82,7 @@ Component.register('sw-show-case-list', {
 
 The admin criteria class contains all functionality of the core criteria class.
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     created() {
         const criteria = new Criteria();
@@ -115,7 +115,7 @@ Component.register('sw-show-case-list', {
 
 Since the context of an edit or update form is usually a single root entity, the data handling diverges here from the Data Abstraction Layer and provides loading of a single resource from the Admin API
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -131,11 +131,12 @@ Component.register('sw-show-case-list', {
     }
 });
 ```
+
 ## Update an entity
 
 The data handling contains change tracking and sends only changed properties to the Admin API. Please be aware that, in order to be as transparent as possible, updating data will not be handled automatically. A manual update is mandatory. 
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -174,7 +175,7 @@ Component.register('sw-show-case-list', {
 
 In sync with tha Data Abstraction Layer, you do delete the entity through the Admin API by simply sending the `id`, be aware that updating the UI is entirely left to you.
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -191,7 +192,7 @@ Component.register('sw-show-case-list', {
 
 Although entities are detached from the data handling once retrieved or created they still must be set up through a repository. So this is the mandatory way to creating new data.
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -209,7 +210,7 @@ Component.register('sw-show-case-list', {
 
 Each association can be accessed via normal property access:
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -242,7 +243,7 @@ Component.register('sw-show-case-list', {
 
 Changes in related entities are not written automatically. The full control of the entity lifecycle therefore rests in your hands.
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -269,7 +270,7 @@ In most cases, *ToMany* assocations are loaded over an additional request. The p
 
 ### Working with OneToMany associations
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -325,7 +326,7 @@ Component.register('sw-show-case-list', {
 
 ### Working with ManyToMany associations
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -368,6 +369,7 @@ Component.register('sw-show-case-list', {
     }
 });
 ```
+
 ## Working with local associations
 
 In case of a new entity, the associations can not be sent directly to the server using the repository, because the parent association isn't saved yet.
@@ -378,7 +380,7 @@ Notice: It is mandatory to `add` entities to collections in order to get reactiv
 
 ### Working with local OneToMany associations
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -421,12 +423,11 @@ Component.register('sw-show-case-list', {
         // price entity is already updated and already assigned to product, no sources needed
     }
 });
-
 ```
 
 ### Working with local ManyToMany associations
 
-```javascript
+```js
 Component.register('sw-show-case-list', {
     inject: ['repositoryFactory'],
     
@@ -462,7 +463,3 @@ Component.register('sw-show-case-list', {
     }
 });
 ```
-
-## We came here the hard way
-
-At the time of writing there is still a second implementation of data handling present. This one is **deprecated** and we explicitly discourage using it for new components! The **old** data handling on the surface does a lot more magic for you and reduces the amount of boilerplate code, but the level of convenience it provides will make it extremely difficult to do anything with it besides the basic CRUD operations.

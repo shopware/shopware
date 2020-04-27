@@ -136,6 +136,8 @@ This route has the following parameters:
 
 In this route only the data configured in the CMS page is loaded. This route should be used when loading static CMS pages such as landing pages.
 
+If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
+
 ```
 POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
 
@@ -187,8 +189,10 @@ In contrast to the `/cms/{id}` route, this route also considers the category set
 This route needs one parameter:
 * `navigationId`: the id of the navigation you want to fetch
 
-Note, that you cannot use the api aliases like: `main-navigation`, 'footer-navigation', etc... for this route but the route
-supports an alias `home` to load the home page of the sales channel. 
+Note, that you cannot use the api aliases like: `main-navigation`, 'footer-navigation', etc... 
+This route supports an alias `home` to load the home page of the sales channel. 
+
+If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
 POST /store-api/v1/category/04cfc07532344f938d1c88735b54281e

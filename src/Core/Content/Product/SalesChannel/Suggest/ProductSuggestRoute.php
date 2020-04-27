@@ -77,7 +77,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      */
     public function load(Request $request, SalesChannelContext $context): ProductSuggestRouteResponse
     {
-        if (!$request->query->has('search')) {
+        if (!$request->get('search')) {
             throw new MissingRequestParameterException('search');
         }
 

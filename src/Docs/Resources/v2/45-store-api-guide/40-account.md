@@ -31,7 +31,66 @@ POST /store-api/v1/account/login
 
 To register a customer you need three routes: `store-api.account.register`, `store-api.account.register.confirm` and `store-api.salutation`
 
+The `store-api.account.register` needs the following parameters:
+* `guest`: decides whether the account is a guest account or not
+* `title`: the title of the customer e.g. 'Dr.'
+* `salutationId`: the id of the salutation
+* `firstName`: first name of your customer  
+* `lastName`: last name of the customer
+* `email`: email of the customer
+* `affiliateCode`: an affiliate code 
+* `campaignCode`: a campaign code
+* `password`: password of the customer 
+* `billingAddress`: billing address of the customer  
+* `shippingAddress`: shipping address of the customer
+* `storefrontUrl`: the url to your storefront 
 
+```
+POST /store-api/v1/account/register
+
+{
+	"guest": false,
+	"title": "Dr.",
+	"salutationId": "f4dff0c0a2cf4830a47901c5ae10819a",
+	"firstName": "Eva",
+	"lastName": "Mustermann",
+	"email": "eva@mustermann.de",
+	"affiliateCode": "",
+	"campaignCode": "",
+	"password": "shopware",
+	"billingAddress": {
+	    "countryId": "34a06af5c53c4ee3846ad2ad5498dbe9",
+	    "street": "Examplestreet 11",
+	    "zipcode": "48441",
+	    "city": "Cologne"
+	},
+	"shippingAddress": {
+	    "countryId": "34a06af5c53c4ee3846ad2ad5498dbe9",
+	    "salutationId": "f4dff0c0a2cf4830a47901c5ae10819a",
+	    "firstName": "Eva",
+	    "lastName": "Mustermann",
+	    "street": "Examplestreet 154",
+	    "zipcode": "12341",
+	    "city": "Berlin"
+	},
+	"storefrontUrl": "http://shopware.local",
+	"includes": {
+		"customer": [
+			"firstName",
+			"lastName",
+			"email",
+			"password"
+		]
+	}
+}
+
+{
+    "firstName": "Eva",
+    "lastName": "Mustermann",
+    "email": "eva@mustermann.de",
+    "apiAlias": "customer"
+}
+```
 
 ### Logout
 Using this route `store-api.account.logout` you can log out a customer.

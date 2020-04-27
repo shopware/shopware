@@ -97,10 +97,12 @@
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder">
@@ -114,10 +116,12 @@
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <!-- Converter -->

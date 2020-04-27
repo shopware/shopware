@@ -31,7 +31,38 @@ define('SW_PATH', $rootDir);
 /** @var \Composer\Autoload\ClassLoader $autoloader */
 $autoloader = require_once __DIR__ . '/Common/vendor/autoload.php';
 
-// necessary in order to resolve static inheritance in sw core.
-$coreAutoloader = require_once SW_PATH . '/vendor//autoload.php';
+if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {
+    $autoloader->addPsr4(
+        'Shopware\\Core\\',
+        SW_PATH . '/vendor/shopware/platform/src/Core/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Storefront\\',
+        SW_PATH . '/vendor/shopware/platform/src/Storefront/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Elasticsearch\\',
+        SW_PATH . '/vendor/shopware/platform/src/Elasticsearch/'
+    );
+} elseif (file_exists(SW_PATH . '/vendor/shopware/core/composer.json')) {
+    $autoloader->addPsr4(
+        'Shopware\\Core\\',
+        SW_PATH . '/vendor/shopware/core/'
+    );
+
+    if (file_exists(SW_PATH . '/vendor/shopware/storefront/composer.json')) {
+        $autoloader->addPsr4(
+            'Shopware\\Storefront\\',
+            SW_PATH . '/vendor/shopware/storefront/'
+        );
+    }
+
+    if (file_exists(SW_PATH . '/vendor/shopware/elasticsearch/composer.json')) {
+        $autoloader->addPsr4(
+            'Shopware\\Elasticsearch\\',
+            SW_PATH . '/vendor/shopware/elasticsearch/'
+        );
+    }
+}
 
 return $autoloader;

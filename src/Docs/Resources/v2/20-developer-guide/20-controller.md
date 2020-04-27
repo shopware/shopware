@@ -154,7 +154,7 @@ class AcmeCustomStorefrontController extends StorefrontController
 ```
 
 This controller can now use a
-[`PageLoader`](./../../current/2-internals/3-storefront/10-composite-data-loading.md)
+[`PageLoader`](./../60-references-internals/30-storefront/10-composite-data-loading.md)
 or similar service to load a page:
 
 ```php
@@ -201,7 +201,4 @@ class AcmeExampleRoute
 }
 ```
 
-<!-- TODO: Link `Store API` to the Store API documentation -->
-To learn more about Store API controllers, have a look at the
-`Store API`
-documentation.
+To learn more about Store API controllers, have a look at the [Store API](./../45-store-api-guide/__categoryInfo.md) documentation.

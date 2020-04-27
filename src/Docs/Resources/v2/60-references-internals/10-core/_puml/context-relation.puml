@@ -1,0 +1,24 @@
+@startuml
+
+hide empty members
+
+class SalesChannelContext
+class Context
+interface ContextSource
+class AdminApiSource
+class SystemSource
+class SalesChannelSource
+
+class ManagementActionController << Controller >>
+class SalesChannelController << Controller >>
+
+SalesChannelContext --> Context
+Context --> ContextSource
+ContextSource <|-- AdminApiSource
+ContextSource <|-- SystemSource
+ContextSource <|-- SalesChannelSource
+
+ManagementActionController -left-> Context
+
+SalesChannelController -right-> SalesChannelContext
+@enduml

@@ -6,7 +6,7 @@
 
 Very often one wants to read data from the database and therefore has to write his own queries using PDO.
 In Shopware 6, it's **highly recommended** to not write custom queries in order to fetch data, but
-to use the methods from our [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md), in short `DAL`.
+to use the methods from our [data abstraction layer](./../60-references-internals/10-core/130-dal.md), in short `DAL`.
 
 Here's a few examples on how to read your entity data using the DAL.
 All of the following methods are to be executed on the entities' respective repository.

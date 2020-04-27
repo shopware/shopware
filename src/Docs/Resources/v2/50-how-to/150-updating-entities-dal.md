@@ -5,7 +5,7 @@
 ## Overview
 
 After creating entity, business processes often require you to update the previously created entity automatically.
-This can and **should** be done using Shopware 6 [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md).
+This can and **should** be done using Shopware 6 [data abstraction layer](./../60-references-internals/10-core/130-dal.md).
 
 Here are two methods on how to update your previously created entities.
 Both of the following methods are to be executed on the entities' respective repository.

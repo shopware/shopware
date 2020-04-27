@@ -8,7 +8,7 @@ This guide will handle how to properly translate your custom entities.
 
 ### Translatable fields in definition
 
-Imagine you're dealing with with an `EntityDefinition` class like this one:
+Imagine you're dealing with an `EntityDefinition` class like this one:
 
 ```php
 <?php declare(strict_types=1);

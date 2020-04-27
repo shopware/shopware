@@ -3,8 +3,8 @@
 
 * [Repository Link](https://github.com/shopware/platform/tree/master/src/Storefront)
 
-The Storefront component, conceptually like the [Administration](./../2-administration/__categoryInfo.md) 
-sits on top of the [Core](./../1-core/__categoryInfo.md). Contrary to the Administration the Storefront is a 
+The Storefront component, conceptually like the [Administration](./../../60-references-internals/20-administration/__categoryInfo.md) 
+sits on top of the [Core](./../../60-references-internals/10-core/__categoryInfo.md). Contrary to the Administration the Storefront is a 
 **SalesChannel** and executes in the **same process** as the Core. It is architecturally in part a 
 [Backend for Frontends](https://samnewman.io/patterns/architectural/bff/) and a classical PHP application with HTML 
 rendering, JavaScript enhancements (along the lines of 
@@ -21,12 +21,12 @@ The Storefront's main concerns are:
    : Contrary to API calls that result in single resource data, a whole page in Storefront displays multiple different 
    data sets on a single page.
    
-**[Mapping Requests to the Core](../../60-references-internals/200-storefront-writing-data.md)** 
+**[Mapping Requests to the Core](../../60-references-internals/30-storefront/200-storefront-writing-data.md)** 
 ([Pagecontroller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController), 
 [PageletController](https://github.com/shopware/platform/tree/master/src/Storefront/PageletController))
    : The Storefront uses the SalesChannel API internally and forwards possibly slightly changed requests to the core.
    
-**[Rendering templates](./10-template.md)** 
+**[Rendering templates](./10-templates.md)** 
 ([page templates](https://github.com/shopware/platform/tree/master/src/Storefront/Resources/views/storefront/page))
    : Contrary to the core that can almost completely omit templating in favor JSON responses, 
    the Storefront contains a rich set of `Twig` templates to display a fully functional shop.

@@ -3,7 +3,7 @@
 [hash]: <>(article:how_to_plugin_cookies)
 
 ## Extend the cookie consent manager
-Adding custom cookies basically requires you to decorate a service, so make sure to have a look at the [guide for decorating services](./../50-how-to/080-decorating-a-service.md) first.
+Adding custom cookies basically requires you to decorate a service, so make sure to have a look at the [guide for decorating services](./080-decorating-a-service.md) first.
 
 This page covers 3 parts:
 

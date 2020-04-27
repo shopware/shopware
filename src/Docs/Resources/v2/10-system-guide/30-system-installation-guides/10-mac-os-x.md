@@ -180,6 +180,3 @@ The underlying problem is that Mac supports case insensitive paths but not the t
 Ok: `/Users/shopware/Code/shopware-platform`
 Not ok: `/users/shopware/code/Shopware-Platform`
 
-
-### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
-

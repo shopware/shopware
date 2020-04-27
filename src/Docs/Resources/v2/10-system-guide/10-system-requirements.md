@@ -5,6 +5,21 @@
 
 Before installing Shopware 6, you should take a quick look at the requirements to check if your local environment is capable of running it.
 
+You can use these commands for checking your actual environment:
+- `php -v`: Show CLI PHP version
+- `php -m`: Show CLI PHP modules
+- `php -i | grep memory_limit`: Show your actual CLI PHP memory limit
+- `composer -v`: Show your actual composer version
+- `node -v`: Show you actual Node version
+- `npm -v`: Show you actual NPM version
+
+To get more information about your server PHP setup, you can create a `phpinfo.php` file with this content:
+```php
+<?php phpinfo(); ?>
+```
+When you now open your Browser and go to the `phpinfo.php` page then you can see all information about
+your actual PHP setup. Check if they also matches with the requirements.
+
 ## System Requirements
 
 ### Operating System
@@ -17,7 +32,7 @@ PHP
 *  7.2 or higher
 * `memory_limit` 512M minimum
 * `max_execution_time` 30 seconds minimum
-* Extensions: 
+* Extensions:
     * ext-curl
     * ext-dom  
     * ext-fileinfo  
@@ -41,13 +56,13 @@ PHP
 SQL
 * MySQL 5.7.21 or higher
 * MariaDB 10.3 or higher
-    
+
 JavaScript
-* Node.js 8.10.0 or higher
+* Node.js 10.13.0 or higher
 * NPM 6.5.0 or higher
 
 Various
-* Apache 2.4 or higher with mod-rewrite enabled 
+* Apache 2.4 or higher with mod-rewrite enabled
 * Bash
 * Git
 

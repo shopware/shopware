@@ -51,6 +51,4 @@ That's it. Continue to install Shopware 6 as usual:
     ```
 
 For more information about Shopware Installation, take a look [here](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/system-installation-guides)
-
-### Next: [Startup](./../30-startup-guide/__categoryInfo.md)
   

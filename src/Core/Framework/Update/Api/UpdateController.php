@@ -319,9 +319,8 @@ class UpdateController extends AbstractController
             $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
         }
 
-        // reboot with plugins
-        $container = $this->rebootWithPlugins();
-        $container->get('event_dispatcher')->dispatch(
+        // TODO: NEXT-8271 - The kernel should be rebooted with the plugins reactivated. This does not happen to save some time, because plugins were not reactivated anyway.
+        $this->eventDispatcher->dispatch(
             new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion)
         );
 

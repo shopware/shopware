@@ -52,7 +52,7 @@ Then, configure the `product.repository` service to be injected:
 
 You can read more about dependency injection and service registration in
 Shopware in the
-[services HowTo](./../../current/4-how-to/070-add-service.md)
+[services HowTo](./../50-how-to/070-add-service.md)
 .
 
 ### Creating entities
@@ -167,5 +167,5 @@ can be useful when you need just a bit of additional data. Read more about
 entity extensions
 [here](./../../current/2-internals/1-core/20-data-abstraction-layer/060-extensions.md)
 . Adding your own custom entity is possible as well and covered in-depth in the
-[custom entity HowTo](./../../current/4-how-to/050-custom-entity.md)
+[custom entity HowTo](./../50-how-to/050-custom-entity.md)
 .

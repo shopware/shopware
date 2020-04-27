@@ -103,4 +103,4 @@ these are the defaults created during installation of the dev system.
 
 Look around! Add products, trigger orders, register customers and use Shopware 6.
 Maybe you want to add debug statements to some sources to get a deeper insight and if you are ready 
-to learn more hop over to the [internals](./../../60-references-internals/__categoryInfo.md).
+to learn more hop over to the [Developer guide](./../../20-developer-guide/__categoryInfo.md).

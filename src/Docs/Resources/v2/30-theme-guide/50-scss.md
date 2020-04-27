@@ -85,7 +85,7 @@ The storefront theme is implemented as a skin on top of the [Boostrap toolkit](h
 
 ### Override default SCSS variables
 
-To override default variables like for example `$border-radius` from Bootstrap you should use a slightly different approach then explained in the [storefront assets](./../../4-how-to/330-storefront-assets.md) how-to.
+To override default variables like for example `$border-radius` from Bootstrap you should use a slightly different approach then explained in the [storefront assets](./../50-how-to/330-storefront-assets.md) how-to.
 
 Bootstrap 4 is using the `!default` flag for it's own default variables. Variable overrides have to be declared beforehand.
 

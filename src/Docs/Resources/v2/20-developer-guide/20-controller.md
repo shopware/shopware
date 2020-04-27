@@ -24,7 +24,7 @@ Since Shopware plugins are essentially
 of Symfony applies. To make Shopware aware of a new controller, you need
 to place a config file in the `Resources/config` directory of your plugin. This
 config file has to have the string `routes`
-[in its filename or path](./../../current/4-how-to/020-api-controller.md#loading-the-controllers-via-routesxml)
+[in its filename or path](./../50-how-to/020-api-controller.md#loading-the-controllers-via-routesxml)
 and can be written in `yaml`, `xml` or `php`.
 
 ```
@@ -108,7 +108,7 @@ covered in the following sections.
 ### Admin API Controller
 
 An
-[admin API controller](./../../current/4-how-to/020-api-controller.md)
+[admin API controller](./../50-how-to/020-api-controller.md)
 can be registered like described above, the only thing to remember apart from
 that is to use the corresponding `RouteScope`:
 
@@ -136,7 +136,7 @@ controllers. You can read more about this concept
 ### Storefront controller
 
 A
-[storefront controller](./../../current/4-how-to/580-custom-storefront-controller.md)
+[storefront controller](./../50-how-to/580-custom-storefront-controller.md)
 can be registered like described
 [above](#adding-controllers-to-a-plugin)
 . Apart from that, use the `storefront`

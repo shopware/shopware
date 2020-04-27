@@ -3,7 +3,7 @@
 [hash]: <>(article:how_to_api_controller)
 
 This HowTo will give you a brief introduction on how to setup a custom Admin API controller with your plugin.
-Read [here](./../3-api/010-admin-api.md) for more information about the Admin API itself.
+Read [here](./../40-admin-api-guide/__categoryInfo.md) for more information about the Admin API itself.
 
 ## Plugin base class
 

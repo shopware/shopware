@@ -14,7 +14,8 @@ in the administration and the storefront.
 In theory, you are free to place your snippets anywhere as long as you load your .json files correctly. 
 However, we recommend that you mirror the core structure of Shopware. If you choose to do that, 
 the structure of your project should look like this:
-```bash
+
+```
 MyPlugin
 └─ src
    ├─ Resources
@@ -59,7 +60,7 @@ Example:
 
 In this guide, we will give you an overview on how to extend Storefront snippets. In case you need further assistance,
 we got you covered. In our HowTo section, we provide a detailed tutorial on 
-[extending Storefront snippets](). Feel free to take a look!
+[extending Storefront snippets](./../../50-how-to/245-adding-snippets.md).
 
 ### SnippetFile
 
@@ -77,6 +78,6 @@ you will have to implement the following five methods:
 
 Now it is time to register the SnippetFile in the DI container via the `services.xml` that came with the plugin.
 If your plugin does not have a `services.xml` file yet, make sure to read 
-[here](./../2-internals/4-plugins/010-plugin-quick-start.md#The services.xml). This will help you understand the 
+[here](./../40-services-subscriber.md). This will help you understand the 
 process of creation from the beginning on. Also notice there is a `shopware.snippet.file` tag, 
 which is essential in this process.

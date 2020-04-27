@@ -67,7 +67,7 @@ you have your 'main.js' as entry point within the following directory:
 
 Add some test code in order to see if it works out:
 ```
-// YourPluginRoot/src/Resources/app/storefront/src/src/main.js
+// PluginRoot/src/Resources/app/storefront/src/src/main.js
 console.log('MyPlugin JS loaded');
 ```
 

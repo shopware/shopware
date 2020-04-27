@@ -5,13 +5,13 @@
 
 In contrast to most Symfony applications, Shopware uses no ORM but a thin
 abstraction layer called the data abstraction layer (DAL). The
-[DAL](./../../current/2-internals/1-core/20-data-abstraction-layer)
+[DAL](./../60-references-internals/10-core/130-dal.md)
 is implemented with the specific needs of Shopware in mind and lets developers
 access the database via pre-defined interfaces. Some concepts used by the DAL,
 like Criteria, may sound familiar to you if you know
 [Doctrine](https://symfony.com/doc/current/doctrine.html)
 or other ORMs. For in-depth documentation about the DAL, visit the
-[data abstraction layer](./../../current/2-internals/1-core/20-data-abstraction-layer)
+[data abstraction layer](./../60-references-internals/10-core/130-dal.md)
 documentation in the internals section.
 
 ## CRUD
@@ -74,7 +74,7 @@ $this->productRepository->create(
 ```
 
 Read more in the
-[database abstraction layer](./../../current/2-internals/1-core/20-data-abstraction-layer/030-write.md)
+[database abstraction layer](./../60-references-internals/10-core/130-dal.md)
 documentation.
 
 ### Reading entities
@@ -105,7 +105,7 @@ $this->productRepository->search(
 ```
 
 To find out more about filters, have a look at the
-[filters](./../../current/2-internals/1-core/20-data-abstraction-layer/020-search.md#filter)
+[filters](./../60-references-internals/10-core/130-dal.md)
 documentation.
 
 ### Updating entities
@@ -127,7 +127,7 @@ $this->productRepository->update(
 ```
 
 Find out more in the
-[database abstraction layer](./../../current/2-internals/1-core/20-data-abstraction-layer/030-write.md)
+[database abstraction layer](./../60-references-internals/10-core/130-dal.md)
 documentation.
 
 ### Deleting entities
@@ -157,7 +157,7 @@ $criteria->addAssociation('lineItems');
 ```
 
 Learn more in the
-[associations](./../../current/2-internals/1-core/20-data-abstraction-layer/020-search.md#associations)
+[associations](./../60-references-internals/10-core/130-dal.md)
 documentation.
 
 ## Going further with extensions and custom entities
@@ -165,7 +165,7 @@ documentation.
 The DAL makes it possible to extend existing entities using new relations. This
 can be useful when you need just a bit of additional data. Read more about
 entity extensions
-[here](./../../current/2-internals/1-core/20-data-abstraction-layer/060-extensions.md)
+[here](./../60-references-internals/10-core/130-dal.md)
 . Adding your own custom entity is possible as well and covered in-depth in the
 [custom entity HowTo](./../50-how-to/050-custom-entity.md)
 .

@@ -79,7 +79,7 @@ with `--help` to get a full list of supported commands.
 
 Now that you have a idea how to execute the various Shopware 6 stacks, we will briefly point you to the 
 sources directories. But keep in mind that there are entire documents describing 
-the [directory structure](./../../60-references-internals/70-directory-structure.md) of Shopware 6.
+the [directory structure](./../../60-references-internals/70-other/10-directory-structure.md) of Shopware 6.
 
 | Stack | Description | Path
 | :---- | :---- | :----

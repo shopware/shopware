@@ -5,7 +5,7 @@
 ## Overview
 
 When you want to get rid of an database entry, you'd probably write a SQL `DELETE` query to do the job.
-In Shopware 6 though it is **highly recommended** to use the [data abstraction layer](./../2-internals/1-core/20-data-abstraction-layer/__categoryInfo.md) for such tasks.
+In Shopware 6 though it is **highly recommended** to use the [data abstraction layer](./../60-references-internals/10-core/130-dal.md) for such tasks.
 
 ## Delete
 

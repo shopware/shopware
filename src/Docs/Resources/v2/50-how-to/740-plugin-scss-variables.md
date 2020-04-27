@@ -4,7 +4,7 @@
 
 ## Overview
 
-With [themes](./../2-internals/4-plugins/100-plugin-themes.md) it is possible to add custom SCSS variables through the theme.json config fields. Since there is no theme.json in regular plugins you can use a subscriber class to add custom SCSS variables.
+With [themes](./../30-theme-guide/__categoryInfo.md) it is possible to add custom SCSS variables through the theme.json config fields. Since there is no theme.json in regular plugins you can use a subscriber class to add custom SCSS variables.
 
 Before you start adding your subscriber you should provide a fallback value for your custom SCSS variable in your plugin `base.scss`:
 ```scss

@@ -29,7 +29,7 @@ POST /store-api/v1/account/login
 
 ### Register
 
-To register a customer you need three routes: `store-api.account.register`, `store-api.account.register.confirm` and `store-api.salutation`
+To register a customer you need two routes: `store-api.account.register` and `store-api.account.register.confirm`
 
 The `store-api.account.register` needs the following parameters:
 * `guest`: decides whether the account is a guest account or not
@@ -91,6 +91,37 @@ POST /store-api/v1/account/register
     "apiAlias": "customer"
 }
 ```
+
+Whether you have double opt in registration enabled or not the account of your customer is enabled or not.
+
+If double opt in registration is enabled you need to use this route: `store-api.account.register.confirm` to active the account of you customer.
+
+This route needs two parameters: 
+* `hash`: the hast to verify the user account
+* `em`: the email of your customer
+
+```
+POST /store-api/v{version}/account/register-confirm
+
+{
+    "hash": "e43b79ef0ee5461786a3744fcff1e162",
+    "email": "test@example.com",
+    "includes": {
+        "customer": [
+            "salesChannelId",
+            "customerNumber",
+            "id"
+        ]
+    }
+}
+
+{
+    "salesChannelId": "c9f8adb3cafb4ff69a4566b806300493",
+    "customerNumber": "10079",
+    "id": "2207e9a717854ab1affb8f57cebeead3",
+    "apiAlias": "customer"
+}
+``` 
 
 ### Logout
 Using this route `store-api.account.logout` you can log out a customer.

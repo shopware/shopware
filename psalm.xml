@@ -13,6 +13,8 @@
         <ignoreFiles>
             <directory name="vendor"/>
             <directory name="platform/src/Recovery" />
+            <directory name="platform/src/Recovery" />
+            <directory name="platform/src/Docs/Resources" />
             <file name="vendor/shopware/platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php" />
         </ignoreFiles>
     </projectFiles>
@@ -24,11 +26,6 @@
                 <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
             </errorLevel>
         </UnusedMethodCall>
-        <UnusedVariable>
-            <errorLevel type="info">
-                <file name="platform/src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
-            </errorLevel>
-        </UnusedVariable>
         <UnusedFunctionCall>
             <errorLevel type="info">
                 <referencedFunction name="iterator_to_array"/>
@@ -52,7 +49,6 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
                 <file name="platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
-                <file name="platform/src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UndefinedConstant>
         <InvalidScope>

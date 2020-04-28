@@ -12,7 +12,7 @@ specific styling for elements dependent on their parent block
         background-repeat: no-repeat;
         background-position: 50%;
     }
-    
+
     .cms-block-container {
         .cms-block-container-row {
             flex-direction: row;
@@ -101,7 +101,7 @@ specific styling for elements dependent on their parent block
             flex-direction: column;
 
             > div {
-                flex-basis: 0;
+                flex-basis: auto;
                 flex-grow: 1;
                 max-width: 100%;
             }

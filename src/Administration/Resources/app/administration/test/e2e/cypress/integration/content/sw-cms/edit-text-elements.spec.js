@@ -40,19 +40,9 @@ describe('CMS: Check usage and editing of text elements', () => {
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
 
         // Edit headline
-        cy.get('.sw-text-editor__content-editor h2')
-            .then($target => {
-                const coords = $target[0].getBoundingClientRect();
-
-                cy.get('.sw-text-editor__content-editor h2').click();
-                cy.get('.sw-text-editor__content-editor h2').type('{uparrow}{uparrow}{uparrow}{uparrow}');
-                cy.get('.sw-text-editor__content-editor h2').type('Unterbrechung');
-                cy.get('.sw-text-editor__content-editor h2').type('{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}{del}');
-                cy.get('.sw-text-editor__content-editor h2').type('{downarrow}{downarrow}');
-                cy.get('.sw-text-editor__content-editor h2').type('\nHerr von Ribbeck auf Ribbeck im Havelland,\n' +
-                    'Ein Birnbaum in seinem Garten stand,\n' +
-                    'Und kam die goldene Herbsteszeit...\n');
-            });
+        cy.get('.sw-text-editor__content-editor').should('be.visible');
+        cy.get('.sw-cms-slot:nth-of-type(1) .sw-text-editor__content-editor').clear();
+        cy.get('.sw-cms-slot:nth-of-type(1) .sw-text-editor__content-editor').type('Chocolate cake dragée');
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
@@ -78,8 +68,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.cms-block h2').contains('Unterbrechung');
-        cy.get('.cms-element-text > p').contains('Herr von Ribbeck auf Ribbeck im Havelland,');
+        cy.get('.cms-block h2').contains('Chocolate cake dragée');
     });
 
     it('@content: use text block with three columns', () => {

@@ -409,7 +409,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = $request->request->get('manufacturer', '');
         }
 
-        $ids = explode('|', $ids);
+        if (is_string($ids)) {
+            $ids = explode('|', $ids);
+        }
 
         return array_filter($ids);
     }
@@ -421,7 +423,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = $request->request->get('properties', '');
         }
 
-        $ids = explode('|', $ids);
+        if (is_string($ids)) {
+            $ids = explode('|', $ids);
+        }
 
         return array_filter($ids);
     }

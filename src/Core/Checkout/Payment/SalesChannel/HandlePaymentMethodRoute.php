@@ -34,7 +34,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 
     /**
      * @OA\Get(
-     *      path="/payment-method/handle",
+     *      path="/handle-payment",
      *      description="Handles a payment for an order",
      *      operationId="handlePaymentMethod",
      *      tags={"Store API", "Payment Method"},
@@ -53,7 +53,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/payment_method_flat"))
      *     )
      * )
-     * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
+     * @Route("/store-api/v{version}/handle-payment", name="store-api.payment.handle", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {

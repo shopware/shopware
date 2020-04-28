@@ -1,4 +1,5 @@
-# Jest tests for the administration
+[titleEn]: <>(Jest tests for the administration)
+[hash]: <>(article:testing_jest)
 
 This little guide will guide you how to write unit tests for the administration in Shopware 6.
 

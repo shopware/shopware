@@ -13,7 +13,7 @@ The shop administrator is then able to react on a lunar eclipse with special pri
 ## Setup
 
 This HowTo **does not** explain how you can create a new plugin for Shopware 6.
-Head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
+Head over to our [developer guide](./../20-developer-guide/10-plugin-base.md) to
 learn creating a plugin at first.
 
 Creating a custom rule requires you to implement both Backend (PHP) code, as well as an UI for the administration.
@@ -84,7 +84,7 @@ As you might have noticed, there's already several methods implemented:
 - `getConstraints`: This method returns an array of the possible fields and its types. You could also return the `NotBlank` class here, to require this field.
 
 Time to register it in the DI container via the `services.xml` of your plugin.
-If your plugin does not have a `services.xml` file yet, make sure to read [here](./../2-internals/4-plugins/010-plugin-quick-start.md#The services.xml) to understand how it can be created in the first place.
+If your plugin does not have a `services.xml` file yet, make sure to read [here](./../20-developer-guide/40-services-subscriber.md) to understand how it can be created in the first place.
 
 Your rule has to be defined as a service together with the tag `shopware.rule.definition`:
 ```xml

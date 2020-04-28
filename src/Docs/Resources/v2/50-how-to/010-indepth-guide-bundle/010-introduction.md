@@ -1,7 +1,7 @@
 [titleEn]: <>(Step 1: Introduction)
 [hash]: <>(article:bundle_introduction)
 
-There's plenty of explanations about [how to set-up your first plugin](./../../2-internals/4-plugins/010-plugin-quick-start.md), with possibilities of [configuring your plugin](./../../2-internals/4-plugins/070-plugin-config.md)
+There's plenty of explanations about [how to set-up your first plugin](./../../20-developer-guide/10-plugin-base.md), with possibilities of [configuring your plugin](./../../60-references-internals/40-plugins/070-plugin-config.md)
 and [several smaller examples on how to solve a specific problem](https://docs.shopware.com/en/shopware-platform-dev-en/how-to) with your plugin.
 
 This tutorial series will guide you through the process of actually creating a fully functional plugin, from creating the plugin from scratch

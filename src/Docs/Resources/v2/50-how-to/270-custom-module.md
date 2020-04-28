@@ -4,7 +4,7 @@
 
 ## Overview
 
-Managing your plugin's configuration is mostly done using the [plugin configuration](./../2-internals/4-plugins/070-plugin-config.md).
+Managing your plugin's configuration is mostly done using the [plugin configuration](./../60-references-internals/40-plugins/070-plugin-config.md).
 Bigger plugins tend to have a lot of possible configurations and quite often they have to provide a listing to manage their custom
 entities. This cannot be solved with the generated plugin configuration. In this case you have to create a custom module.
 A custom module can be created with the following steps.
@@ -12,7 +12,7 @@ A custom module can be created with the following steps.
 ## Setup
 
 This HowTo **does not** explain how to create a new plugin for Shopware 6.
-Head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
+Head over to our [Developer guide](./../20-developer-guide/10-plugin-base.md) to
 learn creating a plugin at first.
 
 ## Injecting into the administration

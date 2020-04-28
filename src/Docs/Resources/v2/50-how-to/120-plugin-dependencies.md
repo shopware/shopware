@@ -11,7 +11,7 @@ Further information about this can be found in the [official composer documentat
 ## Setup
 
 Each plugin for Shopware 6 has to own a `composer.json` file for it to be a valid plugin.
-Creating a plugin is not explained here, make sure to read our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) first.
+Creating a plugin is not explained here, make sure to read our [developer guide](./../20-developer-guide/10-plugin-base.md) first.
 
 Since every plugin has to own a `composer.json` file, you can simply refer to this plugin by its technical name and its version
 mentioned in the respective plugin's `composer.json`.

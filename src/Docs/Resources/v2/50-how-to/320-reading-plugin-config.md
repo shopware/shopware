@@ -4,9 +4,9 @@
 
 ## Setup
 
-You won't learn to create a plugin in this guide, head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
+You won't learn to create a plugin in this guide, head over to our [developer guide](./../20-developer-guide/10-plugin-base.md) to
 create your plugin first.
-It is also recommended to know how to setup a [plugin configuration](./../2-internals/4-plugins/070-plugin-config.md) in the first instance.
+It is also recommended to know how to setup a [plugin configuration](./../60-references-internals/40-plugins/070-plugin-config.md) in the first instance.
 In this example, the configurations will be read inside of a subscriber, so knowing [subscribers in plugins](./040-register-subscriber.md) will also be helpful.
 
 ## Overview

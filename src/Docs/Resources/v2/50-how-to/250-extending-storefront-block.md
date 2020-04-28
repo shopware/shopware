@@ -10,7 +10,7 @@ For simplicities' sake, only the logo is replaced with an "Hello world!" text.
 ## Setup
 
 This HowTo requires you to already have a basic plugin running.
-If you don't know how to do this in the first place, have a look at our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md).
+If you don't know how to do this in the first place, have a look at our [developer guide](./../20-developer-guide/10-plugin-base.md).
 That's already all the setup you need.
 
 ## Extending the storefront
@@ -21,7 +21,7 @@ First of all you need to register your plugin's own view path, which basically r
 By default, Shopware 6 is looking for a directory called `views` in your plugin's `Resources` directory, so 
 the path could look like this: `<plugin root>/src/Resources/views`
 
-If you're unhappy with this default path, you can override it in your plugin's base class using the [getViewPaths](./../2-internals/4-plugins/020-plugin-base-class.md) method.
+If you're unhappy with this default path, you can override it in your plugin's base class using the [getViewPaths](./../60-references-internals/40-plugins/020-plugin-base-class.md) method.
 
 ### Finding the proper template
 

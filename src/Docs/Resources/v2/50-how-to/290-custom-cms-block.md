@@ -6,7 +6,7 @@ This HowTo will teach you to create a new CMS block via a plugin.
 
 ## Setup
 
-You won't learn to create a plugin in this guide, head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
+You won't learn to create a plugin in this guide, head over to our [developer guide](./../20-developer-guide/10-plugin-base.md) to
 create your plugin first.
 Also, you should know how to handle the "Shopping Experiences" module in the administration first.
 Have a look at our documentation about the "Shopping Experiences" module [here](https://docs.shopware.com/en/shopware-6-en/content/ShoppingExperiences).

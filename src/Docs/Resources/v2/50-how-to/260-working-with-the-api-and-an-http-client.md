@@ -221,7 +221,7 @@ administration.
 ```
 
 For further information about the `config.xml`, see the
-[config.xml documentation](./../2-internals/4-plugins/070-plugin-config.md).
+[config.xml documentation](./../60-references-internals/40-plugins/070-plugin-config.md).
 
 ## Authorization problems
 
@@ -317,7 +317,7 @@ The third parameter is the data you might want to send to the API. These data ca
 encoded by PHP according to the JSON scheme.
 
 If you want to know more about how to work with the API, we recommend you take a look at the
-[API documentation](./../3-api/__categoryInfo.md)
+[API documentation](./../40-admin-api-guide/__categoryInfo.md)
 
 ## Source
 

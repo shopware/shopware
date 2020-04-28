@@ -86,7 +86,7 @@ You'll have to define your subscriber as a service using the `kernel.event_subsc
 ## Editing the detail template
 
 By default, Shopware 6 is looking for a directory called `Resources/views` relative to your plugin's base class.
-Its default location can be changed by overriding your plugin's base class [getViewPaths](./../../2-internals/4-plugins/020-plugin-base-class.md#getViewPaths) method.
+Its default location can be changed by overriding your plugin's base class [getViewPaths](./../../60-references-internals/40-plugins/020-plugin-base-class.md#getViewPaths) method.
 This directory is then considered by the Twig FileSystemLoader, so all templates in this directory will be loaded automatically.
 In this example, the path therefore would be: `<plugin root>/src/Resources/views` - guess you know what to do now, create this directory.
 

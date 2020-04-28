@@ -1,0 +1,24 @@
+@startuml
+
+skinparam BoxPadding 10
+
+
+actor "Customer" as customer
+
+box "Shopware 6"
+    participant "Checkout"  as checkout
+    participant "Asynchronous\nPayment Handler"  as synchronous_payment_handler
+end box
+
+box "External System"
+    entity "Payment Platform" as payment_platform
+end box
+
+
+customer --> checkout : pay
+checkout --> synchronous_payment_handler : pay
+synchronous_payment_handler --> customer : redirect
+customer --> payment_platform : pay
+payment_platform --> checkout : redirect
+checkout --> synchronous_payment_handler : finalize
+@enduml

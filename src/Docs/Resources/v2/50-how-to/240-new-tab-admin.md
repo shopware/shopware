@@ -14,7 +14,7 @@ In this example, the product detail page is extended by a new tab, which then on
 ## Setup
 
 This HowTo requires you to already have a basic plugin running.
-If you don't know how to do this in the first place, have a look at our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md).
+If you don't know how to do this in the first place, have a look at our [developer guide](./../20-developer-guide/10-plugin-base.md).
 That's already all the setup you need.
 
 ## New tab

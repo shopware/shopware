@@ -548,7 +548,7 @@ Shopware.Component.register('swag-bundle-list', {
 ```
 
 Now you wonder how to fill the `bundles` variable here. Do you still remember, that you created an `EntityDefinition` for your new table way earlier in this
-tutorial? By this, you've registered your custom table to Shopware 6 [data abstraction layer](./../../60-references-internals/10-core/0130-dal.md) which then
+tutorial? By this, you've registered your custom table to Shopware 6 [data abstraction layer](./../../60-references-internals/10-core/130-dal.md) which then
 also takes care of creating a repository for your bundles. This means, that you can access your bundles using the API.
 
 Accessing the API in your component also works by fetching a repository and executing searches on it. Accessing the repository now opens up a whole new subject:

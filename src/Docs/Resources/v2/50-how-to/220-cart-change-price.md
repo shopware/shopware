@@ -19,7 +19,7 @@ For this HowTo the following scenario is given:
 You want to create a plugin, whose main purpose it is to overwrite the price of an item in the cart dynamically.
 In this example, the prices are fetched from a database-table.
 You've already created your own working plugin with a custom entity for those prices.
-If you don't know how that's done, have a look at our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) and
+If you don't know how that's done, have a look at our [developer guide](./../20-developer-guide/10-plugin-base.md) and
 our [HowTo to create a custom entity](./050-custom-entity.md).
 
 The custom entity could look something like that:

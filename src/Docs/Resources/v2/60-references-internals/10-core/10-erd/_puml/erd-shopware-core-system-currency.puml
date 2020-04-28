@@ -1,0 +1,74 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
+   primary_key(id) id
+   not_null(factor) float
+   not_null(symbol) string
+   not_null(isoCode) string
+   shortName translated
+   name translated
+   not_null(decimalPrecision) int
+   position int
+   isSystemDefault bool
+   customFields translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
+   not_null(shortName) string
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(currencyId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition, "shipping_method_price") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition, "sales_channel_currency") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition, "promotion_discount_prices") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+@enduml

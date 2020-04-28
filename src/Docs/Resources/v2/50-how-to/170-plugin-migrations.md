@@ -15,15 +15,15 @@ A very common solution to this issue is a database migration system, which Shopw
 for every plugin.
 
 Here's a brief introduction on how to use `Migrations` in your plugin.
-Make sure to have a look at our in-depth guide about [plugin migrations](./../2-internals/4-plugins/080-plugin-migrations.md).
+Make sure to have a look at our in-depth guide about [plugin migrations](./../60-references-internals/40-plugins/080-plugin-migrations.md).
 
 ## Setup
 
 This example won't explain how to create a plugin in the first instance.
-How to create your first plugin is explained in detail [here](./../2-internals/4-plugins/010-plugin-quick-start.md).
+How to create your first plugin is explained in detail [here](./../20-developer-guide/10-plugin-base.md).
 
 By default, Shopware 6 is looking for migration files in a folder called `Migration` relative to your plugin's base class directory.
-You can adjust this behaviour by overwriting the [getMigrationNamespace()](./../2-internals/4-plugins/020-plugin-base-class.md#getMigrationNamespace) method in your plugin.
+You can adjust this behaviour by overwriting the [getMigrationNamespace()](./../60-references-internals/40-plugins/020-plugin-base-class.md#getMigrationNamespace) method in your plugin.
 
 ## The migration file
 

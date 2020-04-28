@@ -11,7 +11,7 @@ Make sure to have a look at the [Symfony commands guide](https://symfony.com/doc
 
 The main requirement here is to have a `services.xml` file loaded in your plugin.
 This can be achieved by placing the file into a `Resources/config` directory relative to your plugin's base class location.
-Make sure to also have a look at the method [getServicesFilePath](./../2-internals/4-plugins/020-plugin-base-class.md#getServicesFilePath)
+Make sure to also have a look at the method [getServicesFilePath](./../60-references-internals/40-plugins/020-plugin-base-class.md#getServicesFilePath)
 
 From here on, everything works exactly like in Symfony itself.
 

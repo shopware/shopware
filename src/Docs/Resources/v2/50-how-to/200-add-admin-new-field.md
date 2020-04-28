@@ -12,7 +12,7 @@ some other product data not being shown by default.
 ## Setup
 
 This HowTo **does not** explain how you can create a new plugin for Shopware 6.
-Head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
+Head over to our [developer guide](./../20-developer-guide/10-plugin-base.md) to
 learn creating a plugin at first.
 
 ## Injecting into the administration

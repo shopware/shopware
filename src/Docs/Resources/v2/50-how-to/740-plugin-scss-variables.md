@@ -66,7 +66,7 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
 
 Inside your `ThemeVariablesSubscriber.php` you can also read values from the plugin configuration and assign those to a SCSS variable. This makes it also possible to have different values for each sales channel. Depending on the selected sales channel inside the plugin configuration in the administration.
 
-First of all lets add a new plugin configuration field according to the [plugin configuration documentation](./../2-internals/4-plugins/070-plugin-config.md):
+First of all lets add a new plugin configuration field according to the [plugin configuration documentation](./../60-references-internals/40-plugins/070-plugin-config.md):
 
 ```xml
 <!-- ScssPlugin/src/Resources/config/config.xml -->

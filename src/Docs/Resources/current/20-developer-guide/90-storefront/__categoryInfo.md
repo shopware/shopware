@@ -21,7 +21,7 @@ The Storefront's main concerns are:
    : Contrary to API calls that result in single resource data, a whole page in Storefront displays multiple different 
    data sets on a single page.
    
-**[Mapping Requests to the Core](../../60-references-internals/30-storefront/200-storefront-writing-data.md)** 
+**[Mapping Requests to the Core](./../../60-references-internals/30-storefront/200-storefront-writing-data.md)** 
 ([Pagecontroller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController), 
 [PageletController](https://github.com/shopware/platform/tree/master/src/Storefront/PageletController))
    : The Storefront uses the SalesChannel API internally and forwards possibly slightly changed requests to the core.

@@ -45,7 +45,7 @@ GET /store-api/v1/context
 ### Available languages
 To get all languages of an Sales Channel you can use the following route `store-api.language`
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
 POST /store-api/v1/language
@@ -76,7 +76,7 @@ POST /store-api/v1/language
 ### Available currencies
 With `store-api.currency` you can fetch all currencies that are available in this Sales Channel.
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
 POST /store-api/v1/currency
@@ -148,7 +148,7 @@ PATCH /store-api/v1/context
 
 When you want to get Information about your SEO Urls then you can use this route: `store-api.seo.url`
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
 GET /store-api/v1/seo-url

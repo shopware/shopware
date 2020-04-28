@@ -15,7 +15,7 @@ This route needs some parameters:
 * `buildTree`: when setting this parameter to `true` the api returns the categories in a tree like format.
 * `depth`: determines how many layers of categories should get loaded.
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 ```
 POST /store-api/v1/navigation/main-navigation/main-navigation
 

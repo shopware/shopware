@@ -143,7 +143,7 @@ POST /store-api/v1/account/logout
 ### Get current customer
 With the following route you can get information about the logged in user: `store-api.account.customer`
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 **Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
 
@@ -313,7 +313,7 @@ POST /store-api/v1/account/change-payment-method/da4aa20cd7b9417094a0eb51426f091
 ### Order overview
 You can view an order of the customer with the `store-api.order` route.
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 **Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
 

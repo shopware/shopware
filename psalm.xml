@@ -26,8 +26,7 @@
         </UnusedMethodCall>
         <UnusedVariable>
             <errorLevel type="info">
-                <file name="platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
-                <file name="platform/src/Docs/Resources/v2/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
+                <file name="platform/src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UnusedVariable>
         <UnusedFunctionCall>
@@ -53,8 +52,7 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
                 <file name="platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
-                <file name="platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
-                <file name="platform/src/Docs/Resources/v2/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
+                <file name="platform/src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UndefinedConstant>
         <InvalidScope>

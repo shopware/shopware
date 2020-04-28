@@ -20,6 +20,11 @@ class CacheApiService {
         return this.httpClient.delete('/_action/cache', { headers });
     }
 
+    cleanupOldCaches() {
+        const headers = this.getHeaders();
+        return this.httpClient.delete('/_action/cleanup', { headers });
+    }
+
     clearAndWarmup() {
         const headers = this.getHeaders();
         return this.httpClient.delete('/_action/cache_warmup', { headers });

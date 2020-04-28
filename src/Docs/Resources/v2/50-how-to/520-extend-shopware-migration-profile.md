@@ -474,7 +474,7 @@ of the field.) In the end of this step, you have to register your new converter 
 </service>
 ```
 
-If you need more information on the converter and mapping in general, take a look at [converter, mapping and deltas concept](./../2-internals/4-plugins/010-shopware-migration-assistant/070-converter-and-mapping.md).
+If you need more information on the converter and mapping in general, take a look at [converter, mapping and deltas concept](./../60-references-internals/40-plugins/010-shopware-migration-assistant/070-converter-and-mapping.md).
 
 ## Adding a writer
 
@@ -510,7 +510,7 @@ class BundleWriter extends AbstractWriter
 
 You only need to implement the `supports` method and specify the right `Definition` in `migration_assistant_extension.xml`.
 The logic to write the data is defined in the `AbstractWriter` class and should almost always be the same.
-Take a look at [writer concept](./../2-internals/4-plugins/010-shopware-migration-assistant/080-writer.md) for more information.
+Take a look at [writer concept](./../60-references-internals/40-plugins/010-shopware-migration-assistant/080-writer.md) for more information.
 
 And that's it, you're done and have already implemented your first plugin migration.
 Install your plugin, clear the cache and build the administration anew to see the migration of your bundle entities.

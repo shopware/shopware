@@ -8,7 +8,7 @@ are flat and forwarded directly from the controller to a core service. The whole
 ![write classes](./../../20-developer-guide/90-storefront/img/write-classes.png)
 
 Of course the core boundary is the important bit here. If modules in the core like - lets say - the 
-[`Cart`](./../1-core/50-checkout-process/10-cart.md) provide a divergent structure internally this structure 
+[`Cart`](./../10-core/50-checkout-process/10-cart.md) provide a divergent structure internally this structure 
 is used instead. However, there is always a core service used which is related to sales channel activities.
 
 ## CSRF protection

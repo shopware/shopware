@@ -1,4 +1,4 @@
-[titleEn]: <>(Administration)
+[titleEn]: <>(Administration reference)
 [hash]: <>(category:administration)
 
 * [Repository Link](https://github.com/shopware/platform/tree/master/src/Adminitration/Resources/app/administration/source)

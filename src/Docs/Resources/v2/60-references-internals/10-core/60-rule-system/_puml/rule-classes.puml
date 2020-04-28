@@ -1,0 +1,38 @@
+@startuml
+
+hide empty members
+
+class Rule
+class Container
+class OrRule
+class AndRule
+class "...Rule" as containerRule
+
+class AmountRule
+class CountRule
+class DateRule
+class "...Rule" as primitiveRule
+
+class Scope
+class "...Scope" as someScope
+class LineItemScope
+class CartScope
+
+Rule <|-left- Container
+Container <|-- AndRule
+Container <|-- OrRule
+Container <|-- containerRule
+
+Rule <|-- AmountRule
+Rule <|-- CountRule
+Rule <|-- DateRule
+Rule <|-- primitiveRule
+
+Scope <|-- LineItemScope
+Scope <|-- CartScope
+Scope <|-- someScope
+
+Rule .right.. Scope
+primitiveRule . someScope
+
+@enduml

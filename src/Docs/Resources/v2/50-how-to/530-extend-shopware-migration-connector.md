@@ -6,13 +6,13 @@
 
 In this HowTo you will see an example on how you can extend the [Migration Connector](https://github.com/shopware/SwagMigrationConnector) 
 plugin to migrate the Shopware 5 [SwagAdvDevBundle](https://github.com/shopwareLabs/SwagAdvDevBundle) to the Shopware 6 
-[SwagBundleExample](./../1-getting-started/35-indepth-guide-bundle/010-introduction.md) plugin via API.
+[SwagBundleExample](./010-indepth-guide-bundle/010-introduction.md) plugin via API.
 
 ## Setup
 
 It is required that you already have a basic Shopware 5 plugin running and to have installed the
 [SwagAdvDevBundle](https://github.com/shopwareLabs/SwagAdvDevBundle), the [Migration Connector](https://github.com/shopware/SwagMigrationConnector) 
-plugin in Shopware 5 and the [SwagBundleExample](./../1-getting-started/35-indepth-guide-bundle/010-introduction.md), 
+plugin in Shopware 5 and the [SwagBundleExample](./010-indepth-guide-bundle/010-introduction.md), 
 [Migration Assistant](https://github.com/shopware/SwagMigrationAssistant) and 
 [SwagMigrationBundleExample](./520-extend-shopware-migration-profile.md) plugin in Shopware 6. If you want to know, how all
 plugins working together, please have a look on the [Extending a Shopware migration profile](./520-extend-shopware-migration-profile.md) HowTo.

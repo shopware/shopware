@@ -1,0 +1,81 @@
+{% block sw_sales_channel_google_website_verification %}
+    <div class="sw-sales-channel-google-website-claim">
+        {% block sw_sales_channel_google_store_verification_top %}
+
+            <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.titleCreateMerchant') }}</strong>
+            <p class="sw-sales-channel-google-website-claim__description">
+                {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.textVerifyDescription') }}
+                <br/>
+                <sw-sales-channel-detail-protect-link
+                    :href="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.linkClaimWebsiteUrl')">
+                    {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.textLearnMore') }}
+                </sw-sales-channel-detail-protect-link>
+            </p>
+
+            {% block sw_sales_channel_google_automatically_claimed_info %}
+                <sw-alert class="sw-sales-channel-google-website-claim__claim-info"
+                          variant="info"
+                          appearance="default">
+                    {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.textAutoClaimedInfo') }}
+                </sw-alert>
+            {% endblock %}
+
+            {% block sw_sales_channel_google_website_verification_form %}
+
+                {% block sw_sales_channel_google_website_url %}
+                    <div class="sw-sales-channel-google-website-claim__form-container">
+                        <sw-text-field
+                            v-model="websiteUrl"
+                            :label="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.labelWebsiteUrl')"
+                            :placeholder="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.placeholderWebsite')">
+                        </sw-text-field>
+                        <sw-help-text
+                            class="sw-sales-channel-google-website-claim__form-helptext"
+                            :text="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.tooltipsWebsite')"
+                            tooltipPosition="top">
+                        </sw-help-text>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_google_store_name %}
+                    <div class="sw-sales-channel-google-website-claim__form-container">
+                        <sw-text-field
+                            v-model="storeName"
+                            validation="required"
+                            :label="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.labelStoreName')"
+                            :placeholder="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.placeholderStoreName')">
+                        </sw-text-field>
+                        <sw-help-text
+                            class="sw-sales-channel-google-website-claim__form-helptext"
+                            :text="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.tooltipsStoreName')"
+                            tooltipPosition="top">
+                        </sw-help-text>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_google_store_location %}
+                    <sw-entity-single-select
+                        v-model="businessLocation"
+                        class="sw-sales-channel-detail__select-footer-category-id"
+                        :label="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.labelBusinessLocation')"
+                        entity="country">
+                    </sw-entity-single-select>
+                {% endblock %}
+
+                {% block sw_sales_channel_google_terms_agree_checkbox %}
+                    <div class="sw-sales-channel-google-website-claim__adult-checkbox">
+                        <sw-checkbox-field
+                            v-model="hasAdultContent"
+                            :label="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.labelShopContain')">
+                        </sw-checkbox-field>
+                        <sw-sales-channel-detail-protect-link
+                            class="sw-sales-channel-google-website-claim__adult-checkbox-link"
+                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.linkAdultPolicyUrl')">
+                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.website-claim.textAdultContent') }}
+                        </sw-sales-channel-detail-protect-link>
+                    </div>
+                {% endblock %}
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

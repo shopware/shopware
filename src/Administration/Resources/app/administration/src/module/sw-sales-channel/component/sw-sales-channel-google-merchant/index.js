@@ -1,4 +1,6 @@
 import template from './sw-sales-channel-google-merchant.html.twig';
+import { getErrorMessage } from '../../helper/get-error-message.helper';
+
 import './sw-sales-channel-google-merchant.scss';
 
 const { Component, State, Service, Mixin, Utils } = Shopware;
@@ -23,7 +25,7 @@ Component.register('sw-sales-channel-google-merchant', {
             merchantAccounts: [],
             selectedMerchant: '',
             isListLoading: false,
-            isMerchantLoading: false,
+            isProcessLoading: false,
             isProcessSuccessful: false
         };
     },
@@ -39,14 +41,14 @@ Component.register('sw-sales-channel-google-merchant', {
 
         compoundData() {
             const {
-                isMerchantLoading,
+                isProcessLoading,
                 isListLoading,
                 selectedMerchant,
                 isProcessSuccessful
             } = this;
 
             return {
-                isMerchantLoading,
+                isProcessLoading,
                 isListLoading,
                 selectedMerchant,
                 isProcessSuccessful
@@ -88,8 +90,8 @@ Component.register('sw-sales-channel-google-merchant', {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonNext'),
                     variant: 'primary',
                     action: this.onClickNext,
-                    disabled: this.isListLoading || !this.selectedMerchant || this.isMerchantLoading,
-                    isLoading: this.isMerchantLoading,
+                    disabled: this.isListLoading || !this.selectedMerchant || this.isProcessLoading || this.isProcessSuccessful,
+                    isLoading: this.isProcessLoading,
                     isProcessSuccessful: this.isProcessSuccessful,
                     processFinish: this.processFinish
                 },
@@ -97,7 +99,7 @@ Component.register('sw-sales-channel-google-merchant', {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonBack'),
                     variant: null,
                     action: 'sw.sales.channel.detail.base.step-2',
-                    disabled: this.isMerchantLoading
+                    disabled: this.isProcessLoading
                 }
             };
 
@@ -127,12 +129,14 @@ Component.register('sw-sales-channel-google-merchant', {
                 return;
             }
 
-            this.isMerchantLoading = true;
+            this.isProcessLoading = true;
             this.isProcessSuccessful = false;
 
             try {
                 if (merchantId) {
                     await Service('googleShoppingService').unassignMerchant(this.salesChannel.id);
+
+                    State.commit('swSalesChannel/setGoogleShoppingMerchantAccount', null);
                 }
 
                 await Service('googleShoppingService')
@@ -149,7 +153,7 @@ Component.register('sw-sales-channel-google-merchant', {
             } catch (error) {
                 this.showErrorNotification(error);
             } finally {
-                this.isMerchantLoading = false;
+                this.isProcessLoading = false;
             }
         },
 
@@ -163,11 +167,11 @@ Component.register('sw-sales-channel-google-merchant', {
         },
 
         showErrorNotification(error) {
-            const errorDetail = Utils.get(error, 'response.data.errors[0].detail', '');
+            const errorDetail = getErrorMessage(error);
 
             this.createNotificationError({
                 title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
-                message: errorDetail || this.$tc('sw-sales-channel.modalGooglePrograms.step-3.messageErrorDefault')
+                message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
             });
         }
     }

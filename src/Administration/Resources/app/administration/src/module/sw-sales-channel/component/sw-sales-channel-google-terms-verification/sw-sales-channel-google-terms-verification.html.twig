@@ -4,23 +4,24 @@
             <div class="sw-sales-channel-google-terms-verification__top">
 
                 {% block sw_sales_channel_google_terms %}
-                    <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-6.titleTerms') }}</strong>
+                    <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-5.titleTerms') }}</strong>
                     <p class="sw-sales-channel-google-terms-verification__description">
-                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-6.titleTermsDescription') }}
+                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-5.titleTermsDescription') }}
                         <sw-sales-channel-detail-protect-link
-                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-6.textMerchantTermsUrl')">
-                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-6.textMerchantTerms') }}
+                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-5.textMerchantTermsUrl')">
+                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-5.textMerchantTerms') }}
                         </sw-sales-channel-detail-protect-link>,
 
                         <sw-sales-channel-detail-protect-link
-                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-6.textShoppingAdsPolicyUrl')">
-                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-6.textShoppingAdsPolicy') }}
+                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-5.textShoppingAdsPolicyUrl')">
+                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-5.textShoppingAdsPolicy') }}
                         </sw-sales-channel-detail-protect-link>
 
-                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-6.textAnd') }}
+                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-5.textAnd') }}
+
                         <sw-sales-channel-detail-protect-link
-                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-6.textGoogleAdsTermsUrl')">
-                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-6.textGoogleAdsTerms') }}
+                            :href="$tc('sw-sales-channel.modalGooglePrograms.step-5.textGoogleAdsTermsUrl')">
+                            {{ $tc('sw-sales-channel.modalGooglePrograms.step-5.textGoogleAdsTerms') }}
                         </sw-sales-channel-detail-protect-link>
                     </p>
                 {% endblock %}
@@ -28,7 +29,7 @@
                 {% block sw_sales_channel_google_terms_agree_checkbox %}
                     <div class="sw-sales-channel-google-terms-verification__agree-checkbox">
                         <sw-checkbox-field
-                            :label="$tc('sw-sales-channel.modalGooglePrograms.step-6.textAcceptTerms')"
+                            :label="$tc('sw-sales-channel.modalGooglePrograms.step-5.labelAcceptTerms')"
                             v-model="isAgree">
                         </sw-checkbox-field>
                     </div>

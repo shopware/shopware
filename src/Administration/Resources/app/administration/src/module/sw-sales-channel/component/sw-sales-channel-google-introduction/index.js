@@ -55,6 +55,8 @@ Component.register('sw-sales-channel-google-introduction', {
         },
 
         async mountedComponent() {
+            this.isLoading = true;
+
             try {
                 const config = await Service('systemConfigApiService').getValues('core.googleShopping');
 
@@ -67,6 +69,8 @@ Component.register('sw-sales-channel-google-introduction', {
                 await Service('googleAuthService').load(gauthOption);
             } catch (error) {
                 this.showErrorNotification(error);
+            } finally {
+                this.isLoading = false;
             }
         },
 
@@ -114,7 +118,8 @@ Component.register('sw-sales-channel-google-introduction', {
 
             try {
                 const authCode = await Service('googleAuthService').getAuthCode();
-                const { data: googleShoppingAccount } = await Service('googleShoppingService').connectGoogle(this.salesChannel.id, authCode);
+                const { data: googleShoppingAccount } = await Service('googleShoppingService')
+                    .connectGoogle(this.salesChannel.id, authCode);
 
                 const googleShoppingAccountData = Utils.get(googleShoppingAccount, 'data', null);
 
@@ -149,20 +154,33 @@ Component.register('sw-sales-channel-google-introduction', {
 
         getErrorMessage(error) {
             // Show error message based on https://developers.google.com/identity/sign-in/web/reference#googleauthsigninoptions
+
+            if (!error) {
+                return this.$tc('global.notification.unspecifiedSaveErrorMessage');
+            }
+
             const { error: errorCode, details } = error;
             if (errorCode && details) {
-                return this.$t('sw-sales-channel.modalGooglePrograms.step-1.messageErrorGoogleAuth', { error: `[${error.error}] - ${error.details}` });
+                return this.$t('sw-sales-channel.modalGooglePrograms.step-1.messageErrorGoogleAuth',
+                    { error: `[${error.error}] - ${error.details}` });
             }
 
             if (errorCode) {
-                return this.$t('sw-sales-channel.modalGooglePrograms.step-1.messageErrorGoogleAuth', { error: `[${error.error}]` });
+                return this.$t('sw-sales-channel.modalGooglePrograms.step-1.messageErrorGoogleAuth',
+                    { error: `[${error.error}]` });
             }
 
-            if (Utils.get(error, 'response.data.errors[0].detail')) {
-                return error.response.data.errors[0].detail;
+            const errorDetail = Utils.get(error, 'response.data.errors[0]', null);
+
+            if (errorDetail && errorDetail.detail) {
+                if (typeof errorDetail.detail === 'object') {
+                    return errorDetail.detail.message;
+                }
+
+                return errorDetail.detail;
             }
 
-            return this.$tc('sw-sales-channel.modalGooglePrograms.step-1.messageErrorDefault');
+            return this.$tc('global.notification.unspecifiedSaveErrorMessage');
         }
     }
 });

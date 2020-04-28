@@ -8,6 +8,8 @@
     &__description {
         font-size: $font-size-small;
         margin: 10px 0;
+        letter-spacing: 0.1px;
+        line-height: 22px;
     }
 
     .sw-sales-channel-google-merchant__top {
@@ -16,6 +18,17 @@
 
     .sw-sales-channel-google-merchant__bottom {
         padding-top: 30px;
+    }
+
+    &__email {
+        text-decoration: none;
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+
+        &:hover {
+            color: $color-shopware-brand-600;
+            text-decoration: underline;
+        }
     }
 
     .sw-sales-channel-google-merchant__select-merchant {

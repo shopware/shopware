@@ -282,14 +282,12 @@
         "titleConnectGoogleAccount": "Verbinde Dein Google-Konto, um Google Programs zu nutzen",
         "textConnectGoogleAccountDescription": "Ein Google-Konto gibt Dir Zugriff auf Dein Google Merchant Center und Google-Ads-Konten.",
         "buttonConnect": "Konto verbinden",
-        "messageErrorGoogleAuth": "Fehlermeldung vom Google Dienst erhalten: {error}",
-        "messageErrorDefault": "Während der Verbindung mit dem Google Konto trat ein Fehler auf"
+        "messageErrorGoogleAuth": "Fehlermeldung vom Google Dienst erhalten: {error}"
       },
       "step-2": {
         "titleYourGoogleAccount": "Dein Google-Konto",
         "buttonDisconnect": "Verbindung trennen",
-        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google-Konto trennst, werden das Google Merchant Center und die Google-Ads-Konten ebenfalls getrennt.",
-        "messageErrorDefault": "Während der Trennung mit dem Google Konto trat ein Fehler auf"
+        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google-Konto trennst, werden das Google Merchant Center und die Google-Ads-Konten ebenfalls getrennt."
       },
       "step-3": {
         "titleGeneral": "Erstelle oder verbinde Dein Google-Merchant-Center-Konto",
@@ -301,55 +299,57 @@
         "titleCreateMerchant": "Erstelle ein neues Google-Merchant-Center-Konto",
         "textCreateMerchantDescription": "Erstelle ein neues Google-Merchant-Center-Konto, wenn du möchtest.",
         "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto",
-        "messageErrorDefault": "Während der Zuweisung des Google Merchant trat ein Fehler auf"
+
+        "website-claim": {
+          "titleCreateMerchant": "Erstelle Dein Merchant-Center-Konto",
+          "textVerifyDescription": "Bevor Du Produktdaten hochladen kannst, musst Du Deine Shop-URL überprüfen lassen und beanspruchen. Mit diesem Verifikationsprozess überprüft Google, ob Du der autorisierte Eigentümer Deiner Website bist. Durch das Beanspruchen wird Deine Shop-URL mit Deinem Google Merchant Center-Konto verknüpft.",
+          "textLearnMore": "Erfahre mehr",
+          "linkClaimWebsiteUrl": "https://support.google.com/merchants/answer/176793?hl=de",
+          "textAutoClaimedInfo": "Deine Website wird automatisch beansprucht und verifiziert.",
+          "labelWebsiteUrl": "Shop-URL",
+          "placeholderWebsite": "beispielshop.de",
+          "tooltipsWebsite": "Diese Website wird verwendet, um Dein Google-Merchant-Center-Konto zu erstellen.",
+          "textStoreName": "Shopname",
+          "placeholderStoreName": "Shopname eintragen...",
+          "tooltipsStoreName": "Dieser Name wird in Deinen Google Shopping Anzeigen verwendet",
+          "labelBusinessLocation": "Geschäftsstandort",
+          "labelShopContain": "Mein Shop beinhaltet",
+          "textAdultContent": "Inhalte für Erwachsene",
+          "linkAdultPolicyUrl": "https://support.google.com/merchants/answer/6150138?hl=de"
+        }
       },
       "step-4": {
         "titleGeneral":"Um Shopping ads verwenden zu können, muss Dein Shop folgende Anforderungen erfüllen:",
         "textAdsPolicy":"Richtlinien für Google Shopping Anzeigen",
-        "textAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=de",
+        "linkAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=de",
         "textAccurateContact": "vollständige Kontaktdaten",
-        "textAccurateContactUrl": "https://support.google.com/merchants/answer/6150127",
+        "linkAccurateContactUrl": "https://support.google.com/merchants/answer/6150127",
         "textSecureCheckoutProcess": "Sicherer Bestellvorgang und sichere personenbezogene Datensammlung",
-        "textSecureCheckoutProcessUrl": "https://support.google.com/merchants/answer/6150122",
-        "textReturPolicy": "Rückgabebedingungen",
-        "textReturPolicyUrl": "https://support.google.com/merchants/answer/6150127",
+        "linkSecureCheckoutProcessUrl": "https://support.google.com/merchants/answer/6150122",
+        "textReturnPolicy": "Rückgabebedingungen",
+        "linkReturnPolicyUrl": "https://support.google.com/merchants/answer/6150127",
         "textBillingTerms": "Rechnungsbedingungen und Konditionen",
-        "textBillingTermsUrl": "https://support.google.com/merchants/answer/6150127",
+        "linkBillingTermsUrl": "https://support.google.com/merchants/answer/6150127",
         "textComplete": "Vollständiger Bestellprozess",
-        "textCompleteUrl": "https://support.google.com/merchants/answer/6150118",
+        "linkCompleteUrl": "https://support.google.com/merchants/answer/6150118",
+        "textVerifiedWebsite": "Verifizierte Storefront Domain",
+        "linkVerifyWebsite": "https://support.google.com/webmasters/answer/9008080?hl=en",
         "textFixHere": "Hier beheben",
         "buttonCheckAgain": "Erneut prüfen"
       },
       "step-5": {
-        "titleCreateMerchant": "Erstelle Dein Merchant Center Konto",
-        "textVerifyDescription": "Bevor Du Produktdaten hochladen kannst, musst Du Deine Shop-URL überprüfen lassen und beanspruchen. Mit diesem Verifikationsprozess überprüft Google, ob Du der autorisierte Eigentümer Deiner Website bist. Durch das Beanspruchen wird Deine Shop-URL mit Deinem Google Merchant Center-Konto verknüpft.",
-        "textLearnMore": "Erfahre mehr",
-        "textClaimnWebsiteUrl": "https://support.google.com/merchants/answer/176793?hl=de",
-        "textAutoClaimedInfo": "Deine Website wird automatisch beansprucht und verifiziert.",
-        "textWebsiteUrl": "Shop-URL",
-        "textWebsitePlaceholder": "beispielshop.de",
-        "textWebsiteTooltips": "Diese Website wird verwendet, um Dein Google-Merchant-Center-Konto zu erstellen.",
-        "textStoreName": "Shopname",
-        "textStoreNamePlaceholder": "Shopname eintragen...",
-        "textStoreNameTooltips": "Dieser Name wird in Deinen Google Shopping Anzeigen verwendet",
-        "textBusinessLocation": "Geschäftsstandort",
-        "textShopContain": "Mein Shop beinhaltet",
-        "textAdultContent": "Inhalte für Erwachsene",
-        "textAdultPolicyUrl": "https://support.google.com/merchants/answer/6150138?hl=de"
-      },
-      "step-6": {
         "titleTerms": "Geschäftsbedingungen für Google Programs",
-        "titleTermsDescription": "Durch den Kauf von Google Shopping Anzeigen, stimme ich mit Googles Geschäftsbedingungen und Richtlinien überein, einschließlich",
+        "titleTermsDescription": "Durch den Kauf von Google Shopping Anzeigen, stimme ich mit Googles Geschäftsbedingungen und Richtlinien überein, einschließlich:",
         "textMerchantTerms": "Google Merchant Center Geschäftsbedingungen",
         "textMerchantTermsUrl": "https://support.google.com/merchants/answer/160173?hl=de",
         "textShoppingAdsPolicy": "Richtlinien der Google Shopping Anzeigen",
         "textShoppingAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=en",
-        "textAnd": "und",
-        "textGoogleAdsTerms": "und die Richtlinien und Bedingungen von Google Ads",
+        "textAnd": "und die",
+        "textGoogleAdsTerms": "Richtlinien und Bedingungen von Google Ads",
         "textGoogleAdsTermsUrl": "https://billing.google.com/payments/u/0/paymentsinfofinder?style=:md#",
-        "textAcceptTerms": "Ich habe die Richtlinien gelesen und akzeptiert."
+        "labelAcceptTerms": "Ich habe die Richtlinien gelesen und akzeptiert."
       },
-      "step-7": {
+      "step-6": {
         "titleSetting": "Versandeinstellungen konfigurieren",
         "textSettingDescription": "Um Werbung für bestimmte Länder/Regionen zu schalten, musst Du den Versand für diese Gebiete anbieten und Versandkosten konfiguriert haben. Deine Merchant-Center-Versandkosten müssen mit den Kosten auf Deiner Website übereinstimmen.",
         "textLearnMore": "Erfahre mehr",
@@ -358,7 +358,7 @@
         "textFlatRateOption": "Verwende einen Pauschaltarif für alle Bestellungen",
         "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten"
       },
-      "step-8": {
+      "step-7": {
         "titleDone": "Alles erledigt!",
         "textDoneDescription": "Dein Google Merchant Konto ist nun mit diesem Verkaufskanal verknüpft."
       }

@@ -6,18 +6,18 @@
         padding-top: 0;
     }
 
-    .sw-sales-channel-google-store-verification__checked-list {
+    &__check-list {
         padding: 10px 0;
     }
 
-    .sw-sales-channel-google-store-verification__checked-item {
-        height: 32px;
+    .sw-sales-channel-google-store-verification__check-item {
         margin: 20px 0;
         display: flex;
         align-items: center;
         position: relative;
 
         .sw-label {
+            margin: 0;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -28,19 +28,21 @@
         }
 
         &-description {
-            padding-left: 10px;
+            padding-left: 20px;
             font-size: $font-size-small;
             line-height: 32px;
         }
+    }
 
-        &-link {
-            text-decoration: none;
-            color: $color-shopware-brand-500;
-            font-size: $font-size-small;
+    &__fix-link {
+        text-decoration: none;
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+        margin-left: 10px;
 
-            &:hover {
-                color: $color-shopware-brand-600;
-            }
+        &:hover {
+            color: $color-shopware-brand-600;
+            text-decoration: underline;
         }
     }
 

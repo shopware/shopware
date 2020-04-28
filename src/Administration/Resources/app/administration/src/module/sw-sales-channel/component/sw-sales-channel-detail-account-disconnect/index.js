@@ -12,7 +12,7 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
     ],
 
     props: {
-        googleShoppingAccount: {
+        salesChannel: {
             type: Object,
             required: true
         }
@@ -20,6 +20,7 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
 
     computed: {
         ...mapState('swSalesChannel', [
+            'googleShoppingAccount',
             'merchantInfo',
             'merchantStatus'
         ]),
@@ -97,7 +98,7 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
 
     methods: {
         createdComponent() {
-            if (this.googleShoppingAccount && this.googleShoppingMerchantAccount) {
+            if (this.googleShoppingMerchantAccount) {
                 this.getMerchantData();
             }
         },
@@ -111,8 +112,11 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
                     this.getMerchantStatus()
                 ]);
 
-                State.commit('swSalesChannel/setMerchantInfo', merchantInfo);
-                State.commit('swSalesChannel/setMerchantStatus', merchantStatus);
+                const merchantInfoData = merchantInfo.data;
+                const merchantStatusData = merchantStatus.data;
+
+                State.commit('swSalesChannel/setMerchantInfo', merchantInfoData.data);
+                State.commit('swSalesChannel/setMerchantStatus', merchantStatusData.data);
             } catch {
                 this.createNotificationError({
                     title: this.$tc('sw-sales-channel.detail.titleFetchError'),
@@ -124,15 +128,11 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
         },
 
         getMerchantInfo() {
-            return Service('googleShoppingService').getMerchantInfo(
-                this.googleShoppingAccount.salesChannelId
-            );
+            return Service('googleShoppingService').getMerchantInfo(this.salesChannel.id);
         },
 
         getMerchantStatus() {
-            return Service('googleShoppingService').getMerchantStatus(
-                this.googleShoppingAccount.salesChannelId
-            );
+            return Service('googleShoppingService').getMerchantStatus(this.salesChannel.id);
         },
 
         onDisconnectToGoogle() {

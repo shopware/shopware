@@ -10,11 +10,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-account-
     beforeAll(() => {
         Shopware.Service().register('googleShoppingService', () => {
             return {
-                getMerchantInfo: function getMerchantInfo() {
+                getMerchantInfo: () => {
                     return Promise.resolve();
                 },
 
-                getMerchantStatus: function getMerchantStatus() {
+                getMerchantStatus: () => {
                     return Promise.resolve();
                 }
             };

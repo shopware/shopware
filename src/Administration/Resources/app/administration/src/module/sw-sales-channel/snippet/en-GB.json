@@ -272,14 +272,12 @@
         "titleConnectGoogleAccount": "Connect your Google Account to use Google Programs",
         "textConnectGoogleAccountDescription": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
         "buttonConnect": "Connect Account",
-        "messageErrorGoogleAuth": "Received an error message from Google service: {error}",
-        "messageErrorDefault": "An error occurred during Google account connection"
+        "messageErrorGoogleAuth": "Received an error message from Google service: {error}"
       },
       "step-2": {
         "titleYourGoogleAccount": "Your Google Account",
         "buttonDisconnect": "Disconnect",
-        "textDisconnectInfo": "If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected.",
-        "messageErrorDefault": "An error occurred during Google account disconnection"
+        "textDisconnectInfo": "If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected."
       },
       "step-3": {
         "titleGeneral": "Create or connect your Google Merchant Center account",
@@ -291,45 +289,46 @@
         "titleCreateMerchant": "Create a new Google Merchant Center account",
         "textCreateMerchantDescription": "Create a new Google Merchant Center account, if you wish.",
         "buttonCreateMerchant": "Create a new Merchant Center account",
-        "messageErrorDefault": "An error occurred during Google Merchant assignment"
+
+        "website-claim": {
+          "titleCreateMerchant": "Create your Merchant Center account",
+          "textVerifyDescription": "Before you can upload product data, you’ll need to verify and claim your store’s website URL. Verification lets Google know you are the authorized owner of your website. Claiming associates your website URL with your Google Merchant Center account.",
+          "textLearnMore": "Learn more",
+          "linkClaimWebsiteUrl": "https://support.google.com/merchants/answer/176793?hl=en",
+          "textAutoClaimedInfo": "Your site will automatically be claimed and verified.",
+          "labelWebsiteUrl": "Website URL",
+          "placeholderWebsite": "examplestore.com",
+          "tooltipsWebsite": "This is the website used to create your Merchant Center account.",
+          "labelStoreName": "Store name",
+          "placeholderStoreName": "Enter store name...",
+          "tooltipsStoreName": "This name will appear in your Shopping ads.",
+          "labelShopContain": "My shop contains",
+          "textAdultContent": "adult content",
+          "linkAdultPolicyUrl": "https://support.google.com/merchants/answer/6150138?hl=en"
+        }
       },
       "step-4": {
         "titleGeneral": "To use Shopping ads, your shop must meet these requirements:",
         "textAdsPolicy": "Shopping ads policies",
-        "textAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=en",
+        "linkAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=en",
         "textAccurateContact": "Accurate contact information",
-        "textAccurateContactUrl": "https://support.google.com/merchants/answer/6150127",
+        "linkAccurateContactUrl": "https://support.google.com/merchants/answer/6150127",
         "textSecureCheckoutProcess": "Secure checkout process and collection of personal data",
-        "textSecureCheckoutProcessUrl": "https://support.google.com/merchants/answer/6150122",
-        "textReturPolicy": "Return policy",
-        "textReturPolicyUrl": "https://support.google.com/merchants/answer/6150127",
+        "linkSecureCheckoutProcessUrl": "https://support.google.com/merchants/answer/6150122",
+        "textReturnPolicy": "Return policy",
+        "linkReturnPolicyUrl": "https://support.google.com/merchants/answer/6150127",
         "textBillingTerms": "Billing terms and conditions",
-        "textBillingTermsUrl": "https://support.google.com/merchants/answer/6150127",
+        "linkBillingTermsUrl": "https://support.google.com/merchants/answer/6150127",
         "textComplete": "Complete checkout process",
-        "textCompleteUrl": "https://support.google.com/merchants/answer/6150118",
+        "linkCompleteUrl": "https://support.google.com/merchants/answer/6150118",
+        "textVerifiedWebsite": "Verified Storefront domain",
+        "linkVerifyWebsite": "https://support.google.com/webmasters/answer/9008080?hl=en",
         "textFixHere": "Fix here",
         "buttonCheckAgain": "Check again"
       },
       "step-5": {
-        "titleCreateMerchant": "Create your Merchant Center account",
-        "textVerifyDescription": "Before you can upload product data, you’ll need to verify and claim your store’s website URL. Verification lets Google know you are the authorized owner of your website. Claiming associates your website URL with your Google Merchant Center account.",
-        "textLearnMore": "Learn more",
-        "textClaimnWebsiteUrl": "https://support.google.com/merchants/answer/176793?hl=en",
-        "textAutoClaimedInfo": "Your site will automatically be claimed and verified.",
-        "textWebsiteUrl": "Website URL",
-        "textWebsitePlaceholder": "examplestore.com",
-        "textWebsiteTooltips": "This is the website used to create your Merchant Center account.",
-        "textStoreName": "Store name",
-        "textStoreNamePlaceholder": "Enter store name...",
-        "textStoreNameTooltips": "This name will appear in your Shopping ads.",
-        "textBusinessLocation": "Business location",
-        "textShopContain": "My shop contains",
-        "textAdultContent": "adult content",
-        "textAdultPolicyUrl": "https://support.google.com/merchants/answer/6150138?hl=en"
-      },
-      "step-6": {
         "titleTerms": "Terms of Service for Google Programs",
-        "titleTermsDescription": "By purchasing Shopping ads, I agree to comply with Google's terms and policies, including",
+        "titleTermsDescription": "By purchasing Shopping ads, I agree to comply with Google's terms and policies, including:",
         "textMerchantTerms": "Google's Merchant Center terms of service",
         "textMerchantTermsUrl": "https://support.google.com/merchants/answer/160173?hl=en",
         "textShoppingAdsPolicy": "Shopping ads policies",
@@ -337,9 +336,9 @@
         "textAnd": "and",
         "textGoogleAdsTerms": "Google Ads Terms and Conditions",
         "textGoogleAdsTermsUrl": "https://billing.google.com/payments/u/0/paymentsinfofinder?style=:md#",
-        "textAcceptTerms": "I have read and accept these terms."
+        "labelAcceptTerms": "I have read and accept these terms."
       },
-      "step-7": {
+      "step-6": {
         "titleSetting": "Set up your shipping settings",
         "textSettingDescription": "To show ads to a particular country or region, you must offer shipping and set up shipping costs for that area. Your Merchant Center shipping costs must match the costs you charge on your website.",
         "textLearnMore": "Learn more",
@@ -348,7 +347,7 @@
         "textFlatRateOption": "Use a flat rate for all orders",
         "textSelfSetupOption": "Don’t sync settings from Shopware. I’ll set this up myself in Google Merchant Center"
       },
-      "step-8": {
+      "step-7": {
         "titleDone": "All done!",
         "textDoneDescription": "Your Google Merchant account is now linked to this Sales Channel."
       }

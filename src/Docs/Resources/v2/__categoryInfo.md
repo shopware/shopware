@@ -57,7 +57,7 @@
                         <h2 class="no--margin-top"> New to Shopware 6?</h2>
                         <p>
                             Click <a href="/en/shopware-platform-dev-en/system-guide/system-requirements">here</a> to learn how to set it up for the first time or take a deep dive into our
-                            <a href="#">plugin tutorial</a>
+                            <a href="/en/shopware-platform-dev-en/how-to/indepth-guide-bundle/introduction">plugin tutorial</a>
                         </p>
                         <a href="/en/shopware-platform-dev-en/system-guide" class="btn is--shopware-6 spacer--small">Get started</a>
                     </div>

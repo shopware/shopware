@@ -49,39 +49,39 @@ The `store-api.account.register` needs the following parameters:
 POST /store-api/v1/account/register
 
 {
-	"guest": false,
-	"title": "Dr.",
-	"salutationId": "f4dff0c0a2cf4830a47901c5ae10819a",
-	"firstName": "Eva",
-	"lastName": "Mustermann",
-	"email": "eva@mustermann.de",
-	"affiliateCode": "",
-	"campaignCode": "",
-	"password": "shopware",
-	"billingAddress": {
-	    "countryId": "34a06af5c53c4ee3846ad2ad5498dbe9",
-	    "street": "Examplestreet 11",
-	    "zipcode": "48441",
-	    "city": "Cologne"
-	},
-	"shippingAddress": {
-	    "countryId": "34a06af5c53c4ee3846ad2ad5498dbe9",
-	    "salutationId": "f4dff0c0a2cf4830a47901c5ae10819a",
-	    "firstName": "Eva",
-	    "lastName": "Mustermann",
-	    "street": "Examplestreet 154",
-	    "zipcode": "12341",
-	    "city": "Berlin"
-	},
-	"storefrontUrl": "http://shopware.local",
-	"includes": {
-		"customer": [
-			"firstName",
-			"lastName",
-			"email",
-			"password"
-		]
-	}
+    "guest": false,
+    "title": "Dr.",
+    "salutationId": "f4dff0c0a2cf4830a47901c5ae10819a",
+    "firstName": "Eva",
+    "lastName": "Mustermann",
+    "email": "eva@mustermann.de",
+    "affiliateCode": "",
+    "campaignCode": "",
+    "password": "shopware",
+    "billingAddress": {
+        "countryId": "34a06af5c53c4ee3846ad2ad5498dbe9",
+        "street": "Examplestreet 11",
+        "zipcode": "48441",
+        "city": "Cologne"
+    },
+    "shippingAddress": {
+        "countryId": "34a06af5c53c4ee3846ad2ad5498dbe9",
+        "salutationId": "f4dff0c0a2cf4830a47901c5ae10819a",
+        "firstName": "Eva",
+        "lastName": "Mustermann",
+        "street": "Examplestreet 154",
+        "zipcode": "12341",
+        "city": "Berlin"
+    },
+    "storefrontUrl": "http://shopware.local",
+    "includes": {
+        "customer": [
+            "firstName",
+            "lastName",
+            "email",
+            "password"
+        ]
+    }
 }
 
 {
@@ -281,10 +281,10 @@ It needs the following parameters:
 POST /store-api/v1/account/recovery-password-confirm
 
 {
-	"hash": "J18339ctUmiD82fSxsPU0VnOmhEG4XXt",
-	"newPassword": "newPassword",
-	"newPasswordConfirm": "newPassword",
-	"storefrontUrl": "http://shopware.local"
+    "hash": "J18339ctUmiD82fSxsPU0VnOmhEG4XXt",
+    "newPassword": "newPassword",
+    "newPasswordConfirm": "newPassword",
+    "storefrontUrl": "http://shopware.local"
 }
 
 {

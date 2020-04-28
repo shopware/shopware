@@ -111,6 +111,18 @@ class StructEncoder
                 continue;
             }
 
+            // simple array of structs case
+            if ($this->isStructArray($object)) {
+                $array = [];
+                foreach ($object as $key => $item) {
+                    $array[$key] = $this->encodeStruct($item, $apiVersion, $fields);
+                }
+
+                $data[$property] = $array;
+
+                continue;
+            }
+
             $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), $property, $value, $apiVersion, $fields);
         }
 
@@ -192,5 +204,19 @@ class StructEncoder
         }
 
         return $value;
+    }
+
+    private function isStructArray($object): bool
+    {
+        if (!is_array($object)) {
+            return false;
+        }
+
+        $values = array_values($object);
+        if (!isset($values[0])) {
+            return false;
+        }
+
+        return $values[0] instanceof Struct;
     }
 }

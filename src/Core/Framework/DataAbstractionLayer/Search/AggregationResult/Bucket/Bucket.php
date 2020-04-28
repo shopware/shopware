@@ -67,6 +67,6 @@ class Bucket extends Struct
 
     public function getApiAlias(): string
     {
-        return 'dal_aggregator_result_bucket';
+        return 'aggregation_bucket';
     }
 }

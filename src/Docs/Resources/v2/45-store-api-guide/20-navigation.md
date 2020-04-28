@@ -134,7 +134,9 @@ To fetch an cms page via the api you can use this route `store-api.cms.detail`.
 This route has the following parameters:
 * `id`: Here you enter the id of the cms page that you want to fetch
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+In this route only the data configured in the CMS page is loaded. This route should be used when loading static CMS pages such as landing pages.
+
+If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
 POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
@@ -182,31 +184,77 @@ POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
 #### Get cms page with category  
 
 If you want to load a cms page with a category you can use teh following route: `store-api.category.detail`
+In contrast to the `/cms/{id}` route, this route also considers the category settings of the cms page. 
 
 This route needs one parameter:
 * `navigationId`: the id of the navigation you want to fetch
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](../40-admin-api-guide/20-reading-entities.md).
+Note, that you cannot use the api aliases like: `main-navigation`, 'footer-navigation', etc... 
+This route supports an alias `home` to load the home page of the sales channel. 
 
-Note, that you cannot use the api aliases like: `main-navigation`, 'footer-navigation', etc... for this route. 
+If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
 POST /store-api/v1/category/04cfc07532344f938d1c88735b54281e
 
 {
     "includes": {
-        "category": ["parentId", "breadcrumb", "active"]
+        "category": ["parentId", "breadcrumb", "active", "cmsPage"],
+        "cms_page": ["name", "id", "sections"],
+        "cms_page_section": ["type", "blocks"],
+        "cms_page_block": ["type", "slots"],
+        "cms_page_slot": ["id", "data"],
+        "cms_image": ["mediaId"]
     }
 }
 
 {
-    "parentId": "324662104bbf4198ac58280c8bc3f33a",
+    "parentId": null,
     "breadcrumb": [
-        "Catalogue #1",
-        "Kids & Baby",
-        "Books & Health"
+        "Catalogue #1"
     ],
     "active": true,
+    "cmsPage": {
+        "name": "Home page",
+        "sections": [
+            {
+                "type": "default",
+                "blocks": [
+                    {
+                        "type": "text",
+                        "slots": [
+                            {
+                                "data": {
+                                    "content": "<h2>Lorem Ipsum dolor sit amet</h2>\n <p>Lorem ipsum ... dolor sit amet.</p>",
+                                    "apiAlias": "cms_text"
+                                },
+                                "id": "6079136addee484691339f3d74d21437",
+                                "apiAlias": "cms_page_slot"
+                            }
+                        ],
+                        "apiAlias": "cms_page_block"
+                    },
+                    {
+                        "type": "image",
+                        "slots": [
+                            {
+                                "data": {
+                                    "mediaId": "1d4c625c409247dab961219deb9a9ebf",
+                                    "apiAlias": "cms_image"
+                                },
+                                "id": "35d56c05e0414f748730ffae1b0f4010",
+                                "apiAlias": "cms_page_slot"
+                            }
+                        ],
+                        "apiAlias": "cms_page_block"
+                    }
+                ],
+                "apiAlias": "cms_page_section"
+            }
+        ],
+        "id": "da8a3bba124e44f2bebfe1b10bebd932",
+        "apiAlias": "cms_page"
+    },
     "apiAlias": "category"
 }
 ```

@@ -45,7 +45,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             return;
         }
 
-        $search = $request->query->get('search');
+        $search = $request->get('search');
 
         if (is_array($search)) {
             $term = implode(' ', $search);

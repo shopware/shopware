@@ -566,7 +566,6 @@ class ApplicationBootstrapper {
             // create script tag with src
             const script = document.createElement('script');
             script.src = scriptSrc;
-            script.async = true;
 
             // resolve when script was loaded succcessfully
             script.onload = () => {

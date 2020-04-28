@@ -8,7 +8,7 @@ This How To will explain how this is done.
 
 ## Setup
 
-You won't learn to create a plugin in this guide, head over to our [Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to
+You won't learn to create a plugin in this guide, head over to our [developer guide](./../20-developer-guide/10-plugin-base.md) to
 create your plugin first.
 The plugin in this example will be called `StorefrontAssets`.
 

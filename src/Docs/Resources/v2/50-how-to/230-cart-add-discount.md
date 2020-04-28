@@ -14,7 +14,7 @@ E.g. there's a product called "Awesome Zebra", as well as a product "Glorious Ho
 discount to apply for the first product.
 
 You also got a plugin running already.
-If you don't know how to do this, have a look our [plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md).
+If you don't know how to do this, have a look our [developer guide](./../20-developer-guide/10-plugin-base.md).
 
 ## Adding a discount
 

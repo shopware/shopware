@@ -5,7 +5,7 @@
 ## Overview
 
 Pages or Pagelets are the objects that get handed to the templates and provide all necessary information for the template to render.
-For more information of the concepts behind Pages and Pagelets look [here](./../2-internals/3-storefront/10-composite-data-loading.md).
+For more information of the concepts behind Pages and Pagelets look [here](./../60-references-internals/30-storefront/10-composite-data-loading.md).
 If you make template changes you probably want to display some data that is currently not available in the page.
 In this case you will have to listen on the page loaded event and then load the additional data and add it to the page object. 
 This HowTo will show you how to achieve this, by adding the total number of active products to the footer pagelet and displaying them in the storefront.

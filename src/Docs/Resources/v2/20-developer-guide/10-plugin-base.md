@@ -8,7 +8,7 @@ Plugins in Shopware are essentially an extension of
 . Such bundles and plugins can provide their own resources like assets,
 controllers, services or tests. To reduce friction when programming plugins for
 Shopware, there's an abstract base class, which every plugin extends from - the
-[plugin base class](./../../current/2-internals/4-plugins/020-plugin-base-class.md)
+[plugin base class](./../60-references-internals/40-plugins/020-plugin-base-class.md)
 . In this class there are helper methods to initialise parameters like the
 plugin's name and root path in the
 [dependency injection container](https://symfony.com/doc/current/service_container.html#service-parameters)
@@ -38,9 +38,7 @@ example, the plugin's file structure would need to look like this:
 
 ### The content
 
-The plugin's
-[base class](./../../current/2-internals/4-plugins/010-plugin-quick-start.md#plugin-base)
-`AcmeMonitoring.php` needs to extend Shopware's
+The plugin's base class `AcmeMonitoring.php` needs to extend Shopware's
 `Plugin` class. Apart from that, no other information is needed in this file:
 
 ```php
@@ -57,8 +55,7 @@ class AcmeMonitoring extends Plugin
 
 The information in the `composer.json` can be interpreted by composer of course,
 but is also read by Shopware. You can define dependencies as well as a license
-and other information. You may also store
-[metadata](./../../current/2-internals/4-plugins/010-plugin-quick-start.md#plugin-meta-data)
+and other information. You may also store metadata
 about your plugin here using the `extra` property. For Shopware to be able to
 find the plugin when it is installed via composer, the `type` needs to be set to
 `shopware-platform-plugin`. A basic `composer.json` could look like this:
@@ -111,7 +108,7 @@ or load additional
 Each plugin may also have an `install` method. This method is Shopware-specific
 and can contain code which initialises the state of the plugin, for example
 system-specific configuration which can't be determined at the time the
-[migrations](./../../current/2-internals/4-plugins/080-plugin-migrations.md)
+[migrations](./../60-references-internals/40-plugins/080-plugin-migrations.md)
 are run.
 
 ## Uninstall
@@ -167,5 +164,5 @@ might look:
 
 For more information about plugin configuration and the `config.xml`, head
 over to the
-[plugin configuration](./../../current/2-internals/4-plugins/070-plugin-config.md)
+[plugin configuration](./../60-references-internals/40-plugins/070-plugin-config.md)
 section.

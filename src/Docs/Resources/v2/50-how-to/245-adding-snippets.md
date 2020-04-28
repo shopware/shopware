@@ -184,7 +184,7 @@ class SnippetFile_en_GB implements SnippetFileInterface
 #### Registering your service
 
 Now it is time to register the SnippetFile in the DI container via the `services.xml` that came with the plugin.
-If your plugin does not have a `services.xml` file yet, make sure to read [here](./../2-internals/4-plugins/010-plugin-quick-start.md#The services.xml).
+If your plugin does not have a `services.xml` file yet, make sure to read [here](./../20-developer-guide/40-services-subscriber.md).
 This will help you understand the process of creation from the beginning on. Also notice there is a `shopware.snippet.file`
 tag, which is essential in this process.
 

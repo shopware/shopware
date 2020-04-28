@@ -61,7 +61,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
     {
-        $prices = $this->priceDefinitionBuilder->build($product, $context);
+        $prices = $this->priceDefinitionBuilder->build($product, $context, $product->getMinPurchase() ?? 1);
 
         //calculate listing price
         $product->setCalculatedListingPrice(

@@ -78,6 +78,39 @@ class SalesChannelProductSubscriberTest extends TestCase
         }
     }
 
+    public function testMinQuantityCalculation(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+        $id = $ids->create('product' . __METHOD__);
+        $payload = [
+            'id' => $id,
+            'productNumber' => $id,
+            'name' => 'test',
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 100, 'linked' => false],
+            ],
+            'isCloseout' => false,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'minPurchase' => 5,
+            'stock' => 500,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')->create([$payload], $ids->getContext());
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $product = $this->getContainer()->get('sales_channel.product.repository')
+            ->search(new Criteria([$id]), $context)
+            ->get($id);
+
+        static::assertInstanceOf(SalesChannelProductEntity::class, $product);
+        /** @var SalesChannelProductEntity $product */
+        static::assertSame(500, $product->getCalculatedPrice()->getTotalPrice());
+        static::assertSame(5, $product->getCalculatedPrice()->getQuantity());
+    }
+
     public function testListPrices(): void
     {
         $ids = new TestDataCollection(Context::createDefaultContext());

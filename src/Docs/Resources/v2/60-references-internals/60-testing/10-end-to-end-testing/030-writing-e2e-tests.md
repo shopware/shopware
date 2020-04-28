@@ -41,7 +41,8 @@ that you want to be applied and available to all of your spec files.
 These two configuration files are important to mention as well:
 * `cypress.json`
 * `cypress.env.json`
-These are Cypress configuration files. If you need more information about them, take a look at the [Cypress configuration docs](https://docs.cypress.io/guides/references/configuration.html).
+These are Cypress configuration files. If you need more information about them, take a look at the 
+[Cypress configuration docs](https://docs.cypress.io/guides/references/configuration.html).
 
 If you need to use this structure in a plugin, it is just the path to the `e2e` folder, which is slightly different.
 You can find the folder structure in the article [Installation and requirements](#Installation-and-requirements).

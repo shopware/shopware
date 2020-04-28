@@ -116,4 +116,4 @@ You can link to the asset with the twig
 ## HowTo guide concerning storefront assets
 
 If you want a detailed tutorial on how to use custom storefront assets, we got you covered. Please refer to 
-[the guide] for further information. 
+[the how-to-guide concerning assets](./../../50-how-to/330-storefront-assets.md) for further information. 

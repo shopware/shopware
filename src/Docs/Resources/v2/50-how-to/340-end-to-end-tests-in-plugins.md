@@ -14,7 +14,7 @@ However, you can always look up necessary information in [Cypress documentation]
 ## Setup
 
 We will skip the part on how to create a plugin in this guide, so please head over to our 
-[Plugin quick start guide](./../2-internals/4-plugins/010-plugin-quick-start.md) to create your plugin first. 
+[Plugin guide](./../20-developer-guide/10-plugin-base.md) to create your plugin first. 
 In this example, we will use that quick start plugin as a basis.
 
 ## Set up Cypress

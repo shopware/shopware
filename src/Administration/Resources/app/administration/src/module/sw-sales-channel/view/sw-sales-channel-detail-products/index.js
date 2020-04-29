@@ -7,7 +7,20 @@ Component.register('sw-sales-channel-detail-products', {
 
     props: {
         salesChannel: {
+            required: true,
+            validator: (salesChannel) => {
+                return typeof salesChannel === 'object';
+            }
+        },
+
+        productExport: {
+            type: Object,
             required: true
+        },
+
+        isLoading: {
+            type: Boolean,
+            default: false
         }
     }
 });

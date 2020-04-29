@@ -65,12 +65,13 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_product_comparison_actions %}
-                    <sw-container columns="1fr 50%" gap="0 30px" >
+                    <div class="sw-sales-channel-detail-product-comparison__button-group">
                         {% block sw_sales_channel_detail_product_comparison_actions_test_button %}
                             <sw-button-process
                                 @click="validateTemplate"
-                                :square="false"
-                                :block="false"
+                                size="small"
+                                variant="ghost"
+                                class="sw-sales-channel-detail-product-comparison__button"
                                 :isLoading="isLoadingValidate"
                                 :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
                                 :processSuccess="isValidateSuccessful">
@@ -81,8 +82,9 @@
                         {% block sw_sales_channel_detail_product_comparison_actions_preview_button %}
                             <sw-button-process
                                 @click="preview"
-                                :square="false"
-                                :block="false"
+                                size="small"
+                                variant="ghost"
+                                class="sw-sales-channel-detail-product-comparison__button"
                                 :isLoading="isLoadingPreview"
                                 :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
                                 :processSuccess="isPreviewSuccessful">
@@ -97,7 +99,7 @@
                                 @close="onPreviewClose">
                             </sw-sales-channel-detail-product-comparison-preview>
                         {% endblock %}
-                    </sw-container>
+                    </div>
                 {% endblock %}
             </sw-card>
         {% endblock %}

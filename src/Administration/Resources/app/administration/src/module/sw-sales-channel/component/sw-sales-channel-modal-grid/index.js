@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, StateDeprecated, Defaults } = Shopware;
 
 Component.register('sw-sales-channel-modal-grid', {
     template,
@@ -19,6 +19,11 @@ Component.register('sw-sales-channel-modal-grid', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        addChannelAction: {
+            type: Object,
+            required: true
         }
     },
 
@@ -67,11 +72,11 @@ Component.register('sw-sales-channel-modal-grid', {
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === 'ed535e5722134ac1aa6524f73e26881b';
+            return salesChannelTypeId === Defaults.productComparisonTypeId;
         },
 
         isGoogleShoppingSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === 'eda0a7980ee745fbbb7e58202dcdc04f';
+            return salesChannelTypeId === Defaults.googleShoppingTypeId;
         }
     }
 });

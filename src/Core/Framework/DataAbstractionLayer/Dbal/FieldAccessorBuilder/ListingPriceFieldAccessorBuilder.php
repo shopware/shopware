@@ -52,6 +52,6 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $select[] = $this->priceFieldAccessor
             ->buildAccessor($root, new PriceField('price', 'price'), $context, '');
 
-        return sprintf('(CAST(COALESCE(%s) AS FLOAT))', implode(',', $select));
+        return sprintf('COALESCE(%s)', implode(',', $select));
     }
 }

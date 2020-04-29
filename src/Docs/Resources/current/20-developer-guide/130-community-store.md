@@ -35,7 +35,7 @@ The `composer.json` file holds all the meta information for your plugin. Here is
     "name": "swag/store-plugin",
     "description": "Store plugin example",
     "type": "shopware-platform-plugin",
-    "license": "-",
+    "license": "MIT",
     "version": "1.0",
     "authors": [
         {
@@ -65,11 +65,12 @@ The `composer.json` file holds all the meta information for your plugin. Here is
 ```
 **Important**: 
 - A least one require is necessary to pass the validation. This can be `"shopware/core": "~6.2.0"` if the plugin needs the shopware core. It is also possible to require other parts like the administration: `"shopware/administration": "~6.2.0"` or storefront: `"shopware/storefront": "~6.2.0"`. Do not forget to replace the version with the required version for your plugin.
-- The license is fully up to you, just make sure you're **not** using the MIT license if you want to release your plugin
-          in the Shopware Community Store, since that would allow your customers to use your plugin
-          and release it again with their own name and actually make some money with it.
+- The license is fully up to you. But be aware, that this example uses the `MIT` license which would allow your customers to use your plugin and release it again with their own name for example.
           
-For more information about the available options and more details take a look at the [plugin meta information guide](./../60-references-internals/40-plugins/050-plugin-information.md).
+For more information about the available options and more details take a look at the [plugin meta information reference](./../60-references-internals/40-plugins/050-plugin-information.md).
+
+# Icon
+The favicon of a plugin is a requirement for a community store plugin. Therefore a 40 x 40 px png file can be shipped with the following path/filename: `SwagStorePlugin/src/Resources/config/plugin.png`. More information in the [plugin meta information reference](./../60-references-internals/40-plugins/050-plugin-information.md).
 
 # Changelog
 A changelog is required for every community store plugin. This file contains the version changes of the plugin. It has to be called `CHANGELOG.md` and should at least contain the initial version:

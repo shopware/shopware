@@ -93,15 +93,7 @@ find the plugin when it is installed via composer, the `type` needs to be set to
 ```
 
 ### Plugin icon
-A plugin can have an icon which will be rendered in the shopware administration. The default path for an icon is `src/Resources/config/plugin.png` relative from the plugin root folder. This path can be overriden using the `extra` object in the `composer.json` as follows:
-```json
-{
-    "extra": {
-        "plugin-icon": "myFolder/icon.png"
-    }
-}
-```
-The icon should be a png file with the size 40 x 40 px.
+A plugin can be shipped with an icon which will be rendered in the administration. Therefore a 40 x 40 px png file can be shipped with the following path/filename: `SwagStorePlugin/src/Resources/config/plugin.png`. More information in the [plugin meta information reference](./../60-references-internals/40-plugins/050-plugin-information.md).
 
 ## Install
 

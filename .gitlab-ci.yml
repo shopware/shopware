@@ -677,6 +677,33 @@ RIPS security:
         - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
     interruptible: false
 
+Symfony security check:
+    stage: Security
+    image: shopware/development:latest
+    before_script: []
+    allow_failure: true
+    script:
+        - wget https://get.sensiolabs.org/security-checker.phar
+        - composer install
+        - php security-checker.phar security:check composer.lock
+        - composer install -d src/Recovery/Common/
+        - php security-checker.phar security:check src/Recovery/Common/composer.lock
+
+NPM security check:
+    stage: Security
+    image: shopware/development:latest
+    before_script: []
+    allow_failure: true
+    script:
+        - cd src/Administration/Resources/app/administration
+        - npm i
+        - npm install --save-dev audit-ci
+        - node node_modules/.bin/audit-ci --moderate
+        - cd ../../../../../src/Storefront/Resources/app/storefront
+        - npm i
+        - npm install --save-dev audit-ci
+        - node node_modules/.bin/audit-ci --moderate
+
 # Stage: deploy
 
 .Scrutinizer:

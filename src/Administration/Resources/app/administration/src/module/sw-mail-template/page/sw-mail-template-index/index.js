@@ -13,5 +13,13 @@ Component.register('sw-mail-template-index', {
         return {
             title: this.$createTitle()
         };
+    },
+
+    methods: {
+        onChangeLanguage(languageId) {
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            this.$refs.mailHeaderFooterList.getList();
+            this.$refs.mailTemplateList.getList();
+        }
     }
 });

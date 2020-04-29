@@ -34,6 +34,7 @@
             <template #language-switch>
                 <sw-language-switch
                     @on-change="onChangeLanguage"
+                    :disabled="isNewShippingMethod"
                     :saveChangesFunction="saveOnLanguageChange"
                     :abortChangeFunction="abortOnLanguageChange">
                 </sw-language-switch>
@@ -46,6 +47,7 @@
 
                     {% block sw_settings_shipping_detail_content_language_info %}
                         <sw-language-info
+                            :isNewEntity="isNewShippingMethod"
                             :entityDescription="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline'))">
                         </sw-language-info>
                     {% endblock %}

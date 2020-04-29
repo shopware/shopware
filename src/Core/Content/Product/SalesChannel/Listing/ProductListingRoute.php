@@ -6,9 +6,11 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,12 +33,26 @@ class ProductListingRoute extends AbstractProductListingRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @var ProductDefinition
+     */
+    private $definition;
+
+    /**
+     * @var RequestCriteriaBuilder
+     */
+    private $criteriaBuilder;
+
     public function __construct(
         ProductListingLoader $listingLoader,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ProductDefinition $definition,
+        RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->listingLoader = $listingLoader;
+        $this->definition = $definition;
+        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -70,6 +86,8 @@ class ProductListingRoute extends AbstractProductListingRoute
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );
+
+        $this->criteriaBuilder->handleRequest($request, $criteria, $this->definition, $salesChannelContext->getContext());
 
         $result = $this->listingLoader->load($criteria, $salesChannelContext);
 

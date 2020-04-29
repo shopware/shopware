@@ -389,7 +389,18 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function getCurrentSorting(Request $request, string $default): ?string
     {
-        $key = $request->get('sort', $default);
+        // @deprecated tag:v6.3.0 - use `order` instead
+        $sort = $request->get('sort', null);
+
+        if (is_string($sort) && !empty($sort)) {
+            $request->query->set('order', $sort);
+            $request->request->set('order', $sort);
+
+            $request->query->set('sort', null);
+            $request->request->set('sort', null);
+        }
+
+        $key = $request->get('order', $default);
 
         if (!$key) {
             return null;

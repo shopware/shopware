@@ -138,6 +138,11 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
     }
 
+    public function has(string $name): bool
+    {
+        return $this->getIndexer($name) !== null;
+    }
+
     private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
     {
         if ($useQueue || $message->forceQueue()) {

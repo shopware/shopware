@@ -1,4 +1,5 @@
 [titleEn]: <>(Deprecation handling)
+[hash]: <>(article:deprecation_handling)
 
 This short guide will introduce you to the best practices when you need to deprecate something in the administration.
 

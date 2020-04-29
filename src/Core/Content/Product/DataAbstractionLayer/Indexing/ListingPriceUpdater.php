@@ -45,6 +45,8 @@ class ListingPriceUpdater
 
     public function update(array $ids, Context $context): void
     {
+        $ids = array_unique(array_filter($ids));
+
         if (empty($ids)) {
             return;
         }

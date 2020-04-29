@@ -3,9 +3,11 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -38,19 +40,11 @@ class ProductCategoryDenormalizer
             $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version')
         );
 
-        $insert = new RetryableQuery(
-            $this->connection->prepare('
-                INSERT IGNORE INTO product_category_tree
-                    (`product_id`, `product_version_id`, `category_id`, `category_version_id`)
-                VALUES
-                    (:product_id, :product_version_id, :category_id, :category_version_id)
-            ')
-        );
-
         $delete = new RetryableQuery(
             $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id AND `product_version_id` = :version')
         );
 
+        $inserts = [];
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
 
@@ -72,14 +66,42 @@ class ProductCategoryDenormalizer
             }
 
             foreach ($categoryIds as $id) {
-                $params = [
+                $inserts[] = [
                     'product_id' => $productId,
                     'product_version_id' => $versionId,
                     'category_id' => Uuid::fromHexToBytes($id),
                     'category_version_id' => $liveVersionId,
                 ];
+            }
+        }
 
-                $insert->execute($params);
+        $this->insertTree($inserts);
+    }
+
+    private function insertTree(array $inserts): void
+    {
+        if (empty($inserts)) {
+            return;
+        }
+
+        try {
+            $queue = new MultiInsertQueryQueue($this->connection, 250);
+            foreach ($inserts as $insert) {
+                $queue->addInsert('product_category_tree', $insert);
+            }
+            $queue->execute();
+        } catch (DeadlockException $e) {
+            $query = new RetryableQuery(
+                $this->connection->prepare('
+                    INSERT IGNORE INTO product_category_tree
+                        (`product_id`, `product_version_id`, `category_id`, `category_version_id`)
+                    VALUES
+                        (:product_id, :product_version_id, :category_id, :category_version_id)
+                ')
+            );
+
+            foreach ($inserts as $insert) {
+                $query->execute($insert);
             }
         }
     }

@@ -1,11 +1,11 @@
 {
   "global": {
     "error-codes": {
-      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank",
+      "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank.",
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
-      "SHOPWARE_INVALID_IP": "Please enter a valid IP address",
-      "INVALID_URL": "Please enter a valid url"
+      "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
+      "INVALID_URL": "Please enter a valid url."
     },
     "default": {
       "add": "Add",
@@ -14,6 +14,7 @@
       "delete": "Delete",
       "edit": "Edit",
       "error": "Error",
+      "warning": "Warning",
       "save": "Save",
       "success": "Success",
       "info": "Info",
@@ -27,7 +28,7 @@
     },
     "notification-center": {
       "title": "Notifications",
-      "emptyText": "Nothing to show.",
+      "emptyText": "Nothing going on lately.",
       "deleteModal": {
         "title": "Delete notifications",
         "textConfirm": "Are you sure you really want to delete all notifications?"
@@ -35,55 +36,55 @@
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Generating thumbnails",
-          "message": "No thumbnails remaining. | One thumbnail remaining. | {n} thumbnails remaining.",
+          "message": "No thumbnails remaining. | One thumbnail remaining... | {n} thumbnails remaining...",
           "messageSuccess": "Thumbnails have been generated."
         },
         "esIndexing": {
-          "message": "Elasticsearch indexed. | One remaining. | {n} remaining.",
-          "messageSuccess": "Elasticsearch successfully indexed."
+          "message": "Elasticsearch indexed. | Still some remaining... | {n} remaining...",
+          "messageSuccess": "Elasticsearch has been indexed."
         },
         "dalIndexing": {
           "message": "All data indexed. | Indexing data.",
-          "messageSuccess": "Indexing finished."
+          "messageSuccess": "Indexing has finished."
         },
         "warmupIndexing": {
-          "message": "Cache warmed-up. | One page remaining. | Approximately {n} pages remaining..",
-          "messageSuccess": "Cache successfully warmed-up."
+          "message": "Cache warming up. | One page remaining... | Approximately {n} pages remaining...",
+          "messageSuccess": "Cache has been warmed up."
         },
         "productStream": {
-          "title": "Indexing product streams",
-          "message": "Product streams indexed. | Indexing product streams | {n} product streams remaining",
-          "messageSuccess": "Product streams indexed successfully"
+          "title": "Indexing dynamic product groups",
+          "message": "Dynamic product group indexed. | One dynamic product group remaining... | {n} dynamic product groups remaining...",
+          "messageSuccess": "Dynamic product groups have been indexed."
         },
         "category":  {
           "title": "Indexing categories",
-          "message": "Categories indexed. | Indexing categories | {n} categories remaining",
-          "messageSuccess": "Categories indexed successfully"
+          "message": "Categories indexed. | One category remaining... | {n} categories remaining...",
+          "messageSuccess": "Categories have been indexed."
         },
         "media": {
           "title": "Indexing media",
-          "message": "Media indexed. | Indexing media | {n} media remaining",
-          "messageSuccess": "Media indexed successfully"
+          "message": "Media indexed. | One medium remaining ... | {n} media remaining...",
+          "messageSuccess": "Media have been indexed."
         },
         "salesChannel": {
-          "title": "Indexing sales channels",
-          "message": "Sales channel indexed. | Indexing sales channel | {n} sales channel remaining",
-          "messageSuccess": "Sales channel indexed successfully"
+          "title": "Indexing Sales Channels",
+          "message": "Sales Channel indexed. | One Sales Channel remaining... | {n} Sales Channels remaining...",
+          "messageSuccess": "Sales Channels have been indexed."
         },
         "rule":  {
           "title": "Indexing rules",
-          "message": "Rules indexed. | Indexing rules | {n} rules remaining",
-          "messageSuccess": "Rules indexed successfully"
+          "message": "Rule indexed. | One rule remaining... | {n} rules remaining...",
+          "messageSuccess": "Rules have been indexed."
         },
         "product": {
           "title": "Indexing products",
-          "message": "Products indexed. | Indexing products | {n} products remaining",
-          "messageSuccess": "Products indexed successfully"
+          "message": "Product indexed. | One product remaining... | {n} products remaining...",
+          "messageSuccess": "Products have been indexed."
         },
         "promotion": {
           "title": "Indexing promotions",
-          "message": "Promotions indexed. | Indexing promotions | {n} promotions remaining",
-          "messageSuccess": "Promotions indexed successfully"
+          "message": "Promotion indexed. | One promotion remaining... | {n} promotions remaining...",
+          "messageSuccess": "Promotions have been indexed."
         }
       },
       "plugin-updates-listener": {
@@ -99,7 +100,7 @@
     "sw-admin-menu": {
       "linkLogout": "Logout",
       "linkMinimizeMenu": "Minimize menu",
-      "textShopwareAdmin": "Shopware administration",
+      "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
       "navigation": {
         "mainMenuItemCatalogue": "Catalogues",
@@ -110,7 +111,7 @@
     "entity-components": {
       "deleteMessage": "Are you sure you want to delete this item? | Are you sure you want to delete these {count} items?",
       "deleteTitle": "Delete entry",
-      "placeholderToManyAssociationCard": "Search associations",
+      "placeholderToManyAssociationCard": "Search associations...",
       "labelRemoveAssociation": "Remove association"
     },
     "sw-field": {

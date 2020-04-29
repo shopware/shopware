@@ -9,7 +9,6 @@
       "buttonCreate": "Create category",
       "buttonSafeCategory": "Save",
       "descriptionLabel": "Description",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Category \"{name}\" has been saved.",
       "useAsLogo": "Use as display image",
       "treeHeadline": "Category structure",
@@ -98,7 +97,6 @@
       }
     },
     "modal": {
-      "modalTitleDelete": "Delete category",
       "textDeleteConfirm": "Are you sure you really want to delete the category \"{name}\"?",
       "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
       "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"

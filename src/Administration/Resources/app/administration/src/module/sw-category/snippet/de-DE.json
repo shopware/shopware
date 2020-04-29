@@ -9,7 +9,6 @@
       "buttonCreate": "Kategorie erstellen",
       "buttonSafeCategory": "Speichern",
       "descriptionLabel": "Beschreibung",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Anzeigebild verwenden",
       "treeHeadline": "Kategoriestruktur",
@@ -97,7 +96,6 @@
       }
     },
     "modal": {
-      "modalTitleDelete": "Kategorie löschen",
       "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
       "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"

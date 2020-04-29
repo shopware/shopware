@@ -121,16 +121,10 @@
       "notification": {
         "titleMissingFields": "Error",
         "messageMissingFields": "Configuration required. Please fill in all required fields.",
-        "titleMissingBlockFields": "Missing configuration",
         "messageMissingBlockFields": "Configuration required. Please fill in all required elements.",
-        "titleMissingProductListing": "Error",
         "messageMissingProductListing": "Unable to save. Please add a product listing block or change the layout type.",
-        "titlePageError": "Layout could not be saved!",
-        "titleMissingSections": "Error",
         "messageMissingSections": "You can not save an empty page. Please add a section first.",
-        "titleMissingBlocks": "Error",
         "messageMissingBlocks": "You can not save an empty page. Please add some blocks first.",
-        "titleMissingElements": "Error",
         "messageMissingElements": "Configuration required. Please fill in all required configuration elements."
       },
       "placeholder": {
@@ -504,10 +498,8 @@
         "duplicate": "Duplicate",
         "addPreviewImage": "Add preview image",
         "removePreviewImage": "Remove preview",
-        "notificationDeleteErrorTitle": "Error",
         "notificationDeleteErrorMessage": "The layout you want to delete is still assigned to at least one category.",
         "modal": {
-          "modalTitleDelete": "Delete layout",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
           "buttonCancel": "Cancel",
           "buttonDelete": "Delete"

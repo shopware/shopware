@@ -75,7 +75,7 @@ Component.register('sw-customer-create', {
                     this.isSaveSuccessful = true;
                 }).catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('sw-customer.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.messageSaveError')
                     });
                     this.isLoading = false;

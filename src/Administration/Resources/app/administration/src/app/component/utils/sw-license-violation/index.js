@@ -155,7 +155,7 @@ Shopware.Component.register('sw-license-violation', {
             return this.licenseViolationService.forceDeletePlugin(this.pluginService, matchingPlugin)
                 .then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('sw-plugin.list.titleDeleteSuccess'),
+                        title: this.$tc('global.default.success'),
                         message: this.$tc('sw-plugin.list.messageDeleteSuccess')
                     });
 

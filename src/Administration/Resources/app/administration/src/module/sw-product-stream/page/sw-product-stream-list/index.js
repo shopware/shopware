@@ -42,13 +42,13 @@ Component.register('sw-product-stream-list', {
         onInlineEditSave(promise, productStream) {
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-product-stream.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-product-stream.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-product-stream.detail.messageSaveError')
                 });
             });

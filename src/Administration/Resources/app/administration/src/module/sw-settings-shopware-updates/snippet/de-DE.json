@@ -15,7 +15,6 @@
       "updating": "Aktualisierung"
     },
     "notifications": {
-      "title": "Shopware-Updater",
       "updateStarted": "Update gestartet.",
       "updateStopped": "Update gestoppt.",
       "downloadFailed": "Download fehlgeschlagen.",

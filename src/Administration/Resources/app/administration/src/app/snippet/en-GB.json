@@ -137,11 +137,9 @@
       "buttonChoose": "Choose file",
       "notification": {
         "invalidFileType": {
-          "title": "Unsupported file type",
           "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
         },
         "invalidFileSize": {
-          "title": "File size exceeds upload limit",
           "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
         }
       },
@@ -228,11 +226,11 @@
         "mediaAndFolder": "Delete folders and media files"
       },
       "deleteMessage": {
-        "media": "Are you sure you want to delete \"{name}\"? | Are you sure you want to delete {count} media items?",
+        "media": "Are you sure you want to delete \"{name}\"? | Are you sure you want to delete these {count} media files?",
         "folder": "Are you sure you want to delete the folder \"{name}\"?<br>All subfolders and contained media items will be deleted too. | Are you sure you want to delete {count} folders?<br>All subfolders and contained media items will be deleted too.",
         "mediaAndFolder": "Are you sure you want to delete {mediaCount} media items and {folderCount} folders?<br>All subfolders and all media items within will be deleted too."
       },
-      "mediaQuickInfoMessage": "The media file is currently still in use and is linked as follows",
+      "mediaQuickInfoMessage": "This media file is currently in use by",
       "mediaInUsagesMessage": "The following media files are still in use",
       "notification": {
         "errorSingle": {
@@ -258,7 +256,6 @@
       }
     },
     "sw-media-modal-folder-dissolve": {
-      "titleModal": "Dissolve folder",
       "dissolveMessage": "Are you sure you want to dissolve \"{folderName}\" ? | Are you sure you want to dissolve {count} folders?",
       "buttonDissolve": "Dissolve",
       "notification": {
@@ -321,7 +318,7 @@
       }
     },
     "sw-media-modal-replace": {
-      "titleModal": "Replace media files",
+      "titleModal": "Replace media file",
       "buttonUpload": "Upload",
       "buttonReplace": "Replace",
       "warningFileExtension": "The new file has a different file extension ({extension}). The file may need to be re-indexed by search engines."
@@ -351,7 +348,6 @@
           "message": "Error while uploading file."
         },
         "illegalFilename": {
-          "title": "Invalid Filename",
           "message": "The filename \"{fileName}\" contains invalid characters."
         }
       },
@@ -724,7 +720,6 @@
       }
     },
     "modal": {
-      "modalTitleDelete": "Delete element",
       "textDeleteConfirm": "Are you sure you really want to delete the element \"{name}\"?",
       "textDeleteMultipleConfirm": "Are you sure you want to delete the \"{count}\" selected elements?",
       "textDeleteChildrenConfirm": "All subcategories will be deleted too."
@@ -786,8 +781,7 @@
   "sw-config-form-renderer": {
     "placeholder": "Please fill in {name}...",
     "option": "No label set for locale \"{locale}\"...",
-    "configLoadErrorMessage": "Encountered an error while loading the configuration: | There were errors loading the configuration:",
-    "configLoadErrorTitle": "Error loading configurations."
+    "configLoadErrorMessage": "Encountered an error while loading the configuration: | There were errors loading the configuration:"
   },
   "locale": {
     "de-DE": "German",

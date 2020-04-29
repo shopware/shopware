@@ -51,9 +51,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('#mappedKey-0').type('id');
         cy.get('.sw-import-export-entity-path-select__selection')
             .first().typeSingleSelectAndCheck(
-            'id',
-            '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
-        );
+                'id',
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+            );
 
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
         cy.get('#mappedKey-1').should('exist');
@@ -152,7 +152,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             .should('contain', 'Are you sure you want to delete this item?');
 
         // Confirm deletion
-        cy.get('.sw-modal__dialog .sw-button--primary').click();
+        cy.get('.sw-modal__dialog .sw-button--danger').click();
 
         // Delete request should be successful
         cy.wait('@deleteData').then((xhr) => {

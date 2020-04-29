@@ -14,8 +14,6 @@
       "columnDefault": "Standard",
       "buttonAddLanguage": "Sprache anlegen",
       "contextMenuEdit": "Bearbeiten",
-      "modalTitleDelete": "Sprache löschen",
-      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Sprache \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
@@ -27,7 +25,6 @@
     "detail": {
       "textHeadline": "Neue Sprache",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Sprache \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelLocale": "Lokalisierung",
@@ -41,7 +38,6 @@
       "tooltipIsoCodeNotChoosable": "Es können nur bisher ungenutzte Sprachcodes verwendet werden.",
       "tooltipInheritanceNotPossible": "Die System-Standard-Sprache kann nicht von einer anderen Sprache erben.",
       "textAlertChangeParent": "Ein Wechsel der geerbten Sprache kann gegebenenfalls zu inkonsistenten Übersetzungen führen.",
-      "titleAlertChangeParent": "Achtung",
       "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",
       "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache."
     }

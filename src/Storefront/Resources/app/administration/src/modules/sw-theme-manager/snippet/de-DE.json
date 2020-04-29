@@ -30,7 +30,6 @@
       "notificationDeleteErrorMessage": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
     },
     "modal": {
-      "modalTitleDelete":  "Theme Löschen",
       "textDeleteInfo": "Möchtest Du das Theme \"{themeName}\" wirklich löschen?",
       "buttonCancel":  "Abbrechen",
       "buttonDelete": "Löschen",
@@ -76,7 +75,6 @@
       "description": "Beschreibung",
       "salesChannel": "Folgenden Verkaufskanälen zugewiesen",
       "inheritanceInfo": "Dieses Theme ist ein Duplikat und wird abgeleitet vom \"{parentThemeName}\" Theme.",
-      "titleSaveError": "Fehler beim Speichern",
       "showFullError": "Kompletten Fehler anzeigen",
       "label": {
         "media": "Media",

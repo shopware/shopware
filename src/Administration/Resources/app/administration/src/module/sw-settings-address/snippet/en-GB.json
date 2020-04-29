@@ -5,9 +5,7 @@
       "textHeadline": "Address settings",
       "description": "Manage address settings here.",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The configuration has been saved.",
-      "titleSaveError": "The configuration could not be saved"
+      "messageSaveSuccess": "The configuration has been saved."
     }
   }
 }

@@ -66,7 +66,7 @@
         {% block sw_tree_delete_modal %}
             <sw-modal v-if="showDeleteModal"
                       @modal-close="onCloseDeleteModal"
-                      :title="$tc(`${translationContext}.modal.modalTitleDelete`)"
+                      :title="$tc('global.default.warning')"
                       variant="small">
                 {% block sw_tree_delete_modal_confirm_delete_text %}
                     <div v-if="toDeleteItem">

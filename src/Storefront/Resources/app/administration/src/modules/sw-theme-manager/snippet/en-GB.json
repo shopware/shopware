@@ -30,7 +30,6 @@
       "notificationDeleteErrorMessage": "The theme you want to delete is still allocated to at least one Sales Channel."
     },
     "modal": {
-      "modalTitleDelete":  "Delete theme",
       "textDeleteInfo": "Are you sure you really want to delete the theme \"{themeName}\"?",
       "buttonCancel":  "Cancel",
       "buttonDelete": "Delete",
@@ -76,7 +75,6 @@
       "description": "Description",
       "salesChannel": "Assigned to the following Sales Channels",
       "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" theme.",
-      "titleSaveError": "Error while saving",
       "showFullError": "Show full error",
       "label": {
         "media": "Media",

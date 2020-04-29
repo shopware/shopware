@@ -40,7 +40,6 @@
       "labelComment": "Comment",
       "labelCustomer": "Customer",
       "titleCardComment": "Comment",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The review \"{name}\" has been saved.",
       "placeholderComment": "Enter comment...",
       "review1PointRatingText": "Unsatisfactory",

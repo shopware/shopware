@@ -13,7 +13,6 @@
       "placeholderUsername": "Gib Deinen Benutzernamen ein ...",
       "placeholderPassword": "Gib Dein Passwort ein ...",
       "buttonLogin": "Anmelden",
-      "titleErrorMessage": "Fehler",
       "messageUnsupportedGrantType": "\"Grant-Type\" wird nicht unterstützt.",
       "messageInvalidRequest": "Invalide Anfrage.",
       "messageInvalidClient": "Die Client-Authentifizierung ist fehlgeschlagen.",
@@ -50,9 +49,6 @@
       "email": {
         "label": "E-Mail-Adresse:",
         "placeholder": "shop@beispiel.de"
-      },
-      "error": {
-        "passwordUpdateTitle": "Beim Aktualisieren Deines Passworts ist ein Fehler aufgetreten:"
       },
       "submit": "Wiederherstellungs-Link senden"
     }

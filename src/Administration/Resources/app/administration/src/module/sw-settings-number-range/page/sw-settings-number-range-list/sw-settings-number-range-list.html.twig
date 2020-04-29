@@ -105,7 +105,7 @@
                                                 {% block sw_settings_number_range_list_delete_modal %}
                                                 <sw-modal v-if="showDeleteModal === item.id"
                                                           @modal-close="onCloseDeleteModal"
-                                                          :title="$tc('sw-settings-number-range.list.titleModalDelete')"
+                                                          :title="$tc('global.default.warning')"
                                                           variant="small">
                                                     {% block sw_settings_number_range_list_delete_modal_confirm_delete_text %}
                                                     <p class="sw-settings-number-range-list__confirm-delete-text">
@@ -122,7 +122,7 @@
                                                         {% endblock %}
 
                                                         {% block sw_settings_number_range_list_delete_modal_confirm %}
-                                                            <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                            <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
                                                                 {{ $tc('sw-settings-number-range.list.buttonDelete') }}
                                                             </sw-button>
                                                         {% endblock %}

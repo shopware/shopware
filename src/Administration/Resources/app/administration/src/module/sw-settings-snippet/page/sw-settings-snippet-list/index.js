@@ -278,13 +278,13 @@ Component.register('sw-settings-snippet-list', {
             this.$router.push({ name: 'sw.settings.snippet.index' });
 
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.general.errorBackRoutingTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
             });
         },
 
         inlineSaveSuccessMessage(key) {
-            const titleSaveSuccess = this.$tc('sw-settings-snippet.list.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc(
                 'sw-settings-snippet.list.messageSaveSuccess',
                 this.queryIdCount,
@@ -298,7 +298,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         inlineSaveErrorMessage(key) {
-            const titleSaveError = this.$tc('sw-settings-snippet.list.titleSaveError');
+            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'sw-settings-snippet.list.messageSaveError',
                 this.queryIdCount,
@@ -398,7 +398,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         createSuccessMessage(item) {
-            const title = this.$tc('sw-settings-snippet.list.titleDeleteSuccess');
+            const title = this.$tc('global.default.success');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetSuccessMessage',
                 !item.isCustomSnippet,
@@ -415,7 +415,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         createResetErrorNote(item) {
-            const title = this.$tc('sw-settings-snippet.list.titleSaveError');
+            const title = this.$tc('global.default.error');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetErrorMessage',
                 item.isCustomSnippet ? 2 : 0,

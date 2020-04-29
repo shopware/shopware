@@ -60,7 +60,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the snippet set "A Set Name Snippet"?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
         cy.awaitAndCheckNotification('Snippet set has been deleted.');
         cy.get(`${page.elements.gridRow}--2`).should('not.exist');

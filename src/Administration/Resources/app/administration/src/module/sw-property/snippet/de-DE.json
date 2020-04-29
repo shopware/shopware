@@ -18,7 +18,6 @@
       "columnDescription": "Beschreibung",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "modalTitleDelete": "Eigenschaften",
       "textDeleteConfirm": "Möchtest Du die Eigenschaft \"{name}\" wirklich löschen?"
     },
     "detail": {
@@ -57,9 +56,7 @@
       "addOptionNotPossible": "Eigenschaften-Ausprägungen können nur in der Standardsprache hinzugefügt werden",
       "contextMenuOptionResetDelete": "Wiederherstellen",
       "textOptionHeadline": "Neue Ausprägung",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Eigenschaft erfolgreich gespeichert.",
-      "titleSaveError": "Fehler",
       "messageSaveError": "Eigenschaft \"{name}\" konnte nicht gespeichert werden",
       "messageOptionsEmpty": "Noch keine Eigenschaft-Ausprägungen",
       "messageOptionsEmptySubline": "Füge hier Eigenschaften hinzu.",

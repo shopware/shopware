@@ -4,10 +4,8 @@
       "mainMenuItemList": "Overview",
       "mainMenuItemGeneral": "Email templates",
       "placeholderSearchBar": "Search email templates...",
-      "notificationTestMailErrorTitle": "Error",
       "notificationTestMailSalesChannelErrorMessage": "Please choose a Sales Channel",
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
-      "notificationTestMailSuccessTitle": "Success",
       "notificationTestMailSuccessMessage": "The test email has been sent."
     },
     "list": {
@@ -23,7 +21,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDuplicate": "Duplicate",
       "textDeleteConfirm": "Are you sure you want to delete the email template \"{subject}\"?",
-      "modalTitleDelete": "Delete email template",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "messageEmpty": "No email templates yet",
@@ -73,8 +70,6 @@
       "textHeadline": "New email template",
       "textHeadlineEdit": "Edit email template",
       "titleResult": "Email template",
-      "titleSaveSuccess": "Success",
-      "titleSaveError": "Error",
       "messageSaveSuccess": "The email template \"{subject}\" has been saved.",
       "messageSaveError": "The email template \"{subject}\" could not be saved."
     }
@@ -95,7 +90,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDuplicate": "Duplicate",
       "textDeleteConfirm": "Are you sure you want to delete the header and footer \"{name}\"?",
-      "modalTitleDelete": "Delete header and footer",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "messageEmpty": "No email header and footer yet",
@@ -129,8 +123,6 @@
       "buttonSave": "Save",
       "textHeadline": "New email header/footer",
       "titleResult": "Email header/footer",
-      "titleSaveSuccess": "Success",
-      "titleSaveError": "Error",
       "messageSaveSuccess": "The email header/footer \"{name}\" has been saved.",
       "messageSaveError": "The email header/footer \"{name}\" could not be saved."
     }

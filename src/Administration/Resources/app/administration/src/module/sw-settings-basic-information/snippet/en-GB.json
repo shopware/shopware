@@ -5,9 +5,7 @@
       "description": "Change basic information here.",
       "textHeadline": "Basic information",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Configuration has been saved.",
-      "titleSaveError": "Configuration could not be saved."
+      "messageSaveSuccess": "Configuration has been saved."
     },
     "captcha": {
       "label": {

@@ -15,8 +15,6 @@
       "buttonAddCountry": "Add country",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "modalTitleDelete": "Delete country",
-      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Country \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -24,9 +22,7 @@
     "detail": {
       "textHeadline": "New country",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Country \"{name}\" has been saved.",
-      "titleSaveError": "Error",
       "messageSaveError": "Country \"{name}\" could not be saved.",
       "labelName": "Name",
       "labelPosition": "Position",

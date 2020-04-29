@@ -262,16 +262,16 @@
                 {% block sw_theme_list_delete_modal %}
                     <sw-modal v-if="showDeleteModal"
                               @modal-close="onCloseDeleteModal"
-                              :title="$tc('sw-theme-manager.modal.modalTitleDelete')"
+                              :title="$tc('global.default.warning')"
                               variant="small">
-    
+
                         {% block sw_theme_list_delete_modal_info %}
                             <div class="sw_theme_manager__confirm-delete-text">
                                 {{ $tc('sw-theme-manager.modal.textDeleteInfo', 0,
                                 { themeName: modalTheme.name }) }}
                             </div>
                         {% endblock %}
-    
+
                         {% block sw_theme_list_delete_modal_footer %}
                             <template slot="modal-footer">
                                 {% block sw_theme_list_delete_modal_cancel %}
@@ -280,7 +280,7 @@
                                         {{ $tc('sw-theme-manager.modal.buttonCancel') }}
                                     </sw-button>
                                 {% endblock %}
-        
+
                                 {% block sw_theme_list_delete_modal_confirm %}
                                     <sw-button @click="onConfirmThemeDelete"
                                                variant="danger"
@@ -333,7 +333,7 @@
                         {% endblock %}
                     </sw-modal>
                 {% endblock %}
-                
+
                 {% block sw_theme_list_rename_modal %}
                     <sw-modal v-if="showRenameModal"
                               class="sw_theme_manager__rename-modal"

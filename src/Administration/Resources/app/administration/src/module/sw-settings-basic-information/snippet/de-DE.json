@@ -5,9 +5,7 @@
       "description": "Hier können Einstellungen an den Stammdaten vorgenommen werden.",
       "textHeadline": "Stammdaten",
       "buttonSave": "Speichern",
-      "titleSaveSuccess": "Konfiguration gespeichert",
-      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
-      "titleSaveError": "Konfiguration konnte nicht gespeichert werden."
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
     },
     "captcha": {
       "label": {

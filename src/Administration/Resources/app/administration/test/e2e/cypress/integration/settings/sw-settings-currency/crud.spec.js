@@ -101,7 +101,7 @@ describe('Currency: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the currency "ZZ Yen"?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
         cy.wait('@deleteData').then((xhr) => {

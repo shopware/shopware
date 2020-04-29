@@ -14,8 +14,6 @@
       "buttonAddPaymentMethod": "Zahlungsart anlegen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "modalTitleDelete": "Zahlungsart löschen",
-      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
@@ -24,8 +22,8 @@
     "detail": {
       "textHeadline": "Neue Zahlungsart",
       "titleCard": "Zahlungsarten",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die Zahlungsart \"{name}\" konnte nicht gespeichert werden.",
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Aktiv",

@@ -128,7 +128,7 @@
                                 {% block sw_plugin_list_delete_modal %}
                                 <sw-modal v-if="showDeleteModal === item.id"
                                           @modal-close="onCloseDeleteModal"
-                                          :title="$tc('sw-plugin.list.titleDeleteConfirm')"
+                                          :title="$tc('global.default.warning')"
                                           variant="small">
                                     {% block sw_plugin_list_delete_modal_confirm_delete_text %}
                                     <p class="sw-plugin-list__confirm-delete-text">

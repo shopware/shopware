@@ -14,8 +14,6 @@
       "buttonAddPaymentMethod": "Add payment method",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "modalTitleDelete": "Delete payment method",
-      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Payment method \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
@@ -24,8 +22,8 @@
     "detail": {
       "textHeadline": "New payment method",
       "titleCard": "Payment methods",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
+      "messageSaveError": "Payment method \"{name}\" could not be saved.",
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Active",

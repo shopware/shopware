@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DisallowedLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
@@ -71,6 +70,9 @@ class RequestCriteriaBuilder
         return $this->maxLimit;
     }
 
+    /**
+     * @deprecated tag:v6.3.0 - The `shopware.api.allowed_limits` config will be removed
+     */
     public function getAllowedLimits(): array
     {
         return $this->allowedLimits;
@@ -150,6 +152,10 @@ class RequestCriteriaBuilder
             foreach ($criteria->getGroupFields() as $groupField) {
                 $array['grouping'][] = $groupField->getField();
             }
+        }
+
+        if (count($criteria->getAggregations())) {
+            $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
         }
 
         return $array;
@@ -372,14 +378,8 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if (empty($this->allowedLimits) && $this->maxLimit > 0 && $limit > $this->maxLimit) {
+        if ($this->maxLimit > 0 && $limit > $this->maxLimit) {
             $searchRequestException->add(new QueryLimitExceededException($this->maxLimit, $limit), '/limit');
-
-            return;
-        }
-
-        if (!empty($this->allowedLimits) && !\in_array($limit, $this->allowedLimits, true)) {
-            $searchRequestException->add(new DisallowedLimitQueryException($this->allowedLimits, $limit), '/limit');
 
             return;
         }

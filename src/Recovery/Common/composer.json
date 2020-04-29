@@ -12,7 +12,8 @@
         "slim/php-view": "2.2.1",
         "slim/slim": "3.12.3",
         "symfony/console": "4.4.4",
-        "symfony/dotenv": "4.4.4"
+        "symfony/dotenv": "4.4.4",
+        "symfony/event-dispatcher": "4.4.4"
     },
     "autoload": {
         "psr-4": {

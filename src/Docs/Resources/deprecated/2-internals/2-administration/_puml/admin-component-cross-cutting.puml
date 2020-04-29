@@ -1,0 +1,34 @@
+@startuml
+
+hide empty members
+
+package Cross-Cutting <<Rectangle>> {
+    class Routing
+    class DataRepository
+    class Filter
+}
+
+package Module <<Rectangle>> {
+    class Page
+    class View1
+    class View2
+    class Component1
+    class Component2
+}
+Filter -down[hidden]-> Routing
+Routing -down[hidden]-> DataRepository
+
+Page --> View1
+Page --> View2
+
+View1 --> Component1
+View1 --> Component2
+
+Routing -left-> Page
+DataRepository -left-> Page
+DataRepository -left-> Component1
+
+hide Filter
+
+
+@enduml

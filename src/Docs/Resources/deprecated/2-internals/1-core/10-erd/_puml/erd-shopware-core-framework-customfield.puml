@@ -1,0 +1,55 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreFrameworkCustomFieldCustomFieldDefinition, "custom_field\n(CustomField configuration)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(type) string
+   config json
+   active bool
+   customFieldSetId foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "custom_field_set\n(CustomField set/group)") {
+   primary_key(id) id
+   not_null(name) string
+   config json
+   active bool
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition, "custom_field_set_relation\n(Set to entity relation)") {
+   primary_key(id) id
+   not_null(customFieldSetId) foreignKey
+   not_null(entityName) string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+
+' relationshipd
+
+ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreFrameworkCustomFieldCustomFieldDefinition
+ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreFrameworkCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
+@enduml

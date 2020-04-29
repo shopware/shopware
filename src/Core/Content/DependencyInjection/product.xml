@@ -258,17 +258,23 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader" />
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer">

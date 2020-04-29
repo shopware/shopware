@@ -36,12 +36,17 @@ class EntityHydrator
      */
     private $objects = [];
 
+    /**
+     * @var Entity[] internal constructor cache
+     */
+    private $instances = [];
+
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity(new $entityClass(), $definition, $row, $root, $context));
+            $collection->add($this->hydrateEntity($this->createClass($entityClass), $definition, $row, $root, $context));
         }
 
         return $collection;
@@ -95,6 +100,15 @@ class EntityHydrator
         return $mapped;
     }
 
+    private function createClass(string $class)
+    {
+        if (!isset($this->instances[$class])) {
+            $this->instances[$class] = new $class();
+        }
+
+        return clone $this->instances[$class];
+    }
+
     private function hydrateEntity(Entity $entity, EntityDefinition $definition, array $row, string $root, Context $context): Entity
     {
         $fields = $definition->getFields();
@@ -110,10 +124,12 @@ class EntityHydrator
             return $this->objects[$cacheKey];
         }
 
-        $mappingStorage = new ArrayStruct([]);
+        /** @var ArrayStruct $mappingStorage */
+        $mappingStorage = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
 
-        $foreignKeys = new ArrayStruct([]);
+        /** @var ArrayStruct $foreignKeys */
+        $foreignKeys = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::FOREIGN_KEYS, $foreignKeys);
 
         /** @var Field $field */
@@ -261,10 +277,8 @@ class EntityHydrator
             return null;
         }
 
-        $structClass = $reference->getEntityClass();
-
         return $this->hydrateEntity(
-            new $structClass(),
+            $this->createClass($reference->getEntityClass()),
             $reference,
             $row,
             $root . '.' . $field->getPropertyName(),

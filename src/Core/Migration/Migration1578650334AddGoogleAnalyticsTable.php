@@ -16,7 +16,7 @@ class Migration1578650334AddGoogleAnalyticsTable extends MigrationStep
     {
         $connection->executeUpdate(
             <<<SQL
-            CREATE TABLE `sales_channel_analytics` (
+            CREATE TABLE IF NOT EXISTS `sales_channel_analytics` (
                 `id` BINARY(16)  NOT NULL,
                 `tracking_id` VARCHAR(50) NOT NULL,
                 `active` TINYINT(1) NOT NULL DEFAULT '0',

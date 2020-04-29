@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ChildCountUpdater
@@ -32,10 +34,57 @@ class ChildCountUpdater
     {
         $definition = $this->registry->getByEntityName($entity);
 
-        $entityName = $definition->getEntityName();
         if (empty($parentIds)) {
             return;
         }
+
+        try {
+            // try update all ids with a single sql statement, this works only if no other process writes this table
+            $this->trySingleUpdate($definition, $parentIds, $context);
+        } catch (DeadlockException $e) {
+            // deadlock will appear when another process tries to write the same records
+            $this->doMultiUpdate($definition, $parentIds, $context);
+        }
+    }
+
+    private function trySingleUpdate(EntityDefinition $definition, array $parentIds, Context $context): void
+    {
+        $entity = $definition->getEntityName();
+        $versionAware = $definition->isVersionAware();
+
+        $sql = sprintf(
+            'UPDATE #entity#  as parent
+                LEFT JOIN
+                (
+                    SELECT parent_id, count(id) total
+                    FROM   #entity#
+                    %s
+                    GROUP BY parent_id
+                ) child ON parent.id = child.parent_id
+            SET parent.child_count = IFNULL(child.total, 0)
+            WHERE parent.id IN (:ids)
+            %s',
+            $versionAware ? 'WHERE version_id = :version' : '',
+            $versionAware ? 'AND parent.version_id = :version' : ''
+        );
+
+        $sql = str_replace(
+            ['#entity#'],
+            [EntityDefinitionQueryHelper::escape($entity)],
+            $sql
+        );
+
+        $params = ['ids' => Uuid::fromHexToBytesList($parentIds)];
+        if ($versionAware) {
+            $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
+        }
+
+        $this->connection->executeUpdate($sql, $params, ['ids' => Connection::PARAM_STR_ARRAY]);
+    }
+
+    private function doMultiUpdate(EntityDefinition $definition, array $parentIds, Context $context): void
+    {
+        $entityName = $definition->getEntityName();
 
         $query = $this->connection->createQueryBuilder();
         $query->select([

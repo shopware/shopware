@@ -1000,22 +1000,26 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
-        $associations = $fields->filter(static function (Field $field) {
-            return $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField;
-        });
+        foreach ($fields as $association) {
+            if (!$association instanceof AssociationField) {
+                continue;
+            }
 
-        foreach ($associations as $association) {
-            $this->loadToOne($association, $context, $collection, $criteria);
-        }
+            if ($association instanceof OneToOneAssociationField || $association instanceof ManyToOneAssociationField) {
+                $this->loadToOne($association, $context, $collection, $criteria);
 
-        $associations = $fields->filterInstance(OneToManyAssociationField::class);
-        foreach ($associations as $association) {
-            $this->loadOneToMany($criteria, $definition, $association, $context, $collection);
-        }
+                continue;
+            }
 
-        $associations = $fields->filterInstance(ManyToManyAssociationField::class);
-        foreach ($associations as $association) {
-            $this->loadManyToMany($criteria, $association, $context, $collection);
+            if ($association instanceof OneToManyAssociationField) {
+                $this->loadOneToMany($criteria, $definition, $association, $context, $collection);
+
+                continue;
+            }
+
+            if ($association instanceof ManyToManyAssociationField) {
+                $this->loadManyToMany($criteria, $association, $context, $collection);
+            }
         }
 
         foreach ($collection as $struct) {

@@ -156,8 +156,6 @@ class EntityCacheKeyGenerator
      */
     public function getAssociatedTags(EntityDefinition $definition, Entity $entity, Context $context): array
     {
-        $associations = $definition->getFields()->filterInstance(AssociationField::class);
-
         $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition->getEntityName())];
 
         foreach ($context->getLanguageIdChain() as $languageId) {
@@ -171,7 +169,10 @@ class EntityCacheKeyGenerator
             $keys[] = $translationDefinition->getEntityName() . '.language_id';
         }
 
-        foreach ($associations as $association) {
+        foreach ($definition->getFields() as $association) {
+            if (!$association instanceof AssociationField) {
+                continue;
+            }
             if ($association->is(Extension::class)) {
                 $value = $entity->getExtension($association->getPropertyName());
             } else {

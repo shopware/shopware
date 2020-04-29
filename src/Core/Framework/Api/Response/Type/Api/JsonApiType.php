@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\System\SalesChannel\Api\ResponseFields;
+use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,9 +24,15 @@ class JsonApiType extends JsonFactoryBase
      */
     private $serializer;
 
-    public function __construct(JsonApiEncoder $serializer)
+    /**
+     * @var StructEncoder
+     */
+    private $structEncoder;
+
+    public function __construct(JsonApiEncoder $serializer, StructEncoder $structEncoder)
     {
         $this->serializer = $serializer;
+        $this->structEncoder = $structEncoder;
     }
 
     public function supports(string $contentType, ContextSource $origin): bool
@@ -75,9 +83,17 @@ class JsonApiType extends JsonFactoryBase
             'total' => $searchResult->getTotal(),
         ];
 
+        $fields = new ResponseFields(
+            $request->get('includes', [])
+        );
+
         $aggregations = [];
         foreach ($searchResult->getAggregations() as $aggregation) {
-            $aggregations[$aggregation->getName()] = $aggregation;
+            $aggregations[$aggregation->getName()] = $this->structEncoder->encode(
+                $aggregation,
+                $request->attributes->getInt('version'),
+                $fields
+            );
         }
 
         $rootNode['aggregations'] = $aggregations;

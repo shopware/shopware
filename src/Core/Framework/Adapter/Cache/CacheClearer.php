@@ -99,7 +99,7 @@ class CacheClearer
 
     public function clearContainerCache(): void
     {
-        $finder = (new Finder())->in($this->cacheDir)->directories()->name('Container*');
+        $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
         $containerCaches = [];
 
         foreach ($finder->getIterator() as $containerPaths) {

@@ -476,7 +476,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added a new translatable `label` property to `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition`
     * Marked `name` property of `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition` as nullable 
     * Added possibility to write all sync operation in a single transaction by providing the `single-operation` header
-    * Added possibility to move dal indexing to message queue when using the sync api by providing the `indexing-behavior` header 
+    * Added possibility to move dal indexing to message queue when using the sync api by providing the `indexing-behavior` header
+    * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
+    * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder::getAllowedLimits`
+    * Deprecated `shopware.api.allowed_limits` configuration
+    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm` 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
@@ -535,7 +539,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added bundle configuration to `HTMLPurifier`s behaviour
         * `storefront.htmlPurifier.cacheDir`: Directory to write `HTMLPurifier` cache (defaults to `kernel.cache_dir`)
         * `storefront.htmlPurifier.enableCache`: Boolean to turn `HTMLPurifier`s cache cache on or off (defaults to `true`)
-
+    * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
 **Removals**
 
 * Administration

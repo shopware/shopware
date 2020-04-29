@@ -3,11 +3,14 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -83,18 +86,10 @@ class SearchKeywordUpdater
 
         $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $keywordInsert = new RetryableQuery(
-            $this->connection->prepare('
-                INSERT IGNORE INTO `product_search_keyword` (`id`, `version_id`, `product_version_id`, `language_id`, `product_id`, `keyword`, `ranking`, `created_at`)
-                VALUES (:id, :version_id, :product_version_id, :language_id, :product_id, :keyword, :ranking, :created_at)
-            ')
-        );
-
-        $dictionaryInsert = new RetryableQuery(
-            $this->connection->prepare('INSERT IGNORE INTO `product_keyword_dictionary` (`id`, `language_id`, `keyword`) VALUES (:id, :language_id, :keyword)')
-        );
-
         $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
+
+        $keywords = [];
+        $dictionary = [];
 
         /** @var ProductEntity $product */
         foreach ($products as $product) {
@@ -103,7 +98,7 @@ class SearchKeywordUpdater
             $productId = Uuid::fromHexToBytes($product->getId());
 
             foreach ($analyzed as $keyword) {
-                $keywordInsert->execute([
+                $keywords[] = [
                     'id' => Uuid::randomBytes(),
                     'version_id' => $versionId,
                     'product_version_id' => $versionId,
@@ -112,15 +107,18 @@ class SearchKeywordUpdater
                     'keyword' => $keyword->getKeyword(),
                     'ranking' => $keyword->getRanking(),
                     'created_at' => $now,
-                ]);
-
-                $dictionaryInsert->execute([
+                ];
+                $dictionary[] = [
                     'id' => Uuid::randomBytes(),
                     'language_id' => $languageId,
                     'keyword' => $keyword->getKeyword(),
-                ]);
+                ];
             }
         }
+
+        $this->insertKeywords($keywords);
+
+        $this->insertDictionary($dictionary);
     }
 
     private function delete(array $ids, string $languageId, string $versionId): void
@@ -140,5 +138,52 @@ class SearchKeywordUpdater
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
         });
+    }
+
+    private function insertKeywords(array $keywords): void
+    {
+        $queue = new MultiInsertQueryQueue($this->connection, 50);
+        foreach ($keywords as $insert) {
+            $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
+        }
+
+        // try batch insert
+        try {
+            $queue->execute();
+        } catch (\Exception $e) {
+            // catch deadlock exception and retry with single insert
+            $query = new RetryableQuery(
+                $this->connection->prepare('
+                    INSERT IGNORE INTO `product_search_keyword` (`id`, `version_id`, `product_version_id`, `language_id`, `product_id`, `keyword`, `ranking`, `created_at`)
+                    VALUES (:id, :version_id, :product_version_id, :language_id, :product_id, :keyword, :ranking, :created_at)
+                ')
+            );
+
+            foreach ($keywords as $keyword) {
+                $query->execute($keyword);
+            }
+        }
+    }
+
+    private function insertDictionary(array $dictionary): void
+    {
+        $queue = new MultiInsertQueryQueue($this->connection, 50, false, true);
+        foreach ($dictionary as $insert) {
+            $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
+        }
+
+        // try batch insert
+        try {
+            $queue->execute();
+        } catch (\Exception $e) {
+            // catch deadlock exception and retry with single insert
+            $query = new RetryableQuery(
+                $this->connection->prepare('INSERT IGNORE INTO `product_keyword_dictionary` (`id`, `language_id`, `keyword`) VALUES (:id, :language_id, :keyword)')
+            );
+
+            foreach ($dictionary as $insert) {
+                $query->execute($insert);
+            }
+        }
     }
 }

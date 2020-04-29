@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -327,33 +326,39 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testQueries(TestDataCollection $data): void
+    public function testContainsFilter(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Silk'), 1000));
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'tilk'));
+
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
         static::assertContains($data->get('p3'), $products->getIds());
 
-        $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Slik'), 1000));
-        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
-        static::assertContains($data->get('p3'), $products->getIds());
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'subber'));
 
-        $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Skill'), 1000));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Rubar'), 1000));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(3, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
+        static::assertCount(0, $products->getIds());
+        static::assertSame(0, $products->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'Rubb'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
         static::assertContains($data->get('p2'), $products->getIds());
-        static::assertContains($data->get('p3'), $products->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'bber'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
+        static::assertContains($data->get('p2'), $products->getIds());
     }
 
     /**
@@ -1060,6 +1065,36 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testTermAlgorithm(TestDataCollection $data): void
+    {
+        $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+
+        $searcher = $this->createEntitySearcher();
+
+        foreach ($terms as $term) {
+            $criteria = new Criteria();
+            $criteria->setTerm($term);
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+
+            $term = strtolower($term);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+
+            $term = strtoupper($term);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testFilterAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -1376,9 +1411,9 @@ class ElasticsearchProductTest extends TestCase
         $expected = [
             $data->get('p4'),
             $data->get('p5'),
-            $data->get('p6'),
             $data->get('p2'),
             $data->get('p1'),
+            $data->get('p6'),
             $data->get('p3'),
         ];
 
@@ -1453,7 +1488,7 @@ class ElasticsearchProductTest extends TestCase
             $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
             $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
-            $this->createProduct('p6', 'Grouped 3', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
         ], Context::createDefaultContext());
     }
 }

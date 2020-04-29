@@ -403,32 +403,6 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertTrue($gotError);
     }
 
-    public function testDisallowedLimit(): void
-    {
-        $allowedLimits = [1, 10];
-        $limit = 13;
-
-        $params = [
-            'limit' => $limit,
-        ];
-
-        $gotError = false;
-
-        try {
-            $this->fakeHandleRequest(0, $allowedLimits, $params);
-        } catch (SearchRequestException $e) {
-            $errors = $e->getErrors();
-            $current = $errors->current();
-
-            $message = sprintf('The limit must be one of the `allowed_limits` [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
-            static::assertEquals($message, $current['detail']);
-            static::assertEquals('/limit', $current['source']['pointer']);
-
-            $gotError = true;
-        }
-        static::assertTrue($gotError);
-    }
-
     public function testMultipleErrorStack(): void
     {
         $query = [

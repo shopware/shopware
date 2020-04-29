@@ -1,0 +1,68 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentImportExportImportExportProfileDefinition, "import_export_profile\n(File profile definition)") {
+   primary_key(id) id
+   not_null(name) string
+   systemDefault bool
+   not_null(sourceEntity) string
+   not_null(fileType) string
+   delimiter string
+   enclosure string
+   mapping json
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log\n(Change log)") {
+   primary_key(id) id
+   not_null(activity) string
+   not_null(state) string
+   not_null(records) int
+   userId foreignKey
+   profileId foreignKey
+   fileId foreignKey
+   username string
+   profileName string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition, "import_export_file\n(Import/Export file)") {
+   primary_key(id) id
+   not_null(originalName) string
+   not_null(path) string
+   not_null(expireDate) dateTime
+   size int
+   not_null(createdAt) createdAt
+   not_null(accessToken) string
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
+}
+
+' relationshipd
+
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+
+hide empty description
+
+
+title "Payment"
+
+state "Open" as payment_open
+state "Paid" as payment_paid
+state "Paid Partially" as payment_paid_partially
+state "Refunded" as payment_refunded
+state "Refunded Partially" as payment_refunded_partially
+state "Cancelled" as payment_cancelled
+state "Reminded" as payment_reminded
+
+[*] --> payment_open
+payment_open --> payment_cancelled : cancel
+payment_open --> payment_reminded : remind
+payment_open --> payment_paid : pay
+payment_open --> payment_paid_partially : pay partially
+
+payment_reminded --> payment_paid_partially : pay partially
+payment_reminded --> payment_paid : pay
+
+payment_paid_partially --> payment_reminded : remind
+payment_paid_partially --> payment_paid : pay
+payment_paid_partially --> payment_refunded_partially : refund partially
+payment_paid_partially --> payment_refunded : refund
+
+payment_paid --> payment_refunded : refund
+payment_paid --> payment_refunded_partially : refund partially
+
+payment_refunded_partially --> payment_refunded : refund
+
+payment_refunded --> [*]
+payment_paid --> [*]
+
+@enduml

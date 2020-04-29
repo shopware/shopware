@@ -1,0 +1,17 @@
+@startuml LAYOUT_TOP_DOWN
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN
+
+title Core structure
+
+Container(checkout, "Checkout", "Checkout specifics", "Contains the cart, order management and checkout processes.")
+Container(content,  "Content", "Content specifics", "Contains the products, the catalogue, media and  content management system amongst others.")
+Container(system, "System", "Shared data", "Provides essential data ready to use by checkout and content building blocks.")
+Container(framework, "Framework", "Technical dependencies", "Contains the essential technology used in Shopware 6")
+
+Rel_D(checkout, system, "uses")
+Rel_D(content, system, "uses")
+Rel_D(system, framework, "uses")
+Rel_L(checkout, content, "content from")
+@enduml

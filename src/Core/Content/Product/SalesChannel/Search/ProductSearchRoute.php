@@ -6,12 +6,14 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -40,14 +42,28 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      */
     private $productListingLoader;
 
+    /**
+     * @var ProductDefinition
+     */
+    private $definition;
+
+    /**
+     * @var RequestCriteriaBuilder
+     */
+    private $criteriaBuilder;
+
     public function __construct(
         ProductSearchBuilderInterface $searchBuilder,
         EventDispatcherInterface $eventDispatcher,
-        ProductListingLoader $productListingLoader
+        ProductListingLoader $productListingLoader,
+        ProductDefinition $definition,
+        RequestCriteriaBuilder $criteriaBuilder
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->searchBuilder = $searchBuilder;
         $this->productListingLoader = $productListingLoader;
+        $this->definition = $definition;
+        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -77,7 +93,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      */
     public function load(Request $request, SalesChannelContext $context): ProductSearchRouteResponse
     {
-        if (!$request->query->has('search')) {
+        if (!$request->get('search')) {
             throw new MissingRequestParameterException('search');
         }
 
@@ -92,6 +108,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             new ProductSearchCriteriaEvent($request, $criteria, $context),
             ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
+
+        $this->criteriaBuilder->handleRequest($request, $criteria, $this->definition, $context->getContext());
 
         $result = $this->productListingLoader->load($criteria, $context);
 

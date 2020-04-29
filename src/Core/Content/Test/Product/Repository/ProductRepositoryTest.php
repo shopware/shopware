@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -2249,6 +2250,47 @@ class ProductRepositoryTest extends TestCase
         $this->expectExceptionMessage('Product with number "' . $productNumber . '" already exists.');
 
         $this->repository->create([$data], Context::createDefaultContext());
+    }
+
+    public function testPriceSortingWithDecimalPrecision(): void
+    {
+        $defaults = [
+            'name' => 'product',
+            'stock' => 10,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'tax' => ['name' => 'tax', 'taxRate' => 15],
+        ];
+
+        $ids = new TestDataCollection();
+
+        $data = [
+            array_replace_recursive($defaults, ['id' => $ids->create('a'), 'price' => [['gross' => 99.96]], 'productNumber' => $ids->get('a')]),
+            array_replace_recursive($defaults, ['id' => $ids->create('b'), 'price' => [['gross' => 99.92]], 'productNumber' => $ids->get('b')]),
+            array_replace_recursive($defaults, ['id' => $ids->create('c'), 'price' => [['gross' => 99.95]], 'productNumber' => $ids->get('c')]),
+            array_replace_recursive($defaults, ['id' => $ids->create('d'), 'price' => [['gross' => 99.91]], 'productNumber' => $ids->get('d')]),
+        ];
+
+        $this->repository->create($data, Context::createDefaultContext());
+
+        $criteria = new Criteria($ids->all());
+        $criteria->addSorting(new FieldSorting('price'));
+
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertEquals(
+            array_values($ids->getList(['d', 'b', 'c', 'a'])),
+            $result->getIds()
+        );
+
+        $criteria = new Criteria($ids->all());
+        $criteria->addSorting(new FieldSorting('price', 'DESC'));
+
+        $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertEquals(
+            array_values($ids->getList(['a', 'c', 'b', 'd'])),
+            $result->getIds()
+        );
     }
 
     private function createContext(array $ruleIds = []): Context

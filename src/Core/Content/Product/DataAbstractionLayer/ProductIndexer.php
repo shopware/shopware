@@ -192,7 +192,7 @@ class ProductIndexer extends EntityIndexer
 
         $this->searchKeywordUpdater->update($ids, $context);
 
-        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context));
+        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
 
         $this->cacheClearer->invalidateIds(
             array_merge($ids, $parentIds, $childrenIds),

@@ -190,6 +190,8 @@ class ExamplePayment implements SynchronousPaymentHandlerInterface
 
 The handler itself is not used yet, since there is no payment method actually using the handler mentioned above.
 The payment method can be added to the system while installing your plugin.
+You can set the value for `afterOrderEnabled` to decide if your PaymentMethod should be enabled for a change of the payment after the Order is created.
+This can be changed by the shop owner in the payment settings.
 
 An example for your plugin could look like this:
 ```php
@@ -254,6 +256,7 @@ class PaymentPlugin extends Plugin
             'name' => 'Example payment',
             'description' => 'Example payment description',
             'pluginId' => $pluginId,
+            'afterOrderEnabled' => false
         ];
 
         /** @var EntityRepositoryInterface $paymentRepository */

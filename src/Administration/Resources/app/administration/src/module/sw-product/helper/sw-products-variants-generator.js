@@ -392,6 +392,8 @@ export default class VariantsGenerator extends EventEmitter {
 
         // Send the payload to the server
         const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
+        header['single-operation'] = 1;
+
         this.syncService.sync(payload, {}, header).then(() => {
             this.processQueue(type, queue, offset + limit, limit, resolve);
         });

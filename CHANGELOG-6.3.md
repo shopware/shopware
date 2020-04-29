@@ -24,6 +24,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Core    
 
 * Storefront
+    * Added plugin injection in hot mode
 
     
 **Removals**

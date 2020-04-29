@@ -194,12 +194,21 @@ class ElasticsearchHelper
         $search->addPostFilter($query, BoolQuery::FILTER);
     }
 
-    public function addTerm(Criteria $criteria, Search $search, Context $context): void
+    public function addTerm(Criteria $criteria, Search $search, Context $context, ?EntityDefinition $definition = null): void
     {
         if (!$criteria->getTerm()) {
             return;
         }
 
+        if ($definition && $esDefinition = $this->registry->get($definition->getEntityName())) {
+            $query = $esDefinition->buildTermQuery($context, $criteria);
+
+            $search->addQuery($query);
+
+            return;
+        }
+
+        // @deprecated tag:v6.3.0 - definition will be required
         $bool = new BoolQuery();
 
         $bool->add(
@@ -214,11 +223,6 @@ class ElasticsearchHelper
 
         $bool->add(
             new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto']),
-            BoolQuery::SHOULD
-        );
-
-        $bool->add(
-            new MatchQuery('description', $criteria->getTerm()),
             BoolQuery::SHOULD
         );
 

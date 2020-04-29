@@ -76,7 +76,13 @@ class IndexCreator
 
     private function addFullText(array $mapping): array
     {
-        $mapping['properties']['fullText'] = ['type' => 'text'];
+        $mapping['properties']['fullText'] = [
+            'type' => 'text',
+            'fields' => [
+                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+            ],
+        ];
+
         $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
 
         if (!array_key_exists('_source', $mapping)) {

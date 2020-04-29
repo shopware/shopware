@@ -10,12 +10,12 @@ use ONGR\ElasticsearchDSL\Aggregation\Metric;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\ValueCountAggregation;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\ExistsQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\RangeQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -289,8 +289,11 @@ class CriteriaParser
     {
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
+        /** @var string $value */
+        $value = $filter->getValue();
+
         return $this->createNestedQuery(
-            new MatchQuery($accessor, $filter->getValue()),
+            new WildcardQuery($accessor, '*' . $value . '*'),
             $definition,
             $filter->getField()
         );

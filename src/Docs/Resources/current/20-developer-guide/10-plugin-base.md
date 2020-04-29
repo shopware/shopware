@@ -92,6 +92,9 @@ find the plugin when it is installed via composer, the `type` needs to be set to
 }
 ```
 
+### Plugin icon
+A plugin can be shipped with an icon which will be rendered in the administration. Therefore a 40 x 40 px png file can be shipped with the following path/filename: `SwagStorePlugin/src/Resources/config/plugin.png`. More information in the [plugin meta information reference](./../60-references-internals/40-plugins/050-plugin-information.md).
+
 ## Install
 
 ### The Symfony part

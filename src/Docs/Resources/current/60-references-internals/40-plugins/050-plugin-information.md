@@ -95,3 +95,15 @@ If a language with this locale is not available, the translation will not be wri
 
 The changelog for your plugin now has to be located in another file.
 Have as look at our [changelog guide](./060-plugin-changelog.md) to figure out how that's done in Shopware 6.
+
+## Icon
+
+A plugin can have an icon which will be rendered in the shopware administration. The default path for an icon is `src/Resources/config/plugin.png` relative from the plugin root folder. This path can be overridden using the `extra` object in the `composer.json` as follows:
+```json
+{
+    "extra": {
+        "plugin-icon": "myFolder/icon.png"
+    }
+}
+```
+The icon should be a png file with the size 40 x 40 px. Since it is stored in the database as `mediumblob` the theoretical max file size is 16 MB.

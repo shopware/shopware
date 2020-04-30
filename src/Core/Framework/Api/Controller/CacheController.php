@@ -109,6 +109,16 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/cleanup", name="api.action.cache.cleanup", methods={"DELETE"})
+     */
+    public function clearOldCacheFolders(): Response
+    {
+        $this->cacheClearer->scheduleCacheFolderCleanup();
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    /**
      * @Route("/api/v{version}/_action/container_cache", name="api.action.container-cache.delete", methods={"DELETE"})
      */
     public function clearContainerCache(): Response

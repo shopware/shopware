@@ -3,14 +3,17 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class CacheClearer
+class CacheClearer extends AbstractMessageHandler
 {
     /**
      * @var CacheClearerInterface
@@ -42,13 +45,19 @@ class CacheClearer
      */
     private $cacheKeyGenerator;
 
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
     public function __construct(
         array $adapters,
         CacheClearerInterface $cacheClearer,
         Filesystem $filesystem,
         string $cacheDir,
         string $environment,
-        EntityCacheKeyGenerator $cacheKeyGenerator
+        EntityCacheKeyGenerator $cacheKeyGenerator,
+        MessageBusInterface $messageBus
     ) {
         $this->adapters = $adapters;
         $this->cacheClearer = $cacheClearer;
@@ -56,6 +65,7 @@ class CacheClearer
         $this->filesystem = $filesystem;
         $this->environment = $environment;
         $this->cacheKeyGenerator = $cacheKeyGenerator;
+        $this->messageBus = $messageBus;
     }
 
     public function invalidateTags(array $tags): void
@@ -109,6 +119,11 @@ class CacheClearer
         $this->filesystem->remove($containerCaches);
     }
 
+    public function scheduleCacheFolderCleanup(): void
+    {
+        $this->messageBus->dispatch(new CleanupOldCacheFolders());
+    }
+
     public function deleteItems(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
@@ -123,6 +138,18 @@ class CacheClearer
                 $adapter->prune();
             }
         }
+    }
+
+    public function handle($message): void
+    {
+        $this->cleanupOldCacheDirectories();
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            CleanupOldCacheFolders::class,
+        ];
     }
 
     private function cleanupOldCacheDirectories(): void

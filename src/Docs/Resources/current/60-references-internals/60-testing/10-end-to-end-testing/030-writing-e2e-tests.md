@@ -1,8 +1,6 @@
 [titleEn]: <>(Writing End-to-End Tests)
 [hash]: <>(article:e2e_testing_writing)
 
-# Writing End-to-End Tests
-
 In this article you will get to know all information necessary to write your first E2E test.
 
 Please keep in mind that we will not cover how to write a Cypress tests in general.

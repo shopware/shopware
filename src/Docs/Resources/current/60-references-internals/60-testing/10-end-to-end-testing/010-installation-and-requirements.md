@@ -1,8 +1,6 @@
 [titleEn]: <>(Installation and requirements)
 [hash]: <>(article:e2e_testing_installation)
 
-# Installation and requirements
-
 ## General requirements
 
 To use Shopware E2E tests, at first you need to have a Shopware 6 installation running. 

@@ -47,13 +47,19 @@
             </template>
         {% endblock %}
 
+        {% block sw_mail_template_list_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
         {% block sw_mail_template_list_content %}
             <template #content>
                 <sw-card-view>
                     {% block sw_mail_template_list_content_card %}
-                        <sw-mail-template-list></sw-mail-template-list>
+                        <sw-mail-template-list ref="mailTemplateList"></sw-mail-template-list>
 
-                        <sw-mail-header-footer-list></sw-mail-header-footer-list>
+                        <sw-mail-header-footer-list ref="mailHeaderFooterList"></sw-mail-header-footer-list>
                     {% endblock %}
                 </sw-card-view>
             </template>

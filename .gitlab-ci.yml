@@ -54,7 +54,7 @@ Javascript analysis:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -79,7 +79,7 @@ PHP analysis:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     services:
         -   name: mysql:5.7
@@ -147,7 +147,7 @@ PHP 7.2:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
@@ -164,7 +164,7 @@ PHP 7.3:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -197,7 +197,7 @@ PHP 7.4:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -230,7 +230,7 @@ MySQL 5.7:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -261,7 +261,7 @@ MySQL 8.0:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -294,7 +294,7 @@ MariaDB 10.4:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -327,7 +327,7 @@ Administration (Jest):
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     timeout: 1h 00m
     services:
@@ -347,7 +347,7 @@ Storefront (Jest):
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     timeout: 1h 00m
     variables:
@@ -415,7 +415,7 @@ General (Storefront):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -432,7 +432,7 @@ Content (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -449,7 +449,7 @@ Catalogues (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -466,7 +466,7 @@ Customers (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -483,7 +483,7 @@ Media and Marketing (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -500,7 +500,7 @@ General (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -517,7 +517,7 @@ Orders (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -534,7 +534,7 @@ Rules and Product Groups (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -551,7 +551,7 @@ Settings (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -615,7 +615,7 @@ Component Library:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*
@@ -646,7 +646,7 @@ Generating docs:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
         changes:
             - src/Docs/**/*
     stage: Generate docs
@@ -669,13 +669,40 @@ RIPS security:
     allow_failure: true
     only:
         - master
-        - "6.1"
+        - schedules
     script:
         - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
         - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
         - chmod 755 /usr/bin/rips-cli
         - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
     interruptible: false
+
+Symfony security check:
+    stage: Security
+    image: shopware/development:latest
+    before_script: []
+    allow_failure: true
+    script:
+        - wget https://get.sensiolabs.org/security-checker.phar
+        - composer install
+        - php security-checker.phar security:check composer.lock
+        - composer install -d src/Recovery/Common/
+        - php security-checker.phar security:check src/Recovery/Common/composer.lock
+
+NPM security check:
+    stage: Security
+    image: shopware/development:latest
+    before_script: []
+    allow_failure: true
+    script:
+        - cd src/Administration/Resources/app/administration
+        - npm i
+        - npm install --save-dev audit-ci
+        - node node_modules/.bin/audit-ci --moderate
+        - cd ../../../../../src/Storefront/Resources/app/storefront
+        - npm i
+        - npm install --save-dev audit-ci
+        - node node_modules/.bin/audit-ci --moderate
 
 # Stage: deploy
 
@@ -686,7 +713,7 @@ RIPS security:
     before_script: []
     only:
         - master
-        - "6.1"
+        - /^6\..*$/
     dependencies:
         - PHPUnit (MySQL)
     script:
@@ -705,7 +732,7 @@ Upload Component Library:
     only:
         refs:
             - master
-            - "6.1"
+            - /^6\..*$/
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*

@@ -382,6 +382,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.messenger.restart_workers_signal" />
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
@@ -394,6 +395,16 @@
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="messenger.bus.shopware" />
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
+            <argument type="service" id="media.repository"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <!-- Util -->

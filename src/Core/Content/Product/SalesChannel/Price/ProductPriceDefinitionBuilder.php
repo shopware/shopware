@@ -138,7 +138,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $context->getContext()->getCurrencyPrecision(),
                 $quantity,
                 true,
-                $this->buildReferencePriceDefinition($product)
+                $this->buildReferencePriceDefinition($product),
+                $this->getListPrice($product, $context)
             );
         }
 

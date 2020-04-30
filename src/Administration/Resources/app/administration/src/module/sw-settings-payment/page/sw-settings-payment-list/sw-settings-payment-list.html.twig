@@ -40,6 +40,12 @@
                 </template>
             {% endblock %}
 
+            {% block sw_settings_payment_list_language_switch %}
+                <template #language-switch>
+                    <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+                </template>
+            {% endblock %}
+
             {% block sw_settings_payment_list_content %}
                 <template #content>
                     {% block sw_settings_payment_list_content %}

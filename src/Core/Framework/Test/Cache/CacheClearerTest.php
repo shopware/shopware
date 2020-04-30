@@ -101,7 +101,8 @@ class CacheClearerTest extends TestCase
             $filesystem,
             $cacheDir,
             'test',
-            $this->getContainer()->get(EntityCacheKeyGenerator::class)
+            $this->getContainer()->get(EntityCacheKeyGenerator::class),
+            $this->getContainer()->get('messenger.bus.shopware')
         );
 
         $cacheClearer->clearContainerCache();

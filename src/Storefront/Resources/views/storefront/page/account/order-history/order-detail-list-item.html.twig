@@ -23,7 +23,8 @@
                                         } %}
                                     </div>
                                 {% else %}
-                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                    {% set url = lineItem.referencedId ? seoUrl('frontend.detail.page', {'productId': lineItem.referencedId }) : '#not-found' %}
+                                    <a href="{{ url }}"
                                        class="product-image-link"
                                        title="{{ lineItem.label }}">
                                         {% block page_checkout_item_info_image_element %}
@@ -62,7 +63,8 @@
                                         {{ lineItem.label }}
                                     </strong>
                             {% else %}
-                                <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                {% set url = lineItem.referencedId ? seoUrl('frontend.detail.page', {'productId': lineItem.referencedId }) : '#not-found' %}
+                                <a href="{{ url }}"
                                    class="order-item-product-name"
                                    title="{{ lineItem.label }}"> <strong class="name-value">
                                         {{ lineItem.label }}

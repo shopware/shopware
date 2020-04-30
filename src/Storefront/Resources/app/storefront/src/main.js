@@ -74,6 +74,7 @@ import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
 import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
+import SwagBlockLink from 'src/helper/block-link.helper';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -137,6 +138,7 @@ PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
+PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');

@@ -65,6 +65,10 @@ Component.register('sw-settings-shipping-detail', {
             return this.repositoryFactory.create('currency');
         },
 
+        isNewShippingMethod() {
+            return Object.keys(this.shippingMethod).length > 0 && this.shippingMethod.isNew();
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -150,6 +154,10 @@ Component.register('sw-settings-shipping-detail', {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
+                Shopware.StateDeprecated.getStore('language').setCurrentId(
+                    Shopware.StateDeprecated.getStore('language').systemLanguageId
+                );
+
                 const shippingMethod = this.shippingMethodRepository.create(Shopware.Context.api);
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
             } else {
@@ -184,7 +192,7 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.shippingMethod.hasChanges();
+            return this.shippingMethodRepository.hasChanges(this.shippingMethod);
         },
 
         saveOnLanguageChange() {

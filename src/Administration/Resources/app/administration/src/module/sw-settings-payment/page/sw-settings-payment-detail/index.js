@@ -10,8 +10,7 @@ Component.register('sw-settings-payment-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('paymentMethod')
+        Mixin.getByName('placeholder')
     ],
 
     inject: ['repositoryFactory'],
@@ -115,7 +114,7 @@ Component.register('sw-settings-payment-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.paymentMethod.hasChanges();
+            return this.paymentMethodRepository.hasChanges(this.paymentMethod);
         },
 
         saveOnLanguageChange() {

@@ -39,6 +39,12 @@
             </template>
         {% endblock %}
 
+        {% block sw_settings_shipping_list_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
         <template slot="content">
             {% block sw_settings_shipping_list_content %}
                 <div class="sw-settings-shipping-list__content">

@@ -132,6 +132,11 @@ Component.register('sw-settings-shipping-list', {
 
         onCloseDeleteModal() {
             this.showDeleteModal = false;
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            this.getList();
         }
     }
 });

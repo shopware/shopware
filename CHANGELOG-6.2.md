@@ -310,6 +310,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * `sw-media-modal-delete` now shows where media is used
     * For batch delete `sw-media-modal-delete` shows all used media entities
     * Fixed `entity-hydrator.data.js` to check `row` parameter exist data
+    * Added `sw_order_detail_actions_slot_smart_bar_actions` block to `sw-order/page/sw-order-detail/sw-order-detail.html.twig`
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.

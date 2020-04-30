@@ -481,7 +481,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder::getAllowedLimits`
     * Deprecated `shopware.api.allowed_limits` configuration
-    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm` 
+    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
+    * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
+    * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

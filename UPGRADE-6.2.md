@@ -336,6 +336,9 @@ Now the variable can be overwritten with `replace_recursive`:
 * Added `HoneypotCaptcha`
   * This captcha checks wether a form field hidden from the user was filled out and stops the request if that's the case
   * The `HoneypotCaptcha` is active by default
+* If you use the `widgets.search.pagelet` route in your template, you have to replace this with `widgets.search.pagelet.v2`:
+  * Before: `url('widgets.search.pagelet', { search: page.searchTerm })`
+  * After: `url('widgets.search.pagelet.v2')`
 
 Refactorings
 ------------

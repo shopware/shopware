@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class OrderStateChangeRoute extends AbstractOrderStateChangeRoute
+class CancelOrderRoute extends AbstractCancelOrderRoute
 {
     /**
      * @var OrderService
@@ -26,16 +26,16 @@ class OrderStateChangeRoute extends AbstractOrderStateChangeRoute
         $this->orderService = $orderService;
     }
 
-    public function getDecorated(): AbstractOrderStateChangeRoute
+    public function getDecorated(): AbstractCancelOrderRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
     /**
      * @OA\Post(
-     *      path="/order/state/transition",
-     *      description="Change the state of an order",
-     *      operationId="changeOrderState",
+     *      path="/order/state/cancel",
+     *      description="Cancel a order",
+     *      operationId="cancelOrder",
      *      tags={"Store API", "Order"},
      *      @OA\Parameter(
      *          name="orderId",
@@ -46,23 +46,14 @@ class OrderStateChangeRoute extends AbstractOrderStateChangeRoute
      *              type="string"
      *          )
      *      ),
-     *      @OA\Parameter(
-     *          name="transition",
-     *          in="post",
-     *          required=true,
-     *          description="The transition the OrderState should execute",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
      *      @OA\Response(
      *          response="200",
      *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/order/state/transition", name="store-api.order.state.transition", methods={"POST"})
+     * @Route(path="/store-api/v{version}/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"})
      */
-    public function change(Request $request, SalesChannelContext $context): OrderStateChangeRouteResponse
+    public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
         if ($context->getCustomer() === null) {
             throw new CustomerNotLoggedInException();
@@ -75,6 +66,6 @@ class OrderStateChangeRoute extends AbstractOrderStateChangeRoute
             $context->getCustomer()->getId()
         );
 
-        return new OrderStateChangeRouteResponse($newState);
+        return new CancelOrderRouteResponse($newState);
     }
 }

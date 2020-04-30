@@ -4,8 +4,8 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderStateChangeRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
@@ -57,7 +57,7 @@ class AccountOrderController extends StorefrontController
     private $accountEditOrderPageLoader;
 
     /**
-     * @var AbstractOrderStateChangeRoute
+     * @var AbstractCancelOrderRoute
      */
     private $orderStateChangeRoute;
 
@@ -77,7 +77,7 @@ class AccountOrderController extends StorefrontController
         RequestCriteriaBuilder $requestCriteriaBuilder,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
         ContextSwitchRoute $contextSwitchRoute,
-        AbstractOrderStateChangeRoute $orderStateChangeRoute,
+        AbstractCancelOrderRoute $orderStateChangeRoute,
         AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute
     ) {
@@ -164,7 +164,7 @@ class AccountOrderController extends StorefrontController
         $cancelOrderRequest->request->set('orderId', $request->get('orderId'));
         $cancelOrderRequest->request->set('transition', 'cancel');
 
-        $this->orderStateChangeRoute->change($cancelOrderRequest, $context);
+        $this->orderStateChangeRoute->cancel($cancelOrderRequest, $context);
 
         if ($context->getCustomer() && $context->getCustomer()->getGuest() === true) {
             return $this->redirectToRoute(

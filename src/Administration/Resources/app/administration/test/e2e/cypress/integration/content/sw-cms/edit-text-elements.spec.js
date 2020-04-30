@@ -68,7 +68,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
-        cy.get('.cms-block h2').contains('Chocolate cake dragée');
+        cy.get('.cms-block').contains('Chocolate cake dragée');
     });
 
     it('@content: use text block with three columns', () => {

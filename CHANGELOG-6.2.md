@@ -541,6 +541,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `storefront.htmlPurifier.cacheDir`: Directory to write `HTMLPurifier` cache (defaults to `kernel.cache_dir`)
         * `storefront.htmlPurifier.enableCache`: Boolean to turn `HTMLPurifier`s cache cache on or off (defaults to `true`)
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
+    * Added `utilities_thumbnail`, `utilities_thumbnail_logic`, `utilities_thumbnail_image` twig blocks to thumbnail.html.twig
+
 **Removals**
 
 * Administration

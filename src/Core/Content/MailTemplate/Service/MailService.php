@@ -107,8 +107,8 @@ class MailService implements MailServiceInterface
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
-        $mailSentEvent = new MailBeforeValidateEvent($data, $context, $templateData);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
@@ -182,10 +182,10 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
-        $mailSentEvent = new MailBeforeSentEvent($data, $message, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
+        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 
-        if ($mailSentEvent->isPropagationStopped()) {
+        if ($mailBeforeSentEvent->isPropagationStopped()) {
             return null;
         }
 

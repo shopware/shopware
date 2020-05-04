@@ -97,7 +97,7 @@
             <argument type="service" id="promotion.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderStateChangeRoute" public="true">
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
         </service>
 

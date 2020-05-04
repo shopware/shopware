@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -103,7 +102,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $this->setPaymentMethod($paymentMethodId, $request->get('orderId'), $salesChannelContext);
 
-        return new SetPaymentOrderRouteResponse(new ArrayStruct(['success' => true]));
+        return new SetPaymentOrderRouteResponse();
     }
 
     public function setPaymentMethod(string $paymentMethodId, string $orderId, SalesChannelContext $salesChannelContext): void

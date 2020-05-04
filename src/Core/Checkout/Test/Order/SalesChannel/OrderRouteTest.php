@@ -228,10 +228,9 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/order/state/transition',
+                '/store-api/v1/order/state/cancel',
                 [
                     'orderId' => $this->orderId,
-                    'transition' => 'cancel',
                 ]
             );
 

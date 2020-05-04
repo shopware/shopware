@@ -33,6 +33,11 @@ class GoogleShoppingAccountEntity extends Entity
     protected $credential;
 
     /**
+     * @var \DateTimeInterface|null
+     */
+    protected $tosAcceptedAt;
+
+    /**
      * @var SalesChannelEntity
      */
     protected $salesChannel;
@@ -105,6 +110,16 @@ class GoogleShoppingAccountEntity extends Entity
     public function setCredential(GoogleAccountCredential $credential): void
     {
         $this->credential = $credential;
+    }
+
+    public function getTosAcceptedAt(): ?\DateTimeInterface
+    {
+        return $this->tosAcceptedAt;
+    }
+
+    public function setTosAcceptedAt(?\DateTimeInterface $tosAcceptedAt): void
+    {
+        $this->tosAcceptedAt = $tosAcceptedAt;
     }
 
     public function getGoogleShoppingMerchantAccount(): ?GoogleShoppingMerchantAccountEntity

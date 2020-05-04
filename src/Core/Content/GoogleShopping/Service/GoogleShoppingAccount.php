@@ -61,4 +61,11 @@ class GoogleShoppingAccount
         $this->googleShoppingAccountRepository->delete([['id' => $id]], $googleShoppingRequest->getContext());
         $this->eventDispatcher->dispatch(new GoogleAccountCredentialDeletedEvent($googleAccountCredential, $googleShoppingRequest));
     }
+
+    public function acceptTermOfService(string $id, bool $accept, GoogleShoppingRequest $googleShoppingRequest)
+    {
+        $tosAcceptedAt = $accept ? new \DateTime() : null;
+
+        return $this->googleShoppingAccountRepository->update([['id' => $id, 'tosAcceptedAt' => $tosAcceptedAt]], $googleShoppingRequest->getContext());
+    }
 }

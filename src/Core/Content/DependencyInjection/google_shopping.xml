@@ -57,6 +57,7 @@
 
         <!-- Controllers-->
         <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingAccountController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAuthenticator"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount"/>
             <call method="setContainer">

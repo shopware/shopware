@@ -52,27 +52,27 @@ class CookieController extends StorefrontController
 
     private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
     {
-        $filteredGroups = [];
-
-        if (!$context->getSalesChannel()->getAnalytics() || !$context->getSalesChannel()->getAnalytics()->isActive()) {
-            foreach ($cookieGroups as $cookieGroup) {
-                if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
-                    $cookieGroup['entries'] = array_filter($cookieGroup['entries'], function ($item) {
-                        return $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics';
-                    });
-                    // Only add statistics cookie group if it has entries
-                    if (count($cookieGroup['entries']) > 0) {
-                        $filteredGroups[] = $cookieGroup;
-                    }
-                    continue;
-
-                }
-                $filteredGroups[] = $cookieGroup;
-            }
-
-            return $filteredGroups;
+        if ($context->getSalesChannel()->getAnalytics() && $context->getSalesChannel()->getAnalytics()->isActive()) {
+            return $cookieGroups;
         }
 
-        return $cookieGroups;
+        $filteredGroups = [];
+
+        foreach ($cookieGroups as $cookieGroup) {
+            if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
+                $cookieGroup['entries'] = array_filter($cookieGroup['entries'], function ($item) {
+                    return $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics';
+                });
+                // Only add statistics cookie group if it has entries
+                if (count($cookieGroup['entries']) > 0) {
+                    $filteredGroups[] = $cookieGroup;
+                }
+
+                continue;
+            }
+            $filteredGroups[] = $cookieGroup;
+        }
+
+        return $filteredGroups;
     }
 }

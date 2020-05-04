@@ -1,6 +1,7 @@
 import template from './sw-settings-custom-field-set-detail.html.twig';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-custom-field-set-detail', {
     template,
@@ -38,8 +39,17 @@ Component.register('sw-settings-custom-field-set-detail', {
                 : this.set.name;
         },
 
-        customFieldSetStore() {
-            return StateDeprecated.getStore('custom_field_set');
+        customFieldSetRepository() {
+            return Shopware.Service('repositoryFactory').create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('relations');
+            criteria.addAssociation('customFields');
+
+            return criteria;
         },
 
         tooltipSave() {
@@ -71,8 +81,12 @@ Component.register('sw-settings-custom-field-set-detail', {
             }
         },
 
-        loadEntityData() {
-            this.set = this.customFieldSetStore.getById(this.setId);
+        async loadEntityData() {
+            this.set = await this.customFieldSetRepository.get(
+                this.setId,
+                Shopware.Context.api,
+                this.customFieldSetCriteria
+            );
         },
 
         saveFinish() {
@@ -99,16 +113,23 @@ Component.register('sw-settings-custom-field-set-detail', {
                 this.set.relations = [];
             }
 
-            return this.set.save().then(() => {
-                this.isLoading = false;
+            this.customFieldSetRepository.save(this.set, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
+
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
 
-                this.$refs.customFieldList.getList();
-            }).then(() => {
+                return this.loadEntityData();
+            }).catch((error) => {
+                const errorMessage = Shopware.Utils.get(error, 'response.data.errors[0].detail', 'Error');
+
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: errorMessage
+                });
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -118,7 +139,7 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         abortOnLanguageChange() {
-            return Object.keys(this.set.getChanges()).length > 0;
+            return this.customFieldSetRepository.hasChanges(this.set);
         },
 
         saveOnLanguageChange() {

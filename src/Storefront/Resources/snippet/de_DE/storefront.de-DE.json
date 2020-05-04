@@ -226,6 +226,7 @@
     "editOrderCancelOrderModalFooterButtonBack": "Zurück",
     "editOrderPaymentNotChangeable": "Die Zahlart kann nicht geändert werden! Mit der aktuellen Zahlart ist ein Rabatt oder eine andere Aktion verknüpft, die verloren gehen würde. Stattdessen können sie die Bestellung abbrechen und wiederholen.",
     "orderItemColumnDate": "Datum",
+    "orderNumber": "Bestellnummer:",
     "orderItemColumnNumber": "Bestellnummer:",
     "orderItemColumnPaymentMethod": "Zahlungsart",
     "orderItemColumnShippingMethod": "Versandart",

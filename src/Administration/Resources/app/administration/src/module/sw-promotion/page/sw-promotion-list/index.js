@@ -18,7 +18,8 @@ Component.register('sw-promotion-list', {
         return {
             promotions: null,
             showDeleteModal: false,
-            sortBy: 'name',
+            sortBy: 'createdAt',
+            sortDirection: 'DESC',
             isLoading: true
         };
     },
@@ -96,5 +97,6 @@ Component.register('sw-promotion-list', {
         updateTotal({ total }) {
             this.total = total;
         }
+
     }
 });

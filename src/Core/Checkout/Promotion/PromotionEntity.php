@@ -555,7 +555,9 @@ class PromotionEntity extends Entity
         // verify if we are in SetGroup mode and build
         // a custom setgroup rule for all groups
         if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null && $this->getSetgroups()->count() > 0) {
-            $groupsRootRule = new OrRule();
+            // if we have groups, then all groups
+            // must match now to fulfill the new group definition in shopware promotions
+            $groupsRootRule = new AndRule();
 
             foreach ($this->getSetgroups() as $group) {
                 $groupRule = new LineItemGroupRule();

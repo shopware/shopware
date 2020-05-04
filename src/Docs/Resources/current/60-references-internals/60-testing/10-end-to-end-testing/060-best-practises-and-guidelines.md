@@ -1,8 +1,6 @@
 [titleEn]: <>(How do I write a good test?)
 [hash]: <>(article:e2e_testing_guidelines)
 
-# How do I write a good test?
-
 A typical E2E test can be complex, with a large number of steps that take a lot of time to complete manually. 
 Because of this complexity, E2E tests can be difficult to automate and slow to execute. The following tips 
 can help reduce the cost and pain of E2E testing and still reap the benefits.

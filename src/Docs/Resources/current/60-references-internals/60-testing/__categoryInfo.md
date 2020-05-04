@@ -1,2 +1,2 @@
-[titleEn]: <>(testing)
+[titleEn]: <>(Testing)
 [hash]: <>(category:testing)

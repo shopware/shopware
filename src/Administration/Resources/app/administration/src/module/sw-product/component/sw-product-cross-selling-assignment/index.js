@@ -76,7 +76,7 @@ Component.register('sw-product-cross-selling-assignment', {
 
         assignedProductColumns() {
             return [{
-                property: 'product.name',
+                property: 'product.translated.name',
                 label: this.$tc('sw-product.list.columnName'),
                 primary: true,
                 allowResize: true,

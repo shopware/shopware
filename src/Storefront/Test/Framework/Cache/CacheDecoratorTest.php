@@ -5,11 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Cache;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheDecorator;
-use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
-use Shopware\Storefront\Framework\Cache\CacheStateValidator;
 use Shopware\Storefront\Framework\Cache\CacheTagCollection;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class CacheDecoratorTest extends TestCase
 {
@@ -25,7 +21,7 @@ class CacheDecoratorTest extends TestCase
         $this->cache = $this->getContainer()->get('cache.object');
     }
 
-    public function testTraceSave()
+    public function testTraceSave(): void
     {
         $collection = $this->getContainer()->get(CacheTagCollection::class);
 
@@ -38,7 +34,7 @@ class CacheDecoratorTest extends TestCase
         static::assertEquals(['tag-a', 'tag-b'], $collection->getTags());
     }
 
-    public function testTraceRead()
+    public function testTraceRead(): void
     {
         $collection = $this->getContainer()->get(CacheTagCollection::class);
 
@@ -50,7 +46,7 @@ class CacheDecoratorTest extends TestCase
         static::assertEquals(['tag-a', 'tag-b'], $collection->getTags());
     }
 
-    public function testTraceReadAndWrite()
+    public function testTraceReadAndWrite(): void
     {
         $collection = $this->getContainer()->get(CacheTagCollection::class);
 
@@ -66,7 +62,7 @@ class CacheDecoratorTest extends TestCase
         static::assertEquals(['tag-a', 'tag-b', 'tag-c', 'tag-d', 'tag-e'], $collection->getTags());
     }
 
-    private function writeItem(string $key, array $tags)
+    private function writeItem(string $key, array $tags): void
     {
         $item = $this->cache->getItem($key);
         $item->set($key);
@@ -75,4 +71,3 @@ class CacheDecoratorTest extends TestCase
         $this->cache->save($item);
     }
 }
-

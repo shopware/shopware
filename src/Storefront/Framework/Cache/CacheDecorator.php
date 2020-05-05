@@ -18,10 +18,20 @@ class CacheDecorator implements TagAwareAdapterInterface
      */
     private $collection;
 
+    /**
+     * @var \ReflectionProperty
+     */
+    private $property;
+
     public function __construct(TagAwareAdapterInterface $decorated, CacheTagCollection $collection)
     {
         $this->decorated = $decorated;
         $this->collection = $collection;
+
+        // hack to get access to tags in save() - https://github.com/symfony/symfony/issues/36697
+        $class = new \ReflectionClass(CacheItem::class);
+        $this->property = $class->getProperty('newMetadata');
+        $this->property->setAccessible(true);
     }
 
     public function getItem($key)
@@ -67,22 +77,16 @@ class CacheDecorator implements TagAwareAdapterInterface
 
     public function save(CacheItemInterface $item)
     {
-        $result = $this->decorated->save($item);
-
-        $item = $this->decorated->getItem($item->getKey());
         $this->collection->add($this->getTags($item));
 
-        return $result;
+        return $this->decorated->save($item);
     }
 
     public function saveDeferred(CacheItemInterface $item)
     {
-        $result = $this->decorated->saveDeferred($item);
-
-        $item = $this->decorated->getItem($item->getKey());
         $this->collection->add($this->getTags($item));
 
-        return $result;
+        return $this->decorated->saveDeferred($item);
     }
 
     public function commit()
@@ -102,6 +106,11 @@ class CacheDecorator implements TagAwareAdapterInterface
         }
         $metaData = $item->getMetadata();
 
-        return $metaData['tags'] ?? [];
+        $new = $this->property->getValue($item);
+
+        return array_merge(
+            $metaData['tags'] ?? [],
+            $new['tags'] ?? []
+        );
     }
 }

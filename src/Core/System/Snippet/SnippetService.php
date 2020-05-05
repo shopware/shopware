@@ -113,25 +113,31 @@ class SnippetService
         ];
     }
 
-    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId): array
+    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale = null): array
     {
         $locale = $this->getLocaleBySnippetSetId($snippetSetId);
-        $languageFiles = $this->snippetFileCollection->getSnippetFilesByIso($locale);
-        $fileSnippets = $catalog->all('messages');
 
-        foreach ($languageFiles as $snippetFile) {
-            $flattenSnippetFileSnippets = $this->flatten(
-                json_decode(file_get_contents($snippetFile->getPath()), true) ?: []
-            );
-
-            $fileSnippets = array_replace_recursive(
-                $fileSnippets,
-                $flattenSnippetFileSnippets
-            );
+        $snippets = [];
+        if ($fallbackLocale !== null) {
+            // fallback has to be the base
+            $snippets = $this->getSnippetsByLocale($fallbackLocale);
         }
 
+        // now override fallback with defaults in catalog
         $snippets = array_replace_recursive(
-            $fileSnippets,
+            $catalog->all('messages'),
+            $snippets
+        );
+
+        // after fallback and default catalog merged, overwrite them with current locale snippets
+        $snippets = array_replace_recursive(
+            $snippets,
+            $this->getSnippetsByLocale($locale)
+        );
+
+        // at least overwrite the snippets with the database customer overwrites
+        $snippets = array_replace_recursive(
+            $snippets,
             $this->fetchSnippetsFromDatabase($snippetSetId)
         );
 
@@ -235,6 +241,25 @@ class SnippetService
             ->fetchAll();
 
         return FetchModeHelper::keyPair($snippets);
+    }
+
+    private function getSnippetsByLocale(string $locale): array
+    {
+        $files = $this->snippetFileCollection->getSnippetFilesByIso($locale);
+        $snippets = [];
+
+        foreach ($files as $file) {
+            $temp = $this->flatten(
+                json_decode(file_get_contents($file->getPath()), true) ?: []
+            );
+
+            $snippets = array_replace_recursive(
+                $snippets,
+                $temp
+            );
+        }
+
+        return $snippets;
     }
 
     private function getSnippetFilesByIso(array $isoList): array

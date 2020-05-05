@@ -2,8 +2,8 @@
   "sw-mail-template": {
     "general": {
       "mainMenuItemList": "Übersicht",
-      "mainMenuItemGeneral": "E-Mail-Vorlagen",
-      "placeholderSearchBar": "Durchsuche E-Mail-Vorlagen ...",
+      "mainMenuItemGeneral": "E-Mail-Templates",
+      "placeholderSearchBar": "Durchsuche E-Mail-Templates ...",
       "notificationTestMailErrorTitle": "Fehler",
       "notificationTestMailSalesChannelErrorMessage": "Bitte wähle einen Verkaufskanal aus",
       "notificationTestMailErrorMessage": "Beim Versand der Test-Mail ist ein Fehler aufgetreten.",
@@ -11,10 +11,10 @@
       "notificationTestMailSuccessMessage": "Die Test-Mail wurde erfolgreich versendet."
     },
     "list": {
-      "textMailTemplateOverview": "E-Mail-Vorlagen",
-      "titleMailTemplateList": "Vorlagen",
+      "textMailTemplateOverview": "E-Mail-Templates",
+      "titleMailTemplateList": "Templates",
       "titleMailFooterList": "Fußzeilen",
-      "buttonAddMailTemplate": "E-Mail-Vorlage hinzufügen",
+      "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
       "buttonAdd": "Erstellen",
       "columnMailType": "Typ",
       "columnDescription": "Beschreibung",
@@ -22,11 +22,11 @@
       "contextMenuDelete": "Löschen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDuplicate": "Duplizieren",
-      "textDeleteConfirm": "Möchtest Du die E-Mail-Vorlage \"{subject}\" wirklich löschen?",
-      "modalTitleDelete": "E-Mail-Vorlage löschen",
+      "textDeleteConfirm": "Möchtest Du das E-Mail-Template \"{subject}\" wirklich löschen?",
+      "modalTitleDelete": "E-Mail-Template löschen",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "messageEmpty": "Noch keine E-Mail-Vorlagen",
+      "messageEmpty": "Noch keine E-Mail-Templates",
       "titleSidebarItemRefresh": "Aktualisieren",
       "errorMediaItemDuplicated": "Medium bereits verwendet",
       "columnFilename": "Dateiname"
@@ -70,13 +70,13 @@
       },
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "textHeadline": "Neue E-Mail-Vorlage",
-      "textHeadlineEdit": "E-Mail-Vorlage bearbeiten",
-      "titleResult": "E-Mail-Vorlagen",
+      "textHeadline": "Neues E-Mail-Template",
+      "textHeadlineEdit": "E-Mail-Template bearbeiten",
+      "titleResult": "E-Mail-Templates",
       "titleSaveSuccess": "Erfolg",
       "titleSaveError": "Fehler",
-      "messageSaveSuccess": "Die E-Mail-Vorlage \"{subject}\" wurde erfolgreich gespeichert.",
-      "messageSaveError": "Die E-Mail-Vorlage \"{subject}\" konnte nicht gespeichert werden."
+      "messageSaveSuccess": "Das E-Mail-Template \"{subject}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Das E-Mail-Template \"{subject}\" konnte nicht gespeichert werden."
     }
   },
   "sw-mail-header-footer": {
@@ -103,7 +103,7 @@
     },
     "detail": {
       "basic": {
-        "titleCard": "Information",
+        "titleCard": "Informationen",
         "labelName": "Name",
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanäle",

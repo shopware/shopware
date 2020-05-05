@@ -256,14 +256,14 @@
       "labelNoDeliveryState": "Keine Lieferungen vorhanden"
     },
     "assignMailTemplateCard": {
-      "cardTitle": "E-Mail-Vorlage zuweisen",
-      "headline": "Diesem Bestellstatus ist noch keine E-Mail-Vorlage zugewiesen!",
-      "placeholderAssignMailTemplate": "Weise ein E-Mail-Vorlage zu ...",
+      "cardTitle": "E-Mail-Template zuweisen",
+      "headline": "Diesem Bestellstatus ist noch kein E-Mail-Template zugewiesen!",
+      "placeholderAssignMailTemplate": "Weise ein E-Mail-Template zu ...",
       "alertHeadline": "Hinweis",
       "alertMessage": "Eine Zuweisung wirkt sich auf alle nachfolgenden Bestellungen dieses Verkaufskanals aus.",
-      "buttonCreateMailTemplate": "E-Mail-Vorlage erstellen",
-      "buttonAssignMailTemplate": "E-Mail-Vorlage zuweisen",
-      "buttonNotAssignMailTemplate": "Keine E-Mail-Vorlage zuweisen",
+      "buttonCreateMailTemplate": "E-Mail-Template erstellen",
+      "buttonAssignMailTemplate": "E-Mail-Template zuweisen",
+      "buttonNotAssignMailTemplate": "Kein E-Mail-Template zuweisen",
       "gridColumnType": "Typ",
       "gridColumnDescription": "Beschreibung"
     },

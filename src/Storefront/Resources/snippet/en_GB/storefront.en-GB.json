@@ -429,7 +429,8 @@
     "headline": "{0} 0 products found for \"%searchTerm%\" | {1} One product found for \"%searchTerm%\" | ]1,Inf[ %count% products found for \"%searchTerm%\""
   },
   "detail": {
-    "ordernumberLabel": "Order number: ",
+    "ordernumberLabel": "Product number:",
+    "productNumberLabel": "Product number:",
     "addProduct": "Add to shopping cart",
     "tabsDescription": "Description",
     "tabsPreviewMore": "More",

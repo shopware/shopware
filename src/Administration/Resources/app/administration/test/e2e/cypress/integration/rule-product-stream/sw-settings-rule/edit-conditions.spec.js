@@ -103,7 +103,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('@second-and-container').within(() => {
             page.createBasicSelectCondition({
                 selector: '.sw-condition',
-                type: 'Is new customer',
+                type: 'New customer',
                 operator: null,
                 value: 'Yes'
             });

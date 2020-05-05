@@ -1,5 +1,6 @@
 import deepmerge from 'deepmerge';
 import PluginRegistry from 'src/plugin-system/plugin.registry';
+import PluginBaseClass from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import 'src//plugin-system/plugin.config.manager';
 import Iterator from 'src/helper/iterator.helper';
@@ -460,3 +461,4 @@ export default class PluginManager {
 }
 
 window.PluginManager = PluginManager;
+window.PluginBaseClass = PluginBaseClass;

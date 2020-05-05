@@ -34,6 +34,12 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
-        $this->connection->insert('log_entry', $envelope);
+        try {
+            $this->connection->insert('log_entry', $envelope);
+        } catch (\Throwable $e) {
+            $envelope['context'] = json_encode([]);
+            $envelope['extra'] = json_encode([]);
+            $this->connection->insert('log_entry', $envelope);
+        }
     }
 }

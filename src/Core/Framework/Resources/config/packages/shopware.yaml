@@ -44,4 +44,4 @@ shopware:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
 
 parameters:
-    default_cdn_strategy: "physical_filename"
+    default_cdn_strategy: "id"

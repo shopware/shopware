@@ -38,8 +38,8 @@
         "labelDescription": "Beschreibung",
         "labelSalesChannels": "Verkaufskanal",
         "placeholderMailType": "Wähle einen Typ ...",
-        "placeholderDescription": "Beschreibung für E-Mail-Vorlage eingeben ...",
-        "placeholderSalesChannels": "Wähle eine Zuweisung ..."
+        "placeholderDescription": "Gib eine Beschreibung ein ...",
+        "placeholderSalesChannels": "Wähle Verkaufskanäle aus ..."
       },
       "options": {
         "titleCard": "Optionen",

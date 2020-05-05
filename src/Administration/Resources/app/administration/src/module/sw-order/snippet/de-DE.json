@@ -46,7 +46,7 @@
       "notification": {
         "shippingNotAvailable": {
           "title": "Fehler",
-          "message": "Lieferung in das Land nicht möglich"
+          "message": "Lieferung in das Zielland nicht möglich."
         }
       }
     },
@@ -246,10 +246,10 @@
       "labelSelectStatePlaceholder": "Bitte wählen ...",
       "labelSelectStateButton": "Status ändern und E-Mail versenden",
       "headlineErrorStateChange": "Fehler",
-      "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
+      "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
-      "labelNoTransactionState": "Keine Transaktion vorhanden",
-      "labelNoDeliveryState": "Keine Lieferung vorhanden"
+      "labelNoTransactionState": "Keine Transaktionen vorhanden",
+      "labelNoDeliveryState": "Keine Lieferungen vorhanden"
     },
     "assignMailTemplateCard": {
       "cardTitle": "E-Mail-Vorlage zuweisen",
@@ -272,7 +272,7 @@
       "labelSent": "Gesendet",
       "labelAttach": "Anhängen",
       "labelAmount": "Bestellwert",
-      "labelDownloadPdf": "Als PDF herunterladen",
+      "labelDownloadPdf": "PDF herunterladen",
       "labelCreateNew": "Neu erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageEmptySubline": "Verwaltung von Dokumenten."
@@ -287,7 +287,7 @@
       "selectInvoiceNumber": "Rechnungsnummer wählen",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
-      "labelCreateDownloadPdf": "Erstellen und als PDF herunterladen",
+      "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
       "labelCancel": "Schließen",
@@ -305,14 +305,14 @@
       "labelGuest": "Gastbesteller"
     },
     "invalidPromotionModal": {
-      "modalTitle": "Ungültige Aktionscodes werden entfernt",
-      "modalDescription": "Die folgenden, ungültigen Aktionscodes werden entfernt",
+      "modalTitle": "Ungültige Aktionscodes entfernen",
+      "modalDescription": "Die folgenden, ungültigen Aktionscodes werden entfernt:",
       "buttonConfirm": "OK"
     },
     "promotionModal": {
-      "labelTitle": "Deaktivieren Sie automatische Werbeaktionen",
-      "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert",
-      "messageNoItems": "Noch keine automatischen Werbeaktionen",
+      "labelTitle": "Automatische Werbeaktionen deaktivieren",
+      "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert:",
+      "messageNoItems": "Noch keine automatischen Werbeaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
     }
   }

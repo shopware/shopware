@@ -26,7 +26,7 @@
     "errors": {
       "messageToTheShopwareDocumentation": "<a href=\"{documentationLink}\" target=\"_blank\">Zur Shopware Dokumentation</a>",
       "titleGenericFailure": "Unbekannter Fehler aufgetreten",
-      "messageGenericFailure": "Es ist ein Fehler aufgetreten.",
+      "messageGenericFailure": "Das hat nicht funktioniert.",
       "titleUploadFailure": "Hochladen fehlgeschlagen",
       "messageUploadFailureNotAZipFile": "Die hochgeladenen Datei ist keine Zip-Datei.",
       "messageUploadFailureUnzipFailed": "Die Zip-Datei konnte nicht entpackt werden.",
@@ -77,7 +77,7 @@
     },
     "list": {
       "textPluginManager": "Plugins",
-      "messageEmpty": "Du hast noch keine Plugins hochgeladen.",
+      "messageEmpty": "Noch keine Plugins hochgeladen.",
       "columnPluginName": "Plugin",
       "columnVersion": "Version",
       "columnInstalledAt": "Installiert am",
@@ -96,8 +96,8 @@
       "contextDelete": "Löschen",
       "pluginHeader": "Meine Plugins",
       "sortUpgradedAtAsc": "Zuletzt aktualisiert",
-      "sortPluginNameAsc": "Pluginnamen, aufsteigend",
-      "sortPluginNameDsc": "Pluginnamen, absteigend",
+      "sortPluginNameAsc": "Pluginname, A-Z",
+      "sortPluginNameDsc": "Pluginname, Z-A",
       "sortLabel": "Sortieren nach:",
       "titleActivateSuccess": "Plugin aktiviert",
       "messageActivateSuccess": "Das Plugin wurde erfolgreich aktiviert.",
@@ -126,7 +126,7 @@
       "columnExpirationDate": "Gültig bis",
       "columnType": "Variante",
       "messageEmpty": "Es sind keine Lizenzen vorhanden.",
-      "messageNotLoggedIn": "Shopware Account - Login benötigt!",
+      "messageNotLoggedIn": "Du musst in Deinem Shopware-Account angemeldet sein.",
       "labelAccountLogin": "Login zu meinem Shopware Account",
       "labelType_buy": "Kauf",
       "labelType_rent": "Miete",
@@ -149,7 +149,7 @@
   },
   "sw-plugin-config": {
     "titleSaveSuccess": "Konfiguration gespeichert",
-    "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
+    "messageSaveSuccess": "Die Konfiguration wurde gespeichert.",
     "titleSaveError": "Die Konfiguration kann nicht gespeichert werden."
   },
   "sw-plugin-description": {

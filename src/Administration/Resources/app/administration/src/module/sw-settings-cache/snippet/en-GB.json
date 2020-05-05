@@ -20,22 +20,22 @@
       "clearAndWarmUpText": "After the cache has been cleared, new cache entries are generated asynchronously.",
       "clearAndWarmUpButton": "Clear and warm up caches",
       "indexesHeadline": "Indexes",
-      "indexesText": "All indexes are updated asynchronously. The progress can be viewed in the Notification Center. This includes for example the product and category indexes or the SEO URLs.",
+      "indexesText": "All indexes are updated asynchronously. Keep track of the progress by monitoring the notifications.",
       "indexesButton": "Update indexes"
     },
     "notifications": {
       "clearCache": {
-        "started": "All caches will be cleared.",
-        "success": "All caches successfully cleared.",
-        "error": "A unknown error occurred, while deleting cache."
+        "started": "Clearing caches.",
+        "success": "All caches cleared.",
+        "error": "Unable to clear caches ."
       },
       "clearCacheAndWarmup": {
-        "started": "All caches cleared. Warmup starts now.",
-        "success": "Warmup successfully completed."
+        "started": "Caches cleared - Now warming up. Hint: Watch notifications to keep track of the progress.",
+        "success": "Warmup completed."
       },
       "index": {
-        "started": "All indexes will be built.",
-        "success": "All indexes successfully built."
+        "started": "Building indexes.",
+        "success": "All indexes built."
       }
     },
     "modal": {

@@ -5,7 +5,7 @@
       "mainMenuItemGeneral": "Email templates",
       "placeholderSearchBar": "Search email templates...",
       "notificationTestMailErrorTitle": "Error",
-      "notificationTestMailSalesChannelErrorMessage": "Please choose a sales channel",
+      "notificationTestMailSalesChannelErrorMessage": "Please choose a Sales Channel",
       "notificationTestMailErrorMessage": "An error occurred while sending the test email.",
       "notificationTestMailSuccessTitle": "Success",
       "notificationTestMailSuccessMessage": "The test email has been sent."
@@ -36,10 +36,10 @@
         "titleCard": "Information",
         "labelMailType": "Type",
         "labelDescription": "Description",
-        "labelSalesChannels": "Sales channels",
-        "placeholderMailType": "Choose a type...",
+        "labelSalesChannels": "Sales Channel",
+        "placeholderMailType": "Select a type...",
         "placeholderDescription": "Enter email template description...",
-        "placeholderSalesChannels": "Choose email template sales channels..."
+        "placeholderSalesChannels": "Select Sales Channels..."
       },
       "options": {
         "titleCard": "Options",
@@ -109,7 +109,7 @@
         "labelSalesChannels": "Sales channels",
         "placeholderName": "Enter a name...",
         "placeholderDescription": "Enter a description...",
-        "placeholderSalesChannels": "Choose related sales channels..."
+        "placeholderSalesChannels": "Choose related Sales Channels..."
       },
       "header": {
         "titleCard": "Mail header",

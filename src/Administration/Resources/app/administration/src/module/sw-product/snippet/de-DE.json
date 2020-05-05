@@ -209,13 +209,13 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Menge von ...",
       "columnTo": "bis ...",
-      "selectRule": "Bedingungs-Regel auswählen ..."
+      "selectRule": "Bedingungsregel auswählen ..."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
-      "emptyStateNoOptionsTitle": "Keine Eigenschafts-Ausprägungen vorhanden.",
+      "emptyStateNoOptionsTitle": "Keine Eigenschaftsausprägungen vorhanden.",
       "emptyStateNoOptionsDescription": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
-      "emptyStateNoSelectedOptionsTitle": "Keine Eigenschafts-Ausprägungen ausgewählt",
+      "emptyStateNoSelectedOptionsTitle": "Keine Eigenschaftsausprägungen ausgewählt",
       "emptyStateNoSelectedOptionsDescription": "Bitte wähle Ausprägungen aus der Suche aus."
     },
     "variations": {
@@ -264,12 +264,12 @@
       "configuratorModal": {
         "title": "Varianten generieren",
         "selectOptions": "Ausprägungen auswählen",
-        "selectOptionsExplanation": "Beginne mit der Auswahl der Eigenschafts-Ausprägungen, aus denen die Varianten generiert werden sollen.",
+        "selectOptionsExplanation": "Beginne mit der Auswahl der Eigenschaftsausprägungen, aus denen die Varianten generiert werden sollen.",
         "priceSurcharges": "Preis Auf-/Abschläge",
         "resetSurcharges": "Auf- /Abschläge löschen",
         "defineRestrictions": "Ausschlüsse definieren",
         "priceOptions": "Ausprägungen",
-        "restrictedCombinations": "Ausgeschlossene Eigenschafts-Ausprägungen",
+        "restrictedCombinations": "Ausgeschlossene Eigenschaftsausprägungen",
         "searchRestrictions": "Durchsuche Eigenschaften ...",
         "addNewRestriction": "Ausschluss hinzufügen",
         "editRestriction": "Ausschluss bearbeiten",
@@ -288,10 +288,10 @@
         "order": "Anzeige-Reihenfolge",
         "orderExplanation": "Ändere die Anzeigereihenfolge der Varianten-Eigenschaften per Drag & Drop",
         "media": "Medien",
-        "mediaExplanation": "Hier kannst Du ausschließlich Medien für die Eigenschafts-Auswahl im Shop hinterlegen. (Medien für einzelne Varianten müssen am Varianten-Produkt gepflegt werden.)",
+        "mediaExplanation": "Hier kannst Du alternative Medien für die Eigenschaftsauswahl im Shop hinterlegen. Diese Medien haben in der Storefront Vorrang gegenüber Medien, die der Eigenschaft zugewiesen sind.",
         "mediaOptions": "Ausprägungen",
         "listing": "Produktliste",
-        "listingExplanation": "Wähle zwischen zwei Anzeigemodi. Zeige entweder nur eine einzelne Hauptvariante an, oder erweitere die Anzeige - abhängig von den zugehörigen Eigenschafts-Ausprägungen - auf mehrere Einzelvarianten.",
+        "listingExplanation": "Wähle zwischen zwei Anzeigemodi. Zeige entweder nur eine einzelne Hauptvariante an, oder erweitere die Anzeige - abhängig von den zugehörigen Eigenschaftsausprägungen - auf mehrere Einzelvarianten.",
         "listingLabelModeSingle": "Einzelne Hauptvariante",
         "listingLabelMainVariant": "Hauptvariante",
         "listingExplanationModeSingle": "Die Hauptvariante wird auf der Detailseite des Produkts vorausgewählt und in Auflistungen repräsentativ angezeigt.",

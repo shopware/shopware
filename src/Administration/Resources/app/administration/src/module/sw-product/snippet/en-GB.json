@@ -287,7 +287,7 @@
         "order": "Display sequence",
         "orderExplanation": "Use drag & drop to alter the display sequence of property values",
         "media": "Assigned media",
-        "mediaExplanation": "Upload and assign media to property values.",
+        "mediaExplanation": "Upload and assign alternative media to individual variants. This overrides media files that might already be assigned to the respective properties.",
         "mediaOptions": "Property value",
         "listing": "Product listings",
         "listingExplanation": "Choose between two modes of display. Either display one single main variant, or expand several individual variants, determined by their associated property values.",

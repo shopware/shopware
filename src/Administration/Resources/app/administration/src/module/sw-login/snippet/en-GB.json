@@ -29,8 +29,8 @@
     "recovery" : {
       "info": {
         "headline": "Back to login",
-        "info": "If you entered a valid email address, you'll receive your password recovery mail in a few minutes.",
-        "warning": "Please note, that the recovery link is only valid for the next 2 hours."
+        "info": "If the entered email address is valid, you'll receive your password recovery mail within a few minutes.",
+        "warning": "Please note, that the recovery link will only be valid for 2 hours."
       },
       "recovery": {
         "headline": "Password recovery",

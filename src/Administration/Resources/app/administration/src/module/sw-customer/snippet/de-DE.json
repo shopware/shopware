@@ -185,7 +185,7 @@
       "placeholderAdditionalAddressLine1": "Gib eine zusätzliche Adresszeile 1 ein ...",
       "placeholderAdditionalAddressLine2": "Gib eine zusätzliche Adresszeile 2 ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
-      "placeholderVatId": "Gib Deine USt-IdNr. ein ..."
+      "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },
     "detail": {
       "buttonSave": "Speichern",

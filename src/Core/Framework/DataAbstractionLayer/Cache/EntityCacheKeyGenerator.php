@@ -247,7 +247,9 @@ class EntityCacheKeyGenerator
         $fields = $definition->getFields();
 
         $associations = [];
-        array_shift($parts);
+        if ($parts[0] === $definition->getEntityName()) {
+            array_shift($parts);
+        }
 
         $source = $definition;
 

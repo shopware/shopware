@@ -18,7 +18,7 @@ parameters:
         - src/Core/Flag/feature_*.php
         - src/Recovery/*
         - src/Docs/Resources/*
-
+        - src/Storefront/Framework/Cache/CacheDecorator.php
         - src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
         # Tests

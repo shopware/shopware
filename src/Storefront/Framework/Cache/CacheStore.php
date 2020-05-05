@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -45,18 +46,25 @@ class CacheStore implements StoreInterface
      */
     private $cacheHash;
 
+    /**
+     * @var CacheTagCollection
+     */
+    private $cacheTagCollection;
+
     public function __construct(
         string $cacheHash,
         TagAwareAdapterInterface $cache,
         ObjectCacheKeyFinder $cacheKeyDetector,
         CacheStateValidator $stateValidator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        CacheTagCollection $cacheTagCollection
     ) {
         $this->cache = $cache;
         $this->cacheKeyDetector = $cacheKeyDetector;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->cacheHash = $cacheHash;
+        $this->cacheTagCollection = $cacheTagCollection;
     }
 
     public function lookup(Request $request)
@@ -76,6 +84,10 @@ class CacheStore implements StoreInterface
             return null;
         }
 
+        $this->eventDispatcher->dispatch(
+            new HttpCacheHitEvent($item, $request, $response)
+        );
+
         return $response;
     }
 
@@ -91,6 +103,8 @@ class CacheStore implements StoreInterface
         if ($response instanceof StorefrontResponse) {
             $tags = $this->cacheKeyDetector->find($response->getData(), $response->getContext());
         }
+
+        $tags = array_unique(array_merge($tags, $this->cacheTagCollection->getTags()));
 
         if (!empty($tags) && $item instanceof CacheItem) {
             $item->tag($tags);

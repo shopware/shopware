@@ -389,6 +389,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
@@ -408,7 +409,7 @@
             <argument type="service" id="router" />
             <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" />
-
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -454,5 +455,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheDecorator" decorates="cache.object">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheDecorator.inner"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+        </service>
     </services>
 </container>

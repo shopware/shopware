@@ -36,7 +36,7 @@ The `composer.json` file holds all the meta information for your plugin. Here is
     "description": "Store plugin example",
     "type": "shopware-platform-plugin",
     "license": "MIT",
-    "version": "1.0",
+    "version": "1.0.0",
     "authors": [
         {
             "name": "shopware AG"
@@ -76,7 +76,7 @@ The favicon of a plugin is a requirement for a community store plugin. Therefore
 A changelog is required for every community store plugin. This file contains the version changes of the plugin. It has to be called `CHANGELOG.md` and should at least contain the initial version:
 `SwagStorePlugin/CHANGELOG.md`
 ```markdown
-# 1.0
+# 1.0.0
 - First version of the community store plugin
 
 ```

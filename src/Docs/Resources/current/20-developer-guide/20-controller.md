@@ -3,12 +3,11 @@
 
 ## Controllers guide
 
-For a plugin to be useful, it generally needs to offer an interface to the
-outside world, this is what controllers and routes are for. If you've already
-used Symfony or other web frameworks, this will sound familiar to you. Since
-Shopware 6 was built as a Symfony application, there are almost no differences
-between how controllers are created and used in Symfony and how this is done in
-Shopware.
+For a plugin to be useful, it generally needs to offer an interface to its
+users, this is what controllers and routes are for. If you've already used
+Symfony or other web frameworks, this will sound familiar to you. Since Shopware
+6 was built as a Symfony application, there is almost no difference between how
+controllers are created and used in Symfony and how this is done in Shopware.
 
 In case you're not familiar with the wording here - A route is essentially an
 externally accessible controller method. So for a controller to be of any use,
@@ -29,13 +28,13 @@ and can be written in `yaml`, `xml` or `php`.
 
 ```
 ./
-+-- AcmeExamplePlugin/
++-- SwagExamplePlugin/
     +-- composer.json
     +-- Resources/
         +-- config/
             +-- routes.xml
     +-- src/
-        +-- AcmeExamplePlugin.php
+        +-- SwagExamplePlugin.php
 
 ```
 
@@ -56,6 +55,7 @@ annotation in the
 ```
 
 <!-- TODO: Link `@RouteScope` to the corresponding documentation -->
+
 Besides the default `@Route` annotation, there's a
 `@RouteScope`
 annotation in Shopware. This annotation is used, to define which domain a
@@ -68,7 +68,7 @@ route is part of and __needs to be set for every route__:
 class MyController extends AbstractController
 {
     /**
-     * @Route("/api/v{version}/acme/do-something", name="api.action.acme.do-something", methods={"POST"})
+     * @Route("/api/v{version}/swag/do-something", name="api.action.swag.do-something", methods={"POST"})
      */
     public function doSomething(Request $request, Context $context): JsonResponse
     {
@@ -84,7 +84,7 @@ The `RouteScope` may also be set per route:
 ```php
 /**
  * @RouteScope(scopes={"api"})
- * @Route("/api/v{version}/acme/do-something", name="api.action.acme.do-something", methods={"POST"})
+ * @Route("/api/v{version}/swag/do-something", name="api.action.swag.do-something", methods={"POST"})
  */
 ```
 
@@ -93,7 +93,7 @@ A `Route` can have multiple `RouteScopes`:
 ```php
 /**
  * @RouteScope(scopes={"storefront", "custom-scope"})
- * @Route("/api/v{version}/acme/fetch-a-thing", name="api.action.acme.fetch-a-thing", methods={"GET"})
+ * @Route("/api/v{version}/swag/fetch-a-thing", name="api.action.swag.fetch-a-thing", methods={"GET"})
  */
 ```
 
@@ -116,7 +116,7 @@ that is to use the corresponding `RouteScope`:
 /**
  * @RouteScope(scopes={"api"})
  */
-class AcmeCustomAdministrationController extends AbstractController
+class SwagCustomAdministrationController extends AbstractController
 {
     // Define your routes here
 }
@@ -124,13 +124,12 @@ class AcmeCustomAdministrationController extends AbstractController
 
 ### Store API / Storefront controller
 
-<!-- TODO: Link `here` to Store-API documentation -->
-Since Shopware v6.2, there's a new concept we suggest for creating storefront
+Since Shopware v6.2, there's a new suggested concept for creating storefront
 controllers which ensures, that the storefront functionality and the
 functionality offered via the store API do not drift apart. This is done by
 using the store API controllers essentially as a backend for the storefront
 controllers. You can read more about this concept
-`here`
+[here](./../45-store-api-guide/__categoryInfo.md)
 .
 
 ### Storefront controller
@@ -147,7 +146,7 @@ can be registered like described
 /**
  * @RouteScope(scopes={"storefront"})
  */
-class AcmeCustomStorefrontController extends StorefrontController
+class SwagCustomStorefrontController extends StorefrontController
 {
     // Define your routes here
 }
@@ -164,9 +163,9 @@ public function doSomething(Request $request, Context $context)
         $request,
         $context
     );
-    
+
     return $this->renderStorefront(
-        '@AcmeExamplePlugin/storefront/page/example-template.html.twig',
+        '@SwagExamplePlugin/storefront/page/example-template.html.twig',
         [
             'page' => $page
         ]   
@@ -186,15 +185,15 @@ an example of a Store API controller:
 /**
  * @RouteScope(scopes={"store-api"})
  */
-class AcmeExampleRoute
+class SwagExampleRoute
 {
     /**
-     * @Route("/store-api/v{version}/acme-example/{entityId}", methods={"POST"})
+     * @Route("/store-api/v{version}/swag-example/{entityId}", methods={"POST"})
      * @OA\Post(...)
      */
-    public function load(string $entityId, Request $request, SalesChannelContext $salesChannelContext): AcmeExampleResponse
+    public function load(string $entityId, Request $request, SalesChannelContext $salesChannelContext): SwagExampleResponse
     {
-        return new AcmeExampleResponse(
+        return new SwagExampleResponse(
             $this->entityRepository->search(new Criteria([$entityId]), $salesChannelContext)
         );
     }

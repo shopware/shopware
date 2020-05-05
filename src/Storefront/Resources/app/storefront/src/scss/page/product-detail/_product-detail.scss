@@ -11,6 +11,16 @@
     }
 }
 
+.product-detail-name-container {
+    display: flex;
+    align-items: center;
+
+    .product-detail-variant-specification {
+        padding-left: $spacer-sm;
+        color: $gray-500;
+    }
+}
+
 .product-detail-buy {
     margin-bottom: $spacer;
 }

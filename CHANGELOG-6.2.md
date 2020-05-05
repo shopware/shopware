@@ -312,6 +312,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed `entity-hydrator.data.js` to check `row` parameter exist data
     * Added `sw_order_detail_actions_slot_smart_bar_actions` block to `sw-order/page/sw-order-detail/sw-order-detail.html.twig`
     * Fixes missing snippets in deleting cache notifications
+    * Fixed variants name in cross selling preview listing
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.

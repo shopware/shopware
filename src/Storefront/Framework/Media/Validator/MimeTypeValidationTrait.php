@@ -11,7 +11,9 @@ trait MimeTypeValidationTrait
         foreach ($allowedMimeTypes as $fileEndings => $mime) {
             $fileEndings = explode('|', $fileEndings);
 
-            if (!in_array($file->getExtension(), $fileEndings, true) && !in_array($file->getClientOriginalExtension(), $fileEndings, true)) {
+            if (!in_array(strtolower($file->getExtension()), $fileEndings, true)
+                && !in_array(strtolower($file->getClientOriginalExtension()), $fileEndings, true)
+            ) {
                 continue;
             }
 

@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 
 trait InheritanceUpdaterTrait
 {
-    protected function updateInheritance(Connection $connection, string $entity, string $propertyName): void
+    protected function updateInheritance(Connection $connection, string $entity, string $storageName): void
     {
         $sql = str_replace(
             ['#table#', '#column#'],
-            [$entity, $propertyName],
+            [$entity, $storageName],
             'ALTER TABLE `#table#` ADD COLUMN `#column#` binary(16) NULL'
         );
 

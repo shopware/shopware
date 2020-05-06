@@ -13,12 +13,12 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {
         if ($taxRuleEntity->getType()->getTechnicalName() !== self::TECHNICAL_NAME
-            || !$this->metPreconditions($taxRuleEntity, $customer, $shippingLocation)
+            || !$this->metPreconditions($taxRuleEntity, $shippingLocation)
         ) {
             return false;
         }
 
-        $stateId = $this->getStateId($customer, $shippingLocation);
+        $stateId = $this->getStateId($shippingLocation);
         $states = $taxRuleEntity->getData()['states'];
 
         if (!in_array($stateId, $states, true)) {
@@ -28,25 +28,17 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
         return true;
     }
 
-    private function metPreconditions(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
+    private function metPreconditions(TaxRuleEntity $taxRuleEntity, ShippingLocation $shippingLocation): bool
     {
-        if ($this->getStateId($customer, $shippingLocation) === null) {
+        if ($this->getStateId($shippingLocation) === null) {
             return false;
-        }
-
-        if ($customer !== null && $customer->getActiveBillingAddress()) {
-            return $customer->getActiveBillingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
         }
 
         return $shippingLocation->getCountry()->getId() === $taxRuleEntity->getCountryId();
     }
 
-    private function getStateId(?CustomerEntity $customer, ShippingLocation $shippingLocation): ?string
+    private function getStateId(ShippingLocation $shippingLocation): ?string
     {
-        if ($customer !== null && $customer->getActiveBillingAddress() !== null) {
-            return $customer->getActiveBillingAddress()->getCountryStateId();
-        }
-
         return $shippingLocation->getState() !== null ? $shippingLocation->getState()->getId() : null;
     }
 }

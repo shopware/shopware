@@ -13,12 +13,12 @@ class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {
         if ($taxRuleEntity->getType()->getTechnicalName() !== self::TECHNICAL_NAME
-            || !$this->metPreconditions($taxRuleEntity, $customer, $shippingLocation)
+            || !$this->metPreconditions($taxRuleEntity, $shippingLocation)
         ) {
             return false;
         }
 
-        $zipCode = $this->getZipCode($customer, $shippingLocation);
+        $zipCode = $this->getZipCode($shippingLocation);
 
         $toZipCode = $taxRuleEntity->getData()['toZipCode'];
         $fromZipCode = $taxRuleEntity->getData()['fromZipCode'];
@@ -30,27 +30,17 @@ class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
         return true;
     }
 
-    private function metPreconditions(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
+    private function metPreconditions(TaxRuleEntity $taxRuleEntity, ShippingLocation $shippingLocation): bool
     {
-        if ($this->getZipCode($customer, $shippingLocation) === null) {
+        if ($this->getZipCode($shippingLocation) === null) {
             return false;
-        }
-
-        if ($customer !== null && $customer->getActiveBillingAddress()) {
-            return $customer->getActiveBillingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
         }
 
         return $shippingLocation->getCountry()->getId() === $taxRuleEntity->getCountryId();
     }
 
-    private function getZipCode(?CustomerEntity $customer, ShippingLocation $shippingLocation): ?string
+    private function getZipCode(ShippingLocation $shippingLocation): ?string
     {
-        if ($customer !== null && $customer->getActiveBillingAddress() !== null) {
-            return $customer->getActiveBillingAddress()->getZipcode();
-        }
-
-        $address = $shippingLocation->getAddress();
-
-        return $address !== null ? $address->getZipcode() : null;
+        return $shippingLocation->getAddress() !== null ? $shippingLocation->getAddress()->getZipcode() : null;
     }
 }

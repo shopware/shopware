@@ -179,6 +179,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
             <argument type="service" id="country.repository"/>
+            <argument type="service" id="router"/>
             <tag name="shopware.cart.validator"/>
         </service>
 

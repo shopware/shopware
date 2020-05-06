@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group store-api
@@ -54,18 +56,11 @@ class UpsertAddressRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
-    public function testCreateAddress(): void
+    /**
+     * @dataProvider addressDataProvider
+     */
+    public function testCreateAddress(array $data): void
     {
-        $data = [
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Test',
-            'lastName' => 'Test',
-            'street' => 'Test',
-            'city' => 'Test',
-            'zipcode' => 'Test',
-            'countryId' => $this->getValidCountryId(),
-        ];
-
         $this->browser
             ->request(
                 'POST',
@@ -73,17 +68,19 @@ class UpsertAddressRouteTest extends TestCase
                 $data
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
+        $content = json_decode($response->getContent(), true);
 
-        static::assertArrayHasKey('id', $response);
+        static::assertArrayHasKey('id', $content);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         foreach ($data as $key => $val) {
-            static::assertSame($val, $response[$key]);
+            static::assertSame($val, $content[$key]);
         }
 
         // Check existence
         /** @var CustomerAddressEntity $address */
-        $address = $this->addressRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$content['id']]), $this->ids->getContext())->first();
 
         foreach ($data as $key => $val) {
             static::assertSame($val, $address->jsonSerialize()[$key]);
@@ -101,7 +98,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
-        static::assertCount(7, $response['errors']);
+        static::assertCount(6, $response['errors']);
     }
 
     public function testUpdateExistingAddress(): void
@@ -192,5 +189,43 @@ class UpsertAddressRouteTest extends TestCase
         foreach ($data as $key => $val) {
             static::assertSame($val, $address->jsonSerialize()[$key]);
         }
+    }
+
+    public function addressDataProvider(): array
+    {
+        return [
+            'normal' => [
+                [
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Test',
+                    'lastName' => 'Test',
+                    'street' => 'Test',
+                    'city' => 'Test',
+                    'zipcode' => 'Test',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+            'no-salutation' => [
+                [
+                    'firstName' => 'Test',
+                    'lastName' => 'Test',
+                    'street' => 'Test',
+                    'city' => 'Test',
+                    'zipcode' => 'Test',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+            'empty-salutation' => [
+                [
+                    'salutationId' => null,
+                    'firstName' => 'Test',
+                    'lastName' => 'Test',
+                    'street' => 'Test',
+                    'city' => 'Test',
+                    'zipcode' => 'Test',
+                    'countryId' => $this->getValidCountryId(),
+                ],
+            ],
+        ];
     }
 }

@@ -405,7 +405,11 @@
     "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
     "collapseTriggerMore": "Show more",
     "collapseTriggerLess": "Show less",
-    "product-not-found": "The product could not be found."
+    "product-not-found": "The product could not be found.",
+    "salutation-missing": "A salutation is missing from your profile, please choose one during checkout.",
+    "salutation-missing-profile": "There's no salutation configured in your profile, please set one <a href=\"%url%\">here</a>.",
+    "salutation-missing-billing-address": "There's no salutation configured for your active billing address, please set one <a href=\"%url%\">here</a>.",
+    "salutation-missing-shipping-address": "There's no salutation configured for your active shipping address, please set one <a href=\"%url%\">here</a>."
   },
   "listing": {
     "filterTitleText": "Filter",

@@ -1681,7 +1681,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    not_null(defaultShippingAddressId) foreignKey
    autoIncrement int
    not_null(customerNumber) numberRange
-   not_null(salutationId) foreignKey
+   salutationId foreignKey
    not_null(firstName) string
    not_null(lastName) string
    company string
@@ -1730,7 +1730,7 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinit
    not_null(customerId) foreignKey
    not_null(countryId) foreignKey
    countryStateId foreignKey
-   not_null(salutationId) foreignKey
+   salutationId foreignKey
    not_null(firstName) string
    not_null(lastName) string
    not_null(zipcode) string

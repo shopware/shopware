@@ -31,7 +31,7 @@ class CustomerAddressEntity extends Entity
     protected $countryStateId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutationId;
 
@@ -140,7 +140,7 @@ class CustomerAddressEntity extends Entity
         $this->countryStateId = $countryStateId;
     }
 
-    public function getSalutationId(): string
+    public function getSalutationId(): ?string
     {
         return $this->salutationId;
     }

@@ -3,10 +3,14 @@
         {% for error in page.cart.errors.notices %}
             {% set snippetName = "checkout.#{error.messageKey}" %}
 
-            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                type: "info",
-                content: snippetName|trans({'%name%': error.name})|sw_sanitize
-            } %}
+            {% if error.messageKey starts with 'salutation-missing' %}
+                {% sw_include '@Storefront/storefront/component/checkout/cart-alert-salutation-missing.html.twig' %}
+            {% else %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                    type: "info",
+                    content: snippetName|trans({'%name%': error.name})|sw_sanitize
+                } %}
+            {% endif %}
         {% endfor %}
     {% endblock %}
     {% block component_checkout_cart_alerts_warnings %}

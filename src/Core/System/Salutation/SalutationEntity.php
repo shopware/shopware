@@ -18,7 +18,7 @@ class SalutationEntity extends Entity
     use EntityCustomFieldsTrait;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutationKey;
 
@@ -62,7 +62,7 @@ class SalutationEntity extends Entity
      */
     protected $newsletterRecipients;
 
-    public function getSalutationKey(): string
+    public function getSalutationKey(): ?string
     {
         return $this->salutationKey;
     }

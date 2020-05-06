@@ -21,7 +21,7 @@
         {% endif %}
 
         <p>
-            {% if address.salutation.salutationKey != 'not_specified' %}
+            {% if address.salutation and address.salutation.salutationKey != 'not_specified' %}
                 {% block component_address_salutation %}
                     {{ address.salutation.translated.displayName }}
                 {% endblock %}

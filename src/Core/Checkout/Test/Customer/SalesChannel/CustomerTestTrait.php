@@ -32,7 +32,7 @@ trait CustomerTestTrait
         return $token;
     }
 
-    private function createCustomer(?string $password = null, ?string $email = null, ?bool $guest = false): string
+    private function createCustomer(?string $password = null, ?string $email = null, ?bool $guest = false, ?bool $hasSalutation = false): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -56,7 +56,7 @@ trait CustomerTestTrait
                     'street' => 'Musterstraße 1',
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
+                    'salutationId' => $hasSalutation ? $this->getValidSalutationId() : null,
                     'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
@@ -91,7 +91,7 @@ trait CustomerTestTrait
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'guest' => $guest,
-                'salutationId' => $this->getValidSalutationId(),
+                'salutationId' => $hasSalutation ? $this->getValidSalutationId() : null,
                 'customerNumber' => '12345',
             ],
         ], $this->ids->context);

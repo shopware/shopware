@@ -1,0 +1,16 @@
+{% block component_checkout_cart_alerts_errors_salutation_missing %}
+    {% set snippetName = '%s-%s'|format(snippetName, error.name) %}
+
+    {% if error.name ends with 'profile' %}
+        {% set url = path('frontend.account.profile.page') %}
+    {% elseif error.name ends with 'billing-address' %}
+        {% set url = path('frontend.account.address.edit.page', {'addressId': context.customer.activeBillingAddress.id}) %}
+    {% elseif error.name ends with 'shipping-address' %}
+        {% set url = path('frontend.account.address.edit.page', {'addressId': context.customer.activeShippingAddress.id}) %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type: "info",
+        content: snippetName|trans({'%url%': url})|sw_sanitize
+    } %}
+{% endblock %}

@@ -125,8 +125,8 @@ class SnippetService
 
         // now override fallback with defaults in catalog
         $snippets = array_replace_recursive(
-            $catalog->all('messages'),
-            $snippets
+            $snippets,
+            $catalog->all('messages')
         );
 
         // after fallback and default catalog merged, overwrite them with current locale snippets

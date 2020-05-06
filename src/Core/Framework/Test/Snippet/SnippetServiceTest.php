@@ -145,6 +145,7 @@ json
         $service = $this->getSnippetService(
             new MockSnippetFile('test-fallback-en', 'en-GB', json_encode([
                 'foo' => 'en-foo',
+                'not-exists' => 'en-bar',
                 'storefront' => [
                     'account' => [
                         'overview' => 'Overview',
@@ -180,8 +181,9 @@ json
 
         static::assertEquals(
             [
-                'foo' => 'en-foo',
+                'foo' => 'catalog',
                 'bar' => 'catalog',
+                'not-exists' => 'en-bar',
                 'storefront.account.overview' => 'Übersicht',
                 'storefront.checkout.item' => 'Item',
                 'storefront.home.title' => 'Home',

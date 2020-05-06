@@ -55,7 +55,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     private $snippetService;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $fallbackLocale;
 
@@ -180,6 +180,8 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     public function resetInMemoryCache(): void
     {
         $this->isCustomized = [];
+        $this->fallbackLocale = null;
+        $this->snippetSetId = null;
     }
 
     /**

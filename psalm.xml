@@ -14,8 +14,6 @@
             <directory name="vendor"/>
             <directory name="platform/src/Recovery"/>
             <directory name="platform/src/Docs/Resources"/>
-            <file name="vendor/shopware/platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php" />
-            <file name="vendor/shopware/platform/src/Storefront/Framework/Cache/CacheDecorator.php" />
         </ignoreFiles>
     </projectFiles>
 

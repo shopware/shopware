@@ -28,7 +28,9 @@ Repository Split:
     before_script: []
     dependencies: []
     only:
-        - master
+        refs:
+            - master
+            - /^6\..*$/
     environment:
         name: Github
         url: https://github.com/shopware
@@ -46,5 +48,5 @@ Repository Split:
               echo "Splitting ${pkg}"
               SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
               git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
-              git push origin $SHA1:master -f
+              git push origin $SHA1:$CI_COMMIT_REF_NAME -f
             done

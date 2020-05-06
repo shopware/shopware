@@ -377,7 +377,7 @@
             <tag name="shopware.snippet.file" priority="100"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder">
+        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
@@ -386,7 +386,6 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
             <argument>%kernel.cache.hash%</argument>
             <argument type="service" id="cache.http"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />

@@ -158,21 +158,14 @@ class EntityCacheKeyGenerator
     {
         $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition->getEntityName())];
 
-        foreach ($context->getLanguageIdChain() as $languageId) {
-            $keys[] = $this->getEntityTag($languageId, LanguageDefinition::ENTITY_NAME);
-        }
-
-        $translationDefinition = $definition->getTranslationDefinition();
-
-        if ($translationDefinition) {
-            /* @var EntityDefinition $translationDefinition */
-            $keys[] = $translationDefinition->getEntityName() . '.language_id';
-        }
-
         foreach ($definition->getFields() as $association) {
             if (!$association instanceof AssociationField) {
                 continue;
             }
+            if ($association->getReferenceDefinition()->getClass() === LanguageDefinition::class) {
+                continue;
+            }
+
             if ($association->is(Extension::class)) {
                 $value = $entity->getExtension($association->getPropertyName());
             } else {
@@ -209,6 +202,9 @@ class EntityCacheKeyGenerator
             }
 
             if ($association instanceof ManyToManyAssociationField) {
+                if ($association->getToManyReferenceDefinition()->getClass() === LanguageDefinition::class) {
+                    continue;
+                }
                 foreach ($value as $item) {
                     $nested = $this->getAssociatedTags($association->getToManyReferenceDefinition(), $item, $context);
                     foreach ($nested as $key) {

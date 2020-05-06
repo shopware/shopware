@@ -195,7 +195,7 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context));
 
         $this->cacheClearer->invalidateIds(
-            array_merge($ids, $parentIds, $childrenIds),
+            array_unique(array_merge($ids, $parentIds, $childrenIds)),
             ProductDefinition::ENTITY_NAME
         );
     }

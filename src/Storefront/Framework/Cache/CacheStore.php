@@ -6,7 +6,6 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,11 +19,6 @@ class CacheStore implements StoreInterface
      * @var TagAwareAdapterInterface
      */
     private $cache;
-
-    /**
-     * @var ObjectCacheKeyFinder
-     */
-    private $cacheKeyDetector;
 
     /**
      * @var array
@@ -54,13 +48,11 @@ class CacheStore implements StoreInterface
     public function __construct(
         string $cacheHash,
         TagAwareAdapterInterface $cache,
-        ObjectCacheKeyFinder $cacheKeyDetector,
         CacheStateValidator $stateValidator,
         EventDispatcherInterface $eventDispatcher,
         CacheTagCollection $cacheTagCollection
     ) {
         $this->cache = $cache;
-        $this->cacheKeyDetector = $cacheKeyDetector;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->cacheHash = $cacheHash;
@@ -99,12 +91,7 @@ class CacheStore implements StoreInterface
         $item->set(serialize($response));
         $item->expiresAt($response->getExpires());
 
-        $tags = [];
-        if ($response instanceof StorefrontResponse) {
-            $tags = $this->cacheKeyDetector->find($response->getData(), $response->getContext());
-        }
-
-        $tags = array_unique(array_merge($tags, $this->cacheTagCollection->getTags()));
+        $tags = $this->cacheTagCollection->getTags();
 
         if (!empty($tags) && $item instanceof CacheItem) {
             $item->tag($tags);

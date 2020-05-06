@@ -82,15 +82,12 @@ class EntityCacheKeyGeneratorTest extends TestCase
 
         $tags = $this->generator->getAssociatedTags($this->getContainer()->get(ProductDefinition::class), $product, $context);
 
-        static::assertContains('product_translation.language_id', $tags, print_r($tags, true));
         static::assertContains('tax-' . $id, $tags);
 
         static::assertContains('product_price-' . $id, $tags);
         static::assertContains('product_price-' . $id2, $tags);
 
         static::assertContains('category-' . $id, $tags);
-        static::assertContains('category_translation.language_id', $tags);
-
         static::assertContains('category-' . $id2, $tags);
     }
 

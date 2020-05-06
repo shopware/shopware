@@ -3,7 +3,7 @@
 
         {% block sw_settings_customField_set_detail_header %}
             <template slot="smart-bar-header">
-                <h2 v-if="getInlineSnippet(set.config.name)">{{ getInlineSnippet(set.config.name) }}</h2>
+                <h2 v-if="set && set.config && getInlineSnippet(set.config.label)">{{ getInlineSnippet(set.config.label) }}</h2>
                 <h2 v-else>{{ $tc('sw-settings-custom-field.set.detail.textHeadline') }}</h2>
             </template>
         {% endblock %}

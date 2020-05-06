@@ -45,14 +45,14 @@ Component.register('sw-custom-field-detail', {
             return this.fieldTypes[this.currentCustomField.config.customFieldType].configRenderComponent;
         },
         modalTitle() {
-            if (this.currentCustomField.isLocal) {
+            if (this.currentCustomField._isNew) {
                 return this.$tc('sw-settings-custom-field.customField.detail.titleNewCustomField');
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.titleEditCustomField');
         },
         labelSaveButton() {
-            if (this.currentCustomField.isLocal) {
+            if (this.currentCustomField._isNew) {
                 return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
             }
 
@@ -81,6 +81,10 @@ Component.register('sw-custom-field-detail', {
         createdComponent() {
             this.fieldTypes = this.customFieldDataProviderService.getTypes();
 
+            if (!this.currentCustomField.config) {
+                this.$set(this.currentCustomField, 'config', {});
+            }
+
             if (!this.currentCustomField.config.hasOwnProperty('customFieldType')) {
                 this.$set(this.currentCustomField.config, 'customFieldType', '');
             }
@@ -98,14 +102,11 @@ Component.register('sw-custom-field-detail', {
             }
         },
         onCancel() {
-            if (this.currentCustomField !== null && !this.currentCustomField.isLocal) {
-                this.currentCustomField.discardChanges();
-            }
             this.$emit('custom-field-edit-cancel', this.currentCustomField);
         },
         onSave() {
             this.applyTypeConfiguration();
-            if (!this.currentCustomField.isLocal) {
+            if (!this.currentCustomField._isNew) {
                 this.$emit('custom-field-edit-save', this.currentCustomField);
                 return;
             }

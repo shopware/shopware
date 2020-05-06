@@ -8,8 +8,7 @@
                         <sw-simple-search-field
                             size="small"
                             variant="form"
-                            v-model="term"
-                            @search-term-change="onSearch">
+                            v-model="term">
                         </sw-simple-search-field>
                     {% endblock %}
 
@@ -39,10 +38,10 @@
 
         {% block sw_custom_field_list_grid %}
             <sw-grid
-                    v-if="customFields.length || term"
+                    v-if="filteredCustomFields.length || term"
                     class="sw-custom-field-list__grid"
                     ref="grid"
-                    :items="customFields"
+                    :items="filteredCustomFields"
                     :isFullpage="false"
                     table
                     selectable
@@ -115,8 +114,7 @@
 
                                 {% block sw_custom_field_list_grid_column_actions_reset_delete %}
                                     <sw-context-menu-item v-if="item.isDeleted"
-                                                          variant="success"
-                                                          @click="onCustomFieldResetDelete(item)">
+                                                          variant="success">
                                         {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldResetDelete') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -132,24 +130,13 @@
                     {% endblock %}
                 </template>
 
-                {% block sw_custom_field_list_grid_pagination %}
-                    <template slot="pagination">
-                        <sw-pagination
-                                :page="page"
-                                :limit="limit"
-                                :total="total"
-                                :total-visible="7"
-                                @page-change="onPageChange"
-                                :steps="[10]" >
-                        </sw-pagination>
-                    </template>
-                {% endblock %}
+                {% block sw_custom_field_list_grid_pagination %}{% endblock %}
             </sw-grid>
         {% endblock %}
 
         {% block sw_custom_field_list_empty_state %}
             <sw-empty-state
-                    v-else-if="!set.isLoading && !total"
+                    v-else-if="!set.isLoading"
                     :title="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')">
             </sw-empty-state>
         {% endblock %}

@@ -1,5 +1,6 @@
 describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () => {
-    it('@cookies: There is a new analytics cookie in the manager', () => {
+    it('@cookies: There is a new analytics cookie in the manager if it is activated for the saleschannel', () => {
+        cy.addAnalyticsFixtureToSalesChannel();
         cy.visit('/');
 
         cy.window().then((win) => {
@@ -9,6 +10,18 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
                 cy.get('.offcanvas-cookie-group').eq(1).contains('Statistic');
 
                 cy.get('.offcanvas-cookie-group').eq(1).find('.offcanvas-cookie-entry').contains('Google Analytics');
+            });
+        });
+    });
+
+    it('@cookies: There is no statistics group in the cookie manager if google analytics is not activated for the saleschannel', () => {
+        cy.visit('/');
+
+        cy.window().then((win) => {
+            win.PluginManager.getPluginInstances('CookieConfiguration')[0].openOffCanvas();
+            cy.get('.offcanvas-cookie').should('be.visible').then(() => {
+                cy.get('.offcanvas-cookie').find('.offcanvas-cookie-group').should('have.length', 1);
+                cy.get('.offcanvas-cookie-group').should('not.contain', 'Statistic');
             });
         });
     });

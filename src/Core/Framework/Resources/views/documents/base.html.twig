@@ -234,50 +234,54 @@
                                 </tr>
                                 </thead>
 
-                                {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
-                                {% for lineItem in lineItemPage %}
-                                    <tr class="line-item{% if loop.first %} first{% endif %}">
-                                        {% block document_line_item_table_rows %}
-                                            {% block document_line_item_table_row_position %}
-                                                {% if config.displayLineItemPosition %}
-                                                    <td>{{ loop.index }}</td>
-                                                {% endif %}
-                                            {% endblock %}
+                                {% block document_line_item_table_iterator %}
+                                    {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
+                                    {% for lineItem in lineItemPage %}
+                                        <tr class="line-item{% if loop.first %} first{% endif %}">
+                                            {% block document_line_item_table_rows %}
+                                                {% block document_line_item_table_row_position %}
+                                                    {% if config.displayLineItemPosition %}
+                                                        <td>{{ loop.index }}</td>
+                                                    {% endif %}
+                                                {% endblock %}
 
-                                            {% block document_line_item_table_row_product_number %}
-                                                {% if lineItem.payload.productNumber %}
-                                                    <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
-                                                {% else %}
-                                                    <td></td>
-                                                {% endif %}
-                                            {% endblock %}
+                                                {% block document_line_item_table_row_product_number %}
+                                                    {% if lineItem.payload.productNumber %}
+                                                        <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
+                                                    {% else %}
+                                                        <td></td>
+                                                    {% endif %}
+                                                {% endblock %}
 
-                                            {% block document_line_item_table_row_label %}
-                                                <td class="line-item-breakable">{{ lineItem.label }}</td>
-                                            {% endblock %}
+                                                {% block document_line_item_table_row_label %}
+                                                    <td class="line-item-breakable">{{ lineItem.label }}</td>
+                                                {% endblock %}
 
-                                            {% block document_line_item_table_row_quantity %}
-                                                <td class="align-right">{{ lineItem.quantity }}</td>
-                                            {% endblock %}
+                                                {% block document_line_item_table_row_quantity %}
+                                                    <td class="align-right">{{ lineItem.quantity }}</td>
+                                                {% endblock %}
 
-                                            {% block document_line_item_table_prices %}
-                                                {% if config.displayPrices %}
-                                                    {% block document_line_item_table_row_tax_rate %}
-                                                        <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
-                                                    {% endblock %}
-                                                    {% block document_line_item_row_table_unit_price %}
-                                                        <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
-                                                    {% endblock %}
-                                                    {% block document_line_item_table_row_total_price %}
-                                                        <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
-                                                    {% endblock %}
-                                                {% endif %}
+                                                {% block document_line_item_table_prices %}
+                                                    {% if config.displayPrices %}
+                                                        {% block document_line_item_table_row_tax_rate %}
+                                                            <td class="align-right">{{ lineItem.price.taxRules.first.taxRate }}%</td>
+                                                        {% endblock %}
+                                                        {% block document_line_item_row_table_unit_price %}
+                                                            <td class="align-right">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
+                                                        {% endblock %}
+                                                        {% block document_line_item_table_row_total_price %}
+                                                            <td class="align-right">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+                                                        {% endblock %}
+                                                    {% endif %}
+                                                {% endblock %}
                                             {% endblock %}
-                                        {% endblock %}
-                                    </tr>
-                                {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                {% endblock %}
+
                                 {% block document_line_item_table_custom %}
                                 {% endblock %}
+
                                 {% block document_line_item_table_shipping %}
                                     {% if loop.last == true %}
                                         <tr class="line-item">

@@ -314,6 +314,27 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixes missing snippets in deleting cache notifications
     * Added block `sw_settings_content_card_content` to `sw-settings-index` to override the content of the settings card
     * Fixed variants name in cross selling preview listing
+    * Added `rawUrl` Twig function
+    * The SalesChannel url is now available in every mail template
+    * Fixed after order link in the following mail templates:
+        * `order_confirmation_mail`
+        * `order_delivery.state.cancelled`
+        * `order_delivery.state.returned`
+        * `order_delivery.state.shipped_partially`
+        * `order_delivery.state.shipped`
+        * `order_delivery.state.returned_partially`
+        * `order.state.cancelled`
+        * `order.state.open`
+        * `order.state.in_progress`
+        * `order.state.completed`
+        * `order_transaction.state.refunded_partially`
+        * `order_transaction.state.reminded`
+        * `order_transaction.state.open`
+        * `order_transaction.state.paid`
+        * `order_transaction.state.cancelled`
+        * `order_transaction.state.refunded`
+        * `order_transaction.state.paid_partially`
+    * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.

@@ -83,6 +83,12 @@
                                 </a>
                             {% endblock %}
 
+                            {% block component_product_box_variant_specification %}
+                                <span class="product-variant-specification">
+                                    Gray | 8ml | 39
+                                </span>
+                            {% endblock %}
+
                             {% block component_product_box_description %}
                                 <div class="product-description">
                                     {{ product.translated.description|striptags|raw }}

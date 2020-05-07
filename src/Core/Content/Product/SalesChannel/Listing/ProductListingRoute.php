@@ -83,6 +83,8 @@ class ProductListingRoute extends AbstractProductListingRoute
         $criteria->addFilter(
             new EqualsFilter('product.categoriesRo.id', $categoryId)
         );
+        $criteria->addAssociation('options');
+
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );

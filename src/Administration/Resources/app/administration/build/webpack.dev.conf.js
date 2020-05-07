@@ -33,12 +33,6 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
         // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
-        // https://github.com/ampedandwired/html-webpack-plugin
-        utils.injectHtmlPlugin(
-            baseWebpackConfig,
-            utils.loadFeatureFlags(process.env.ENV_FILE),
-            utils.getLatestApiVersion()
-        ),
         new FriendlyErrorsPlugin(),
         new AssetsPlugin({
             filename: 'sw-plugin-dev.json',
@@ -55,6 +49,24 @@ let mergedWebpackConfig = merge(baseWebpackConfig, {
 });
 
 const injector = new WebpackPluginInjector('var/plugins.json', mergedWebpackConfig, 'administration');
+
+// Collecting feature flag paths from third party plugins
+let pluginEntryFilePaths = [];
+if (injector._plugins.length) {
+    pluginEntryFilePaths = injector._plugins.map((plugin) => {
+        return plugin.entryFile;
+    });
+}
+
+// https://github.com/ampedandwired/html-webpack-plugin
+injector.webpackConfig.plugins.push(
+    utils.injectHtmlPlugin(
+        baseWebpackConfig,
+        utils.loadFeatureFlags(process.env.ENV_FILE, pluginEntryFilePaths),
+        utils.getLatestApiVersion()
+    )
+);
+
 mergedWebpackConfig = merge(injector.webpackConfig);
 
 if (config.dev.openInEditor) {

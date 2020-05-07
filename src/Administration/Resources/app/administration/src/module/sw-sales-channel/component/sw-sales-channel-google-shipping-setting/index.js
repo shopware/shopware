@@ -76,7 +76,8 @@ Component.register('sw-sales-channel-google-shipping-setting', {
         },
 
         onClickNext() {
-            // TODO: Integrate assign shipping setting logic
+            // TODO: NEXT-7728 Integrate assign shipping setting logic
+            this.$router.push({ name: 'sw.sales.channel.detail.base.step-8' });
         },
 
         async getCurrency(currencyId) {

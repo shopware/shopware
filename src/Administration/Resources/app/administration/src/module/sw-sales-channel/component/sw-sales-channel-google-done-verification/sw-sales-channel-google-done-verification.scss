@@ -1,0 +1,29 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-sales-channel-google-done-verification {
+    &__top {
+        padding-top: 64px;
+        padding-bottom: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    &__description {
+        margin: 10px 0;
+    }
+
+    &__label.sw-label.sw-label--appearance-circle {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 10px;
+
+        @include circle(72px);
+    }
+}

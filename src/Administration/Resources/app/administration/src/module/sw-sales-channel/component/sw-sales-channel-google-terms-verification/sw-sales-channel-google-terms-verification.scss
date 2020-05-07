@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-sales-channel-google-terms-verification {
+    .sw-sales-channel-google-terms-verification__top {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    &__description {
+        margin: 10px 0;
+        font-size: $font-size-small;
+    }
+
+    .sw-sales-channel-google-terms-verification__agree-checkbox {
+        padding: 30px 0 0 0;
+    }
+}

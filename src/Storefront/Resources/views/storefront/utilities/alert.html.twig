@@ -107,15 +107,15 @@ To display a dismissible button set the value of "dismissible" to true.
                         {% if list|length > 1 %}
                             <ul class="alert-list">
                                 {% for entry in list %}
-                                    <li>{{ entry }}</li>
+                                    <li>{{ entry|sw_sanitize }}</li>
                                 {% endfor %}
                             </ul>
                         {% elseif list|length == 1 %}
                             {% for entry in list %}
-                                {{ entry }}
+                                {{ entry|sw_sanitize }}
                             {% endfor %}
                         {% else %}
-                            {{ content }}
+                            {{ content|sw_sanitize }}
                         {% endif %}
                     </div>
                 {% endblock %}

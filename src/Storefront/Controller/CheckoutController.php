@@ -8,9 +8,8 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -139,7 +138,15 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
-            $this->addFlash('danger', $this->trans('checkout.finishPaymentFailed'));
+            $this->addFlash(
+                'danger',
+                $this->trans(
+                    'checkout.finishPaymentFailed',
+                    [
+                        '%editOrderUrl%' => $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $request->get('orderId')]),
+                    ]
+                )
+            );
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
@@ -156,19 +163,25 @@ class CheckoutController extends StorefrontController
 
         $formViolations = null;
 
+        $orderId = null;
+
         try {
             $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
+            $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
+                'orderId' => $orderId,
+                'changedPayment' => false,
+                'paymentFailed' => true,
+            ]);
 
-            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl);
+            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 
             return $response ?? new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
         } catch (Error $blockedError) {
-        } catch (AsyncPaymentProcessException | InvalidOrderException | SyncPaymentProcessException | UnknownPaymentMethodException $e) {
-            // TODO: Handle errors which might occur during payment process
-            throw $e;
+        } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {
+            return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
 
         return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);

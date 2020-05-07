@@ -16,6 +16,11 @@
             "php": "7.2.9"
         }
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.3.x-dev"
+        }
+    },
     "minimum-stability": "dev",
     "require": {
         "ext-curl": "*",

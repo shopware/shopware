@@ -191,6 +191,10 @@ Component.register('sw-sales-channel-detail', {
                         this.salesChannel.maintenanceIpWhitelist = [];
                     }
 
+                    if (this.salesChannel.googleShoppingAccount) {
+                        State.commit('swSalesChannel/setGoogleShoppingAccount', this.salesChannel.googleShoppingAccount);
+                    }
+
                     this.generateAccessUrl();
 
                     this.isLoading = false;
@@ -210,6 +214,11 @@ Component.register('sw-sales-channel-detail', {
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
+
+            if (this.next6050) {
+                criteria.addAssociation('googleShoppingAccount');
+                criteria.addAssociation(('googleShoppingAccount.googleShoppingMerchantAccount'));
+            }
 
             criteria.addAssociation('domains.language');
             criteria.addAssociation('domains.snippetSet');

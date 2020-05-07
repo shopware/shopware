@@ -248,18 +248,22 @@
       "title": "Connect Google Account",
       "buttonNext": "Next",
       "buttonBack": "Back",
+      "titleError": "Error",
       "step-1": {
         "titleGetStarted": "Get started with Google Programs",
         "textGetStartedDescription": "Google’s retail solutions can help you welcome more customers to your site or your store. After you get set up, you’ll have access to reports so you can see how well your ads are doing.",
         "textLearnMore": "Learn more",
         "titleConnectGoogleAccount": "Connect your Google Account to use Google Programs",
         "textConnectGoogleAccountDescription": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
-        "buttonConnect": "Connect Account"
+        "buttonConnect": "Connect Account",
+        "messageErrorGoogleAuth": "Received an error message from Google service: {error}",
+        "messageErrorDefault": "An error occurred during Google account connection"
       },
       "step-2": {
         "titleYourGoogleAccount": "Your Google Account",
         "buttonDisconnect": "Disconnect",
-        "textDisconnectInfo": "If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected."
+        "textDisconnectInfo": "If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected.",
+        "messageErrorDefault": "An error occurred during Google account disconnection"
       },
       "step-3": {
         "titleGeneral": "Create or connect your Google Merchant Center account",
@@ -270,7 +274,8 @@
         "placeholderSelectMerchant": "Select an existing Google Merchant Center account...",
         "titleCreateMerchant": "Create a new Google Merchant Center account",
         "textCreateMerchantDescription": "Create a new Google Merchant Center account, if you wish.",
-        "buttonCreateMerchant": "Create a new Merchant Center account"
+        "buttonCreateMerchant": "Create a new Merchant Center account",
+        "messageErrorDefault": "An error occurred during Google Merchant assignment"
       },
       "step-7": {
         "titleSetting": "Set up your shipping settings",

@@ -23,6 +23,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactored sw-settings-custom-field
         * Replaced store with repositories
 
+    * Added `google-auth.service` to support Google OAuth 2.0
+    * Added `google-shopping.api.service` to handle Google Shopping API
+        * Added method `connectGoogle`
+        * Added method `disconnectGoogle`
+        * Added method `disconnectGoogle`
+        * Added method `getMerchantList`
+        * Added method `assignMerchant`
+        * Added method `unassignMerchant`
+             
 * Core    
 
 * Storefront

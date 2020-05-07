@@ -17,7 +17,8 @@ import {
     cloneDeep,
     merge,
     get,
-    set
+    set,
+    pick
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date, fileSize, md5 } from './utils/format.utils';
@@ -35,7 +36,8 @@ export const object = {
     cloneDeep: cloneDeep,
     merge: merge,
     get: get,
-    set: set
+    set: set,
+    pick: pick
 };
 
 export const debug = {

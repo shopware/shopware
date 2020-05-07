@@ -61,10 +61,6 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
         wrapper.destroy();
     });
 
-    it('should be a vue js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
-    });
-
     it('should render number of item which equals to settingOptions length', async () => {
         wrapper.setData({
             settingOptions: [
@@ -82,7 +78,7 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
     });
 
     it('should show currency iso code in number field correctly', async () => {
-        const response = await repositoryMockFactory().get(1);
+        const response = await Shopware.Service('repositoryFactory').create().get(1);
 
         wrapper.setData({ currency: response[0] });
 

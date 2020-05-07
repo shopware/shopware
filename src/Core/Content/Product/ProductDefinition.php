@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -63,6 +64,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
+use function Flag\next7399;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -111,7 +113,7 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
@@ -257,5 +259,13 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'product_id'))
                 ->addFlags(new SetNullOnDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
+
+        if (next7399()) {
+            $collection->add(
+                (new StringField('variant_characteristics', 'variantCharacteristics'))->addFlags(new Runtime())
+            );
+        }
+
+        return $collection;
     }
 }

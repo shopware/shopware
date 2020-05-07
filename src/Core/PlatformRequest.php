@@ -23,6 +23,11 @@ final class PlatformRequest
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
 
     /**
+     * Entity repository headers
+     */
+    public const HEADER_FAIL_ON_ERROR = 'fail-on-error';
+
+    /**
      * This header is used in the administration to get all fields
      */
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';

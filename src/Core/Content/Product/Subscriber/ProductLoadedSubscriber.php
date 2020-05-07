@@ -28,17 +28,25 @@ class ProductLoadedSubscriber implements EventSubscriberInterface
 
         /** @var ProductEntity $product */
         foreach ($event->getEntities() as $product) {
-            if (!$product->getOptions() || !$product->getConfiguratorGroupConfig()) {
+            if (!$product->getOptions()) {
                 continue;
             }
 
             $parts = [];
 
-            foreach ($product->getConfiguratorGroupConfig() as $groupConfig) {
-                foreach ($product->getOptions() as $option) {
-                    if ($groupConfig['id'] === $option->getGroupId()) {
-                        $parts[] = $option->getName();
+            if ($product->getConfiguratorGroupConfig()) {
+                // collect option names in order of the configuration
+                foreach ($product->getConfiguratorGroupConfig() as $groupConfig) {
+                    foreach ($product->getOptions() as $option) {
+                        if ($groupConfig['id'] === $option->getGroupId()) {
+                            $parts[] = $option->getName();
+                        }
                     }
+                }
+            } else {
+                // fallback - simply take all option names unordered
+                foreach ($product->getOptions() as $option) {
+                    $parts[] = $option->getName();
                 }
             }
 

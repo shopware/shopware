@@ -52,7 +52,48 @@ class ProductLoadedSubscriberTest extends TestCase
         );
     }
 
+    public function testItAddsVariantCharacteristicsWidthGroupConfig(): void
+    {
+        $subscriber = $this->getContainer()->get(ProductLoadedSubscriber::class);
+        $context = Context::createDefaultContext();
+
+        $propertyNames = [
+            'red',
+            'XL',
+            'slim fit',
+        ];
+
+        $productEntity = $this->createVariantWithGroupConfig($propertyNames);
+
+        $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
+        $subscriber->addVariantCharacteristics($productLoadedEvent);
+
+        static::assertEquals(
+            implode(' - ', $propertyNames),
+            $productEntity->getVariantCharacteristics()
+        );
+    }
+
     private function createVariant(array $propertyNames = [])
+    {
+        $productEntity = new ProductEntity();
+        $productEntity->setId(Uuid::randomHex());
+        $productEntity->setOptions(new PropertyGroupOptionCollection());
+
+        foreach ($propertyNames as $name) {
+            $groupId = Uuid::randomHex();
+
+            $configGroupEntity = new PropertyGroupOptionEntity();
+            $configGroupEntity->setUniqueIdentifier($groupId);
+            $configGroupEntity->setName($name);
+            $configGroupEntity->setGroupId($groupId);
+            $productEntity->getOptions()->add($configGroupEntity);
+        }
+
+        return $productEntity;
+    }
+
+    private function createVariantWithGroupConfig(array $propertyNames = [])
     {
         $productEntity = new ProductEntity();
         $productEntity->setId(Uuid::randomHex());

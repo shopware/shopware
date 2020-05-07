@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount;
 
+use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingAdsAccount\GoogleShoppingAdsAccountDefinition;
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -39,9 +41,10 @@ class GoogleShoppingMerchantAccountDefinition extends EntityDefinition
             (new FkField('google_shopping_account_id', 'accountId', GoogleShoppingAccountDefinition::class))->addFlags(new Required()),
             (new StringField('merchant_id', 'merchantId'))->addFlags(new Required()),
             (new StringField('datafeed_id', 'datafeedId')),
-            (new JsonField('custom_fields', 'customFields')),
+            new CustomFields(),
 
             new OneToOneAssociationField('account', 'google_shopping_account_id', 'id', GoogleShoppingAccountDefinition::class, false),
+            (new OneToOneAssociationField('googleShoppingAdsAccount', 'id', 'google_shopping_merchant_account_id', GoogleShoppingAdsAccountDefinition::class, false))->addFlags(new CascadeDelete()),
         ]);
     }
 }

@@ -50,7 +50,7 @@ class ProductLoadedSubscriber implements EventSubscriberInterface
                 }
             }
 
-            $product->setVariantCharacteristics(implode(' - ', $parts));
+            $product->setVariantCharacteristics(implode(' | ', $parts));
         }
     }
 }

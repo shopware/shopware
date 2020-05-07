@@ -15,8 +15,10 @@
     display: flex;
     align-items: center;
 
-    .product-detail-variant-specification {
+    .product-detail-variant-characteristics {
         padding-left: $spacer-sm;
+        font-size: $font-size-lg;
+        font-weight: bold;
         color: $gray-500;
     }
 }

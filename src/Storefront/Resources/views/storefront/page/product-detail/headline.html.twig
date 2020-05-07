@@ -6,9 +6,9 @@
                     itemprop="name">
                     {{ page.product.translated.name }}
                 </h1>
-                <h4 class="product-detail-variant-specification">
-                        Gray | 8ml | 39
-                </h4>
+                <span class="product-detail-variant-characteristics">
+                    {{ page.product.variantCharacteristics }}
+                </span>
             {% endblock %}
         </div>
     {% endblock %}

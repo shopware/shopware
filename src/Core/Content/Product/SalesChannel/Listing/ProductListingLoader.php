@@ -74,6 +74,23 @@ class ProductListingLoader
         $read = $criteria->cloneForRead($variantIds);
 
         $entities = $this->repository->search($read, $context);
+        
+        $search = $ids->getData();
+        /** @var Entity $element */
+        foreach ($entities as $element) {
+            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
+                continue;
+            }
+
+            $data = $search[$element->getUniqueIdentifier()];
+            unset($data['id']);
+
+            if (empty($data)) {
+                continue;
+            }
+
+            $element->addExtension('search', new ArrayEntity($data));
+        }
 
         return new EntitySearchResult(
             $ids->getTotal(),

@@ -22,7 +22,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added salesChannel state in `sw-sales-channel` module
     * Refactored sw-settings-custom-field
         * Replaced store with repositories
-
+    * Refactored sw-mail-template
+            * Replaced store with repositories    
     * Added `google-auth.service` to support Google OAuth 2.0
     * Added `google-shopping.api.service` to handle Google Shopping API
         * Added method `connectGoogle`

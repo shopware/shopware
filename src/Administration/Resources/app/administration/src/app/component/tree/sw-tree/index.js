@@ -82,6 +82,14 @@ Component.register('sw-tree', {
             default: ''
         },
 
+        routeParamsActiveElementId: {
+            type: String,
+            required: false,
+            default() {
+                return 'id';
+            }
+        },
+
         translationContext: {
             type: String,
             default: 'sw-tree'
@@ -150,7 +158,7 @@ Component.register('sw-tree', {
 
     computed: {
         activeElementId() {
-            return this.$route.params.id || null;
+            return this.$route.params[this.routeParamsActiveElementId] || null;
         },
 
         isSortable() {
@@ -219,6 +227,7 @@ Component.register('sw-tree', {
                     children: this.getTreeItems(item.id),
                     initialOpened: false,
                     active: false,
+                    activeElementId: this.routeParamsActiveElementId,
                     checked: !!this.checkItemsInitial,
                     [this.afterIdProperty]: item[this.afterIdProperty]
                 });

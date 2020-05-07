@@ -257,7 +257,11 @@
       "textNoWebsiteClaimed": "No website claimed",
       "textCompleteSetup": "You need to complete the setup of your Google Account to synchronize products.",
       "linkCompleteSetup": "Complete setup",
-      "textIssues": "Your account has been suspended, you must fix this issue in order for your products to appear on Google."
+      "textIssues": "Your account has been suspended, you must fix this issue in order for your products to appear on Google.",
+      "categoryMapping": {
+        "emptyCategories": "Select a store category and assign it to a Google product category.",
+        "labelHideAssigned": "Hide assigned categories"
+      }
     },
     "modalGooglePrograms": {
       "title": "Connect Google Account",

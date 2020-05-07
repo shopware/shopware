@@ -135,7 +135,7 @@ Component.register('sw-tree-item', {
 
     computed: {
         activeElementId() {
-            return this.$route.params.id || null;
+            return this.$route.params[this.item.activeElementId] || null;
         },
 
         isOpened() {
@@ -218,7 +218,9 @@ Component.register('sw-tree-item', {
 
         mountedComponent() {
             if (this.item.active) {
-                this.$el.querySelector('.sw-tree-item.is--active input').focus();
+                if (this.$el.querySelector('.sw-tree-item.is--active input')) {
+                    this.$el.querySelector('.sw-tree-item.is--active input').focus();
+                }
             }
             if (this.newElementId) {
                 this.currentEditElement = this.newElementId;

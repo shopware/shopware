@@ -1,0 +1,12 @@
+.sw-sales-channel-detail-empty-categories {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 32px;
+
+    &__text {
+        margin: 22px 0 0;
+    }
+}

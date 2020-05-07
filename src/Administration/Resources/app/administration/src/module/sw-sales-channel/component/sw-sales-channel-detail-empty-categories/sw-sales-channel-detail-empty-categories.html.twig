@@ -1,0 +1,13 @@
+{% block sw_sales_channel_detail_empty_categories %}
+    <div class="sw-sales-channel-detail-empty-categories">
+        {% block sw_sales_channel_detail_empty_categories_image %}
+            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_empty_categories_text %}
+            <p class="sw-sales-channel-detail-empty-categories__text">
+                {{ $tc('sw-sales-channel.detail.categoryMapping.emptyCategories') }}
+            </p>
+        {% endblock %}
+    </div>
+{% endblock %}

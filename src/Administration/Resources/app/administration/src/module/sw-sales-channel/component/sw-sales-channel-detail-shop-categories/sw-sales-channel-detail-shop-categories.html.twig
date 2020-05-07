@@ -1,0 +1,51 @@
+{% block sw_sales_channel_detail_shop_categories %}
+    <sw-tree
+        v-if="!isLoadingCategories"
+        :sortable="false"
+        :searchable="false"
+        :disableContextMenu="true"
+        :items="categories"
+        :activeTreeItemId="categoryId"
+        :routeParamsActiveElementId="routeParamsActiveElementId"
+        :onChangeRoute="onChangeRoute"
+        @get-tree-items="onGetTreeItems"
+        class="sw-sales-channel-detail-shop-categories">
+
+        {% block sw_sales_channel_detail_shop_categories_slot_headline %}
+            <template #headline>
+                <div class="sw-sales-channel-detail-shop-categories__actions-headline">
+                    <sw-switch-field
+                        :label="$tc('sw-sales-channel.detail.categoryMapping.labelHideAssigned')"
+                        class="sw-sales-channel-detail-shop-categories__hide-assigned">
+                    </sw-switch-field>
+                </div>
+            </template>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_shop_categories_slot_items %}
+            <template #items="{ treeItems, sortable, disableContextMenu, displayCheckbox, onChangeRoute }">
+                <sw-tree-item
+                    :sortable="false"
+                    :disableContextMenu="disableContextMenu"
+                    :displayCheckbox="false"
+                    v-for="(item, index) in treeItems"
+                    :key="item.id"
+                    :item="item"
+                    :onChangeRoute="onChangeRoute">
+                    {% block sw_sales_channel_detail_shop_categories_slot_actions %}
+                        <template #actions="{ item }">
+                            <sw-icon
+                                v-if="item.mapped"
+                                small
+                                name="small-default-checkmark-line-medium"
+                                color="#37d046">
+                            </sw-icon>
+                            <span v-else></span>
+                        </template>
+                    {% endblock %}
+                </sw-tree-item>
+            </template>
+        {% endblock %}
+
+    </sw-tree>
+{% endblock %}

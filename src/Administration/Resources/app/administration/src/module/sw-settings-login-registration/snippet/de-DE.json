@@ -5,7 +5,7 @@
       "description": "Hier können Einstellungen für den Login und die Registrierung vorgenommen werden.",
       "textHeadline": "Login / Registrierung",
       "buttonSave": "Speichern",
-      "titleSaveSuccess": "Konfiguration gespeichert",
+      "titleSaveSuccess": "Konfiguration gespeichert.",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
       "titleSaveError": "Fehler beim Speichern der Konfiguration"
     }

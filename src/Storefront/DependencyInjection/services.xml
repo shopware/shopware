@@ -377,7 +377,7 @@
             <tag name="shopware.snippet.file" priority="100"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder">
+        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
@@ -386,9 +386,9 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
             <argument>%kernel.cache.hash%</argument>
             <argument type="service" id="cache.http"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
@@ -408,7 +408,7 @@
             <argument type="service" id="router" />
             <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" />
-
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -454,5 +454,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheDecorator" decorates="cache.object">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheDecorator.inner"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+        </service>
     </services>
 </container>

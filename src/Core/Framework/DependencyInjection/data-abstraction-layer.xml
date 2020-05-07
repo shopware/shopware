@@ -76,8 +76,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\StopWordFilter"/>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
         </service>

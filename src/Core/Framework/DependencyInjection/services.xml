@@ -180,6 +180,7 @@
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
+            <argument>%kernel.environment%</argument>
 
             <tag name="monolog.logger"/>
         </service>

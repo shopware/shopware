@@ -82,15 +82,12 @@ class EntityCacheKeyGeneratorTest extends TestCase
 
         $tags = $this->generator->getAssociatedTags($this->getContainer()->get(ProductDefinition::class), $product, $context);
 
-        static::assertContains('product_translation.language_id', $tags, print_r($tags, true));
         static::assertContains('tax-' . $id, $tags);
 
         static::assertContains('product_price-' . $id, $tags);
         static::assertContains('product_price-' . $id2, $tags);
 
         static::assertContains('category-' . $id, $tags);
-        static::assertContains('category_translation.language_id', $tags);
-
         static::assertContains('category-' . $id2, $tags);
     }
 
@@ -101,6 +98,28 @@ class EntityCacheKeyGeneratorTest extends TestCase
         $criteria->addSorting(new FieldSorting('product.manufacturer.name'));
         $criteria->addSorting(new FieldSorting('product.categories.name'));
         $criteria->addSorting(new FieldSorting('product.categories.media.title'));
+
+        $tags = $this->generator->getSearchTags($this->getContainer()->get(ProductDefinition::class), $criteria);
+
+        static::assertContains('product.id', $tags);
+        static::assertContains('product_translation.name', $tags);
+        static::assertContains('product.product_manufacturer_id', $tags);
+        static::assertContains('product_manufacturer_translation.name', $tags);
+        static::assertContains('product_category.category_id', $tags);
+        static::assertContains('category_translation.name', $tags);
+        static::assertContains('category.media_id', $tags);
+        static::assertContains('media_translation.title', $tags);
+
+        static::assertCount(9, $tags, print_r($tags, true));
+    }
+
+    public function testGenerateSearchCacheTagsWithoutPrefix(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('name'));
+        $criteria->addSorting(new FieldSorting('manufacturer.name'));
+        $criteria->addSorting(new FieldSorting('categories.name'));
+        $criteria->addSorting(new FieldSorting('categories.media.title'));
 
         $tags = $this->generator->getSearchTags($this->getContainer()->get(ProductDefinition::class), $criteria);
 

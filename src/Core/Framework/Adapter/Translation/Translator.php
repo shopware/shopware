@@ -55,7 +55,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     private $snippetService;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $fallbackLocale;
 
@@ -74,13 +74,19 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private $localeBeforeInject = null;
 
+    /**
+     * @var string
+     */
+    private $environment;
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
         CacheItemPoolInterface $cache,
         MessageFormatterInterface $formatter,
         SnippetService $snippetService,
-        EntityRepositoryInterface $languageRepository
+        EntityRepositoryInterface $languageRepository,
+        string $environment
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;
@@ -88,6 +94,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $this->formatter = $formatter;
         $this->snippetService = $snippetService;
         $this->languageRepository = $languageRepository;
+        $this->environment = $environment;
     }
 
     /**
@@ -98,11 +105,21 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $catalog = $this->translator->getCatalogue($locale);
 
         $fallbackLocale = $this->getFallbackLocale();
-        if (mb_strpos($catalog->getLocale(), $fallbackLocale) !== 0) {
-            $catalog->addFallbackCatalogue($this->translator->getCatalogue($fallbackLocale));
+
+        $localization = mb_substr($fallbackLocale, 0, 2);
+        if (mb_strpos($catalog->getLocale(), $localization) !== 0) {
+            $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
+        } else {
+            //fallback locale and current locale has the same localization -> reset fallback
+            $fallbackLocale = null;
         }
 
-        return $this->getCustomizedCatalog($catalog);
+        // disable fallback logic to display symfony warnings
+        if ($this->environment !== 'prod') {
+            $fallbackLocale = null;
+        }
+
+        return $this->getCustomizedCatalog($catalog, $fallbackLocale);
     }
 
     /**
@@ -163,6 +180,8 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     public function resetInMemoryCache(): void
     {
         $this->isCustomized = [];
+        $this->fallbackLocale = null;
+        $this->snippetSetId = null;
     }
 
     /**
@@ -196,40 +215,54 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     /**
      * Add language specific snippets provided by the admin
      */
-    private function getCustomizedCatalog(MessageCatalogueInterface $catalog): MessageCatalogueInterface
+    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
-        if ($this->snippetSetId === null) {
-            $request = $this->requestStack->getCurrentRequest();
-            if (!$request) {
-                return $catalog;
-            }
-
-            $snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
-            if ($snippetSetId === null) {
-                return $catalog;
-            }
-        } else {
-            $snippetSetId = $this->snippetSetId;
+        $snippetSetId = $this->getSnippetSetId();
+        if (!$snippetSetId) {
+            return $catalog;
         }
 
         if (array_key_exists($snippetSetId, $this->isCustomized)) {
             return $this->isCustomized[$snippetSetId];
         }
 
-        $cacheItem = $this->cache->getItem('translation.catalog.' . $snippetSetId);
-        if ($cacheItem->isHit()) {
-            $snippets = $cacheItem->get();
-        } else {
-            $snippets = $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId);
-
-            $cacheItem->set($snippets);
-            $this->cache->save($cacheItem);
-        }
+        $snippets = $this->loadSnippets($catalog, $snippetSetId, $fallbackLocale);
 
         $newCatalog = clone $catalog;
         $newCatalog->add($snippets);
 
         return $this->isCustomized[$snippetSetId] = $newCatalog;
+    }
+
+    private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
+    {
+        $cacheItem = $this->cache->getItem('translation.catalog.' . $snippetSetId);
+        if ($cacheItem->isHit()) {
+            return $cacheItem->get();
+        }
+
+        $snippets = $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale);
+
+        $cacheItem->set($snippets);
+        $this->cache->save($cacheItem);
+
+        return $snippets;
+    }
+
+    private function getSnippetSetId(): ?string
+    {
+        if ($this->snippetSetId !== null) {
+            return $this->snippetSetId;
+        }
+
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return null;
+        }
+
+        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+
+        return $this->snippetSetId;
     }
 
     private function getFallbackLocale(): string
@@ -244,6 +277,6 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
 
         $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
 
-        return $this->fallbackLocale = mb_substr($defaultLanguage->getLocale()->getCode(), 0, 2);
+        return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
     }
 }

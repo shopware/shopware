@@ -302,7 +302,11 @@ Component.register('sw-product-detail', {
 
             this.productRepository.get(
                 this.productId || this.product.id,
-                Shopware.Context.api, this.productCriteria
+                {
+                    ...Shopware.Context.api,
+                    inheritance: true
+                },
+                this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
 

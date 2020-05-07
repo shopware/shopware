@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
-use Shopware\Core\System\SalesChannel\StoreApiResponse;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 
-class SetPaymentOrderRouteResponse extends StoreApiResponse
+class SetPaymentOrderRouteResponse extends SuccessResponse
 {
 }

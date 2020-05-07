@@ -140,6 +140,58 @@ json
         static::assertSame($expectedResult, $result);
     }
 
+    public function testStorefrontSnippetFallback(): void
+    {
+        $service = $this->getSnippetService(
+            new MockSnippetFile('test-fallback-en', 'en-GB', json_encode([
+                'foo' => 'en-foo',
+                'not-exists' => 'en-bar',
+                'storefront' => [
+                    'account' => [
+                        'overview' => 'Overview',
+                    ],
+                    'checkout' => [
+                        'item' => 'Item',
+                    ],
+                ],
+            ])),
+            new MockSnippetFile('test-fallback-de', 'de-DE', json_encode([
+                'storefront' => [
+                    'account' => [
+                        'overview' => 'Übersicht',
+                    ],
+                    'home' => [
+                        'title' => 'Home',
+                    ],
+                ],
+            ]))
+        );
+
+        $catalog = new MessageCatalogue(
+            'en-GB',
+            [
+                'messages' => [
+                    'foo' => 'catalog',
+                    'bar' => 'catalog',
+                ],
+            ]
+        );
+
+        $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('de-DE'), 'en-GB');
+
+        static::assertEquals(
+            [
+                'foo' => 'catalog',
+                'bar' => 'catalog',
+                'not-exists' => 'en-bar',
+                'storefront.account.overview' => 'Übersicht',
+                'storefront.checkout.item' => 'Item',
+                'storefront.home.title' => 'Home',
+            ],
+            $result
+        );
+    }
+
     public function dataProviderForTestGetStoreFrontSnippets(): array
     {
         return [

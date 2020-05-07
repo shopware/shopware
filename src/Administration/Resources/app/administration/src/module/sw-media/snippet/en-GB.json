@@ -70,8 +70,8 @@
     },
     "sorting": {
       "labelSort": "Sort by:",
-      "labelSortByNameAsc": "Name, asc.",
-      "labelSortByNameDsc": "Name, desc.",
+      "labelSortByNameAsc": "Name, A-Z",
+      "labelSortByNameDsc": "Name, Z-A",
       "labelSortBySizeAsc": "Size, asc.",
       "labelSortBySizeDsc": "Size, desc.",
       "labelSortByCreatedAsc": "Creation date, asc.",

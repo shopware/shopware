@@ -311,6 +311,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * For batch delete `sw-media-modal-delete` shows all used media entities
     * Fixed `entity-hydrator.data.js` to check `row` parameter exist data
     * Added `sw_order_detail_actions_slot_smart_bar_actions` block to `sw-order/page/sw-order-detail/sw-order-detail.html.twig`
+    * Fixes missing snippets in deleting cache notifications
+    * Added block `sw_settings_content_card_content` to `sw-settings-index` to override the content of the settings card
+    * Fixed variants name in cross selling preview listing
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
@@ -424,6 +427,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `\Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute` to confirm the newsletter registration with the new api route `/store-api/v1/newsletter/confirm`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to register a new customer with the new api route `/store-api/v1/account/register`
     * Added new `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute` to confirm a double optin registration with the new api route `/store-api/v1/account/register-confirm`
+    * Added new `\Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute` to cancel a order with the new api route `/store-api/v1/order/state/cancel`
+    * Added new `\Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` to change the payment method of a order with the new api route `/store-api/v1/order/set-payment`
     * Added `\Shopware\Core\Framework\Api\Converter\DefaultApiConverter` to handle deprecated fields from DAL in the api versions
         * When the new field and the old field is send, the converter will prefer the new field
         * Added new header `sw-ignore-deprecations` to ignore deprecations and receive all fields
@@ -481,7 +486,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder::getAllowedLimits`
     * Deprecated `shopware.api.allowed_limits` configuration
-    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm` 
+    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
+    * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
+    * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
@@ -541,6 +548,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `storefront.htmlPurifier.cacheDir`: Directory to write `HTMLPurifier` cache (defaults to `kernel.cache_dir`)
         * `storefront.htmlPurifier.enableCache`: Boolean to turn `HTMLPurifier`s cache cache on or off (defaults to `true`)
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
+    * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
+    
 **Removals**
 
 * Administration

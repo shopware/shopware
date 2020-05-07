@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion\Subscriber\Storefront;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemQuantityChangedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
@@ -41,7 +42,13 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             LineItemAddedEvent::class => 'onLineItemAdded',
             LineItemQuantityChangedEvent::class => 'onLineItemQuantityChanged',
             LineItemRemovedEvent::class => 'onLineItemRemoved',
+            CheckoutOrderPlacedEvent::class => 'resetCodes',
         ];
+    }
+
+    public function resetCodes(): void
+    {
+        $this->session->set(self::SESSION_KEY_PROMOTION_CODES, []);
     }
 
     /**

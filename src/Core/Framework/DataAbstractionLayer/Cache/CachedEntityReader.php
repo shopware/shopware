@@ -162,7 +162,6 @@ class CachedEntityReader implements EntityReaderInterface
         /** @var ItemInterface $item */
         $item = $this->cache->getItem($key);
         $item->set($entity);
-        $item->tag($key);
 
         $tags = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
 
@@ -201,18 +200,16 @@ class CachedEntityReader implements EntityReaderInterface
         /** @var ItemInterface $item */
         $item = $this->cache->getItem($key);
         $item->set($entityCollection);
-        $item->tag($key);
 
-        $tagsOfTags = [[]];
+        $tags = [];
         foreach ($entityCollection as $entity) {
-            $tagsOfTags[] = $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context);
+            $tags = array_merge($tags, $this->cacheKeyGenerator->getAssociatedTags($definition, $entity, $context));
         }
 
-        $tagsOfTags[] = $this->cacheKeyGenerator->getSearchTags($definition, $criteria);
-        $tags = array_merge(...$tagsOfTags);
+        $tags = array_merge($tags, $this->cacheKeyGenerator->getSearchTags($definition, $criteria));
 
         //add cache keys for associated data
-        $item->tag(array_keys(array_flip($tags)));
+        $item->tag($tags);
 
         //deferred saves are persisted with the cache->commit()
         $this->cache->saveDeferred($item);

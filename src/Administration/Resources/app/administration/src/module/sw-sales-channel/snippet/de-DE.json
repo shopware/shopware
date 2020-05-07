@@ -240,17 +240,17 @@
       },
       "googleShoppingAccountConnect": {
         "title": "Verbinden Sie Ihr Google-Konto, um Google-Programme zu verwenden",
-        "subTitle": "Mit einem Google-Konto können Sie auf Ihre Google Merchant Center- und Google Ads-Konten zugreifen.",
+        "subTitle": "Mit einem Google-Konto können Sie auf Ihre Google-Merchant-Center- und Google-Ads-Konten zugreifen.",
         "textConnectButton": "Verbinden"
       },
       "googleShoppingAccountDisconnect": {
         "titleProfiles": "Mit diesem Google-Konto kannst Du auf Dein Google-Merchant-Center-Konto zugreifen",
         "titleLinkProfiles": "merchants.google.com.",
         "textDisconnectButton": "Trennen",
-        "titleMerchant": "Ein gesperrtes Google Merchant Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren",
+        "titleMerchant": "Ein gesperrtes Google-Merchant-Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren:",
         "titleLinkMerchant": "über Kontosperrungen.",
         "textGroupMerchant": "Merchant-Center-Konto:",
-        "titleWebsite": "Ihre Website ist mit Ihrem Google Merchant Center-Konto verknüpft. Es muss behauptet werden, Shopping-Anzeigen zu schalten.",
+        "titleWebsite": "Deine Website ist mit Deinem Google-Merchant-Center-Konto verknüpft. Das Konto muss beansprucht worden sein, um Shopping-Anzeigen zu schalten.",
         "textGroupWebsite": "Webseite:"
       }
     },

@@ -45,10 +45,10 @@
         }
     },
     "filter": {
-        "sortByNameAscending": "Name aufsteigend",
-        "sortByNameDescending": "Name absteigend",
-        "sortByPriceAscending": "Preis aufsteigend",
-        "sortByPriceDescending": "Preis absteigend",
+        "sortByNameAscending": "Name, A-Z",
+        "sortByNameDescending": "Name, Z-A",
+        "sortByPriceAscending": "Preis, aufsteigend",
+        "sortByPriceDescending": "Preis, absteigend",
         "sortByScore": "Beste Ergebnisse"
     }
 }

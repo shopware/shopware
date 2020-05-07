@@ -11,10 +11,12 @@ use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscri
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class PromotionSessionCodesTest extends TestCase
@@ -128,6 +130,45 @@ class PromotionSessionCodesTest extends TestCase
         static::assertCount(0, $this->getSessionCodes(), json_encode($this->getSessionCodes()));
     }
 
+    public function testResetCodesAfterOrder(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $promotionCode = 'BF19';
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
+            );
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $context);
+
+        // add a new promotion black friday
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        // add product to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
+
+        // add promotion to cart
+        $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $context);
+
+        static::assertNotEmpty($this->getSessionCodes());
+
+        /** @var string $discountId */
+        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+
+        $this->cartService->order($cart, $context);
+
+        $this->cartService->remove($cart, $discountId, $context);
+
+        static::assertEmpty($this->getSessionCodes());
+    }
+
     /**
      * This test verifies that our cart services
      * does also correctly remove the matching code
@@ -238,5 +279,46 @@ class PromotionSessionCodesTest extends TestCase
         }
 
         return $session->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
+    }
+
+    private function createCustomer(): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->getContainer()
+            ->get('customer.repository')
+            ->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
     }
 }

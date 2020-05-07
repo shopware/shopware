@@ -12,10 +12,10 @@
         <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="platform/src/Recovery" />
-            <directory name="platform/src/Recovery" />
-            <directory name="platform/src/Docs/Resources" />
+            <directory name="platform/src/Recovery"/>
+            <directory name="platform/src/Docs/Resources"/>
             <file name="vendor/shopware/platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php" />
+            <file name="vendor/shopware/platform/src/Storefront/Framework/Cache/CacheDecorator.php" />
         </ignoreFiles>
     </projectFiles>
 
@@ -31,11 +31,6 @@
                 <referencedFunction name="iterator_to_array"/>
             </errorLevel>
         </UnusedFunctionCall>
-        <UndefinedDocblockClass>
-            <errorLevel type="suppress">
-                <referencedClass name="Symfony\Component\DependencyInjection\ContainerAwareTrait"/> <!-- Issue with loading traits in Docblocks -->
-            </errorLevel>
-        </UndefinedDocblockClass>
         <InvalidCast>
             <errorLevel type="info">
                 <file name="platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
@@ -48,7 +43,6 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
-                <file name="platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
             </errorLevel>
         </UndefinedConstant>
         <InvalidScope>
@@ -62,19 +56,23 @@
                 <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
             </errorLevel>
         </MissingFile>
-        <UndefinedClass>
+        <UnusedParam>
             <errorLevel type="info">
-                <referencedClass name="SwagTest\SwagTest"/>
+                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
             </errorLevel>
-        </UndefinedClass>
+        </UnusedParam>
+        <InvalidCatch>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+            </errorLevel>
+        </InvalidCatch>
 
-        <LessSpecificImplementedReturnType errorLevel="info" />
-        <LessSpecificReturnType errorLevel="info"/>
+        <LessSpecificImplementedReturnType errorLevel="info"/>
 
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>
             <errorLevel type="info">
-                <file name="vendor/shopware/platform/src/Core/Framework/Api/Controller/CacheController.php"/>
+                <file name="platform/src/Core/Framework/Api/Controller/CacheController.php"/>
             </errorLevel>
         </InaccessibleProperty>
 

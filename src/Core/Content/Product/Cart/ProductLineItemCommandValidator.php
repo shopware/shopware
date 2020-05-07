@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Content\Product\Exception\ProductLineItemDifferentIdException;
 use Shopware\Core\Content\Product\Exception\ProductLineItemInconsistentException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -43,6 +44,9 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
         foreach ($event->getCommands() as $command) {
             if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
+                continue;
+            }
+            if ($command instanceof SetNullOnDeleteCommand) {
                 continue;
             }
 

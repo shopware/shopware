@@ -92,7 +92,7 @@ class PromotionDeliveryCalculator
             }
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
+                $this->addPromotionNotEligibleError($discountItem->getLabel(), $toCalculate);
 
                 continue;
             }
@@ -102,9 +102,9 @@ class PromotionDeliveryCalculator
             if ($deliveryItemAdded) {
                 // ensure that a lineItem will be added to cart if a discount has been added
                 $this->addFakeLineitem($toCalculate, $discountItem, $context);
-                $this->addAddedNoticeToCart($original, $toCalculate, $discountItem);
+                $this->addPromotionAddedNotice($original, $toCalculate, $discountItem);
             } else {
-                $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
+                $this->addPromotionDeletedNotice($original, $toCalculate, $discountItem);
             }
         }
     }

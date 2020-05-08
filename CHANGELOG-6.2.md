@@ -16,6 +16,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed broken promotion exclusion configuration in `sw-promotion-basic-form`
 
 
+
+### 6.2.1
+
+**Addition / Changes**
+
+* Core
+    * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
+
+
 ### 6.2.0
 
 **Addition / Changes**

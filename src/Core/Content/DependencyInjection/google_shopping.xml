@@ -40,6 +40,10 @@
             <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createShoppingContentAccountResource" />
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createShoppingContentShippingSettingResource"/>
+        </service>
+
         <!-- Services-->
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAuthenticator">
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
@@ -55,6 +59,10 @@
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource"/>
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource"/>
+        </service>
+
         <!-- Controllers-->
         <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingAccountController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
@@ -66,7 +74,16 @@
         </service>
 
         <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingMerchantController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Controller\EligibilityRequirementController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

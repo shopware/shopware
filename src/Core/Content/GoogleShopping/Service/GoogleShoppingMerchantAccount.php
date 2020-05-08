@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
 
 class GoogleShoppingMerchantAccount
 {
@@ -61,5 +62,10 @@ class GoogleShoppingMerchantAccount
     public function delete(string $id, Context $context): EntityWrittenContainerEvent
     {
         return $this->googleMerchantAccountRepository->delete([['id' => $id]], $context);
+    }
+
+    public function update(Request $request, string $googleMerchantAccountId)
+    {
+        return $this->googleShoppingContentAccountResource->update($request, $googleMerchantAccountId, $googleMerchantAccountId);
     }
 }

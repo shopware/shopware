@@ -3,8 +3,11 @@
 namespace Shopware\Core\Content\Test\GoogleShopping;
 
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use function Flag\next6050;
@@ -116,6 +119,130 @@ trait GoogleShoppingIntegration
             'google_shopping_client',
             new GoogleShoppingClientMock('clientId', 'clientSecret', 'redirectUrl')
         );
+    }
+
+    public function createStorefrontSalesChannel(bool $maintenance = false): string
+    {
+        $storefrontSalesChannelId = Uuid::randomHex();
+        $storefrontSalesChannel = [
+            'id' => $storefrontSalesChannelId,
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'navigation' => ['name' => 'test'],
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_GOOGLE_SHOPPING,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'currencyId' => Defaults::CURRENCY,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $this->getValidCountryId(),
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
+            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
+            'countries' => [['id' => $this->getValidCountryId()]],
+            'name' => 'Storefront',
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'maintenance' => $maintenance,
+        ];
+        $this->getContainer()->get('sales_channel.repository')->create([$storefrontSalesChannel], $this->context);
+
+        return $storefrontSalesChannelId;
+    }
+
+    public function createProductExport($googleShoppingSalesChannelId, $storefrontSalesChannelId): string
+    {
+        /** @var EntityRepositoryInterface $streamRepository */
+        $streamRepository = $this->getContainer()->get('product_export.repository');
+        $id = Uuid::randomHex();
+
+        $streamRepository->create([
+            [
+                'id' => $id,
+                'name' => 'testStream',
+                'productStreamId' => $this->createProductStream($storefrontSalesChannelId),
+                'storefrontSalesChannelId' => $storefrontSalesChannelId,
+                'salesChannelId' => $googleShoppingSalesChannelId,
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'fileName' => 'google',
+                'accessKey' => 'test',
+                'encoding' => 'test',
+                'fileFormat' => 'test',
+                'includeVariants' => true,
+                'interval' => 1,
+                'currencyId' => Defaults::CURRENCY,
+                'generateByCronjob' => false,
+            ],
+        ], Context::createDefaultContext());
+
+        return $id;
+    }
+
+    protected function getSalesChannelDomainId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('sales_channel_domain.repository');
+
+        return $repository->search(new Criteria(), $this->context)->first()->getId();
+    }
+
+    private function createProductStream($salesChannelId): string
+    {
+        /** @var EntityRepositoryInterface $streamRepository */
+        $streamRepository = $this->getContainer()->get('product_stream.repository');
+        $id = Uuid::randomHex();
+        $randomProductIds = implode('|', array_column($this->createProducts($salesChannelId), 'id'));
+
+        $streamRepository->create([
+            [
+                'id' => $id,
+                'filters' => [
+                    [
+                        'type' => 'equalsAny',
+                        'field' => 'id',
+                        'value' => $randomProductIds,
+                    ],
+                ],
+                'name' => 'testStream',
+            ],
+        ], Context::createDefaultContext());
+
+        return $id;
+    }
+
+    private function createProducts($salesChannelId): array
+    {
+        $products = [];
+
+        for ($i = 0; $i < 3; ++$i) {
+            $products[] = $this->getProductData($salesChannelId);
+        }
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        return $products;
+    }
+
+    private function getProductData(string $salesChannelId): array
+    {
+        $price = random_int(0, 10);
+
+        return [
+            'id' => Uuid::randomHex(),
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'Test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price, 'linked' => false]],
+            'manufacturer' => ['id' => Uuid::randomHex(), 'name' => 'test'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
+            'visibilities' => [
+                ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
     }
 
     private function initGoogleAccountData(string $id, array $credential, ?string $salesChannelId): array

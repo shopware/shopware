@@ -87,6 +87,10 @@ class GoogleShoppingRequestValueResolver implements ArgumentValueResolverInterfa
     {
         $criteria = new Criteria([$salesChannelId]);
         $criteria->addAssociation('googleShoppingAccount.googleShoppingMerchantAccount');
+        $criteria->addAssociation('productExports.currency');
+        $criteria->addAssociation('productExports.salesChannelDomain');
+        $criteria->addAssociation('productExports.storefrontSalesChannel.shippingMethod');
+        $criteria->addAssociation('productExports.storefrontSalesChannel.country');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 

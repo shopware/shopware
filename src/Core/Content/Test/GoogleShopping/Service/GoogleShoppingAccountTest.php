@@ -145,7 +145,6 @@ class GoogleShoppingAccountTest extends TestCase
         static::assertEquals($newCredential->normalize(), $account->first()->getCredential()->normalize());
 
         static::assertArrayHasKey(GoogleAccountCredentialRefreshedEvent::class, $this->events);
-        /** @var GoogleAccountCredentialRefreshedEvent $credentialRefreshedEvent */
         $credentialRefreshedEvent = $this->events[GoogleAccountCredentialRefreshedEvent::class];
         static::assertInstanceOf(GoogleAccountCredentialRefreshedEvent::class, $credentialRefreshedEvent);
 
@@ -180,7 +179,6 @@ class GoogleShoppingAccountTest extends TestCase
 
         static::assertEquals(0, $account->count());
         static::assertArrayHasKey(GoogleAccountCredentialDeletedEvent::class, $this->events);
-        /** @var GoogleAccountCredentialRefreshedEvent $credentialRefreshedEvent */
         $credentialRefreshedEvent = $this->events[GoogleAccountCredentialDeletedEvent::class];
         static::assertInstanceOf(GoogleAccountCredentialDeletedEvent::class, $credentialRefreshedEvent);
 

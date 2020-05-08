@@ -3,14 +3,14 @@
 namespace Shopware\Core\Content\Test\GoogleShopping\Client;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource;
+use Shopware\Core\Content\GoogleShopping\Client\Adapter\SiteVerificationResource;
 use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient;
-use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory;
+use Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingSiteVerificationFactory;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use function Flag\skipTestNext6050;
 
-class GoogleShoppingContentFactoryTest extends TestCase
+class GoogleShoppingSiteVerificationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use GoogleShoppingIntegration;
@@ -20,15 +20,15 @@ class GoogleShoppingContentFactoryTest extends TestCase
         skipTestNext6050($this);
     }
 
-    public function testCreateContentAccountResource(): void
+    public function testCreateSiteVerificationResource(): void
     {
         /** @var GoogleShoppingClient $googleShoppingClient */
         $googleShoppingClient = $this->getContainer()->get('google_shopping_client');
 
-        $factory = new GoogleShoppingContentFactory($googleShoppingClient);
+        $factory = new GoogleShoppingSiteVerificationFactory($googleShoppingClient);
 
-        $googleContentAccountResource = $factory->createContentAccountResource();
+        $siteVerificationResource = $factory->createSiteVerificationResource();
 
-        static::assertInstanceOf(GoogleShoppingContentAccountResource::class, $googleContentAccountResource);
+        static::assertInstanceOf(SiteVerificationResource::class, $siteVerificationResource);
     }
 }

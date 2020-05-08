@@ -14,7 +14,6 @@ Module.register('sw-settings-google-shopping', {
     color: '#9AA8B5',
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
-    entity: 'store_settings',
 
     routes: {
         index: {

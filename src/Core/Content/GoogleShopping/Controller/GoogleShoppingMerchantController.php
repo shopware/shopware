@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\GoogleShopping\Controller;
 
+use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountEntity;
 use Shopware\Core\Content\GoogleShopping\Exception\AlreadyConnectedGoogleMerchantAccountException;
 use Shopware\Core\Content\GoogleShopping\Exception\ConnectedGoogleAccountNotFoundException;
 use Shopware\Core\Content\GoogleShopping\Exception\ConnectedGoogleMerchantAccountNotFoundException;
@@ -51,20 +52,26 @@ class GoogleShoppingMerchantController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/merchant/info", name="api.google-shopping.merchant.get", methods={"GET"})
+     * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/merchant/info", name="api.google-shopping.merchant.info", methods={"GET"})
      */
     public function getInfo(GoogleShoppingRequest $googleShoppingRequest): JsonResponse
     {
-        if (!$googleShopping = $googleShoppingRequest->getGoogleShoppingAccount()) {
-            throw new ConnectedGoogleAccountNotFoundException();
-        }
-
-        if (!$merchantAccount = $googleShopping->getGoogleShoppingMerchantAccount()) {
-            throw new ConnectedGoogleMerchantAccountNotFoundException();
-        }
+        $merchantAccount = $this->validateMerchantAccountConnected($googleShoppingRequest);
 
         return new JsonResponse([
             'data' => $this->merchantAccountService->getInfo($merchantAccount->getMerchantId()),
+        ]);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/merchant/status", name="api.google-shopping.merchant.status", methods={"GET"})
+     */
+    public function getStatus(GoogleShoppingRequest $googleShoppingRequest): JsonResponse
+    {
+        $merchantAccount = $this->validateMerchantAccountConnected($googleShoppingRequest);
+
+        return new JsonResponse([
+            'data' => $this->merchantAccountService->getStatus($merchantAccount->getMerchantId()),
         ]);
     }
 
@@ -73,9 +80,7 @@ class GoogleShoppingMerchantController extends AbstractController
      */
     public function list(GoogleShoppingRequest $googleShoppingRequest): JsonResponse
     {
-        if (!$googleShoppingRequest->getGoogleShoppingAccount()) {
-            throw new ConnectedGoogleAccountNotFoundException();
-        }
+        $this->validateGoogleAccountConnected($googleShoppingRequest);
 
         return new JsonResponse([
             'data' => $this->merchantAccountService->list(),
@@ -93,13 +98,16 @@ class GoogleShoppingMerchantController extends AbstractController
             throw new MissingRequestParameterException('merchantId');
         }
 
-        if (!$shoppingAccount = $googleShoppingRequest->getGoogleShoppingAccount()) {
-            throw new ConnectedGoogleAccountNotFoundException();
-        }
+        $shoppingAccount = $this->validateGoogleAccountConnected($googleShoppingRequest);
 
         if ($shoppingAccount->getGoogleShoppingMerchantAccount()) {
             throw new AlreadyConnectedGoogleMerchantAccountException();
         }
+
+        $salesChannel = $googleShoppingRequest->getSalesChannel();
+        $siteUrl = $salesChannel->getProductExports()->first()->getSalesChannelDomain()->getUrl();
+
+        $this->merchantAccountService->updateWebsiteUrl($googleMerchantId, $siteUrl);
 
         $merchantAccountId = $this->merchantAccountService->create(
             $googleMerchantId,
@@ -117,17 +125,9 @@ class GoogleShoppingMerchantController extends AbstractController
      */
     public function unassign(GoogleShoppingRequest $googleShoppingRequest): JsonResponse
     {
-        if (!$shoppingAccount = $googleShoppingRequest->getGoogleShoppingAccount()) {
-            throw new ConnectedGoogleAccountNotFoundException();
-        }
+        $merchantAccount = $this->validateMerchantAccountConnected($googleShoppingRequest);
 
-        $merchantAccountDb = $shoppingAccount->getGoogleShoppingMerchantAccount();
-
-        if (!$merchantAccountDb) {
-            throw new ConnectedGoogleMerchantAccountNotFoundException();
-        }
-
-        $merchantAccountId = $merchantAccountDb->getId();
+        $merchantAccountId = $merchantAccount->getId();
 
         $this->merchantAccountService->delete($merchantAccountId, $googleShoppingRequest->getContext());
 
@@ -137,19 +137,23 @@ class GoogleShoppingMerchantController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/merchant/claim-url", name="api.google-shopping.merchant.claim-url", methods={"POST"})
+     */
+    public function claimWebsiteUrl(GoogleShoppingRequest $googleShoppingRequest): JsonResponse
+    {
+        $merchantAccount = $this->validateMerchantAccountConnected($googleShoppingRequest);
+
+        return new JsonResponse([
+            'data' => $this->merchantAccountService->claimWebsiteUrl($merchantAccount->getMerchantId(), true),
+        ]);
+    }
+
+    /**
      * @Route("/api/v{version}/_action/sales-channel/{salesChannelId}/google-shopping/merchant/update", name="api.google-shopping.merchant.update", methods={"POST"})
      */
     public function update(GoogleShoppingRequest $googleShoppingRequest, Request $request): JsonResponse
     {
-        if (!$shoppingAccount = $googleShoppingRequest->getGoogleShoppingAccount()) {
-            throw new ConnectedGoogleAccountNotFoundException();
-        }
-
-        $merchantAccountDb = $shoppingAccount->getGoogleShoppingMerchantAccount();
-
-        if (!$merchantAccountDb) {
-            throw new ConnectedGoogleMerchantAccountNotFoundException();
-        }
+        $merchantAccountDb = $this->validateMerchantAccountConnected($googleShoppingRequest);
 
         $this->validateUpdateAccountParameters($request);
 
@@ -163,15 +167,7 @@ class GoogleShoppingMerchantController extends AbstractController
      */
     public function setupShipping(GoogleShoppingRequest $googleShoppingRequest, Request $request): JsonResponse
     {
-        if (!$shoppingAccount = $googleShoppingRequest->getGoogleShoppingAccount()) {
-            throw new ConnectedGoogleAccountNotFoundException();
-        }
-
-        $merchantAccountDb = $shoppingAccount->getGoogleShoppingMerchantAccount();
-
-        if (!$merchantAccountDb) {
-            throw new ConnectedGoogleMerchantAccountNotFoundException();
-        }
+        $merchantAccountDb = $this->validateMerchantAccountConnected($googleShoppingRequest);
 
         $this->validateShippingSettingParameters($request);
 
@@ -195,5 +191,25 @@ class GoogleShoppingMerchantController extends AbstractController
         $validation->add('country', new NotBlank(), new Type('string'));
         $validation->add('adultContent', new Type('boolean'));
         $this->validator->validate($request->request->all(), $validation);
+    }
+
+    private function validateMerchantAccountConnected(GoogleShoppingRequest $googleShoppingRequest): GoogleShoppingMerchantAccountEntity
+    {
+        $shoppingAccount = $this->validateGoogleAccountConnected($googleShoppingRequest);
+
+        if (!$merchantAccount = $shoppingAccount->getGoogleShoppingMerchantAccount()) {
+            throw new ConnectedGoogleMerchantAccountNotFoundException();
+        }
+
+        return $merchantAccount;
+    }
+
+    private function validateGoogleAccountConnected(GoogleShoppingRequest $googleShoppingRequest)
+    {
+        if (!$shoppingAccount = $googleShoppingRequest->getGoogleShoppingAccount()) {
+            throw new ConnectedGoogleAccountNotFoundException();
+        }
+
+        return $shoppingAccount;
     }
 }

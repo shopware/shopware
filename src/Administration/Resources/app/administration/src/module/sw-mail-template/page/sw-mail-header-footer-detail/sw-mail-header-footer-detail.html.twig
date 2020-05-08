@@ -14,7 +14,7 @@
                         class="sw-mail-header-footer-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="mailHeaderFooter.isLoading"
+                        :disabled="isLoading"
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
@@ -33,7 +33,7 @@
         {% endblock %}
 
         {% block sw_mail_header_footer_detail_content %}
-            <template #content>
+            <template #content v-if="mailHeaderFooter">
                 <sw-card-view sidebar>
                     {% block sw_mail_header_footer_detail_content_language_info %}
                         <sw-language-info
@@ -62,14 +62,12 @@
                             {% endblock %}
 
                             {% block sw_mail_header_footer_basic_form_sales_channels_field %}
-                                <sw-select id="salesChannels"
-                                            multi
-                                            :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
-                                            :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"
-                                            :associationStore="salesChannelAssociationStore"
-                                            :store="salesChannelStore"
-                                            v-model="mailHeaderFooter.salesChannels">
-                                </sw-select>
+                                <sw-entity-multi-select
+                                    id="salesChannels"
+                                    v-model="mailHeaderFooter.salesChannels"
+                                    :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
+                                    :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')">
+                                </sw-entity-multi-select>
                             {% endblock %}
                         </sw-card>
                     {% endblock %}

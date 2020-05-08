@@ -55,10 +55,6 @@ Component.register('sw-mail-template-detail', {
             return this.repositoryFactory.create('mail_template_sales_channel');
         },
 
-        mailTemplateSalesChannelAssociationStore() {
-            return this.mailTemplate.getAssociation('salesChannels');
-        },
-
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -421,6 +417,10 @@ Component.register('sw-mail-template-detail', {
             this.mediaRepository.get(targetId, Shopware.Context.api).then((mediaItem) => {
                 this.createMailTemplateMediaAssoc(mediaItem);
             });
+        },
+
+        onMediaDrop(media) {
+            this.successfulUpload({ targetId: media.id });
         },
 
         createMailTemplateMediaAssoc(mediaItem) {

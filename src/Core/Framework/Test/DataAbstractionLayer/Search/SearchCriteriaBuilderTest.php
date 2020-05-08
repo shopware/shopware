@@ -391,7 +391,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $gotError = false;
 
         try {
-            $this->fakeHandleRequest($maxLimit, [], $params);
+            $this->fakeHandleRequest($maxLimit, $params);
         } catch (SearchRequestException $e) {
             $errors = $e->getErrors();
             $current = $errors->current();
@@ -431,11 +431,11 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function fakeHandleRequest(int $maxLimit = 0, array $allowedLimits = [], array $params = []): Criteria
+    private function fakeHandleRequest(int $maxLimit = 0, array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
         $apiVersionConverter = $this->getContainer()->get(ApiVersionConverter::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit, $allowedLimits);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit);
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

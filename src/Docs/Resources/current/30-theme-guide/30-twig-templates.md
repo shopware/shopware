@@ -80,13 +80,13 @@ $ cd custom/plugins/MyTheme
 $ mkdir -p src/Resources/app/storefront/views/layout/header
 
 # create a new file
-$ touch src/Resources/app/storefront/views/layout/header/logo.html.twig
+$ touch src/Resources/views/storefront/layout/header/logo.html.twig
 ```
 
 Then we extend the existing file through the `sw_extends` command.
 
 ```twig
-# src/Resources/app/storefront/views/layout/header/logo.html.twig
+# src/Resources/views/storefront/layout/header/logo.html.twig
 
 {% sw_extends '@Storefront/storefront/layout/header/logo.html.twig' %}
 ```

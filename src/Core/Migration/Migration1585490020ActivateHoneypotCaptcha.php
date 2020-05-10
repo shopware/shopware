@@ -6,11 +6,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 
 class Migration1585490020ActivateHoneypotCaptcha extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.activeCaptchas';
+    
+    private const CAPTCHA_NAME = 'honeypot';
 
     public function getCreationTimestamp(): int
     {
@@ -29,7 +30,7 @@ class Migration1585490020ActivateHoneypotCaptcha extends MigrationStep
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => sprintf('{"_value": ["%s"]}', HoneypotCaptcha::CAPTCHA_NAME),
+            'configuration_value' => sprintf('{"_value": ["%s"]}', self::CAPTCHA_NAME),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

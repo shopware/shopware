@@ -4,7 +4,7 @@ import swPromotionDetailState from './state';
 import IndividualCodeGenerator from '../../service/individual-code-generator.service';
 import entityHydrator from '../../helper/promotion-entity-hydrator.helper';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
@@ -60,10 +60,6 @@ Component.register('sw-promotion-detail', {
 
         repositoryIndividualCodes() {
             return this.repositoryFactory.create('promotion_individual_code');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         tooltipSave() {
@@ -141,7 +137,7 @@ Component.register('sw-promotion-detail', {
         createdComponent() {
             this.isLoading = true;
             if (!this.promotionId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                Shopware.State.commit('context/resetLanguageToDefault');
                 this.promotion = this.promotionRepository.create(Shopware.Context.api);
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);

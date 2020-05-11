@@ -16,8 +16,8 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
 
     methods: {
         createdComponent() {
-            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                Shopware.State.commit('context/resetLanguageToDefault');
             }
 
             if (this.$route.params.id) {

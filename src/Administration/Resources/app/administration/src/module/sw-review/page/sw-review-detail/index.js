@@ -51,6 +51,13 @@ Component.register('sw-review-detail', {
             }
 
             return 5;
+        },
+        languageCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
         }
     },
 

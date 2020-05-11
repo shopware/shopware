@@ -51,6 +51,64 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
     * Refactored sw-mail-template
         * Replaced store with repositories    
+            * Replaced store with repositories    
+    * Added `google-auth.service` to support Google OAuth 2.0
+    * Added `google-shopping.api.service` to handle Google Shopping API
+        * Added method `connectGoogle`
+        * Added method `disconnectGoogle`
+        * Added method `disconnectGoogle`
+        * Added method `getMerchantList`
+        * Added method `assignMerchant`
+        * Added method `unassignMerchant`
+    * Refactor `sw-language-info` to context language
+    * Refactor `sw-language-switch` to context language
+    * Remove unused `languageStore` from `sw-page`
+    * Add `initPost` method which starts the `languageAutoFetchingService`
+    * Add the service `languageAutoFetchingService` for fetching automatically the active language
+    * Refactor `placeholder.mixin` to context language
+    * Add language features to Context State
+    	* Mutation `setApiLanguageId`
+    	* Mutation `resetLanguageToDefault`
+    	* Getter `isSystemDefaultLanguage`
+    * Deprecated LanguageStore
+    * Refactor `sw-category-detail` to context language
+    * Refactor `sw-cms-create` to context language
+    * Refactor `sw-cms-detail` to context language
+    * Refactor `sw-cms-list` to context language
+    * Refactor `sw-customer-create` to context language
+    * Refactor `sw-mail-header-footer-create` to context language
+    * Refactor `sw-mail-template-create` to context language
+    * Refactor `sw-mail-template-detail` to context language
+    * Refactor `sw-mail-template-index` to context language
+    * Refactor `sw-manufacturer-detail` to context language
+    * Refactor `sw-newsletter-recipient-list` to context language
+    * Refactor `sw-order-promotion-tag-field` to context language
+    * Refactor `sw-order-create-base` to context language
+    * Refactor `sw-plugin-list` to context language
+    * Refactor `sw-product-basic-form` to context language
+    * Refactor `sw-products-variants-generator` to context language
+    * Refactor `sw-product-detail` to context language
+    * Refactor `sw-product-list` to context language
+    * Refactor `sw-promotion-detail` to context language
+    * Refactor `sw-property-create` to context language
+    * Refactor `sw-review-detail` to context language
+    * Refactor `sw-sales-channel-google-introduction` to context language
+    * Refactor `sw-sales-channel-create` to context language
+    * Refactor `sw-settings-country-list` to context language
+    * Refactor `sw-settings-currency-detail` to context language
+    * Refactor `sw-settings-currency-list` to context language
+    * Refactor `sw-settings-customer-group-detail` to context language
+    * Refactor `sw-settings-delivery-time-create` to context language
+    * Refactor `sw-settings-language-detail` to context language
+    * Refactor `sw-settings-number-range-create` to context language
+    * Refactor `sw-settings-payment-create` to context language
+    * Refactor `sw-settings-payment-list` to context language
+    * Refactor `sw-settings-salutation-detail` to context language
+    * Refactor `sw-settings-shipping-detail` to context language
+    * Refactor `sw-settings-shipping-list` to context language
+    * Refactor `sw-settings-shopware-updates-wizard` to context language
+    * Refactor `sw-settings-user-detail` to context language
+
              
 * Core    
 

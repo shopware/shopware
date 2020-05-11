@@ -151,15 +151,13 @@
                         class="sw-review-properties">
                     {% block sw_review_detail_basic_info_card_description_list %}
                         {% block sw_review_detail_description_list_language %}
-                            <sw-select
-                                    :label="$tc('sw-review.detail.labelLanguage')"
-                                    id="language"
-                                    :store="languageStore"
-                                    v-model="review.languageId"
-                                    :showSearch="false"
-                                    required
-                                    sortField="name">
-                            </sw-select>
+                            <sw-entity-single-select v-model="review.languageId"
+                                                     entity="language"
+                                                     :label="$tc('sw-review.detail.labelLanguage')"
+                                                     required
+                                                     :criteria="languageCriteria"
+                                                     id="language">
+                            </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_review_detail_description_list_status %}

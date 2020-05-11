@@ -36,18 +36,17 @@
             </sw-modal>
         {% endblock %}
         {% block sw_language_switch_select %}
-            <sw-select
-                    class="sw-language-switch__select"
-                    :disabled="disabled"
-                    id="language"
-                    @input="onInput"
-                    ref="languageSelect"
-                    required
-                    :showSearch="false"
-                    v-model="languageId"
-                    sortField="name"
-                    :store="languageStore">
-            </sw-select>
+            <sw-entity-single-select
+                class="sw-language-switch__select"
+                entity="language"
+                :disabled="disabled"
+                id="language"
+                :criteria="languageCriteria"
+                size="medium"
+                required
+                @input="onInput"
+                :value="languageId"">
+            </sw-entity-single-select>
         {% endblock %}
     </div>
 {% endblock %}

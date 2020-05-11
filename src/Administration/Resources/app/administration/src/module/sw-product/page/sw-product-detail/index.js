@@ -3,7 +3,7 @@ import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
@@ -72,10 +72,6 @@ Component.register('sw-product-detail', {
 
             // return name
             return this.placeholder(this.product, 'name', this.$tc('sw-product.detail.textHeadline'));
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         productRepository() {
@@ -206,8 +202,8 @@ Component.register('sw-product-detail', {
             // when create
             if (!this.productId) {
                 // set language to system language
-                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                    Shopware.State.commit('context/resetLanguageToDefault');
                 }
             }
 
@@ -370,7 +366,7 @@ Component.register('sw-product-detail', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.initState();
         },
 

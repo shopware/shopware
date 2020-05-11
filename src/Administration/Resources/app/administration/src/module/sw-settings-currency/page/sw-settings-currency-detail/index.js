@@ -1,6 +1,6 @@
 import template from './sw-settings-currency-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-currency-detail', {
@@ -43,10 +43,6 @@ Component.register('sw-settings-currency-detail', {
     computed: {
         identifier() {
             return this.placeholder(this.currency, 'name');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         currencyRepository() {
@@ -99,7 +95,7 @@ Component.register('sw-settings-currency-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.currency = this.currencyRepository.create(Shopware.Context.api);
             this.isLoading = false;
         },

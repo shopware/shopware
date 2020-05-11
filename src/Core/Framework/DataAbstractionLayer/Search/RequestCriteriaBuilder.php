@@ -32,11 +32,6 @@ class RequestCriteriaBuilder
     private $maxLimit;
 
     /**
-     * @var int[]
-     */
-    private $allowedLimits;
-
-    /**
      * @var AggregationParser
      */
     private $aggregationParser;
@@ -46,10 +41,9 @@ class RequestCriteriaBuilder
      */
     private $apiVersionConverter;
 
-    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit, array $availableLimits = [])
+    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit)
     {
         $this->maxLimit = $maxLimit;
-        $this->allowedLimits = $availableLimits;
         $this->aggregationParser = $aggregationParser;
         $this->apiVersionConverter = $apiVersionConverter;
     }
@@ -68,14 +62,6 @@ class RequestCriteriaBuilder
     public function getMaxLimit(): int
     {
         return $this->maxLimit;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 - The `shopware.api.allowed_limits` config will be removed
-     */
-    public function getAllowedLimits(): array
-    {
-        return $this->allowedLimits;
     }
 
     public function toArray(Criteria $criteria): array

@@ -193,9 +193,10 @@ Component.register('sw-order-list', {
 
         getVariantFromPaymentState(order) {
             let technicalName = order.transactions.last().stateMachineState.technicalName;
+            // set the payment status to the first transaction that is not cancelled
             for (let i = 0; i < order.transactions.length; i += 1) {
                 if (order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
-                    technicalName = order.stateMachineState.technicalName;
+                    technicalName = order.transactions[i].stateMachineState.technicalName;
                 }
             }
             return this.stateStyleDataProviderService.getStyle(

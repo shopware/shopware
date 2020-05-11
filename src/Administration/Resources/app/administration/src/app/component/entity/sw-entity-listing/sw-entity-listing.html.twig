@@ -3,9 +3,15 @@
 {% endblock %}
 
 {% block sw_data_grid_bulk_selected_actions_content %}
-    <a class="link link-danger" @click="showBulkDeleteModal = true">
-        {{ $tc('global.default.delete') }}
-    </a>
+    <sw-single-select
+            style="width: 25%;display: inline-block;"
+            size="medium"
+            @change="bulkAction"
+            :options="selectOptions"
+            labelProperty="label"
+            valueProperty="value"
+    >
+    </sw-single-select>
 {% endblock %}
 
 {% block sw_data_grid_slot_bulk_modals %}
@@ -27,6 +33,78 @@
             <slot name="bulk-modal-delete-items">
                 <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
                     {{ $tc('global.default.delete') }}
+                </sw-button>
+            </slot>
+        </template>
+    </sw-modal>
+
+    <sw-modal v-else-if="showBulkActivateModal"
+              @modal-close="showBulkActivateModal = false"
+              :title="$tc('global.entity-components.activateTitle')"
+              variant="small">
+        <p class="sw-data-grid__confirm-bulk-activate-text">
+            {{ $tc('global.entity-components.activateMessage', selectionCount, { count: selectionCount }) }}
+        </p>
+
+        <template #modal-footer>
+            <slot name="bulk-modal-cancel">
+                <sw-button @click="showBulkActivateModal = false" size="small">
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+            </slot>
+
+            <slot name="bulk-modal-activate-items">
+                <sw-button @click="activateItems" variant="primary" size="small" :isLoading="isBulkLoading">
+                    {{ $tc('global.default.activate') }}
+                </sw-button>
+            </slot>
+        </template>
+    </sw-modal>
+
+    <sw-modal v-else-if="showBulkDeactivateModal"
+              @modal-close="showBulkDeactivateModal = false"
+              :title="$tc('global.entity-components.deactivateTitle')"
+              variant="small">
+        <p class="sw-data-grid__confirm-bulk-deactivate-text">
+            {{ $tc('global.entity-components.deactivateMessage', selectionCount, { count: selectionCount }) }}
+        </p>
+
+        <template #modal-footer>
+            <slot name="bulk-modal-cancel">
+                <sw-button @click="showBulkDeactivateModal = false" size="small">
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+            </slot>
+
+            <slot name="bulk-modal-deactivate-items">
+                <sw-button @click="deactivateItems" variant="primary" size="small" :isLoading="isBulkLoading">
+                    {{ $tc('global.default.deactivate') }}
+                </sw-button>
+            </slot>
+        </template>
+    </sw-modal>
+
+    <sw-modal v-else-if="showBulkAssignRemoveCategoriesModal"
+              @modal-close="showBulkAssignRemoveCategoriesModal = false"
+              :title="$tc('global.entity-components.assignRemoveCategoriesTitle')"
+              variant="small">
+
+        <sw-category-tree-field :categoriesCollection="selectedCategories ? currentValue : []"
+                                class="sw-product-detail__select-category"
+                                key="id"
+                                :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
+        </sw-category-tree-field>
+
+        <template #modal-footer>
+            <slot name="bulk-modal-cancel">
+                <sw-button @click="showBulkDeactivateModal = false" size="small">
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+            </slot>
+
+            <slot name="bulk-modal-assignRemoveCategories-items">
+                <sw-button @click="showBulkAssignRemoveCategoriesModal" variant="primary" size="small" :isLoading="isBulkLoading">
+                    {{ $tc('global.default.apply') }}
                 </sw-button>
             </slot>
         </template>

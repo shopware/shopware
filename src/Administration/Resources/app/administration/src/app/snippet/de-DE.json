@@ -12,6 +12,8 @@
       "apply": "Anwenden",
       "cancel": "Abbrechen",
       "delete": "Löschen",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
       "edit": "Bearbeiten",
       "error": "Fehler",
       "warning": "Warnung",
@@ -111,6 +113,11 @@
     "entity-components": {
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",
+      "activateMessage": "Sind Sie sicher, dass Sie dieses Produkt aktivieren möchten? | Sind Sie sicher, dass Sie diese {count} Produkte aktivieren möchten?\n",
+      "activateTitle": "Eintrag Aktivieren",
+      "deactivateMessage": "Sind Sie sicher, dass Sie dieses Produkt deaktivieren möchten? | Sind Sie sicher, dass Sie diese {count} Produkte deaktivieren möchten?\n",
+      "deactivateTitle": "Eintrag deaktivieren",
+      "assignRemoveCategoriesTitle": "Assign / Remove Categories on entry",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
       "labelRemoveAssociation": "Zuweisung aufheben"
     },

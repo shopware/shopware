@@ -2,6 +2,12 @@ import template from './sw-entity-listing.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const bulkActionOptions = {
+    delete: "delete",
+    activate: "activate",
+    deactivate: "deactivate",
+    assignRemoveCategories: "assignRemoveCategories",
+}
 
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
@@ -61,12 +67,34 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
     data() {
         return {
+            selectedCategories: null,
             deleteId: null,
             showBulkDeleteModal: false,
+            showBulkActivateModal: false,
+            showBulkDeactivateModal: false,
+            showBulkAssignRemoveCategoriesModal: false,
             isBulkLoading: false,
             page: 1,
             limit: this.criteriaLimit,
-            total: 10
+            total: 10,
+            selectOptions: [
+                {
+                    value: bulkActionOptions.delete,
+                    label: "Delete"
+                },
+                {
+                    value: bulkActionOptions.activate,
+                    label: "Activate"
+                },
+                {
+                    value: bulkActionOptions.deactivate,
+                    label: "Deactivate"
+                },
+                {
+                    value: bulkActionOptions.assignRemoveCategories,
+                    label: "Assign / Remove categories"
+                },
+            ]
         };
     },
 
@@ -77,6 +105,23 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
     },
 
     methods: {
+        bulkAction(event) {
+            switch (event) {
+                case bulkActionOptions.delete:
+                    this.showBulkDeleteModal = true;
+                    break;
+                case bulkActionOptions.activate:
+                    this.showBulkActivateModal = true;
+                    break;
+                case bulkActionOptions.deactivate:
+                    this.showBulkDeactivateModal = true;
+                    break;
+                case bulkActionOptions.assignRemoveCategories:
+                    this.showBulkAssignRemoveCategoriesModal = true;
+                    break;
+            }
+        },
+
         createdComponent() {
             this.$super('createdComponent');
 
@@ -107,6 +152,81 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             });
         },
 
+        deactivateItems() {
+            this.isBulkLoading = true;
+            const promises = [];
+
+            Object.values(this.selection).forEach((selectedProxy) => {
+                selectedProxy.active = false;
+                promises.push(this.repository.save(
+                    selectedProxy,
+                    this.items.context)
+                );
+            });
+
+            return Promise.all(promises).then(() => {
+                return this.bulkDeactivateActionFinish();
+            }).catch(() => {
+                return this.bulkDeactivateActionFinish();
+            });
+        },
+
+        bulkDeactivateActionFinish() {
+            this.showBulkDeactivateModal = false;
+            this.$emit('items-deactivate-finish');
+            return this.bulkActionFinish();
+        },
+
+        activateItems() {
+            this.isBulkLoading = true;
+            const promises = [];
+
+            Object.values(this.selection).forEach((selectedProxy) => {
+                selectedProxy.active = true;
+                promises.push(this.repository.save(
+                    selectedProxy,
+                    this.items.context)
+                );
+            });
+
+            return Promise.all(promises).then(() => {
+                return this.bulkActivateActionFinish();
+            }).catch(() => {
+                return this.bulkActivateActionFinish();
+            });
+        },
+
+        bulkActivateActionFinish() {
+            this.showBulkActivateModal = false;
+            this.$emit('items-activate-finish');
+            return this.bulkActionFinish();
+        },
+
+        assignRemoveCategoriesItems() {
+            this.isBulkLoading = true;
+            const promises = [];
+
+            Object.values(this.selection).forEach((selectedProxy) => {
+                selectedProxy.active = true;
+                promises.push(this.repository.save(
+                    selectedProxy,
+                    this.items.context)
+                );
+            });
+
+            return Promise.all(promises).then(() => {
+                return this.bulkAssignRemoveCategoriesActionFinish();
+            }).catch(() => {
+                return this.bulkAssignRemoveCategoriesActionFinish();
+            });
+        },
+
+        bulkAssignRemoveCategoriesActionFinish() {
+            this.showBulkAssignRemoveCategoriesModal = false;
+            // this.$emit('items-activate-finish');
+            return this.bulkActionFinish();
+        },
+
         deleteItems() {
             this.isBulkLoading = true;
             const promises = [];
@@ -116,17 +236,21 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             });
 
             return Promise.all(promises).then(() => {
-                return this.deleteItemsFinish();
+                return this.bulkDeleteActionFinish();
             }).catch(() => {
-                return this.deleteItemsFinish();
+                return this.bulkDeleteActionFinish();
             });
         },
 
-        deleteItemsFinish() {
-            this.resetSelection();
-            this.isBulkLoading = false;
+        bulkDeleteActionFinish() {
             this.showBulkDeleteModal = false;
             this.$emit('items-delete-finish');
+            return this.bulkActionFinish();
+        },
+
+        bulkActionFinish() {
+            this.resetSelection();
+            this.isBulkLoading = false;
 
             return this.doSearch();
         },

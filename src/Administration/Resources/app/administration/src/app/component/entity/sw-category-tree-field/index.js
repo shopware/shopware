@@ -131,7 +131,8 @@ Component.register('sw-category-tree-field', {
         },
 
         selectedCategoriesItemsIds() {
-            return this.categoriesCollection.getIds();
+            return "2fa8ee89507f4189ae9d976ea39936b6"
+            // return this.categoriesCollection.getIds();
         },
 
         selectedCategoriesPathIds() {
@@ -173,6 +174,7 @@ Component.register('sw-category-tree-field', {
 
             // search for categories
             return this.globalCategoryRepository.search(categoryCriteria, Shopware.Context.api).then((searchResult) => {
+                console.log(searchResult)
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;

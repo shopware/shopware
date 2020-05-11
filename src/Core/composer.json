@@ -24,9 +24,9 @@
             "Flag/feature_next7399.php"
         ]
     },
-    "config": {
-        "platform": {
-            "php": "7.2.9"
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.3.x-dev"
         }
     },
     "require": {
@@ -140,6 +140,9 @@
         "symfony/symfony": "*"
     },
     "config": {
+        "platform": {
+           "php": "7.2.9"
+        },
         "preferred-install": {
             "*": "dist"
         },

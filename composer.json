@@ -16,7 +16,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.2.x-dev"
+            "dev-master": "6.3.x-dev"
         }
     },
     "config": {

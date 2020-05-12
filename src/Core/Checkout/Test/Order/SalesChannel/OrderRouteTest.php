@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
@@ -47,7 +46,7 @@ class OrderRouteTest extends TestCase
     private $customerRepository;
 
     /**
-     * @var EntityRepositoryInterface|null
+     * @var object|null
      */
     private $orderRepository;
 
@@ -191,14 +190,13 @@ class OrderRouteTest extends TestCase
 
     public function testSetPaymentOrder(): void
     {
-        $paymentMethodId = $this->getValidPaymentMethodId();
         $this->browser
             ->request(
                 'POST',
                 '/store-api/v1/order/payment',
                 [
                     'orderId' => $this->orderId,
-                    'paymentMethodId' => $paymentMethodId,
+                    'paymentMethodId' => $this->getValidPaymentMethodId(),
                 ]
             );
 
@@ -206,14 +204,6 @@ class OrderRouteTest extends TestCase
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
-
-        $criteria = new Criteria([$this->orderId]);
-        $criteria->addAssociation('transactions');
-
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
-
-        static::assertEquals($paymentMethodId, $order->getTransactions()->last()->getPaymentMethodId());
     }
 
     public function testSetPaymentOrderWrongPayment(): void

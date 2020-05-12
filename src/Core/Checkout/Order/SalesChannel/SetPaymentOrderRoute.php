@@ -112,6 +112,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');
 
+        $criteria = new Criteria();
+
         if ($salesChannelContext->getCustomer() === null) {
             throw new CustomerNotLoggedInException();
         }

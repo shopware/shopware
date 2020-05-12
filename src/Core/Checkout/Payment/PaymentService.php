@@ -97,9 +97,6 @@ class PaymentService
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
         } catch (PaymentProcessException $e) {
             $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context->getContext());
-            if ($errorUrl !== null) {
-                return new RedirectResponse($errorUrl);
-            }
 
             throw $e;
         }

@@ -3,6 +3,7 @@ import './sw-language-info.scss';
 
 const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @public
@@ -110,7 +111,7 @@ Component.register('sw-language-info', {
         // Watch the id because of ajax loading
         'language.name': {
             handler() {
-                this.refreshParentLanguage();
+                this.refreshParentLanguage().catch(error => warn(error));
             }
         }
     },

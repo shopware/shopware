@@ -12,6 +12,7 @@
                     <template slot="modal-footer">
                         {% block sw_language_switch_footer_button_close %}
                             <sw-button @click="onCloseChangesModal"
+                                       id="sw-language-switch-close-button"
                                        size="small">
                                 {{ $tc('global.default.cancel') }}
                             </sw-button>
@@ -19,6 +20,7 @@
 
                         {% block sw_language_switch_footer_button_revert %}
                             <sw-button @click="onClickRevertUnsavedChanges"
+                                       id="sw-language-switch-revert-changes-button"
                                        size="small">
                                 {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
                             </sw-button>
@@ -26,6 +28,7 @@
 
                         {% block sw_language_switch_footer_button_save %}
                             <sw-button @click="onClickSaveChanges"
+                                       id="sw-language-switch-save-changes-button"
                                        variant="primary"
                                        size="small">
                                 {{ $tc('global.default.save') }}

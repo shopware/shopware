@@ -52,7 +52,6 @@ export default {
             localStorage.setItem('sw-admin-current-language', newLanguageId);
         },
 
-        // TODO: add getter and mutation for resetting the language id
         resetLanguageToDefault(state) {
             state.api.languageId = state.api.systemLanguageId;
         }

@@ -372,7 +372,7 @@ class SalesChannelCartController extends AbstractController
             $lineItem->setCover($cover);
         }
 
-        if ($requestDataBag->get('priceDefinition') !== null && array_key_exists(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES, $context->getPermissions())) {
+        if ($requestDataBag->get('priceDefinition') !== null && $context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             $priceDefinition = $requestDataBag->get('priceDefinition')->all();
             $priceDefinitionType = $this->initPriceDefinition($context->getContext(), $priceDefinition, $lineItem->getType());
             $lineItem->setPriceDefinition($priceDefinitionType);

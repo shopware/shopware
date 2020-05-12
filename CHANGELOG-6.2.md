@@ -512,6 +512,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
     * Added possibility to delete orders without documents on `sw-order-list`
+    * Added possibility to have assets on a remote filesystem like S3
 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations

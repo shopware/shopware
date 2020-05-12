@@ -46,5 +46,19 @@
         <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch">
             <tag name="shopware.filesystem.plugin" />
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Command\AssetsPublishCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService" />
+            <argument type="service" id="kernel" />
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Command\MediaPublishCommand">
+            <argument type="service" id="shopware.filesystem.public" />
+            <argument>%kernel.project_dir%/public</argument>
+
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

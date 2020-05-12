@@ -47,6 +47,7 @@
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
             <argument type="service" id="assets.packages"/>
+            <argument>%shopware.cdn.url%</argument>
         </service>
 
         <!-- Database / Doctrine -->

@@ -63,6 +63,27 @@ shopware:
     strategy: "md5"
 ```
 
+After you changed your configuration you can use the command `bin/console media:publish` to upload all local media
+and thumbnails to your remote filesystem.
+
+## Assets
+
+As you want your JS and CSS files as well as other static assets to be also served from your CDN and remote filesystem,
+you have to set the following in your `config/packages/symfony.yml`:
+
+```yaml
+framework:
+  assets:
+    base_urls:
+      - "https://s3.{your-bucket-region}.amazonaws.com/{your-private-bucket-name}"
+```
+
+as well.
+
+Plugin assets are uploaded automatically if you install a plugin. 
+
+But to ensure that all files are present, you can use the `bin/console assets:remote:publish` command.
+
 ## AWS access
 
 Accessing the buckets is controlled through IAM, this means that your Shopware 6 instance needs 

@@ -21,7 +21,8 @@ before_install:
     - npm i -g npm@6.5.0
 
 install:
-    - if git show-ref --quiet refs/heads/$DEVELOPMENT_BRANCH; then echo "already on dev branch"; else git checkout -t origin/$DEVELOPMENT_BRANCH; git checkout $TRAVIS_BRANCH; fi
+    # checkout current branch to fix composer issue
+    - git checkout ${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
     - echo "ALTER USER 'travis'@'localhost' IDENTIFIED BY 'travis';" | mysql -u root
     - zip -rqm platform.zip .
     - git clone --branch $DEVELOPMENT_BRANCH https://github.com/shopware/development.git

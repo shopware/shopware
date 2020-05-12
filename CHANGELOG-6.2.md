@@ -13,6 +13,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
+    * Added property `popoverClasses` to `sw-select-result-list` and `sw-single-select`
     * Fixed broken promotion exclusion configuration in `sw-promotion-basic-form`
 
 

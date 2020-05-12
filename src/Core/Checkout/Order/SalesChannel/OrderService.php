@@ -92,6 +92,11 @@ class OrderService
     private $documentService;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
+
+    /**
      * @param ValidationServiceInterface|DataValidationFactoryInterface $orderValidationFactory
      */
     public function __construct(
@@ -105,7 +110,8 @@ class OrderService
         EntityRepositoryInterface $mailTemplateRepository,
         EntityRepositoryInterface $documentRepository,
         MailServiceInterface $mailService,
-        DocumentService $documentService
+        DocumentService $documentService,
+        EntityRepositoryInterface $salesChannelRepository
     ) {
         $this->dataValidator = $dataValidator;
         $this->orderValidationFactory = $orderValidationFactory;
@@ -118,6 +124,7 @@ class OrderService
         $this->documentRepository = $documentRepository;
         $this->mailService = $mailService;
         $this->documentService = $documentService;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     /**
@@ -458,6 +465,16 @@ class OrderService
             $data->set('binAttachments', $documents);
         }
 
+        // getting the correct sales channel domain with the help of the languageId of the order
+        $languageId = $order->getLanguageId();
+        $salesChannelCriteria = new Criteria([$order->getSalesChannel()->getId()]);
+        $salesChannelCriteria->getAssociation('domains')
+            ->addFilter(
+                new EqualsFilter('languageId', $languageId)
+            );
+
+        $salesChannel = $this->salesChannelRepository->search($salesChannelCriteria, $context)->first();
+
         $this->mailService->send(
             $data->all(),
             $context,
@@ -465,7 +482,7 @@ class OrderService
                 'order' => $order,
                 'previousState' => $fromPlace,
                 'newState' => $toPlace,
-                'salesChannel' => $order->getSalesChannel(),
+                'salesChannel' => $salesChannel,
             ]
         );
 

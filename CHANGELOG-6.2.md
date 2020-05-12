@@ -482,6 +482,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder::getAllowedLimits`
     * Deprecated `shopware.api.allowed_limits` configuration
     * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm` 
+    * Allow additional sorting after the `_score` sorting when using a search term or score query in `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria`
+
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

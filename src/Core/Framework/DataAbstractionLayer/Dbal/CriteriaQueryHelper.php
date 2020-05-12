@@ -205,9 +205,8 @@ trait CriteriaQueryHelper
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as _score');
 
-        if (empty($criteria->getSorting())) {
-            $query->addOrderBy('_score', 'DESC');
-        }
+        // Sort by _score primarily if the criteria has a score query or search term
+        $this->addSortings($definition, [new FieldSorting('_score', FieldSorting::DESCENDING)], $query, $context);
 
         $minScore = array_map(function (ScoreQuery $query) {
             return $query->getScore();

@@ -43,7 +43,8 @@ jobs:
     - name: Install Shopware
       run: |
         cd development
-        ./psh.phar init --DB_HOST=127.0.0.1 --DB_USER=root --DB_PASSWORD=shopware --SHOPWARE_ES_HOSTS=localhost:9200
+        cp platform/.github/.psh.yaml.override .
+        ./psh.phar init
      
     - name: Check Code
       run: |

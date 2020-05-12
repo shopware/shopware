@@ -98,11 +98,7 @@ class IndexerRegistry implements EventSubscriberInterface, IndexerRegistryInterf
         $indexers = $this->getIndexers();
 
         foreach ($indexers as $index => $indexer) {
-            if (!$lastIndexer) {
-                return $this->doPartial($indexer, $lastId, $index, $timestamp);
-            }
-
-            if ($lastIndexer === $indexer::getName()) {
+            if (!$lastIndexer || $lastIndexer === $indexer::getName()) {
                 return $this->doPartial($indexer, $lastId, $index, $timestamp);
             }
         }

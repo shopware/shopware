@@ -43,7 +43,7 @@
     "searchButton": "Search",
     "searchPlaceholder": "Search all categories...",
     "searchAllResults": "Show all search results",
-    "searchResults": "Results",
+    "searchResults": "{1} 1 Result|]1,Inf[ %count% Results",
     "supportInfo": "<strong>Do you have any questions regarding your order?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
     "indexLinkService": "Service/Help",
     "searchNoResult": "No results found."
@@ -426,7 +426,7 @@
     "success": "We have received your contact request and will process it as soon as possible."
   },
   "search": {
-    "headline": "%totalCount% products found for \"%searchTerm%\""
+    "headline": "{1} One product found for \"%searchTerm%\"|]1,Inf[ %count% products found for \"%searchTerm%\""
   },
   "detail": {
     "ordernumberLabel": "Order number: ",

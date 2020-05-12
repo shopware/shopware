@@ -43,7 +43,7 @@
     "searchButton": "Suchen",
     "searchPlaceholder": "Suchbegriff...",
     "searchAllResults": "Alle Ergebnisse anzeigen",
-    "searchResults": "Ergebnisse",
+    "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden."
@@ -427,7 +427,7 @@
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden diese schnellstmöglich bearbeiten."
   },
   "search": {
-    "headline": "Zu \"%searchTerm%\" wurden %totalCount% Produkt(e) gefunden"
+    "headline": "{1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden|]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden"
   },
   "detail": {
     "ordernumberLabel": "Produkt-Nr.:",

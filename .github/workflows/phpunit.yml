@@ -46,10 +46,11 @@ jobs:
     - name: Install Shopware
       run: |
         cd development
+        cp platform/.github/.psh.yaml.override .
         ./psh.phar init-composer
         if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
-        ./psh.phar init --DB_HOST=127.0.0.1 --DB_USER=root --DB_PASSWORD=shopware --SHOPWARE_ES_HOSTS=localhost:9200
+        ./psh.phar init
      
     - name: Run PHPUnit
       run: 'cd development; for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE"; done'

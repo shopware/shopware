@@ -489,6 +489,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
+    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm` 
+    * Allow additional sorting after the `_score` sorting when using a search term or score query in `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria`
+
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

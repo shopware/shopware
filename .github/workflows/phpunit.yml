@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEVELOPMENT_BRANCH: 6.2-BoostDay
+      TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
 
     steps:
     - name: Clone development
@@ -51,4 +52,4 @@ jobs:
         ./psh.phar init --DB_HOST=127.0.0.1 --DB_USER=root --DB_PASSWORD=shopware --SHOPWARE_ES_HOSTS=localhost:9200
      
     - name: Run PHPUnit
-      run: cd development && php -d memory_limit=-1 vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --exclude-group needsWebserver
+      run: 'cd development; for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE"; done'

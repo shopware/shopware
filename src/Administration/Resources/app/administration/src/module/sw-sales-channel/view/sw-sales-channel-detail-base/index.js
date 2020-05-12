@@ -1,13 +1,13 @@
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
+const { Component, Mixin, Context, Defaults, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-detail-base', {
     template,
@@ -87,7 +87,6 @@ Component.register('sw-sales-channel-detail-base', {
             invalidFileName: false,
             isFileNameChecking: false,
             disableGenerateByCronjob: false,
-            isGoogleAccountConnected: false,
             showGoogleProgramsModal: false
         };
     },
@@ -286,7 +285,16 @@ Component.register('sw-sales-channel-detail-base', {
             [
                 'customerGroupId',
                 'navigationCategoryId'
-            ])
+            ]),
+
+        ...mapState('swSalesChannel', [
+            'googleShoppingAccount',
+            'isLoadingMerchant'
+        ]),
+
+        ...mapGetters('swSalesChannel', [
+            'needToCompleteTheSetup'
+        ])
     },
 
     methods: {
@@ -472,15 +480,18 @@ Component.register('sw-sales-channel-detail-base', {
 
         onConnectToGoogle() {
             this.showGoogleProgramsModal = true;
-            this.isGoogleAccountConnected = true;
         },
 
         onCloseGoogleProgramsModal() {
             this.showGoogleProgramsModal = false;
         },
 
+        onNeedToCompleteTheSetup() {
+            this.showGoogleProgramsModal = true;
+        },
+
         onDisconnectToGoogle() {
-            this.isGoogleAccountConnected = false;
+            State.commit('swSalesChannel/removeGoogleShoppingAccount');
         }
     }
 });

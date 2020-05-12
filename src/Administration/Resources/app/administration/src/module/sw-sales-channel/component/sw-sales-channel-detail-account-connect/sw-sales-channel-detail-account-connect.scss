@@ -1,0 +1,41 @@
+@import "~scss/variables";
+@import "~scss/functions";
+
+$sw-sales-channel-detail-account-connect-content-gutter: 16px;
+$sw-sales-channel-detail-account-connect-content-image-size: 74px;
+
+.sw-sales-channel-detail {
+    .sw-card {
+        .sw-sales-channel-detail-account-connect {
+            &__title {
+                margin: 0 0 8px;
+                color: $color-darkgray-200;
+                font-size: $font-size-default;
+                font-weight: $font-weight-bold;
+            }
+
+            &__subtitle {
+                margin: 0 0 22px;
+                color: $color-darkgray-200;
+                font-size: $font-size-small;
+            }
+
+            &__content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: $sw-sales-channel-detail-account-connect-content-gutter;
+                border: 1px solid $color-gray-300;
+                border-radius: $border-radius-default;
+            }
+
+            &__content-image {
+                display: inline-block;
+                width: $sw-sales-channel-detail-account-connect-content-image-size;
+                height: $sw-sales-channel-detail-account-connect-content-image-size - ($sw-sales-channel-detail-account-connect-content-gutter * 2);
+                background: image('social-shopping/google.png') no-repeat 0 50%;
+                background-size: 100%;
+            }
+        }
+    }
+}

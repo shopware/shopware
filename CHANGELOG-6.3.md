@@ -13,7 +13,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Administration
     * Added custom `slot` to `sw-radio-field` component
-    * Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal 
+    * Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal
     * Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
         * Added `sw-sales-channel-google-introduction` to handle Google account authentication and connection
         * Added `sw-sales-channel-google-authentication` to show Google account profile and handle disconnect functionality
@@ -35,13 +35,21 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added method `getMerchantList`
         * Added method `assignMerchant`
         * Added method `unassignMerchant`
-             
-* Core    
+
+    * Added `products` children route in `sw.sales.channel.detail.base` route belonging to `sw-sales-channel` module to handle the content navigation of google shopping sales channel
+    * Added a `Products` navigator in `sw-sales-channel/page/sw-sales-channel-detail` to handle the redirection to the content belonging to `products` children route
+    * Added `sw-sales-channel-detail-products` component in `sw-sales-channel/view` to show the content belonging to `products` children route
+    * Modified `sw-sales-channel/view/sw-sales-channel-detail-base` to show the content belonging to only google shopping sales channel
+        * Added `isGoogleShopping` flag to distinguish between the content of google shopping sales channel with the others
+        * Added `sw-sales-channel-detail-account-connect` component to handle google connection
+        * Added `sw-sales-channel-detail-account-disconnect` component to show the google information and also handle google disconnection
+
+* Core
 
 * Storefront
     * Added plugin injection in hot mode
 
-    
+
 **Removals**
 
 * Administration

@@ -5,13 +5,16 @@ export default {
 
     state() {
         return {
-            googleShoppingAccount: null
+            googleShoppingAccount: null,
+            isLoadingMerchant: false,
+            merchantInfo: null,
+            merchantStatus: null
         };
     },
 
     mutations: {
-        setGoogleShoppingAccount(state, account) {
-            state.googleShoppingAccount = account;
+        setGoogleShoppingAccount(state, googleShoppingAccount) {
+            state.googleShoppingAccount = googleShoppingAccount;
         },
 
         setGoogleShoppingMerchantAccount(state, account) {
@@ -23,6 +26,18 @@ export default {
 
         removeGoogleShoppingAccount(state) {
             state.googleShoppingAccount = null;
+        },
+
+        setIsLoadingMerchant(state, isLoadingMerchant) {
+            state.isLoadingMerchant = isLoadingMerchant;
+        },
+
+        setMerchantInfo(state, merchantInfo) {
+            state.merchantInfo = merchantInfo;
+        },
+
+        setMerchantStatus(state, merchantStatus) {
+            state.merchantStatus = merchantStatus;
         }
     },
 

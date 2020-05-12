@@ -23,6 +23,8 @@
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
       "titleSaveError": "Fehler",
       "titleActivateError": "Aktivierungsfehler",
+      "titleFetchError": "Fehler",
+      "messageFetchMerchantError": "Beim Abrufen der Händlerdaten ist ein Fehler aufgetreten.",
       "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
       "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
       "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
@@ -236,7 +238,9 @@
       },
       "googleShoppingGeneral": {
         "title": "Wählen Sie eine Storefront für den Checkout-Prozess aus",
-        "description": "Für Verkaufskanäle ohne Storefront ist eine verknüpfte Storefront erforderlich, mit der die Kaufabwicklung abgeschlossen wird."
+        "description": "Für Vertriebskanäle ohne direkte Storefront ist das Verknüpfen einer funktionsfähigen Storefront dennoch erforderlich, um die Kaufabwicklung abschließen zu können.",
+        "titleSecond": "Wähle Produkte aus, die Du synchronisieren möchtest.",
+        "descriptionSecond": "Diese dynamische Produktgruppe wird verwendet, um Produkte mit Google zu synchronisieren."
       },
       "googleShoppingAccountConnect": {
         "title": "Verbinden Sie Ihr Google-Konto, um Google-Programme zu verwenden",
@@ -252,7 +256,18 @@
         "textGroupMerchant": "Merchant-Center-Konto:",
         "titleWebsite": "Deine Website ist mit Deinem Google-Merchant-Center-Konto verknüpft. Das Konto muss beansprucht worden sein, um Shopping-Anzeigen zu schalten.",
         "textGroupWebsite": "Webseite:"
-      }
+      },
+      "textConnected": "Aktiv",
+      "textNotConnected": "Nicht verbunden",
+      "textClaimed": "Beansprucht",
+      "textNotclaimed": "Nicht beansprucht",
+      "textNoAccountConnected": "Kein Konto verbunden",
+      "textNoWebsiteClaimed": "Keine Website beansprucht",
+      "textCompleteSetupBefore": "Du musst",
+      "textCompleteSetup": "das Setup des Google-Kontos abschließen,",
+      "textCompleteSetupAfter": "um Produkte zu synchronisieren.",
+      "textIssuesBefore": "Ihr Konto wurde aus folgendem Grund gesperrt:",
+      "textIssuesAfter": "Sie müssen dieses Problem beheben, damit Ihre Produkte bei Google angezeigt werden."
     },
     "modalGooglePrograms": {
       "title": "Google-Konto verbinden",

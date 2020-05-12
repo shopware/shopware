@@ -1,0 +1,77 @@
+@import "~scss/variables";
+
+.sw-sales-channel-detail {
+    .sw-card {
+        .sw-sales-channel-detail-account-disconnect {
+            &__title {
+                margin: 0 0 8px;
+                color: $color-darkgray-200;
+                font-size: $font-size-default;
+                font-weight: $font-weight-bold;
+            }
+
+            &__subtitle {
+                margin: 0 0 22px;
+                color: $color-darkgray-200;
+                font-size: $font-size-small;
+            }
+
+            &__content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                border: 1px solid $color-gray-300;
+                border-radius: $border-radius-default;
+            }
+
+            &__profiles {
+                display: flex;
+            }
+
+            &__profiles-info {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                margin-left: 16px;
+            }
+
+            &__profiles-name {
+                margin: 0;
+                line-height: 14px;
+                font-size: $font-size-small;
+                font-weight: $font-weight-semi-bold;
+            }
+
+            &__profiles-email {
+                font-size: $font-size-small;
+            }
+
+            &__label {
+                display: flex;
+                align-items: center;
+                margin: 0;
+                font-weight: $font-weight-semi-bold;
+                line-height: 12px;
+            }
+
+            &__label-badge {
+                margin: 0;
+            }
+
+            &__label-text {
+                margin-left: 4px;
+            }
+
+            &__text-group {
+                max-width: 75%;
+                font-size: $font-size-small;
+                word-break: break-all;
+            }
+
+            &__text-group-highlight {
+                font-weight: $font-weight-semi-bold;
+            }
+        }
+    }
+}

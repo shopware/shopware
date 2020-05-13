@@ -43,7 +43,7 @@ We will set one of the following labels which indicate the status of the pull re
 | ![GitHub label accepted](./img/github-label-accepted.png)     | Your changes are finally accepted. The pull request passed our internal workflow. Your changes will be released with one of the next releases.                                                                                                                                                                                                           |
 
 <div class="alert is--warning">
-    Important: The label "Incomplete" means that you have to take action! After the label was added you have up to two weeks to update the pull request and provide the missing information or implementation. If there is no reaction from you within that two weeks the pull request can be declined due to inactivity.
+    Important: The label "Incomplete" means that you have to take action! After your pull request has this label assigned, you have up to two weeks to update the pull request and provide the missing information or implementation. If there is no reaction from you within those two weeks, your pull request can be declined due to inactivity. This procedure ensures there are no orphaned pull requests in the backlog.
 </div>
 
 ## Why a pull request gets declined

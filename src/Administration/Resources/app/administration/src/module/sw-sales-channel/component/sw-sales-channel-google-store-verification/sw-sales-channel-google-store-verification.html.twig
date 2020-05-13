@@ -1,0 +1,46 @@
+{% block sw_sales_channel_google_store_verification %}
+    <div class="sw-sales-channel-google-store-verification">
+        {% block sw_sales_channel_google_store_verification %}
+            <div class="sw-sales-channel-google-store-verification__top">
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-4.titleGeneral') }}</strong>
+
+                {% block sw_sales_channel_google_store_verification_items %}
+                    <div class="sw-sales-channel-google-store-verification__checked-list">
+                         <div
+                            v-for="(item, index) in items"
+                            :key="index"
+                            class="sw-sales-channel-google-store-verification__checked-item">
+
+                             <sw-label
+                                    appearance="circle"
+                                    :variant="item.status">
+                                  <sw-icon
+                                          class="sw-sales-channel-google-store-verification__checked-item-icon"
+                                          :name="getIconName(item.status)"
+                                          size="16px">
+                                  </sw-icon>
+                             </sw-label>
+
+                             <span class="sw-sales-channel-google-store-verification__checked-item-description">
+                                   {{ item.description }}
+                                 <sw-sales-channel-detail-protect-link
+                                         v-if="item.status === `danger`"
+                                         :href="item.errorLink"
+                                        class="sw-sales-channel-google-store-verification__checked-item-link"
+                                 >
+                                    {{ $tc('sw-sales-channel.modalGooglePrograms.step-4.textFixHere') }}
+                                 </sw-sales-channel-detail-protect-link>
+                             </span>
+                         </div>
+                    </div>
+                {% endblock %}
+
+                {% block sw_sales_channel_google_store_verification_checkagain_button %}
+                    <sw-button variant="ghost" size="small" :isLoading="isLoading" @click="verifyStore">
+                        {{ $tc('sw-sales-channel.modalGooglePrograms.step-4.buttonCheckAgain') }}
+                    </sw-button>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -27,7 +27,11 @@ import './component/sw-sales-channel-google-programs-modal';
 import './component/sw-sales-channel-google-introduction';
 import './component/sw-sales-channel-google-authentication';
 import './component/sw-sales-channel-google-merchant';
+import './component/sw-sales-channel-google-store-verification';
+import './component/sw-sales-channel-google-website-verification';
+import './component/sw-sales-channel-google-terms-verification';
 import './component/sw-sales-channel-google-shipping-setting';
+import './component/sw-sales-channel-google-done-verification';
 
 const { Module } = Shopware;
 
@@ -66,9 +70,25 @@ Module.register('sw-sales-channel', {
                             component: 'sw-sales-channel-google-merchant',
                             path: 'step-3'
                         },
+                        'step-4': {
+                            component: 'sw-sales-channel-google-store-verification',
+                            path: 'step-4'
+                        },
+                        'step-5': {
+                            component: 'sw-sales-channel-google-website-verification',
+                            path: 'step-5'
+                        },
+                        'step-6': {
+                            component: 'sw-sales-channel-google-terms-verification',
+                            path: 'step-6'
+                        },
                         'step-7': {
                             component: 'sw-sales-channel-google-shipping-setting',
                             path: 'step-7'
+                        },
+                        'step-8': {
+                            component: 'sw-sales-channel-google-done-verification',
+                            path: 'step-8'
                         }
                     }
                 },

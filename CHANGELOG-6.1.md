@@ -13,7 +13,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Storefront
     * `window.accessKey` and `window.contexToken` are no longer available. The tokens will be fetched by ajax.
-    * Added new `window.apiAccessUr` which contains the url for the `frontend.api-access` route.
+    * Added new `window.apiAccessUrl` which contains the url for the `frontend.api-access` route.
 
 ### 6.1.5
 

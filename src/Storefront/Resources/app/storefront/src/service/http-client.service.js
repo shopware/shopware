@@ -160,6 +160,10 @@ export default class HttpClient {
         });
     }
 
+    _sendPostRequest(request, callback, data) {
+        return this._sendRequest(request, data, callback);
+    }
+
     _sendRequest(request, data, callback) {
         this._registerOnLoaded(request, callback);
 

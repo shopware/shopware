@@ -10,7 +10,11 @@
         .sw-help-text {
             position: absolute;
             top: 38px;
-            right: 18px
+            right: 18px;
         }
+    }
+
+    .sw-settings-document-detail__form-field-renderer {
+        margin-bottom: 22px;
     }
 }

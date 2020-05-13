@@ -24,7 +24,8 @@
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
-      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
+      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
+      "messageDeleteSuccess": "\"{name}\" wurde erfolgreich gelöscht."
     },
     "notification-center": {
       "title": "Mitteilungen",

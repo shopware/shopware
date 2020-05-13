@@ -109,6 +109,17 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactor `sw-settings-shopware-updates-wizard` to context language
     * Refactor `sw-settings-user-detail` to context language
 
+    * Added `products` children route in `sw.sales.channel.detail.base` route belonging to `sw-sales-channel` module to handle the content navigation of google shopping sales channel
+    * Added a `Products` navigator in `sw-sales-channel/page/sw-sales-channel-detail` to handle the redirection to the content belonging to `products` children route
+    * Added `sw-sales-channel-detail-products` component in `sw-sales-channel/view` to show the content belonging to `products` children route
+    * Modified `sw-sales-channel/view/sw-sales-channel-detail-base` to show the content belonging to only google shopping sales channel
+        * Added `isGoogleShopping` flag to distinguish between the content of google shopping sales channel with the others
+        * Added `sw-sales-channel-detail-account-connect` component to handle google connection
+        * Added `sw-sales-channel-detail-account-disconnect` component to show the google information and also handle google disconnection
+
+* Core
+    * Refactored data handling of `sw-settings-document` module
+        * Replaced store with repositories
              
 * Core    
 

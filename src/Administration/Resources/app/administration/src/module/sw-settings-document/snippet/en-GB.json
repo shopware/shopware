@@ -59,7 +59,10 @@
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "disabledSalesChannel": "There is already another document with the same type with this sales channel.",
+      "disabledSalesChannelSelect": "Choose a document type first.",
+      "disabledTypeSelect": "The type of global documents cannot be changed."
     }
   }
 }

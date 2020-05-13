@@ -1,6 +1,5 @@
 import './page/sw-settings-document-list';
 import './page/sw-settings-document-detail';
-import './page/sw-settings-document-create';
 
 const { Module } = Shopware;
 
@@ -27,10 +26,13 @@ Module.register('sw-settings-document', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.document.index'
+            },
+            props: {
+                default: (route) => ({ documentConfigId: route.params.id })
             }
         },
         create: {
-            component: 'sw-settings-document-create',
+            component: 'sw-settings-document-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.document.index'

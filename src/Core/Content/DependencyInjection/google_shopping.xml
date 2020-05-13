@@ -60,6 +60,10 @@
             <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createShoppingContentShippingSettingResource"/>
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingDatafeedsResource">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createShoppingContentDatafeedsResource" />
+        </service>
+
         <!-- Services-->
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAuthenticator">
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
@@ -75,10 +79,18 @@
             <argument type="service" id="google_shopping_merchant_account.repository"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\SiteVerificationResource"/>
+            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting">
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentShippingSettingResource"/>
+            <argument type="service" id="sales_channel.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingDatafeed">
+            <argument type="service" id="google_shopping_merchant_account.repository"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingDatafeedsResource"/>
+            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <!-- Controllers-->
@@ -106,6 +118,25 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingDatafeedController" public="true">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingDatafeed"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <!-- subscriber -->
+        <service id="Shopware\Core\Content\GoogleShopping\Subscriber\DatafeedProductExportSubscriber">
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingAccount"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingClient"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingDatafeed"/>
+            <argument type="service" id="request_stack"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- argument_resolver -->

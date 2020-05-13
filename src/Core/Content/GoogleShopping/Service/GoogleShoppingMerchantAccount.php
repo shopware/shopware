@@ -5,10 +5,15 @@ namespace Shopware\Core\Content\GoogleShopping\Service;
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource;
 use Shopware\Core\Content\GoogleShopping\Client\Adapter\SiteVerificationResource;
 use Shopware\Core\Content\GoogleShopping\Exception\GoogleShoppingException;
+use Shopware\Core\Content\GoogleShopping\Exception\SalesChannelIsNotLinkedToProductExport;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 class GoogleShoppingMerchantAccount
@@ -28,14 +33,21 @@ class GoogleShoppingMerchantAccount
      */
     private $siteVerificationResource;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
+
     public function __construct(
         EntityRepositoryInterface $googleMerchantAccountRepository,
         GoogleShoppingContentAccountResource $contentAccountResource,
-        SiteVerificationResource $siteVerificationResource
+        SiteVerificationResource $siteVerificationResource,
+        EntityRepositoryInterface $salesChannelRepository
     ) {
         $this->googleMerchantAccountRepository = $googleMerchantAccountRepository;
         $this->contentAccountResource = $contentAccountResource;
         $this->siteVerificationResource = $siteVerificationResource;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public function getInfo(string $merchantId): array
@@ -88,6 +100,26 @@ class GoogleShoppingMerchantAccount
         $this->contentAccountResource->updateWebsiteUrl($merchantId, $merchantId, $websiteUrl);
     }
 
+    public function getSalesChannelDomain(string $salesChannelId, Context $context): SalesChannelDomainEntity
+    {
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('productExports.salesChannelDomain');
+
+        $productExport = $this->getProductExportsByCriteria($criteria, $salesChannelId, $context);
+
+        return $productExport->getSalesChannelDomain();
+    }
+
+    public function getStorefrontSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
+    {
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('productExports.storefrontSalesChannel');
+
+        $productExport = $this->getProductExportsByCriteria($criteria, $salesChannelId, $context);
+
+        return $productExport->getStorefrontSalesChannel();
+    }
+
     public function isSiteVerified(string $siteUrl, string $merchantId): bool
     {
         return !empty($this->automaticallyVerifySite($siteUrl, $merchantId)['id']);
@@ -101,6 +133,18 @@ class GoogleShoppingMerchantAccount
     public function update(Request $request, string $googleMerchantAccountId)
     {
         return $this->contentAccountResource->update($request, $googleMerchantAccountId, $googleMerchantAccountId);
+    }
+
+    private function getProductExportsByCriteria(Criteria $criteria, string $salesChannelId, Context $context): ProductExportEntity
+    {
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
+
+        if (!$salesChannel->getProductExports()->first()) {
+            throw new SalesChannelIsNotLinkedToProductExport();
+        }
+
+        return $salesChannel->getProductExports()->first();
     }
 
     private function automaticallyVerifySite(string $siteUrl, string $merchantId)

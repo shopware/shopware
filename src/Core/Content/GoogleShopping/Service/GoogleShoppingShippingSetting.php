@@ -7,6 +7,11 @@ use Shopware\Core\Content\GoogleShopping\Exception\SalesChannelHasNoDefaultCount
 use Shopware\Core\Content\GoogleShopping\Exception\SalesChannelHasNoDefaultShippingMethod;
 use Shopware\Core\Content\GoogleShopping\Exception\SalesChannelIsNotLinkedToProductExport;
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class GoogleShoppingShippingSetting
 {
@@ -15,26 +20,30 @@ class GoogleShoppingShippingSetting
      */
     private $googleShoppingContentShippingSettingResource;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
+
     public function __construct(
-        GoogleShoppingContentShippingSettingResource $googleShoppingContentShippingSettingResource
+        GoogleShoppingContentShippingSettingResource $googleShoppingContentShippingSettingResource,
+        EntityRepositoryInterface $salesChannelRepository
     ) {
         $this->googleShoppingContentShippingSettingResource = $googleShoppingContentShippingSettingResource;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public function update(GoogleShoppingRequest $googleShoppingRequest, string $merchantId, float $rate)
     {
-        $productExport = $googleShoppingRequest->getSalesChannel()->getProductExports()->first();
-        if (!$productExport) {
-            throw new SalesChannelIsNotLinkedToProductExport();
-        }
+        $storeFrontSaleChannel = $this->getStorefrontSalesChannel($googleShoppingRequest->getSalesChannel()->getId(), $googleShoppingRequest->getContext());
 
-        $shippingMethod = $productExport->getStorefrontSalesChannel()->getShippingMethod();
+        $shippingMethod = $storeFrontSaleChannel->getShippingMethod();
 
         if (!$shippingMethod) {
             throw new SalesChannelHasNoDefaultShippingMethod();
         }
 
-        $country = $productExport->getStorefrontSalesChannel()->getCountry();
+        $country = $storeFrontSaleChannel->getCountry();
         if (!$country) {
             throw new SalesChannelHasNoDefaultCountry();
         }
@@ -45,10 +54,34 @@ class GoogleShoppingShippingSetting
             $shippingMethod,
             $deliveryTimeInDays,
             $country->getIso(),
-            $productExport->getCurrency()->getIsoCode(),
+            $storeFrontSaleChannel->getCurrency()->getIsoCode(),
             $merchantId,
             $merchantId,
             $rate
         );
+    }
+
+    public function getStorefrontSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
+    {
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('productExports.storefrontSalesChannel.currency');
+        $criteria->addAssociation('productExports.storefrontSalesChannel.shippingMethod');
+        $criteria->addAssociation('productExports.storefrontSalesChannel.country');
+
+        $productExport = $this->getProductExportsByCriteria($criteria, $salesChannelId, $context);
+
+        return $productExport->getStorefrontSalesChannel();
+    }
+
+    private function getProductExportsByCriteria(Criteria $criteria, string $salesChannelId, Context $context): ProductExportEntity
+    {
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
+
+        if (!$salesChannel->getProductExports()->first()) {
+            throw new SalesChannelIsNotLinkedToProductExport();
+        }
+
+        return $salesChannel->getProductExports()->first();
     }
 }

@@ -105,7 +105,8 @@ class GoogleShoppingMerchantController extends AbstractController
         }
 
         $salesChannel = $googleShoppingRequest->getSalesChannel();
-        $siteUrl = $salesChannel->getProductExports()->first()->getSalesChannelDomain()->getUrl();
+
+        $siteUrl = $this->merchantAccountService->getSalesChannelDomain($salesChannel->getId(), $googleShoppingRequest->getContext())->getUrl();
 
         $this->merchantAccountService->updateWebsiteUrl($googleMerchantId, $siteUrl);
 

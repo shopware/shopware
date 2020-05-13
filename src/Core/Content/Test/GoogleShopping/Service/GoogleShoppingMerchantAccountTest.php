@@ -10,6 +10,7 @@ use Shopware\Core\Content\GoogleShopping\Exception\GoogleShoppingException;
 use Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount;
 use Shopware\Core\Content\Test\GoogleShopping\GoogleShoppingIntegration;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -41,10 +42,17 @@ class GoogleShoppingMerchantAccountTest extends TestCase
      */
     private $siteVerificationResource;
 
+    /**
+     * @var EntityRepositoryInterface|null
+     */
+    private $salesChannelRepository;
+
     protected function setUp(): void
     {
         skipTestNext6050($this);
         $this->repository = $this->getContainer()->get('google_shopping_merchant_account.repository');
+        $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
         $this->context = Context::createDefaultContext();
         $this->contentAccountResource = $this->createMock(GoogleShoppingContentAccountResource::class);
         $this->siteVerificationResource = $this->createMock(SiteVerificationResource::class);
@@ -56,7 +64,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
         $this->contentAccountResource->expects(static::once())->method('get')->with($merchantId)->willReturn(['storeName' => 'John Doe Store']);
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $merchantInfo = $merchantAccountService->getInfo($merchantId);
 
@@ -83,7 +91,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
             ],
         ]);
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $list = $merchantAccountService->list();
 
@@ -112,7 +120,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
         static::assertEquals(0, $account->count());
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $merchantAccountService->create(Uuid::randomHex(), $googleAccount['id'], $this->context);
 
@@ -134,7 +142,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
         static::assertEquals(1, $account->count());
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $merchantAccountService->delete($merchantId, $this->context);
 
@@ -145,7 +153,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
     public function testGetStatus(): void
     {
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $this->contentAccountResource->expects(static::exactly(3))->method('getStatus')->willReturnMap([
             [
@@ -221,7 +229,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
             ],
         ]);
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $status = $merchantAccountService->isSiteVerified('https%3A%2F%shopware.test%2F', '123123');
 
@@ -232,7 +240,7 @@ class GoogleShoppingMerchantAccountTest extends TestCase
     {
         $this->siteVerificationResource->expects(static::once())->method('get')->with('https%3A%2F%not_shopware.test%2F')->willThrowException(new GoogleShoppingException('Site is not verified', 403));
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource);
+        $merchantAccountService = new GoogleShoppingMerchantAccount($this->repository, $this->contentAccountResource, $this->siteVerificationResource, $this->salesChannelRepository);
 
         $status = $merchantAccountService->isSiteVerified('https%3A%2F%not_shopware.test%2F', '123123');
 

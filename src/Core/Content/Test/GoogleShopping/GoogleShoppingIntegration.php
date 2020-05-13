@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\GoogleShopping;
 
+use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountEntity;
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingRequest;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use function Flag\next6050;
@@ -37,6 +39,18 @@ trait GoogleShoppingIntegration
             'id' => $id,
             'accountId' => $accountId,
             'merchantId' => $merchantId,
+        ]], $this->context);
+
+        return $id;
+    }
+
+    public function updatetDatafeedtoMerchantAccount(string $datafeedId, string $id)
+    {
+        $merchantRepository = $this->getContainer()->get('google_shopping_merchant_account.repository');
+
+        $merchantRepository->update([[
+            'id' => $id,
+            'datafeedId' => $datafeedId,
         ]], $this->context);
 
         return $id;
@@ -134,6 +148,18 @@ trait GoogleShoppingIntegration
         ], Context::createDefaultContext());
 
         return $id;
+    }
+
+    public function getMerchantAccountEntity(array $googleAccount): GoogleShoppingMerchantAccountEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('accountId', $googleAccount['id']));
+
+        $merchantRepository = $this->getContainer()->get('google_shopping_merchant_account.repository');
+
+        $merchantAccount = $merchantRepository->search($criteria, $this->context)->first();
+
+        return $merchantAccount;
     }
 
     protected function getSalesChannelDomainId(): string

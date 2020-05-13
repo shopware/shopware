@@ -752,8 +752,20 @@
             <sw-sales-channel-google-programs-modal
                 v-if="showGoogleProgramsModal"
                 :salesChannel="salesChannel"
+                @on-disconnect-account="onDisconnectToGoogle"
                 @modal-close="onCloseGoogleProgramsModal">
             </sw-sales-channel-google-programs-modal>
+        {% endblock %}
+
+        {% block sw_sales_channel_modal_disconnect %}
+            <sw-sales-channel-modal-disconnect
+                v-if="showDisconnectModal"
+                :isDisconnectLoading="isDisconnectLoading"
+                :isDisconnectSuccessful="isDisconnectSuccessful"
+                @on-disconnect="onDisconnect"
+                @process-finish="onDisconnectSuccessful"
+                @modal-close="onCloseDisconnectModal">
+            </sw-sales-channel-modal-disconnect>
         {% endblock %}
     </div>
 {% endblock %}

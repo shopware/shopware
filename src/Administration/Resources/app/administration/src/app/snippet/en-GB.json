@@ -25,7 +25,8 @@
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
       "unspecifiedSaveErrorMessage": "An error occurred.",
       "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved.",
-      "messageDeleteSuccess": "\"{name}\" was deleted successfully."
+      "messageDeleteSuccess": "\"{name}\" was deleted successfully.",
+      "notificationFetchErrorMessage": "An error occurred while fetching data."
     },
     "notification-center": {
       "title": "Notifications",

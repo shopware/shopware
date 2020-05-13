@@ -4,6 +4,7 @@ import './component/sw-sales-channel-defaults-select';
 import './component/sw-sales-channel-modal';
 import './component/sw-sales-channel-modal-grid';
 import './component/sw-sales-channel-modal-detail';
+import './component/sw-sales-channel-modal-disconnect';
 
 import './component/sw-sales-channel-detail-domains';
 import './component/sw-sales-channel-detail-hreflang';

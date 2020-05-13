@@ -15,8 +15,11 @@
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
       "buttonCancel": "Abbrechen",
+      "buttonDisconnect": "Trennen",
       "titleDescription": "Informationen",
-      "messageNoProductStreams": "Um Produktvergleiche anzulegen, muss zunächst eine dynamische Produktgruppe erstellt werden."
+      "messageNoProductStreams": "Um Produktvergleiche anzulegen, musst Du zunächst eine dynamische Produktgruppe erstellen.",
+      "titleDisconnect": "Google-Konto trennen",
+      "textDisconnectDescription": "Möchtest Du Dein Google-Konto wirklich trennen? Wenn Du Dein Google-Konto trennst, werden auch Dein Google Merchant Center und Deine Google-Ads-Konten getrennt."
     },
     "detail": {
       "titleSaveSuccess": "Erfolg",
@@ -24,7 +27,6 @@
       "titleSaveError": "Fehler",
       "titleActivateError": "Aktivierungsfehler",
       "titleFetchError": "Fehler",
-      "messageFetchMerchantError": "Beim Abrufen der Händlerdaten ist ein Fehler aufgetreten.",
       "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
       "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
       "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",

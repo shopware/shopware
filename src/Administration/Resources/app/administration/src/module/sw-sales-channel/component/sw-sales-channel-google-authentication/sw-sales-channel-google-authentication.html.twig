@@ -18,15 +18,9 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_google_authentication_button_disconnect %}
-                    <sw-button-process size="small"
-                                       variant="ghost"
-                                       :disabled="isLoading || isProcessSuccessful"
-                                       :isLoading="isLoading"
-                                       :processSuccess="isProcessSuccessful"
-                                       @process-finish="processFinish"
-                                       @click.prevent="onDisconnectAccount">
+                    <sw-button size="small" variant="ghost" @click="$emit('on-disconnect-account')">
                         {{ $tc('sw-sales-channel.modalGooglePrograms.step-2.buttonDisconnect') }}
-                    </sw-button-process>
+                    </sw-button>
                 {% endblock %}
             </sw-card>
         {% endblock %}

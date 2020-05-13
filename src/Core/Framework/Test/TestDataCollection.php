@@ -36,11 +36,7 @@ class TestDataCollection
 
     public function get(string $key): ?string
     {
-        if (!isset($this->ids[$key])) {
-            throw new \RuntimeException(sprintf('Key %s does not exist', $key));
-        }
-
-        return $this->ids[$key];
+        return $this->create($key);
     }
 
     public function getList(array $keys): array

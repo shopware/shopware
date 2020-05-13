@@ -254,7 +254,7 @@ class ProductEntity extends Entity
     protected $mainVariantId;
 
     /**
-     * @var string|null
+     * @var array|null
      */
     protected $variantCharacteristics;
 
@@ -1064,12 +1064,12 @@ class ProductEntity extends Entity
         $this->mainVariantId = $mainVariantId;
     }
 
-    public function getVariantCharacteristics(): ?string
+    public function getVariantCharacteristics(): ?array
     {
         return $this->variantCharacteristics;
     }
 
-    public function setVariantCharacteristics(?string $variantCharacteristics): void
+    public function setVariantCharacteristics(?array $variantCharacteristics): void
     {
         $this->variantCharacteristics = $variantCharacteristics;
     }

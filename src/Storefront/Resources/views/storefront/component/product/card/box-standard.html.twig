@@ -85,7 +85,7 @@
 
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
-                                    {{ product.variantCharacteristics }}
+                                    {{ product.variantCharacteristics|join(' | ') }}
                                 </div>
                             {% endblock %}
 

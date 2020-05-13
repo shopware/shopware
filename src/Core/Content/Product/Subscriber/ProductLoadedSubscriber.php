@@ -39,18 +39,18 @@ class ProductLoadedSubscriber implements EventSubscriberInterface
                 foreach ($product->getConfiguratorGroupConfig() as $groupConfig) {
                     foreach ($product->getOptions() as $option) {
                         if ($groupConfig['id'] === $option->getGroupId()) {
-                            $parts[] = $option->getName();
+                            $parts[] = $option->getTranslation('name');
                         }
                     }
                 }
             } else {
                 // fallback - simply take all option names unordered
                 foreach ($product->getOptions() as $option) {
-                    $parts[] = $option->getName();
+                    $parts[] = $option->getTranslation('name');
                 }
             }
 
-            $product->setVariantCharacteristics(implode(' | ', $parts));
+            $product->setVariantCharacteristics($parts);
         }
     }
 }

@@ -262,7 +262,7 @@ class ProductDefinition extends EntityDefinition
 
         if (next7399()) {
             $collection->add(
-                (new StringField('variant_characteristics', 'variantCharacteristics'))->addFlags(new Runtime())
+                (new ListField('variant_characteristics', 'variantCharacteristics', StringField::class))->addFlags(new Runtime())
             );
         }
 

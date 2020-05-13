@@ -11,7 +11,7 @@
     "require": {
         "shopware/core": "*",
         "symfony/framework-bundle": "4.4.1",
-        "symfony/http-foundation": "4.4.1",
+        "symfony/http-foundation": "4.4.7",
         "symfony/routing": "4.4.1",
         "symfony/mime": "4.4.1"
     }

@@ -109,8 +109,9 @@
     {% block base_body_script %}
         {% block base_script_token %}
             <script>
-                window.accessKey = '{{ context.salesChannel.accessKey }}';
-                window.contextToken = '{{ context.token }}';
+                window.accessKey = '';
+                window.contextToken = '';
+                window.apiAccessUrl = "{{ url('frontend.api-access') }}";
             </script>
         {% endblock %}
 

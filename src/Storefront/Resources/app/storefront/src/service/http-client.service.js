@@ -2,13 +2,12 @@ export default class HttpClient {
 
     /**
      * Constructor.
-     * @param {string} accessKey
-     * @param {string} contextToken
      */
-    constructor(accessKey, contextToken) {
+    constructor() {
         this._request = null;
-        this._accessKey = accessKey;
-        this._contextToken = contextToken;
+        this._accessKey = '';
+        this._contextToken = '';
+        this.keys = null;
         this._csrfEnabled = window.csrf.enabled;
         this._csrfMode = window.csrf.mode;
         this._generateUrl = window.router['frontend.csrf.generateToken'];
@@ -39,9 +38,8 @@ export default class HttpClient {
      */
     get(url, callback, contentType = 'application/json') {
         const request = this._createPreparedRequest('GET', url, contentType);
-        this._registerOnLoaded(request, callback);
-        request.send();
-        return request;
+
+        return this._sendRequest(request, null, callback);
     }
 
     /**
@@ -69,30 +67,14 @@ export default class HttpClient {
                     data = JSON.stringify(data);
                 }
 
-                this._sendPostRequest(request, callback, data);
+                return this._sendRequest(request, data, callback);
             });
             return request;
         }
 
-        return this._sendPostRequest(request, callback, data);
+        return this._sendRequest(request, data, callback);
     }
 
-    _sendPostRequest(request, callback, data) {
-        this._registerOnLoaded(request, callback);
-
-        request.send(data);
-        return request;
-    }
-
-    fetchCsrfToken(callback) {
-        return this.post(
-            this._generateUrl,
-            null,
-            response => callback(JSON.parse(response)['token']),
-            'application/json',
-            false
-        );
-    }
 
     /**
      * Request DELETE
@@ -107,9 +89,8 @@ export default class HttpClient {
     delete(url, data, callback, contentType = 'application/json') {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('DELETE', url, contentType);
-        this._registerOnLoaded(request, callback);
-        request.send(data);
-        return request;
+
+        return this._sendRequest(request, data, callback);
     }
 
     /**
@@ -124,9 +105,8 @@ export default class HttpClient {
     patch(url, data, callback, contentType = 'application/json') {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('PATCH', url, contentType);
-        this._registerOnLoaded(request, callback);
-        request.send(data);
-        return request;
+
+        return this._sendRequest(request, data, callback);
     }
 
     /**
@@ -153,6 +133,59 @@ export default class HttpClient {
         request.addEventListener('loadend', () => {
             callback(request.responseText);
         });
+    }
+
+    _fetchAccessKey(callback) {
+        // keys already fetched? prevent unnecessary ajax request
+        if (this.keys !== null) {
+            callback(this.keys);
+            return;
+        }
+        if (!window.apiAccessUrl) {
+            callback(null);
+            return;
+        }
+
+        const request = new XMLHttpRequest();
+
+        request.open('GET', window.apiAccessUrl);
+        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        request.setRequestHeader('Content-type', 'application/json');
+        request.send();
+
+        // fetch api access (accessKey and context token) to add possibility to send store-api request
+        request.addEventListener('loadend', () => {
+            this.keys = JSON.parse(request.responseText);
+            callback(this.keys);
+        });
+    }
+
+    _sendPostRequest(request, callback, data) {
+        return this._sendRequest(request, data, callback);
+    }
+
+    _sendRequest(request, data, callback) {
+        this._registerOnLoaded(request, callback);
+
+        this._fetchAccessKey((keys) => {
+            if (keys !== null) {
+                request.setRequestHeader('sw-access-key', keys.accessKey);
+                request.setRequestHeader('sw-context-token', keys.token);
+            }
+            request.send(data);
+        });
+
+        return request;
+    }
+
+    fetchCsrfToken(callback) {
+        return this.post(
+            this._generateUrl,
+            null,
+            response => callback(JSON.parse(response)['token']),
+            'application/json',
+            false
+        );
     }
 
     /**
@@ -193,8 +226,6 @@ export default class HttpClient {
 
         this._request.open(type, url);
         this._request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        this._request.setRequestHeader('sw-access-key', this.accessKey);
-        this._request.setRequestHeader('sw-context-token', this.contextToken);
 
         if (contentType) {
             this._request.setRequestHeader('Content-type', contentType);

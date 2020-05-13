@@ -41,7 +41,7 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {number} delay
      */
     static setContent(url, data, callback, closable, delay) {
-        const client = new HttpClient(window.accessKey, window.contextToken);
+        const client = new HttpClient();
         super.setContent(`<div class="offcanvas-content-container">${LoadingIndicator.getTemplate()}</div>`, closable, delay);
 
         // interrupt already running ajax calls

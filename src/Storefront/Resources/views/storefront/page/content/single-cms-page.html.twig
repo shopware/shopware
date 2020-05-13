@@ -90,8 +90,9 @@
         {% block single_cms_page_body_script %}
             {% block single_cms_page_script_token %}
                 <script>
-                    window.accessKey = '{{ context.salesChannel.accessKey }}';
-                    window.contextToken = '{{ context.token }}';
+                    window.accessKey = '';
+                    window.contextToken = '';
+                    window.apiAccessUrl = "{{ url('frontend.api-access') }}";
                 </script>
             {% endblock %}
 

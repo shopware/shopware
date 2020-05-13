@@ -93,7 +93,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
 
     /**
      * if a automatic fixed price promotion (no code necessary) discount is removed
-     * it should be added automatically. => Deletion is not possible
+     * it should not be added again. This is a new feature - to block automatic promotions.
      *
      * @test
      * @group promotions
@@ -127,11 +127,11 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // and try to remove promotion
         $cart = $this->cartService->remove($cart, $discountId, $context);
 
-        static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
+        static::assertCount(1, $cart->getLineItems(), 'We expect 1 lineItem in cart');
 
-        static::assertEquals(40, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(40, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(33.61, $cart->getPrice()->getNetPrice(), 'Even after promotion delete try it should be present and product should be discounted');
+        static::assertEquals(100, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(100, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(84.03, $cart->getPrice()->getNetPrice(), 'Even after promotion delete try it should be present and product should be discounted');
     }
 
     /**

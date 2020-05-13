@@ -22,6 +22,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
  
     * Fixed the administration multi-inheritance if a component was overriden and extended by multiple components
+    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
@@ -734,10 +735,3 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
 
-
-### 6.2.1
-
-**Addition / Changes**
-
-* Administration
-    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index

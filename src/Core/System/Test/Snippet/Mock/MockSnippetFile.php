@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\Mock;
+namespace Shopware\Core\System\Test\Snippet\Mock;
 
 use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 

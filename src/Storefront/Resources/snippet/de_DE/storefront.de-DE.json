@@ -207,6 +207,7 @@
     "orderHeadline": "Bestellung:",
     "orderStatus": "Status:",
     "orderStatusActionRequired": "Bearbeitung notwendig",
+    "orderNumber": "Bestellnummer:",
     "orderShippingStatus": "Lieferstatus",
     "orderPaymentStatus": "Zahlungsstatus",
     "orderPaymentMethod": "Zahlungsart",

@@ -249,13 +249,18 @@ class SnippetService
         $snippets = [];
 
         foreach ($files as $file) {
-            $temp = $this->flatten(
-                json_decode(file_get_contents($file->getPath()), true) ?: []
-            );
+            $json = json_decode(file_get_contents($file->getPath()), true);
+
+            $jsonError = json_last_error();
+            if ($jsonError !== 0) {
+                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $file->getPath(), $jsonError));
+            }
+
+            $flattenSnippetFileSnippets = $this->flatten($json);
 
             $snippets = array_replace_recursive(
                 $snippets,
-                $temp
+                $flattenSnippetFileSnippets
             );
         }
 
@@ -279,8 +284,15 @@ class SnippetService
     {
         $result = [];
         foreach ($languageFiles as $snippetFile) {
+            $json = json_decode(file_get_contents($snippetFile->getPath()), true);
+
+            $jsonError = json_last_error();
+            if ($jsonError !== 0) {
+                throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $snippetFile->getPath(), $jsonError));
+            }
+
             $flattenSnippetFileSnippets = $this->flatten(
-                json_decode(file_get_contents($snippetFile->getPath()), true) ?: [],
+                $json,
                 '',
                 ['author' => $snippetFile->getAuthor(), 'id' => null, 'setId' => $setId]
             );

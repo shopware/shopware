@@ -10,7 +10,7 @@ export default class CartWidgetPlugin extends Plugin {
 
     init() {
 
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
 
         this.insertStoredContent();
         this.fetch();

@@ -2,19 +2,18 @@ export default class HttpClient {
 
     /**
      * Constructor.
-     * @param {string} accessKey
-     * @param {string} contextToken
      */
-    constructor(accessKey, contextToken) {
+    constructor() {
         this._request = null;
-        this._accessKey = accessKey;
-        this._contextToken = contextToken;
+        this._accessKey = '';
+        this._contextToken = '';
         this._csrfEnabled = window.csrf.enabled;
         this._csrfMode = window.csrf.mode;
         this._generateUrl = window.router['frontend.csrf.generateToken'];
     }
 
     /**
+     * @deprecated tag:v6.3.0 - Sales channel access key is no longer available in storefront templates
      * @returns {string}
      */
     get accessKey() {
@@ -22,6 +21,7 @@ export default class HttpClient {
     }
 
     /**
+     * @deprecated tag:v6.3.0 - Context token is no longer available in storefront templates
      * @returns {string}
      */
     get contextToken() {
@@ -193,8 +193,6 @@ export default class HttpClient {
 
         this._request.open(type, url);
         this._request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        this._request.setRequestHeader('sw-access-key', this.accessKey);
-        this._request.setRequestHeader('sw-context-token', this.contextToken);
 
         if (contentType) {
             this._request.setRequestHeader('Content-type', contentType);

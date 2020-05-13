@@ -17,7 +17,7 @@ export default class VariantSwitchPlugin extends Plugin {
     };
 
     init() {
-        this._httpClient = new HttpClient(window.accessKey, window.contextToken);
+        this._httpClient = new HttpClient();
         this._radioFields = DomAccess.querySelectorAll(this.el, this.options.radioFieldSelector);
 
         this._ensureFormElement();

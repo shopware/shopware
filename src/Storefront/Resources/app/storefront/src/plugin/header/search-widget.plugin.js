@@ -32,7 +32,7 @@ export default class SearchWidgetPlugin extends Plugin {
             return;
         }
 
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
 
         // initialize the arrow navigation
         this._navigationHelper = new ArrowNavigationHelper(

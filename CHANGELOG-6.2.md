@@ -664,10 +664,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix wrong behavior of switch fields, checkboxes and radio fields when clicking on the label
     * Moved bearerAuth location from localStorage to Cookies 
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
-
-* Core
-    *
-
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
@@ -714,3 +710,5 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_form_fields` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `page_checkout_confirm_payment_form_submit` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
+    * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`

@@ -22,7 +22,7 @@ export default class AjaxModalExtensionUtil {
      * Constructor.
      */
     constructor(modalBackdrop = true) {
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
         this.useModalBackdrop = modalBackdrop;
 
         this._registerEvents();

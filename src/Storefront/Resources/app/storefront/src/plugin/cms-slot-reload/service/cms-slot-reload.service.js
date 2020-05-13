@@ -54,7 +54,7 @@ export default class CmsSlotReloadService {
         }
 
         this._historyChanged = this._historyChanged || false;
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
 
         this._requestSlot();
     }

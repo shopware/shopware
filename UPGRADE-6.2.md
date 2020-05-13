@@ -339,6 +339,33 @@ Now the variable can be overwritten with `replace_recursive`:
 * If you use the `widgets.search.pagelet` route in your template, you have to replace this with `widgets.search.pagelet.v2`:
   * Before: `url('widgets.search.pagelet', { search: page.searchTerm })`
   * After: `url('widgets.search.pagelet.v2')`
+* It is no longer possible to send requests against the `sales-channel-api` with the `HttpClient`. You have to use the `StoreApiClient` for this:
+    * before: 
+        ```javascript
+        import Plugin from 'src/plugin-system/plugin.class';
+        import HttpClient from 'src/service/http-client.service';
+        
+        export default class MyStorefrontPlugin extends Plugin {
+            
+            init() {
+                this.client = new HttpClient();
+                this.client.get('sales-channel-api-route', response => {})
+            }
+        }
+        ```
+    * after:
+        ```javascript
+        import Plugin from 'src/plugin-system/plugin.class';
+        import StoreApiClient from 'src/service/store-api-client.service';
+        
+        export default class MyStorefrontPlugin extends Plugin {
+            
+            init() {
+                this.client = new StoreApiClient();
+                this.client.get('sales-channel-api-route', response => {});
+            }
+        }
+        ```
 
 Refactorings
 ------------

@@ -39,9 +39,8 @@ export default class HttpClient {
      */
     get(url, callback, contentType = 'application/json') {
         const request = this._createPreparedRequest('GET', url, contentType);
-        this._registerOnLoaded(request, callback);
-        request.send();
-        return request;
+
+        return this._sendRequest(request, null, callback);
     }
 
     /**
@@ -69,30 +68,14 @@ export default class HttpClient {
                     data = JSON.stringify(data);
                 }
 
-                this._sendPostRequest(request, callback, data);
+                return this._sendRequest(request, data, callback);
             });
             return request;
         }
 
-        return this._sendPostRequest(request, callback, data);
+        return this._sendRequest(request, data, callback);
     }
 
-    _sendPostRequest(request, callback, data) {
-        this._registerOnLoaded(request, callback);
-
-        request.send(data);
-        return request;
-    }
-
-    fetchCsrfToken(callback) {
-        return this.post(
-            this._generateUrl,
-            null,
-            response => callback(JSON.parse(response)['token']),
-            'application/json',
-            false
-        );
-    }
 
     /**
      * Request DELETE
@@ -107,9 +90,8 @@ export default class HttpClient {
     delete(url, data, callback, contentType = 'application/json') {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('DELETE', url, contentType);
-        this._registerOnLoaded(request, callback);
-        request.send(data);
-        return request;
+
+        return this._sendRequest(request, data, callback);
     }
 
     /**
@@ -124,9 +106,8 @@ export default class HttpClient {
     patch(url, data, callback, contentType = 'application/json') {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('PATCH', url, contentType);
-        this._registerOnLoaded(request, callback);
-        request.send(data);
-        return request;
+
+        return this._sendRequest(request, data, callback);
     }
 
     /**
@@ -153,6 +134,22 @@ export default class HttpClient {
         request.addEventListener('loadend', () => {
             callback(request.responseText);
         });
+    }
+
+    _sendRequest(request, data, callback) {
+        this._registerOnLoaded(request, callback);
+        request.send(data);
+        return request;
+    }
+
+    fetchCsrfToken(callback) {
+        return this.post(
+            this._generateUrl,
+            null,
+            response => callback(JSON.parse(response)['token']),
+            'application/json',
+            false
+        );
     }
 
     /**

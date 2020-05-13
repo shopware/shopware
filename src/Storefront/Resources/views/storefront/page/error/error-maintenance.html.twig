@@ -108,6 +108,7 @@
                     {# @deprecated tag:v6.3.0 accessKey and contextToken will be removed #}
                     window.accessKey = '';
                     window.contextToken = '';
+                    window.apiAccessUrl = "{{ url('frontend.api-access') }}";
                 </script>
             {% endblock %}
 

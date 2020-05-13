@@ -1,5 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import HttpClient from 'src/service/http-client.service';
+import StoreApiClient from 'src/service/store-api-client.service';
 import Storage from 'src/helper/storage/storage.helper';
 
 export default class CartWidgetPlugin extends Plugin {
@@ -10,7 +10,7 @@ export default class CartWidgetPlugin extends Plugin {
 
     init() {
 
-        this._client = new HttpClient();
+        this._client = new StoreApiClient();
 
         this.insertStoredContent();
         this.fetch();

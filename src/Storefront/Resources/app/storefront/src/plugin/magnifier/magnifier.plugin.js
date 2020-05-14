@@ -439,6 +439,7 @@ export default class MagnifierPlugin extends Plugin {
         this._zoomImage = this._zoomImageContainer.querySelector(`.${this.options.zoomImageClass}`);
 
         if (this._zoomImage) {
+            this._zoomImage.style.display = 'unset';
             return this._zoomImage;
         }
 
@@ -458,7 +459,7 @@ export default class MagnifierPlugin extends Plugin {
      */
     _removeZoomImage() {
         const zoomImages = document.querySelectorAll(`.${this.options.zoomImageClass}`);
-        Iterator.iterate(zoomImages, zoomImage => zoomImage.remove());
+        Iterator.iterate(zoomImages, zoomImage => zoomImage.style.display = 'none');
 
         this.$emitter.publish('removeZoomImage');
     }

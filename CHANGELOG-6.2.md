@@ -63,7 +63,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * This exception is thrown if the review routes are called if reviews are disabled
     * Added possibility to delete orders without documents on `sw-order-list`
     * Fixed a type error in the `\Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository` in a sorting closure
-    
+    * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
+    * Added possibility to delete orders without documents on `sw-order-list`
+    * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
+ 
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`
     * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
@@ -75,6 +78,13 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed alphanumeric filter product numbers in the quick add action
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
+    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+        * page_checkout_aside_actions_csrf
+        * page_checkout_aside_actions_payment_method_id
+        * page_checkout_confirm_form_submit
+    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+    * Removed alphanumeric filter product numbers in the quick add action
+    * If all variants are expanded in the listing display the buy button
 
 ### 6.2.0
 

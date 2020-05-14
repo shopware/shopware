@@ -41,7 +41,6 @@ class SystemConfigServiceTest extends TestCase
             [null],
             [0],
             [1234],
-            [0.0],
             [1243.42314],
             [''],
             ['test'],
@@ -57,7 +56,17 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->systemConfigService->set('foo.bar', $expected);
         $actual = $this->systemConfigService->get('foo.bar');
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
+    }
+
+    /**
+     * mysql 5.7.30 casts 0.0 to 0
+     */
+    public function testFloatZero(): void
+    {
+        $this->systemConfigService->set('foo.bar', 0.0);
+        $actual = $this->systemConfigService->get('foo.bar');
+        static::assertEquals(0.0, $actual);
     }
 
     public function testSetGetSalesChannel(): void
@@ -72,7 +81,7 @@ class SystemConfigServiceTest extends TestCase
 
         $this->systemConfigService->set('foo.bar', '', Defaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
-        static::assertEquals('test', $actual);
+        static::assertEquals('', $actual);
     }
 
     public function testSetGetSalesChannelBool(): void
@@ -84,10 +93,6 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', true, Defaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
         static::assertTrue($actual);
-
-        $this->systemConfigService->set('foo.bar', '', Defaults::SALES_CHANNEL);
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
-        static::assertFalse($actual);
     }
 
     public function testGetDomainNoData(): void

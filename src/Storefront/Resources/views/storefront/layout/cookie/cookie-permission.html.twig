@@ -1,13 +1,16 @@
 {% block layout_cookie_permission_inner %}
 
-    {% set cookieAcceptAllOptions = {
-        cookieGroups: cookieGroups|json_encode
-    } %}
+    {% if context.salesChannel.cookieAcceptAllActive %}
+        {% set cookieAcceptAllOptions = {
+            cookieGroups: cookieGroups|json_encode
+        } %}
+    {% endif %}
 
     <div
         class="cookie-permission-container"
         data-cookie-permission="true"
-        data-cookie-accept-all-options="{{ cookieAcceptAllOptions|json_encode }}">
+        {% if context.salesChannel.cookieAcceptAllActive %}
+        data-cookie-accept-all-options="{{ cookieAcceptAllOptions|json_encode }}{% endif %}">
         <div class="container">
             <div class="row align-items-center">
 
@@ -42,13 +45,15 @@
                         {% endblock %}
 
                         {% block layout_cookie_permission_inner_button_accept_all %}
-                            <span class="js-cookie-accept-all">
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary">
-                                    {{ "cookie.save"|trans|sw_sanitize }}
-                                </button>
-                            </span>
+                            {% if context.salesChannel.cookieAcceptAllActive %}
+                                <span class="js-cookie-accept-all">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary">
+                                            {{ "cookie.acceptAll"|trans|sw_sanitize }}
+                                        </button>
+                                    </span>
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}

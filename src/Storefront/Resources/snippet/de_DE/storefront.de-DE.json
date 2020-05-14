@@ -511,7 +511,8 @@
     "groupRequiredTimezone": "Zeitzone",
     "groupStatistical": "Statistik",
     "groupStatisticalDescription": "Diese Cookies werden für Statistiken und Shop Performance Metriken genutzt.",
-    "groupStatisticalGoogleAnalytics": "Google Analytics"
+    "groupStatisticalGoogleAnalytics": "Google Analytics",
+    "acceptAll": "Alle akzeptieren"
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

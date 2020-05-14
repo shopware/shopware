@@ -1,11 +1,13 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
+import {COOKIE_CONFIGURATION_UPDATE} from './cookie-configuration.plugin';
 
 export default class CookieAcceptAllPlugin extends Plugin {
 
     static options = {
         buttonAcceptAllSelector: '.js-cookie-accept-all',
+        cookiePreference: 'cookie-preference',
         cookieGroups: 'cookieGroups'
     };
 
@@ -29,32 +31,37 @@ export default class CookieAcceptAllPlugin extends Plugin {
         }
     }
 
+    _handleUpdateListener(cookieGroupNames) {
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, cookieGroupNames);
+    }
+
+    /**
+     * Hides cookie bar
+     */
+    _hideCookieBar() {
+        this.el.style.display = 'none';
+
+        this.$emitter.publish('hideCookieBar');
+    }
+
     /**
      * Handle accept all
      * @private
      */
     _handleAcceptAll() {
-        const activeCookies = this._getCookies('active');
-        const inactiveCookies = this._getCookies('inactive');
-        const { cookiePreference } = this.options;
 
-        const activeCookieNames = [];
-        const inactiveCookieNames = [];
+        const allCookies = JSON.parse(this.options.cookieGroups)
+        const {cookiePreference} = this.options;
 
-        inactiveCookies.forEach(({ cookie }) => {
-            inactiveCookieNames.push(cookie);
-
-            if (CookieStorage.getItem(cookie)) {
-                CookieStorage.removeItem(cookie);
-            }
-        });
+        const cookieGroupNames = [];
 
         /**
          * Cookies without value are passed to the updateListener
          * ( see "_handleUpdateListener" method )
          */
-        activeCookies.forEach(({ cookie, value, expiration }) => {
-            activeCookieNames.push(cookie);
+        allCookies.forEach(({cookie, value, expiration}) => {
+            cookieGroupNames.push(cookie);
 
             if (cookie && value) {
                 CookieStorage.setItem(cookie, value, expiration);
@@ -63,7 +70,7 @@ export default class CookieAcceptAllPlugin extends Plugin {
 
         CookieStorage.setItem(cookiePreference, '1', '30');
 
-        this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
-        this.closeOffCanvas();
+        this._handleUpdateListener(cookieGroupNames);
+        this._hideCookieBar();
     }
 }

@@ -333,6 +333,11 @@ class SalesChannelEntity extends Entity
     protected $analytics;
 
     /**
+     * @var bool
+     */
+    protected $cookieAcceptAllActive;
+
+    /**
      * @var GoogleShoppingAccountEntity|null
      */
     protected $googleShoppingAccount;
@@ -921,6 +926,16 @@ class SalesChannelEntity extends Entity
     public function setAnalytics(?SalesChannelAnalyticsEntity $analytics): void
     {
         $this->analytics = $analytics;
+    }
+
+    public function isCookieAcceptAllActive(): bool
+    {
+        return $this->cookieAcceptAllActive;
+    }
+
+    public function setCookieAcceptAllActive(bool $cookieAcceptAllActive): void
+    {
+        $this->cookieAcceptAllActive = $cookieAcceptAllActive;
     }
 
     public function getGoogleShoppingAccount(): ?GoogleShoppingAccountEntity

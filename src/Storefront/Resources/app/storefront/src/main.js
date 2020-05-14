@@ -32,6 +32,7 @@ import OffCanvasCartPlugin from 'src/plugin/offcanvas-cart/offcanvas-cart.plugin
 import AddToCartPlugin from 'src/plugin/add-to-cart/add-to-cart.plugin';
 import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 import CookieConfigurationPlugin from 'src/plugin/cookie/cookie-configuration.plugin';
+import CookieAcceptAllPlugin from 'src/plugin/cookie/cookie-accept-all.plugin';
 import ScrollUpPlugin from 'src/plugin/scroll-up/scroll-up.plugin';
 import CollapseFooterColumnsPlugin from 'src/plugin/collapse/collapse-footer-columns.plugin';
 import FlyoutMenuPlugin from 'src/plugin/main-menu/flyout-menu.plugin';
@@ -94,6 +95,7 @@ register plugins
 PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
 PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
 PluginManager.register('CookieConfiguration', CookieConfigurationPlugin, '[data-cookie-permission]');
+PluginManager.register('CookieAcceptAll', CookieAcceptAllPlugin, '[data-cookie-permission]');
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');

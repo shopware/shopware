@@ -34,6 +34,16 @@
                                 </button>
                             </span>
                         {% endblock %}
+
+                        {% block layout_cookie_permission_inner_button_accept_all %}
+                            <span class="js-cookie-accept-all">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary">
+                                    {{ "cookie.save"|trans|sw_sanitize }}
+                                </button>
+                            </span>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

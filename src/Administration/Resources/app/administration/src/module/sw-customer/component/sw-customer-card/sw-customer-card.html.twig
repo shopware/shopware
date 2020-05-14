@@ -106,6 +106,24 @@
                                                 </sw-entity-tag-select>
                                             {% endblock %}
 
+                                            {% block sw_customer_card_password %}
+                                                <sw-password-field v-if="editMode"
+                                                                   v-model="customer.passwordNew"
+                                                                   autocomplete="off"
+                                                                   :label="$tc('sw-profile.index.labelNewPassword')"
+                                                                   :placeholder="$tc('sw-customer.card.placeholderNewPassword')">
+                                                </sw-password-field>
+                                            {% endblock %}
+
+                                            {% block sw_customer_card_password_confirm %}
+                                                <sw-password-field v-if="editMode"
+                                                                   v-model="customer.passwordConfirm"
+                                                                   autocomplete="off"
+                                                                   :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
+                                                                   :placeholder="$tc('sw-customer.card.placeholderNewPasswordConfirm')">
+                                                </sw-password-field>
+                                            {% endblock %}
+
                                             {% block sw_customer_card_metadata_additional %}
                                                 <slot name="metadata-additional">
                                                     {% block sw_customer_card_slot_metadata_additional %}{% endblock %}

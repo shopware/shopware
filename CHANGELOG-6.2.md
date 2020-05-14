@@ -335,6 +335,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
+    * Refactor component `sw-customer-card` added inputs for password and password confirm
+        * Added block `sw_customer_card_password`
+        * Added block `sw_customer_card_password_confirm`
+    * Refactor `sw-customer-detail`
+        * Added method `checkPassword` and use of it when editing customer 
+        * Added success notification message
+    * Refactor `sw-settings-user-detail`
+        * Added `newPasswordConfirm`
+        * Fixed issue when saving new admin password
+        * Disabled `change` button if passwords doesnt match
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
@@ -663,7 +673,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Add `rel="noopener"` to all `target="_blank"` links
     * Fix wrong behavior of switch fields, checkboxes and radio fields when clicking on the label
     * Moved bearerAuth location from localStorage to Cookies 
-    * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
+    * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`  
+    * Refactor the component `sw_customer_base_form`
+        * Removed snippet `sw-customer.baseForm.helpTextPassword`  
+
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.

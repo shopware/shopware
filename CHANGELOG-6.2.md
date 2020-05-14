@@ -335,6 +335,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
+    * Price input fields substitute commas with dots automatically in Add Product page.
+    * Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
+    * Added property `fileAccept` to 
+        * `sw-media-upload-v2`
+        * `sw-media-compact-upload-v2`
+        * `sw-media-modal-v2`
+        * `sw-media-index`
+    * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
@@ -510,6 +518,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
+    * Added possibility to delete orders without documents on `sw-order-list`
 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
@@ -528,6 +537,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * The `@StorefrontBootstrap` placeholder also includes the SCSS variables from your `theme.json`.
         * Please beware that this option is only available for the `style` section.
         * You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle includes the Bootstrap SCSS already.
+    * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
     * We changed the storefront ESLint rule `comma-dangle` to `never`, so that trailing commas won't be forcefully added anymore
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
     * Added JS plugin to add a Google Analytics integration: `google-analytics.plugin.js` 
@@ -571,7 +581,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
-
+    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+        * page_checkout_aside_actions_csrf
+        * page_checkout_aside_actions_payment_method_id
+        * page_checkout_confirm_form_submit
+    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+    
 **Removals**
 
 * Administration
@@ -713,3 +728,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
+    * Fix timezone of `orderDate` in ordergrid

@@ -69,7 +69,9 @@
                                 {% block sw_order_list_grid_columns %}
                                     {% block sw_order_list_grid_columns_customer_name %}
                                         <template #column-orderCustomer.firstName="{ item }">
-                                            {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                                            <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                                                {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                                            </router-link>
                                         </template>
                                     {% endblock %}
 

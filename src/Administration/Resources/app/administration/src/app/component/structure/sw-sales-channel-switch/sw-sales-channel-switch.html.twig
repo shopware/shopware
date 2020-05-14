@@ -36,7 +36,7 @@
             </sw-modal>
         {% endblock %}
         {% block sw_sales_channel_switch_select %}
-            <sw-entity-single-select
+            <sw-sales-channel-single-select
                     ref="salesChannelSelect"
                     :disabled="disabled"
                     id="salesChannelSelect"
@@ -44,12 +44,11 @@
                     :label="label"
                     :searchPlaceholder="$tc('sw-sales-channel-switch.placeholderSelect')"
                     @change="onChange"
-                    :value="salesChannelId"
-                    entity="sales_channel">
+                    :value="salesChannelId">
                 <template #labelProperty="{item, labelProperty}">
                     <span v-if="item.translated">{{ item.translated[labelProperty] }}</span>
                 </template>
-            </sw-entity-single-select>
+            </sw-sales-channel-single-select>
         {% endblock %}
     </div>
 {% endblock %}

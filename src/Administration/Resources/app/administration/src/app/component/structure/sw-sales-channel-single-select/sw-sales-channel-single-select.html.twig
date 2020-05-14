@@ -1,0 +1,95 @@
+{% block sw_entity_single_select %}
+    <sw-select-base class="sw-entity-single-select"
+                    ref="selectBase"
+                    :isLoading="isLoading"
+                    @select-expanded="onSelectExpanded"
+                    @select-collapsed="onSelectCollapsed"
+                    :disableAutoClose="disableAutoClose"
+                    v-bind="$attrs"
+                    v-on="$listeners">
+        {% block sw_entity_single_select_base %}
+            {% block sw_entity_single_select_base_selection %}
+                <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+                    {% block sw_entity_single_select_base_selection_slot %}
+                        <div class="sw-entity-single-select__selection">
+                            {% block sw_entity_single_select_single_selection_inner %}
+                                {% block sw_entity_single_select_single_selection_inner_label %}
+                                    <div v-if="!isExpanded"
+                                         class="sw-entity-single-select__selection-text"
+                                         :class="selectionTextClasses">
+                                        <template v-if="singleSelection">
+                                            <slot name="selection-label-property" v-bind="{ item: singleSelection, labelProperty, searchTerm, getKey }">
+                                                {{ getKey(singleSelection,labelProperty) || getKey(singleSelection, `translated.${labelProperty}`) }}
+                                            </slot>
+                                        </template>
+                                        <template v-else>
+                                            {{ placeholder }}
+                                        </template>
+                                    </div>
+                                {% endblock %}
+                                {% block sw_entity_single_select_single_selection_inner_input %}
+                                    <input ref="swSelectInput"
+                                           class="sw-entity-single-select__selection-input"
+                                           :class="inputClasses"
+                                           type="text"
+                                           :placeholder="placeholder"
+                                           @input="onInputSearchTerm"
+                                           v-model="searchTerm">
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_entity_single_select_base_results %}
+                <template #results-list>
+                    {% block sw_entity_single_select_base_results_slot %}
+                        <sw-select-result-list ref="resultsList"
+                                               :popoverConfig="popoverConfig" {# @deprecated tag:v6.3.0 #}
+                                               :options="results"
+                                               :isLoading="isLoading"
+                                               :emptyMessage="$tc('global.sw-single-select.messageNoResults', searchTerm, { term: searchTerm })"
+                                               :focusEl="$refs.swSelectInput"
+                                               @paginate="paginate"
+                                               @item-select="setValue">
+                            {% block sw_entity_single_select_base_results_list %}
+                                {% block sw_entity_single_select_base_results_list_before %}
+                                    <template #before-item-list>
+                                        <slot name="before-item-list"></slot>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_entity_single_select_base_results_list_result %}
+                                    <template #result-item="{ item, index }">
+                                        <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                                            <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
+                                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                                    <slot name="result-label-property" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                                           :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                                           :searchTerm="searchTerm">
+                                                        </sw-highlight-text>
+                                                        <template v-else>
+                                                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                        </template>
+                                                    </slot>
+                                                {% endblock %}
+                                            </li>
+                                        </slot>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_entity_single_select_base_results_list_after %}
+                                    <template #after-item-list>
+                                        <slot name="after-item-list"></slot>
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-select-result-list>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+    </sw-select-base>
+{% endblock %}

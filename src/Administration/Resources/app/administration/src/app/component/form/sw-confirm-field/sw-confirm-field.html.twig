@@ -21,6 +21,7 @@
                         square
                         size="x-small"
                         @click="onCancelSubmit"
+                        @mousedown.prevent
                         tabindex="-1">
 
                         {% block sw_field_inline_cancel_submit_button_icon %}
@@ -37,6 +38,7 @@
                         size="x-small"
                         variant="primary"
                         @click="onSubmitValue"
+                        @mousedown.prevent
                         tabindex="-1">
 
                         {% block sw_field_inline_submit_button_icon %}

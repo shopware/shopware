@@ -301,6 +301,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added new condition `cartLineItemCustomField` in `condition-type-data-provider.decorator.js`
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.   
     * Added `media-upload-cancel` to `media.api.service`
+    * Fixed a bug in `sw-confirm-field` when using firefox where the cancel and submit action was without function
     * Fixed a bug in `sw-duplicated-media-v2` to reload media list when user clicked to cancel
     * Fixed a bug in `sw-sales-channel-detail-base` for IP whitelist on maintenance mode on new sales channel 
     * Added mapping validation for import/export profiles

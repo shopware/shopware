@@ -189,7 +189,27 @@
                             {{ page.product.productNumber }}
                         </span>
                     {% endblock %}
-                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block page_product_detail_ean_container %}
+            {% if page.product.ean %}
+                <div class="product-detail-gtin-container">
+                    {% block page_product_detail_ean_label %}
+                        <span class="product-detail-gtin-label">
+                            {{ "detail.gtin"|trans|sw_sanitize }}
+                        </span>
+                    {% endblock %}
+
+                    {% block page_product_detail_gtin %}
+                        <meta itemprop="productGtin"
+                              content="{{ page.product.ean }}"/>
+                        <span class="product-detail-gtin"
+                              itemprop="gtin">
+                            {{ page.product.ean }}
+                        </span>
+                    {% endblock %}
+               </div>
             {% endif %}
         {% endblock %}
     </div>

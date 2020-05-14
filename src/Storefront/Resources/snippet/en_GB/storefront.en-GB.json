@@ -483,7 +483,8 @@
     "reviewLoginSignupLink": "Click here to sign up.",
     "reviewLoginCancelButton": "Cancel",
     "reviewAvgRate": "out of",
-    "reviewAvgRateElements": "stars"
+    "reviewAvgRateElements": "stars",
+    "gtin": "GTIN:"
   },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",

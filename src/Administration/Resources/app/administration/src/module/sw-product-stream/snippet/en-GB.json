@@ -45,7 +45,7 @@
         "choose": "Choose",
         "description": "Description",
         "descriptionLong": "Description long",
-        "ean": "EAN",
+        "ean": "GTIN",
         "gross": "Gross",
         "group": "Group",
         "height": "Height",

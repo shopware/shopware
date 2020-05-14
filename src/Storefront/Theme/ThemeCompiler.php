@@ -86,7 +86,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $withAssets = true
     ): void {
-        $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
+        $themePrefix = self::getThemePrefix($salesChannelId, $themeConfig->getTechnicalName());
         $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
 
         if ($withAssets && $this->publicFilesystem->has($outputPath)) {
@@ -129,9 +129,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
     }
 
-    public static function getThemePrefix(string $salesChannelId, string $themeId): string
+    public static function getThemePrefix(string $salesChannelId, string $themeName): string
     {
-        return md5($themeId . $salesChannelId);
+        return md5($themeName . $salesChannelId);
     }
 
     private function copyAssets(

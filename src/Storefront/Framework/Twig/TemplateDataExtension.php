@@ -73,6 +73,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         $controllerInfo = $this->getControllerInfo($request);
 
         $themeId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_ID);
+        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
 
         return [
             'shopware' => [
@@ -80,7 +81,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
                     $this->getDefaultConfiguration(),
                     $this->systemConfigService->all($context->getSalesChannel()->getId())
                 ),
-                'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
+                'theme' => $this->getStorefrontThemeConfig($context->getSalesChannel()->getId(), $themeName, $themeId),
                 'dateFormat' => DATE_ATOM,
                 'csrfEnabled' => $this->csrfEnabled,
                 'csrfMode' => $this->csrfMode,
@@ -93,7 +94,23 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         ];
     }
 
+    /**
+     * @deprecated tag:v6.3.0 - Use getStorefrontThemeConfig instead
+     */
     protected function getThemeConfig(string $salesChannelId, ?string $themeId): array
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (!$request) {
+            return [];
+        }
+
+        $themeName = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+
+        return $this->getStorefrontThemeConfig($salesChannelId, $themeName, $themeId);
+    }
+
+    private function getStorefrontThemeConfig(string $salesChannelId, ?string $themeName, ?string $themeId): array
     {
         $themeConfig = [
             'breakpoint' => [
@@ -105,11 +122,11 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             ],
         ];
 
-        if (!$themeId) {
+        if (!$themeId || !$themeName) {
             return $themeConfig;
         }
 
-        $themePrefix = ThemeCompiler::getThemePrefix($salesChannelId, $themeId);
+        $themePrefix = ThemeCompiler::getThemePrefix($salesChannelId, $themeName);
 
         $themeConfig = array_merge(
             $themeConfig,

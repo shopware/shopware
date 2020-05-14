@@ -56,7 +56,7 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
         /** @var CmsPageEntity $page */
         $page = $pageCollection->first();
 
-        static::assertCount(1, $page->getSections());
+        static::assertCount(2, $page->getSections());
 
         /** @var CmsSectionEntity $section */
         $section = $page->getSections()->first();
@@ -136,6 +136,21 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'type' => 'default',
                     'position' => 0,
+                    'blocks' => [
+                        [
+                            'position' => 1,
+                            'type' => 'image-text',
+                            'slots' => [
+                                ['type' => 'text', 'slot' => 'left', 'config' => ['content' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => $faker->realText()]]],
+                                ['type' => 'image', 'slot' => 'right', 'config' => ['url' => ['source' => FieldConfig::SOURCE_STATIC, 'value' => 'http://shopware.com/image.jpg']]],
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'type' => 'default',
+                    'position' => 1,
                     'blocks' => [
                         [
                             'position' => 1,

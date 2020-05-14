@@ -14,6 +14,7 @@ export default class AddToCartPlugin extends Plugin {
         }
 
         this._registerEvents();
+        this._enableSubmitButton();
     }
 
     /**
@@ -32,6 +33,26 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
+    }
+
+    /**
+     * Enables the submit button of the form, once the script is executed.
+     * This is used, to circumvent submitting the form with its default
+     * behavior, which would redirect to an unstyled page.
+     * @private
+     */
+    _enableSubmitButton() {
+        this._submitButton = DomAccess.querySelector(
+            this._form,
+            'button[type="submit"]',
+            false,
+        );
+
+        if (!this._submitButton) {
+            return;
+        }
+
+        this._submitButton.disabled = false;
     }
 
     /**

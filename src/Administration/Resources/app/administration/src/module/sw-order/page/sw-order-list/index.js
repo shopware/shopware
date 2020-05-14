@@ -167,7 +167,7 @@ Component.register('sw-order-list', {
                 label: 'sw-order.list.columnDeliveryState',
                 allowResize: true
             }, {
-                property: 'orderDateTime',
+                property: 'orderDate',
                 label: 'sw-order.list.orderDate',
                 allowResize: true
             }, {

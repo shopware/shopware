@@ -14,7 +14,6 @@ export default class CookieAcceptAllPlugin extends Plugin {
     init() {
 
         this._button = this.el.querySelector(this.options.buttonAcceptAllSelector);
-        console.log(this.options.cookieGroups);
         this._registerEvents();
     }
 

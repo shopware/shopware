@@ -527,6 +527,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * The `@StorefrontBootstrap` placeholder also includes the SCSS variables from your `theme.json`.
         * Please beware that this option is only available for the `style` section.
         * You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle includes the Bootstrap SCSS already.
+    * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
     * We changed the storefront ESLint rule `comma-dangle` to `never`, so that trailing commas won't be forcefully added anymore
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
     * Added JS plugin to add a Google Analytics integration: `google-analytics.plugin.js` 

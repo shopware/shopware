@@ -204,9 +204,9 @@
       },
       "cookie": {
         "title": "Cookie",
-        "titleCard": "Accept All Cookies",
-        "titleDescription": "The check is used to accept all cookies with one button without the need of configuration",
-        "enableCheckbox": "Active"
+        "titleCard": "Alle Cookies akzeptieren",
+        "titleDescription": "Dieser Schalter wird dazu verwendet um einen \"Alle akzeptieren\" Knopf im Cookie Banner anzuzeigen",
+        "enableCheckbox": "Aktiv"
       },
       "hreflang": {
         "title": "Hreflang",

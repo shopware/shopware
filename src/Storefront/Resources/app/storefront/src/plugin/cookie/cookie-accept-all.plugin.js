@@ -14,7 +14,6 @@ export default class CookieAcceptAllPlugin extends Plugin {
     init() {
 
         this._button = this.el.querySelector(this.options.buttonAcceptAllSelector);
-        this.options
         console.log(this.options.cookieGroups);
         this._registerEvents();
     }
@@ -51,7 +50,7 @@ export default class CookieAcceptAllPlugin extends Plugin {
      */
     _handleAcceptAll() {
 
-        const allCookies = JSON.parse(this.options.cookieGroups)
+        const allCookies = JSON.parse(this.options.cookieGroups);
         const {cookiePreference} = this.options;
 
         const cookieGroupNames = [];
@@ -60,11 +59,14 @@ export default class CookieAcceptAllPlugin extends Plugin {
          * Cookies without value are passed to the updateListener
          * ( see "_handleUpdateListener" method )
          */
-        allCookies.forEach(({cookie, value, expiration}) => {
-            cookieGroupNames.push(cookie);
+        allCookies.forEach(({cookie, value, expiration, entries}) => {
 
-            if (cookie && value) {
-                CookieStorage.setItem(cookie, value, expiration);
+            if (entries) {
+                entries.forEach(({cookie, value, expiration}) => {
+                    this._setCookie(cookie, value, expiration, cookieGroupNames);
+                });
+            } else {
+                this._setCookie(cookie, value, expiration, cookieGroupNames);
             }
         });
 
@@ -72,5 +74,13 @@ export default class CookieAcceptAllPlugin extends Plugin {
 
         this._handleUpdateListener(cookieGroupNames);
         this._hideCookieBar();
+    }
+
+    _setCookie(cookie, value, expiration, cookieGroupNames) {
+        cookieGroupNames.push(cookie);
+
+        if (cookie && value) {
+            CookieStorage.setItem(cookie, value, expiration);
+        }
     }
 }

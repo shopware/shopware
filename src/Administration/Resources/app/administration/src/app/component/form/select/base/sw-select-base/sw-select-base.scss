@@ -45,6 +45,11 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         }
     }
 
+    .sw-select__selection-indicators .sw-button--x-small {
+        margin-top: -4px;
+        margin-right: 4px;
+    }
+
     .sw-select__select-indicator {
         flex-shrink: 0;
         cursor: pointer;

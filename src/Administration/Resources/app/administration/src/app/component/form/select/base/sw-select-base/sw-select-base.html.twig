@@ -10,7 +10,9 @@
                 <slot name="sw-select-selection" v-bind="{ identification, error, disabled, size, expand, collapse }"></slot>
                 <div class="sw-select__selection-indicators">
                     <sw-loader v-if="isLoading" class="sw-select__select-indicator" size="16px"></sw-loader>
+                    <slot name="sw-select-before-indicators" v-bind="{ identification, error, disabled, size, expand, collapse }"></slot>
                     <sw-icon class="sw-select__select-indicator" name="small-arrow-medium-down" small></sw-icon>
+                    <slot name="sw-select-after-indicators" v-bind="{ identification, error, disabled, size, expand, collapse }"></slot>
                 </div>
             </div>
 

@@ -76,6 +76,17 @@ Component.register('sw-entity-single-select', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        enableResetButton: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        resetButtonTooltip: {
+            type: String,
+            required: false,
+            default: ''
         }
     },
 
@@ -282,6 +293,17 @@ Component.register('sw-entity-single-select', {
 
         closeResultList() {
             this.$refs.selectBase.collapse();
+        },
+
+        resetValue() {
+            this.searchTerm = '';
+            this.itemRecentlySelected = false;
+
+            if (!this.disableAutoClose) {
+                this.closeResultList();
+            }
+
+            this.clearSelection();
         },
 
         setValue(item) {

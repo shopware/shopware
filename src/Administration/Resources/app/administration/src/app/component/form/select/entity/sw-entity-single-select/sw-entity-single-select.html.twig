@@ -42,6 +42,22 @@
                 </template>
             {% endblock %}
 
+            {% block sw_entity_single_select_base_reset_button %}
+                <template #sw-select-before-indicators>
+                    <sw-button v-if="enableResetButton && value"
+                               @click.stop="resetValue"
+                               size="x-small"
+                               v-tooltip="{
+                                    message: resetButtonTooltip
+                                  }"
+                               :square="true">
+                        <sw-icon class="sw-entity-single-select__selection-reset"
+                                 name="small-default-x-line-medium"
+                                 small></sw-icon>
+                    </sw-button>
+                </template>
+            {% endblock %}
+
             {% block sw_entity_single_select_base_results %}
                 <template #results-list>
                     {% block sw_entity_single_select_base_results_slot %}

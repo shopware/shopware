@@ -217,6 +217,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
       * `sw-property-option-detail
         * Added injection of `repositoryFactory`
         * Method `successfulUpload` is now async  
+      * `sw-entity-single-select`
+        * Added `enableResetButton` and `resetButtonTooltip` properties
       * sw-upload-store-listener  is deprecated and replaced by sw-upload-listener
       * sw-cms/elements/image-gallery/config/index.js
         * Method `createdComponent` is now async

@@ -357,6 +357,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw-media-index`
     * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
     * Added config option for disabling reviews in the storefront
+    * Added possibility to add `supportText` inside your theme fields
 
     * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
 * Core    

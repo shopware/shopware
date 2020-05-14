@@ -33,6 +33,11 @@ class ThemeTranslationEntity extends TranslationEntity
     protected $helpTexts;
 
     /**
+     * @var array|null
+     */
+    protected $supportTexts;
+
+    /**
      * @var ThemeEntity|null
      */
     protected $theme;
@@ -75,6 +80,16 @@ class ThemeTranslationEntity extends TranslationEntity
     public function setHelpTexts(?array $helpTexts): void
     {
         $this->helpTexts = $helpTexts;
+    }
+
+    public function getSupportTexts(): ?array
+    {
+        return $this->supportTexts;
+    }
+
+    public function setSupportTexts(?array $supportTexts): void
+    {
+        $this->supportTexts = $supportTexts;
     }
 
     public function getThemeId(): ?string

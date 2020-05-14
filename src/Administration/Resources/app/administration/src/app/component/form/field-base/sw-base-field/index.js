@@ -27,6 +27,12 @@ Component.register('sw-base-field', {
             default: null
         },
 
+        supportText: {
+            type: String,
+            required: false,
+            default: ''
+        },
+
         isInvalid: {
             type: Boolean,
             required: false,

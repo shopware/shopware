@@ -109,6 +109,8 @@ exports[`components/form/sw-radio-field should renders correctly with children s
     </div>
   </div>
    
+  <!---->
+   
   <div />
 </div>
 `;

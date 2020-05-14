@@ -185,6 +185,7 @@
                                                                         :options="field.options"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
+                                                                        :supportText="!field.supportText ? null : field.supportText"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
@@ -193,6 +194,7 @@
                                                                         type="url"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
+                                                                        :supportText="!field.supportText ? null : field.supportText"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
@@ -209,6 +211,7 @@
                                                                             :source="themeConfig[fieldName].value"
                                                                             :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
                                                                             :helpText="!field.helpText ? null : field.helpText"
+                                                                            :supportText="!field.supportText ? null : field.supportText"
                                                                             :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
                                                                             :defaultFolder="themeRepository.schema.entity"
                                                                             :allowMultiSelect="false"
@@ -223,6 +226,7 @@
                                                                         :type="mapSwFieldTypes(field.type)"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
+                                                                        :supportText="!field.supportText ? null : field.supportText"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 

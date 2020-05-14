@@ -22,6 +22,11 @@ class ThemeConfigField extends Struct
     protected $helpText;
 
     /**
+     * @var array|null
+     */
+    protected $supportText;
+
+    /**
      * @var string
      */
     protected $type;
@@ -206,6 +211,16 @@ class ThemeConfigField extends Struct
     public function setHelpText(?array $helpText): void
     {
         $this->helpText = $helpText;
+    }
+
+    public function getSupportText(): ?array
+    {
+        return $this->supportText;
+    }
+
+    public function setSupportText(?array $supportText): void
+    {
+        $this->supportText = $supportText;
     }
 
     public function getCustom(): ?array

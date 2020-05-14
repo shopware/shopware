@@ -87,6 +87,7 @@ class ThemeService
     {
         $criteria = new Criteria([$themeId]);
         $criteria->addAssociation('salesChannels');
+        /** @var ThemeEntity|null $theme */
         $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
 
         if (!$theme) {
@@ -178,14 +179,21 @@ class ThemeService
 
         $configFields = json_decode(json_encode($configFields), true);
 
-        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+        $translations = $this->getTranslations($themeId, $context);
+
+        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? [], $translations);
         if ($translate && !empty($labels)) {
             $configFields = $this->translateLabels($configFields, $labels);
         }
 
-        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? [], $translations);
         if ($translate && !empty($helpTexts)) {
             $configFields = $this->translateHelpTexts($configFields, $helpTexts);
+        }
+
+        $supportText = array_replace_recursive($baseTheme->getSupportTexts() ?? [], $theme->getSupportTexts() ?? [], $translations);
+        if ($translate && !empty($supportText)) {
+            $configFields = $this->translateSupportTexts($configFields, $supportText);
         }
 
         $themeConfig['fields'] = $configFields;
@@ -232,6 +240,8 @@ class ThemeService
         if ($translate) {
             $translations = $this->getTranslations($themeId, $context);
             $mergedConfig = $this->translateLabels($mergedConfig, $translations);
+            $mergedConfig = $this->translateHelpTexts($mergedConfig, $translations);
+            $mergedConfig = $this->translateSupportTexts($mergedConfig, $translations);
         }
 
         $outputStructure = [];
@@ -256,6 +266,7 @@ class ThemeService
             $outputStructure['tabs'][$tab]['blocks'][$block]['sections'][$section]['fields'][$fieldName] = [
                 'label' => $fieldConfig['label'],
                 'helpText' => $fieldConfig['helpText'] ?? null,
+                'supportText' => $fieldConfig['supportText'] ?? null,
                 'type' => $fieldConfig['type'],
                 'custom' => $fieldConfig['custom'],
             ];
@@ -279,6 +290,8 @@ class ThemeService
         if ($translate) {
             $translations = $this->getTranslations($themeId, $context);
             $mergedConfig = $this->translateLabels($mergedConfig, $translations);
+            $mergedConfig = $this->translateHelpTexts($mergedConfig, $translations);
+            $mergedConfig = $this->translateSupportTexts($mergedConfig, $translations);
         }
 
         $blocks = [];
@@ -293,12 +306,7 @@ class ThemeService
             if (!isset($fieldConfig['block'])) {
                 $noblocks['sections'][$section] = [
                     'label' => $this->getSectionLabel($section, $translations),
-                    $fieldName => [
-                        'label' => $fieldConfig['label'],
-                        'helpText' => $fieldConfig['helpText'] ?? null,
-                        'type' => $fieldConfig['type'],
-                        'custom' => $fieldConfig['custom'],
-                    ],
+                    $fieldName => $this->getFieldData($fieldConfig),
                 ];
             } elseif (!isset($blocks[$fieldConfig['block']])) {
                 $blocks[$fieldConfig['block']] = [
@@ -306,31 +314,16 @@ class ThemeService
                     'sections' => [
                         $section => [
                             'label' => $this->getSectionLabel($section, $translations),
-                            $fieldName => [
-                                'label' => $fieldConfig['label'],
-                                'helpText' => $fieldConfig['helpText'] ?? null,
-                                'type' => $fieldConfig['type'],
-                                'custom' => $fieldConfig['custom'],
-                            ],
+                            $fieldName => $this->getFieldData($fieldConfig),
                         ],
                     ],
                 ];
             } elseif (isset($blocks[$fieldConfig['block']]['sections'][$section])) {
-                $blocks[$fieldConfig['block']]['sections'][$section][$fieldName] = [
-                    'label' => $fieldConfig['label'],
-                    'helpText' => $fieldConfig['helpText'] ?? null,
-                    'type' => $fieldConfig['type'],
-                    'custom' => $fieldConfig['custom'],
-                ];
+                $blocks[$fieldConfig['block']]['sections'][$section][$fieldName] = $this->getFieldData($fieldConfig);
             } else {
                 $blocks[$fieldConfig['block']]['sections'][$section] = [
                     'label' => $this->getSectionLabel($section, $translations),
-                    $fieldName => [
-                        'label' => $fieldConfig['label'],
-                        'helpText' => $fieldConfig['helpText'] ?? null,
-                        'type' => $fieldConfig['type'],
-                        'custom' => $fieldConfig['custom'],
-                    ],
+                    $fieldName => $this->getFieldData($fieldConfig),
                 ];
             }
         }
@@ -453,7 +446,7 @@ class ThemeService
         return $section;
     }
 
-    private function getTabLabel(string $tabName, array $translations)
+    private function getTabLabel(string $tabName, array $translations): string
     {
         if ($tabName === 'default') {
             return '';
@@ -462,7 +455,7 @@ class ThemeService
         return $translations['tabs.' . $tabName] ?? $tabName;
     }
 
-    private function getBlockLabel(string $blockName, array $translations)
+    private function getBlockLabel(string $blockName, array $translations): string
     {
         if ($blockName === 'default') {
             return '';
@@ -471,7 +464,7 @@ class ThemeService
         return $translations['blocks.' . $blockName] ?? $blockName;
     }
 
-    private function getSectionLabel(string $sectionName, array $translations)
+    private function getSectionLabel(string $sectionName, array $translations): string
     {
         if ($sectionName === 'default') {
             return '';
@@ -480,7 +473,7 @@ class ThemeService
         return $translations['sections.' . $sectionName] ?? $sectionName;
     }
 
-    private function translateLabels(array $themeConfiguration, array $translations)
+    private function translateLabels(array $themeConfiguration, array $translations): array
     {
         foreach ($themeConfiguration as $key => &$value) {
             $value['label'] = $translations['fields.' . $key] ?? $key;
@@ -489,10 +482,19 @@ class ThemeService
         return $themeConfiguration;
     }
 
-    private function translateHelpTexts(array $themeConfiguration, array $translations)
+    private function translateHelpTexts(array $themeConfiguration, array $translations): array
     {
         foreach ($themeConfiguration as $key => &$value) {
             $value['helpText'] = $translations['fields.' . $key] ?? null;
+        }
+
+        return $themeConfiguration;
+    }
+
+    private function translateSupportTexts(array $themeConfiguration, array $translations): array
+    {
+        foreach ($themeConfiguration as $key => &$value) {
+            $value['supportText'] = $translations['fields.' . $key] ?? null;
         }
 
         return $themeConfiguration;
@@ -514,10 +516,28 @@ class ThemeService
         }
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+        /** @var ThemeEntity|null $baseTheme */
         $baseTheme = $this->themeRepository->search($criteria, $context)->first();
-        $baseTranslations = $baseTheme->getLabels() ?: [];
-        $translations = array_replace_recursive($baseTranslations, $translations);
+
+        if ($baseTheme !== null) {
+            $baseTranslations = $baseTheme->getLabels() ?: [];
+            $baseTranslations = array_merge($baseTranslations, $baseTheme->getHelpTexts() ?: []);
+            $baseTranslations = array_merge($baseTranslations, $baseTheme->getSupportTexts() ?: []);
+        }
+
+        $translations = array_replace_recursive($baseTranslations ?? [], $translations);
 
         return $translations;
+    }
+
+    private function getFieldData(array $fieldConfig): array
+    {
+        return [
+            'label' => $fieldConfig['label'],
+            'helpText' => $fieldConfig['helpText'] ?? null,
+            'supportText' => $fieldConfig['supportText'] ?? null,
+            'type' => $fieldConfig['type'],
+            'custom' => $fieldConfig['custom'],
+        ];
     }
 }

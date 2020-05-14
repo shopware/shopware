@@ -44,6 +44,11 @@ class ThemeEntity extends Entity
     protected $helpTexts;
 
     /**
+     * @var array|null
+     */
+    protected $supportTexts;
+
+    /**
      * @var string|null
      */
     protected $previewMediaId;
@@ -166,6 +171,16 @@ class ThemeEntity extends Entity
     public function setHelpTexts(?array $helpTexts): void
     {
         $this->helpTexts = $helpTexts;
+    }
+
+    public function getSupportTexts(): ?array
+    {
+        return $this->supportTexts;
+    }
+
+    public function setSupportTexts(?array $supportTexts): void
+    {
+        $this->supportTexts = $supportTexts;
     }
 
     public function getPreviewMediaId(): ?string

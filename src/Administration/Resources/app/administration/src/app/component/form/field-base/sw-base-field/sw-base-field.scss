@@ -40,6 +40,15 @@
         align-self: center;
     }
 
+    .sw-field__support-text {
+        display: flex;
+        line-height: 22px;
+        font-size: 14px;
+        margin-top: 5px;
+        letter-spacing: 0.1px;
+        color: $color-gray-500;
+    }
+
     &.is--inherited {
         .sw-field__label {
             color: $color-purple;

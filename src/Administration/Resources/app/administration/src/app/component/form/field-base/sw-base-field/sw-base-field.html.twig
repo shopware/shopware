@@ -15,6 +15,7 @@
             <sw-help-text class="sw-field__help-text" :text="helpText" v-if="helpText"></sw-help-text>
         </div>
         <slot name="sw-field-input" v-bind="{identification, error, disabled}"></slot>
+        <span class="sw-field__support-text" v-if="supportText">{{ supportText }}</span>
         <sw-field-error :error="error"></sw-field-error>
     </div>
 {% endblock %}

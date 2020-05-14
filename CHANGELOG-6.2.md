@@ -343,6 +343,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw-media-modal-v2`
         * `sw-media-index`
     * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
+    * Added config option for disabling reviews in the storefront
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
@@ -518,6 +519,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
     * Added possibility to delete orders without documents on `sw-order-list`
+    * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
+        * This exception is thrown if the review routes are called if reviews are disabled
 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations

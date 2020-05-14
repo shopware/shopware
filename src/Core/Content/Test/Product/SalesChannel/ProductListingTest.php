@@ -124,7 +124,6 @@ class ProductListingTest extends TestCase
 
         /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
-
         $ids = array_keys($options->getOptionIdMap());
 
         static::assertContains($this->testData->getId('green'), $ids);
@@ -135,6 +134,36 @@ class ProductListingTest extends TestCase
         static::assertContains($this->testData->getId('steel'), $ids);
         static::assertFalse($options->has($this->testData->getId('yellow')));
         static::assertFalse($options->has($this->testData->getId('cotton')));
+    }
+
+    public function testNotFilterableProperty(): void
+    {
+        $request = new Request();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $request->attributes->set('_route_params', [
+            'navigationId' => $this->categoryId,
+        ]);
+
+        $listing = $this->listingGateway->search($request, $context);
+
+        /** @var EntityResult $result */
+        $result = $listing->getAggregations()->get('properties');
+
+        /** @var PropertyGroupCollection $properties */
+        $propertyGroups = $result->getEntities();
+        $propertyGroupIds = [];
+
+        foreach ($propertyGroups as $propertyGroup) {
+            $propertyGroupIds[] = $propertyGroup->getId();
+        }
+
+        static::assertContains($this->testData->getId('color'), $propertyGroupIds);
+        static::assertContains($this->testData->getId('size'), $propertyGroupIds);
+        static::assertContains($this->testData->getId('material'), $propertyGroupIds);
+        static::assertNotContains($this->testData->getId('class'), $propertyGroupIds);
     }
 
     /**
@@ -314,6 +343,15 @@ class ProductListingTest extends TestCase
                     ['id' => $this->testData->createId('iron'), 'name' => 'iron'],
                     ['id' => $this->testData->createId('steel'), 'name' => 'steel'],
                     ['id' => $this->testData->createId('cotton'), 'name' => 'steel'],
+                ],
+            ],
+            [
+                'id' => $this->testData->createId('class'),
+                'name' => 'class',
+                'options' => [
+                    ['id' => $this->testData->createId('first'), 'name' => 'first'],
+                    ['id' => $this->testData->createId('business'), 'name' => 'business'],
+                    ['id' => $this->testData->createId('coach'), 'name' => 'coach'],
                 ],
             ],
         ];

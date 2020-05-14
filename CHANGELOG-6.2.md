@@ -27,6 +27,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
 
 
+### 6.2.X - Boostday
+
+**Addition / Changes
+
+* Adminstration
+    * Adding new filterable field to `sw-property-list` and `sw-property-filter`
+    
+* Core
+    * Adding ability to show/hide properies from product filter panel in product listing
+
 ### 6.2.0
 
 **Addition / Changes**

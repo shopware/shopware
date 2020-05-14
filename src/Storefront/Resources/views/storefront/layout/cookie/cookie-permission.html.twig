@@ -1,8 +1,13 @@
 {% block layout_cookie_permission_inner %}
+
+    {% set cookieAcceptAllOptions = {
+        cookieGroups: cookieGroups|json_encode
+    } %}
+
     <div
         class="cookie-permission-container"
         data-cookie-permission="true"
-        data-cookie-accept-all-options="{ 'cookieGroups': '{{ cookieGroups|json_encode }}' }">
+        data-cookie-accept-all-options="{{ cookieAcceptAllOptions|json_encode }}">
         <div class="container">
             <div class="row align-items-center">
 

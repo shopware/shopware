@@ -574,7 +574,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
-
+    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+        * page_checkout_aside_actions_csrf
+        * page_checkout_aside_actions_payment_method_id
+        * page_checkout_confirm_form_submit
+    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+    
 **Removals**
 
 * Administration

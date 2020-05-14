@@ -571,6 +571,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added possibility to delete orders without documents on `sw-order-list`
     * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
         * This exception is thrown if the review routes are called if reviews are disabled
+    * Added possibility to delete orders without documents on `sw-order-list`
 
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`

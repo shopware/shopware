@@ -241,6 +241,19 @@ function registerThumbnailMiddleware(factory) {
         }
     });
 
+    factory.register('RecalculatePricesForCurrencyMessage', {
+        name: 'Shopware\\Core\\System\\Currency\\Message\\RecalculatePricesForCurrencyMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('currencyRecalculatePrices', ids, next, entry, $root, notification, {
+                title: 'global.default.success',
+                message: 'global.notification-center.worker-listener.recalculateCurrencyPrices.message',
+                success: 'global.notification-center.worker-listener.recalculateCurrencyPrices.messageSuccess',
+                foregroundSuccessMessage: 'global.notification-center.worker-listener.recalculateCurrencyPrices.foregroundSuccessMessage'
+            }, 50);
+        }
+    });
+
+
 
     return true;
 }

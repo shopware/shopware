@@ -85,6 +85,12 @@
           "title": "Indexierung der Rabattaktionen",
           "message": "Rabattaktion indexiert. | Noch eine Rabattaktion verbleibend ... | Circa {n} Rabattaktionen verbleibend ...",
           "messageSuccess": "Rabattaktionen indexiert."
+        },
+        "recalculateCurrencyPrices": {
+          "title": "Währungspreise werden neuindexiert",
+          "message": "Währungspreise indexiert. | Circa {n} Währungspreise verbleibend...",
+          "messageSuccess": "Währungspreise wurden neuindexiert.",
+          "foregroundSuccessMessage": "Währungspreise wurden neuindexiert. Bitte lösche den Cache um den Prozess zu beenden."
         }
       },
       "plugin-updates-listener": {

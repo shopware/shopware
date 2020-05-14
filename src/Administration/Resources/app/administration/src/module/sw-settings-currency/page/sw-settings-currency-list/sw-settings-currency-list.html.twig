@@ -59,6 +59,18 @@
                                        :isLoading="isLoading"
                                        @inline-edit-save="onInlineEditSave">
 
+                        {% block sw_settings_currency_list_grid_columns_name %}
+                            <template #column-name="{ item }">
+                                <router-link class="sw-settings-currency-list__column_text"
+                                             :to="{ name: 'sw.settings.currency.detail', params: { id: item.id } }">
+                                    {{ item.name }}
+                                </router-link>
+                                <sw-label size="medium" appearance="pill" :ghost="false" :caps="false" v-if="item.isSystemDefault">
+                                    {{ $tc('sw-settings-currency.list.default') }}
+                                </sw-label>
+                            </template>
+                        {% endblock %}
+
                         {% block sw_settings_currency_list_grid_columns_actions %}
                             <template #actions="{ item }">
                                 {% block sw_settings_currency_list_grid_columns_actions_edit %}

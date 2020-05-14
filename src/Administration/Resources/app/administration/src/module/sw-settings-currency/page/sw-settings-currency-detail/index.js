@@ -2,11 +2,15 @@ import template from './sw-settings-currency-detail.html.twig';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 Component.register('sw-settings-currency-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'languageApiService'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -30,7 +34,8 @@ Component.register('sw-settings-currency-detail', {
         return {
             currency: {},
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            showChangeDefaultCurrencyModal: false
         };
     },
 
@@ -151,6 +156,39 @@ Component.register('sw-settings-currency-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        changeToDefaultCurrency() {
+            this.isLoading = true;
+
+            this.languageApiService.changeDefaultCurrency(this.currency.id).then((response) => {
+                this.decreaseWorkerPoll();
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('sw-settings-currency.detail.changeDefaultCurrencySuccess')
+                });
+
+                this.showChangeDefaultCurrencyModal = false;
+                this.isLoading = false;
+                this.$router.push({ name: 'sw.settings.currency.detail', params: { id: response.data.id } });
+                this.currencyId = response.data.id;
+                this.createdComponent();
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-currency.detail.notificationErrorTitle'),
+                    message: this.$tc('sw-settings-currency.detail.notificationErrorMessage')
+                });
+                this.isLoading = false;
+                this.showChangeDefaultCurrencyModal = false;
+            });
+        },
+
+        decreaseWorkerPoll() {
+            Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_FOREGROUND_INTERVAL);
+
+            setTimeout(() => {
+                Shopware.State.commit('notification/setWorkerProcessPollInterval', POLL_BACKGROUND_INTERVAL);
+            }, 60000);
         }
-    }
+    },
 });

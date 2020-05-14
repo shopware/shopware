@@ -7,6 +7,14 @@ in 6.2 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
+### 6.2.X - Boostday
+
+**Addition / Changes**
+
+* Core
+    * Added new controller `\Shopware\Core\System\Currency\Api\ChangeCurrencyController` to handle default currency switches
+
+
 ### 6.2.0
 
 **Addition / Changes**

@@ -39,5 +39,18 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\SalesChannelCurrencyDefinition"/>
         </service>
+
+        <service id="Shopware\Core\System\Currency\Api\ChangeCurrencyController" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+        </service>
+
+        <service id="Shopware\Core\System\Currency\Message\RecalculatePricesForCurrencyMessageHandler">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+            <tag name="messenger.message_handler"/>
+        </service>
     </services>
 </container>

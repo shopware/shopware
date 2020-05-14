@@ -85,6 +85,12 @@
           "title": "Indexing promotions",
           "message": "Promotion indexed. | One promotion remaining... | {n} promotions remaining...",
           "messageSuccess": "Promotions have been indexed."
+        },
+        "recalculateCurrencyPrices": {
+          "title": "Reindexing currency prices",
+          "message": "Currency prices indexed. | Currency prices remaining... | {n} currency prices remaining...",
+          "messageSuccess": "Currency prices have been indexed.",
+          "foregroundSuccessMessage": "Currency prices have been indexed. Please delete the cache to finish the process."
         }
       },
       "plugin-updates-listener": {

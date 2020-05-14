@@ -20,7 +20,8 @@
       "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
-      "buttonDelete": "Löschen"
+      "buttonDelete": "Löschen",
+      "default": "Systemstandard"
     },
     "detail": {
       "textHeadline": "Neue Währung",
@@ -42,7 +43,11 @@
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "notificationErrorTitle": "Fehler",
-      "notificationErrorMessage": "Fehler beim Speichern der Währung."
+      "notificationErrorMessage": "Fehler beim Speichern der Währung.",
+      "changeDefaultCurrencyTitle": "Standard Währung",
+      "changeDefaultCurrencyButton": "Diese Währung zur Standard Währung umwandeln.",
+      "changeDefaultCurrencyModalText": "Möchtest du wirklich die Standardwährung ändern? Im Anschluss werden im Hintergrund alle Preise umgerechnet",
+      "changeDefaultCurrencySuccess": "Die Währung wurde erfolgreich umgestellt. Im Hintergrund werden die Preise nun aktualisiert."
     }
   }
 }

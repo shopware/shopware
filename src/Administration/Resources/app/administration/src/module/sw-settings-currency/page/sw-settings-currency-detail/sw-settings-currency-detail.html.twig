@@ -115,6 +115,45 @@
                             {% endblock %}
                         </sw-container>
                     </sw-card>
+
+                    {% block sw_settings_currency_detail_card_change_default_currency %}
+                        <sw-card :title="$tc('sw-settings-currency.detail.changeDefaultCurrencyTitle')">
+                            {% block sw_settings_currency_detail_card_change_default_currency_content %}
+                                <sw-button variant="primary" @click="showChangeDefaultCurrencyModal = true" :disabled="currency.isSystemDefault">
+                                    {{ $tc('sw-settings-currency.detail.changeDefaultCurrencyButton') }}
+                                </sw-button>
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block sw_settings_currency_detail_change_default_currency_modal %}
+                    <sw-modal v-if="showChangeDefaultCurrencyModal"
+                              @modal-close="showChangeDefaultCurrencyModal = false"
+                              :title="$tc('sw-settings-currency.detail.changeDefaultCurrencyTitle')"
+                              variant="small">
+                        {% block sw_settings_currency_detail_change_default_currency_modal_content %}
+                            <p class="sw-data-grid__confirm-bulk-delete-text">
+                                {{ $tc('sw-settings-currency.detail.changeDefaultCurrencyModalText') }}
+                            </p>
+                        {% endblock %}
+
+                        <template #modal-footer>
+                            {% block sw_settings_currency_detail_change_default_currency_modal_actions %}
+                                <slot name="bulk-modal-cancel">
+                                    <sw-button @click="showChangeDefaultCurrencyModal = false" size="small">
+                                        {{ $tc('global.default.cancel') }}
+                                    </sw-button>
+                                </slot>
+
+                                <slot name="bulk-modal-delete-items">
+                                    <sw-button @click="changeToDefaultCurrency" variant="primary" size="small">
+                                        {{ $tc('global.default.yes') }}
+                                    </sw-button>
+                                </slot>
+                            {% endblock %}
+                        </template>
+                    </sw-modal>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

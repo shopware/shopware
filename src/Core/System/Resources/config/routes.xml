@@ -13,6 +13,7 @@
     <import resource="../../SalesChannel/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../StateMachine/Api/*Controller.php" type="annotation" />
     <import resource="../../Currency/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Currency/Api/**/*Controller.php" type="annotation" />
     <import resource="../../Language/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Salutation/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

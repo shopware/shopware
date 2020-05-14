@@ -20,7 +20,8 @@
       "titleDeleteSuccess": "Currency",
       "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "default": "System default"
     },
     "detail": {
       "textHeadline": "New currency",
@@ -42,7 +43,11 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "notificationErrorTitle": "Error",
-      "notificationErrorMessage": "An error occured while saving your currency."
+      "notificationErrorMessage": "An error occured while saving your currency.",
+      "changeDefaultCurrencyTitle": "Default currency",
+      "changeDefaultCurrencyButton": "Set as default currency",
+      "changeDefaultCurrencyModalText": "Do you want to process?",
+      "changeDefaultCurrencySuccess": "Currency was successfully made default. The prices will be now updated in the background."
     }
   }
 }

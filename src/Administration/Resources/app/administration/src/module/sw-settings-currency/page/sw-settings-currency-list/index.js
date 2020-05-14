@@ -1,4 +1,5 @@
 import template from './sw-settings-currency-list.html.twig';
+import './sw-settings-currency-list.html.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

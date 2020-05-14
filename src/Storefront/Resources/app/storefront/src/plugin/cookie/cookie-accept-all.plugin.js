@@ -1,16 +1,19 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DeviceDetection from 'src/helper/device-detection.helper';
+import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 
 export default class CookieAcceptAllPlugin extends Plugin {
 
     static options = {
-        buttonAcceptAllSelector: '.js-cookie-accept-all'
+        buttonAcceptAllSelector: '.js-cookie-accept-all',
+        cookieGroups: 'cookieGroups'
     };
 
     init() {
 
         this._button = this.el.querySelector(this.options.buttonAcceptAllSelector);
-
+        this.options
+        console.log(this.options.cookieGroups);
         this._registerEvents();
     }
 

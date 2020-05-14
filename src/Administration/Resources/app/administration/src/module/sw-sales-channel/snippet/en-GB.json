@@ -195,7 +195,8 @@
       "cookie": {
         "title": "Cookie",
         "titleCard": "Accept All Cookies",
-        "titleDescription": "The check is used to accept all cookies with one button without the need of configuration"
+        "titleDescription": "The check is used to accept all cookies with one button without the need of configuration",
+        "enableCheckbox": "Active"
       },
       "hreflang": {
         "title": "Hreflang",

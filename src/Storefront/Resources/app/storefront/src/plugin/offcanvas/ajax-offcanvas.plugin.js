@@ -1,11 +1,11 @@
-import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
+import OffCanvasPlugin from 'src/plugin/offcanvas/offcanvas.plugin';
 import HttpClient from 'src/service/http-client.service';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
 
 // xhr call storage
 let xhr = null;
 
-export default class AjaxOffCanvas extends OffCanvas {
+export default class AjaxOffCanvasPlugin extends OffCanvasPlugin {
 
     /**
      * Fire AJAX request to get the offcanvas content
@@ -15,20 +15,19 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {function|null} callback
      * @param {'left'|'right'} position
      * @param {boolean} closable
-     * @param {number} delay
      * @param {boolean} fullwidth
      * @param {array|string} cssClass
      */
-    static open(url = false, data = false, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY(), fullwidth = false, cssClass = '') {
+    open(url = false, data = false, callback = null, position = 'left', closable = true, fullwidth = false, cssClass = '') {
         if (!url) {
             throw new Error('A url must be given!');
         }
         // avoid multiple backdrops
-        OffCanvasInstance._removeExistingOffCanvas();
+        this._removeExistingOffCanvas();
 
-        const offCanvas = OffCanvasInstance._createOffCanvas(position, fullwidth, cssClass);
-        this.setContent(url, data, callback, closable, delay);
-        OffCanvasInstance._openOffcanvas(offCanvas);
+        const offCanvas = this._createOffCanvas(position, fullwidth, cssClass);
+        this.setContent(url, data, callback, closable);
+        this._openOffcanvas(offCanvas);
     }
 
     /**
@@ -38,17 +37,16 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {*} data
      * @param {function} callback
      * @param {boolean} closable
-     * @param {number} delay
      */
-    static setContent(url, data, callback, closable, delay) {
+    setContent(url, data, callback, closable) {
         const client = new HttpClient();
-        super.setContent(`<div class="offcanvas-content-container">${LoadingIndicator.getTemplate()}</div>`, closable, delay);
+        super.setContent(`<div class="offcanvas-content-container">${LoadingIndicator.getTemplate()}</div>`, closable);
 
         // interrupt already running ajax calls
         if (xhr) xhr.abort();
 
         const cb = (response) => {
-            super.setContent(response, closable, delay);
+            super.setContent(response, closable);
             // if a callback function is being injected execute it after opening the OffCanvas
             if (typeof callback === 'function') {
                 callback(response);
@@ -56,10 +54,20 @@ export default class AjaxOffCanvas extends OffCanvas {
         };
 
         if (data) {
-            xhr = client.post(url, data, AjaxOffCanvas.executeCallback.bind(this,cb));
+            xhr = client.post(url, data, this._executeCallback.bind(this, cb));
         } else {
-            xhr = client.get(url, AjaxOffCanvas.executeCallback.bind(this,cb));
+            xhr = client.get(url, this._executeCallback.bind(this, cb));
         }
+    }
+
+    /**
+     * instantly replace the offcanvas content
+     *
+     * @param content
+     * @param closable
+     */
+    replaceContent(content, closable = true) {
+        super.setContent(content, closable);
     }
 
     /**
@@ -69,7 +77,7 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {function} cb
      * @param {string} response
      */
-    static executeCallback(cb, response) {
+    _executeCallback(cb, response) {
         if (typeof cb === 'function') {
             cb(response);
         }

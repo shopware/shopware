@@ -1,19 +1,18 @@
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import OffCanvasPlugin from 'src/plugin/offcanvas/offcanvas.plugin';
 
-export default class HtmlOffCanvas extends OffCanvas {
+export default class HtmlOffCanvasPlugin extends OffCanvasPlugin {
 
     /**
      * Open an offcanvas with HTML content from any given selector
      * @param {string} selector
      * @param {'left'|'right'} position
      * @param {boolean} closable
-     * @param {number} delay
      * @param {boolean} fullwidth
      * @param {array|string} cssClass
      */
 
-    static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
-        super.open(HtmlOffCanvas._getContent(selector), position, closable, delay, fullwidth, cssClass);
+    open(selector, position = 'left', closable = true, fullwidth = false, cssClass = '') {
+        super.open(this._getContent(selector), position, closable, fullwidth, cssClass);
     }
 
     /**
@@ -23,10 +22,10 @@ export default class HtmlOffCanvas extends OffCanvas {
      * @returns {string}
      * @private
      */
-    static _getContent(selector) {
+    _getContent(selector) {
         const parent = document.querySelector(selector);
 
-        if (parent instanceof Element === false) {
+        if (!(parent instanceof Element)) {
             throw Error('Parent element does not exist!');
         }
 

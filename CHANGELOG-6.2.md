@@ -712,3 +712,21 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
+    * Added `body-scroll-lock@3.0.2` as a storefront npm dependency
+    * Added `ScrollLockPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/scroll-lock/scroll-lock.plugin.js` to prevent body scrolling on iOS
+    * Refactored `OffcanvasPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/offcanvas/offcanvas.plugin.js` to be a plugin rather than a singleton
+    * Refactored `AjaxOffcanvasPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/offcanvas/ajax-offcanvas.plugin.js` to use the new offcanvas plugin
+    * Refactored `HtmlOffcanvasPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/offcanvas/html-offcanvas.plugin.js` to use the new offcanvas plugin
+    * Refactored `OffcanvasCartPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/offcanvas-cart/offcanvas-cart.plugin.js` to use the new offcanvas plugin
+    * Refactored `OffcanvasFilterPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/offcanvas-filter/offcanvas-filter.plugin.js` to use the new offcanvas plugin
+    * Refactored `OffcanvasTabsPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/offcanvas-tabs/offcanvas-tabs.plugin.js` to use the new offcanvas plugin
+    * Refactored `OffcanvasMenuPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/main-menu/offcanvas-menu.plugin.js` to use the new offcanvas plugin
+    * Refactored `AccountMenuPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/header/account-menu.plugin.js` to use the new offcanvas plugin
+    * Renamed `SwagBlockLinkPlugin` to `PreventLinkClickPlugin` in `src/Storefront/Resources/app/storefront/src/plugin/prevent-link-click/prevent-link-click.plugin.js`
+    * Fixed missing DomAccess required check in `src/Storefront/Resources/app/storefront/src/plugin/cross-selling/cross-selling.plugin.js`
+
+
+
+
+    
+

@@ -1,15 +1,13 @@
-import Plugin from 'src/plugin-system/plugin.class';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
-import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
+import AjaxOffCanvasPlugin from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import Iterator from 'src/helper/iterator.helper';
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
-export default class OffCanvasCartPlugin extends Plugin {
+export default class OffCanvasCartPlugin extends AjaxOffCanvasPlugin {
 
     static options = {
         removeProductTriggerSelector: '.js-offcanvas-cart-remove-product',
@@ -35,7 +33,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @param {function|null} callback
      */
     openOffCanvas(url, data, callback) {
-        AjaxOffCanvas.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition);
+        this.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition);
     }
 
     /**
@@ -101,7 +99,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
     _registerUpdateShippingEvents() {
         const { shippingContainerSelector } = this.options;
-        const select = document.querySelector(`${ shippingContainerSelector } select`);
+        const select = document.querySelector(`${shippingContainerSelector} select`);
         if (select) {
             select.addEventListener('input', this._onChangeShippingMethod.bind(this));
         }
@@ -170,7 +168,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     _fireRequest(form, selector, callback) {
         ElementLoadingIndicatorUtil.create(form.closest(selector));
 
-        const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._updateOffCanvasContent.bind(this));
+        const cb = callback ? callback.bind(this) : this._onOffCanvasOpened.bind(this, this._replaceOffcanvasContent.bind(this));
         const requestUrl = DomAccess.getAttribute(form, 'action');
         const data = FormSerializeUtil.serialize(form);
 
@@ -248,8 +246,11 @@ export default class OffCanvasCartPlugin extends Plugin {
      *
      * @private
      */
-    _updateOffCanvasContent(response) {
-        OffCanvas.setContent(response, false, this._registerEvents.bind(this));
+    _replaceOffcanvasContent(response) {
+        this.replaceContent(response);
+        this._registerEvents();
+
+        this.$emitter.publish('replaceOffcanvasContent');
     }
 
     _isShippingAvailable() {
@@ -265,7 +266,7 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         const _callback = () => {
             this.client.get(url, response => {
-                this._updateOffCanvasContent(response);
+                this._replaceOffcanvasContent(response);
                 this._registerEvents();
             }, 'text/html');
         };

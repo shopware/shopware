@@ -1,19 +1,22 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
-import NativeEventEmitter from 'src/helper/emitter.helper';
 import Backdrop, { BACKDROP_EVENT } from 'src/utility/backdrop/backdrop.util';
 import Iterator from 'src/helper/iterator.helper';
+import Plugin from 'src/plugin-system/plugin.class';
 
 const OFF_CANVAS_CLASS = 'offcanvas';
 const OFF_CANVAS_OPEN_CLASS = 'is-open';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
-const REMOVE_OFF_CANVAS_DELAY = 350;
 
-class OffCanvasSingleton {
+export default class OffcanvasPlugin extends Plugin {
 
-    constructor() {
-        this.$emitter = new NativeEventEmitter();
-    }
+    static options = {
+
+        /**
+         * delay after which the offcanvas is removed completely
+         */
+        removeDelay: 350
+    };
 
     /**
      * Open the offcanvas and its backdrop
@@ -21,16 +24,15 @@ class OffCanvasSingleton {
      * @param {function|null} callback
      * @param {'left'|'right'|'bottom'} position
      * @param {boolean} closable
-     * @param {number} delay
      * @param {boolean} fullwidth
      * @param {array|string} cssClass
      */
-    open(content, callback, position, closable, delay, fullwidth, cssClass) {
+    open(content, callback, position, closable, fullwidth, cssClass) {
         // avoid multiple backdrops
         this._removeExistingOffCanvas();
 
         const offCanvas = this._createOffCanvas(position, fullwidth, cssClass);
-        this.setContent(content, closable, delay);
+        this.setContent(content, closable);
         this._openOffcanvas(offCanvas, callback);
     }
 
@@ -38,9 +40,8 @@ class OffCanvasSingleton {
      * Method to change the content of the already visible OffCanvas
      * @param {string} content
      * @param {boolean} closable
-     * @param {number} delay
      */
-    setContent(content, closable, delay) {
+    setContent(content, closable) {
         const offCanvas = this.getOffCanvas();
 
         if (!offCanvas[0]) {
@@ -50,7 +51,7 @@ class OffCanvasSingleton {
         offCanvas[0].innerHTML = content;
 
         //register events again
-        this._registerEvents(closable, delay);
+        this._registerEvents(closable);
     }
 
     /**
@@ -64,7 +65,8 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Determine list of existing offcanvas
+     * returns all currently rendered offcanvas elements
+     *
      * @returns {NodeListOf<Element>}
      * @private
      */
@@ -74,23 +76,22 @@ class OffCanvasSingleton {
 
     /**
      * Close the offcanvas and its backdrop
-     * @param {number} delay
      */
-    close(delay) {
+    close() {
         // remove open class to make any css animation effects possible
         const OffCanvasElements = this.getOffCanvas();
         Iterator.iterate(OffCanvasElements, backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
 
         // wait before removing backdrop to let css animation effects take place
-        setTimeout(this._removeExistingOffCanvas.bind(this), delay);
+        setTimeout(this._removeExistingOffCanvas.bind(this), this.options.removeDelay);
 
-        Backdrop.remove(delay);
+        Backdrop.remove(this.options.removeDelay);
 
         setTimeout(() => {
             this.$emitter.publish('onCloseOffcanvas', {
                 offCanvasContent: OffCanvasElements
             });
-        }, delay);
+        }, this.options.removeDelay);
     }
 
     /**
@@ -126,15 +127,14 @@ class OffCanvasSingleton {
     /**
      * Register events
      * @param {boolean} closable
-     * @param {number} delay
      * @private
      */
-    _registerEvents(closable, delay) {
+    _registerEvents(closable) {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
 
         if (closable) {
             const onBackdropClick = () => {
-                this.close(delay);
+                this.close(this.options.removeDelay);
                 // remove the event listener immediately to avoid multiple listeners
                 document.removeEventListener(BACKDROP_EVENT.ON_CLICK, onBackdropClick);
             };
@@ -143,7 +143,7 @@ class OffCanvasSingleton {
         }
 
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this)));
     }
 
     /**
@@ -201,80 +201,5 @@ class OffCanvasSingleton {
 
         return offCanvas;
     }
-}
 
-
-/**
- * Create the OffCanvas instance.
- * @type {Readonly<OffCanvasSingleton>}
- */
-export const OffCanvasInstance = Object.freeze(new OffCanvasSingleton());
-
-export default class OffCanvas {
-
-    /**
-     * Open the OffCanvas
-     * @param {string} content
-     * @param {function|null} callback
-     * @param {'left'|'right'|'bottom'} position
-     * @param {boolean} closable
-     * @param {number} delay
-     * @param {boolean} fullwidth
-     * @param {array|string} cssClass
-     */
-    static open(content, callback = null, position = 'left', closable = true, delay = REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
-        OffCanvasInstance.open(content, callback, position, closable, delay, fullwidth, cssClass);
-    }
-
-    /**
-     * Change content of visible OffCanvas
-     * @param {string} content
-     * @param {boolean} closable
-     * @param {number} delay
-     */
-    static setContent(content, closable = true, delay = REMOVE_OFF_CANVAS_DELAY) {
-        OffCanvasInstance.setContent(content, closable, delay);
-    }
-
-    /**
-     * adds an additional class to the offcanvas
-     *
-     * @param {string} className
-     */
-    static setAdditionalClassName(className) {
-        OffCanvasInstance.setAdditionalClassName(className);
-    }
-
-    /**
-     * Close the OffCanvas
-     * @param {number} delay
-     */
-    static close(delay = REMOVE_OFF_CANVAS_DELAY) {
-        OffCanvasInstance.close(delay);
-    }
-
-    /**
-     * Returns whether any OffCanvas exists or not
-     * @returns {boolean}
-     */
-    static exists() {
-        return OffCanvasInstance.exists();
-    }
-
-    /**
-     * returns all existing offcanvas elements
-     *
-     * @returns {NodeListOf<Element>}
-     */
-    static getOffCanvas() {
-        return OffCanvasInstance.getOffCanvas();
-    }
-
-    /**
-     * Expose constant
-     * @returns {number}
-     */
-    static REMOVE_OFF_CANVAS_DELAY() {
-        return REMOVE_OFF_CANVAS_DELAY;
-    }
 }

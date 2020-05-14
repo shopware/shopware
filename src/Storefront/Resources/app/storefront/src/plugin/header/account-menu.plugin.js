@@ -1,10 +1,9 @@
-import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
+import OffcanvasPlugin from '../offcanvas/offcanvas.plugin';
 
-export default class OffCanvasAccountMenu extends Plugin {
+export default class OffCanvasAccountMenu extends OffcanvasPlugin {
 
     static options = {
         /**
@@ -26,7 +25,7 @@ export default class OffCanvasAccountMenu extends Plugin {
          * from which direction the
          * offcanvas opens
          */
-        offcanvasPostion: 'left'
+        offcanvasPostion: 'right'
     };
 
     init() {
@@ -60,8 +59,8 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         this._dropdown.classList.add(this.options.hiddenClass);
 
-        OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
-        OffCanvas.setAdditionalClassName(this.options.additionalClass);
+        this.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true);
+        this.setAdditionalClassName(this.options.additionalClass);
 
         this.$emitter.publish('onClickAccountMenuTrigger');
     }
@@ -72,8 +71,8 @@ export default class OffCanvasAccountMenu extends Plugin {
      * @private
      */
     _onViewportHasChanged() {
-        if (this._isInAllowedViewports() === false && OffCanvas.exists()) {
-            OffCanvas.close();
+        if (this._isInAllowedViewports() === false && this.exists()) {
+            this.close();
         }
 
         if (this._dropdown) {

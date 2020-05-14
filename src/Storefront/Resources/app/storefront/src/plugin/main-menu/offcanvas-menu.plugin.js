@@ -1,11 +1,10 @@
-import Plugin from 'src/plugin-system/plugin.class';
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
+import OffCanvasPlugin from 'src/plugin/offcanvas/offcanvas.plugin';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
 import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 
-export default class OffcanvasMenuPlugin extends Plugin {
+export default class OffcanvasMenuPlugin extends OffCanvasPlugin {
 
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
@@ -44,16 +43,17 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
+        super._registerEvents(true);
         this.el.removeEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
         this.el.addEventListener(this.options.tiggerEvent, this._getLinkEventHandler.bind(this));
 
-        if (OffCanvas.exists()) {
-            const offCanvasElements = OffCanvas.getOffCanvas();
+        if (this.exists()) {
+            const offCanvasElements = this.getOffCanvas();
 
             Iterator.iterate(offCanvasElements, offcanvas => {
                 const links = offcanvas.querySelectorAll(this.options.linkSelector);
                 Iterator.iterate(links, link => {
-                    OffcanvasMenuPlugin._resetLoader(link);
+                    this._resetLoader(link);
                     link.addEventListener('click', (event) => {
                         this._getLinkEventHandler(event, link);
                     });
@@ -69,9 +69,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _openMenu(event) {
-        OffcanvasMenuPlugin._stopEvent(event);
-        OffCanvas.open(this._content, this._registerEvents.bind(this), this.options.position);
-        OffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
+        this._stopEvent(event);
+        this.open(this._content, this._registerEvents.bind(this), this.options.position);
+        this.setAdditionalClassName(this.options.additionalOffcanvasClass);
 
         this.$emitter.publish('openMenu');
     }
@@ -93,12 +93,12 @@ export default class OffcanvasMenuPlugin extends Plugin {
             return this._openMenu(event);
         }
 
-        OffcanvasMenuPlugin._stopEvent(event);
+        this._stopEvent(event);
         if (link.classList.contains(this.options.linkLoadingClass)) {
             return;
         }
 
-        OffcanvasMenuPlugin._setLoader(link);
+        this._setLoader(link);
 
         const url = DomAccess.getAttribute(link, 'data-href', false) || DomAccess.getAttribute(link, 'href', false);
 
@@ -122,7 +122,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @param link
      * @private
      */
-    static _setLoader(link) {
+    _setLoader(link) {
         link.classList.add(this.options.linkLoadingClass);
         const icon = link.querySelector(this.options.loadingIconSelector);
 
@@ -138,7 +138,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @param link
      * @private
      */
-    static _resetLoader(link) {
+    _resetLoader(link) {
         link.classList.remove(this.options.linkLoadingClass);
         const icon = link.querySelector(this.options.loadingIconSelector);
         if (icon && icon._linkIcon) {
@@ -157,8 +157,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
     _updateOverlay(animationType, content) {
         this._content = content;
 
-        if (OffCanvas.exists()) {
-            const offcanvasMenu = OffcanvasMenuPlugin._getOffcanvasMenu();
+        if (this.exists()) {
+            const offcanvasMenu = this._getOffcanvasMenu();
 
             // if there is no content present
             // insert the whole response into the offcanvas
@@ -167,8 +167,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
             }
 
             this._createOverlayElements();
-            const currentContent = OffcanvasMenuPlugin._getOverlayContent(offcanvasMenu);
-            const menuContent = OffcanvasMenuPlugin._getMenuContentFromResponse(content);
+            const currentContent = this._getOverlayContent(offcanvasMenu);
+            const menuContent = this._getMenuContentFromResponse(content);
 
             this._replaceOffcanvasMenuContent(animationType, menuContent, currentContent);
             this._registerEvents();
@@ -270,9 +270,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @returns {string}
      * @private
      */
-    static _getMenuContentFromResponse(content) {
+    _getMenuContentFromResponse(content) {
         const html = new DOMParser().parseFromString(content, 'text/html');
-        return OffcanvasMenuPlugin._getOverlayContent(html);
+        return this._getOverlayContent(html);
     }
 
     /**
@@ -283,7 +283,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @returns {string}
      * @private
      */
-    static _getOverlayContent(element) {
+    _getOverlayContent(element) {
         if (!element) {
             return '';
         }
@@ -303,11 +303,11 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _createOverlayElements() {
-        const offcanvasMenu = OffcanvasMenuPlugin._getOffcanvasMenu();
+        const offcanvasMenu = this._getOffcanvasMenu();
 
         if (offcanvasMenu) {
-            this._placeholder = OffcanvasMenuPlugin._createPlaceholder(offcanvasMenu);
-            this._overlay = OffcanvasMenuPlugin._createNavigationOverlay(offcanvasMenu);
+            this._placeholder = this._createPlaceholder(offcanvasMenu);
+            this._overlay = this._createNavigationOverlay(offcanvasMenu);
         }
 
         this.$emitter.publish('createOverlayElements');
@@ -319,8 +319,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @returns {HTMLElement}
      * @private
      */
-    static _createNavigationOverlay(container) {
-        const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
+    _createNavigationOverlay(container) {
+        const offcanvas = this._getOffcanvas();
         const currentOverlay = offcanvas.querySelector(this.options.overlayClass);
         if (currentOverlay) {
             return currentOverlay;
@@ -340,8 +340,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @returns {HTMLElement}
      * @private
      */
-    static _createPlaceholder(container) {
-        const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
+    _createPlaceholder(container) {
+        const offcanvas = this._getOffcanvas();
         const currentPlaceholder = offcanvas.querySelector(this.options.placeholderClass);
         if (currentPlaceholder) {
             return currentPlaceholder;
@@ -392,19 +392,10 @@ export default class OffcanvasMenuPlugin extends Plugin {
      */
     _replaceOffcanvasContent(content) {
         this._content = content;
-        OffCanvas.setContent(this._content);
+        this.setContent(this._content);
         this._registerEvents();
 
         this.$emitter.publish('replaceOffcanvasContent');
-    }
-
-    /**
-     * @param {Event} event
-     * @private
-     */
-    static _stopEvent(event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
     }
 
     /**
@@ -413,8 +404,8 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @returns {Node}
      * @private
      */
-    static _getOffcanvas() {
-        return OffCanvas.getOffCanvas()[0];
+    _getOffcanvas() {
+        return this.getOffCanvas()[0];
     }
 
     /**
@@ -423,9 +414,18 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @returns {Element|any}
      * @private
      */
-    static _getOffcanvasMenu() {
-        const offcanvas = OffcanvasMenuPlugin._getOffcanvas();
+    _getOffcanvasMenu() {
+        const offcanvas = this._getOffcanvas();
 
         return offcanvas.querySelector(this.options.menuSelector);
+    }
+
+    /**
+     * @param {Event} event
+     * @private
+     */
+    _stopEvent(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
     }
 }

@@ -1,8 +1,7 @@
-import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
-import Plugin from 'src/plugin-system/plugin.class';
+import OffCanvasPlugin from 'src/plugin/offcanvas/offcanvas.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 
-export default class OffCanvasFilter extends Plugin {
+export default class OffCanvasFilterPlugin extends OffCanvasPlugin {
 
     init() {
         this._registerEventListeners();
@@ -24,7 +23,7 @@ export default class OffCanvasFilter extends Plugin {
         // move filter back to original place
         filterContent.innerHTML = oldChildNode.innerHTML;
 
-        document.$emitter.unsubscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
+        this.$emitter.unsubscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
     }
 
@@ -36,29 +35,15 @@ export default class OffCanvasFilter extends Plugin {
      */
     _onClickOffCanvasFilter(event) {
         event.preventDefault();
-        const filterContent = document.querySelector('[data-offcanvas-filter-content="true"]');
+        const filterContent = DomAccess.querySelector(document, '[data-offcanvas-filter-content="true"]');
 
-        if (!filterContent) {
-            throw Error('There was no DOM element with the data attribute "data-offcanvas-filter-content".')
-        }
-
-        OffCanvas.open(
-            filterContent.innerHTML,
-            () => {},
-            'bottom',
-            true,
-            0,
-            true,
-            'offcanvas-filter'
-        );
+        this.open(filterContent.innerHTML, () => {}, 'bottom', true, true, 'offcanvas-filter');
 
         const filterPanel = DomAccess.querySelector(filterContent, '.filter-panel');
-
-        // move filter from original place to offcanvas
-        filterPanel.remove();
+        if (filterPanel) filterPanel.remove();
 
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
-        document.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
+        this.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
 
         this.$emitter.publish('onClickOffCanvasFilter');
     }

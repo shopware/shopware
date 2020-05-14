@@ -643,6 +643,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
 
+    
 **Removals**
 
 * Administration

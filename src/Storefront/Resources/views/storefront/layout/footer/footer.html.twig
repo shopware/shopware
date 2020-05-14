@@ -156,9 +156,17 @@
             {% block layout_footer_vat %}
                 <div class="footer-vat">
                     {% if context.taxState == "gross" %}
-                        <p>{{ "footer.includeVat"|trans|sw_sanitize }}</p>
+                        <p>
+                            {{ "footer.includeVat"|trans({
+                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
+                            })|raw }}
+                        </p>
                     {% else %}
-                        <p>{{ "footer.excludeVat"|trans|sw_sanitize }}</p>
+                        <p>
+                            {{ "footer.excludeVat"|trans({
+                                '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.shippingPaymentInfoPage })
+                            })|raw }}
+                        </p>
                     {% endif %}
                 </div>
             {% endblock %}

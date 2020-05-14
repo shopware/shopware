@@ -495,8 +495,8 @@
     "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "Ihre E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets unter den Ersten sein, über neue Produkte und Angebote informiert werden.",
-    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
-    "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+    "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
     "copyrightInfo": "Realisiert mit Shopware"
   },
   "cookie": {

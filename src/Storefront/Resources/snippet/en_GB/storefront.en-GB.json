@@ -494,8 +494,8 @@
     "serviceContactLink": "Or via our <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"contact form\">contact form</a>.",
     "newsletterInput": "Your email address",
     "newsletter": "Subscribe to our regular newsletter now and stay tuned on the latest products and special offers.",
-    "includeVat": "* All prices incl. value added tax",
-    "excludeVat": "* All prices are quoted net of the statutory value-added tax, <a href=\"#\">shipping costs</a> and possibly delivery charges, if not otherwise described",
+    "includeVat": "* All prices incl. VAT plus <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and cash on delivery charges, if not described otherwise",
+    "excludeVat": "* All prices are quoted net of the statutory value-added tax, <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possibly delivery charges, if not otherwise described",
     "copyrightInfo": "Realised with Shopware"
   },
   "cookie": {

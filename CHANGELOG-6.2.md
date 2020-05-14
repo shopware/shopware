@@ -385,6 +385,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
     * Added config option for disabling reviews in the storefront
 
+    * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
 * Core    
     * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
     * Added protected `packUnitPlural` to `ProductTranslationEntity.php`

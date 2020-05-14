@@ -579,7 +579,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * page_checkout_aside_actions_payment_method_id
         * page_checkout_confirm_form_submit
     * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
-    
+    * Removed alphanumeric filter product numbers in the quick add action
+
 **Removals**
 
 * Administration

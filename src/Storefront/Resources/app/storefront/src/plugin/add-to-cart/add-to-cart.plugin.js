@@ -6,6 +6,12 @@ import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 
 export default class AddToCartPlugin extends Plugin {
 
+    static options = {
+        redirectOffcanvasSelector: '[data-redirect-to="offcanvas"]',
+        redirectDetailSelector: '[data-redirect-to="detail"]',
+        redirectDetailParamSelector: '[data-redirect-parameters="true"]'
+    };
+
     init() {
         this._getForm();
 
@@ -13,7 +19,30 @@ export default class AddToCartPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
+        this._prepareFormRedirect();
+
         this._registerEvents();
+    }
+
+    /**
+     * prepares the redirect values
+     * fallback redirect back to detail page is deactivated
+     * offcanvas redirect is activated
+     *
+     * @private
+     */
+    _prepareFormRedirect() {
+        try {
+            const redirectOffcanvasInput = DomAccess.querySelector(this._form, this.options.redirectOffcanvasSelector);
+            const redirectDetailInput = DomAccess.querySelector(this._form, this.options.redirectDetailSelector);
+            const redirectDetailParamInput = DomAccess.querySelector(this._form, this.options.redirectDetailParamSelector);
+
+            redirectOffcanvasInput.disabled = false;
+            redirectDetailInput.disabled = true;
+            redirectDetailParamInput.disabled = true;
+        } catch (e) {
+            // preparations are not needed if fields are not available
+        }
     }
 
     /**

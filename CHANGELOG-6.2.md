@@ -787,3 +787,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Administration
     * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
+    * Fix timezone of `orderDate` in ordergrid
+    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded

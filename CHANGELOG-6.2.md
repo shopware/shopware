@@ -739,3 +739,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_form_fields` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `page_checkout_confirm_payment_form_submit` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
+    * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
+    * Fix timezone of `orderDate` in ordergrid
+    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened

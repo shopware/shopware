@@ -1374,6 +1374,13 @@ export default {
                     translatable: true
                 }
             },
+            packUnitPlural: {
+                type: 'string',
+                flags: {
+                    inherited: true,
+                    translatable: true
+                }
+            },
             customFields: {
                 type: 'json_object',
                 properties: [],
@@ -3222,6 +3229,10 @@ export default {
                 flags: []
             },
             packUnit: {
+                type: 'string',
+                flags: []
+            },
+            packUnitPlural: {
                 type: 'string',
                 flags: []
             },

@@ -214,6 +214,14 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_hreflang %}
+            <sw-sales-channel-detail-cookie
+                v-if="salesChannel && isStoreFront"
+                :salesChannel="salesChannel"
+                :isLoading="isLoading">
+            </sw-sales-channel-detail-cookie>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_base_options_hreflang %}
             <sw-sales-channel-detail-hreflang
                 v-if="salesChannel && isStoreFront"
                 :salesChannel="salesChannel"

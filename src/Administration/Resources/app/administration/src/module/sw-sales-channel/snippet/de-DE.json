@@ -202,6 +202,11 @@
           "csv": "CSV"
         }
       },
+      "cookie": {
+        "title": "Cookie",
+        "titleCard": "Accept All Cookies",
+        "titleDescription": "The check is used to accept all cookies with one button without the need of configuration"
+      },
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang-Integration",

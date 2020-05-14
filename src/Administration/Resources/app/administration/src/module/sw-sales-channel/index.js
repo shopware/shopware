@@ -8,6 +8,8 @@ import './component/sw-sales-channel-modal-detail';
 import './component/sw-sales-channel-detail-domains';
 import './component/sw-sales-channel-detail-hreflang';
 
+import './component/sw-sales-channel-detail-cookie';
+
 import './component/sw-sales-channel-detail-protect-link';
 import './component/sw-sales-channel-detail-account-connect';
 import './component/sw-sales-channel-detail-account-disconnect';

@@ -1,0 +1,26 @@
+{% block sw_sales_channel_detail_cookie %}
+    <sw-card :title="$tc('sw-sales-channel.detail.cookie.title')"
+             class="sw-sales-channel-detail-cookie">
+        {% block sw_sales_channel_detail_cookie_title %}
+        <h4>
+            <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">{{ $tc('sw-sales-channel.detail.cookie.titleCard') }}</span>
+        </h4>
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_cookie_content %}
+            {% block sw_sales_channel_detail_cookie_description %}
+            <div class="sw-sales-channel-detail-base__description-text">
+                {{ $tc('sw-sales-channel.detail.cookie.titleDescription') }}
+            </div>
+            {% endblock %}
+
+            {% block sw_sales_channel_detail_cookie_content_enable %}
+                <sw-switch-field
+                    v-model="salesChannel.cookieAcceptAllActive"
+                    :label="$tc('sw-sales-channel.detail.cookie.enableCheckbox')"
+                ></sw-switch-field>
+            {% endblock %}
+
+        {% endblock %}
+    </sw-card>
+{% endblock %}

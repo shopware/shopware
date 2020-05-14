@@ -7,11 +7,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CookieService
 {
     /**
-     * @var CookieProvider
+     * @var CookieProviderInterface
      */
     private $cookieProvider;
 
-    public function __construct(CookieProvider $cookieProvider)
+    public function __construct(CookieProviderInterface $cookieProvider)
     {
         $this->cookieProvider = $cookieProvider;
     }

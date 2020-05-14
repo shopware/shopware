@@ -365,6 +365,15 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
+    * Price input fields substitute commas with dots automatically in Add Product page.
+    * Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
+    * Added property `fileAccept` to 
+        * `sw-media-upload-v2`
+        * `sw-media-compact-upload-v2`
+        * `sw-media-modal-v2`
+        * `sw-media-index`
+    * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
+    * Added config option for disabling reviews in the storefront
 
 * Core    
     * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
@@ -544,6 +553,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
+    * Added possibility to delete orders without documents on `sw-order-list`
+    * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
+        * This exception is thrown if the review routes are called if reviews are disabled
 
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`

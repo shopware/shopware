@@ -386,6 +386,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added config option for disabling reviews in the storefront
 
     * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
+    * Added tooltips to the toolbar of text editor
+    * Added isInlineEdit property to component `sw-text-editor-toolbar`
 * Core    
     * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
     * Added protected `packUnitPlural` to `ProductTranslationEntity.php`

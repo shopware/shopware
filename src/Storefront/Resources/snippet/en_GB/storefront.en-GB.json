@@ -351,7 +351,7 @@
     "finishInfoConfirmationMail": "We have sent you an order confirmation by email.",
     "finishButtonBackToShop": "Back to the shop",
     "finishChangePayment": "Change Payment",
-    "finishPaymentFailed": "Unfortunately, your payment process went wrong. Please change your payment method to finish your order.",
+    "finishPaymentFailed": "Unfortunately, your payment process went wrong. Please change your payment method to finish your order. <a href=\"%editOrderUrl%\">Change Payment</a>",
     "codeAddedSuccessful": "Code has been added.",
     "addToCartSuccess": "{1} 1 product has been added to the shopping cart.|]1,Inf[ %count% products have been added to the shopping cart.",
     "shippingCosts": "Shipping costs",

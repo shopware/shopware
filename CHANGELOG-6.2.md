@@ -5,7 +5,7 @@ This changelog references the relevant changes (bug and security fixes) done
 in 6.2 minor versions.
 
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.2.0-rc4...v6.2.0
+To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
 ### 6.2.0
 
@@ -314,6 +314,27 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixes missing snippets in deleting cache notifications
     * Added block `sw_settings_content_card_content` to `sw-settings-index` to override the content of the settings card
     * Fixed variants name in cross selling preview listing
+    * Added `rawUrl` Twig function
+    * The SalesChannel url is now available in every mail template
+    * Fixed after order link in the following mail templates:
+        * `order_confirmation_mail`
+        * `order_delivery.state.cancelled`
+        * `order_delivery.state.returned`
+        * `order_delivery.state.shipped_partially`
+        * `order_delivery.state.shipped`
+        * `order_delivery.state.returned_partially`
+        * `order.state.cancelled`
+        * `order.state.open`
+        * `order.state.in_progress`
+        * `order.state.completed`
+        * `order_transaction.state.refunded_partially`
+        * `order_transaction.state.reminded`
+        * `order_transaction.state.open`
+        * `order_transaction.state.paid`
+        * `order_transaction.state.cancelled`
+        * `order_transaction.state.refunded`
+        * `order_transaction.state.paid_partially`
+    * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
@@ -463,7 +484,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `page_checkout_confirm_shipping_invalid_tooltip`
     * Changed level of `ShippingMethodBlockedError` from `LEVEL_ERROR` to `LEVEL_WARNING`
     * Added `CheckoutConfirmControllerTest`
-    
     * Added `BLUE_GREEN_DEPLOYMENT` environment variable
     * `bin/setup` asks if you want to enable blue/green deployment
     * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
@@ -489,6 +509,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
+
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
@@ -540,7 +561,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
     * Deprecated `page_checkout_confirm_payment_invalid_tooltip` twig block
     * Deprecated `page_checkout_confirm_shipping_invalid_tooltip` twig block
-
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     * Added `\Shopware\Storefront\Theme\ThemeCompilerInterface`
     * Fixed a bug that html purifier config could be overriden for future calls to `sw_sanitize`
@@ -549,7 +569,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `storefront.htmlPurifier.enableCache`: Boolean to turn `HTMLPurifier`s cache cache on or off (defaults to `true`)
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
-    
+    * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
+
 **Removals**
 
 * Administration
@@ -643,10 +664,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix wrong behavior of switch fields, checkboxes and radio fields when clicking on the label
     * Moved bearerAuth location from localStorage to Cookies 
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
-
-* Core
-    *
-
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
@@ -693,3 +710,5 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_form_fields` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `page_checkout_confirm_payment_form_submit` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
+    * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
+    * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`

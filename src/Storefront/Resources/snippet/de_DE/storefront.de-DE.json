@@ -351,7 +351,7 @@
     "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
     "finishButtonBackToShop": "Zurück zum Shop",
     "finishChangePayment":  "Zahlungsart ändern",
-    "finishPaymentFailed": "Unfortunately, your payment process went wrong. Please change your payment method to finish your order.",
+    "finishPaymentFailed": "Leider ist die Zahlung fehlgeschlagen. Bitte ändere die Zahlart um die Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
     "codeAddedSuccessful": "Code wurde erfolgreich hinzugefügt.",
     "addToCartSuccess": "{1} 1 Produkt wurde erfolgreich zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte wurden erfolgreich zum Warenkorb hinzugefügt.",
     "shippingCosts": "Versandkosten",

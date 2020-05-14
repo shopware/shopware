@@ -1,0 +1,99 @@
+name: Jest
+
+on:
+  push:
+
+jobs:
+  admin:
+    runs-on: ubuntu-latest
+    env:
+      DEVELOPMENT_BRANCH: 6.2-BoostDay
+
+    steps:
+    - name: Clone development
+      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+
+    - name: Clone platform
+      uses: actions/checkout@v2
+      with:
+        path: development/platform
+
+    - name: Fix platform for composer
+      run: |
+        cd development/platform
+        git fetch --prune --unshallow
+        git checkout master
+        git checkout -
+        cd ..
+        git reset --hard @
+
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        tools: composer, prestissimo
+        coverage: none
+
+    - name: Start MySQL
+      run: ./development/platform/.github/setup-db.sh mysql:5.7
+    
+    - name: Start Elasticsearch
+      run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
+
+    - name: Install Shopware
+      run: |
+        cd development
+        cp platform/.github/.psh.yaml.override .
+        ./psh.phar init
+
+    - name: Run Jest Admin
+      run: |
+        cd development
+        ./psh.phar administration:install-dependencies
+        ./psh.phar administration:unit
+
+  storefront:
+    runs-on: ubuntu-latest
+    env:
+      DEVELOPMENT_BRANCH: 6.2-BoostDay
+    steps:
+    - name: Clone development
+      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+
+    - name: Clone platform
+      uses: actions/checkout@v2
+      with:
+        path: development/platform
+
+    - name: Fix platform for composer
+      run: |
+        cd development/platform
+        git fetch --prune --unshallow
+        git checkout master
+        git checkout -
+        cd ..
+        git reset --hard @
+
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        tools: composer, prestissimo
+        coverage: none
+
+    - name: Start MySQL
+      run: ./development/platform/.github/setup-db.sh mysql:5.7
+    
+    - name: Start Elasticsearch
+      run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
+
+    - name: Install Shopware
+      run: |
+        cd development
+        cp platform/.github/.psh.yaml.override .
+        ./psh.phar init
+
+    - name: Run Jest Admin
+      run: |
+        cd development
+        export PROJECT_ROOT=$(pwd)
+        ./psh.phar storefront:install-dependencies
+        npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/ run unit

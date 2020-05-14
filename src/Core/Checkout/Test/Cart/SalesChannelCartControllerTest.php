@@ -6,12 +6,15 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Routing\Router;
 
@@ -576,6 +579,62 @@ class SalesChannelCartControllerTest extends TestCase
         static::assertEquals(500, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
         static::assertEquals('Access key is invalid and could not be identified.', $content['errors'][0]['detail']);
+    }
+
+    public function testAddingCreditWithoutPermission(): void
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->createCart();
+
+        $browser->request(
+            'POST',
+            '/sales-channel-api/v1/checkout/cart/line-item/' . $id,
+            [
+                'label' => 'Test',
+                'type' => 'credit',
+                'priceDefinition' => [
+                    'price' => 100,
+                    'type' => 'absolute',
+                    'absolute' => 1,
+                ],
+            ]
+        );
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+
+        $content = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(0, $content['data']['price']['totalPrice']);
+    }
+
+    public function testAddingCreditWithPermission(): void
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->createCart();
+
+        $token = $browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
+
+        $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token);
+        $payload[SalesChannelContextService::PERMISSIONS] = [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true];
+        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload);
+
+        $browser->request(
+            'POST',
+            '/sales-channel-api/v1/checkout/cart/line-item/' . $id,
+            [
+                'label' => 'Test',
+                'type' => 'credit',
+                'priceDefinition' => [
+                    'price' => 100,
+                    'type' => 'absolute',
+                    'absolute' => 1,
+                ],
+            ]
+        );
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+
+        $content = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(100, $content['data']['price']['totalPrice']);
     }
 
     private function createCart(): KernelBrowser

@@ -29,6 +29,11 @@
             <tag name="shopware.payment.method.sync"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <tag name="shopware.payment.method.sync"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>

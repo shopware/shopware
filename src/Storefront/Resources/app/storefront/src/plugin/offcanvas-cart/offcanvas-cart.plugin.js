@@ -23,7 +23,7 @@ export default class OffCanvasCartPlugin extends Plugin {
     };
 
     init() {
-        this.client = new HttpClient();
+        this.client = new HttpClient(window.accessKey, window.contextToken);
         this._registerOpenTriggerEvents();
     }
 

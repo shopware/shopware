@@ -17,7 +17,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -240,7 +239,6 @@ class CartServiceTest extends TestCase
         $cart = $cartService->add($cart, $lineItem, $context);
 
         $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
-        $this->setDomainForSalesChannel('http://shopware.local', Defaults::LANGUAGE_SYSTEM, $context->getContext());
 
         /** @var SystemConfigService $systemConfigService */
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -302,23 +300,5 @@ class CartServiceTest extends TestCase
     {
         return $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-    }
-
-    private function setDomainForSalesChannel(string $domain, string $languageId, Context $context): void
-    {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-
-        $data = [
-            'id' => Defaults::SALES_CHANNEL,
-            'domains' => [[
-                'languageId' => $languageId,
-                'currencyId' => Defaults::CURRENCY,
-                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                'url' => $domain,
-            ]],
-        ];
-
-        $salesChannelRepository->update([$data], $context);
     }
 }

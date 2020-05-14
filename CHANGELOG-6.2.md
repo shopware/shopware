@@ -5,7 +5,7 @@ This changelog references the relevant changes (bug and security fixes) done
 in 6.2 minor versions.
 
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
+To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.2.0-rc4...v6.2.0
 
 ### 6.2.X - Boostday
 
@@ -532,6 +532,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `page_checkout_confirm_shipping_invalid_tooltip`
     * Changed level of `ShippingMethodBlockedError` from `LEVEL_ERROR` to `LEVEL_WARNING`
     * Added `CheckoutConfirmControllerTest`
+    
     * Added `BLUE_GREEN_DEPLOYMENT` environment variable
     * `bin/setup` asks if you want to enable blue/green deployment
     * Removed custom cache from `\Shopware\Storefront\Theme\ThemeService` to fix http cache invalidation issues
@@ -615,6 +616,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedEvent`
     * Deprecated `page_checkout_confirm_payment_invalid_tooltip` twig block
     * Deprecated `page_checkout_confirm_shipping_invalid_tooltip` twig block
+
     * Added Javascript plugin `form-preserver.plugin.js` to preserve entered values of a form. Add the data attribute `data-form-preserver="true"` to your form to enable the plugin. It will preserve the entered values in the local storage, and restore the values after a page reload. Once the form is submitted, the values are cleared from the storage.
     * Added `\Shopware\Storefront\Theme\ThemeCompilerInterface`
     * Fixed a bug that html purifier config could be overriden for future calls to `sw_sanitize`
@@ -633,6 +635,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
 
+    
 **Removals**
 
 * Administration
@@ -728,6 +731,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`  
     * Refactor the component `sw_customer_base_form`
         * Removed snippet `sw-customer.baseForm.helpTextPassword`  
+    * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
+
+* Core
+    *
 
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor

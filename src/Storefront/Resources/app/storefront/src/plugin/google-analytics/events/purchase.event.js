@@ -24,7 +24,6 @@ export default class PurchaseEvent extends AnalyticsEvent
         }
 
         gtag('event', 'purchase', {
-            // @deprecated tag:v6.3.0 - context token will be removed
             'transaction_id': window.contextToken,
             'items':  LineItemHelper.getLineItems()
         });

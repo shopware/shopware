@@ -25,7 +25,7 @@ export default class FormCsrfHandler extends Plugin {
         // check if validation plugin is active for this form
         this._validationPluginActive = !!window.PluginManager.getPluginInstanceFromElement(this._form, 'FormValidation');
 
-        this.client = new HttpClient();
+        this.client = new HttpClient(window.accessKey, window.contextToken);
         this.registerEvents();
     }
 

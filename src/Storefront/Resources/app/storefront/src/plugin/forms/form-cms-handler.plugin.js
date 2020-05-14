@@ -12,7 +12,7 @@ export default class FormCmsHandler extends Plugin {
     };
 
     init() {
-        this._client = new HttpClient();
+        this._client = new HttpClient(window.accessKey, window.contextToken);
         this._getButton();
         this._getHiddenSubmit();
         this._registerEvents();

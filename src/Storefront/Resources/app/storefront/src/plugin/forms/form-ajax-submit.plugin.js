@@ -63,7 +63,7 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         }
 
         this._callbacks = [];
-        this._client = new HttpClient();
+        this._client = new HttpClient(window.accessKey, window.contextToken);
         this._registerEvents();
     }
 

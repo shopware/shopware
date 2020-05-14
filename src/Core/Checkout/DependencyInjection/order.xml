@@ -54,7 +54,6 @@
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
-            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>

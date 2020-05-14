@@ -22,7 +22,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
 
-        this._client = new HttpClient();
+        this._client = new HttpClient(window.accessKey, window.contextToken);
 
         if (this.options.useAjax) {
             if (!this.options.ajaxContainerSelector) {

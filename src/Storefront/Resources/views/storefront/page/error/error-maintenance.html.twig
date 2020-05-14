@@ -105,10 +105,8 @@
         {% block error_maintenance_body_script %}
             {% block error_maintenance_script_token %}
                 <script>
-                    {# @deprecated tag:v6.3.0 accessKey and contextToken will be removed #}
-                    window.accessKey = '';
-                    window.contextToken = '';
-                    window.apiAccessUrl = "{{ url('frontend.api-access') }}";
+                    window.accessKey = '{{ context.salesChannel.accessKey }}';
+                    window.contextToken = '{{ context.token }}';
                 </script>
             {% endblock %}
 

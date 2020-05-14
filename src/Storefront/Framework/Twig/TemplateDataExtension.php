@@ -7,6 +7,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Cookie\CookieService;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,11 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     private $themeService;
 
     /**
+     * @var CookieService
+     */
+    private $cookieService;
+
+    /**
      * @var bool
      */
     private $csrfEnabled;
@@ -45,6 +51,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         RequestStack $requestStack,
         SystemConfigService $systemConfigService,
         ThemeService $themeService,
+        CookieService $cookieService,
         bool $csrfEnabled,
         string $csrfMode
     ) {
@@ -53,6 +60,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         $this->themeService = $themeService;
         $this->csrfEnabled = $csrfEnabled;
         $this->csrfMode = $csrfMode;
+        $this->cookieService = $cookieService;
     }
 
     public function getGlobals(): array
@@ -90,6 +98,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
+            'cookieGroups' => $this->cookieService->getCookieGroups($context),
         ];
     }
 

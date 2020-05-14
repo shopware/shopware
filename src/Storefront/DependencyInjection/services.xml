@@ -43,6 +43,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieService"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
 
@@ -439,6 +440,10 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider" />
+
+        <service id="Shopware\Storefront\Framework\Cookie\CookieService">
+            <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
+        </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
             <argument type="tagged" tag="shopware.storefront.captcha"/>

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Storefront\Framework\Cookie\CookieService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,13 +19,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class CookieController extends StorefrontController
 {
     /**
-     * @var CookieProviderInterface
+     * @var CookieService
      */
-    private $cookieProvider;
+    private $cookieService;
 
-    public function __construct(CookieProviderInterface $cookieProvider)
+    public function __construct(CookieService $cookieService)
     {
-        $this->cookieProvider = $cookieProvider;
+        $this->cookieService = $cookieService;
     }
 
     /**
@@ -33,8 +33,7 @@ class CookieController extends StorefrontController
      */
     public function offcanvas(SalesChannelContext $context): Response
     {
-        $cookieGroups = $this->cookieProvider->getCookieGroups();
-        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
+        $cookieGroups = $this->cookieService->getCookieGroups($context);
 
         return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', ['cookieGroups' => $cookieGroups]);
     }
@@ -44,35 +43,8 @@ class CookieController extends StorefrontController
      */
     public function permission(SalesChannelContext $context): Response
     {
-        $cookieGroups = $this->cookieProvider->getCookieGroups();
-        $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
+        $cookieGroups = $this->cookieService->getCookieGroups($context);
 
         return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', ['cookieGroups' => $cookieGroups]);
-    }
-
-    private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
-    {
-        if ($context->getSalesChannel()->getAnalytics() && $context->getSalesChannel()->getAnalytics()->isActive()) {
-            return $cookieGroups;
-        }
-
-        $filteredGroups = [];
-
-        foreach ($cookieGroups as $cookieGroup) {
-            if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
-                $cookieGroup['entries'] = array_filter($cookieGroup['entries'], function ($item) {
-                    return $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics';
-                });
-                // Only add statistics cookie group if it has entries
-                if (count($cookieGroup['entries']) > 0) {
-                    $filteredGroups[] = $cookieGroup;
-                }
-
-                continue;
-            }
-            $filteredGroups[] = $cookieGroup;
-        }
-
-        return $filteredGroups;
     }
 }

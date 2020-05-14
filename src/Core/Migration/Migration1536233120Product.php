@@ -70,7 +70,7 @@ class Migration1536233120Product extends MigrationStep
               `tags` BINARY(16) NULL,
               `variant_restrictions` JSON NULL,
               `configurator_group_sorting` JSON NULL,
-              # TODO Camel case naming is currenc intended. See NEXT-3085 
+              # TODO Camel case naming is currenc intended. See NEXT-3085
               `searchKeywords` BINARY(16) NULL,
               `created_at` DATETIME(3) NULL,
               `updated_at` DATETIME(3) NULL,
@@ -109,6 +109,7 @@ class Migration1536233120Product extends MigrationStep
               `description` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NULL,
               `meta_title` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `pack_unit` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
+              `pack_unit_plural` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,

@@ -576,6 +576,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
+    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+        * page_checkout_aside_actions_csrf
+        * page_checkout_aside_actions_payment_method_id
+        * page_checkout_confirm_form_submit
+    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
 
     * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
         * page_checkout_aside_actions_csrf

@@ -519,6 +519,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added possibility to delete orders without documents on `sw-order-list`
+    * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
@@ -587,6 +588,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * page_checkout_confirm_form_submit
     * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
     * Removed alphanumeric filter product numbers in the quick add action
+    * If all variants are expanded in the listing display the buy button
 
 **Removals**
 

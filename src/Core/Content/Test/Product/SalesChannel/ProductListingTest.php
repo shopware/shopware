@@ -119,6 +119,16 @@ class ProductListingTest extends TestCase
             $this->testData->getId('product5-green'),
         ]);
 
+        self::assertVariantGroup($listing, [
+            'product1',
+            'product4',
+            'product5',
+        ]);
+
+        self::assertVariantNotGroup($listing, [
+            'product2',
+        ]);
+
         /** @var EntityResult $result */
         $result = $listing->getAggregations()->get('properties');
 
@@ -158,6 +168,41 @@ class ProductListingTest extends TestCase
         // after one id found, assert that all other ids are not inside the result set
         foreach ($pool as $id) {
             static::assertFalse($result->has($id));
+        }
+    }
+
+    /**
+     * Small helper function which asserts that all products beginning with the given numbers
+     * in $pool are groups of products, i.e. the product is not unique
+     */
+    private static function assertVariantGroup(EntitySearchResult $result, array $pool): void
+    {
+        foreach ($result->getEntities() as $product) {
+            $productNumber = $product->getProductNumber();
+            $productShouldBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
+                return strpos($productNumber, $item) === 0;
+            });
+            if ($productShouldBeGroup) {
+                static::assertTrue($product->isProductGroup());
+            }
+        }
+    }
+
+    /**
+     * Small helper function which asserts that all products beginning with the given numbers
+     * in $pool are not groups of products, i.e. the product is unique
+     */
+    private static function assertVariantNotGroup(EntitySearchResult $result, array $pool): void
+    {
+        foreach ($result->getEntities() as $product) {
+            $productNumber = $product->getProductNumber();
+            $productShouldNotBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
+                return strpos($productNumber, $item) === 0;
+            });
+
+            if ($productShouldNotBeGroup) {
+                static::assertFalse($product->isProductGroup());
+            }
         }
     }
 

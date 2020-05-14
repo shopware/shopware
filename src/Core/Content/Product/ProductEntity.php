@@ -249,6 +249,11 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
+     * @var bool|null
+     */
+    protected $isProductGroup;
+
+    /**
      * @var string|null
      */
     protected $mainVariantId;
@@ -937,6 +942,22 @@ class ProductEntity extends Entity
     public function setConfiguratorSettings(ProductConfiguratorSettingCollection $configuratorSettings): void
     {
         $this->configuratorSettings = $configuratorSettings;
+    }
+
+    public function isProductGroup(): bool
+    {
+        // Either isProductGroup is is set or we currently have a variant product
+        return $this->isProductGroup ?? $this->isVariantProduct();
+    }
+
+    public function setIsProductGroup(?bool $isProductGroup): void
+    {
+        $this->isProductGroup = $isProductGroup;
+    }
+
+    public function isVariantProduct(): bool
+    {
+        return !($this->getParentId() === null && $this->getChildCount() === 0);
     }
 
     public function getCategoriesRo(): ?CategoryCollection

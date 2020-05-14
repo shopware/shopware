@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -141,6 +142,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function handleResult(ProductListingResultEvent $event): void
     {
+        $this->applyListingProductGroupStatus($event);
+
         $this->groupOptionAggregations($event);
 
         $this->addCurrentFilters($event);
@@ -341,6 +344,31 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $properties = $properties ? $properties->getKeys() : [];
 
         return array_unique(array_filter(array_merge($options, $properties)));
+    }
+
+    private function applyListingProductGroupStatus(ProductListingResultEvent $event): void
+    {
+        foreach ($event->getResult()->getEntities() as $product) {
+            if ($product->isProductGroup()) {
+                if ($this->variantGroupsFullyExpanded($product)) {
+                    $product->setIsProductGroup(false);
+                }
+            }
+        }
+    }
+
+    private function variantGroupsFullyExpanded(ProductEntity $product): bool
+    {
+        if (!is_array($product->getConfiguratorGroupConfig()) || !is_array($product->getOptionIds())) {
+            return false;
+        }
+
+        // Check if all configurator groups are expanded
+        return count($product->getOptionIds()) === count(
+            array_filter($product->getConfiguratorGroupConfig(), function (array $config) {
+                return $config['expressionForListings'] ?? false;
+            })
+        );
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void

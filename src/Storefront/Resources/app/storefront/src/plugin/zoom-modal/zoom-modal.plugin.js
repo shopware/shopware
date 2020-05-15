@@ -2,6 +2,8 @@ import Plugin from 'src/plugin-system/plugin.class';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
+import DomAccess from 'src/helper/dom-access.helper';
+import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 
 /**
  * Zoom Modal Plugin
@@ -43,7 +45,27 @@ export default class ZoomModalPlugin extends Plugin {
         /**
          * selector for the container of the gallery and the zoom modal
          */
-        galleryZoomModalContainerSelector: '.js-gallery-zoom-modal-container'
+        galleryZoomModalContainerSelector: '.js-gallery-zoom-modal-container',
+
+        /**
+         * selector for the images inside the modal which should be loaded on modal show
+         */
+        imgToLoadSelector: '.js-load-img',
+
+        /**
+         * data attribute which contains the src of the image to load
+         */
+        imgDataSrcAttr: 'data-src',
+
+        /**
+         * data attribute which contains the srcset of the image to load
+         */
+        imgDataSrcSetAttr: 'data-srcset',
+
+        /**
+         * selector for the active tiny slider slide
+         */
+        activeSlideSelector: '.tns-slide-active'
     };
 
     init() {
@@ -100,21 +122,84 @@ export default class ZoomModalPlugin extends Plugin {
         const galleryZoomModalContainer = this.el.closest(this.options.galleryZoomModalContainerSelector);
         const modal = galleryZoomModalContainer.querySelector(this.options.modalSelector);
 
+        // load images before modal is shown
         if (modal) {
-            // execute all needed scripts for the slider
-            const $modal = $(modal);
-
-            $modal.off('shown.bs.modal');
-            $modal.on('shown.bs.modal', () => {
-                this._initSlider(modal);
-
-                this.$emitter.publish('modalShow', { modal });
-            });
-
-            $modal.modal('show');
+            this._loadImages(modal);
         }
 
         this.$emitter.publish('onClick', { modal });
+    }
+
+    /**
+     * load images inside modal before modal is shown
+     *
+     * @private
+     */
+    _loadImages(modal) {
+        const imagesToLoad = modal.querySelectorAll('img[' + this.options.imgDataSrcAttr + ']' + this.options.imgToLoadSelector);
+        const imageCount = imagesToLoad.length;
+
+        // images are already loaded
+        if (imageCount === 0) {
+            this._showModal(modal);
+            return;
+        }
+
+        let loadedCount = 0;
+        let errorCount = 0;
+
+        Iterator.iterate(imagesToLoad, img => {
+            const src = DomAccess.getDataAttribute(img, this.options.imgDataSrcAttr);
+            const srcSet = DomAccess.getDataAttribute(img, this.options.imgDataSrcSetAttr);
+
+            if (src) {
+                img.onload = () => {
+                    loadedCount++;
+
+                    // show modal if all images are loaded or error occured
+                    if (loadedCount + errorCount === imageCount){
+                        this._showModal(modal);
+                    }
+                };
+
+                img.onerror = () => {
+                    errorCount++;
+
+                    // show modal if all images are loaded or error occured
+                    if (loadedCount + errorCount === imageCount){
+                        this._showModal(modal);
+                    }
+                };
+
+                img.setAttribute('src', src);
+                img.removeAttribute(this.options.imgDataSrcAttr);
+
+                if (srcSet) {
+                    img.setAttribute('srcset', srcSet);
+                    img.removeAttribute(this.options.imgDataSrcSetAttr);
+                }
+            }
+        });
+    }
+
+    /**
+     * trigger bootstrap modal show function
+     *
+     * @private
+     */
+    _showModal(modal) {
+        // execute all needed scripts for the slider
+        const $modal = $(modal);
+
+        $modal.off('shown.bs.modal');
+        $modal.on('shown.bs.modal', () => {
+            this._initSlider(modal);
+            this._registerImageZoom();
+
+            this.$emitter.publish('modalShow', { modal });
+        });
+
+        $modal.modal('show');
     }
 
     /**
@@ -161,37 +246,56 @@ export default class ZoomModalPlugin extends Plugin {
 
         this.gallerySliderPlugin = PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
 
-        this._registerImageZoom();
-
         this.$emitter.publish('initSlider');
     }
 
     /**
-     * register indexChanged callback to update the image zoom button state
+     * register ImageZoom Plugin and indexChanged callback to update the image zoom button state
      *
      * @private
      */
     _registerImageZoom() {
-        this._updateImageZoom();
-        this.gallerySliderPlugin._slider.events.on('indexChanged', this._updateImageZoom.bind(this));
+        if (this.imageZoomRegistered) {
+            return;
+        }
+
+        if (this.gallerySliderPlugin) {
+            PluginManager.register('ImageZoom', ImageZoomPlugin, this.options.activeSlideSelector + ' ' + this.options.imageZoomInitSelector);
+
+            PluginManager.initializePlugin('ImageZoom', this.options.activeSlideSelector + ' ' + this.options.imageZoomInitSelector);
+
+            this.gallerySliderPlugin._slider.events.off('indexChanged', this._updateImageZoom.bind(this));
+            this.gallerySliderPlugin._slider.events.on('indexChanged',this._updateImageZoom.bind(this));
+        } else {
+            PluginManager.register('ImageZoom', ImageZoomPlugin, this.options.imageZoomInitSelector);
+
+            PluginManager.initializePlugin('ImageZoom', this.options.imageZoomInitSelector, {
+                activeClassSelector: false
+            });
+        }
+
+        this.imageZoomRegistered = true;
     }
 
     /**
-     * updates the image zoom instance after a slider event
+     * updates or initializes the image zoom instance after a slider event
      *
      * @private
      */
     _updateImageZoom() {
         const activeSlideElement = this.gallerySliderPlugin.getActiveSlideElement();
         if (!activeSlideElement) return;
+
         const activeImageZoomElement = activeSlideElement.querySelector(this.options.imageZoomInitSelector);
         if (!activeImageZoomElement) return;
+
         const imageZoomPlugin = PluginManager.getPluginInstanceFromElement(activeImageZoomElement, 'ImageZoom');
-        if (!imageZoomPlugin) return;
-
-        imageZoomPlugin.update();
+        if (!imageZoomPlugin) {
+            PluginManager.initializePlugin('ImageZoom', this.options.activeSlideSelector + ' ' + this.options.imageZoomInitSelector);
+        } else {
+            imageZoomPlugin.update();
+        }
     }
-
 
     /**
      * returns the current index of the parent slider

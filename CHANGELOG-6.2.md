@@ -588,6 +588,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * page_checkout_confirm_form_submit
     * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
     * Removed alphanumeric filter product numbers in the quick add action
+    * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
+    * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
 
 **Removals**
 

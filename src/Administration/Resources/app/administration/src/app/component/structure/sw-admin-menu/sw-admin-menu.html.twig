@@ -155,7 +155,7 @@
                     <div v-if="flyoutEntries.length"
                          class="sw-admin-menu__flyout"
                          :style="flyoutStyle"
-                         @mouseleave="closeFlyout">
+                         @mouseleave="closeFlyout($event)">
 
                         {% block sw_admin_menu_flyout_label %}
                             <div v-if="!isExpanded" class="sw-admin-menu__flyout-label" :style="{'border-color': flyoutColor}">

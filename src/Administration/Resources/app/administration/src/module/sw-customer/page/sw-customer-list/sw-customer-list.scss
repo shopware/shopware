@@ -17,6 +17,11 @@ $sw-customer-list-color-success: $color-emerald;
     .is--active {
         color: $sw-customer-list-color-success;
     }
+
+    .sw-customer-list__metadata-customer-guest-label {
+        margin: 0 0 0 12px;
+        text-align: center;
+    }
 }
 
 .sw-customer-list__sidebar {

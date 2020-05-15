@@ -209,6 +209,10 @@ Table of contents
 * Added new method `getOrders` to `\Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse`
 * Deprecated return object from method `getObject` in class `\Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse`. It will return in future a `\Shopware\Core\Framework\Struct\ArrayStruct` instead of `OrderRouteResponseStruct`
 * Added new constructor argument `$apiAlias` to `\Shopware\Core\Framework\Struct\ArrayStruct`. The given value will be used for `getApiAlias` method.
+* Added new entities needed for the essential characteristics feature
+    * `\Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition`
+    * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition`
+    * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition`
 
 #### Storefront
 * Added plugin injection in hot mode

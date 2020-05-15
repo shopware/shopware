@@ -335,6 +335,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
+    * Added language switch to Scale Units list page to translate scale units
     * Added tooltips to the toolbar of text editor
     * Added isInlineEdit property to component `sw-text-editor-toolbar`
     * Price input fields substitute commas with dots automatically in Add Product page.

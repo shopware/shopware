@@ -239,6 +239,11 @@ class ProductEntity extends Entity
     protected $packUnit;
 
     /**
+     * @var string|null
+     */
+    protected $packUnitPlural;
+
+    /**
      * @var array|null
      */
     protected $variantRestrictions;
@@ -720,6 +725,16 @@ class ProductEntity extends Entity
     public function setPackUnit(?string $packUnit): void
     {
         $this->packUnit = $packUnit;
+    }
+
+    public function getPackUnitPlural(): ?string
+    {
+        return $this->packUnitPlural;
+    }
+
+    public function setPackUnitPlural(?string $packUnitPlural): void
+    {
+        $this->packUnitPlural = $packUnitPlural;
     }
 
     public function getTax(): ?TaxEntity

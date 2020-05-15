@@ -12,6 +12,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
+
+    * Added string for `packUnitPlural` to `sw-product-stream/snippet/en-EN.json` and `sw-product-stream/snippet/de-DE.json` 
+        * Added `packUnitPlural`
+    * Added strings for `packUnitPlural` to `sw-product/snippet/en-GB.json` and `sw-product/snippet/de-DE.json` 
+        * Added `placeholderPackUnitPlural`
+        * Added `labelPackUnitPlural`
+        * Added `packUnitPluralHelpText`
+    * Added translated `packUnitPlural` field to `sw-product-packaging-form`
+    * Added `packUnitPlural` to `entity-schema.mock.js`
+    * Added block `sw_product_packaging_form_height_field` to `sw-product-packaging-form`
     * Added `onDuplicate` to `sw-product-detail` and `sw-product-list`
     * Added Overwrites parameter to `clone` in `repository.data.js`. Overwrites contain entity field which should be overwritten with the given data. Example in `sw-product-detail` -> `onDuplicate`
     * Added `disabled` attribute of fields to `sw-customer-address-form` component
@@ -350,6 +360,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
     * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
 * Core    
+    * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
+    * Added protected `packUnitPlural` to `ProductTranslationEntity.php`
+    * Added StringField `packUnitPlural` to `ProductTranslationDefinition.php`
+    * Added protected `packUnitPlural` to `ProductEntity.php`
+    * Added TranslatedField `packUnitPlural` to `ProductDefinition.php`
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
     * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`
     * The `clone` method of the `ApiController` now passes overwrites to the `EntityRepository`
@@ -528,6 +543,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * This exception is thrown if the review routes are called if reviews are disabled
 
 * Storefront
+    * Added `pack_unit_plural` to `buy-widget-form.html.twig`
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
     * Added new `\Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to check available attributes in cart 

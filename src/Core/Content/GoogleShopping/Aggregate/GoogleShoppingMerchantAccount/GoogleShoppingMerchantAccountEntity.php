@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount;
 
+use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingAdsAccount\GoogleShoppingAdsAccountEntity;
 use Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -34,6 +35,11 @@ class GoogleShoppingMerchantAccountEntity extends Entity
      * @var GoogleShoppingAccountEntity|null
      */
     protected $account;
+
+    /**
+     * @var GoogleShoppingAdsAccountEntity|null
+     */
+    protected $googleShoppingAdsAccount;
 
     public function getAccountId(): string
     {
@@ -83,5 +89,15 @@ class GoogleShoppingMerchantAccountEntity extends Entity
     public function setDatafeedId(?string $datafeedId): void
     {
         $this->datafeedId = $datafeedId;
+    }
+
+    public function getGoogleShoppingAdsAccount(): ?GoogleShoppingAdsAccountEntity
+    {
+        return $this->googleShoppingAdsAccount;
+    }
+
+    public function setGoogleShoppingAdsAccount(?GoogleShoppingAdsAccountEntity $googleShoppingAdsAccount): void
+    {
+        $this->googleShoppingAdsAccount = $googleShoppingAdsAccount;
     }
 }

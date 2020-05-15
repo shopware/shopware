@@ -13,6 +13,9 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingAdsAccount\GoogleShoppingAdsAccountDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
         <!-- Field Serializer -->
         <service id="Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\FieldSerializer\GoogleAccountCredentialFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

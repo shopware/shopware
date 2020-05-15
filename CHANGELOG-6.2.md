@@ -344,6 +344,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw-media-index`
     * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
 
+    * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
     * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`

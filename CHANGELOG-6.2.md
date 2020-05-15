@@ -336,6 +336,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
     * Added language switch to Scale Units list page to translate scale units
+    * Added tooltips to the toolbar of text editor
+    * Added isInlineEdit property to component `sw-text-editor-toolbar`
     * Price input fields substitute commas with dots automatically in Add Product page.
     * Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
     * Added property `fileAccept` to 
@@ -589,6 +591,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * page_checkout_confirm_form_submit
     * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
     * Removed alphanumeric filter product numbers in the quick add action
+    * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
+    * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
 
 **Removals**
 

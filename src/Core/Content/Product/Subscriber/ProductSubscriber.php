@@ -41,9 +41,11 @@ class ProductSubscriber implements EventSubscriberInterface
 
         if (!$product->getConfiguratorGroupConfig()) {
             // fallback - simply take all option names unordered
-            return $product->getOptions()->map(function (PropertyGroupOptionEntity $option) {
+            $names = $product->getOptions()->map(function (PropertyGroupOptionEntity $option) {
                 return $option->getTranslation('name');
             });
+
+            return array_values($names);
         }
 
         // collect option names in order of the configuration

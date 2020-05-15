@@ -37,7 +37,7 @@
                             </li>
                         {% endblock %}
                         {% block page_product_detail_tabs_navigation_review %}
-                            {% if shopware.config.detail.showReviews %}
+                            {% if shopware.config.core.listing.showReview %}
                                 <li class="nav-item">
                                     <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
                                        id="review-tab"
@@ -74,7 +74,7 @@
                         {% endblock %}
 
                         {% block page_product_detail_tabs_content_review %}
-                            {% if shopware.config.detail.showReviews %}
+                            {% if shopware.config.core.listing.showReview %}
                                 <div class="tab-pane fade show {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %}"
                                      id="review-tab-pane"
                                      role="tabpanel"

@@ -346,6 +346,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw-media-modal-v2`
         * `sw-media-index`
     * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
+    * Added config option for disabling reviews in the storefront
 
     * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
 * Core    
@@ -523,6 +524,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added possibility to delete orders without documents on `sw-order-list`
+    * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
+        * This exception is thrown if the review routes are called if reviews are disabled
 
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations

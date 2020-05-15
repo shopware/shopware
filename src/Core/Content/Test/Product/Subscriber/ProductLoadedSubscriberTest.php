@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\Product\Subscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
-use Shopware\Core\Content\Product\Subscriber\ProductLoadedSubscriber;
+use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -27,8 +27,8 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testExtensionSubscribesToProductLoaded(): void
     {
-        static::assertArrayHasKey(ProductEvents::PRODUCT_LOADED_EVENT, ProductLoadedSubscriber::getSubscribedEvents());
-        static::assertCount(1, ProductLoadedSubscriber::getSubscribedEvents()[ProductEvents::PRODUCT_LOADED_EVENT]);
+        static::assertArrayHasKey(ProductEvents::PRODUCT_LOADED_EVENT, ProductSubscriber::getSubscribedEvents());
+        static::assertCount(1, ProductSubscriber::getSubscribedEvents()[ProductEvents::PRODUCT_LOADED_EVENT]);
     }
 
     /**
@@ -56,7 +56,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $context)
             ->first();
 
-        $subscriber = $this->getContainer()->get(ProductLoadedSubscriber::class);
+        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
         $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
         $subscriber->addVariantCharacteristics($productLoadedEvent);
 

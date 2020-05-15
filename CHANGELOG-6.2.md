@@ -519,8 +519,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added possibility to delete orders without documents on `sw-order-list`
-    * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
-
+    * Added methods `isGrouped` in `\Shopware\Core\Content\Product\ProductEntity`
 * Storefront
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration

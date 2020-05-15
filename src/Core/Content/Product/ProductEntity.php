@@ -249,9 +249,9 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
-     * @var bool|null
+     * @var bool
      */
-    protected $isProductGroup;
+    protected $grouped = false;
 
     /**
      * @var string|null
@@ -944,20 +944,14 @@ class ProductEntity extends Entity
         $this->configuratorSettings = $configuratorSettings;
     }
 
-    public function isProductGroup(): bool
+    public function setGrouped(bool $grouped): void
     {
-        // Either isProductGroup is is set or we currently have a variant product
-        return $this->isProductGroup ?? $this->isVariantProduct();
+        $this->grouped = $grouped;
     }
 
-    public function setIsProductGroup(?bool $isProductGroup): void
+    public function isGrouped(): bool
     {
-        $this->isProductGroup = $isProductGroup;
-    }
-
-    public function isVariantProduct(): bool
-    {
-        return !($this->getParentId() === null && $this->getChildCount() === 0);
+        return $this->grouped;
     }
 
     public function getCategoriesRo(): ?CategoryCollection

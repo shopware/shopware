@@ -183,7 +183,7 @@ class ProductListingTest extends TestCase
                 return strpos($productNumber, $item) === 0;
             });
             if ($productShouldBeGroup) {
-                static::assertTrue($product->isProductGroup());
+                static::assertTrue($product->isGrouped());
             }
         }
     }
@@ -201,7 +201,7 @@ class ProductListingTest extends TestCase
             });
 
             if ($productShouldNotBeGroup) {
-                static::assertFalse($product->isProductGroup());
+                static::assertFalse($product->isGrouped());
             }
         }
     }

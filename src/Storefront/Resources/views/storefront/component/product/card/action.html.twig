@@ -5,7 +5,7 @@
         <div class="product-action">
             {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
 
-            {% if isAvailable and not product.isProductGroup  %}
+            {% if isAvailable and not product.isGrouped  %}
                 {% block component_product_box_action_buy %}
                     {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
                        <form action="{{ path('frontend.checkout.line-item.add') }}"

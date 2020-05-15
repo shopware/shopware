@@ -122,6 +122,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
 
         $criteria->addAssociation('cover.media');
+        $criteria->addAssociation('options');
 
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
@@ -142,7 +143,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function handleResult(ProductListingResultEvent $event): void
     {
-        $this->applyListingProductGroupStatus($event);
+        $this->setGroupedFlag($event);
 
         $this->groupOptionAggregations($event);
 
@@ -346,29 +347,64 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return array_unique(array_filter(array_merge($options, $properties)));
     }
 
-    private function applyListingProductGroupStatus(ProductListingResultEvent $event): void
+    private function setGroupedFlag(ProductListingResultEvent $event): void
     {
+        /** @var ProductEntity $product */
         foreach ($event->getResult()->getEntities() as $product) {
-            if ($product->isProductGroup()) {
-                if ($this->variantGroupsFullyExpanded($product)) {
-                    $product->setIsProductGroup(false);
-                }
+            if ($product->getParentId() === null) {
+                continue;
             }
+
+            $product->setGrouped(
+                $this->isGrouped($event->getRequest(), $product)
+            );
         }
     }
 
-    private function variantGroupsFullyExpanded(ProductEntity $product): bool
+    private function isGrouped(Request $request, ProductEntity $product): bool
     {
-        if (!is_array($product->getConfiguratorGroupConfig()) || !is_array($product->getOptionIds())) {
+        // get all configured expanded groups
+        $groups = array_filter(
+            (array) $product->getConfiguratorGroupConfig(),
+            function (array $config) {
+                return $config['expressionForListings'] ?? false;
+            }
+        );
+
+        // get ids of groups for later usage
+        $groups = array_column($groups, 'id');
+
+        // expanded group count matches option count? All variants are displayed
+        if (count($groups) === count($product->getOptionIds())) {
             return false;
         }
 
-        // Check if all configurator groups are expanded
-        return count($product->getOptionIds()) === count(
-            array_filter($product->getConfiguratorGroupConfig(), function (array $config) {
-                return $config['expressionForListings'] ?? false;
-            })
-        );
+        if (!$product->getOptions()) {
+            return true;
+        }
+
+        // get property ids which are applied as filter
+        $properties = $this->getPropertyIds($request);
+
+        // now count the configured groups and filtered options
+        $count = 0;
+        foreach ($product->getOptions() as $option) {
+            // check if this option is filtered
+            if (in_array($option->getId(), $properties, true)) {
+                ++$count;
+
+                continue;
+            }
+
+            // check if the option contained in the expanded groups
+            if (in_array($option->getGroupId(), $groups, true)) {
+                ++$count;
+
+                continue;
+            }
+        }
+
+        return $count !== count($product->getOptionIds());
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void

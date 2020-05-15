@@ -1,0 +1,12 @@
+@import '~scss/variables';
+
+.sw-sales-channel-detail-protect-link {
+    text-decoration: none;
+    color: $color-shopware-brand-500;
+    font-size: $font-size-small;
+
+    &:hover {
+        color: $color-shopware-brand-600;
+        text-decoration: underline;
+    }
+}

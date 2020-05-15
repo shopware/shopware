@@ -33,8 +33,8 @@ Component.register('sw-sales-channel-google-done-verification', {
                 left: {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonBack'),
                     variant: null,
-                    action: 'sw.sales.channel.detail.base.step-6',
-                    disabled: false
+                    action: 'sw.sales.channel.detail.base.step-7',
+                    disabled: true
                 }
             };
 

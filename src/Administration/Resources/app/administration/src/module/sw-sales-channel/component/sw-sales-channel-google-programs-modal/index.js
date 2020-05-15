@@ -49,10 +49,6 @@ Component.register('sw-sales-channel-google-programs-modal', {
                 'step-7': {
                     name: 'sw.sales.channel.detail.base.step-7',
                     navigationIndex: 6
-                },
-                'step-8': {
-                    name: 'sw.sales.channel.detail.base.step-8',
-                    navigationIndex: 8
                 }
             }
         };

@@ -8,20 +8,20 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        text-align: center;
     }
 
     &__description {
+        font-size: $font-size-small;
         margin: 10px 0;
+        letter-spacing: 0.1px;
+        line-height: 22px;
     }
 
     &__label.sw-label.sw-label--appearance-circle {
         flex-shrink: 0;
         display: flex;
-        align-items: center;
-        justify-content: center;
         text-align: center;
+        align-items: center;
         margin-bottom: 10px;
 
         @include circle(72px);

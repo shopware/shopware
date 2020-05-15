@@ -23,32 +23,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `sw-sales-channel-google-terms-verification` component to show the terms and conditions links for Google Merchant Center, Shopping ads policices and Google Ads Terms and conditions. User need to agree with these terms to go to the next step.
         * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
         * Added `sw-sales-channel-google-done-verification` component to show that user has successfully linked the Google Shopping Merchant and the Sales Channel
-    * Added salesChannel state in `sw-sales-channel` module
-    * Added `google-auth.service` to support Google OAuth 2.0
-        * Added `google-shopping.api.service` to handle Google Shopping API
-            * Added method `connectGoogle`
-            * Added method `disconnectGoogle`
-            * Added method `disconnectGoogle`
-            * Added method `getMerchantList`
-            * Added method `assignMerchant`
-            * Added method `unassignMerchant`
-    
-    * Refactored sw-settings-custom-field
-        * Replaced store with repositories
-    * Refactored sw-settings-snippet
-            * Replaced store with repositories
-
-    * Refactored sw-mail-template
-            * Replaced store with repositories    
-    * Added `google-auth.service` to support Google OAuth 2.0
-    * Added `google-shopping.api.service` to handle Google Shopping API
-        * Added method `connectGoogle`
-        * Added method `disconnectGoogle`
-        * Added method `disconnectGoogle`
-        * Added method `getMerchantList`
-        * Added method `assignMerchant`
-        * Added method `unassignMerchant`
-
     * Added `products` children route in `sw.sales.channel.detail.base` route belonging to `sw-sales-channel` module to handle the content navigation of google shopping sales channel
     * Added a `Products` navigator in `sw-sales-channel/page/sw-sales-channel-detail` to handle the redirection to the content belonging to `products` children route
     * Added `sw-sales-channel-detail-products` component in `sw-sales-channel/view` to show the content belonging to `products` children route
@@ -56,11 +30,28 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `isGoogleShopping` flag to distinguish between the content of google shopping sales channel with the others
         * Added `sw-sales-channel-detail-account-connect` component to handle google connection
         * Added `sw-sales-channel-detail-account-disconnect` component to show the google information and also handle google disconnection
+    * Added salesChannel state in `sw-sales-channel` module
+    * Added `google-auth.service` to support Google OAuth 2.0
+    * Added `google-shopping.api.service` to handle Google Shopping API
+         * Added method `connectGoogle`
+         * Added method `disconnectGoogle`
+         * Added method `disconnectGoogle`
+         * Added method `getMerchantList`
+         * Added method `assignMerchant`
+         * Added method `unassignMerchant`
+         * Added method `verifyStore`                                   
+         * Added method `saveTermsOfService`
+         * Added method `setupShipping`
+    
+    * Refactored sw-settings-custom-field
+        * Replaced store with repositories
+        
+    * Refactored sw-settings-snippet
+        * Replaced store with repositories
 
-* Core
+    * Refactored sw-mail-template
+        * Replaced store with repositories    
              
-        * Added `sw-sales-channel-google-done-verification` component to show that user has successfully linked the Google Shopping Merchant and the Sales Channel
-    * Added salesChannel state in `sw-sales-channel` module 
 * Core    
 
 * Storefront

@@ -14,7 +14,7 @@
                 <br/>
                 <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-3.titleConnectExistingMerchant') }}</strong>
                 <p v-if="googleShoppingAccount" class="sw-sales-channel-google-merchant__description">
-                    <a :href="`mailto:${googleShoppingAccount.email}`">
+                    <a :href="`mailto:${googleShoppingAccount.email}`" class="sw-sales-channel-google-merchant__email">
                         {{ googleShoppingAccount.email }}
                     </a>
                     {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.textConnectExistingMerchantDescription') }}
@@ -53,7 +53,9 @@
                 </p>
 
                 {% block sw_sales_channel_google_merchant_button_create %}
-                    <sw-button variant="primary" size="small" disabled>
+                    <sw-button variant="primary"
+                               size="small"
+                               link="https://www.google.com/retail/solutions/merchant-center/">
                         {{ $tc('sw-sales-channel.modalGooglePrograms.step-3.buttonCreateMerchant') }}
                     </sw-button>
                 {% endblock %}

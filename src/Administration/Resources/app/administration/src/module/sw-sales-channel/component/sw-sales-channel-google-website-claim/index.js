@@ -1,9 +1,9 @@
-import template from './sw-sales-channel-google-website-verification.html.twig';
-import './sw-sales-channel-google-website-verification.scss';
+import template from './sw-sales-channel-google-website-claim.html.twig';
+import './sw-sales-channel-google-website-claim.scss';
 
 const { Component } = Shopware;
 
-Component.register('sw-sales-channel-google-website-verification', {
+Component.register('sw-sales-channel-google-website-claim', {
     template,
 
     props: {
@@ -15,7 +15,7 @@ Component.register('sw-sales-channel-google-website-verification', {
 
     data() {
         return {
-            websisteUrl: '',
+            websiteUrl: '',
             storeName: '',
             businessLocation: '',
             hasAdultContent: false

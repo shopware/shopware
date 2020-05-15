@@ -1,7 +1,9 @@
 import template from './sw-sales-channel-google-authentication.html.twig';
+import { getErrorMessage } from '../../helper/get-error-message.helper';
+
 import './sw-sales-channel-google-authentication.scss';
 
-const { Component, State, Service, Mixin, Utils } = Shopware;
+const { Component, State, Service, Mixin } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-authentication', {
@@ -78,11 +80,11 @@ Component.register('sw-sales-channel-google-authentication', {
 
                 this.isProcessSuccessful = true;
             } catch (error) {
-                const errorDetail = Utils.get(error, 'response.data.errors[0].detail', '');
+                const errorDetail = getErrorMessage(error);
 
                 this.createNotificationError({
                     title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
-                    message: errorDetail || this.$tc('sw-sales-channel.modalGooglePrograms.step-2.messageErrorDefault')
+                    message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
                 });
             } finally {
                 this.isLoading = false;

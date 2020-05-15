@@ -8,7 +8,8 @@ export default {
             googleShoppingAccount: null,
             isLoadingMerchant: false,
             merchantInfo: null,
-            merchantStatus: null
+            merchantStatus: null,
+            storeVerification: null
         };
     },
 
@@ -26,6 +27,9 @@ export default {
 
         removeGoogleShoppingAccount(state) {
             state.googleShoppingAccount = null;
+            state.merchantInfo = null;
+            state.merchantStatus = null;
+            state.storeVerification = null;
         },
 
         setIsLoadingMerchant(state, isLoadingMerchant) {
@@ -38,6 +42,17 @@ export default {
 
         setMerchantStatus(state, merchantStatus) {
             state.merchantStatus = merchantStatus;
+        },
+
+        setStoreVerification(state, storeVerification) {
+            state.storeVerification = storeVerification;
+        },
+
+        setTermsOfService(state, acceptance) {
+            state.googleShoppingAccount = {
+                ...state.googleShoppingAccount,
+                tosAcceptedAt: acceptance
+            };
         }
     },
 
@@ -46,13 +61,29 @@ export default {
             return Utils.get(state, 'googleShoppingAccount.googleShoppingMerchantAccount', null);
         },
 
-        needToCompleteTheSetup(state) {
+        isIncompleteVerification(state) {
+            if (!state.storeVerification) {
+                return true;
+            }
+
+            return Object.values(state.storeVerification).includes(false);
+        },
+
+        needToCompleteTheSetup(state, getters) {
             if (!state.googleShoppingAccount) {
                 return 'step-1';
             }
 
             if (!state.googleShoppingAccount.googleShoppingMerchantAccount) {
                 return 'step-3';
+            }
+
+            if (getters.isIncompleteVerification) {
+                return 'step-4';
+            }
+
+            if (!state.googleShoppingAccount.tosAcceptedAt) {
+                return 'step-5';
             }
 
             return '';

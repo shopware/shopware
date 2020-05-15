@@ -59,6 +59,27 @@ class GoogleShoppingService extends ApiService {
 
         return this.httpClient.get(route, { additionalParams, headers });
     }
+
+    verifyStore(salesChannelId, additionalParams = {}, additionalHeaders = {}) {
+        const route = `/_action/sales-channel/${salesChannelId}/google-shopping/eligibility-requirements`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.get(route, { additionalParams, headers });
+    }
+
+    saveTermsOfService(salesChannelId, acceptance, additionalParams = {}, additionalHeaders = {}) {
+        const route = `/_action/sales-channel/${salesChannelId}/google-shopping/account/accept-term-of-service`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.post(route, { acceptance }, { additionalParams, headers });
+    }
+
+    setupShipping(salesChannelId, rate, additionalParams = {}, additionalHeaders = {}) {
+        const route = `/_action/sales-channel/${salesChannelId}/google-shopping/merchant/setup-shipping`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.post(route, { flatRate: rate }, { additionalParams, headers });
+    }
 }
 
 export default GoogleShoppingService;

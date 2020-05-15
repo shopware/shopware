@@ -437,7 +437,7 @@
 
                 <sw-sales-channel-detail-account-disconnect
                     v-else
-                    :googleShoppingAccount="googleShoppingAccount"
+                    :salesChannel="salesChannel"
                     @on-disconnect-to-google="onDisconnectToGoogle">
                 </sw-sales-channel-detail-account-disconnect>
             </sw-card>
@@ -750,9 +750,10 @@
         {% endblock %}
 
         {% block sw_sales_channel_google_oauth_modal %}
-            <sw-sales-channel-google-programs-modal v-if="showGoogleProgramsModal"
-                                                 :salesChannel="salesChannel"
-                                                 @modal-close="onCloseGoogleProgramsModal">
+            <sw-sales-channel-google-programs-modal
+                v-if="showGoogleProgramsModal"
+                :salesChannel="salesChannel"
+                @modal-close="onCloseGoogleProgramsModal">
             </sw-sales-channel-google-programs-modal>
         {% endblock %}
     </div>

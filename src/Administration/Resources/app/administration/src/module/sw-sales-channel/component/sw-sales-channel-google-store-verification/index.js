@@ -1,10 +1,18 @@
 import template from './sw-sales-channel-google-store-verification.html.twig';
+import { getErrorMessage } from '../../helper/get-error-message.helper';
+
 import './sw-sales-channel-google-store-verification.scss';
 
-const { Component } = Shopware;
+
+const { Component, Service, Utils, Mixin, State } = Shopware;
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-store-verification', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         salesChannel: {
@@ -17,33 +25,40 @@ Component.register('sw-sales-channel-google-store-verification', {
         return {
             items: [
                 {
-                    status: 'success',
+                    status: 'info',
+                    key: 'siteIsVerified',
+                    errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.linkVerifyWebsite'),
+                    description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textVerifiedWebsite')
+                },
+                {
+                    status: 'info',
+                    key: 'shoppingAdsPolicies',
                     errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textAdsPolicyUrl'),
                     description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textAdsPolicy')
                 },
                 {
-                    status: 'success',
-                    errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textAccurateContactUrl'),
+                    status: 'info',
+                    key: 'contactPage',
                     description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textAccurateContact')
                 },
                 {
-                    status: 'success',
-                    errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textSecureCheckoutProcessUrl'),
+                    status: 'info',
+                    key: 'secureCheckoutProcess',
                     description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textSecureCheckoutProcess')
                 },
                 {
-                    status: 'danger',
-                    errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textReturPolicyUrl'),
-                    description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textReturPolicy')
+                    status: 'info',
+                    key: 'revocationPage',
+                    description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textReturnPolicy')
                 },
                 {
-                    status: 'success',
-                    errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textBillingTermsUrl'),
+                    status: 'info',
+                    key: 'shippingPaymentInfoPage',
                     description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textBillingTerms')
                 },
                 {
-                    status: 'success',
-                    errorLink: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textCompleteUrl'),
+                    status: 'info',
+                    key: 'completeCheckoutProcess',
                     description: this.$tc('sw-sales-channel.modalGooglePrograms.step-4.textComplete')
                 }
             ],
@@ -51,8 +66,28 @@ Component.register('sw-sales-channel-google-store-verification', {
         };
     },
 
+    watch: {
+        isIncompleteVerification: {
+            handler: 'updateButtons'
+        }
+    },
+
+    computed: {
+        ...mapState('swSalesChannel', [
+            'storeVerification'
+        ]),
+
+        ...mapGetters('swSalesChannel', [
+            'isIncompleteVerification'
+        ])
+    },
+
     created() {
         this.createdComponent();
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
@@ -60,13 +95,21 @@ Component.register('sw-sales-channel-google-store-verification', {
             this.updateButtons();
         },
 
+        mountedComponent() {
+            if (!this.storeVerification) {
+                this.verifyStore();
+            } else {
+                this.updateItems(this.storeVerification);
+            }
+        },
+
         updateButtons() {
             const buttonConfig = {
                 right: {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonNext'),
                     variant: 'primary',
-                    action: this.onClickNext,
-                    disabled: false
+                    action: 'sw.sales.channel.detail.base.step-5',
+                    disabled: this.isIncompleteVerification
                 },
                 left: {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonBack'),
@@ -79,16 +122,57 @@ Component.register('sw-sales-channel-google-store-verification', {
             this.$emit('buttons-update', buttonConfig);
         },
 
-        verifyStore() {
-            // TODO: NEXT-7728 Verify the store and enable the NEXT button when all status are okay
-        },
+        async verifyStore() {
+            this.isLoading = true;
 
-        onClickNext() {
-            this.$router.push({ name: 'sw.sales.channel.detail.base.step-5' });
+            try {
+                const { data: storeVerification } = await Service('googleShoppingService').verifyStore(this.salesChannel.id);
+                const storeVerificationData = Utils.get(storeVerification, 'data', null);
+
+                State.commit('swSalesChannel/setStoreVerification', storeVerificationData);
+
+                this.updateItems(storeVerificationData);
+            } catch (error) {
+                this.showErrorNotification(error);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         getIconName(status) {
-            return (status === 'success') ? 'small-default-checkmark-line-medium' : 'small-default-x-line-medium';
+            if (status === 'success') return 'small-default-checkmark-line-medium';
+            if (status === 'danger') return 'small-default-x-line-medium';
+
+            return 'small-default-circle-medium';
+        },
+
+        showErrorNotification(error) {
+            const errorDetail = getErrorMessage(error);
+
+            this.createNotificationError({
+                title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
+                message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
+            });
+        },
+
+        getFixPath(item) {
+            if (item.key === 'completeCheckoutProcess' || item.key === 'secureCheckoutProcess') {
+                return {
+                    name: 'sw.sales.channel.detail',
+                    params: { id: this.salesChannel.productExports[0].storefrontSalesChannelId }
+                };
+            }
+
+            return { name: 'sw.settings.basic.information.index' };
+        },
+
+        updateItems(storeVerification) {
+            this.items = this.items.map((item) => {
+                return {
+                    ...item,
+                    status: storeVerification[item.key] ? 'success' : 'danger'
+                };
+            });
         }
     }
 });

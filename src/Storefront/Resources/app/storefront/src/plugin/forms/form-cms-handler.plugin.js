@@ -1,5 +1,8 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
+import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
+import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
+import DomAccess from 'src/helper/dom-access.helper';
 
 export default class FormCmsHandler extends Plugin {
 
@@ -8,12 +11,14 @@ export default class FormCmsHandler extends Plugin {
         hiddenSubmitSelector: '.submit--hidden',
         formContentSelector: '.form-content',
         cmsBlock: '.cms-block',
-        contentType:  'application/x-www-form-urlencoded'
+        contentType:  'application/x-www-form-urlencoded',
+        privacyNoticeSelector: '.privacy-notice'
     };
 
     init() {
         this._client = new HttpClient();
         this._getButton();
+        this._getPrivacyNoticeLink();
         this._getHiddenSubmit();
         this._registerEvents();
         this._getCmsBlock();
@@ -27,6 +32,10 @@ export default class FormCmsHandler extends Plugin {
             this._button.addEventListener('submit', this._handleSubmit.bind(this));
             this._button.addEventListener('click', this._handleSubmit.bind(this));
         }
+
+        if (this._privacyNoticeLink) {
+            this._privacyNoticeLink.addEventListener('click', this._handlePrivacyNoticeClick.bind(this));
+        }
     }
 
     _getConfirmationText() {
@@ -34,6 +43,10 @@ export default class FormCmsHandler extends Plugin {
         if(input) {
             this._confirmationText = input.value;
         }
+    }
+
+    _getPrivacyNoticeLink() {
+        this._privacyNoticeLink = this.el.querySelector(this.options.privacyNoticeSelector +' a');
     }
 
     _getButton() {
@@ -46,6 +59,20 @@ export default class FormCmsHandler extends Plugin {
 
     _getHiddenSubmit() {
         this._hiddenSubmit = this.el.querySelector(this.options.hiddenSubmitSelector);
+    }
+
+    _handlePrivacyNoticeClick(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const url = DomAccess.getAttribute(event.currentTarget, 'data-url');
+        this._client.get(url, response => this._openModalPrivacyNotice(response));
+    }
+
+    _openModalPrivacyNotice(response) {
+        const pseudoModal = new PseudoModalUtil(response);
+        PageLoadingIndicatorUtil.remove();
+        pseudoModal.open();
     }
 
     _handleSubmit(event) {

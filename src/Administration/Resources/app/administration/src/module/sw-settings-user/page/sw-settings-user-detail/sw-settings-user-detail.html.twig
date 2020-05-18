@@ -113,7 +113,7 @@
                                         {% endblock %}
 
                                         {% block sw_settings_user_detail_grid_change_password %}
-                                            <a v-if="!isCurrentUser" class="sw-settings-user-detail__grid-change-password" @click="onChangePassword">
+                                            <a v-if="isCurrentUser" class="sw-settings-user-detail__grid-change-password" @click="onChangePassword">
                                                 {{ $tc('sw-settings-user.user-detail.labelChangePassword') }}
                                             </a>
                                         {% endblock %}
@@ -151,6 +151,14 @@
                                                 :passwordToggleAble="true"
                                                 :copyAble="false"
                                                 :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
+                                            </sw-password-field>
+
+                                            <sw-password-field
+                                                class="sw-settings-user-detail__new-password"
+                                                v-model="newPasswordConfirm"
+                                                :passwordToggleAble="true"
+                                                :copyAble="false"
+                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPasswordConfirm')">
                                             </sw-password-field>
                                         {% endblock %}
 

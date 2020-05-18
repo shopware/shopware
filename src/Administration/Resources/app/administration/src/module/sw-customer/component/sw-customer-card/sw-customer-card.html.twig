@@ -22,6 +22,12 @@
                                                     <template v-if="!editMode">
                                                         <div v-if="customer && customer.salutation" class="sw-customer-card__metadata-customer-name">
                                                             {{ fullName }}
+                                                            <sw-label v-if="customer.guest"
+                                                                      appearance="pill"
+                                                                      size="small"
+                                                                      class="sw-customer-card__metadata-customer-guest-label">
+                                                                {{ $tc('sw-customer.card.labelGuest') }}
+                                                            </sw-label>
                                                         </div>
                                                     </template>
                                                 {% endblock %}

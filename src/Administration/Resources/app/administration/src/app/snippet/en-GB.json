@@ -56,7 +56,7 @@
           "message": "Dynamic product group indexed. | One dynamic product group remaining... | {n} dynamic product groups remaining...",
           "messageSuccess": "Dynamic product groups have been indexed."
         },
-        "category":  {
+        "category": {
           "title": "Indexing categories",
           "message": "Categories indexed. | One category remaining... | {n} categories remaining...",
           "messageSuccess": "Categories have been indexed."
@@ -71,7 +71,7 @@
           "message": "Sales Channel indexed. | One Sales Channel remaining... | {n} Sales Channels remaining...",
           "messageSuccess": "Sales Channels have been indexed."
         },
-        "rule":  {
+        "rule": {
           "title": "Indexing rules",
           "message": "Rule indexed. | One rule remaining... | {n} rules remaining...",
           "messageSuccess": "Rules have been indexed."
@@ -672,6 +672,36 @@
       "cols": "Columns",
       "rows": "Rows",
       "editInfo": "Table can still be extended later."
+    },
+    "title": {
+      "format": "Format",
+      "paragraph": "Paragraph",
+      "h1": "Headline 1",
+      "h2": "Headline 2",
+      "h3": "Headline 3",
+      "h4": "Headline 4",
+      "h5": "Headline 5",
+      "h6": "Headline 6",
+      "blockquote": "Blockquote",
+      "text-color": "Text color",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "superscript": "Superscript",
+      "subscript": "Subscript",
+      "textAlign": "Text alignment",
+      "alignLeft": "Align left",
+      "alignCenter": "Align center",
+      "alignRight": "Align right",
+      "justify": "Justified",
+      "insert-unordered-list": "Insert unordered list",
+      "insert-ordered-list": "Insert ordered list",
+      "link": "Link",
+      "undo": "Undo",
+      "redo": "Redo",
+      "insert-table": "Insert table",
+      "code-switch": "Switch edit modes"
     }
   },
   "sw-tree": {

@@ -49,6 +49,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             (new LongTextField('description', 'description'))->addFlags(new AllowHtml()),
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
+            new StringField('pack_unit_plural', 'packUnitPlural'),
 
             new CustomFields(),
         ]);

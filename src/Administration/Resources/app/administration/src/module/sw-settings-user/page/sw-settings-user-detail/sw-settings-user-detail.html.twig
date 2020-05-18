@@ -136,53 +136,6 @@
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
-
-                                {% block sw_settings_user_detail_content_password_modal %}
-                                    <sw-modal v-if="changePasswordModal"
-                                              @modal-close="onClosePasswordModal"
-                                              :title="$tc('sw-settings-user.user-detail.labelNewPassword')"
-                                              variant="small">
-                                        {{ $tc('sw-settings-user.user-detail.textChangePassword') }}
-
-                                        {% block sw_settings_user_detail_content_password_modal_input %}
-                                            <sw-password-field
-                                                class="sw-settings-user-detail__new-password"
-                                                v-model="newPassword"
-                                                :passwordToggleAble="true"
-                                                :copyAble="false"
-                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
-                                            </sw-password-field>
-
-                                            <sw-password-field
-                                                class="sw-settings-user-detail__new-password"
-                                                v-model="newPasswordConfirm"
-                                                :passwordToggleAble="true"
-                                                :copyAble="false"
-                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPasswordConfirm')">
-                                            </sw-password-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_password_modal_footer %}
-                                            <template #modal-footer>
-                                                {% block sw_settings_user_detail_password_modal_actions_cancel %}
-                                                    <sw-button @click="onClosePasswordModal"
-                                                               size="small">
-                                                        {{ $tc('sw-settings-user.user-detail.labelButtonCancel') }}
-                                                    </sw-button>
-                                                {% endblock %}
-
-                                                {% block sw_settings_user_detail_password_modal_actions_change %}
-                                                    <sw-button @click="onSubmit"
-                                                               variant="primary"
-                                                               size="small"
-                                                               :disabled="disableConfirm">
-                                                        {{ $tc('sw-settings-user.user-detail.labelButtonChangePassword') }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-                                    </sw-modal>
-                                {% endblock %}
                             </sw-card>
                         {% endblock %}
 
@@ -243,6 +196,53 @@
                         {% endblock %}
                     {% endblock %}
                 </sw-card-view>
+
+                {% block sw_settings_user_detail_content_password_modal %}
+                    <sw-modal v-if="changePasswordModal"
+                              @modal-close="onClosePasswordModal"
+                              :title="$tc('sw-settings-user.user-detail.labelNewPassword')"
+                              variant="small">
+                        {{ $tc('sw-settings-user.user-detail.textChangePassword') }}
+
+                        {% block sw_settings_user_detail_content_password_modal_input %}
+                            <sw-password-field
+                                class="sw-settings-user-detail__new-password"
+                                v-model="newPassword"
+                                :passwordToggleAble="true"
+                                :copyAble="false"
+                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
+                            </sw-password-field>
+
+                            <sw-password-field
+                                class="sw-settings-user-detail__new-password"
+                                v-model="newPasswordConfirm"
+                                :passwordToggleAble="true"
+                                :copyAble="false"
+                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPasswordConfirm')">
+                            </sw-password-field>
+                        {% endblock %}
+
+                        {% block sw_settings_user_detail_password_modal_footer %}
+                        <template #modal-footer>
+                            {% block sw_settings_user_detail_password_modal_actions_cancel %}
+                            <sw-button @click="onClosePasswordModal"
+                                       size="small">
+                                {{ $tc('sw-settings-user.user-detail.labelButtonCancel') }}
+                            </sw-button>
+                            {% endblock %}
+
+                            {% block sw_settings_user_detail_password_modal_actions_change %}
+                            <sw-button @click="onSubmit"
+                                       variant="primary"
+                                       size="small"
+                                       :disabled="disableConfirm">
+                                {{ $tc('sw-settings-user.user-detail.labelButtonChangePassword') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-modal>
+                {% endblock %}
 
                 {% block sw_settings_user_detail_grid_inner_slot_delete_modal %}
                     <sw-modal v-if="showDeleteModal"

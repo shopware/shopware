@@ -26,7 +26,8 @@
       "labelLastName": "Last name",
       "labelCompany": "Company",
       "labelEmail": "Email",
-      "labelTags": "Tags"
+      "labelTags": "Tags",
+      "labelGuest": "Guest account"
     },
     "list": {
       "textCustomers": "Customers",
@@ -34,6 +35,7 @@
       "buttonAddCustomer": "Add customer",
       "columnCustomerNumber": "Customer number",
       "columnName": "Name",
+      "columnNameGuestLabel": "Guest account",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
       "columnStreet": "Street",

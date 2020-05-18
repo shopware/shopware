@@ -188,6 +188,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('description'))->addFlags(new Inherited()),
             (new TranslatedField('metaTitle'))->addFlags(new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new Inherited()),
+            (new TranslatedField('packUnitPlural'))->addFlags(new Inherited()),
             new TranslatedField('customFields'),
 
             //parent - child inheritance

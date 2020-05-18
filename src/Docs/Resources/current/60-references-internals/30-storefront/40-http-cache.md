@@ -10,7 +10,7 @@ The HTTP cache configuration takes place completely in the .env file. The follow
 | `SHOPWARE_HTTP_DEFAULT_TTL`    | Defines the default cache time |
 
 ## How to trigger the http cache warmer
-To warm up the HTTP cache you can simply use the console command `http:cache:warmup`. This command sends a message to the message queue for each sales channel domain to warm it up as fast as possible. It is important that queue workers are started according to our [Guide](./../10-core/00-module/message-queue.md) 
+To warm up the HTTP cache you can simply use the console command `http:cache:warm:up`. This command sends a message to the message queue for each sales channel domain to warm it up as fast as possible. It is important that queue workers are started according to our [Guide](./../10-core/00-module/message-queue.md) 
 
 ## How to define a cacheable route
 To cache a route you have to add the annotation `\Shopware\Storefront\Framework\Cache\Annotation\HttpCache` in the php docs of the controller action:

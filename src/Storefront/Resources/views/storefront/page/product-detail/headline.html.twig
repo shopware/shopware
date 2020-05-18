@@ -7,7 +7,7 @@
                     {{ page.product.translated.name }}
                 </h1>
                 <span class="product-detail-variant-characteristics">
-                    {{ page.product.variantCharacteristics|join(' | ') }}
+                    {{ page.product.optionNames|join(' | ') }}
                 </span>
             {% endblock %}
         </div>

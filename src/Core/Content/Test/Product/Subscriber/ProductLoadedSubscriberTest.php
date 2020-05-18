@@ -32,9 +32,9 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider variantCharacteristicsCases
+     * @dataProvider optionNamesCases
      */
-    public function testVariantCharacteristics(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort): void
+    public function testOptionNames(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort): void
     {
         $productId = $product['id'];
         $context = Context::createDefaultContext();
@@ -58,19 +58,19 @@ class ProductLoadedSubscriberTest extends TestCase
 
         $subscriber = $this->getContainer()->get(ProductSubscriber::class);
         $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
-        $subscriber->addVariantCharacteristics($productLoadedEvent);
+        $subscriber->loaded($productLoadedEvent);
 
-        $characteristics = $productEntity->getVariantCharacteristics();
+        $optionNames = $productEntity->getOptionNames();
 
         if ($sort) {
-            sort($characteristics);
+            sort($optionNames);
             sort($expected);
         }
 
-        static::assertEquals($expected, $characteristics);
+        static::assertEquals($expected, $optionNames);
     }
 
-    public function variantCharacteristicsCases(): array
+    public function optionNamesCases(): array
     {
         $ids = new TestDataCollection();
 
@@ -108,7 +108,7 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                null,
+                [],
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria()),
                 false,

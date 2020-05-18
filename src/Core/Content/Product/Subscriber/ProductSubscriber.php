@@ -25,13 +25,13 @@ class ProductSubscriber implements EventSubscriberInterface
     {
         /** @var ProductEntity $product */
         foreach ($event->getEntities() as $product) {
-            $product->setVariantCharacteristics(
-                $this->buildVariantCharacteristics($product)
+            $product->setOptionNames(
+                $this->buildOptionNames($product)
             );
         }
     }
 
-    private function buildVariantCharacteristics(ProductEntity $product): array
+    private function buildOptionNames(ProductEntity $product): array
     {
         if (!$product->getOptions() || !next7399()) {
             return [];

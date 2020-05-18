@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
 use function Flag\skipTestNext7399;
 
 class ProductLoadedSubscriberTest extends TestCase
@@ -34,8 +33,12 @@ class ProductLoadedSubscriberTest extends TestCase
     /**
      * @dataProvider optionNamesCases
      */
-    public function testOptionNames(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort): void
+    public function testOptionNames(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
     {
+        $this->getContainer()
+            ->get('language.repository')
+            ->create([$language], Context::createDefaultContext());
+
         $productId = $product['id'];
         $context = Context::createDefaultContext();
 
@@ -85,7 +88,12 @@ class ProductLoadedSubscriberTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $subLanguageId = $this->getSubLanguageId('en_sub');
+        $language = [
+            'id' => $ids->create('language'),
+            'name' => 'sub_en',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
+        ];
 
         return [
             [
@@ -112,6 +120,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria()),
                 false,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -137,6 +146,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 true,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -171,6 +181,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 true,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -202,6 +213,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 true,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -230,9 +242,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 ['red', 'xl', 'slim fit'],
-                [$subLanguageId, $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 true,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -242,7 +255,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             'group' => ['id' => $ids->get('color'), 'name' => 'color'],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
-                                $subLanguageId => ['name' => 'der'],
+                                $ids->get('language') => ['name' => 'der'],
                             ],
                         ],
                         [
@@ -250,7 +263,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             'group' => ['id' => $ids->get('size'), 'name' => 'size'],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
-                                $subLanguageId => ['name' => 'lx'],
+                                $ids->get('language') => ['name' => 'lx'],
                             ],
                         ],
                         [
@@ -258,15 +271,16 @@ class ProductLoadedSubscriberTest extends TestCase
                             'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
-                                $subLanguageId => ['name' => 'tif mils'],
+                                $ids->get('language') => ['name' => 'tif mils'],
                             ],
                         ],
                     ],
                 ]),
                 ['der', 'lx', 'tif mils'],
-                [$subLanguageId, $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 true,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -309,6 +323,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 false,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -360,6 +375,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 false,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -408,6 +424,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 false,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -453,9 +470,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 ['red', 'xl', 'slim fit'],
-                [$subLanguageId, $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 false,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -465,7 +483,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             'group' => ['id' => $ids->get('color'), 'name' => 'color'],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
-                                $subLanguageId => ['name' => 'der'],
+                                $ids->get('language') => ['name' => 'der'],
                             ],
                         ],
                         [
@@ -473,7 +491,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             'group' => ['id' => $ids->get('size'), 'name' => 'size'],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
-                                $subLanguageId => ['name' => 'lx'],
+                                $ids->get('language') => ['name' => 'lx'],
                             ],
                         ],
                         [
@@ -481,7 +499,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
-                                $subLanguageId => ['name' => 'tif mils'],
+                                $ids->get('language') => ['name' => 'tif mils'],
                             ],
                         ],
                     ],
@@ -504,9 +522,10 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 ['der', 'lx', 'tif mils'],
-                [$subLanguageId, $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 false,
+                $language,
             ],
             [
                 array_merge($defaults, [
@@ -549,25 +568,8 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options'),
                 false,
+                $language,
             ],
         ];
-    }
-
-    private function getSubLanguageId(string $name): string
-    {
-        $subLanguageId = Uuid::randomHex();
-
-        $subLanguage = [
-            'id' => $subLanguageId,
-            'name' => $name,
-            'parentId' => Defaults::LANGUAGE_SYSTEM,
-            'localeId' => $this->getLocaleIdOfSystemLanguage(),
-        ];
-
-        $this->getContainer()
-            ->get('language.repository')
-            ->create([$subLanguage], Context::createDefaultContext());
-
-        return $subLanguageId;
     }
 }

@@ -67,7 +67,7 @@ class DeliveryPositionCollection extends Collection
     {
         $weights = $this->getLineItems()->map(function (LineItem $deliverable) {
             if ($deliverable->getDeliveryInformation()) {
-                return $deliverable->getDeliveryInformation()->getWeight();
+                return $deliverable->getDeliveryInformation()->getWeight() * $deliverable->getQuantity();
             }
 
             return 0;

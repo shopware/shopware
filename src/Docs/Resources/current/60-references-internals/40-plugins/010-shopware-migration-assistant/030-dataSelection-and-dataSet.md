@@ -11,6 +11,8 @@ Each `DataSelection` consists of one or more `DataSets`:
     - ManufacturerAttributeDataSet
     - ProductDataSet
     - PropertyGroupOptionDataSet
+    - ProductOptionRelationDataSet
+    - ProductPropertyRelationDataSet
     - TranslationDataSet
 - MediaDataSelection (position: 300)
     - MediaFolderDataSet
@@ -33,7 +35,9 @@ use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ManufacturerAt
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\MediaFolderDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductAttributeDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductOptionRelationDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductPriceAttributeDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductPropertyRelationDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\PropertyGroupOptionDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\TranslationDataSet;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
@@ -74,6 +78,8 @@ class ProductDataSelection implements DataSelectionInterface
             ManufacturerAttributeDataSet::getEntity(),
             ProductDataSet::getEntity(),
             PropertyGroupOptionDataSet::getEntity(),
+            ProductOptionRelationDataSet::getEntity(),
+            ProductPropertyRelationDataSet::getEntity(),
             TranslationDataSet::getEntity(),
         ];
     }
@@ -88,20 +94,18 @@ class ProductDataSelection implements DataSelectionInterface
 ```
 
 `DataSet` example:
-The important part here is the `getCountingInformation` method, which provides the information to count the entity in the source system.
 
 ```php
 <?php declare(strict_types=1);
 
 namespace SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet;
 
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingInformationStruct;
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingQueryStruct;
+use SwagMigrationAssistant\Migration\DataSelection\DataSet\DataSet;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 
-class ProductDataSet extends ShopwareDataSet
+class ProductDataSet extends DataSet
 {
     public static function getEntity(): string
     {
@@ -111,25 +115,6 @@ class ProductDataSet extends ShopwareDataSet
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface;
-    }
-
-    public function getCountingInformation(): ?CountingInformationStruct
-    {
-        $information = new CountingInformationStruct(self::getEntity());
-        $information->addQueryStruct(new CountingQueryStruct('s_articles_details')); // It is also possible to count a table using a condition
-        // It is possible to add more Queries - the sum of the count from all queries will be stored for the entity
-
-        return $information;
-    }
-
-    public function getApiRoute(): string
-    {
-        return 'SwagMigrationProducts';
-    }
-
-    public function getExtraQueryParameters(): array
-    {
-        return [];
     }
 }
 ```
@@ -157,7 +142,9 @@ use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ManufacturerAt
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\MediaFolderDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductAttributeDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductOptionRelationDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductPriceAttributeDataSet;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductPropertyRelationDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductReviewDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\PropertyGroupOptionDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\TranslationDataSet;
@@ -196,6 +183,8 @@ class ProductReviewDataSelection implements DataSelectionInterface
             ManufacturerAttributeDataSet::getEntity(),
             ProductDataSet::getEntity(),
             PropertyGroupOptionDataSet::getEntity(),
+            ProductOptionRelationDataSet::getEntity(),
+            ProductPropertyRelationDataSet::getEntity(),
             TranslationDataSet::getEntity(),
 
             CustomerAttributeDataSet::getEntity(),

@@ -44,6 +44,11 @@ class MigrationContext extends Struct implements MigrationContextInterface
         return $this->dataSet;
     }
 
+    public function setDataSet(DataSet $dataSet): void
+    {
+        $this->dataSet = $dataSet;
+    }
+
     public function getOffset(): int
     {
         return $this->offset;

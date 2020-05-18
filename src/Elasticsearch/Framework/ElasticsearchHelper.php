@@ -83,11 +83,9 @@ class ElasticsearchHelper
 
     public function logOrThrowException(\Throwable $exception): bool
     {
-        if ($this->environment !== 'prod') {
-            throw new \RuntimeException($exception->getMessage());
+        if ($this->environment === 'dev') {
+            $this->logger->critical($exception->getMessage());
         }
-
-        $this->logger->error($exception->getMessage());
 
         return false;
     }

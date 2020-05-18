@@ -234,11 +234,10 @@
                 v-if="salesChannel && isGoogleShopping && needToCompleteTheSetup.length && !isGoogleShoppingCreate"
                 class="sw-sales-channel-detail-base__feedbacks">
                 <sw-alert variant="warning" appearance="default" :showIcon="true" :closable="false">
-                    {{ $tc('sw-sales-channel.detail.textCompleteSetupBefore') }}
+                    {{ $tc('sw-sales-channel.detail.textCompleteSetup') }}
                     <span @click="onNeedToCompleteTheSetup" class="sw-sales-channel-detail-base__complete-setup-link">
-                        {{ $tc('sw-sales-channel.detail.textCompleteSetup') }}
+                        {{ $tc('sw-sales-channel.detail.linkCompleteSetup') }}
                     </span>
-                    {{ $tc('sw-sales-channel.detail.textCompleteSetupAfter') }}
                 </sw-alert>
             </sw-card>
         {% endblock %}

@@ -253,11 +253,9 @@
       "textNotclaimed": "Not claimed",
       "textNoAccountConnected": "No account connected",
       "textNoWebsiteClaimed": "No website claimed",
-      "textCompleteSetupBefore": "You need to",
-      "textCompleteSetup": "complete the setup",
-      "textCompleteSetupAfter": "of your Google Account to synchronize products.",
-      "textIssuesBefore": "Your account has been suspended for",
-      "textIssuesAfter": "You must fix this issue in order for your products to appear on Google."
+      "textCompleteSetup": "You need to complete the setup of your Google Account to synchronize products.",
+      "linkCompleteSetup": "Complete setup",
+      "textIssues": "Your account has been suspended, you must fix this issue in order for your products to appear on Google."
     },
     "modalGooglePrograms": {
       "title": "Connect Google Account",

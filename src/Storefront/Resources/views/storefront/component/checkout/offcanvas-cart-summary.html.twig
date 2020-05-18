@@ -21,19 +21,27 @@
             {% set activeShipping = page.cart.deliveries.elements[0] %}
 
             {% block component_offcanvas_summary_content_info %}
-                <div class="row offcanvas-shipping-info">
-                    <span class="col-7 shipping-label shipping-cost">
-                        <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
-
-                        <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
-                            ({{ activeShipping.shippingMethod.translated.name }})
-                        </small>
-                    </span>
-
-                    <span class="col-5 shipping-value shipping-cost">
-                        + {{ activeShipping.shippingCosts.totalPrice|currency }}
-                    </span>
-                </div>
+                {% for shipping in page.cart.deliveries %}
+                    {% block component_offcanvas_summary_content_info_delivery %}
+                        <div class="row offcanvas-shipping-info">
+                            <span class="col-7 shipping-label shipping-cost">
+                                {% block component_offcanvas_summary_content_info_delivery_title %}
+                                    <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+                                {% endblock %}
+                                {% block component_offcanvas_summary_content_info_delivery_method %}
+                                    <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
+                                        ({{ shipping.shippingMethod.translated.name }})
+                                    </small>
+                                {% endblock %}
+                            </span>
+                            {% block component_offcanvas_summary_content_info_delivery_value %}
+                                <span class="col-5 shipping-value shipping-cost">
+                                    {{ shipping.shippingCosts.totalPrice|currency }}
+                                </span>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endfor %}
             {% endblock %}
 
             {% block component_offcanvas_summary_content_shipping %}

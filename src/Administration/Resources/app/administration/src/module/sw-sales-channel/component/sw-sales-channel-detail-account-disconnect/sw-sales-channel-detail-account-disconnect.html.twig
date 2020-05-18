@@ -8,7 +8,7 @@
                 class="sw-sales-channel-detail-base__u-mb-32"
                 :showIcon="true"
                 :closable="false">
-                {{ $tc('sw-sales-channel.detail.textIssuesBefore') }}
+                {{ $tc('sw-sales-channel.detail.textIssues') }}
                 <sw-sales-channel-detail-protect-link
                     v-for="issue in issues"
                     :key="issue.id"
@@ -16,7 +16,6 @@
                     class="sw-sales-channel-detail-base__issue-link">
                     {{ `${issue.title}. ` }}
                 </sw-sales-channel-detail-protect-link>
-                {{ $tc('sw-sales-channel.detail.textIssuesAfter') }}
             </sw-alert>
         {% endblock %}
         {# End System Feedbacks #}

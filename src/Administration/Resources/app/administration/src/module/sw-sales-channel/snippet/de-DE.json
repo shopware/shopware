@@ -263,11 +263,9 @@
       "textNotclaimed": "Nicht beansprucht",
       "textNoAccountConnected": "Kein Konto verbunden",
       "textNoWebsiteClaimed": "Keine Website beansprucht",
-      "textCompleteSetupBefore": "Du musst",
-      "textCompleteSetup": "das Setup des Google-Kontos abschließen,",
-      "textCompleteSetupAfter": "um Produkte zu synchronisieren.",
-      "textIssuesBefore": "Ihr Konto wurde aus folgendem Grund gesperrt:",
-      "textIssuesAfter": "Sie müssen dieses Problem beheben, damit Ihre Produkte bei Google angezeigt werden."
+      "textCompleteSetup": "Du musst die Einrichtung Deines Google-Kontos abschließen, um Produkte synchronisieren zu können.",
+      "linkCompleteSetup": "Setup abschließen",
+      "textIssues": "Dein Konto wurde gesperrt. Du musst dieses Problem beheben, um Deine Produkte bei Google anzeigen zu können."
     },
     "modalGooglePrograms": {
       "title": "Google-Konto verbinden",

@@ -349,6 +349,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
+    * Added twig blocks to the `sw-product-detail` template for the sidebar and sidebar-items
+        * `sw_product_detail_sidebar`
+        * `sw_product_detail_sidebar_additional_items`
 
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.

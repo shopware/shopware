@@ -589,6 +589,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
+    * Theme configuration now allows zero as a value when overriding
 
 **Removals**
 

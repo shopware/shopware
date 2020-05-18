@@ -225,7 +225,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $variables = [];
         foreach ($config['fields'] as $key => $data) {
-            if (array_key_exists('value', $data) && $data['value']) {
+            if (isset($data['value'])) {
                 // Do not include fields which have the scss option set to false
                 if (array_key_exists('scss', $data) && $data['scss'] === false) {
                     continue;

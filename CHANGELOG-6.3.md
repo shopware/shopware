@@ -51,7 +51,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
     * Refactored sw-mail-template
         * Replaced store with repositories    
-             
+    * Refactored Webpack configuration files to one single file
 * Core    
 
 * Storefront

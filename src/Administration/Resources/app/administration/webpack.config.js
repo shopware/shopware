@@ -11,7 +11,6 @@ const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-bui
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
-const util = require('util');
 const chalk = require('chalk');
 
 /* eslint-disable */
@@ -110,7 +109,7 @@ const webpackConfig = {
     },
 
     ...(() => {
-        if (isProd) return {};
+            if (isDev)
         return {
             devServer: {
                 host: process.env.HOST,
@@ -157,7 +156,7 @@ const webpackConfig = {
             minSize: 0
         },
         ...(() => {
-            if (isDev) return {};
+            if (isProd)
             return {
                 minimizer: [
                     new TerserPlugin({
@@ -196,6 +195,7 @@ const webpackConfig = {
         globalObject: 'this'
     },
 
+    // Sync with .eslintrc.js
     resolve: {
         extensions: ['.js', '.vue', '.json', '.less', '.twig'],
         alias: {

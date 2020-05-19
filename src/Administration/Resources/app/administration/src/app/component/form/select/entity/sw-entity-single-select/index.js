@@ -88,7 +88,8 @@ Component.register('sw-entity-single-select', {
             isLoading: false,
             // used to track if an item was selected before closing the result list
             itemRecentlySelected: false,
-            lastSelection: null
+            lastSelection: null,
+            totalItems: 0
         };
     },
 
@@ -113,17 +114,6 @@ Component.register('sw-entity-single-select', {
          * @returns {EntityCollection}
          */
         results() {
-            if (this.singleSelection && this.resultCollection) {
-                const collection = this.createCollection(this.resultCollection);
-                collection.push(this.singleSelection);
-                this.resultCollection.forEach((item) => {
-                    if (item.id !== this.singleSelection.id) {
-                        collection.add(item);
-                    }
-                });
-                return collection;
-            }
-
             return this.resultCollection;
         }
     },
@@ -220,23 +210,25 @@ Component.register('sw-entity-single-select', {
             return this.repository.search(this.criteria, this.context).then((result) => {
                 this.displaySearch(result);
 
+                this.totalItems = result.total;
+
                 this.isLoading = false;
 
                 return result;
             });
         },
 
-        displaySearch(result) {
-            if (!this.resultCollection) {
+        changePage(item) {
+            this.isLoading = true;
+            this.criteria.setPage(item.page);
+            this.repository.search(this.criteria, this.context).then((result) => {
                 this.resultCollection = result;
-            } else {
-                result.forEach(item => {
-                    // Prevent duplicate entries
-                    if (!this.resultCollection.has(item.id)) {
-                        this.resultCollection.push(item);
-                    }
-                });
-            }
+                this.isLoading = false;
+            });
+        },
+
+        displaySearch(result) {
+            this.resultCollection = result;
         },
 
         onSelectExpanded() {

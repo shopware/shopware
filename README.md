@@ -96,7 +96,7 @@ Shopware 6 consists of multiple repositories, two of them are important to you:
 
 ## Quickstart / Installation
 
-A full installation guide covering different dev environments is available in the [docs](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/installation-guide).
+A full installation guide covering different dev environments is available in the [docs](https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/installation).
 
 *For the impatient reader, here is a tl;dr using docker.*
 

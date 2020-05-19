@@ -3,11 +3,10 @@ import template from './sw-entity-listing.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const bulkActionOptions = {
-    delete: "delete",
-    activate: "activate",
-    deactivate: "deactivate",
-    assignRemoveCategories: "assignRemoveCategories",
-}
+    delete: 'delete',
+    activate: 'activate',
+    deactivate: 'deactivate'
+};
 
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
@@ -67,12 +66,10 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
     data() {
         return {
-            selectedCategories: null,
             deleteId: null,
             showBulkDeleteModal: false,
             showBulkActivateModal: false,
             showBulkDeactivateModal: false,
-            showBulkAssignRemoveCategoriesModal: false,
             isBulkLoading: false,
             page: 1,
             limit: this.criteriaLimit,
@@ -80,20 +77,16 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             selectOptions: [
                 {
                     value: bulkActionOptions.delete,
-                    label: "Delete"
+                    label: 'Delete'
                 },
                 {
                     value: bulkActionOptions.activate,
-                    label: "Activate"
+                    label: 'Activate'
                 },
                 {
                     value: bulkActionOptions.deactivate,
-                    label: "Deactivate"
-                },
-                {
-                    value: bulkActionOptions.assignRemoveCategories,
-                    label: "Assign / Remove categories"
-                },
+                    label: 'Deactivate'
+                }
             ]
         };
     },
@@ -116,8 +109,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
                 case bulkActionOptions.deactivate:
                     this.showBulkDeactivateModal = true;
                     break;
-                case bulkActionOptions.assignRemoveCategories:
-                    this.showBulkAssignRemoveCategoriesModal = true;
+                default:
                     break;
             }
         },
@@ -158,9 +150,11 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             Object.values(this.selection).forEach((selectedProxy) => {
                 selectedProxy.active = false;
-                promises.push(this.repository.save(
-                    selectedProxy,
-                    this.items.context)
+                promises.push(
+                    this.repository.save(
+                        selectedProxy,
+                        this.items.context
+                    )
                 );
             });
 
@@ -183,9 +177,11 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             Object.values(this.selection).forEach((selectedProxy) => {
                 selectedProxy.active = true;
-                promises.push(this.repository.save(
-                    selectedProxy,
-                    this.items.context)
+                promises.push(
+                    this.repository.save(
+                        selectedProxy,
+                        this.items.context
+                    )
                 );
             });
 
@@ -199,31 +195,6 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         bulkActivateActionFinish() {
             this.showBulkActivateModal = false;
             this.$emit('items-activate-finish');
-            return this.bulkActionFinish();
-        },
-
-        assignRemoveCategoriesItems() {
-            this.isBulkLoading = true;
-            const promises = [];
-
-            Object.values(this.selection).forEach((selectedProxy) => {
-                selectedProxy.active = true;
-                promises.push(this.repository.save(
-                    selectedProxy,
-                    this.items.context)
-                );
-            });
-
-            return Promise.all(promises).then(() => {
-                return this.bulkAssignRemoveCategoriesActionFinish();
-            }).catch(() => {
-                return this.bulkAssignRemoveCategoriesActionFinish();
-            });
-        },
-
-        bulkAssignRemoveCategoriesActionFinish() {
-            this.showBulkAssignRemoveCategoriesModal = false;
-            // this.$emit('items-activate-finish');
             return this.bulkActionFinish();
         },
 

@@ -160,7 +160,7 @@ Component.register('sw-settings-user-detail', {
             }
 
             const languagePromise = new Promise((resolve) => {
-                Shopware.StateDeprecated.getStore('language').setCurrentId(this.languageId);
+                Shopware.State.commit('context/setApiLanguageId', this.languageId);
                 resolve(this.languageId);
             });
 

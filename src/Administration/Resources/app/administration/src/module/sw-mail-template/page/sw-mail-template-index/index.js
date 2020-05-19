@@ -17,7 +17,7 @@ Component.register('sw-mail-template-index', {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.$refs.mailHeaderFooterList.getList();
             this.$refs.mailTemplateList.getList();
         }

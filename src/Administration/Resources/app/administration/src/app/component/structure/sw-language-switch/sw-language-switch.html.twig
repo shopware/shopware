@@ -12,6 +12,7 @@
                     <template slot="modal-footer">
                         {% block sw_language_switch_footer_button_close %}
                             <sw-button @click="onCloseChangesModal"
+                                       id="sw-language-switch-close-button"
                                        size="small">
                                 {{ $tc('global.default.cancel') }}
                             </sw-button>
@@ -19,6 +20,7 @@
 
                         {% block sw_language_switch_footer_button_revert %}
                             <sw-button @click="onClickRevertUnsavedChanges"
+                                       id="sw-language-switch-revert-changes-button"
                                        size="small">
                                 {{ $tc('sw-language-switch.titleModalButtonRevertUnsavedChanges') }}
                             </sw-button>
@@ -26,6 +28,7 @@
 
                         {% block sw_language_switch_footer_button_save %}
                             <sw-button @click="onClickSaveChanges"
+                                       id="sw-language-switch-save-changes-button"
                                        variant="primary"
                                        size="small">
                                 {{ $tc('global.default.save') }}
@@ -36,18 +39,17 @@
             </sw-modal>
         {% endblock %}
         {% block sw_language_switch_select %}
-            <sw-select
-                    class="sw-language-switch__select"
-                    :disabled="disabled"
-                    id="language"
-                    @input="onInput"
-                    ref="languageSelect"
-                    required
-                    :showSearch="false"
-                    v-model="languageId"
-                    sortField="name"
-                    :store="languageStore">
-            </sw-select>
+            <sw-entity-single-select
+                class="sw-language-switch__select"
+                entity="language"
+                :disabled="disabled"
+                id="language"
+                :criteria="languageCriteria"
+                size="medium"
+                required
+                @input="onInput"
+                :value="languageId"">
+            </sw-entity-single-select>
         {% endblock %}
     </div>
 {% endblock %}

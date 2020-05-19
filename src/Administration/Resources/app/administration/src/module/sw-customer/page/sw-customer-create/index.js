@@ -1,6 +1,6 @@
 import template from './sw-customer-create.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-customer-create', {
     template,
@@ -25,10 +25,6 @@ Component.register('sw-customer-create', {
     computed: {
         customerRepository() {
             return this.repositoryFactory.create('customer');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         }
     },
 
@@ -38,7 +34,7 @@ Component.register('sw-customer-create', {
 
     methods: {
         createdComponent() {
-            this.languageStore.setCurrentId(Shopware.Context.api.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
 
             this.customer = this.customerRepository.create(Shopware.Context.api);
 

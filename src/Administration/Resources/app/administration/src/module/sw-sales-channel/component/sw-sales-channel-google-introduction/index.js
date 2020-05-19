@@ -118,8 +118,10 @@ Component.register('sw-sales-channel-google-introduction', {
 
             try {
                 const authCode = await Service('googleAuthService').getAuthCode();
-                const { data: googleShoppingAccount } = await Service('googleShoppingService')
-                    .connectGoogle(this.salesChannel.id, authCode);
+                const { data: googleShoppingAccount } = await Service('googleShoppingService').connectGoogle(
+                    this.salesChannel.id,
+                    authCode
+                );
 
                 const googleShoppingAccountData = Utils.get(googleShoppingAccount, 'data', null);
 
@@ -153,7 +155,8 @@ Component.register('sw-sales-channel-google-introduction', {
         },
 
         getErrorMessage(error) {
-            // Show error message based on https://developers.google.com/identity/sign-in/web/reference#googleauthsigninoptions
+            // Show error message based on
+            // https://developers.google.com/identity/sign-in/web/reference#googleauthsigninoptions
 
             if (!error) {
                 return this.$tc('global.notification.unspecifiedSaveErrorMessage');

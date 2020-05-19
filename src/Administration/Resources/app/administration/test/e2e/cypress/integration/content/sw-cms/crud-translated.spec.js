@@ -81,8 +81,8 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select.is--disabled').should('not.exist');
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select__results .sw-select-option--0').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -143,8 +143,8 @@ describe('CMS: Test crud operations of layouts', () => {
         });
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select__results .sw-select-option--0').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -165,8 +165,8 @@ describe('CMS: Test crud operations of layouts', () => {
         });
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select__results .sw-select-option--1').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
 

@@ -1,6 +1,6 @@
 import template from './sw-cms-create.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-cms-create', 'sw-cms-detail', {
@@ -25,10 +25,6 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
     },
 
     computed: {
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         pageHasSections() {
             return this.page.sections.length > 0 && this.wizardComplete;
         }
@@ -38,9 +34,9 @@ Component.extend('sw-cms-create', 'sw-cms-detail', {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
-            const isSystemDefaultLanguage = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
+            const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
             if (!isSystemDefaultLanguage) {
-                this.languageStore.setCurrentId(Shopware.Context.api.systemLanguageId);
+                Shopware.State.commit('context/resetLanguageToDefault');
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
             }
 

@@ -47,6 +47,9 @@ export function currency(val, sign, decimalPlaces) {
 let dateTimeFormatter;
 let dateTimeOptions;
 export function date(val, options = {}) {
+    if (val === null) {
+        return '';
+    }
     const dateObj = new Date(val);
     // eslint-disable-next-line
     if (isNaN(dateObj)) {
@@ -63,8 +66,9 @@ export function date(val, options = {}) {
 
     if (!types.isEqual(dateTimeOptions, options)) {
         dateTimeOptions = options;
-        dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, dateTimeOptions);
     }
+
+    dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, dateTimeOptions);
 
     return dateTimeFormatter.format(dateObj);
 }

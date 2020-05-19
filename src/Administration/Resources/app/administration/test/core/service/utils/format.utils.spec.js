@@ -1,4 +1,4 @@
-import { fileSize } from 'src/core/service/utils/format.utils';
+import { fileSize, date } from 'src/core/service/utils/format.utils';
 
 describe('src/core/service/utils/format.utils.js', () => {
     describe('filesize', () => {
@@ -8,6 +8,12 @@ describe('src/core/service/utils/format.utils.js', () => {
             expect(fileSize(1023)).toBe('1.00KB');
             expect(fileSize(1024)).toBe('1.00KB');
             expect(fileSize(102400000)).toBe('97.66MB');
+        });
+    });
+
+    describe('date', () => {
+        test('should return empty string for null value', () => {
+            expect(date(null)).toBe('');
         });
     });
 });

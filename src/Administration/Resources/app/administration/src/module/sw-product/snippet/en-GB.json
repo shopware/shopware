@@ -179,7 +179,47 @@
       "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"? | Are you sure you really want to delete these {count} products?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Product \"{name}\" has been saved."
+      "messageSaveSuccess": "Product \"{name}\" has been saved.",
+      "filter": {
+        "manufacturer" : {
+          "label": "Manufacturer",
+          "placeholder": "Manufacturer"
+        },
+        "activeInactive": {
+          "label": "Only show Active / Inactive products",
+          "placeholder": "Active / Inactive"
+        },
+        "clearanceSale": {
+          "label": "Show only on clearance"
+        },
+        "productNumber": {
+          "label": "Product Number",
+          "placeholder": "Product Number..."
+        },
+        "price": {
+          "label": "Price"
+        },
+        "range" : {
+          "from": {
+            "label": "From",
+            "placeholder": "From..."
+          },
+          "to": {
+            "label": "To",
+            "placeholder": "To..."
+          }
+        },
+        "stock": {
+          "label": "Stock"
+        },
+        "missingCover": {
+          "label": "Missing cover image"
+        },
+        "salesChannel": {
+          "label": "Sales Channel",
+          "placeholder": "Sales Channel"
+        }
+      }
     },
     "detail": {
       "textHeadline": "New product",

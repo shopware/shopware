@@ -196,8 +196,9 @@
                     {% endblock %}
 
                     {% block sw_customer_list_sidebar_filter %}
-                        <sw-sidebar-item icon="default-action-filter"
-                                         :title="$tc('sw-customer.list.titleSidebarItemFilter')">
+                        <sw-sidebar-item
+                                icon="default-action-filter"
+                                :title="$tc('sw-customer.list.titleSidebarItemFilter')">
 
                             {% block sw_customer_list_sidebar_filter_affiliate_code %}
                                 <sw-multi-select

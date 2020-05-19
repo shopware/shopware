@@ -1,0 +1,78 @@
+{% block sw_product_list_sidebar_filter %}
+<sw-sidebar-item
+        icon="default-action-filter"
+        title="Filter"
+        ref="filter">
+
+    <sw-container v-for="filterOption in filterOptions" :key="filterOption.name" columns="1fr " gap="6px"
+                  class="sidebar--filter-container">
+        <sw-switch-field
+                v-if="filterOption.inputType === 'switch'"
+                size="small"
+                :label="filterOption.label"
+                :placeholder="filterOption.placeholder"
+                v-model="filter[filterOption.name]">
+        </sw-switch-field>
+
+        <sw-text-field
+                v-else-if="filterOption.inputType === 'input'"
+                :label="filterOption.label"
+                :placeholder="filterOption.placeholder"
+                :value="filter.productNumber"
+                @input="inputTrigger($event, filterOption.name)">
+        </sw-text-field>
+
+        <sw-number-field
+                v-else-if="filterOption.inputType === 'number'"
+                numberType="float"
+                :label="filterOption.label"
+                :placeholder="filterOption.placeholder"
+                :value="filter[filterOption.name]"
+                @change="inputTrigger($event, filterOption.name)">
+        </sw-number-field>
+
+        <sw-single-select
+                v-else-if="filterOption.inputType === 'singleSelect'"
+                v-model="filter[filterOption.name]"
+                :label="filterOption.label"
+                :placeholder="filterOption.placeholder"
+                :options="filterOption.options"
+                valueProperty="value"
+                labelProperty="name"
+                :value="filter[filterOption.name]">
+        </sw-single-select>
+
+        <sw-multi-select
+                v-else-if="filterOption.inputType === 'multiSelect'"
+                v-model="filter[filterOption.name]"
+                :label="filterOption.label"
+                :placeholder="filterOption.placeholder"
+                :options="filterOption.options"
+                valueProperty="value"
+                labelProperty="name"
+                :value="filter[filterOption.name]">
+        </sw-multi-select>
+
+
+        <span v-else-if="filterOption.inputType === 'range'">
+            <h3>{{ filterOption.label }}</h3>
+            <sw-container columns="1fr 1fr" gap="12px">
+                <sw-number-field numberType="float"
+                                 :label="$tc('sw-product.list.filter.range.from.placeholder')"
+                                 :placeholder="$tc('sw-product.list.filter.range.from.placeholder')"
+                                 :value="filter[filterOption.name].from"
+                                 @change="rangeInputTrigger($event, filterOption.name, 'from')">
+                </sw-number-field>
+
+                <sw-number-field numberType="float"
+                                 :label="$tc('sw-product.list.filter.range.to.placeholder')"
+                                 :placeholder="$tc('sw-product.list.filter.range.to.placeholder')"
+                                 :value="filter[filterOption.name].to"
+                                 @change="rangeInputTrigger($event, filterOption.name, 'to')">
+                </sw-number-field>
+            </sw-container>
+        </span>
+    </sw-container>
+
+</sw-sidebar-item>
+{% endblock %}

@@ -24,7 +24,75 @@ Component.register('sw-product-list', {
             naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
-            total: 0
+            total: 0,
+            criteriaArray: [],
+            filterOptions: [
+                {
+                    name: 'onClearance',
+                    label: this.$tc('sw-product.list.filter.clearanceSale.label'),
+                    field: 'product.isCloseout',
+                    inputType: 'switch',
+                    criteriaType: 'equals'
+                },
+                {
+                    name: 'activeInactive',
+                    label: this.$tc('sw-product.list.filter.activeInactive.label'),
+                    placeholder: this.$tc('sw-product.list.filter.activeInactive.placeholder'),
+                    field: 'product.active',
+                    inputType: 'singleSelect',
+                    criteriaType: 'equals',
+                    options: [
+                        {
+                            name: 'Active',
+                            value: true
+                        },
+                        {
+                            name: 'Inactive',
+                            value: false
+                        }
+                    ]
+                },
+                {
+                    name: 'manufacturer',
+                    label: this.$tc('sw-product.list.filter.manufacturer.label'),
+                    placeholder: this.$tc('sw-product.list.filter.manufacturer.placeholder'),
+                    field: 'product.manufacturerId',
+                    inputType: 'multiSelect',
+                    criteriaType: 'equalsAny',
+                    repository: 'product_manufacturer'
+                },
+                {
+                    name: 'salesChannel',
+                    label: this.$tc('sw-product.list.filter.salesChannel.label'),
+                    placeholder: this.$tc('sw-product.list.filter.salesChannel.placeholder'),
+                    field: 'product.visibilities.salesChannelId',
+                    inputType: 'multiSelect',
+                    criteriaType: 'equalsAny',
+                    repository: 'sales_channel'
+                },
+                {
+                    name: 'productNumber',
+                    label: this.$tc('sw-product.list.filter.productNumber.label'),
+                    placeholder: this.$tc('sw-product.list.filter.productNumber.placeholder'),
+                    field: 'product.productNumber',
+                    inputType: 'input',
+                    criteriaType: 'contains'
+                },
+                {
+                    name: 'price',
+                    label: this.$tc('sw-product.list.filter.price.label'),
+                    field: 'product.price',
+                    inputType: 'range',
+                    criteriaType: 'range'
+                },
+                {
+                    name: 'stock',
+                    label: this.$tc('sw-product.list.filter.stock.label'),
+                    field: 'product.stock',
+                    inputType: 'range',
+                    criteriaType: 'range'
+                }
+            ]
         };
     },
 
@@ -78,6 +146,11 @@ Component.register('sw-product-list', {
     },
 
     methods: {
+        updateCriteria(criteriaArray) {
+            this.criteriaArray = criteriaArray;
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -89,6 +162,10 @@ Component.register('sw-product-list', {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
+
+            this.criteriaArray.forEach((filter) => {
+                productCriteria = productCriteria.addFilter(filter);
+            });
 
             const currencyCriteria = new Criteria(1, 500);
 

@@ -66,6 +66,7 @@
         "net": "Netto",
         "option": "Option",
         "packUnit": "Verpackungseinheit",
+        "packUnitPlural": "Verpackungseinheit Mehrzahl",
         "price": "Preis",
         "product": "Produkt",
         "productNumber": "Produktnummer",

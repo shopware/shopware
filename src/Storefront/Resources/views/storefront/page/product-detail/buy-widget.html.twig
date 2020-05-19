@@ -127,7 +127,7 @@
                     } %}
 
                     {% block page_product_detail_reviews %}
-                        {% if page.product.ratingAverage > 0 and shopware.config.detail.showReviews %}
+                        {% if page.product.ratingAverage > 0 and shopware.config.core.listing.showReview %}
                             <p class="product-detail-reviews">
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
                                     points: page.product.ratingAverage,

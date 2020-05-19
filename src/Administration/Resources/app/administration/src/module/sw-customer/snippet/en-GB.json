@@ -18,13 +18,16 @@
       "placeholderLastName": "Last name",
       "placeholderCompany": "Company",
       "placeholderEmail": "Email address",
+      "placeholderNewPassword": "Enter new password...",
+      "placeholderNewPasswordConfirm": "Re-enter new password...",
       "labelSalutation": "Salutation",
       "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
       "labelCompany": "Company",
       "labelEmail": "Email",
-      "labelTags": "Tags"
+      "labelTags": "Tags",
+      "labelGuest": "Guest account"
     },
     "list": {
       "textCustomers": "Customers",
@@ -32,6 +35,7 @@
       "buttonAddCustomer": "Add customer",
       "columnCustomerNumber": "Customer number",
       "columnName": "Name",
+      "columnNameGuestLabel": "Guest account",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
       "columnStreet": "Street",
@@ -196,7 +200,9 @@
       "titleSaveError": "Error",
       "titleSaveSuccess": "Success",
       "messageSaveError": "Customer could not be saved.",
-      "messageSaveSuccess": "Customer \"{name}\" has been saved."
+      "messageSaveSuccess": "Customer \"{name}\" has been saved.",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of 8."
     }
   }
 }

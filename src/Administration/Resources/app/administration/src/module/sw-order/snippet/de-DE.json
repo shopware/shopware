@@ -28,7 +28,11 @@
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
-      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code"
+      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
+      "buttonDelete": "Löschen",
+      "buttonCancel": "Abbrechen",
+      "modalTitleDelete": "Bestellung löschen",
+      "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",

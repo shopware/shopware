@@ -43,6 +43,11 @@ class ProductTranslationEntity extends TranslationEntity
     protected $packUnit;
 
     /**
+     * @var string|null
+     */
+    protected $packUnitPlural;
+
+    /**
      * @var ProductEntity|null
      */
     protected $product;
@@ -110,6 +115,16 @@ class ProductTranslationEntity extends TranslationEntity
     public function setPackUnit(?string $packUnit): void
     {
         $this->packUnit = $packUnit;
+    }
+
+    public function getPackUnitPlural(): ?string
+    {
+        return $this->packUnitPlural;
+    }
+
+    public function setPackUnitPlural(?string $packUnitPlural): void
+    {
+        $this->packUnitPlural = $packUnitPlural;
     }
 
     public function getProduct(): ?ProductEntity

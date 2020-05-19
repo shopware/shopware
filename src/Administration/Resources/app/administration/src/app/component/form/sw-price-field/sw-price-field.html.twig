@@ -18,7 +18,8 @@
                       :disabled="isDisabled"
                       name="sw-price-field-gross"
                       v-bind="$attrs"
-                      v-model="priceForCurrency.gross">
+                      v-model="priceForCurrency.gross"
+                      @keyup="keymonitor">
                 <template #suffix v-if="!disableSuffix">
                     {{ currency.symbol }}
                 </template>
@@ -50,7 +51,8 @@
                       :disabled="isInherited || disabled"
                       name="sw-price-field-net"
                       v-bind="$attrs"
-                      v-model="priceForCurrency.net">
+                      v-model="priceForCurrency.net"
+                      @keyup="keymonitor">
                 <template #suffix v-if="!disableSuffix">
                     {{ currency.symbol }}
                 </template>

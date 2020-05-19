@@ -16,7 +16,7 @@ class ChangelogParser
         $currentRelease = null;
 
         foreach ($this->parse($path) as $line) {
-            switch ($line[0]) {
+            switch (mb_substr($line, 0, 1)) {
                 case '#':
                     $currentRelease = $this->parseTitle($line);
 
@@ -44,7 +44,7 @@ class ChangelogParser
         }
 
         while ($line = fgets($file)) {
-            yield $line;
+            yield ltrim($line);
         }
 
         fclose($file);
@@ -52,11 +52,11 @@ class ChangelogParser
 
     private function parseTitle($line): string
     {
-        return mb_strtolower(trim(mb_substr($line, 1)));
+        return mb_strtolower(rtrim(ltrim($line, '# \t')));
     }
 
     private function parseItem($line): string
     {
-        return trim(mb_substr($line, 1));
+        return rtrim(ltrim($line, '-* \t'));
     }
 }

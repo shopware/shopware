@@ -108,8 +108,33 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactor `sw-settings-shipping-list` to context language
     * Refactor `sw-settings-shopware-updates-wizard` to context language
     * Refactor `sw-settings-user-detail` to context language
-
-             
+    * Refactored data fetching and saving of `sw-settings-document` module
+        * Replaced `StateDeprecated.getStore('document_base_config')` with `this.repositoryFactory.create('document_base_config')`
+        * Removed the file `src/module/sw-settings-document/page/sw-settings-document-create/index.js`. The create logic is now handled by `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
+        * `src/module/sw-settings-document/page/sw-settings-document-detail/index.js` changes:
+            * Added property `documentConfigId` to `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
+            * Added method `documentBaseConfigCriteria`
+            * Added method `createSalesChannelSelectOptions`
+            * Added async method `loadAvailableSalesChannel`
+            * Changed method name `documentTypeStore` to `documentTypeRepository`
+                * It now returns `this.repositoryFactory.create('document_type')` instead of `StateDeprecated.getStore('document_type')`
+            * Changed method name `salesChannelStore` to `salesChannelRepository`
+                * It now returns `this.repositoryFactory.create('sales_channel')` instead of `StateDeprecated.getStore('sales_channel')`
+            * Changed method name `documentBaseConfigSalesChannelAssociationStore` to `documentBaseConfigSalesChannelRepository`
+                * It now returns `this.repositoryFactory.create('document_base_config_sales_channel')` instead of `this.documentConfig.getAssociation('salesChannels')`
+            * Changed method name `documentBaseConfigStore` to `documentBaseConfigRepository`
+                * It now returns `this.repositoryFactory.create('document_base_config')` instead of `StateDeprecated.getStore('document_base_config')`
+            * Changed `createdComponent` method to be async now
+            * Changed `loadEntityData` method to be async now
+            * Changed `onChangeType` method to be async now
+            * Removed method `getPossibleSalesChannels`
+            * Removed method `setSalesChannelCriteria`
+            * Removed method `enrichAssocStores`
+            * Removed method `configHasSaleschannel`
+            * Removed method `selectHasSaleschannel`
+            * Removed method `undeleteSaleschannel`
+            
+            
 * Core    
 
 * Storefront

@@ -117,7 +117,6 @@
       "activateTitle": "Eintrag Aktivieren",
       "deactivateMessage": "Sind Sie sicher, dass Sie dieses Produkt deaktivieren möchten? | Sind Sie sicher, dass Sie diese {count} Produkte deaktivieren möchten?\n",
       "deactivateTitle": "Eintrag deaktivieren",
-      "assignRemoveCategoriesTitle": "Assign / Remove Categories on entry",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
       "labelRemoveAssociation": "Zuweisung aufheben"
     },

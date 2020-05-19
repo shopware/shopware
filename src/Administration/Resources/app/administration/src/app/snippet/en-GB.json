@@ -117,7 +117,6 @@
       "activateTitle": "Activate entry",
       "deactivateMessage": "Are you sure you want to deactivate this item? | Are you sure you want to activate these {count} items?",
       "deactivateTitle": "Deactivate entry",
-      "assignRemoveCategoriesTitle": "Assign / Remove Categories on entry",
       "placeholderToManyAssociationCard": "Search associations...",
       "labelRemoveAssociation": "Remove association"
     },

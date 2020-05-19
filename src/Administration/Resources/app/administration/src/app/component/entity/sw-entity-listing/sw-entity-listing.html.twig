@@ -83,32 +83,6 @@
             </slot>
         </template>
     </sw-modal>
-
-    <sw-modal v-else-if="showBulkAssignRemoveCategoriesModal"
-              @modal-close="showBulkAssignRemoveCategoriesModal = false"
-              :title="$tc('global.entity-components.assignRemoveCategoriesTitle')"
-              variant="small">
-
-        <sw-category-tree-field :categoriesCollection="selectedCategories ? currentValue : []"
-                                class="sw-product-detail__select-category"
-                                key="id"
-                                :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
-        </sw-category-tree-field>
-
-        <template #modal-footer>
-            <slot name="bulk-modal-cancel">
-                <sw-button @click="showBulkDeactivateModal = false" size="small">
-                    {{ $tc('global.default.cancel') }}
-                </sw-button>
-            </slot>
-
-            <slot name="bulk-modal-assignRemoveCategories-items">
-                <sw-button @click="showBulkAssignRemoveCategoriesModal" variant="primary" size="small" :isLoading="isBulkLoading">
-                    {{ $tc('global.default.apply') }}
-                </sw-button>
-            </slot>
-        </template>
-    </sw-modal>
 {% endblock %}
 
 {% block sw_data_grid_slot_actions %}

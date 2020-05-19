@@ -3,10 +3,10 @@ import template from './sw-entity-listing.html.twig';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const bulkActionOptions = {
-    delete: "delete",
-    activate: "activate",
-    deactivate: "deactivate",
-    assignRemoveCategories: "assignRemoveCategories",
+    delete: 'delete',
+    activate: 'activate',
+    deactivate: 'deactivate',
+    assignRemoveCategories: 'assignRemoveCategories'
 };
 
 Component.extend('sw-entity-listing', 'sw-data-grid', {
@@ -80,19 +80,19 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             selectOptions: [
                 {
                     value: bulkActionOptions.delete,
-                    label: "Delete"
+                    label: 'Delete'
                 },
                 {
                     value: bulkActionOptions.activate,
-                    label: "Activate"
+                    label: 'Activate'
                 },
                 {
                     value: bulkActionOptions.deactivate,
-                    label: "Deactivate"
+                    label: 'Deactivate'
                 },
                 {
                     value: bulkActionOptions.assignRemoveCategories,
-                    label: "Assign / Remove categories"
+                    label: 'Assign / Remove categories'
                 },
             ]
         };

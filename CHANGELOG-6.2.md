@@ -75,6 +75,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed alphanumeric filter product numbers in the quick add action
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
+    * Excluded Promotions will now be handled in `PromotionCalculator` and `PromotionDeliveryCalculator` instead of `PromotionCalculator`
+
 
 ### 6.2.0
 

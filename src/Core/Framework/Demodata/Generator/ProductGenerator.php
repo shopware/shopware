@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Util\Random;
@@ -18,13 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductGenerator implements DemodataGeneratorInterface
 {
-    public const OPTIONS_WITH_MEDIA = 'with_media';
-
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
-
     /**
      * @var EntityRepositoryInterface
      */
@@ -36,26 +28,17 @@ class ProductGenerator implements DemodataGeneratorInterface
     private $connection;
 
     /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $productRepository;
 
     public function __construct(
-        EntityWriterInterface $writer,
         EntityRepositoryInterface $taxRepository,
         Connection $connection,
-        ProductDefinition $productDefinition,
         EntityRepositoryInterface $productRepository
     ) {
-        $this->writer = $writer;
         $this->taxRepository = $taxRepository;
         $this->connection = $connection;
-        $this->productDefinition = $productDefinition;
         $this->productRepository = $productRepository;
     }
 
@@ -80,13 +63,10 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $mediaIds = $context->getIds('media');
 
-        $ids = [];
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
             $product = $this->createSimpleProduct($context, $taxes);
             $product['visibilities'] = $visibilities;
-
-            $ids[] = $product['id'];
 
             if ($mediaIds) {
                 $product['cover'] = [
@@ -114,7 +94,6 @@ class ProductGenerator implements DemodataGeneratorInterface
                 $context->getConsole()->progressAdvance(\count($payload));
                 $this->write($payload, $context);
                 $payload = [];
-                $ids = [];
             }
         }
 
@@ -145,7 +124,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array
     {
-        $price = random_int(1, 1000);
+        $price = $context->getFaker()->randomFloat(2, 1, 1000);
         $rules = $context->getIds('rule');
         $tax = $taxes->get(array_rand($taxes->getIds()));
         $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
@@ -165,10 +144,12 @@ class ProductGenerator implements DemodataGeneratorInterface
             'taxId' => $tax->getId(),
             'manufacturerId' => $context->getRandomId('product_manufacturer'),
             'active' => true,
+            'height' => $context->getFaker()->numberBetween(1, 1000),
+            'width' => $context->getFaker()->numberBetween(1, 1000),
             'categories' => [
                 ['id' => $context->getRandomId('category')],
             ],
-            'stock' => random_int(1, 50),
+            'stock' => $context->getFaker()->numberBetween(1, 50),
             'prices' => $this->createPrices($rules, $reverseTaxrate),
         ];
 

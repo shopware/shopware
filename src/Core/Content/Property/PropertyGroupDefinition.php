@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -32,6 +34,8 @@ class PropertyGroupDefinition extends EntityDefinition
 
     public const SORTING_TYPE_POSITION = 'position';
 
+    public const FILTERABLE = true;
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -52,6 +56,7 @@ class PropertyGroupDefinition extends EntityDefinition
         return [
             'displayType' => self::DISPLAY_TYPE_TEXT,
             'sortingType' => self::SORTING_TYPE_ALPHANUMERIC,
+            'filterable' => self::FILTERABLE,
         ];
     }
 
@@ -63,6 +68,7 @@ class PropertyGroupDefinition extends EntityDefinition
             new TranslatedField('description'),
             (new StringField('display_type', 'displayType'))->setFlags(new Required()),
             (new StringField('sorting_type', 'sortingType'))->setFlags(new Required()),
+            new BoolField('filterable', 'filterable'),
             new TranslatedField('position'),
             new TranslatedField('customFields'),
             (new OneToManyAssociationField('options', PropertyGroupOptionDefinition::class, 'property_group_id', 'id'))->addFlags(new CascadeDelete(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

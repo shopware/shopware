@@ -42,7 +42,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         static::assertCount(1, $loader->getPluginInfos());
         $kernelPlugins = $loader->getPluginInstances();
-        static::assertCount(1, $kernelPlugins->all());
+        static::assertCount(2, $kernelPlugins->all());
         static::assertInstanceOf(Plugin::class, $kernelPlugins->get($activePluginData['baseClass']));
     }
 
@@ -55,7 +55,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertCount(1, $loader->getPluginInfos());
+        static::assertCount(2, $loader->getPluginInfos());
         $kernelPlugins = $loader->getPluginInstances()->all();
         static::assertCount(0, $kernelPlugins);
     }
@@ -187,6 +187,23 @@ class StaticKernelPluginLoaderTest extends TestCase
         static::assertCount(2, $bundles);
         static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
         static::assertSame($loader, $bundles[1]);
+    }
+
+    public function testGetBundlesWithAdditionalBundlesThatAreDuplicates(): void
+    {
+        $activePluginData = $this->getActivePlugin()->jsonSerialize();
+        $activePluginDataWithUnneededBundles = $this->getActivePluginWithBundle()->jsonSerialize();
+        $loader = new StaticKernelPluginLoader($this->classLoader, null, [
+            $activePluginData, $activePluginDataWithUnneededBundles
+        ]);
+        $loader->initializePlugins(TEST_PROJECT_DIR);
+
+        $bundles = iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
+        static::assertCount(4, $bundles);
+        static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\Bundles\FooBarBundle', $bundles[1]);
+        static::assertInstanceOf('SwagTestWithBundle\SwagTestWithBundle', $bundles[2]);
+        static::assertSame($loader, $bundles[2]);
     }
 
     public function testGetBundlesNoActive(): void

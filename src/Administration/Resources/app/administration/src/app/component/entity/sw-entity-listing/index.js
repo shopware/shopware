@@ -93,7 +93,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
                 {
                     value: bulkActionOptions.assignRemoveCategories,
                     label: 'Assign / Remove categories'
-                },
+                }
             ]
         };
     },
@@ -118,6 +118,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
                     break;
                 case bulkActionOptions.assignRemoveCategories:
                     this.showBulkAssignRemoveCategoriesModal = true;
+                    break;
+                default:
                     break;
             }
         },
@@ -158,9 +160,11 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             Object.values(this.selection).forEach((selectedProxy) => {
                 selectedProxy.active = false;
-                promises.push(this.repository.save(
-                    selectedProxy,
-                    this.items.context)
+                promises.push(
+                    this.repository.save(
+                        selectedProxy,
+                        this.items.context
+                    )
                 );
             });
 
@@ -183,9 +187,11 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             Object.values(this.selection).forEach((selectedProxy) => {
                 selectedProxy.active = true;
-                promises.push(this.repository.save(
-                    selectedProxy,
-                    this.items.context)
+                promises.push(
+                    this.repository.save(
+                        selectedProxy,
+                        this.items.context
+                    )
                 );
             });
 
@@ -208,9 +214,11 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             Object.values(this.selection).forEach((selectedProxy) => {
                 selectedProxy.active = true;
-                promises.push(this.repository.save(
-                    selectedProxy,
-                    this.items.context)
+                promises.push(
+                    this.repository.save(
+                        selectedProxy,
+                        this.items.context
+                    )
                 );
             });
 

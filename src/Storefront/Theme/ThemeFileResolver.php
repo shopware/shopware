@@ -77,8 +77,7 @@ class ThemeFileResolver
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $onlySourceFiles,
         bool $considerPlugins,
-        callable $configFileResolver,
-        int $recursionLevel = 0
+        callable $configFileResolver
     ): FileCollection {
         /** @var FileCollection $files */
         $files = $configFileResolver($themeConfig, $onlySourceFiles);
@@ -105,14 +104,14 @@ class ThemeFileResolver
             }
 
             if ($filepath === '@Plugins') {
-                if (!$considerPlugins || $recursionLevel > 0) {
+                if (!$considerPlugins) {
                     continue;
                 }
 
                 $considerPlugins = false;
 
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, ++$recursionLevel) as $item) {
+                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver) as $item) {
                         $resolvedFiles->add($item);
                     }
                 }
@@ -137,7 +136,7 @@ class ThemeFileResolver
                 throw new InvalidThemeException($name);
             }
 
-            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, ++$recursionLevel) as $item) {
+            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver) as $item) {
                 $resolvedFiles->add($item);
             }
         }

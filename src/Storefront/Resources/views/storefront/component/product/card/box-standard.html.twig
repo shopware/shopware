@@ -63,7 +63,7 @@
                     {% block component_product_box_info %}
                         <div class="product-info">
                             {% block component_product_box_rating %}
-                                {% if shopware.config.core.listing.showReview %}
+                                {% if shopware.config.detail.showReviews %}
                                     <div class="product-rating">
                                         {% if product.ratingAverage %}
                                             {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {

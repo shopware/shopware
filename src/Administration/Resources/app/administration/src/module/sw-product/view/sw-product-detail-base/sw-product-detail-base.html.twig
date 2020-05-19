@@ -122,9 +122,9 @@
 
 
         {% block sw_product_detail_base_packaging_card %}
-            <sw-card :title="$tc('sw-product.detailBase.cardTitlePackaging')" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-product.detailBase.cardTitlePackaging')" :isLoading="loading.product">
                 {% block sw_product_detail_base_packaging_form %}
-                    <sw-product-packaging-form v-if="!isLoading"></sw-product-packaging-form>
+                    <sw-product-packaging-form></sw-product-packaging-form>
                 {% endblock %}
             </sw-card>
         {% endblock %}

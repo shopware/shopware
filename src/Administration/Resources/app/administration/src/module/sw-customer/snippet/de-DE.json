@@ -18,16 +18,13 @@
       "placeholderLastName": "Nachname",
       "placeholderCompany": "Firma",
       "placeholderEmail": "E-Mail-Adresse",
-      "placeholderNewPassword": "Neues Passwort eingeben ...",
-      "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
       "labelSalutation": "Anrede",
       "labelTitle": "Titel",
       "labelFirstName": "Vorname",
       "labelLastName": "Nachname",
       "labelCompany": "Firma",
       "labelEmail": "E-Mail-Adresse",
-      "labelTags": "Tags",
-      "labelGuest": "Gastbesteller"
+      "labelTags": "Tags"
     },
     "list": {
       "textCustomers": "Kunden",
@@ -35,7 +32,6 @@
       "buttonAddCustomer": "Kunden anlegen",
       "columnCustomerNumber": "Kundennummer",
       "columnName": "Name",
-      "columnNameGuestLabel": "Gastbesteller",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
       "columnStreet": "Straße",
@@ -200,10 +196,7 @@
       "titleSaveError": "Fehler",
       "titleSaveSuccess": "Erfolg",
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
-      "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
-      "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationPasswordLengthErrorMessage": "Das Losungswort erfüllt nicht die Mindestlänge von 8."
-
+      "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert."
     }
   }
 }

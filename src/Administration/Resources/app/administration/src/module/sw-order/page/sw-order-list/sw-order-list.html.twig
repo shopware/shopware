@@ -69,9 +69,7 @@
                                 {% block sw_order_list_grid_columns %}
                                     {% block sw_order_list_grid_columns_customer_name %}
                                         <template #column-orderCustomer.firstName="{ item }">
-                                            <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
-                                                {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
-                                            </router-link>
+                                            {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
                                         </template>
                                     {% endblock %}
 
@@ -134,12 +132,6 @@
                                                     {{ $tc('sw-order.list.contextMenuView') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}
-
-                                            {% block sw_order_list_grid_columns_actions_delete %}
-                                            <sw-context-menu-item variant="danger" :disabled="disableDeletion(item)" @click="onDelete(item.id)">
-                                                {{ $tc('sw-order.list.contextMenuDelete') }}
-                                            </sw-context-menu-item>
-                                            {% endblock %}
                                         {% endblock %}
 
                                         {# @deprecated tag:v6.4.0 use `sw_order_list_grid_columns_actions_view` with parent instead #}
@@ -150,39 +142,6 @@
                                         {% block sw_customer_list_grid_columns_actions_delete %}
                                         {% endblock %}
                                     </template>
-                                {% endblock %}
-
-                                {% block sw_order_list_grid_action_modals %}
-                                <template #action-modals="{ item }">
-                                    {% block sw_order_list_delete_modal %}
-                                    <sw-modal v-if="showDeleteModal === item.id"
-                                              @modal-close="onCloseDeleteModal"
-                                              :title="$tc('sw-order.list.modalTitleDelete')"
-                                              variant="small">
-                                        {% block sw_order_list_delete_modal_confirm_delete_text %}
-                                        <p class="sw-order-list__confirm-delete-text">
-                                            {{ $tc('sw-order.list.textDeleteConfirm', 0, { orderNumber: `${item.orderNumber}` }) }}
-                                        </p>
-                                        {% endblock %}
-
-                                        {% block sw_order_list_delete_modal_footer %}
-                                        <template #modal-footer>
-                                            {% block sw_order_list_delete_modal_cancel %}
-                                            <sw-button @click="onCloseDeleteModal" size="small">
-                                                {{ $tc('sw-order.list.buttonCancel') }}
-                                            </sw-button>
-                                            {% endblock %}
-
-                                            {% block sw_order_list_delete_modal_confirm %}
-                                            <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
-                                                {{ $tc('sw-order.list.buttonDelete') }}
-                                            </sw-button>
-                                            {% endblock %}
-                                        </template>
-                                        {% endblock %}
-                                    </sw-modal>
-                                    {% endblock %}
-                                </template>
                                 {% endblock %}
 
                                 <template #pagination>

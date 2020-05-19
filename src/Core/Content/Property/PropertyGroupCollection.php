@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Property;
 
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
@@ -44,28 +43,6 @@ class PropertyGroupCollection extends EntityCollection
 
             return $posA <=> $posB;
         });
-    }
-
-    public function sortByConfig(): void
-    {
-        /** @var PropertyGroupEntity $group */
-        foreach ($this->elements as $group) {
-            if (!$group->getOptions()) {
-                continue;
-            }
-
-            $group->getOptions()->sort(static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
-                if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                    return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-                }
-
-                if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_NUMERIC) {
-                    return $a->getTranslation('name') <=> $b->getTranslation('name');
-                }
-
-                return ($a->getTranslation('position') ?? $a->getPosition()) <=> ($b->getTranslation('position') ?? $b->getPosition());
-            });
-        }
     }
 
     public function getApiAlias(): string

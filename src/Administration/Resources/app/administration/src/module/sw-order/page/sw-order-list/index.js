@@ -23,7 +23,6 @@ Component.register('sw-order-list', {
             sortDirection: 'DESC',
             isLoading: false,
             filterLoading: false,
-            showDeleteModal: false,
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
@@ -63,7 +62,6 @@ Component.register('sw-order-list', {
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
-            criteria.addAssociation('documents');
             criteria.addAssociation('transactions');
             criteria.addAssociation('deliveries');
             criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
@@ -125,15 +123,10 @@ Component.register('sw-order-list', {
                 this.isLoading = false;
             });
         },
-
         getBillingAddress(order) {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;
             });
-        },
-
-        disableDeletion(order) {
-            return order.documents.length > 0;
         },
 
         getOrderColumns() {
@@ -174,7 +167,7 @@ Component.register('sw-order-list', {
                 label: 'sw-order.list.columnDeliveryState',
                 allowResize: true
             }, {
-                property: 'orderDate',
+                property: 'orderDateTime',
                 label: 'sw-order.list.orderDate',
                 allowResize: true
             }, {
@@ -238,22 +231,6 @@ Component.register('sw-order-list', {
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
             this.getList();
-        },
-
-        onDelete(id) {
-            this.showDeleteModal = id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.orderRepository.delete(id, Shopware.Context.api).then(() => {
-                this.getList();
-            });
         }
     }
 });

@@ -156,7 +156,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

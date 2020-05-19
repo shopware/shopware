@@ -43,7 +43,6 @@
       "labelPurchaseUnit": "Selling unit",
       "labelReferenceUnit": "Basic unit",
       "labelPackUnit": "Packaging unit",
-      "labelPackUnitPlural": "Packaging unit plural",
       "placeholderTaxRate": "Select tax rate...",
       "placeholderPurchasePriceGross": "Enter purchasing price...",
       "placeholderPriceGross": "Enter gross price...",
@@ -51,7 +50,6 @@
       "placeholderPurchaseUnit": "Enter selling unit...",
       "placeholderReferenceUnit": "Enter basic unit...",
       "placeholderPackUnit": "Enter packaging unit...",
-      "placeholderPackUnitPlural": "Enter packaging unit in plural...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre"
@@ -105,7 +103,6 @@
       "labelUnit": "Scale unit",
       "referenceUnitHelpText": "Value used to calculate a base price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the base price for 1 liter of product. '0.1' would calculate the base price for 100 milliliters and so on.",
       "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
-      "packUnitPluralHelpText": "Type of packing in plural: e.g. bottles, crates ...",
       "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.33 l = 2 l), put '2'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
     },
     "detailBase": {

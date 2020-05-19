@@ -1,3 +1,4 @@
+import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
 
@@ -43,8 +44,16 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
         createdComponent() {
             this.$super('createdComponent');
 
-            this.invoiceNumbers = this.order.documents.map((item) => {
-                return item.config.custom.invoiceNumber;
+            const criteria = CriteriaFactory.equals('documentType.technicalName', 'invoice');
+            this.order.getAssociation('documents').getList(
+                { page: 1, limit: 50, criteria: criteria }
+            ).then((response) => {
+                this.invoiceNumbers = [];
+                if (response.items.length > 0) {
+                    response.items.forEach((item) => {
+                        this.invoiceNumbers.push(item.config.custom.invoiceNumber);
+                    });
+                }
             });
         },
 

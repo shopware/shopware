@@ -39,12 +39,6 @@ Component.register('sw-media-modal-v2', {
             type: Boolean,
             required: false,
             default: true
-        },
-
-        fileAccept: {
-            type: String,
-            required: false,
-            default: 'image/*'
         }
     },
 

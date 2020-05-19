@@ -44,7 +44,6 @@
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
-      "labelPackUnitPlural": "Verpackungseinheit Mehrzahl",
       "placeholderTaxRate": "Wähle einen Steuersatz aus ...",
       "placeholderPurchasePriceGross": "Einkaufspreis eingeben ...",
       "placeholderPriceGross": "Bruttopreis eingeben ...",
@@ -52,7 +51,6 @@
       "placeholderPurchaseUnit": "Verkaufseinheit eingeben ...",
       "placeholderReferenceUnit": "Grundeinheit eingeben ...",
       "placeholderPackUnit": "Verpackungseinheit eingeben ...",
-      "placeholderPackUnitPlural": "Verpackungseinheit Mehrzahl eingeben ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter"
@@ -106,7 +104,6 @@
       "placeholderUnit": "Wähle aus ...",
       "referenceUnitHelpText": "Der Wert, mit dem der Grundpreis eines Produkts berechnet wird. Abhängig von der verwendeten Maßeinheit trägst du hier wahrscheinlich eine '1' ein. Wenn z.B. die Verkaufseinheit in Litern gemessen wird, dann berechnest Du mit der '1' den Grundreis für 1 Liter. Soll der Grundpreis für 100 Milliliter berechnet werden, füge '0,1' ein.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "packUnitPluralHelpText": "Art der Verpackung Mehrzahl: z.B. Flaschen, Kisten ...",
       "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen."
     },
     "detailBase": {

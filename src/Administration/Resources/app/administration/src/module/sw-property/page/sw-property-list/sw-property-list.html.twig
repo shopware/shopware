@@ -80,23 +80,6 @@
                                 </template>
                             {% endblock %}
 
-                            {% block sw_property_list_grid_filterable %}
-                            <template #column-filterable="{ item, isInlineEdit }">
-                                {% block sw_property_list_grid_columns_filterable_inline_edit %}
-                                <template v-if="isInlineEdit">
-                                    <sw-checkbox-field v-model="item.filterable"></sw-checkbox-field>
-                                </template>
-                                {% endblock %}
-
-                                {% block sw_property_list_grid_columns_filterable_content %}
-                                <template v-else>
-                                    <sw-icon v-if="item.filterable" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
-                                    <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
-                                </template>
-                                {% endblock %}
-                            </template>
-                            {% endblock %}
-
                             {% block sw_property_list_grid_columns_actions %}
                                 <template slot="actions" slot-scope="{ item }">
                                     {% block sw_property_list_grid_columns_actions_detail %}

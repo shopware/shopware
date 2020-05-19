@@ -2,8 +2,8 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>Product</title>
-        <title lang="de-DE">Produkt</title>
+        <title>Product listings</title>
+        <title lang="de-DE">Produktlisten</title>
 
         <input-field type="bool">
             <name>allowBuyInListing</name>
@@ -19,14 +19,6 @@
             <label lang="de-DE">Produkte nach Abverkaufende ausblenden</label>
             <helpText>Products marked as on "clearance sale" are hidden, as soon as their stock depletes back to 0.</helpText>
             <helpText lang="de-DE">Produkte die mit "Abverkauf" markiert sind, werden nicht mehr angezeigt, sobald ihr Lagerbestand 0 erreicht.</helpText>
-        </input-field>
-
-        <input-field type="bool">
-            <name>showReview</name>
-            <label>Show reviews</label>
-            <label lang="de-DE">Bewertungen anzeigen</label>
-            <helpText>Activate to show reviews</helpText>
-            <helpText lang="de-DE">Aktivieren um Bewertungen anzuzeigen</helpText>
         </input-field>
 
         <input-field type="int">

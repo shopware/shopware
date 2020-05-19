@@ -94,15 +94,6 @@
                                                 {{ item.firstName }} {{ item.lastName }}
                                             </router-link>
                                         {% endblock %}
-
-                                        {% block sw_customer_list_grid_columns_name_guest_label %}
-                                            <sw-label v-if="!isInlineEdit && item.guest"
-                                                      appearance="pill"
-                                                      size="small"
-                                                      class="sw-customer-list__metadata-customer-guest-label">
-                                                {{ $tc('sw-customer.list.columnNameGuestLabel') }}
-                                            </sw-label>
-                                        {% endblock %}
                                     </template>
                                 {% endblock %}
                             {% endblock %}

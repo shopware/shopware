@@ -143,10 +143,6 @@ Component.register('sw-settings-units', {
                 label: 'sw-settings-units.grid.columnShortCode',
                 inlineEdit: 'string'
             }];
-        },
-
-        onChangeLanguage() {
-            this.loadUnits();
         }
     }
 });

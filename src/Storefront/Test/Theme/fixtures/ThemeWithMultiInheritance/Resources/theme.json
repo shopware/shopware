@@ -1,16 +1,9 @@
 {
-  "name": "ThemeWithMultiInheritance",
-  "author": "Shopware AG",
   "views": [
     "@ThemeA",
     "@ThemeB",
     "@Plugins",
     "@ThemeC",
     "@ThemeWithMultiInheritance"
-  ],
-  "style": [],
-  "script": [
-    "@MockStorefront",
-    "@Plugins"
   ]
 }

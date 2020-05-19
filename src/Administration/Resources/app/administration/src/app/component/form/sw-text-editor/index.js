@@ -81,55 +81,54 @@ Component.register('sw-text-editor', {
             default() {
                 return [
                     {
-                        type: 'paragraph',
-                        title: this.$tc('sw-text-editor-toolbar.title.format'),
+                        type: 'paragparh',
                         icon: 'default-text-editor-style',
                         children: [
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.paragraph'),
+                                name: 'Paragraph',
                                 value: 'p',
                                 tag: 'p'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h1'),
+                                name: 'Heading 1',
                                 value: 'h1',
                                 tag: 'h1'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h2'),
+                                name: 'Heading 2',
                                 value: 'h2',
                                 tag: 'h2'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h3'),
+                                name: 'Heading 3',
                                 value: 'h3',
                                 tag: 'h3'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h4'),
+                                name: 'Heading 4',
                                 value: 'h4',
                                 tag: 'h4'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h5'),
+                                name: 'Heading 5',
                                 value: 'h5',
                                 tag: 'h5'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.h6'),
+                                name: 'Heading 6',
                                 value: 'h6',
                                 tag: 'h6'
                             },
                             {
                                 type: 'formatBlock',
-                                name: this.$tc('sw-text-editor-toolbar.title.blockquote'),
+                                name: 'Blockquote',
                                 value: 'blockquote',
                                 tag: 'blockquote'
                             }
@@ -137,88 +136,73 @@ Component.register('sw-text-editor', {
                     },
                     {
                         type: 'foreColor',
-                        title: this.$tc('sw-text-editor-toolbar.title.text-color'),
                         value: '',
                         tag: 'font'
                     },
                     {
                         type: 'bold',
-                        title: this.$tc('sw-text-editor-toolbar.title.bold'),
                         icon: 'default-text-editor-bold',
                         tag: 'b'
                     },
                     {
                         type: 'italic',
-                        title: this.$tc('sw-text-editor-toolbar.title.italic'),
                         icon: 'default-text-editor-italic',
                         tag: 'i'
                     },
                     {
                         type: 'underline',
-                        title: this.$tc('sw-text-editor-toolbar.title.underline'),
                         icon: 'default-text-editor-underline',
                         tag: 'u'
                     },
                     {
                         type: 'strikethrough',
-                        title: this.$tc('sw-text-editor-toolbar.title.strikethrough'),
                         icon: 'default-text-editor-strikethrough',
                         tag: 'strike'
                     },
                     {
                         type: 'superscript',
-                        title: this.$tc('sw-text-editor-toolbar.title.superscript'),
                         icon: 'default-text-editor-superscript',
                         tag: 'sup'
                     },
                     {
                         type: 'subscript',
-                        title: this.$tc('sw-text-editor-toolbar.title.subscript'),
                         icon: 'default-text-editor-subscript',
                         tag: 'sub'
                     },
                     {
                         type: 'justify',
-                        title: this.$tc('sw-text-editor-toolbar.title.textAlign'),
                         icon: 'default-text-editor-align-left',
                         children: [
                             {
                                 type: 'justifyLeft',
-                                title: this.$tc('sw-text-editor-toolbar.title.alignLeft'),
                                 icon: 'default-text-align-left'
                             },
                             {
                                 type: 'justifyCenter',
-                                title: this.$tc('sw-text-editor-toolbar.title.alignCenter'),
                                 icon: 'default-text-align-center'
                             },
                             {
                                 type: 'justifyRight',
-                                title: this.$tc('sw-text-editor-toolbar.title.alignRight'),
                                 icon: 'default-text-align-right'
                             },
                             {
                                 type: 'justifyFull',
-                                title: this.$tc('sw-text-editor-toolbar.title.justify'),
                                 icon: 'default-text-align-justify'
                             }
                         ]
                     },
                     {
                         type: 'insertUnorderedList',
-                        title: this.$tc('sw-text-editor-toolbar.title.insert-unordered-list'),
                         icon: 'default-text-editor-list-unordered',
                         tag: 'ul'
                     },
                     {
                         type: 'insertOrderedList',
-                        title: this.$tc('sw-text-editor-toolbar.title.insert-ordered-list'),
                         icon: 'default-text-editor-list-numberd',
                         tag: 'ol'
                     },
                     {
                         type: 'link',
-                        title: this.$tc('sw-text-editor-toolbar.title.link'),
                         icon: 'default-text-editor-link',
                         expanded: false,
                         newTab: false,
@@ -247,13 +231,11 @@ Component.register('sw-text-editor', {
                     },
                     {
                         type: 'undo',
-                        title: this.$tc('sw-text-editor-toolbar.title.undo'),
                         icon: 'default-text-editor-undo',
                         position: 'middle'
                     },
                     {
                         type: 'redo',
-                        title: this.$tc('sw-text-editor-toolbar.title.redo'),
                         icon: 'default-text-editor-redo',
                         position: 'middle'
                     }
@@ -352,7 +334,6 @@ Component.register('sw-text-editor', {
             if (!this.$options.buttonConfig) {
                 this.buttonConfig.push({
                     type: 'table',
-                    title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
                     icon: 'default-text-editor-table',
                     tag: 'table',
                     expanded: false,
@@ -362,7 +343,6 @@ Component.register('sw-text-editor', {
                 if (!this.isInlineEdit) {
                     this.buttonConfig.push({
                         type: 'codeSwitch',
-                        title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
                         icon: 'default-text-editor-code',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,

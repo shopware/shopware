@@ -90,20 +90,15 @@ class Kernel extends HttpKernel
     {
         /** @var array $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
-        $instanciatedBundleNames = [];
 
-        /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
+        /** @var string $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                /** @var \Symfony\Component\HttpKernel\Bundle\Bundle $bundle */
-                $bundle = new $class();
-                $instanciatedBundleNames[] = $bundle->getName();
-
-                yield $bundle;
+                yield new $class();
             }
         }
 
-        yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
+        yield from $this->pluginLoader->getBundles($this->getKernelParameters());
     }
 
     public function getProjectDir()

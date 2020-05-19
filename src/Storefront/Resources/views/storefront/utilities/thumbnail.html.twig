@@ -1,10 +1,5 @@
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
-    {# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
-    {% if load is not defined %}
-        {% set load = true %}
-    {% endif %}
-
     {% if columns and sizes is not defined %}
         {# set image size for every viewport #}
         {% set sizes = {
@@ -47,9 +42,9 @@
         {% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
     {% endapply %}{% endset %}
 {% endif %}
-<img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}
+<img src="{{ media|sw_encode_media_url }}"
     {% if media.thumbnails|length > 0 %}
-        {% if load %}srcset="{{ srcsetValue }}" {% else %}data-srcset="{{ srcsetValue }}" {% endif %}
+        srcset="{{ srcsetValue }}"
         {% if sizes['default'] %}
         sizes="{{ sizes['default'] }}"
         {% elseif sizes|length > 0 %}

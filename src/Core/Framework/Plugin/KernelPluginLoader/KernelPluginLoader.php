@@ -73,37 +73,26 @@ abstract class KernelPluginLoader extends Bundle
         return $this->pluginInstances;
     }
 
-    final public function getBundles($kernelParameters = [], array $loadedBundles = []): iterable
+    final public function getBundles($kernelParameters = []): iterable
     {
         if (!$this->initialized) {
             return;
         }
 
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            if (!in_array($plugin->getName(), $loadedBundles, true)) {
-                yield $plugin;
-                $loadedBundles[] = $plugin->getName();
-            }
+            yield $plugin;
 
             $copy = new KernelPluginCollection($this->getPluginInstances()->all());
             $additionalBundleParameters = new AdditionalBundleParameters($this->classLoader, $copy, $kernelParameters);
             $additionalBundles = $plugin->getAdditionalBundles($additionalBundleParameters);
-
             if (empty($additionalBundles)) {
-                $additionalBundles = $plugin->getExtraBundles($this->classLoader);
-            }
-
-            foreach ($additionalBundles as $bundle) {
-                if (!in_array($bundle->getName(), $loadedBundles, true)) {
-                    yield $bundle;
-                    $loadedBundles[] = $bundle->getName();
-                }
+                yield from $plugin->getExtraBundles($this->classLoader);
+            } else {
+                yield from $additionalBundles;
             }
         }
 
-        if (!in_array($this->getName(), $loadedBundles, true)) {
-            yield $this;
-        }
+        yield $this;
     }
 
     /**

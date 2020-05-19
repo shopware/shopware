@@ -1,9 +1,9 @@
 {
   "sw-settings-listing": {
     "general": {
-      "mainMenuItemGeneral": "Produkte",
-      "textHeadline": "Produkte",
-      "description": "Verwaltung von Einstellungen für Produkte.",
+      "mainMenuItemGeneral": "Produktliste",
+      "textHeadline": "Produktliste",
+      "description": "Verwaltung von Einstellungen für die Produktliste.",
       "buttonSave": "Speichern",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",

@@ -26,16 +26,7 @@
                                         class="custom-select product-detail-quantity-select">
                                     {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
                                         <option value="{{ quantity }}">
-                                            {{ quantity }}
-                                            {% if quantity == 1 %}
-                                                {% if product.packUnit %} {{ product.packUnit }}{% endif %}
-                                            {% else %}
-                                                {% if product.packUnitPlural %}
-                                                    {{ product.packUnitPlural }}
-                                                {% elseif product.packUnit %}
-                                                    {{ product.packUnit }}
-                                                {% endif %}
-                                            {% endif %}
+                                            {{ quantity }}{% if product.packUnit %} {{ product.packUnit }}{% endif %}
                                         </option>
                                     {% endfor %}
                                 </select>

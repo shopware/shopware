@@ -7,31 +7,11 @@ in 6.2 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.2.0-rc4...v6.2.0
 
-### 6.2.X - Boostday
-
-**Addition / Changes
-
-* Adminstration
-    * Adding new filterable field to `sw-property-list` and `sw-property-filter`
-    
-* Core
-    * Adding ability to show/hide properies from product filter panel in product listing
-
 ### 6.2.0
 
 **Addition / Changes**
 
 * Administration
-
-    * Added string for `packUnitPlural` to `sw-product-stream/snippet/en-EN.json` and `sw-product-stream/snippet/de-DE.json` 
-        * Added `packUnitPlural`
-    * Added strings for `packUnitPlural` to `sw-product/snippet/en-GB.json` and `sw-product/snippet/de-DE.json` 
-        * Added `placeholderPackUnitPlural`
-        * Added `labelPackUnitPlural`
-        * Added `packUnitPluralHelpText`
-    * Added translated `packUnitPlural` field to `sw-product-packaging-form`
-    * Added `packUnitPlural` to `entity-schema.mock.js`
-    * Added block `sw_product_packaging_form_height_field` to `sw-product-packaging-form`
     * Added `onDuplicate` to `sw-product-detail` and `sw-product-list`
     * Added Overwrites parameter to `clone` in `repository.data.js`. Overwrites contain entity field which should be overwritten with the given data. Example in `sw-product-detail` -> `onDuplicate`
     * Added `disabled` attribute of fields to `sw-customer-address-form` component
@@ -355,36 +335,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
-    * Refactor component `sw-customer-card` added inputs for password and password confirm
-        * Added block `sw_customer_card_password`
-        * Added block `sw_customer_card_password_confirm`
-    * Refactor `sw-customer-detail`
-        * Added method `checkPassword` and use of it when editing customer 
-        * Added success notification message
-    * Refactor `sw-settings-user-detail`
-        * Added `newPasswordConfirm`
-        * Fixed issue when saving new admin password
-        * Disabled `change` button if passwords doesnt match
-    * Added language switch to Scale Units list page to translate scale units
-    * Added tooltips to the toolbar of text editor
-    * Added isInlineEdit property to component `sw-text-editor-toolbar`
-    * Price input fields substitute commas with dots automatically in Add Product page.
-    * Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
-    * Added property `fileAccept` to 
-        * `sw-media-upload-v2`
-        * `sw-media-compact-upload-v2`
-        * `sw-media-modal-v2`
-        * `sw-media-index`
-    * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
-    * Added config option for disabling reviews in the storefront
 
-    * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
 * Core    
-    * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
-    * Added protected `packUnitPlural` to `ProductTranslationEntity.php`
-    * Added StringField `packUnitPlural` to `ProductTranslationDefinition.php`
-    * Added protected `packUnitPlural` to `ProductEntity.php`
-    * Added TranslatedField `packUnitPlural` to `ProductDefinition.php`
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
     * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`
     * The `clone` method of the `ApiController` now passes overwrites to the `EntityRepository`
@@ -558,13 +510,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
-    * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
-    * Added possibility to delete orders without documents on `sw-order-list`
-    * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
-        * This exception is thrown if the review routes are called if reviews are disabled
 
 * Storefront
-    * Added `pack_unit_plural` to `buy-widget-form.html.twig`
     * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
     * Added new `\Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to check available attributes in cart 
@@ -581,7 +528,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * The `@StorefrontBootstrap` placeholder also includes the SCSS variables from your `theme.json`.
         * Please beware that this option is only available for the `style` section.
         * You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle includes the Bootstrap SCSS already.
-    * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
     * We changed the storefront ESLint rule `comma-dangle` to `never`, so that trailing commas won't be forcefully added anymore
     * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
     * Added JS plugin to add a Google Analytics integration: `google-analytics.plugin.js` 
@@ -626,14 +572,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
-    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
-        * page_checkout_aside_actions_csrf
-        * page_checkout_aside_actions_payment_method_id
-        * page_checkout_confirm_form_submit
-    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
-    * Removed alphanumeric filter product numbers in the quick add action
-    * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
-    * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
 
     
 **Removals**
@@ -736,6 +674,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Core
     *
 
+    * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`
 * Storefront
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor
     * Removed duplicated `StorefrontPluginRegistryInterface` param from `\Shopware\Storefront\Theme\ThemeService`s constructor.
@@ -784,5 +723,3 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
-    * Fix timezone of `orderDate` in ordergrid
-    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened

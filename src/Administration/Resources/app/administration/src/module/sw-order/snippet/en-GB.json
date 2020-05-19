@@ -28,11 +28,7 @@
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
-      "titleSidebarItemFilterCampaignCode": "Campaign code",
-      "buttonDelete": "Delete",
-      "buttonCancel": "Cancel",
-      "modalTitleDelete": "Delete order",
-      "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?"
+      "titleSidebarItemFilterCampaignCode": "Campaign code"
     },
     "detail": {
       "buttonCancel": "Discard changes",

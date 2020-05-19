@@ -1,9 +1,9 @@
 {% block sw_text_editor_toolbar_button %}
-    <div class="sw-text-editor-toolbar-button">
+    <div class="sw-text-editor-toolbar-button" :class="classes" @click="buttonHandler($event, buttonConfig)">
 
         {% block sw_text_editor_toolbar_button_icon %}
             <template v-if="buttonConfig.icon">
-                <div class="sw-text-editor-toolbar-button__icon" v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }" :class="classes" @click="buttonHandler($event, buttonConfig)">
+                <div class="sw-text-editor-toolbar-button__icon">
                     <sw-icon :name="buttonConfig.icon" size="12"></sw-icon>
                     <sw-icon v-if="buttonConfig.children" name="default-arrow-head-down" size="8"></sw-icon>
                 </div>
@@ -11,11 +11,11 @@
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_name %}
-            <div v-else-if="buttonConfig.name" v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }" :class="classes" @click="buttonHandler($event, buttonConfig)">{{ buttonConfig.name }}</div>
+            <div v-else-if="buttonConfig.name">{{ buttonConfig.name }}</div>
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_color %}
-            <div v-else-if="buttonConfig.type === 'foreColor'" v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }" :class="classes" @click="buttonHandler($event, buttonConfig)">
+            <div v-else-if="buttonConfig.type === 'foreColor'">
                 <sw-field type="compactColorpicker"
                           v-model="buttonConfig.value"
                           :disabled="disabled"
@@ -31,7 +31,6 @@
                 <div v-for="(child, childIndex) in buttonConfig.children"
                      :key="childIndex"
                      :class="childActive(child)"
-                     v-tooltip.right="{ disabled: !child.title, appearance: tooltipAppearance, message: child.title }"
                      class="sw-text-editor-toolbar-button__children-child">
                     {% block sw_text_editor_toolbar_button_child_item %}
                         <div @click="handleButtonClick(child)">

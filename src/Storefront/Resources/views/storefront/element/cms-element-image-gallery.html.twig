@@ -357,11 +357,10 @@
                                                                                                         {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                                             media: image,
                                                                                                             attributes: {
-                                                                                                                'class': 'gallery-slider-image js-image-zoom-element js-load-img',
+                                                                                                                'class': 'gallery-slider-image js-image-zoom-element',
                                                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
                                                                                                                 'title': (image.translated.title ?: fallbackImageTitle)
-                                                                                                            },
-                                                                                                            load: false
+                                                                                                            }
                                                                                                         } %}
                                                                                                     {% endblock %}
                                                                                                 </div>
@@ -433,11 +432,10 @@
                                                                                                                 'default': '200px'
                                                                                                             },
                                                                                                             attributes: {
-                                                                                                                'class': 'gallery-slider-thumbnails-image js-load-img',
+                                                                                                                'class': 'gallery-slider-thumbnails-image',
                                                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
                                                                                                                 'title': (image.translated.title ?: fallbackImageTitle)
-                                                                                                            },
-                                                                                                            load: false
+                                                                                                            }
                                                                                                         } %}
                                                                                                     </div>
                                                                                                 {% endblock %}

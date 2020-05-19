@@ -34,7 +34,7 @@ class SalesChannelCmsPageRepository
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext())->getEntities();
 
         foreach ($pages as $page) {
-            $page->getSections()->sort(function (CmsSectionEntity $a, CmsSectionEntity $b) {
+            $page->getSections()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
                 return $a->getPosition() <=> $b->getPosition();
             });
 

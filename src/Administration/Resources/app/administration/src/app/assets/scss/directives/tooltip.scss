@@ -69,10 +69,12 @@ $sw-tooltip-border-color-light: $color-gray-300;
 
         &.sw-tooltip--top {
             margin-top: 6px;
+            margin-left: 40px;
         }
 
         &.sw-tooltip--bottom {
             margin-top: -4px;
+            margin-left: 40px;
         }
 
         &.sw-tooltip--left {

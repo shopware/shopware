@@ -12,12 +12,6 @@ Component.register('sw-media-index', {
         routeFolderId: {
             type: String,
             default: null
-        },
-
-        fileAccept: {
-            type: String,
-            required: false,
-            default: '*/*'
         }
     },
 

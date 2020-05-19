@@ -34,7 +34,6 @@ Component.register('sw-settings-user-detail', {
             mediaItem: null,
             changePasswordModal: false,
             newPassword: '',
-            newPasswordConfirm: '',
             isEmailUsed: false,
             isUsernameUsed: false,
             isIntegrationsLoading: false,
@@ -94,14 +93,13 @@ Component.register('sw-settings-user-detail', {
         },
 
         disableConfirm() {
-            return this.newPassword !== this.newPasswordConfirm || this.newPassword === '' || this.newPassword === null;
+            return this.newPassword === '' || this.newPassword === null;
         },
 
         isCurrentUser() {
             if (!this.user || !this.currentUser) {
-                return false;
+                return true;
             }
-
             return this.userId === this.currentUser.id;
         },
 
@@ -347,17 +345,14 @@ Component.register('sw-settings-user-detail', {
 
         onClosePasswordModal() {
             this.newPassword = '';
-            this.newPasswordConfirm = '';
             this.changePasswordModal = false;
         },
 
-        async onSubmit() {
+        onSubmit() {
+            this.changePasswordModal = false;
             this.user.password = this.newPassword;
             this.newPassword = '';
-            this.newPasswordConfirm = '';
-            await this.onSave();
-            this.user.password = '';
-            this.changePasswordModal = false;
+            this.onSave();
         },
 
         onShowDetailModal(id) {

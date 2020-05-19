@@ -19,12 +19,6 @@ Component.register('sw-text-editor-toolbar-button', {
             type: Boolean,
             requred: false,
             default: false
-        },
-
-        isInlineEdit: {
-            type: Boolean,
-            required: false,
-            default: false
         }
     },
 
@@ -34,10 +28,6 @@ Component.register('sw-text-editor-toolbar-button', {
                 'is--active': !!this.buttonConfig.active || this.buttonConfig.expanded,
                 'is--disabled': !!this.disabled
             };
-        },
-
-        tooltipAppearance() {
-            return this.isInlineEdit ? 'light' : 'dark';
         }
     },
 

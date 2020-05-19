@@ -250,8 +250,7 @@ class ShopService
 
         $currencyId = $this->getCurrencyId($shop->currency);
 
-        // TODO: fix
-        $countryId = $this->getCountryId('deu');
+        $countryId = $this->getCountryId($shop->country);
 
         $statement = $this->connection->prepare(
             'INSERT INTO sales_channel (

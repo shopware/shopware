@@ -376,6 +376,27 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         ]);
     }
 
+    // setting up a database connection
+    $connection = (new DatabaseFactory())->createPDOConnection($_SESSION['databaseConnectionInfo']);
+
+    // getting iso code of all countries
+    $statement = $connection->prepare('SELECT iso3, iso FROM country');
+    $statement->execute();
+
+    // formatting string e.g. "en-GB" to "GB"
+    $localeIsoCode = substr($localeForLanguage($_SESSION['language']), -2, 2);
+
+    // flattening array
+    $countryIsos = array_map(function ($country) use ($localeIsoCode) {
+        return [
+            'iso3' => $country['iso3'],
+            'default' => $country['iso'] === $localeIsoCode ? true : false,
+        ];
+    }, $statement->fetchAll());
+
+    // make iso codes available for the select field
+    $viewAttributes['countryIsos'] = $countryIsos;
+
     if ($request->getMethod() === 'POST') {
         $adminUser = new AdminUser([
             'email' => $_SESSION['parameters']['c_config_admin_email'],
@@ -390,6 +411,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'name' => $_SESSION['parameters']['c_config_shopName'],
             'locale' => $_SESSION['parameters']['c_config_shop_language'],
             'currency' => $_SESSION['parameters']['c_config_shop_currency'],
+            'country' => $_SESSION['parameters']['c_config_shop_country'],
             'email' => $_SESSION['parameters']['c_config_mail'],
             'host' => $_SERVER['HTTP_HOST'],
             'basePath' => str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
@@ -426,6 +448,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
 
     $selectedLanguage = $container->offsetGet('install.language');
     $locale = '';
+
     if ($selectedLanguage === 'en') {
         $locale = 'en-GB';
     } elseif ($selectedLanguage === 'de') {

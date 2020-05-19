@@ -7,7 +7,7 @@ const bulkActionOptions = {
     activate: "activate",
     deactivate: "deactivate",
     assignRemoveCategories: "assignRemoveCategories",
-}
+};
 
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,

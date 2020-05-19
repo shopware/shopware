@@ -83,6 +83,12 @@
                                 </a>
                             {% endblock %}
 
+                            {% block component_product_box_variant_characteristics %}
+                                <div class="product-variant-characteristics">
+                                    {{ product.optionNames|join(' | ') }}
+                                </div>
+                            {% endblock %}
+
                             {% block component_product_box_description %}
                                 <div class="product-description">
                                     {{ product.translated.description|striptags|raw }}

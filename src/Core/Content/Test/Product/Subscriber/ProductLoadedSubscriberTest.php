@@ -4,15 +4,15 @@ namespace Shopware\Core\Content\Test\Product\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
-use Shopware\Core\Content\Product\Subscriber\ProductLoadedSubscriber;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use function Flag\skipTestNext7399;
 
 class ProductLoadedSubscriberTest extends TestCase
@@ -26,99 +26,550 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testExtensionSubscribesToProductLoaded(): void
     {
-        static::assertArrayHasKey(ProductEvents::PRODUCT_LOADED_EVENT, ProductLoadedSubscriber::getSubscribedEvents());
-        static::assertCount(1, ProductLoadedSubscriber::getSubscribedEvents()[ProductEvents::PRODUCT_LOADED_EVENT]);
+        static::assertArrayHasKey(ProductEvents::PRODUCT_LOADED_EVENT, ProductSubscriber::getSubscribedEvents());
+        static::assertCount(1, ProductSubscriber::getSubscribedEvents()[ProductEvents::PRODUCT_LOADED_EVENT]);
     }
 
-    public function testItAddsVariantCharacteristics(): void
+    /**
+     * @dataProvider optionNamesCases
+     */
+    public function testOptionNames(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
     {
-        $subscriber = $this->getContainer()->get(ProductLoadedSubscriber::class);
+        $this->getContainer()
+            ->get('language.repository')
+            ->create([$language], Context::createDefaultContext());
+
+        $productId = $product['id'];
         $context = Context::createDefaultContext();
 
-        $propertyNames = [
-            'red',
-            'XL',
-            'slim fit',
-        ];
+        $this->getContainer()->get('product.repository')
+            ->create([$product], $context);
 
-        $productEntity = $this->createVariant($propertyNames);
-
-        $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
-        $subscriber->addVariantCharacteristics($productLoadedEvent);
-
-        static::assertEquals(
-            implode(' - ', $propertyNames),
-            $productEntity->getVariantCharacteristics()
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            $languageChain
         );
-    }
 
-    public function testItAddsVariantCharacteristicsWidthGroupConfig(): void
-    {
-        $subscriber = $this->getContainer()->get(ProductLoadedSubscriber::class);
-        $context = Context::createDefaultContext();
+        $criteria->setIds([$productId]);
 
-        $propertyNames = [
-            'red',
-            'XL',
-            'slim fit',
-        ];
+        $productEntity = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, $context)
+            ->first();
 
-        $productEntity = $this->createVariantWithGroupConfig($propertyNames);
-
+        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
         $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
-        $subscriber->addVariantCharacteristics($productLoadedEvent);
+        $subscriber->loaded($productLoadedEvent);
 
-        static::assertEquals(
-            implode(' - ', $propertyNames),
-            $productEntity->getVariantCharacteristics()
-        );
-    }
+        $optionNames = $productEntity->getOptionNames();
 
-    private function createVariant(array $propertyNames = [])
-    {
-        $productEntity = new ProductEntity();
-        $productEntity->setId(Uuid::randomHex());
-        $productEntity->setOptions(new PropertyGroupOptionCollection());
-
-        foreach ($propertyNames as $name) {
-            $groupId = Uuid::randomHex();
-
-            $configGroupEntity = new PropertyGroupOptionEntity();
-            $configGroupEntity->setUniqueIdentifier($groupId);
-            $configGroupEntity->setName($name);
-            $configGroupEntity->setGroupId($groupId);
-            $productEntity->getOptions()->add($configGroupEntity);
+        if ($sort) {
+            sort($optionNames);
+            sort($expected);
         }
 
-        return $productEntity;
+        static::assertEquals($expected, $optionNames);
     }
 
-    private function createVariantWithGroupConfig(array $propertyNames = [])
+    public function optionNamesCases(): array
     {
-        $productEntity = new ProductEntity();
-        $productEntity->setId(Uuid::randomHex());
-        $productEntity->setOptions(new PropertyGroupOptionCollection());
+        $ids = new TestDataCollection();
 
-        $configuratorGroupConfig = [];
+        $defaults = [
+            'id' => $ids->get('product'),
+            'name' => 'test-product',
+            'productNumber' => $ids->get('product'),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
 
-        foreach ($propertyNames as $name) {
-            $groupId = Uuid::randomHex();
+        $language = [
+            'id' => $ids->create('language'),
+            'name' => 'sub_en',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
+        ];
 
-            $configuratorGroupConfig[] = [
-                'id' => $groupId,
-                'representation' => 'box',
-                'expressionForListings' => true,
-            ];
-
-            $configGroupEntity = new PropertyGroupOptionEntity();
-            $configGroupEntity->setUniqueIdentifier($groupId);
-            $configGroupEntity->setName($name);
-            $configGroupEntity->setGroupId($groupId);
-            $productEntity->getOptions()->add($configGroupEntity);
-        }
-
-        $productEntity->setConfiguratorGroupConfig($configuratorGroupConfig);
-
-        return $productEntity;
+        return [
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'name' => 'slim fit',
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                        ],
+                    ],
+                ]),
+                [],
+                [Defaults::LANGUAGE_SYSTEM],
+                (new Criteria()),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'name' => 'slim fit',
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                        ],
+                    ],
+                ]),
+                ['red', 'xl', 'slim fit'],
+                [Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                true,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                                $this->getDeDeLanguageId() => ['name' => 'rot'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                                $this->getDeDeLanguageId() => ['name' => 'extra gross'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                                $this->getDeDeLanguageId() => ['name' => 'schmal'],
+                            ],
+                        ],
+                    ],
+                ]),
+                ['rot', 'extra gross', 'schmal'],
+                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                true,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                            ],
+                        ],
+                    ],
+                ]),
+                ['red', 'xl', 'slim fit'],
+                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                true,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                            ],
+                        ],
+                    ],
+                ]),
+                ['red', 'xl', 'slim fit'],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                true,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                                $ids->get('language') => ['name' => 'der'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                                $ids->get('language') => ['name' => 'lx'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                                $ids->get('language') => ['name' => 'tif mils'],
+                            ],
+                        ],
+                    ],
+                ]),
+                ['der', 'lx', 'tif mils'],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                true,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'name' => 'slim fit',
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                        ],
+                    ],
+                    'configuratorGroupConfig' => [
+                        [
+                            'id' => $ids->get('color'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('size'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('fit'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                    ],
+                ]),
+                ['red', 'xl', 'slim fit'],
+                [Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                                $this->getDeDeLanguageId() => ['name' => 'rot'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                                $this->getDeDeLanguageId() => ['name' => 'extra gross'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                                $this->getDeDeLanguageId() => ['name' => 'schmal'],
+                            ],
+                        ],
+                    ],
+                    'configuratorGroupConfig' => [
+                        [
+                            'id' => $ids->get('color'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('size'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('fit'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                    ],
+                ]),
+                ['rot', 'extra gross', 'schmal'],
+                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                            ],
+                        ],
+                    ],
+                    'configuratorGroupConfig' => [
+                        [
+                            'id' => $ids->get('color'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('size'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('fit'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                    ],
+                ]),
+                ['red', 'xl', 'slim fit'],
+                [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                            ],
+                        ],
+                    ],
+                    'configuratorGroupConfig' => [
+                        [
+                            'id' => $ids->get('color'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('size'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('fit'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                    ],
+                ]),
+                ['red', 'xl', 'slim fit'],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
+                                $ids->get('language') => ['name' => 'der'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
+                                $ids->get('language') => ['name' => 'lx'],
+                            ],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
+                                $ids->get('language') => ['name' => 'tif mils'],
+                            ],
+                        ],
+                    ],
+                    'configuratorGroupConfig' => [
+                        [
+                            'id' => $ids->get('color'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('size'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('fit'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                    ],
+                ]),
+                ['der', 'lx', 'tif mils'],
+                [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'name' => 'slim fit',
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                        ],
+                    ],
+                    'configuratorGroupConfig' => [
+                        [
+                            'id' => $ids->get('fit'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('color'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                        [
+                            'id' => $ids->get('size'),
+                            'representation' => 'box',
+                            'expressionForListings' => true,
+                        ],
+                    ],
+                ]),
+                ['slim fit', 'red', 'xl'],
+                [Defaults::LANGUAGE_SYSTEM],
+                (new Criteria())->addAssociation('options'),
+                false,
+                $language,
+            ],
+        ];
     }
 }

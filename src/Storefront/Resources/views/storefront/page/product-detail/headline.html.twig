@@ -6,6 +6,9 @@
                     itemprop="name">
                     {{ page.product.translated.name }}
                 </h1>
+                <span class="product-detail-variant-characteristics">
+                    {{ page.product.optionNames|join(' | ') }}
+                </span>
             {% endblock %}
         </div>
     {% endblock %}

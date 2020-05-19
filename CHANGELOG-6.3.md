@@ -108,19 +108,33 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactor `sw-settings-shipping-list` to context language
     * Refactor `sw-settings-shopware-updates-wizard` to context language
     * Refactor `sw-settings-user-detail` to context language
-
-    * Added `products` children route in `sw.sales.channel.detail.base` route belonging to `sw-sales-channel` module to handle the content navigation of google shopping sales channel
-    * Added a `Products` navigator in `sw-sales-channel/page/sw-sales-channel-detail` to handle the redirection to the content belonging to `products` children route
-    * Added `sw-sales-channel-detail-products` component in `sw-sales-channel/view` to show the content belonging to `products` children route
-    * Modified `sw-sales-channel/view/sw-sales-channel-detail-base` to show the content belonging to only google shopping sales channel
-        * Added `isGoogleShopping` flag to distinguish between the content of google shopping sales channel with the others
-        * Added `sw-sales-channel-detail-account-connect` component to handle google connection
-        * Added `sw-sales-channel-detail-account-disconnect` component to show the google information and also handle google disconnection
-
-* Core
-    * Refactored data handling of `sw-settings-document` module
-        * Replaced store with repositories
-             
+    * Refactored data fetching and saving of `sw-settings-document` module
+        * Replaced `StateDeprecated.getStore('document_base_config')` with `this.repositoryFactory.create('document_base_config')`
+        * Removed the file `src/module/sw-settings-document/page/sw-settings-document-create/index.js`. The create logic is now handled by `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
+        * `src/module/sw-settings-document/page/sw-settings-document-detail/index.js` changes:
+            * Added property `documentConfigId` to `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
+            * Added method `documentBaseConfigCriteria`
+            * Added method `createSalesChannelSelectOptions`
+            * Added async method `loadAvailableSalesChannel`
+            * Changed method name `documentTypeStore` to `documentTypeRepository`
+                * It now returns `this.repositoryFactory.create('document_type')` instead of `StateDeprecated.getStore('document_type')`
+            * Changed method name `salesChannelStore` to `salesChannelRepository`
+                * It now returns `this.repositoryFactory.create('sales_channel')` instead of `StateDeprecated.getStore('sales_channel')`
+            * Changed method name `documentBaseConfigSalesChannelAssociationStore` to `documentBaseConfigSalesChannelRepository`
+                * It now returns `this.repositoryFactory.create('document_base_config_sales_channel')` instead of `this.documentConfig.getAssociation('salesChannels')`
+            * Changed method name `documentBaseConfigStore` to `documentBaseConfigRepository`
+                * It now returns `this.repositoryFactory.create('document_base_config')` instead of `StateDeprecated.getStore('document_base_config')`
+            * Changed `createdComponent` method to be async now
+            * Changed `loadEntityData` method to be async now
+            * Changed `onChangeType` method to be async now
+            * Removed method `getPossibleSalesChannels`
+            * Removed method `setSalesChannelCriteria`
+            * Removed method `enrichAssocStores`
+            * Removed method `configHasSaleschannel`
+            * Removed method `selectHasSaleschannel`
+            * Removed method `undeleteSaleschannel`
+            
+            
 * Core    
 
 * Storefront

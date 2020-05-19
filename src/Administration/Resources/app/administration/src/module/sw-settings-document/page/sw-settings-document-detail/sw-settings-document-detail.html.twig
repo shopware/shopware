@@ -74,16 +74,15 @@
                             </div>
                             {% endblock %}
                             {% block sw_settings_document_detail_content_form_field_renderer_content %}
-                                    <template v-if="documentConfig.config" v-for="formField in generalFormFields">
-                                        {% block sw_settings_document_detail_content_form_field_renderer %}
-                                            <sw-form-field-renderer
-                                                class="sw-settings-document-detail__form-field-renderer"
-                                                v-bind="formField"
-                                                v-model="documentConfig.config[formField.name]">
-                                            </sw-form-field-renderer>
-                                        {% endblock %}
-                                    </template>
-                                </div>
+                                <template v-if="documentConfig.config" v-for="formField in generalFormFields">
+                                    {% block sw_settings_document_detail_content_form_field_renderer %}
+                                        <sw-form-field-renderer
+                                            class="sw-settings-document-detail__form-field-renderer"
+                                            v-bind="formField"
+                                            v-model="documentConfig.config[formField.name]">
+                                        </sw-form-field-renderer>
+                                    {% endblock %}
+                                </template>
                             {% endblock %}
                         </sw-container>
                     </sw-card>
@@ -150,31 +149,33 @@
                                     }"
                                     class="sw-document-detail__select-type"
                                     v-if="documentConfig.salesChannels && (!documentConfig.global || documentConfig.global === false)">
-                                    <template #selection-label-property="{ item }">
-                                        {{ item.salesChannel.translated.name }}
-                                    </template>
-
-                                    <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                                        <li is="sw-select-result"
-                                            :selected="isSelected(item)"
-                                            @item-select="addItem"
-                                            :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
-                                            v-tooltip="{
-                                                showDelay: 300,
-                                                message: $tc('sw-settings-document.detail.disabledSalesChannel'),
-                                                disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
-                                            }"
-                                            v-bind="{ item, index }">
-                                            <sw-highlight-text v-if="highlightSearchTerm"
-                                                               :text="item.salesChannel.translated.name"
-                                                               :searchTerm="searchTerm">
-                                            </sw-highlight-text>
-                                            <template v-else>
-                                                {{ item.salesChannel.translated.name }}
-                                            </template>
-                                        </li>
-                                    </template>
-
+                                    {% block sw_document_detail_base_general_input_sales_channel_label %}
+                                        <template #selection-label-property="{ item }">
+                                            {{ item.salesChannel.translated.name }}
+                                        </template>
+                                    {% endblock %}
+                                    {% block sw_document_detail_base_general_input_sales_channel_result_item %}
+                                        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                                            <li is="sw-select-result"
+                                                :selected="isSelected(item)"
+                                                @item-select="addItem"
+                                                :disabled="alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)"
+                                                v-tooltip="{
+                                                    showDelay: 300,
+                                                    message: $tc('sw-settings-document.detail.disabledSalesChannel'),
+                                                    disabled: !alreadyAssignedSalesChannelIdsToType.includes(item.salesChannel.id)
+                                                }"
+                                                v-bind="{ item, index }">
+                                                <sw-highlight-text v-if="highlightSearchTerm"
+                                                                   :text="item.salesChannel.translated.name"
+                                                                   :searchTerm="searchTerm">
+                                                </sw-highlight-text>
+                                                <template v-else>
+                                                    {{ item.salesChannel.translated.name }}
+                                                </template>
+                                            </li>
+                                        </template>
+                                    {% endblock %}
                                 </sw-multi-select>
                             {% endblock %}
                         </sw-container>

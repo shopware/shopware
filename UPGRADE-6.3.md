@@ -31,3 +31,6 @@ Administration
     * Added mutation to Context State: `setApiLanguageId`
     * Added mutation to Context State: `resetLanguageToDefault`
     * Added getter to Context State: `isSystemDefaultLanguage`
+* Refactored data fetching and saving in `sw-settings-documents` module
+    * It now uses repositories for data handling instead of `State.getStore()`
+    * See the `CHANGELOG-6.3.md` file for a detailed overview

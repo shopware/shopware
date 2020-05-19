@@ -60,7 +60,7 @@
       "placeholderName": "Namen eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "disabledSalesChannel": "Es gibt bereits ein Dokument desselben Typs mit diesem Sales Channel.",
+      "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Sales Channel.",
       "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
       "disabledTypeSelect": "Der Dokumententyp von globalen Dokumenten kann nicht geändert werden."
     }

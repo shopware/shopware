@@ -169,6 +169,7 @@ Component.register('sw-filter-sidebar-item', {
                 }
 
                 if ((typeof value === 'undefined') || value === null || value.length === 0) return;
+                if (filterOption.inputType === filterInputTypeOptions.switch && !value) return;
 
                 try {
                     criteriaArray.push(Criteria[filterOption.criteriaType](field, value));

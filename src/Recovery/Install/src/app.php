@@ -390,6 +390,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'name' => $_SESSION['parameters']['c_config_shopName'],
             'locale' => $_SESSION['parameters']['c_config_shop_language'],
             'currency' => $_SESSION['parameters']['c_config_shop_currency'],
+            'additionalCurrencies' => empty($_SESSION['parameters']['c_available_currencies']) ? null : $_SESSION['parameters']['c_available_currencies'],
             'email' => $_SESSION['parameters']['c_config_mail'],
             'host' => $_SERVER['HTTP_HOST'],
             'basePath' => str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
@@ -426,6 +427,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
 
     $selectedLanguage = $container->offsetGet('install.language');
     $locale = '';
+
     if ($selectedLanguage === 'en') {
         $locale = 'en-GB';
     } elseif ($selectedLanguage === 'de') {

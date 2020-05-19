@@ -91,6 +91,13 @@ describe('Minimal install', () => {
 
         cy.get('#c_config_shop_currency').select('GBP');
 
+        // check if the shop currency is disabled in the additional currencies
+        cy.get('input#gpb').should('be.disabled');
+        cy.get('input#gpb').should('be.checked');
+
+        // add additional currencies
+        cy.get('input#sek').check();
+        cy.get('input#eur').check();
 
         cy.get('#c_config_admin_email').clear().type('e2e@example.com');
 

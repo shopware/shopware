@@ -119,6 +119,19 @@ return [
     'finish_first_steps' => 'Handleiding \'Eerste stappen\'',
     'finish_frontend' => 'Ga naar storefront',
     'finish_backend' => 'Ga naar beheer',
+    'configuration_admin_currency_headline' => 'Beschikbare valuta\'s',
+    'configuration_admin_currency_text' => 'Voeg meer valuta toe aan uw Shopware shop. Als u achteraf valuta\'s wilt toevoegen, kunt u dit op elk gewenst moment in de administratie doen.',
+
+    'configuration_admin_language_de' => 'Deutsch',
+    'configuration_admin_language_en' => 'English',
+    'configuration_admin_password' => 'Beheerderswachtwoord:',
+
+    'finish_header' => 'Installatie afgesloten',
+    'finish_info' => 'Shopware is geïnstalleerd!',
+    'finish_info_heading' => 'Jippie!',
+    'finish_first_steps' => '"Eerste stappen" - gids',
+    'finish_frontend' => 'Naar Shop-frontend',
+    'finish_backend' => 'Naar Shop-backend (beheer)',
     'finish_message' => '
 <p>
     <strong>Hartelijk welkom bij Shopware,</strong>

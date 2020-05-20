@@ -237,6 +237,11 @@ class SalesChannelContext extends Struct
         $this->context->setTaxState($taxState);
     }
 
+    public function getTaxCalculationType(): string
+    {
+        return $this->getSalesChannel()->getTaxCalculationType();
+    }
+
     public function getPermissions(): array
     {
         return $this->permissions;

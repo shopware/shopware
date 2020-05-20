@@ -27,6 +27,8 @@
         <service id="Shopware\Core\Checkout\Cart\Price\AmountCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartPersister">

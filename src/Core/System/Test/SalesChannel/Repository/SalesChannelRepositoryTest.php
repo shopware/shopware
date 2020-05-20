@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SalesChannelRepositoryTest extends TestCase
 {
@@ -152,5 +154,31 @@ class SalesChannelRepositoryTest extends TestCase
         $criteria->addFilter(new EqualsFilter('shipping_method.salesChannels.id', $salesChannelId));
         $shippingMethod = $this->shippingMethodRepository->search($criteria, $context);
         static::assertEquals(1, $shippingMethod->count());
+    }
+
+    public function testTaxCalculationDefault(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'currencyId' => Defaults::CURRENCY,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'countryId' => $this->getValidCountryId(),
+            'accessKey' => $id,
+        ];
+
+        $this->salesChannelRepository->create([$data], Context::createDefaultContext());
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $this->salesChannelRepository
+            ->search(new Criteria([$id]), Context::createDefaultContext())
+            ->first();
+
+        static::assertSame(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL, $salesChannel->getTaxCalculationType());
     }
 }

@@ -1,11 +1,13 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
-Table of content
+Table of contents
 ----------------
 
 * [Core](#core)
 * [Administration](#administration)
+* [Storefront](#storefront)
+* [Refactorings](#refactorings)
 
 Core
 ----
@@ -79,3 +81,10 @@ Administration
             }
         }
         ```
+
+
+Storefront
+--------------
+
+Refactorings
+------------

@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -217,9 +218,6 @@ class PromotionCalculator
             $lineItem->getReferencedId()
         );
 
-        // get the cart total price => discount may never be higher than this value
-        $maxDiscountValue = $calculatedCart->getPrice()->getTotalPrice();
-
         switch ($discount->getScope()) {
             case PromotionDiscountEntity::SCOPE_CART:
                 $packager = $this->cartScopeDiscountPackager;
@@ -311,6 +309,9 @@ class PromotionCalculator
         $aggregatedCompositionItems = $this->discountCompositionBuilder->aggregateCompositionItems($result->getCompositionItems());
         $result = new DiscountCalculatorResult($result->getPrice(), $aggregatedCompositionItems);
 
+        // get the cart total price => discount may never be higher than this value
+        $maxDiscountValue = $this->getMaxDiscountValue($calculatedCart, $context);
+
         // if our price is larger than the max discount value,
         // then use the max discount value as negative discount
         if (abs($result->getPrice()->getTotalPrice()) > abs($maxDiscountValue)) {
@@ -318,6 +319,20 @@ class PromotionCalculator
         }
 
         return $result;
+    }
+
+    /**
+     * Calculates a max discount value based on current cart and customer group.
+     * If customer is in net customer group, get the cart's net value,
+     * otherwise use the gross value as maximum value.
+     */
+    private function getMaxDiscountValue(Cart $cart, SalesChannelContext $context): float
+    {
+        if ($context->getTaxState() === CartPrice::TAX_STATE_NET) {
+            return $cart->getPrice()->getNetPrice();
+        }
+
+        return $cart->getPrice()->getTotalPrice();
     }
 
     /**

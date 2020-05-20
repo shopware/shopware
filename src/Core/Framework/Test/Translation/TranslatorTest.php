@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Translation;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -43,6 +44,8 @@ class TranslatorTest extends TestCase
         $this->snippetRepository = $this->getContainer()->get('snippet.repository');
 
         $this->translator->resetInMemoryCache();
+        $this->translator->warmUp('');
+        $this->clearInternalTranslatorFallbackLocaleCache();
     }
 
     public function testPassthru(): void
@@ -119,20 +122,64 @@ class TranslatorTest extends TestCase
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
-        static::assertEquals('en', $fallback->getLocale());
-        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en_GB', $fallback->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
 
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de_DE');
         $fallback = $catalogue->getFallbackCatalogue();
-        static::assertEquals('en', $fallback->getLocale());
+        static::assertEquals('de', $fallback->getLocale());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertEquals('en', $fallback->getLocale());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        $this->translator->resetInMemoryCache();
+    }
+
+    public function testSymfonyDefaultTranslationFallbackWithCustomShopwareDefaultLanguage(): void
+    {
+        $this->switchDefaultLanguage();
+
+        $catalogue = $this->translator->getCatalogue('en');
+        static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
+
+        $this->translator->resetInMemoryCache();
+        $this->translator->resetInMemoryCache();
+        $catalogue = $this->translator->getCatalogue('en_GB');
+        static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
+
+        $this->translator->resetInMemoryCache();
+        $this->translator->resetInMemoryCache();
+        $catalogue = $this->translator->getCatalogue('en-GB');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('de', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+
+        $this->translator->resetInMemoryCache();
+        $this->translator->resetInMemoryCache();
+        $catalogue = $this->translator->getCatalogue('de');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('en_GB', $fallback->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
+
+        $this->translator->resetInMemoryCache();
+        $catalogue = $this->translator->getCatalogue('de_DE');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('de', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
+
+        $this->translator->resetInMemoryCache();
+        $catalogue = $this->translator->getCatalogue('de-DE');
+        $fallback = $catalogue->getFallbackCatalogue();
+        static::assertEquals('de', $fallback->getLocale());
+        static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
         $this->translator->resetInMemoryCache();
     }
 
@@ -152,5 +199,42 @@ class TranslatorTest extends TestCase
 
         $deleted = $snippetRepository->delete([['id' => $snippet['id']]], Context::createDefaultContext())->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
         static::assertEquals([$snippet['id']], $deleted->getIds());
+    }
+
+    private function switchDefaultLanguage(): void
+    {
+        $currentDeId = $this->connection->fetchColumn(
+            'SELECT language.id
+             FROM language
+             INNER JOIN locale ON translation_code_id = locale.id
+             WHERE locale.code = "de-DE"'
+        );
+
+        $stmt = $this->connection->prepare(
+            'UPDATE language
+             SET id = :newId
+             WHERE id = :oldId'
+        );
+
+        // assign new uuid to old DEFAULT
+        $stmt->execute([
+            'newId' => Uuid::randomBytes(),
+            'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+        ]);
+
+        // change id to DEFAULT
+        $stmt->execute([
+            'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'oldId' => $currentDeId,
+        ]);
+    }
+
+    private function clearInternalTranslatorFallbackLocaleCache(): void
+    {
+        $reflection = new \ReflectionClass($this->translator);
+        $prop = $reflection->getProperty('fallbackLocale');
+
+        $prop->setAccessible(true);
+        $prop->setValue($this->translator, null);
     }
 }

@@ -142,9 +142,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['red', 'xl', 'slim fit'],
+                [
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                ],
                 [Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 true,
                 $language,
             ],
@@ -153,7 +157,13 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                    $this->getDeDeLanguageId() => ['name' => 'farbe'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                                 $this->getDeDeLanguageId() => ['name' => 'rot'],
@@ -161,7 +171,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                    $this->getDeDeLanguageId() => ['name' => 'größe'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                                 $this->getDeDeLanguageId() => ['name' => 'extra gross'],
@@ -169,7 +185,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                    $this->getDeDeLanguageId() => ['name' => 'passform'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                                 $this->getDeDeLanguageId() => ['name' => 'schmal'],
@@ -177,9 +199,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['rot', 'extra gross', 'schmal'],
+                [
+                    ['group' => 'farbe', 'option' => 'rot'],
+                    ['group' => 'größe', 'option' => 'extra gross'],
+                    ['group' => 'passform', 'option' => 'schmal'],
+                ],
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 true,
                 $language,
             ],
@@ -188,30 +214,49 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                             ],
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                             ],
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                             ],
                         ],
                     ],
                 ]),
-                ['red', 'xl', 'slim fit'],
+                [
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                ],
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 true,
                 $language,
             ],
@@ -220,30 +265,49 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                             ],
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                             ],
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                             ],
                         ],
                     ],
                 ]),
-                ['red', 'xl', 'slim fit'],
+                [
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                ],
                 [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 true,
                 $language,
             ],
@@ -252,7 +316,13 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                    $this->getDeDeLanguageId() => ['name' => 'farbe'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                                 $ids->get('language') => ['name' => 'der'],
@@ -260,7 +330,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                    $this->getDeDeLanguageId() => ['name' => 'größe'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                                 $ids->get('language') => ['name' => 'lx'],
@@ -268,7 +344,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                    $this->getDeDeLanguageId() => ['name' => 'passform'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                                 $ids->get('language') => ['name' => 'tif mils'],
@@ -276,9 +358,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['der', 'lx', 'tif mils'],
+                [
+                    ['group' => 'farbe', 'option' => 'der'],
+                    ['group' => 'größe', 'option' => 'lx'],
+                    ['group' => 'passform', 'option' => 'tif mils'],
+                ],
                 [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 true,
                 $language,
             ],
@@ -319,9 +405,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['red', 'xl', 'slim fit'],
+                [
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                ],
                 [Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
@@ -330,7 +420,13 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                    $this->getDeDeLanguageId() => ['name' => 'farbe'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                                 $this->getDeDeLanguageId() => ['name' => 'rot'],
@@ -338,7 +434,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                    $this->getDeDeLanguageId() => ['name' => 'größe'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                                 $this->getDeDeLanguageId() => ['name' => 'extra gross'],
@@ -346,7 +448,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                    $this->getDeDeLanguageId() => ['name' => 'passform'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                                 $this->getDeDeLanguageId() => ['name' => 'schmal'],
@@ -371,9 +479,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['rot', 'extra gross', 'schmal'],
+                [
+                    ['group' => 'farbe', 'option' => 'rot'],
+                    ['group' => 'größe', 'option' => 'extra gross'],
+                    ['group' => 'passform', 'option' => 'schmal'],
+                ],
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
@@ -382,21 +494,36 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                             ],
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                             ],
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                             ],
@@ -420,9 +547,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['red', 'xl', 'slim fit'],
+                [
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                ],
                 [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
@@ -431,21 +562,36 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                             ],
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                             ],
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                             ],
@@ -469,9 +615,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['red', 'xl', 'slim fit'],
+                [
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                ],
                 [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
@@ -480,7 +630,13 @@ class ProductLoadedSubscriberTest extends TestCase
                     'options' => [
                         [
                             'id' => $ids->get('red'),
-                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                            'group' => [
+                                'id' => $ids->get('color'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'color'],
+                                    $ids->get('language') => ['name' => 'foo'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'red'],
                                 $ids->get('language') => ['name' => 'der'],
@@ -488,7 +644,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('xl'),
-                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                            'group' => [
+                                'id' => $ids->get('size'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'size'],
+                                    $ids->get('language') => ['name' => 'bar'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'xl'],
                                 $ids->get('language') => ['name' => 'lx'],
@@ -496,7 +658,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                         [
                             'id' => $ids->get('slim-fit'),
-                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                            'group' => [
+                                'id' => $ids->get('fit'),
+                                'translations' => [
+                                    Defaults::LANGUAGE_SYSTEM => ['name' => 'fit'],
+                                    $ids->get('language') => ['name' => 'baz'],
+                                ],
+                            ],
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => ['name' => 'slim fit'],
                                 $ids->get('language') => ['name' => 'tif mils'],
@@ -521,9 +689,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['der', 'lx', 'tif mils'],
+                [
+                    ['group' => 'foo', 'option' => 'der'],
+                    ['group' => 'bar', 'option' => 'lx'],
+                    ['group' => 'baz', 'option' => 'tif mils'],
+                ],
                 [$ids->get('language'), $this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],
@@ -564,9 +736,13 @@ class ProductLoadedSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                ['slim fit', 'red', 'xl'],
+                [
+                    ['group' => 'fit', 'option' => 'slim fit'],
+                    ['group' => 'color', 'option' => 'red'],
+                    ['group' => 'size', 'option' => 'xl'],
+                ],
                 [Defaults::LANGUAGE_SYSTEM],
-                (new Criteria())->addAssociation('options'),
+                (new Criteria())->addAssociation('options.group'),
                 false,
                 $language,
             ],

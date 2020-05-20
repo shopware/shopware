@@ -237,13 +237,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'categoryIds' => $product->getCategoryTree(),
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
-
-            // @deprecated tag:v6.4.0 - The `options` will be fully removed, use optionNames instead
             'options' => $this->getOptions($product),
         ];
 
         if (next7399()) {
-            $payload['optionNames'] = $product->getOptionNames();
+            $payload['options'] = $product->getOptionNames();
         }
 
         $lineItem->replacePayload($payload);

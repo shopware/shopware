@@ -7,7 +7,13 @@
                     {{ page.product.translated.name }}
                 </h1>
                 <span class="product-detail-variant-characteristics">
-                    {{ page.product.optionNames|join(' | ') }}
+                    {% for optionName in page.product.optionNames %}
+                        {{ optionName.group }}: {{ optionName.option }}
+
+                        {% if page.product.optionNames|last != optionName %}
+                            {{ " | " }}
+                        {% endif %}
+                    {% endfor %}
                 </span>
             {% endblock %}
         </div>

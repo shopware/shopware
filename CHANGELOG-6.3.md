@@ -16,99 +16,10 @@ Table of contents
   - [Core](#core)
   - [Storefront](#storefront)
 
-
-    * Refactored sw-mail-template
-        * Replaced store with repositories    
-            * Replaced store with repositories    
-    * Added `google-auth.service` to support Google OAuth 2.0
-    * Added `google-shopping.api.service` to handle Google Shopping API
-        * Added method `connectGoogle`
-        * Added method `disconnectGoogle`
-        * Added method `disconnectGoogle`
-        * Added method `getMerchantList`
-        * Added method `assignMerchant`
-        * Added method `unassignMerchant`
-    * Refactor `sw-language-info` to context language
-    * Refactor `sw-language-switch` to context language
-    * Remove unused `languageStore` from `sw-page`
-    * Add `initPost` method which starts the `languageAutoFetchingService`
-    * Add the service `languageAutoFetchingService` for fetching automatically the active language
-    * Refactor `placeholder.mixin` to context language
-    * Add language features to Context State
-    	* Mutation `setApiLanguageId`
-    	* Mutation `resetLanguageToDefault`
-    	* Getter `isSystemDefaultLanguage`
-    * Deprecated LanguageStore
-    * Refactor `sw-category-detail` to context language
-    * Refactor `sw-cms-create` to context language
-    * Refactor `sw-cms-detail` to context language
-    * Refactor `sw-cms-list` to context language
-    * Refactor `sw-customer-create` to context language
-    * Refactor `sw-mail-header-footer-create` to context language
-    * Refactor `sw-mail-template-create` to context language
-    * Refactor `sw-mail-template-detail` to context language
-    * Refactor `sw-mail-template-index` to context language
-    * Refactor `sw-manufacturer-detail` to context language
-    * Refactor `sw-newsletter-recipient-list` to context language
-    * Refactor `sw-order-promotion-tag-field` to context language
-    * Refactor `sw-order-create-base` to context language
-    * Refactor `sw-plugin-list` to context language
-    * Refactor `sw-product-basic-form` to context language
-    * Refactor `sw-products-variants-generator` to context language
-    * Refactor `sw-product-detail` to context language
-    * Refactor `sw-product-list` to context language
-    * Refactor `sw-promotion-detail` to context language
-    * Refactor `sw-property-create` to context language
-    * Refactor `sw-review-detail` to context language
-    * Refactor `sw-sales-channel-google-introduction` to context language
-    * Refactor `sw-sales-channel-create` to context language
-    * Refactor `sw-settings-country-list` to context language
-    * Refactor `sw-settings-currency-detail` to context language
-    * Refactor `sw-settings-currency-list` to context language
-    * Refactor `sw-settings-customer-group-detail` to context language
-    * Refactor `sw-settings-delivery-time-create` to context language
-    * Refactor `sw-settings-language-detail` to context language
-    * Refactor `sw-settings-number-range-create` to context language
-    * Refactor `sw-settings-payment-create` to context language
-    * Refactor `sw-settings-payment-list` to context language
-    * Refactor `sw-settings-salutation-detail` to context language
-    * Refactor `sw-settings-shipping-detail` to context language
-    * Refactor `sw-settings-shipping-list` to context language
-    * Refactor `sw-settings-shopware-updates-wizard` to context language
-    * Refactor `sw-settings-user-detail` to context language
-    * Refactored data fetching and saving of `sw-settings-document` module
-        * Replaced `StateDeprecated.getStore('document_base_config')` with `this.repositoryFactory.create('document_base_config')`
-        * Removed the file `src/module/sw-settings-document/page/sw-settings-document-create/index.js`. The create logic is now handled by `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
-        * `src/module/sw-settings-document/page/sw-settings-document-detail/index.js` changes:
-            * Added property `documentConfigId` to `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
-            * Added method `documentBaseConfigCriteria`
-            * Added method `createSalesChannelSelectOptions`
-            * Added async method `loadAvailableSalesChannel`
-            * Changed method name `documentTypeStore` to `documentTypeRepository`
-                * It now returns `this.repositoryFactory.create('document_type')` instead of `StateDeprecated.getStore('document_type')`
-            * Changed method name `salesChannelStore` to `salesChannelRepository`
-                * It now returns `this.repositoryFactory.create('sales_channel')` instead of `StateDeprecated.getStore('sales_channel')`
-            * Changed method name `documentBaseConfigSalesChannelAssociationStore` to `documentBaseConfigSalesChannelRepository`
-                * It now returns `this.repositoryFactory.create('document_base_config_sales_channel')` instead of `this.documentConfig.getAssociation('salesChannels')`
-            * Changed method name `documentBaseConfigStore` to `documentBaseConfigRepository`
-                * It now returns `this.repositoryFactory.create('document_base_config')` instead of `StateDeprecated.getStore('document_base_config')`
-            * Changed `createdComponent` method to be async now
-            * Changed `loadEntityData` method to be async now
-            * Changed `onChangeType` method to be async now
-            * Removed method `getPossibleSalesChannels`
-            * Removed method `setSalesChannelCriteria`
-            * Removed method `enrichAssocStores`
-            * Removed method `configHasSaleschannel`
-            * Removed method `selectHasSaleschannel`
-            * Removed method `undeleteSaleschannel`
-            
-            
-* Core    
 6.3.0
 ----------------
 
 #### Administration
-
 * Added custom `slot` to `sw-radio-field` component
 * Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal
 * Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
@@ -145,10 +56,91 @@ Table of contents
     * Replaced store with repositories
 * Refactored sw-mail-template
     * Replaced store with repositories    
+        * Replaced store with repositories    
+* Added `google-auth.service` to support Google OAuth 2.0
+* Added `google-shopping.api.service` to handle Google Shopping API
+    * Added method `connectGoogle`
+    * Added method `disconnectGoogle`
+    * Added method `disconnectGoogle`
+    * Added method `getMerchantList`
+    * Added method `assignMerchant`
+    * Added method `unassignMerchant`
+* Refactor `sw-language-info` to context language
+* Refactor `sw-language-switch` to context language
+* Remove unused `languageStore` from `sw-page`
+* Add `initPost` method which starts the `languageAutoFetchingService`
+* Add the service `languageAutoFetchingService` for fetching automatically the active language
+* Refactor `placeholder.mixin` to context language
+* Add language features to Context State
+    * Mutation `setApiLanguageId`
+    * Mutation `resetLanguageToDefault`
+    * Getter `isSystemDefaultLanguage`
+* Deprecated LanguageStore
+* Refactor `sw-category-detail` to context language
+* Refactor `sw-cms-create` to context language
+* Refactor `sw-cms-detail` to context language
+* Refactor `sw-cms-list` to context language
+* Refactor `sw-customer-create` to context language
+* Refactor `sw-mail-header-footer-create` to context language
+* Refactor `sw-mail-template-create` to context language
+* Refactor `sw-mail-template-detail` to context language
+* Refactor `sw-mail-template-index` to context language
+* Refactor `sw-manufacturer-detail` to context language
+* Refactor `sw-newsletter-recipient-list` to context language
+* Refactor `sw-order-promotion-tag-field` to context language
+* Refactor `sw-order-create-base` to context language
+* Refactor `sw-plugin-list` to context language
+* Refactor `sw-product-basic-form` to context language
+* Refactor `sw-products-variants-generator` to context language
+* Refactor `sw-product-detail` to context language
+* Refactor `sw-product-list` to context language
+* Refactor `sw-promotion-detail` to context language
+* Refactor `sw-property-create` to context language
+* Refactor `sw-review-detail` to context language
+* Refactor `sw-sales-channel-google-introduction` to context language
+* Refactor `sw-sales-channel-create` to context language
+* Refactor `sw-settings-country-list` to context language
+* Refactor `sw-settings-currency-detail` to context language
+* Refactor `sw-settings-currency-list` to context language
+* Refactor `sw-settings-customer-group-detail` to context language
+* Refactor `sw-settings-delivery-time-create` to context language
+* Refactor `sw-settings-language-detail` to context language
+* Refactor `sw-settings-number-range-create` to context language
+* Refactor `sw-settings-payment-create` to context language
+* Refactor `sw-settings-payment-list` to context language
+* Refactor `sw-settings-salutation-detail` to context language
+* Refactor `sw-settings-shipping-detail` to context language
+* Refactor `sw-settings-shipping-list` to context language
+* Refactor `sw-settings-shopware-updates-wizard` to context language
+* Refactor `sw-settings-user-detail` to context language
+* Refactored data fetching and saving of `sw-settings-document` module
+    * Replaced `StateDeprecated.getStore('document_base_config')` with `this.repositoryFactory.create('document_base_config')`
+    * Removed the file `src/module/sw-settings-document/page/sw-settings-document-create/index.js`. The create logic is now handled by `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
+    * `src/module/sw-settings-document/page/sw-settings-document-detail/index.js` changes:
+        * Added property `documentConfigId` to `src/module/sw-settings-document/page/sw-settings-document-detail/index.js`
+        * Added method `documentBaseConfigCriteria`
+        * Added method `createSalesChannelSelectOptions`
+        * Added async method `loadAvailableSalesChannel`
+        * Changed method name `documentTypeStore` to `documentTypeRepository`
+            * It now returns `this.repositoryFactory.create('document_type')` instead of `StateDeprecated.getStore('document_type')`
+        * Changed method name `salesChannelStore` to `salesChannelRepository`
+            * It now returns `this.repositoryFactory.create('sales_channel')` instead of `StateDeprecated.getStore('sales_channel')`
+        * Changed method name `documentBaseConfigSalesChannelAssociationStore` to `documentBaseConfigSalesChannelRepository`
+            * It now returns `this.repositoryFactory.create('document_base_config_sales_channel')` instead of `this.documentConfig.getAssociation('salesChannels')`
+        * Changed method name `documentBaseConfigStore` to `documentBaseConfigRepository`
+            * It now returns `this.repositoryFactory.create('document_base_config')` instead of `StateDeprecated.getStore('document_base_config')`
+        * Changed `createdComponent` method to be async now
+        * Changed `loadEntityData` method to be async now
+        * Changed `onChangeType` method to be async now
+        * Removed method `getPossibleSalesChannels`
+        * Removed method `setSalesChannelCriteria`
+        * Removed method `enrichAssocStores`
+        * Removed method `configHasSaleschannel`
+        * Removed method `selectHasSaleschannel`
+        * Removed method `undeleteSaleschannel`
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
 
 #### Storefront
 * Added plugin injection in hot mode
-

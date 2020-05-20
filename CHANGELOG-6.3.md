@@ -141,6 +141,18 @@ Table of contents
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
+* Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but it is already passed:
+    * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute`
+    * `Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute`
+    * `Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute`
+    * `Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute`
+    * `Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute`
+    * `Shopware\Core\Content\Product\SalesChannel\Listing/AbstractProductListingRoute`
+    * `Shopware\Core\Content\Product\SalesChannel\Search/AbstractProductSearchRoute`
+    * `Shopware\Core\Content\Seo\SalesChannel\AbstractSeoUrlRoute`
+    * `Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute`
+    * `Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute`
+    * `Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute`
 
 #### Storefront
 * Added plugin injection in hot mode

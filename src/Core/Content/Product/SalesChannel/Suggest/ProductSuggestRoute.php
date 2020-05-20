@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -72,6 +73,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
     }
 
     /**
+     * @Entity("product")
      * @OA\Get(
      *      path="/search-suggest",
      *      description="Search suggests",
@@ -91,15 +93,20 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      * )
      * @Route("/store-api/v{version}/search-suggest", name="store-api.search.suggest", methods={"POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): ProductSuggestRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): ProductSuggestRouteResponse
     {
         if (!$request->get('search')) {
             throw new MissingRequestParameterException('search');
         }
 
-        $criteria = new Criteria();
-        $criteria->setLimit(10);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = new Criteria();
+            $criteria->setLimit(10);
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+            $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $this->definition, $context->getContext());
+        }
+
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
         );
@@ -110,8 +117,6 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
             new ProductSuggestCriteriaEvent($request, $criteria, $context),
             ProductEvents::PRODUCT_SUGGEST_CRITERIA
         );
-
-        $this->criteriaBuilder->handleRequest($request, $criteria, $this->definition, $context->getContext());
 
         $result = $this->productListingLoader->load($criteria, $context);
 

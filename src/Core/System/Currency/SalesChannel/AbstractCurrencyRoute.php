@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Currency\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,5 +14,8 @@ abstract class AbstractCurrencyRoute
 {
     abstract public function getDecorated(): AbstractCurrencyRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): CurrencyRouteResponse;
+    /**
+     * @param Criteria $criteria - Will be implemented in tag:v6.4.0, can already be used
+     */
+    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): CurrencyRouteResponse;
 }

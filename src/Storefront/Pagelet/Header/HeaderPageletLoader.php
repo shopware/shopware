@@ -7,7 +7,6 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -38,23 +37,16 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
      */
     private $navigationLoader;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractCurrencyRoute $currencyPageRoute,
         AbstractLanguageRoute $languagePageRoute,
-        NavigationLoaderInterface $navigationLoader,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        NavigationLoaderInterface $navigationLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->currencyRoute = $currencyPageRoute;
         $this->languagePageRoute = $languagePageRoute;
         $this->navigationLoader = $navigationLoader;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     /**
@@ -71,10 +63,19 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
         $languages = $this->getLanguages($salesChannelContext);
 
+        $navigation = $this->navigationLoader->load(
+            (string) $navigationId,
+            $salesChannelContext,
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getNavigationCategoryDepth()
+        );
+
+        $currencies = $this->currencyRoute->load(new Request(), $salesChannelContext)->getCurrencies();
+
         $page = new HeaderPagelet(
-            $this->navigationLoader->load((string) $navigationId, $salesChannelContext, $salesChannel->getNavigationCategoryId(), $salesChannel->getNavigationCategoryDepth()),
+            $navigation,
             $languages,
-            $this->currencyRoute->load(new Request(), $salesChannelContext)->getCurrencies(),
+            $currencies,
             $languages->get($salesChannelContext->getContext()->getLanguageId()),
             $salesChannelContext->getCurrency(),
             $this->getServiceMenu($salesChannelContext)
@@ -110,9 +111,6 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId())
         );
 
-        $request = new Request();
-        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-
-        return $this->languagePageRoute->load($request, $context)->getLanguages();
+        return $this->languagePageRoute->load(new Request(), $context, $criteria)->getLanguages();
     }
 }

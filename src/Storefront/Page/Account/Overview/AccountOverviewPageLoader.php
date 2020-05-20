@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -35,21 +34,14 @@ class AccountOverviewPageLoader
      */
     private $orderRoute;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        AbstractOrderRoute $orderRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     /**
@@ -94,11 +86,8 @@ class AccountOverviewPageLoader
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 
-        $request = new Request();
-        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($request, $salesChannelContext)->getObject();
+        $responseStruct = $this->orderRoute->load(new Request(), $salesChannelContext, $criteria)->getObject();
 
         return $responseStruct->getOrders()->first();
     }

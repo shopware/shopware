@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -46,6 +47,7 @@ class LanguageRoute extends AbstractLanguageRoute
     }
 
     /**
+     * @Entity("language")
      * @OA\Get(
      *      path="/language",
      *      description="Loads all available languages",
@@ -60,17 +62,14 @@ class LanguageRoute extends AbstractLanguageRoute
      * )
      * @Route("/store-api/v{version}/language", name="store-api.language", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): LanguageRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): LanguageRouteResponse
     {
-        $criteria = new Criteria();
-        $criteria->addAssociation('translationCode');
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->languageDefinition, $context->getContext());
+        }
 
-        $criteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->languageDefinition,
-            $context->getContext()
-        );
+        $criteria->addAssociation('translationCode');
 
         /** @var LanguageCollection $languages */
         $languages = $this->languageRepository

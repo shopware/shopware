@@ -11,7 +11,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -37,11 +36,6 @@ class AccountEditOrderPageLoader
     private $orderRoute;
 
     /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
-    /**
      * @var AbstractPaymentMethodRoute
      */
     private $paymentMethodRoute;
@@ -50,13 +44,11 @@ class AccountEditOrderPageLoader
         GenericPageLoader $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
         AbstractPaymentMethodRoute $paymentMethodRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->paymentMethodRoute = $paymentMethodRoute;
     }
 
@@ -97,11 +89,10 @@ class AccountEditOrderPageLoader
     {
         $criteria = $this->createCriteria($request, $context);
         $routeRequest = new Request();
-        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $routeRequest->query->set('checkPromotion', true);
 
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($routeRequest, $context)->getObject();
+        $responseStruct = $this->orderRoute->load($routeRequest, $context, $criteria)->getObject();
 
         return $responseStruct;
     }
@@ -139,9 +130,8 @@ class AccountEditOrderPageLoader
         $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
 
         $request = new Request();
-        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $request->query->set('onlyAvailable', 1);
 
-        return $this->paymentMethodRoute->load($request, $salesChannelContext)->getPaymentMethods();
+        return $this->paymentMethodRoute->load($request, $salesChannelContext, $criteria)->getPaymentMethods();
     }
 }

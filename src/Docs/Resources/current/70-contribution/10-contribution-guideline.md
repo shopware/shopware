@@ -42,6 +42,10 @@ We will set one of the following labels which indicate the status of the pull re
 | ![GitHub label quickpick](./img/github-label-quickpick.png)   | You are a lucky one! The changes you provide are only a small fix which is easy to test and implement. Our developers decided to quickly integrate this to our software.                                                                                                                                                                                 |
 | ![GitHub label accepted](./img/github-label-accepted.png)     | Your changes are finally accepted. The pull request passed our internal workflow. Your changes will be released with one of the next releases.                                                                                                                                                                                                           |
 
+<div class="alert is--warning">
+    Important: The label "Incomplete" means that you have to take action! After your pull request has this label assigned, you have up to two weeks to update the pull request and provide the missing information or implementation. If there is no reaction from you within those two weeks, your pull request can be declined due to inactivity. This procedure ensures there are no orphaned pull requests in the backlog.
+</div>
+
 ## Why a pull request gets declined
 So the worst thing happened, your pull request was declined. No reason to be upset. We know that it sometimes can be hard to understand why your pull request was rejected. We want be as transparent as possible, but sometimes it can also rely on internal decisions. Here is a list with common reasons why we reject a pull request.
 

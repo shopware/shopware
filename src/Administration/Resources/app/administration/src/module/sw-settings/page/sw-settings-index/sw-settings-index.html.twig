@@ -63,7 +63,8 @@
                                                                       :to="{ name: settingsItem.to }"
                                                                       :id="settingsItem.id">
                                                         <template #icon>
-                                                            <sw-icon :name="settingsItem.icon"></sw-icon>
+                                                            <component v-if="settingsItem.iconComponent" :is="settingsItem.iconComponent"></component>
+                                                            <sw-icon v-else :name="settingsItem.icon"></sw-icon>
                                                         </template>
                                                     </sw-settings-item>
 

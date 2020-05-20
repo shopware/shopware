@@ -12,11 +12,14 @@ class GoogleStorageFactory implements AdapterFactoryInterface
     public function create(array $config): AdapterInterface
     {
         $options = $this->resolveStorageConfig($config);
+        $storageConfig = ['projectId' => $options['projectId']];
+        if (isset($config['keyFile'])) {
+            $storageConfig['keyFile'] = $options['keyFile'];
+        } else {
+            $storageConfig['keyFilePath'] = $options['keyFilePath'];
+        }
 
-        $storageClient = new StorageClient([
-            'projectId' => $options['projectId'],
-            'keyFilePath' => $options['keyFilePath'],
-        ]);
+        $storageClient = new StorageClient($storageConfig);
 
         $bucket = $storageClient->bucket($options['bucket']);
 
@@ -32,15 +35,18 @@ class GoogleStorageFactory implements AdapterFactoryInterface
     {
         $options = new OptionsResolver();
 
-        $options->setRequired(['projectId', 'keyFilePath', 'bucket']);
-        $options->setDefined(['root']);
+        $options->setRequired(['projectId', 'bucket']);
+        $options->setDefined(['root', 'keyFilePath', 'keyFile', 'options']);
 
         $options->setAllowedTypes('projectId', 'string');
         $options->setAllowedTypes('keyFilePath', 'string');
+        $options->setAllowedTypes('keyFile', 'array');
         $options->setAllowedTypes('bucket', 'string');
         $options->setAllowedTypes('root', 'string');
+        $options->setAllowedTypes('options', 'array');
 
         $options->setDefault('root', '');
+        $options->setDefault('options', []);
 
         return $options->resolve($definition);
     }

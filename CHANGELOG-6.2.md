@@ -7,6 +7,25 @@ in 6.2 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
+
+### 6.2.1
+
+**Addition / Changes**
+
+* Administration
+    * Added property `popoverClasses` to `sw-select-result-list` and `sw-single-select`
+    * Fixed broken promotion exclusion configuration in `sw-promotion-basic-form`
+
+
+
+### 6.2.1
+
+**Addition / Changes**
+
+* Core
+    * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
+
+
 ### 6.2.0
 
 **Addition / Changes**
@@ -570,6 +589,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
+    * Theme configuration now allows zero as a value when overriding
 
 **Removals**
 
@@ -712,3 +732,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
+
+
+### 6.2.1
+
+**Addition / Changes**
+
+* Administration
+    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index

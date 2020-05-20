@@ -21,7 +21,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
     * Added salesChannel state in `sw-sales-channel` module
 
-* Core    
+* Core
+    * Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
+    * Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
 
 * Storefront
 

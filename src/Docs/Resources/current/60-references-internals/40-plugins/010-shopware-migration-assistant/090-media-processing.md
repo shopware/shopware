@@ -27,7 +27,12 @@ abstract class MediaConverter extends ShopwareConverter
         $this->context = $context;
         $this->locale = $data['_locale'];
         unset($data['_locale']);
-        $this->connectionId = $migrationContext->getConnection()->getId();
+
+        $connection = $migrationContext->getConnection();
+        $this->connectionId = '';
+        if ($connection !== null) {
+            $this->connectionId = $connection->getId();
+        }
 
         $converted = [];
         $this->mainMapping = $this->mappingService->getOrCreateMapping(
@@ -43,7 +48,6 @@ abstract class MediaConverter extends ShopwareConverter
             $data['name'] = $converted['id'];
         }
 
-        // The MediaFileService from the service container. This will register the file for download
         $this->mediaFileService->saveMediaFile(
             [
                 'runId' => $migrationContext->getRunUuid(),
@@ -87,13 +91,14 @@ abstract class MediaConverter extends ShopwareConverter
             $data['created']
         );
 
-        if (empty($data)) {
-            $data = null;
+        $returnData = $data;
+        if (empty($returnData)) {
+            $returnData = null;
         }
         $this->updateMainMapping($migrationContext, $context);
 
         // The MediaWriter will write this Shopware 6 media object
-        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
+        return new ConvertStruct($converted, $returnData, $this->mainMapping['id']);
     }
         
     /* ... */
@@ -131,7 +136,7 @@ class HttpMediaDownloadService implements MediaFileProcessorInterface
         ]);
 
         //Do download requests and store the promises
-        $promises = $this->doMediaDownloadRequests($media, $fileChunkByteSize, $mappedWorkload, $client);
+        $promises = $this->doMediaDownloadRequests($media, $mappedWorkload, $client);
 
         // Wait for the requests to complete, even if some of them fail
         /** @var array $results */

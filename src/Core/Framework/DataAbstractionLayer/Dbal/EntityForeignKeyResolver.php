@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -129,8 +128,8 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        $cascades = $definition->getFields()->filter(static function (Field $field) use ($class) {
-            return $field->is($class) && !$field->is(WriteProtected::class);
+        $cascades = $definition->getFields()->filter(static function (Field $field) use ($class): bool {
+            return $field->is($class);
         });
 
         if ($cascades->count() === 0) {

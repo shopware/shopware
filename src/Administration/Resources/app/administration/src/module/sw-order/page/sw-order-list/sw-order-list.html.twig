@@ -116,7 +116,7 @@
                                 {% endblock %}
 
                                     {% block sw_order_list_grid_columns_order_date %}
-                                        <template #column-orderDate="{ item }">
+                                        <template #column-orderDateTime="{ item }">
                                             {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
                                         </template>
                                     {% endblock %}

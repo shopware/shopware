@@ -78,13 +78,7 @@ abstract class Field extends Struct
 
     public function is(string $class): bool
     {
-        foreach ($this->flags as $flag) {
-            if ($flag instanceof $class) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->getFlag($class) !== null;
     }
 
     public function getFlag(string $class): ?Flag

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
@@ -105,37 +106,24 @@ class CartLineItemController extends StorefrontController
 
             $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code, $salesChannelContext->getContext()->getCurrencyPrecision());
 
-            $initialCartState = md5(json_encode($cart));
-
             $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
 
-            $this->traceErrors($cart);
-
-            $changedCartState = md5(json_encode($cart));
-
-            // if we do not a valid promotion line item
-            // but the cart has been added, let the user know...
-            // IMPORTANT: this has to be always shown, even if the cart changes!!!
-            if ($this->codeExistsInCart($code) && !$this->hasPromotion($cart, $code)) {
-                $this->addFlash('info', $this->trans('checkout.promotionExistsButRulesDoNotMatch'));
+            // we basically show all cart errors or notices
+            // at the moments its not possible to show success messages with "green" color
+            // from the cart...thus it has to be done in the storefront level
+            // so if we have an promotion added notice, we simply convert this to
+            // a success flash message
+            $addedEvents = $cart->getErrors()->filterInstance(PromotionCartAddedInformationError::class);
+            if ($addedEvents->count() > 0) {
+                $this->addFlash('success', $this->trans('checkout.codeAddedSuccessful'));
 
                 return $this->createActionResponse($request);
             }
 
-            if ($initialCartState !== $changedCartState) {
-                // cart has really changed, so lets show a success
-                $this->addFlash('success', $this->trans('checkout.codeAddedSuccessful'));
-            } elseif ($this->codeExistsInCart($code) && !$this->hasPromotion($cart, $code)) {
-                // if we do not a valid promotion line item
-                // but the cart has been added, let the user know...
-                $this->addFlash('info', $this->trans('checkout.promotionExistsButRulesDoNotMatch'));
-            } elseif ($this->hasPromotion($cart, $code)) {
-                // if cart has not changed and we have that promotion
-                // then its added one more time
-                $this->addFlash('info', $this->trans('checkout.promotionAlreadyExistsInfo'));
-            } else {
-                $this->addFlash('warning', $this->trans('error.message-default'));
-            }
+            // if we have no custom error message above
+            // then simply continue with the default display
+            // of the cart errors and notices
+            $this->traceErrors($cart);
         } catch (\Exception $exception) {
             $this->addFlash('danger', $this->trans('error.message-default'));
         }

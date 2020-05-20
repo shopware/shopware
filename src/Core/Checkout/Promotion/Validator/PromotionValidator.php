@@ -23,7 +23,7 @@ class PromotionValidator implements EventSubscriberInterface
      * this is the min value for all types
      * (absolute, percentage, ...)
      */
-    private const DISCOUNT_MIN_VALUE = 0.01;
+    private const DISCOUNT_MIN_VALUE = 0.00;
 
     /**
      * this is used for the maximum allowed

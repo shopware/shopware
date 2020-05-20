@@ -113,11 +113,12 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $clonedCriteria = clone $criteria;
         if ($context->getScope() !== Context::SYSTEM_SCOPE) {
-            $criteria->addFilter(new EqualsFilter('private', false));
+            $clonedCriteria->addFilter(new EqualsFilter('private', false));
         }
 
-        return $this->innerRepo->search($criteria, $context);
+        return $this->innerRepo->search($clonedCriteria, $context);
     }
 
     public function update(array $data, Context $context): EntityWrittenContainerEvent

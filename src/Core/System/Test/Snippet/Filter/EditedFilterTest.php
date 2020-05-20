@@ -1,86 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\Filter;
+namespace Shopware\Core\System\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
+use Shopware\Core\System\Snippet\Filter\EditedFilter;
 
-class TranslationKeyFilterTest extends TestCase
+class EditedFilterTest extends TestCase
 {
     public function testGetFilterName(): void
     {
-        static::assertSame('translationKey', (new TranslationKeyFilter())->getName());
+        static::assertSame('edited', (new EditedFilter())->getName());
     }
 
     public function testSupports(): void
     {
-        static::assertTrue((new TranslationKeyFilter())->supports('translationKey'));
-        static::assertFalse((new TranslationKeyFilter())->supports(''));
-        static::assertFalse((new TranslationKeyFilter())->supports('test'));
+        static::assertTrue((new EditedFilter())->supports('edited'));
+        static::assertFalse((new EditedFilter())->supports(''));
+        static::assertFalse((new EditedFilter())->supports('test'));
     }
 
-    public function testFilter(): void
+    public function testFilterOnlyCustomSnippets(): void
     {
         $snippets = [
             'firstSetId' => [
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
+                        'id' => 1,
+                        'author' => 'shopware',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    '2.bar' => [
-                        'value' => '2_bar',
-                    ],
-                    '2.baz' => [
-                        'value' => '2_baz',
-                    ],
-                ],
-            ],
-        ];
-
-        $expected = [
-            'firstSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '1_bar',
-                    ],
-                ],
-            ],
-            'secondSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '',
-                        'origin' => '',
-                        'translationKey' => '1.bar',
-                        'author' => '',
                         'id' => null,
-                        'setId' => 'secondSetId',
-                    ],
-                ],
-            ],
-        ];
-
-        $result = (new TranslationKeyFilter())->filter($snippets, ['1.bar']);
-
-        static::assertEquals($expected, $result);
-    }
-
-    public function testFilterMultipleTranslationKeys(): void
-    {
-        $snippets = [
-            'firstSetId' => [
-                'snippets' => [
-                    '1.bar' => [
-                        'value' => '1_bar',
-                    ],
-                    '1.bas' => [
-                        'value' => '1_bas',
+                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -88,9 +40,13 @@ class TranslationKeyFilterTest extends TestCase
                 'snippets' => [
                     '2.bar' => [
                         'value' => '2_bar',
+                        'id' => 2,
+                        'author' => 'shopware',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
+                        'id' => null,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -101,6 +57,8 @@ class TranslationKeyFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
+                        'id' => 1,
+                        'author' => 'shopware',
                     ],
                     '2.bar' => [
                         'value' => '',
@@ -124,12 +82,76 @@ class TranslationKeyFilterTest extends TestCase
                     ],
                     '2.bar' => [
                         'value' => '2_bar',
+                        'id' => 2,
+                        'author' => 'shopware',
                     ],
                 ],
             ],
         ];
 
-        $result = (new TranslationKeyFilter())->filter($snippets, ['1.bar', '2.bar']);
+        $result = (new EditedFilter())->filter($snippets, true);
+
+        static::assertEquals($expected, $result);
+    }
+
+    public function testFilterDoesntIncludeAddedSnippets(): void
+    {
+        $snippets = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar',
+                        'id' => 1,
+                        'author' => 'shopware',
+                    ],
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'id' => null,
+                        'author' => 'shopware',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'id' => 2,
+                        'author' => 'user/admin',
+                    ],
+                    '2.baz' => [
+                        'value' => '2_baz',
+                        'id' => null,
+                        'author' => 'shopware',
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar',
+                        'id' => 1,
+                        'author' => 'shopware',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '1.bar',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'secondSetId',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = (new EditedFilter())->filter($snippets, true);
 
         static::assertEquals($expected, $result);
     }

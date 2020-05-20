@@ -87,12 +87,14 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
 
             <tag name="shopware.cart.processor" priority="4900"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
 
             <tag name="shopware.cart.processor" priority="-5100"/>
         </service>

@@ -11,7 +11,7 @@ export default class PromotionDiscountHandler {
     // Gets the value minimum threshold depending
     // on the currently selected type.
     getMinValue() {
-        return 0.01;
+        return 0.00;
     }
 
     // Gets the value maximum threshold depending
@@ -27,7 +27,7 @@ export default class PromotionDiscountHandler {
         if (discountType === DiscountTypes.PERCENTAGE) {
             value = (value > 100) ? this.getMaxValue(discountType) : value;
         }
-        if (value <= 0.0) {
+        if (value <= this.getMinValue()) {
             value = this.getMinValue();
         }
 

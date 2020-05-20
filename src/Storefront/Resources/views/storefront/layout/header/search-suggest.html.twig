@@ -88,7 +88,9 @@
 
                                     {% block layout_search_suggest_result_total_count %}
                                         <div class="col-auto search-suggest-total-count">
-                                            {{ page.searchResult.total }} {{ "header.searchResults"|trans|sw_sanitize }}
+                                            {{ "header.searchResults"|trans({
+                                                '%count%': page.searchResult.total,
+                                            })|sw_sanitize }}
                                         </div>
                                     {% endblock %}
                                 </div>

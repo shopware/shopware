@@ -237,6 +237,10 @@ class RegisterController extends StorefrontController
             ]));
         }
 
+        if ($data->has('guest')) {
+            return $definition;
+        }
+
         if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannel()->getId())) {
             $definition->add('passwordConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('password'),

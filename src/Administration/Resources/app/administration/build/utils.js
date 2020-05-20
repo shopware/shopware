@@ -352,9 +352,10 @@ exports.styleLoaders = function (options) {
  * Loads the feature flag config from .env file and the filesystem
  *
  * @param {String} envFile
+ * @param {Array<String>} pluginPaths
  * @returns {Object}
  */
-exports.loadFeatureFlags = function (envFile) {
+exports.loadFeatureFlags = function (envFile, pluginPaths) {
     const envResult = dotenv.config({ path: envFile });
 
     if (envResult.hasOwnProperty('error')) {
@@ -362,7 +363,19 @@ exports.loadFeatureFlags = function (envFile) {
         return {};
     }
 
-    const allNames = fs.readdirSync(path.join(__dirname, '../src/flag'))
+    const coreFeatureFlagNames = fs.readdirSync(path.join(__dirname, '../src/flag'));
+    const pluginFeatureFlagNames = pluginPaths.reduce((accumulator, pluginPath) => {
+        const fullPath = path.join(path.dirname(pluginPath), '/flag');
+
+        if (!fs.existsSync(fullPath)) {
+            return accumulator;
+        }
+        accumulator.push(...fs.readdirSync(fullPath));
+
+        return accumulator;
+    }, []);
+
+    const allNames = [...coreFeatureFlagNames, ...pluginFeatureFlagNames]
         .filter((file) => {
             return file.indexOf('feature_') === 0;
         })

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -18,13 +19,24 @@ class PromotionDeliveryProcessor implements CartProcessorInterface
      */
     private $calculator;
 
-    public function __construct(PromotionDeliveryCalculator $calculator)
+    /**
+     * @var LineItemGroupBuilder
+     */
+    private $groupBuilder;
+
+    public function __construct(PromotionDeliveryCalculator $calculator, LineItemGroupBuilder $groupBuilder)
     {
         $this->calculator = $calculator;
+        $this->groupBuilder = $groupBuilder;
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
+        // always make sure we have
+        // the line item group builder for our
+        // line item group rule inside the cart data
+        $toCalculate->getData()->set(LineItemGroupBuilder::class, $this->groupBuilder);
+
         // if there is no collected promotion we may return - nothing to calculate!
         if (!$data->has(PromotionProcessor::DATA_KEY)) {
             return;

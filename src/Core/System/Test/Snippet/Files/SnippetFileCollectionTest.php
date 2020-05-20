@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Snippet\Files;
+namespace Shopware\Core\System\Test\Snippet\Files;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\Snippet\Mock\MockSnippetFile;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
 
 class SnippetFileCollectionTest extends TestCase
 {

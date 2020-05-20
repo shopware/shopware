@@ -157,7 +157,7 @@ class PromotionCalculator
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
-                $this->addDeleteNoticeToCart($original, $calculated, $discountItem);
+                $this->addPromotionNotEligibleError($discountItem->getLabel(), $calculated);
 
                 continue;
             }
@@ -184,7 +184,7 @@ class PromotionCalculator
             // add our discount item to the cart
             $calculated->addLineItems(new LineItemCollection([$discountItem]));
 
-            $this->addAddedNoticeToCart($original, $calculated, $discountItem);
+            $this->addPromotionAddedNotice($original, $calculated, $discountItem);
 
             // recalculate for every new discount to get the correct
             // prices for any upcoming iterations

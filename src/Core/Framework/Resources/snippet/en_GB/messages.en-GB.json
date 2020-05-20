@@ -3,6 +3,7 @@
         "invoiceNumber": "Invoice %invoiceNumber%",
         "invoiceHeadline": "Invoice %invoiceNumber%",
         "stornoHeadline": "Cancellation %stornoNumber% for invoice %invoiceNumber%",
+        "stornoNumber": "Cancellation number %stornoNumber%",
         "deliveryNoteNumber": "Delivery note %deliveryNoteNumber%",
         "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for order %orderNumber%",
         "creditNoteNumber": "Credit note %deliveryNoteNumber%",

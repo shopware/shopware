@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -31,7 +33,8 @@ class RootDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
             new StringField('name', 'name'),
-            new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class),
+            (new OneToOneAssociationField('sub', 'id', 'root_id', SubDefinition::class))->addFlags(new RestrictDelete()),
+            (new OneToOneAssociationField('subCascade', 'id', 'root_id', SubCascadeDefinition::class))->addFlags(new CascadeDelete()),
         ]);
     }
 }
@@ -56,6 +59,29 @@ class SubDefinition extends EntityDefinition
             (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
             new OneToManyAssociationField('manies', SubManyDefinition::class, 'root_sub_id'),
+        ]);
+    }
+}
+
+class SubCascadeDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'root_sub_cascade';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            new IntField('stock', 'stock'),
+            new FkField('root_id', 'rootId', RootDefinition::class, 'id'),
+            (new ReferenceVersionField(RootDefinition::class))->addFlags(new Required()),
+            new OneToOneAssociationField('root', 'root_id', 'id', RootDefinition::class, false),
         ]);
     }
 }

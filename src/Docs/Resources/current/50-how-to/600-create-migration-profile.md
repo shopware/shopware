@@ -41,10 +41,14 @@ use SwagMigrationAssistant\Migration\Profile\ProfileInterface;
 class OwnProfile implements ProfileInterface
 {
     public const PROFILE_NAME = 'ownProfile';
-
+    
     public const SOURCE_SYSTEM_NAME = 'MySourceSystem';
 
     public const SOURCE_SYSTEM_VERSION = '1.0';
+
+    public const AUTHOR_NAME = 'shopware AG';
+
+    public const ICON_PATH = '/swagmigrationassistant/static/img/migration-assistant-plugin.svg';
 
     public function getName(): string
     {
@@ -59,6 +63,16 @@ class OwnProfile implements ProfileInterface
     public function getVersion(): string
     {
         return self::SOURCE_SYSTEM_VERSION;
+    }
+
+    public function getAuthorName(): string
+    {
+        return self::AUTHOR_NAME;
+    }
+
+    public function getIconPath(): string
+    {
+        return self::ICON_PATH;
     }
 }
 ```
@@ -84,30 +98,33 @@ namespace SwagMigrationOwnProfileExample\Profile\OwnProfile\Gateway;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\EnvironmentInformation;
 use SwagMigrationAssistant\Migration\Gateway\GatewayInterface;
+use SwagMigrationAssistant\Migration\Gateway\Reader\ReaderRegistry;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Migration\RequestStatusStruct;
 use SwagMigrationAssistant\Profile\Shopware\Exception\DatabaseConnectionException;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactoryInterface;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\TableCountReaderInterface;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\OwnProfile;
 
 class OwnLocaleGateway implements GatewayInterface
 {
     public const GATEWAY_NAME = 'local';
-
+    
+    /**
+     * @var ConnectionFactoryInterface
+     */
     private $connectionFactory;
 
     /**
-     * @var TableCountReaderInterface
+     * @var ReaderRegistry
      */
-    private $localTableCountReader;
+    private $readerRegistry;
 
     public function __construct(
-        ConnectionFactoryInterface $connectionFactory,
-        TableCountReaderInterface $localTableCountReader
+        ReaderRegistry $readerRegistry,
+        ConnectionFactoryInterface $connectionFactory
     ) {
+        $this->readerRegistry = $readerRegistry;
         $this->connectionFactory = $connectionFactory;
-        $this->localTableCountReader = $localTableCountReader;
     }
 
     public function getName(): string
@@ -115,12 +132,14 @@ class OwnLocaleGateway implements GatewayInterface
         return self::GATEWAY_NAME;
     }
 
-    /**
-     * Identifier for a gateway registry
-     */
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         return $migrationContext->getProfile() instanceof OwnProfile;
+    }
+
+    public function getSnippetName(): string
+    {
+        return 'swag-migration.wizard.pages.connectionCreate.gateways.shopwareLocal';
     }
 
     /**
@@ -170,7 +189,20 @@ class OwnLocaleGateway implements GatewayInterface
 
     public function readTotals(MigrationContextInterface $migrationContext, Context $context): array
     {
-        return $this->localTableCountReader->readTotals($migrationContext, $context);
+        $readers = $this->readerRegistry->getReaderForTotal($migrationContext);
+        
+        $totals = [];
+        foreach ($readers as $reader) {
+            $total = $reader->readTotal($migrationContext);
+
+            if ($total === null) {
+                continue;
+            }
+
+            $totals[$total->getEntityName()] = $total;
+        }
+
+        return $totals;
     }
 }
 ```
@@ -181,8 +213,8 @@ have to register the new gateway in the `service.xml` and tag it with `shopware.
 
 ```xml
 <service id="SwagMigrationOwnProfileExample\Profile\OwnProfile\Gateway\OwnLocaleGateway">
+    <argument type="service" id="SwagMigrationAssistant\Migration\Gateway\Reader\ReaderRegistry"/>
     <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactory"/>
-    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalTableCountReader"/>
     <tag name="shopware.migration.gateway"/>
 </service>
 ```
@@ -195,7 +227,7 @@ a new credentials page, you have to add an `index.js` for your new component int
 
 ```js
 import { Component } from 'src/core/shopware';
-import template from './swag-migration-profile-ownProfile-locale-credential-form.html.twig';
+import template from './swag-migration-profile-ownProfile-local-credential-form.html.twig';
 
 Component.register('swag-migration-profile-ownProfile-local-credential-form', {
     template,
@@ -273,7 +305,7 @@ Component.register('swag-migration-profile-ownProfile-local-credential-form', {
 });
 ```
 As you can see above, currently the template does not exists and you have to create
-this file: `swag-migration-profile-ownProfile-locale-credential-form.html.twig`
+this file: `swag-migration-profile-ownProfile-local-credential-form.html.twig`
 
 ```twig
 {% block own_profile_page_credentials %}
@@ -353,7 +385,7 @@ A few things to notice: The component name isn't random, it has to consist of:
 To see your credentials page, you have to register this component in your `main.js`:
 
 ```js
-import './src/own-profile/profile';
+import './own-profile/profile';
 ``` 
 
 ## Creating a DataSet and DataSelection
@@ -366,8 +398,6 @@ if you open the data selection table. To add an entry to this table, you have to
 
 namespace SwagMigrationOwnProfileExample\Profile\OwnProfile\DataSelection\DataSet;
 
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingInformationStruct;
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingQueryStruct;
 use SwagMigrationAssistant\Migration\DataSelection\DataSet\DataSet;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\OwnProfile;
@@ -388,17 +418,6 @@ class ProductDataSet extends DataSet
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         return $migrationContext->getProfile() instanceof OwnProfile;
-    }
-
-    /**
-     *  Count information: Count product table
-     */
-    public function getCountingInformation(): ?CountingInformationStruct
-    {
-        $information = new CountingInformationStruct(self::getEntity());
-        $information->addQueryStruct(new CountingQueryStruct('product'));
-
-        return $information;
     }
 }
 ```
@@ -490,31 +509,16 @@ this function, you have to create a new `ProductReader` first:
 
 namespace SwagMigrationOwnProfileExample\Profile\OwnProfile\Gateway\Reader;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
-use SwagMigrationAssistant\Migration\Profile\ReaderInterface;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactoryInterface;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalReaderInterface;
+use SwagMigrationAssistant\Migration\TotalStruct;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\AbstractReader;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\ShopwareLocalGateway;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\DataSelection\DataSet\ProductDataSet;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\OwnProfile;
 
-class ProductReader implements ReaderInterface, LocalReaderInterface
+class ProductReader extends AbstractReader
 {
-    /**
-     * @var ConnectionFactoryInterface
-     */
-    private $connectionFactory;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(ConnectionFactoryInterface $connectionFactory)
-    {
-        $this->connectionFactory = $connectionFactory;
-    }
-
     /**
      * Supports only an OwnProfile and the ProductDataSet
      */
@@ -525,11 +529,37 @@ class ProductReader implements ReaderInterface, LocalReaderInterface
     }
 
     /**
+     * Supports only an OwnProfile and the ProductDataSet for totals
+     */
+    public function supportsTotal(MigrationContextInterface $migrationContext): bool
+    {
+        return $migrationContext->getProfile() instanceof OwnProfile
+            && $migrationContext->getGateway()->getName() === ShopwareLocalGateway::GATEWAY_NAME;
+    }
+
+    /**
      * Creates a database connection and sets the connection class variable
      */
     protected function setConnection(MigrationContextInterface $migrationContext): void
     {
         $this->connection = $this->connectionFactory->createDatabaseConnection($migrationContext);
+    }
+
+    public function readTotal(MigrationContextInterface $migrationContext): ?TotalStruct
+    {
+        $this->setConnection($migrationContext);
+
+        $query = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from('product')
+            ->execute();
+
+        $total = 0;
+        if ($query instanceof ResultStatement) {
+            $total = (int) $query->fetchColumn();
+        }
+
+        return new TotalStruct(ProductDataSet::getEntity(), $total);
     }
 
     /**
@@ -551,12 +581,13 @@ class ProductReader implements ReaderInterface, LocalReaderInterface
 }
 ```
 
-Then you have to register this in `services.xml` and tag it with `shopware.migration.local_reader`:
+Then you have to register this in `services.xml` and tag it with `shopware.migration.reader`:
 
 ```xml
-<service id="SwagMigrationOwnProfileExample\Profile\OwnProfile\Gateway\Reader\ProductReader">
+<service id="SwagMigrationOwnProfileExample\Profile\OwnProfile\Gateway\Reader\ProductReader"
+    parent="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\AbstractReader">
     <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactory"/>
-    <tag name="shopware.migration.local_reader"/>
+    <tag name="shopware.migration.reader"/>
 </service>
 ```
 
@@ -570,24 +601,21 @@ namespace SwagMigrationOwnProfileExample\Profile\OwnProfile\Gateway;
 use Shopware\Core\Framework\Context;
 use SwagMigrationAssistant\Migration\EnvironmentInformation;
 use SwagMigrationAssistant\Migration\Gateway\GatewayInterface;
+use SwagMigrationAssistant\Migration\Gateway\Reader\ReaderRegistry;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 use SwagMigrationAssistant\Migration\RequestStatusStruct;
 use SwagMigrationAssistant\Profile\Shopware\Exception\DatabaseConnectionException;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactoryInterface;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\ReaderRegistry;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\TableCountReaderInterface;
 use SwagMigrationOwnProfileExample\Profile\OwnProfile\OwnProfile;
 
 class OwnLocaleGateway implements GatewayInterface
 {
     public const GATEWAY_NAME = 'local';
 
-    private $connectionFactory;
-
     /**
-     * @var TableCountReaderInterface
+     * @var ConnectionFactoryInterface
      */
-    private $localTableCountReader;
+    private $connectionFactory;
 
     /**
      * @var ReaderRegistry
@@ -595,13 +623,11 @@ class OwnLocaleGateway implements GatewayInterface
     private $readerRegistry;
 
     public function __construct(
-        ConnectionFactoryInterface $connectionFactory,
-        TableCountReaderInterface $localTableCountReader,
-        ReaderRegistry $readerRegistry
+        ReaderRegistry $readerRegistry,
+        ConnectionFactoryInterface $connectionFactory
     ) {
-        $this->connectionFactory = $connectionFactory;
-        $this->localTableCountReader = $localTableCountReader;
         $this->readerRegistry = $readerRegistry;
+        $this->connectionFactory = $connectionFactory;
     }
 
     public function getName(): string
@@ -612,6 +638,11 @@ class OwnLocaleGateway implements GatewayInterface
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         return $migrationContext->getProfile() instanceof OwnProfile;
+    }
+
+    public function getSnippetName(): string
+    {
+        return 'swag-migration.wizard.pages.connectionCreate.gateways.shopwareLocal';
     }
 
     public function read(MigrationContextInterface $migrationContext): array
@@ -659,7 +690,20 @@ class OwnLocaleGateway implements GatewayInterface
 
     public function readTotals(MigrationContextInterface $migrationContext, Context $context): array
     {
-        return $this->localTableCountReader->readTotals($migrationContext, $context);
+        $readers = $this->readerRegistry->getReaderForTotal($migrationContext);
+
+        $totals = [];
+        foreach ($readers as $reader) {
+            $total = $reader->readTotal($migrationContext);
+
+            if ($total === null) {
+                continue;
+            }
+
+            $totals[$total->getEntityName()] = $total;
+        }
+
+        return $totals;
     }
 }
 ```

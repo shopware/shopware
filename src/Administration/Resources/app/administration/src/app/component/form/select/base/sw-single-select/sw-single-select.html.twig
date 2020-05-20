@@ -46,6 +46,7 @@
                     {% block sw_single_select_base_results_slot %}
                         <sw-select-result-list ref="resultsList"
                                                :popoverConfig="popoverConfig" {# @deprecated tag:v6.3.0 #}
+                                               :popoverClasses="popoverClasses"
                                                :options="visibleResults"
                                                :isLoading="isLoading"
                                                :emptyMessage="$tc('global.sw-single-select.messageNoResults', 0, { term: searchTerm })"

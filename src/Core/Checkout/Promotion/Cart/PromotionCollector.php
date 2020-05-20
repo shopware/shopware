@@ -25,6 +25,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionCollector implements CartDataCollectorInterface
 {
+    use PromotionCartInformationTrait;
+
     public const SKIP_PROMOTION = 'skipPromotion';
     public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
 
@@ -94,6 +96,7 @@ class PromotionCollector implements CartDataCollectorInterface
         $allPromotions = $this->getEligiblePromotionsWithDiscounts($allPromotions, $context->getCustomer());
 
         $discountLineItems = [];
+        $foundCodes = [];
 
         /** @var PromotionCodeTuple $tuple */
         foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
@@ -105,6 +108,18 @@ class PromotionCollector implements CartDataCollectorInterface
             // that should be added
             foreach ($lineItems as $nested) {
                 $discountLineItems[] = $nested;
+            }
+
+            // we need the list of found codes
+            // for our NotFound errors below
+            $foundCodes[] = $tuple->getCode();
+        }
+
+        // now iterate through all codes that have been added
+        // and add errors, if a promotion for that code couldn't be found
+        foreach ($allCodes as $code) {
+            if (!in_array($code, $foundCodes, true)) {
+                $this->addPromotionNotFoundError($code, $cart);
             }
         }
 

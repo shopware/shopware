@@ -6,9 +6,9 @@ import { DiscountTypes } from 'src/module/sw-promotion/helper/promotion.helper';
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
 describe('module/sw-promotion/component/sw-promotion-discount-component/handler.js', () => {
-    it('should have a min-value function that returns 0.01', () => {
+    it('should have a min-value function that returns 0.00', () => {
         const cmp = new DiscountComponentHandler();
-        expect(cmp.getMinValue()).toBe(0.01);
+        expect(cmp.getMinValue()).toBe(0.00);
     });
     it('should have a max-value that return 100% for percentage types', () => {
         const cmp = new DiscountComponentHandler();
@@ -30,12 +30,9 @@ describe('module/sw-promotion/component/sw-promotion-discount-component/handler.
         const cmp = new DiscountComponentHandler();
         expect(cmp.getFixedValue(101, DiscountTypes.ABSOLUTE)).toBe(101);
     });
-    it('should fix values below 0,00 to be the minValue', () => {
+    it('should fix values below minValue to be the minValue', () => {
         const cmp = new DiscountComponentHandler();
-        expect(cmp.getFixedValue(-1, DiscountTypes.PERCENTAGE)).toBe(cmp.getMinValue());
-    });
-    it('should fix values of 0,00 to be the minValue', () => {
-        const cmp = new DiscountComponentHandler();
-        expect(cmp.getFixedValue(0, DiscountTypes.ABSOLUTE)).toBe(cmp.getMinValue());
+        const lowerNr = cmp.getMinValue() - 0.1;
+        expect(cmp.getFixedValue(lowerNr, DiscountTypes.PERCENTAGE)).toBe(cmp.getMinValue());
     });
 });

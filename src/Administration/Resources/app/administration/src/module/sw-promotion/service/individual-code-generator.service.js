@@ -255,11 +255,15 @@ export default class IndividualCodeGenerator extends EventEmitter {
             .then((response) => {
                 // calculate the diff count which is really
                 // the generated count that is successfully saved in the database.
+                // so we iterate through all data and their results and
+                // just add the number of generated individual codes.
                 if (response.data.length > 0) {
                     response.data.forEach((data) => {
-                        if (data.success) {
-                            recGeneratedCount += 1;
-                        }
+                        data.result.forEach((result) => {
+                            if ('promotion_individual_code' in result.entities) {
+                                recGeneratedCount += result.entities.promotion_individual_code.length;
+                            }
+                        });
                     });
                 }
 

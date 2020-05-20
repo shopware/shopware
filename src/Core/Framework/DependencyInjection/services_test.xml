@@ -68,6 +68,10 @@
             <tag name="shopware.entity.definition" entity="root_sub" />
         </service>
 
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubCascadeDefinition">
+            <tag name="shopware.entity.definition" entity="root_sub_cascade" />
+        </service>
+
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubManyDefinition">
             <tag name="shopware.entity.definition" entity="root_sub_many" />
         </service>

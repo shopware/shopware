@@ -360,6 +360,6 @@ class KernelPluginIntegrationTest extends TestCase
 
     private static function getTestVersion(): string
     {
-        return '6.0.0';
+        return '6.3.0.0';
     }
 }

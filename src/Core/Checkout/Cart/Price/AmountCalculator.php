@@ -4,10 +4,13 @@ namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class AmountCalculator
 {
@@ -21,12 +24,26 @@ class AmountCalculator
      */
     private $rounding;
 
+    /**
+     * @var PercentageTaxRuleBuilder
+     */
+    private $taxRuleBuilder;
+
+    /**
+     * @var TaxCalculator
+     */
+    private $taxCalculator;
+
     public function __construct(
         TaxDetector $taxDetector,
-        PriceRoundingInterface $rounding
+        PriceRoundingInterface $rounding,
+        PercentageTaxRuleBuilder $taxRuleBuilder,
+        TaxCalculator $taxCalculator
     ) {
         $this->taxDetector = $taxDetector;
         $this->rounding = $rounding;
+        $this->taxRuleBuilder = $taxRuleBuilder;
+        $this->taxCalculator = $taxCalculator;
     }
 
     public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
@@ -78,7 +95,7 @@ class AmountCalculator
         if ($this->taxDetector->isNetDelivery($context)) {
             $taxes = new CalculatedTaxCollection([]);
         } else {
-            $taxes = $allPrices->getCalculatedTaxes();
+            $taxes = $this->calculateTaxes($allPrices, $context);
         }
 
         $net = $total->getTotalPrice() - $taxes->getAmount();
@@ -109,7 +126,7 @@ class AmountCalculator
         if ($this->taxDetector->isNetDelivery($context)) {
             $taxes = new CalculatedTaxCollection([]);
         } else {
-            $taxes = $all->getCalculatedTaxes();
+            $taxes = $this->calculateTaxes($all, $context);
         }
 
         $gross = $total->getTotalPrice() + $taxes->getAmount();
@@ -123,5 +140,26 @@ class AmountCalculator
             $total->getTaxRules(),
             CartPrice::TAX_STATE_NET
         );
+    }
+
+    private function calculateTaxes(PriceCollection $prices, SalesChannelContext $context): CalculatedTaxCollection
+    {
+        if ($context->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_VERTICAL) {
+            return $prices->getCalculatedTaxes();
+        }
+
+        $price = $prices->sum();
+
+        $rules = $this->taxRuleBuilder->buildRules($price);
+
+        if ($this->taxDetector->useGross($context)) {
+            $taxes = $this->taxCalculator->calculateGrossTaxes($price->getTotalPrice(), $rules);
+        } else {
+            $taxes = $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $rules);
+        }
+
+        $taxes->round($this->rounding, $context->getCurrency()->getDecimalPrecision());
+
+        return $taxes;
     }
 }

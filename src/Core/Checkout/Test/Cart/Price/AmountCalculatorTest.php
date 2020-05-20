@@ -8,13 +8,17 @@ use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class AmountCalculatorTest extends TestCase
@@ -33,10 +37,13 @@ class AmountCalculatorTest extends TestCase
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL);
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding()
+            new PriceRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator(new TaxRuleCalculator())
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -58,10 +65,13 @@ class AmountCalculatorTest extends TestCase
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL);
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding()
+            new PriceRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator(new TaxRuleCalculator())
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -84,7 +94,9 @@ class AmountCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding()
+            new PriceRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator(new TaxRuleCalculator())
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);

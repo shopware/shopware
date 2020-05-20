@@ -138,6 +138,11 @@ class SalesChannelEntity extends Entity
     protected $maintenanceIpWhitelist;
 
     /**
+     * @var string
+     */
+    protected $taxCalculationType;
+
+    /**
      * @var SalesChannelTypeEntity|null
      */
     protected $type;
@@ -936,5 +941,15 @@ class SalesChannelEntity extends Entity
     public function getApiAlias(): string
     {
         return 'sales_channel';
+    }
+
+    public function getTaxCalculationType(): string
+    {
+        return $this->taxCalculationType;
+    }
+
+    public function setTaxCalculationType(string $taxCalculationType): void
+    {
+        $this->taxCalculationType = $taxCalculationType;
     }
 }

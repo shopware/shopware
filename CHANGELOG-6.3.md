@@ -52,6 +52,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Refactored sw-mail-template
         * Replaced store with repositories    
     * Refactored Webpack configuration files to one single file
+        * Removed `sw-devmode-loader.js`
+        * Removed `build.js`
+        * Removed `check-versions.js`
+        * Removed `dev-client.js`
+        * Removed `dev-server.js`
+        * Removed `utils.js`
+        * Removed `webpack.base.conf.js`
+        * Removed `webpack.dev.conf.js`
+        * Removed `webpack.prod.conf.js`
+        * Removed `webpack.test.conf.js`
 * Core    
 
 * Storefront

@@ -15,49 +15,43 @@ const chalk = require('chalk');
 
 /* eslint-disable */
 
-// DEV:
-// PROJECT_ROOT=/Users/j.leifeld/Sites/shopware ENV_FILE=/Users/j.leifeld/Sites/shopware/.env APP_URL=http://shopware.test ESLINT_DISABLE=true npm run watch
-
-// PROD:
-// PROJECT_ROOT=/Users/j.leifeld/Sites/shopware ENV_FILE=/Users/j.leifeld/Sites/shopware/.env npm run prod
-
-console.log(chalk.yellow('# Compiling Webpack configuration'));
+console.log(chalk.yellow('# Compiling with Webpack configuration'));
 
 const isDev = process.env.mode === 'development';
 const isProd = process.env.mode !== 'development';
 
 if (isDev) {
-    console.log(chalk.yellow('# Development mode is activated 🛠'));
+    console.log(chalk.yellow('# Development mode is activated \u{1F6E0}'));
     console.log(chalk.yellow(`BaseUrl for proxy is set to "${process.env.APP_URL}"`));
     process.env.NODE_ENV = 'development';
 } else {
-    console.log(chalk.yellow('# Production mode is activated 🚀'));
+    console.log(chalk.yellow('# Production mode is activated \u{1F680}'));
     process.env.NODE_ENV = 'production';
 }
 
 // Error Handling when something is not defined
 if (!process.env.ENV_FILE) {
-    console.error(chalk.red('\n ⚠️  You need to add the "ENV_FILE" as an environment variable for compiling the code. ⚠️\n'));
+    console.error(chalk.red('\n \u{26A0}️  You need to add the "ENV_FILE" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
 if (isDev && !process.env.APP_URL) {
-    console.error(chalk.red('\n ⚠️  You need to add the "APP_URL" as an environment variable for compiling the code. ⚠️\n'));
+    console.error(chalk.red('\n \u{26A0}️  You need to add the "APP_URL" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
 if (isDev && !process.env.HOST) {
-    console.error(chalk.red('\n ⚠️  You need to add the "HOST" as an environment variable for compiling the code. ⚠️\n'));
+    console.error(chalk.red('\n \u{26A0}️  You need to add the "HOST" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
 if (isDev && !process.env.PORT) {
-    console.error(chalk.red('\n ⚠️  You need to add the "PORT" as an environment variable for compiling the code. ⚠️\n'));
+    console.error(chalk.red('\n \u{26A0}️  You need to add the "PORT" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
 if (!process.env.PROJECT_ROOT) {
-    console.error(chalk.red('\n ⚠️  You need to add the "PROJECT_ROOT" as an environment variable for compiling the code. ⚠️\n'));
+    console.error(chalk.red('\n \u{26A0}️  You need to add the "PROJECT_ROOT" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
@@ -109,33 +103,34 @@ const webpackConfig = {
     },
 
     ...(() => {
-            if (isDev)
-        return {
-            devServer: {
-                host: process.env.HOST,
-                port: process.env.PORT,
-                open: true,
-                proxy: {
-                    '/api': {
-                        target: process.env.APP_URL,
-                        changeOrigin: true,
-                        secure: false
-                    }
+        if (isDev) {
+            return {
+                devServer: {
+                    host: process.env.HOST,
+                    port: process.env.PORT,
+                    open: true,
+                    proxy: {
+                        '/api': {
+                            target: process.env.APP_URL,
+                            changeOrigin: true,
+                            secure: false
+                        }
+                    },
+                    contentBase: [
+                        path.resolve(__dirname, 'static'),
+                        path.resolve(__dirname, 'static'),
+                        ...pluginEntries.map(plugin => path.resolve(plugin.path, '../static'))
+                    ],
+                    contentBasePublicPath: [
+                        '/static',
+                        '/administration/static',
+                        ...pluginEntries.map((plugin) => `/${plugin.technicalName.replace(/-/g, '')}/static`)
+                    ]
                 },
-                contentBase: [
-                    path.resolve(__dirname, 'static'),
-                    path.resolve(__dirname, 'static'),
-                    ...pluginEntries.map(plugin => path.resolve(plugin.path, '../static'))
-                ],
-                contentBasePublicPath: [
-                    '/static',
-                    '/administration/static',
-                    ...pluginEntries.map((plugin) => `/${plugin.technicalName.replace(/-/g, '')}/static`)
-                ]
-            },
-            node: {
-                __filename: true
-            }
+                node: {
+                    __filename: true
+                }
+            };
         }
     })(),
 
@@ -156,20 +151,21 @@ const webpackConfig = {
             minSize: 0
         },
         ...(() => {
-            if (isProd)
-            return {
-                minimizer: [
-                    new TerserPlugin({
-                        terserOptions: {
-                            warnings: false,
-                            output: 6
-                        },
-                        cache: true,
-                        parallel: true,
-                        sourceMap: false
-                    }),
-                    new OptimizeCSSAssetsPlugin()
-                ]
+            if (isProd) {
+                return {
+                    minimizer: [
+                        new TerserPlugin({
+                            terserOptions: {
+                                warnings: false,
+                                output: 6
+                            },
+                            cache: true,
+                            parallel: true,
+                            sourceMap: false
+                        }),
+                        new OptimizeCSSAssetsPlugin()
+                    ]
+                };
             }
         })()
     },
@@ -210,21 +206,21 @@ const webpackConfig = {
     module: {
         rules: [
             ((process.env.ESLINT_DISABLE === 'true' || isProd) ? {} :
-                    {
-                        test: /\.(js|tsx?|vue)$/,
-                        loader: 'eslint-loader',
-                        exclude: /node_modules/,
-                        enforce: 'pre',
-                        include: [
-                            path.resolve(__dirname, 'src'),
-                            path.resolve(__dirname, 'test'),
-                            ...pluginEntries.map(plugin => plugin.filePath)
-                        ],
-                        options: {
-                            configFile: path.join(__dirname, '.eslintrc.js'),
-                            formatter: require('eslint-friendly-formatter') // eslint-disable-line global-require
-                        }
+                {
+                    test: /\.(js|tsx?|vue)$/,
+                    loader: 'eslint-loader',
+                    exclude: /node_modules/,
+                    enforce: 'pre',
+                    include: [
+                        path.resolve(__dirname, 'src'),
+                        path.resolve(__dirname, 'test'),
+                        ...pluginEntries.map(plugin => plugin.filePath)
+                    ],
+                    options: {
+                        configFile: path.join(__dirname, '.eslintrc.js'),
+                        formatter: require('eslint-friendly-formatter') // eslint-disable-line global-require
                     }
+                }
             ),
             {
                 test: /\.(html|twig)$/,
@@ -472,102 +468,106 @@ const webpackConfig = {
             return [...WebpackCopyAfterBuildPlugins, ...CopyWebpackPlugins];
         })(),
         ...(() => {
-            if (isProd) return [
+            if (isProd) {
+                return [
                 // copy custom static assets
-                new CopyWebpackPlugin([
-                    {
-                        from: path.resolve('.', 'static'),
-                        to: 'static',
-                        ignore: ['.*']
-                    }
-                ])
-            ];
+                    new CopyWebpackPlugin([
+                        {
+                            from: path.resolve('.', 'static'),
+                            to: 'static',
+                            ignore: ['.*']
+                        }
+                    ])
+                ];
+            }
 
-            if (isDev) return [
+            if (isDev) {
+                return [
                 // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
-                new webpack.HotModuleReplacementPlugin(),
-                new webpack.NoEmitOnErrorsPlugin(),
-                // https://github.com/ampedandwired/html-webpack-plugin
-                new HtmlWebpackPlugin({
-                    filename: 'index.html',
-                    template: 'index.html.tpl',
-                    templateParameters: {
-                        featureFlags: (() => {
-                            const envResult = dotenv.config({ path: process.env.ENV_FILE });
+                    new webpack.HotModuleReplacementPlugin(),
+                    new webpack.NoEmitOnErrorsPlugin(),
+                    // https://github.com/ampedandwired/html-webpack-plugin
+                    new HtmlWebpackPlugin({
+                        filename: 'index.html',
+                        template: 'index.html.tpl',
+                        templateParameters: {
+                            featureFlags: (() => {
+                                const envResult = dotenv.config({ path: process.env.ENV_FILE });
 
-                            if (envResult.hasOwnProperty('error')) {
-                                console.error('utils-load-feature-flags', 'Unable to load .env file, no features registered.', envResult.error);
-                                return {};
-                            }
+                                if (envResult.hasOwnProperty('error')) {
+                                    console.error('utils-load-feature-flags', 'Unable to load .env file, no features registered.', envResult.error);
+                                    return {};
+                                }
 
-                            const allNames = fs.readdirSync(path.join(__dirname, './src/flag'))
-                                .filter((file) => {
-                                    return file.indexOf('feature_') === 0;
-                                })
-                                .map(file => {
-                                    return path.basename(
-                                        file.substring(8),
-                                        '.js'
-                                    );
+                                const allNames = fs.readdirSync(path.join(__dirname, './src/flag'))
+                                    .filter((file) => {
+                                        return file.indexOf('feature_') === 0;
+                                    })
+                                    .map(file => {
+                                        return path.basename(
+                                            file.substring(8),
+                                            '.js'
+                                        );
+                                    });
+
+                                const allActive = Object.keys(envResult.parsed)
+                                    .filter((key) => {
+                                        return key.indexOf('FEATURE_') === 0;
+                                    }).reduce((obj, key) => {
+                                        const clearedKey = key
+                                            .substring(8)
+                                            .split('_')
+                                            .map((part) => {
+                                                return part[0].toUpperCase() + part.substr(1).toLowerCase();
+                                            })
+                                            .join('')
+                                            .replace(/^./, (part) => { return part.toLowerCase(); });
+
+                                        if (envResult.parsed[key] === '1') {
+                                            obj[clearedKey] = true;
+                                        }
+                                        return obj;
+                                    }, {});
+
+                                const flagConfig = {};
+                                allNames.forEach((flagName) => {
+                                    flagConfig[flagName] = allActive.hasOwnProperty(flagName);
                                 });
 
-                            const allActive = Object.keys(envResult.parsed)
-                                .filter((key) => {
-                                    return key.indexOf('FEATURE_') === 0;
-                                }).reduce((obj, key) => {
-                                    const clearedKey = key
-                                        .substring(8)
-                                        .split('_')
-                                        .map((part) => {
-                                            return part[0].toUpperCase() + part.substr(1).toLowerCase();
-                                        })
-                                        .join('')
-                                        .replace(/^./, (part) => { return part.toLowerCase(); });
+                                return JSON.stringify(flagConfig);
+                            })(),
+                            // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
+                            apiVersion: 2
+                        },
+                        inject: false
+                    }),
+                    new FriendlyErrorsPlugin(),
+                    new AssetsPlugin({
+                        filename: 'sw-plugin-dev.json',
+                        fileTypes: ['js', 'css'],
+                        includeAllFileTypes: false,
+                        fullPath: true,
+                        useCompilerPath: true,
+                        prettyPrint: true,
+                        keepInMemory: true,
+                        processOutput: function filterAssetsOutput(output) {
+                            const filteredOutput = { ...output };
 
-                                    if (envResult.parsed[key] === '1') {
-                                        obj[clearedKey] = true;
-                                    }
-                                    return obj;
-                                }, {});
-
-                            const flagConfig = {};
-                            allNames.forEach((flagName) => {
-                                flagConfig[flagName] = allActive.hasOwnProperty(flagName);
+                            ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((key) => {
+                                delete filteredOutput[key];
                             });
 
-                            return JSON.stringify(flagConfig);
-                        })(),
-                        // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
-                        apiVersion: 2
-                    },
-                    inject: false
-                }),
-                new FriendlyErrorsPlugin(),
-                new AssetsPlugin({
-                    filename: 'sw-plugin-dev.json',
-                    fileTypes: ['js', 'css'],
-                    includeAllFileTypes: false,
-                    fullPath: true,
-                    useCompilerPath: true,
-                    prettyPrint: true,
-                    keepInMemory: true,
-                    processOutput: function filterAssetsOutput(output) {
-                        const filteredOutput = { ...output };
-
-                        ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((key) => {
-                            delete filteredOutput[key];
-                        });
-
-                        return JSON.stringify(filteredOutput);
-                    }
-                })
-            ];
-        })(),
+                            return JSON.stringify(filteredOutput);
+                        }
+                    })
+                ];
+            }
+        })()
 
     ]
 };
 
-let pluginWebpackConfigs = [];
+const pluginWebpackConfigs = [];
 pluginEntries.forEach(plugin => {
     if (!plugin.webpackConfig) {
         return;

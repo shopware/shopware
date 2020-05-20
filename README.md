@@ -96,7 +96,7 @@ Shopware 6 consists of multiple repositories, two of them are important to you:
 
 ## Quickstart / Installation
 
-A full installation guide covering different dev environments is available in the [docs](https://docs.shopware.com/en/shopware-platform-dev-en/getting-started/installation-guide).
+A full installation guide covering different dev environments is available in the [docs](https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/installation).
 
 *For the impatient reader, here is a tl;dr using docker.*
 
@@ -241,8 +241,8 @@ we appreciate your hard work and want to handle it with the most possible respec
 To ensure the quality of our code and our products we have created a guideline we all should endorse to.
 It helps you and us to collaborate. Following these guidelines will help us to integrate your changes in our daily workflow. 
 
-Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/community/contribution-guideline?category=shopware-platform-dev-en/community)
-or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/community/contributing-code?category=shopware-platform-dev-en/community).
+Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline)
+or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code).
 
 ### The Shopware CLA
 

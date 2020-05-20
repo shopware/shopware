@@ -240,7 +240,8 @@ Administration
 * The id of checkbox and switch fields are now unique. Therefore you have to update your selectors if you want to get the fields by id.
 This was an important change, because every checkbox and switch field has the same id. This causes problems when you click
 on the corresponding label.
- 
+
+
 Storefront
 ----------
 

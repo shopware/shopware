@@ -16,6 +16,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added property `popoverClasses` to `sw-select-result-list` and `sw-single-select`
     * Fixed broken promotion exclusion configuration in `sw-promotion-basic-form`
     * Fixed positioning mixin for more than 25 entries
+    * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
+ 
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added

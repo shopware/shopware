@@ -45,18 +45,18 @@ Please add the following script section to do so:
 
 Now install this package with the following command:
 ```bash
-npm install @shopware/e2e-testsuite-platform
+npm install @shopware-ag/e2e-testsuite-platform
 ```
 
 As next step, please create a new file `e2e/cypress/plugins/index.js` with the following content:
 ```javascript
-module.exports = require('@shopware/e2e-testsuite-platform/cypress/plugins');
+module.exports = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
 ```
 
 Finally, create a new file `e2e/cypress/support/index.js` with the the following line:
 ```javascript
 // Require test suite commands
-require('@shopware/e2e-testsuite-platform/cypress/support');
+require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 ```
 
 ### Configuration and directory structure
@@ -88,8 +88,7 @@ More information about Cypress environment variables can be found
 
 ### Test structure
 
-A test file or `spec` file consists of the following structure you might know from 
-[Mocha](https://docs.cypress.io/guides/guides/environment-variables.html):
+A test file or `spec` file consists of the following structure you might know from [Mocha](https://mochajs.org/):
 
 ```javascript
    describe('Test: This is my test file', () => {

@@ -168,7 +168,8 @@ settingsItem: [{ /* this can be a single object if no collection is needed */
     to: 'custom.module.overview', /* route to anything */
     group: 'system', /* either system, shop or plugin */
     icon: 'default-object-lab-flask',
-    
+
+    iconComponent: YourCustomIconRenderingComponent, /* optional, this overrides icon attribute */
     id: '', /* optional, fallback is taken from module */
     name: '', /* optional, fallback is taken from module */
     label: '', /* optional, fallback is taken from module */

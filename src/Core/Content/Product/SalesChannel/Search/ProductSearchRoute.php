@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -72,6 +73,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     }
 
     /**
+     * @Entity("product")
      * @OA\Get(
      *      path="/search",
      *      description="Search",
@@ -91,13 +93,17 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      * )
      * @Route("/store-api/v{version}/search", name="store-api.search", methods={"POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): ProductSearchRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): ProductSearchRouteResponse
     {
         if (!$request->get('search')) {
             throw new MissingRequestParameterException('search');
         }
 
-        $criteria = new Criteria();
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->definition, $context->getContext());
+        }
+
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)
         );
@@ -108,8 +114,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             new ProductSearchCriteriaEvent($request, $criteria, $context),
             ProductEvents::PRODUCT_SEARCH_CRITERIA
         );
-
-        $this->criteriaBuilder->handleRequest($request, $criteria, $this->definition, $context->getContext());
 
         $result = $this->productListingLoader->load($criteria, $context);
 

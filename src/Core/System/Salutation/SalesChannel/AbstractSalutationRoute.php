@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,5 +14,8 @@ abstract class AbstractSalutationRoute
 {
     abstract public function getDecorated(): AbstractSalutationRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): SalutationRouteResponse;
+    /**
+     * @param Criteria $criteria - Will be implemented in tag:v6.4.0, can already be used
+     */
+    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): SalutationRouteResponse;
 }

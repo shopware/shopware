@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -50,6 +51,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     }
 
     /**
+     * @Entity("shipping_method")
      * @OA\Get(
      *      path="/shipping-method",
      *      description="Loads all available shipping methods",
@@ -71,21 +73,19 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      * )
      * @Route("/store-api/v{version}/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): ShippingMethodRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): ShippingMethodRouteResponse
     {
-        $shippingMethodsCriteria = (new Criteria())
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->shippingMethodDefinition, $context->getContext());
+        }
+
+        $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        $shippingMethodsCriteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            $shippingMethodsCriteria,
-            $this->shippingMethodDefinition,
-            $context->getContext()
-        );
-
         /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($shippingMethodsCriteria, $context)->getEntities();
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context)->getEntities();
 
         if ($request->query->getBoolean('onlyAvailable', false)) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);

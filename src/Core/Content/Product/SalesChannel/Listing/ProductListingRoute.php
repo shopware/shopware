@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,6 +62,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
+     * @Entity("product")
      * @OA\Post(
      *      path="/product-listing/{categoryId}",
      *      description="Loads products from listing",
@@ -74,9 +76,12 @@ class ProductListingRoute extends AbstractProductListingRoute
      * )
      * @Route("/store-api/v{version}/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
      */
-    public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext): ProductListingRouteResponse
+    public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext, ?Criteria $criteria = null): ProductListingRouteResponse
     {
-        $criteria = new Criteria();
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->definition, $salesChannelContext->getContext());
+        }
         $criteria->addFilter(
             new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );
@@ -88,8 +93,6 @@ class ProductListingRoute extends AbstractProductListingRoute
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );
-
-        $this->criteriaBuilder->handleRequest($request, $criteria, $this->definition, $salesChannelContext->getContext());
 
         $result = $this->listingLoader->load($criteria, $salesChannelContext);
 

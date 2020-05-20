@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -66,6 +67,7 @@ class OrderRoute extends AbstractOrderRoute
     }
 
     /**
+     * @Entity("order")
      * @OA\Post(
      *      path="/order",
      *      description="Listing orders",
@@ -88,15 +90,12 @@ class OrderRoute extends AbstractOrderRoute
      * )
      * @Route(path="/store-api/v{version}/order", name="store-api.order", methods={"GET"})
      */
-    public function load(Request $request, SalesChannelContext $context): OrderRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): OrderRouteResponse
     {
-        $criteria = new Criteria();
-        $criteria = $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->orderDefinition,
-            $context->getContext()
-        );
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->orderDefinition, $context->getContext());
+        }
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -63,6 +64,7 @@ class NavigationRoute extends AbstractNavigationRoute
     }
 
     /**
+     * @Entity("category")
      * @OA\Get(
      *      path="/navigation/{requestActiveId}/{requestRootId}",
      *      description="Loads all available navigations",
@@ -88,7 +90,8 @@ class NavigationRoute extends AbstractNavigationRoute
         string $requestActiveId,
         string $requestRootId,
         Request $request,
-        SalesChannelContext $context
+        SalesChannelContext $context,
+        ?Criteria $criteria = null
     ): NavigationRouteResponse {
         $buildTree = $request->query->getBoolean('buildTree', true);
         $depth = $request->query->getInt('depth', 2);
@@ -121,11 +124,16 @@ class NavigationRoute extends AbstractNavigationRoute
             $activeId = $rootId;
         }
 
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->categoryDefinition, $context->getContext());
+        }
+
         // Load the first two levels without using the activeId in the query, so this can be cached
-        $categories = $this->loadLevels($rootId, (int) $root['level'], $request, $context, $depth);
+        $categories = $this->loadLevels($rootId, (int) $root['level'], $context, clone $criteria, $depth);
 
         // If the active category is part of the provided root id, we have to load the children and the parents of the active id
-        $categories = $this->loadChildren($activeId, $request, $context, $rootId, $metaInfo, $categories);
+        $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories, clone $criteria);
 
         if ($buildTree) {
             $categories = $this->buildTree($rootId, $categories->getElements());
@@ -163,18 +171,10 @@ class NavigationRoute extends AbstractNavigationRoute
         return $items;
     }
 
-    private function loadCategories(array $ids, Request $request, SalesChannelContext $context): CategoryCollection
+    private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
     {
-        $criteria = new Criteria($ids);
+        $criteria->setIds($ids);
         $criteria->addAssociation('media');
-
-        $criteria = $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->categoryDefinition,
-            $context->getContext()
-        );
-
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         /** @var CategoryCollection $missing */
@@ -183,9 +183,8 @@ class NavigationRoute extends AbstractNavigationRoute
         return $missing;
     }
 
-    private function loadLevels(string $rootId, int $rootLevel, Request $request, SalesChannelContext $context, int $depth = 2): CategoryCollection
+    private function loadLevels(string $rootId, int $rootLevel, SalesChannelContext $context, Criteria $criteria, int $depth = 2): CategoryCollection
     {
-        $criteria = new Criteria();
         $criteria->addFilter(
             new ContainsFilter('path', '|' . $rootId . '|'),
             new RangeFilter('level', [
@@ -195,13 +194,6 @@ class NavigationRoute extends AbstractNavigationRoute
         );
 
         $criteria->addAssociation('media');
-
-        $criteria = $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->categoryDefinition,
-            $context->getContext()
-        );
 
         $criteria->setLimit(null);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
@@ -236,7 +228,7 @@ class NavigationRoute extends AbstractNavigationRoute
         return $metaInfo[$id];
     }
 
-    private function loadChildren(string $activeId, Request $request, SalesChannelContext $context, string $rootId, array $metaInfo, CategoryCollection $categories): CategoryCollection
+    private function loadChildren(string $activeId, SalesChannelContext $context, string $rootId, array $metaInfo, CategoryCollection $categories, Criteria $criteria): CategoryCollection
     {
         $active = $this->getMetaInfoById($activeId, $metaInfo);
 
@@ -251,7 +243,7 @@ class NavigationRoute extends AbstractNavigationRoute
         }
 
         $categories->merge(
-            $this->loadCategories($missing, $request, $context)
+            $this->loadCategories($missing, $context, $criteria)
         );
 
         return $categories;

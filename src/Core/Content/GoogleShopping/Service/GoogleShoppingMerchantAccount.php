@@ -38,16 +38,23 @@ class GoogleShoppingMerchantAccount
      */
     private $salesChannelRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $googleAccountRepository;
+
     public function __construct(
         EntityRepositoryInterface $googleMerchantAccountRepository,
         GoogleShoppingContentAccountResource $contentAccountResource,
         SiteVerificationResource $siteVerificationResource,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $googleAccountRepository
     ) {
         $this->googleMerchantAccountRepository = $googleMerchantAccountRepository;
         $this->contentAccountResource = $contentAccountResource;
         $this->siteVerificationResource = $siteVerificationResource;
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->googleAccountRepository = $googleAccountRepository;
     }
 
     public function getInfo(string $merchantId): array
@@ -90,9 +97,11 @@ class GoogleShoppingMerchantAccount
         return $account['id'];
     }
 
-    public function delete(string $id, Context $context): EntityWrittenContainerEvent
+    public function unassign(string $accountId, string $merchantId, Context $context): EntityWrittenContainerEvent
     {
-        return $this->googleMerchantAccountRepository->delete([['id' => $id]], $context);
+        $this->googleAccountRepository->update([['id' => $accountId, 'tosAcceptedAt' => null]], $context);
+
+        return $this->googleMerchantAccountRepository->delete([['id' => $merchantId]], $context);
     }
 
     public function updateWebsiteUrl(string $merchantId, string $websiteUrl): void

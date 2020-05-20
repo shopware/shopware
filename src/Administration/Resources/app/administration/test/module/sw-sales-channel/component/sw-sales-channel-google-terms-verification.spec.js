@@ -39,6 +39,7 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-terms-verifi
 
     beforeEach(() => {
         wrapper = shallowMount(Shopware.Component.build('sw-sales-channel-google-terms-verification'), {
+            store: Shopware.State._store,
             stubs: {
                 'sw-checkbox-field': true,
                 'sw-sales-channel-detail-protect-link': true

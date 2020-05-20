@@ -27,7 +27,7 @@ Table of contents
     * Added `sw-sales-channel-google-authentication` to show Google account profile and handle disconnect functionality
     * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
     * Added `sw-sales-channel-store-verification` component to show current store verification requirements to use the Shopping ads and a button to check these criteria validation 
-    * Added `sw-sales-channel-google-website-verification` component to show show store website information and claim this website for the store    
+    * Added `sw-sales-channel-google-website-claim` component to input store website information and claim this website for the store    
     * Added `sw-sales-channel-google-terms-verification` component to show the terms and conditions links for Google Merchant Center, Shopping ads policices and Google Ads Terms and conditions. User need to agree with these terms to go to the next step.
     * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
     * Added `sw-sales-channel-google-done-verification` component to show that user has successfully linked the Google Shopping Merchant and the Sales Channel
@@ -56,15 +56,6 @@ Table of contents
     * Replaced store with repositories
 * Refactored sw-mail-template
     * Replaced store with repositories    
-        * Replaced store with repositories    
-* Added `google-auth.service` to support Google OAuth 2.0
-* Added `google-shopping.api.service` to handle Google Shopping API
-    * Added method `connectGoogle`
-    * Added method `disconnectGoogle`
-    * Added method `disconnectGoogle`
-    * Added method `getMerchantList`
-    * Added method `assignMerchant`
-    * Added method `unassignMerchant`
 * Refactor `sw-language-info` to context language
 * Refactor `sw-language-switch` to context language
 * Remove unused `languageStore` from `sw-page`

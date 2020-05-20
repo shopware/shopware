@@ -83,6 +83,7 @@
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingContentAccountResource"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\SiteVerificationResource"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="google_shopping_account.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting">

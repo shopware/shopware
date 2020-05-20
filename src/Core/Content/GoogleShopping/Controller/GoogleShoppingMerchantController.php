@@ -130,7 +130,11 @@ class GoogleShoppingMerchantController extends AbstractController
 
         $merchantAccountId = $merchantAccount->getId();
 
-        $this->merchantAccountService->delete($merchantAccountId, $googleShoppingRequest->getContext());
+        $this->merchantAccountService->unassign(
+            $googleShoppingRequest->getGoogleShoppingAccount()->getId(),
+            $merchantAccountId,
+            $googleShoppingRequest->getContext()
+        );
 
         return new JsonResponse([
             'data' => $merchantAccountId,

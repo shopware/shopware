@@ -137,6 +137,8 @@ Component.register('sw-sales-channel-google-merchant', {
                     await Service('googleShoppingService').unassignMerchant(this.salesChannel.id);
 
                     State.commit('swSalesChannel/setGoogleShoppingMerchantAccount', null);
+                    State.commit('swSalesChannel/setStoreVerification', null);
+                    State.commit('swSalesChannel/setTermsOfService', false);
                 }
 
                 await Service('googleShoppingService')
@@ -170,7 +172,7 @@ Component.register('sw-sales-channel-google-merchant', {
             const errorDetail = getErrorMessage(error);
 
             this.createNotificationError({
-                title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
+                title: this.$tc('global.default.error'),
                 message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
             });
         }

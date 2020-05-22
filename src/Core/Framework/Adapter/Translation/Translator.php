@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\Exception\LogicException;
 use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
@@ -107,10 +108,11 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $fallbackLocale = $this->getFallbackLocale();
 
         $localization = mb_substr($fallbackLocale, 0, 2);
-        if (mb_strpos($catalog->getLocale(), $localization) !== 0) {
+        if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $localization)) {
             $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
         } else {
             //fallback locale and current locale has the same localization -> reset fallback
+            // or locale is symfony style locale so we shouldn't add shopware fallbacks as it may lead to circular references
             $fallbackLocale = null;
         }
 
@@ -177,6 +179,16 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         return $this->translator->getLocale();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function warmUp($cacheDir): void
+    {
+        if ($this->translator instanceof WarmableInterface) {
+            $this->translator->warmUp($cacheDir);
+        }
+    }
+
     public function resetInMemoryCache(): void
     {
         $this->isCustomized = [];
@@ -200,6 +212,21 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     {
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
+    }
+
+    protected function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
+    {
+        return mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;
+    }
+
+    /**
+     * Shopware uses dashes in all locales
+     * if the catalogue does not contain any dashes it means it is a symfony fallback catalogue
+     * in that case we should not add the shopware fallback catalogue as it would result in circular references
+     */
+    protected function isShopwareLocaleCatalogue(MessageCatalogueInterface $catalog): bool
+    {
+        return mb_strpos($catalog->getLocale(), '-') !== false;
     }
 
     private function resolveSnippetSetId(string $salesChannelId, string $languageId, string $locale, Context $context): void

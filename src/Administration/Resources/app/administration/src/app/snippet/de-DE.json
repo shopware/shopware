@@ -48,7 +48,7 @@
           "messageSuccess": "Daten indexiert."
         },
         "warmupIndexing": {
-          "message": "Cache aufgewärmt. | Noch eine Seite verbleidend ... |  {n} Seiten verbleidend ...",
+          "message": "Cache aufgewärmt. | Noch eine Seite verbleibend ... |  {n} Seiten verbleibend ...",
           "messageSuccess": "Cache aufgewärmt."
         },
         "productStream": {

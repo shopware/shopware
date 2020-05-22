@@ -61,6 +61,10 @@ export default {
             return Utils.get(state, 'googleShoppingAccount.googleShoppingMerchantAccount', null);
         },
 
+        termsOfServiceAccept(state) {
+            return Utils.get(state, 'googleShoppingAccount.tosAcceptedAt', false);
+        },
+
         isIncompleteVerification(state) {
             if (!state.storeVerification) {
                 return true;
@@ -79,6 +83,10 @@ export default {
             }
 
             if (getters.isIncompleteVerification) {
+                if (state.googleShoppingAccount.tosAcceptedAt) {
+                    return '';
+                }
+
                 return 'step-4';
             }
 

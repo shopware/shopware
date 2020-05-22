@@ -149,7 +149,7 @@ Component.register('sw-sales-channel-google-introduction', {
 
         showErrorNotification(error) {
             this.createNotificationError({
-                title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
+                title: this.$tc('global.default.error'),
                 message: this.getErrorMessage(error)
             });
         },

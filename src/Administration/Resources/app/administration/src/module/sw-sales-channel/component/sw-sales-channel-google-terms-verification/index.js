@@ -4,6 +4,7 @@ import { getErrorMessage } from '../../helper/get-error-message.helper';
 import './sw-sales-channel-google-terms-verification.scss';
 
 const { Component, Service, Mixin, State } = Shopware;
+const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-terms-verification', {
     template,
@@ -26,6 +27,12 @@ Component.register('sw-sales-channel-google-terms-verification', {
         };
     },
 
+    computed: {
+        ...mapGetters('swSalesChannel', [
+            'termsOfServiceAccept'
+        ])
+    },
+
     watch: {
         isAgree: {
             handler: 'updateButtons'
@@ -44,9 +51,7 @@ Component.register('sw-sales-channel-google-terms-verification', {
         createdComponent() {
             this.updateButtons();
 
-            if (this.salesChannel.googleShoppingAccount && this.salesChannel.googleShoppingAccount.tosAcceptedAt) {
-                this.isAgree = true;
-            }
+            this.isAgree = !!this.termsOfServiceAccept;
         },
 
         updateButtons() {
@@ -89,7 +94,7 @@ Component.register('sw-sales-channel-google-terms-verification', {
             const errorDetail = getErrorMessage(error);
 
             this.createNotificationError({
-                title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
+                title: this.$tc('global.default.error'),
                 message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
             });
         }

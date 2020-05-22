@@ -109,7 +109,7 @@ Component.register('sw-sales-channel-google-shipping-setting', {
             const errorDetail = getErrorMessage(error);
 
             this.createNotificationError({
-                title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
+                title: this.$tc('global.default.error'),
                 message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
             });
         }

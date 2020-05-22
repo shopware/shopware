@@ -11,9 +11,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-account-
                 propsData: {
                     isGoogleShoppingCreate: false
                 },
+
                 stubs: {
                     'sw-button': true
                 },
+
                 mocks: {
                     $tc: key => key
                 }

@@ -1,9 +1,8 @@
 import template from './sw-sales-channel-google-authentication.html.twig';
-import { getErrorMessage } from '../../helper/get-error-message.helper';
 
 import './sw-sales-channel-google-authentication.scss';
 
-const { Component, State, Service, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-authentication', {
@@ -69,33 +68,6 @@ Component.register('sw-sales-channel-google-authentication', {
             };
 
             this.$emit('buttons-update', buttonConfig);
-        },
-
-        async onDisconnectAccount() {
-            this.isLoading = true;
-            this.isProcessSuccessful = false;
-
-            try {
-                await Service('googleShoppingService').disconnectGoogle(this.salesChannel.id);
-
-                this.isProcessSuccessful = true;
-            } catch (error) {
-                const errorDetail = getErrorMessage(error);
-
-                this.createNotificationError({
-                    title: this.$tc('sw-sales-channel.modalGooglePrograms.titleError'),
-                    message: errorDetail || this.$tc('global.notification.unspecifiedSaveErrorMessage')
-                });
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
-        processFinish() {
-            this.isProcessSuccessful = false;
-
-            State.commit('swSalesChannel/removeGoogleShoppingAccount');
-            this.$router.push({ name: 'sw.sales.channel.detail.base.step-1' });
         }
     }
 });

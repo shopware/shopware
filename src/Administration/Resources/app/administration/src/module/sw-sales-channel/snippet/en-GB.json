@@ -10,8 +10,11 @@
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",
       "buttonCancel": "Cancel",
+      "buttonDisconnect": "Disconnect",
       "titleDescription": "Information",
-      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
+      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first.",
+      "titleDisconnect": "Disconnect Google Account",
+      "textDisconnectDescription": "Are you sure you want to disconnect your Google account? If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected."
     },
     "detail": {
       "titleSaveSuccess": "Success",
@@ -19,7 +22,6 @@
       "titleSaveError": "Error",
       "titleActivateError": "Activation error",
       "titleFetchError": "Error",
-      "messageFetchMerchantError": "An error occurred while fetching the requested merchant data.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",

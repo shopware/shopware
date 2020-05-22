@@ -25,6 +25,13 @@ class GoogleShoppingService extends ApiService {
         return this.httpClient.post(route, {}, { additionalParams, headers });
     }
 
+    getAccountProfile(salesChannelId, additionalParams = {}, additionalHeaders = {}) {
+        const route = `/_action/sales-channel/${salesChannelId}/google-shopping/account/profile`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.get(route, { additionalParams, headers });
+    }
+
     getMerchantList(salesChannelId, additionalParams = {}, additionalHeaders = {}) {
         const route = `/_action/sales-channel/${salesChannelId}/google-shopping/merchant/list`;
         const headers = this.getBasicHeaders(additionalHeaders);

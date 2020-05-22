@@ -10,6 +10,10 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-account-
     beforeAll(() => {
         Shopware.Service().register('googleShoppingService', () => {
             return {
+                getAccountProfile: () => {
+                    return Promise.resolve();
+                },
+
                 getMerchantInfo: () => {
                     return Promise.resolve();
                 },
@@ -28,13 +32,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-account-
             ),
             {
                 store: Shopware.State._store,
+
                 propsData: {
-                    googleShoppingAccount: {
-                        name: 'name',
-                        email: 'email',
-                        picture: 'https://randomuser.me/api/portraits/women/68.jpg'
-                    }
+                    salesChannel: {}
                 },
+
                 stubs: {
                     'sw-button': true,
                     'sw-avatar': true,
@@ -44,6 +46,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-account-
                     'sw-color-badge': true,
                     'sw-sales-channel-detail-protect-link': true
                 },
+
                 mocks: {
                     $tc: key => key
                 }
@@ -63,5 +66,22 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-account-
         wrapper.vm.onDisconnectToGoogle();
 
         expect(wrapper.emitted()).toEqual({ 'on-disconnect-to-google': [[]] });
+    });
+
+    it('should show error notification when getAccountProfile() failly', async () => {
+        wrapper.setProps({ salesChannel: { id: '' } });
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.vm.getAccountProfile();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'global.notification.notificationFetchErrorMessage'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
     });
 });

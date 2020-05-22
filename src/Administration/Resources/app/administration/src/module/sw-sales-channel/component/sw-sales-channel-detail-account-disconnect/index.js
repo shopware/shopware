@@ -98,8 +98,27 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
 
     methods: {
         createdComponent() {
+            if (this.googleShoppingAccount) {
+                this.getAccountProfile();
+            }
+
             if (this.googleShoppingMerchantAccount) {
                 this.getMerchantData();
+            }
+        },
+
+        async getAccountProfile() {
+            try {
+                const { data: accountProfile } = await Service('googleShoppingService').getAccountProfile(this.salesChannel.id);
+
+                const googleShoppingAccount = { ...this.googleShoppingAccount, ...accountProfile.data };
+
+                State.commit('swSalesChannel/setGoogleShoppingAccount', googleShoppingAccount);
+            } catch {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.notification.notificationFetchErrorMessage')
+                });
             }
         },
 
@@ -119,8 +138,8 @@ Component.register('sw-sales-channel-detail-account-disconnect', {
                 State.commit('swSalesChannel/setMerchantStatus', merchantStatusData.data);
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-sales-channel.detail.titleFetchError'),
-                    message: this.$tc('sw-sales-channel.detail.messageFetchMerchantError')
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.notification.notificationFetchErrorMessage')
                 });
             } finally {
                 State.commit('swSalesChannel/setIsLoadingMerchant', false);

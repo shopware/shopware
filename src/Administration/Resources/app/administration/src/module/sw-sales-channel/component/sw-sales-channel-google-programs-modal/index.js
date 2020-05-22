@@ -89,6 +89,10 @@ Component.register('sw-sales-channel-google-programs-modal', {
             this.buttonConfig = buttonConfig;
         },
 
+        onDisconnectAccount() {
+            this.$emit('on-disconnect-account');
+        },
+
         onButtonClick(action) {
             if (typeof action === 'string') {
                 this.redirect(action);

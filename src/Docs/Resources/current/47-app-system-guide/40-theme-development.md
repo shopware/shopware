@@ -1,16 +1,16 @@
 [titleEn]: <>(Theme base in apps)
 [metaDescriptionEn]: <>(This guide deals with theme development in apps)
 
-Themes are - as said [before]() - ready-made designs that primarily redesign your storefront and do not provide 
-major functional enhancements. Themes are neither apps nor plugins, but can be delivered with apps or plugins. 
-Both via app and plugin, a theme looks exactly the same - usually no changes are necessary.
+Themes are - as said [before](./10-plugins-and-apps.md) - ready-made designs that primarily redesign your storefront 
+and do not provide major functional enhancements. Themes are neither apps nor plugins, but can be delivered with apps
+or plugins. Both via app and plugin, a theme looks exactly the same - usually no changes are necessary.
 
 The app system was designed to make it easy to migrate your existing themes to the app system.
 It's based on the current theme system, that way you can reuse most of your existing themes code.
 
 ## Installation
 
-As we ship themes as apps, the [installation]() itself is the same as with usual apps.
+As we ship themes as apps, the [installation](./30-app-base-guide.md) itself is the same as with usual apps.
 
 So once you have installed your theme via `bin/console app:refresh`, your theme should show up in the theme manager, 
 and you should be able to use the usual theme commands, 

@@ -1,7 +1,7 @@
 [titleEn]: <>(App base)
 [metaDescriptionEn]: <>(This is a guide about the basic information about apps - the base you need to know when developing them.)
 
-## Create your app 
+## App creation 
 
 ### File structure
 
@@ -108,8 +108,6 @@ nodes to the manifest files. The following paragraphs will show you all possibil
 
 ### Webhooks
 
-[Graphic]
-
 With webhooks you are able to subscribe to events occurring in Shopware. Whenever such an event occurs 
 - a notification will be send to your stored URL. Behind this URL there is a program you have defined in your own 
 infrastructure, which for example sends an e-mail with a voucher to the customer who has just placed an order.
@@ -152,9 +150,13 @@ You can use a variety of events to react to changes in Shopware that way. See th
 In your app, you are able to add your own module to the administration. In this case, your app will add an own module
 to the administration, including an own menu item. 
 
+![custom-buttons](./img/app-menu.png)
+
 When clicking on this new menu item, an iframe will be displayed. Within this iframe, your website will be loaded and 
 shown. In the iframe, your app can do  all the things an external app can do - outside the administration via API. 
 In such a module, the search bar stays accessible. However, the search won't be applied on the iframe. 
+
+![custom-buttons](./img/app-frame.png)
 
 In order to create a custom module, you need to define an admin element to define `<admin>` extensions. In there, please
 add your module by defining a `<module>` element. 
@@ -199,6 +201,8 @@ An action button can have the following attributes:
 
 ### Custom fields
 
+![custom-buttons](./img/custom-fields.png)
+
 By using `<custom-fields>` element, you can add custom fields to Shopware. The additional fields replace 
 the free text fields known from Shopware 5 and offer you the possibility to add your own fields 
 for the different program areas. In other words, existing data records can be extended with additional fields. 
@@ -219,7 +223,7 @@ for the different program areas. In other words, existing data records can be ex
 ```
 
 For the data needed, please refer to the custom fields in general: At first,you need a custom field set, 
-as custom fields in Shopware are organised in sets. Here you need to consider two important fields:
+as custom fields in Shopware are organised in sets. Here you need to consider some important fields:
 * `name`: A technical name for your set
 * `label`: This element provides the label of the text and can be used for defining translations of the label as well. 
 * `related-entities`: With this element set the entities the custom field set is used in
@@ -244,7 +248,7 @@ for further details.
 ### Tutorials
 
 If you want to see a step-by-step tutorial on how to write an app, we got you covered. Please see 
-[How to write an app]() for a detailed tutorial.
+[How to write an app](./50-create-own-app.md) for a detailed tutorial.
 
 ### One full example of a manifest file
 

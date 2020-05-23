@@ -1,11 +1,13 @@
 [titleEn]: <>(Writing your own app)
-[metaDescriptionEn]: <>(This is a guide about the basic information about apps - the base you need to know when developing them.)
+[metaDescriptionEn]: <>(Here you can learn about how to write a first app)
+[hash]: <>(article:app_write_own)
 
-As we read everything about the base of 
+As we read everything about the app system in theory, lets look at it in the form of a tutorial. In this article, we
+got you covered! 
 
 ## Own implementation outside of shopware
 
-### Template
+// TBA
 
 ## First steps in app
 
@@ -65,16 +67,26 @@ After creating this file structure and the manifest file, you should be able to 
         <update>order</update>
     </permissions>
 </manifest>
-
 ```
 
 ## Using webhooks to subscribe to order
 
+// TBA
+
 ## Add an own module
+
+// TBA
 
 ## Add the action buttons to the administration
 
+// TBA
+
 ## Add a custom field for the promotion code
 
+// TBA
+
 ## Enable the customer to see the promotion code
+
+// TBA
+
 

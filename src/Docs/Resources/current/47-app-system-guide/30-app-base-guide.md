@@ -1,7 +1,6 @@
 [titleEn]: <>(App base)
 [metaDescriptionEn]: <>(This is a guide about the basic information about apps - the base you need to know when developing them.)
-
-## App creation 
+[hash]: <>(article:app_base)
 
 ### File structure
 
@@ -248,7 +247,7 @@ for further details.
 ### Tutorials
 
 If you want to see a step-by-step tutorial on how to write an app, we got you covered. Please see 
-[How to write an app](./50-create-own-app.md) for a detailed tutorial.
+[How to write an app](50-app-examples-and-tutorials/10-create-own-app.md) for a detailed tutorial.
 
 ### One full example of a manifest file
 

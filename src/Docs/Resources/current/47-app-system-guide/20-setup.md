@@ -1,5 +1,6 @@
 [titleEn]: <>(Setup of app system)
 [metaDescriptionEn]: <>(Here you can find all information you need concerning setup of apps)
+[hash]: <>(article:app_setup)
 
 ## App system in Shopware platform
 

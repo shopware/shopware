@@ -1,5 +1,6 @@
 [titleEn]: <>(App System in contrast to plugin and themes)
 [metaDescriptionEn]: <>(In this article we explore the differences between apps, themes and plugins)
+[hash]: <>(article:app_plugin_theme_differences)
 
 If you are already familiar with the plugin system, you are probably wondering what will change for you in apps?
  

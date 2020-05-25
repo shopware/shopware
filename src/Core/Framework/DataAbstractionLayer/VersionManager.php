@@ -714,16 +714,39 @@ class VersionManager
     private function addParentResults(array $writeResults, array $parents): array
     {
         foreach ($parents as $entity => $primaryKeys) {
+            $primaryKeys = array_unique($primaryKeys);
             if (!isset($writeResults[$entity])) {
                 $writeResults[$entity] = [];
             }
 
             foreach ($primaryKeys as $primaryKey) {
+                if ($this->hasResult($entity, $primaryKey, $writeResults)) {
+                    continue;
+                }
                 $writeResults[$entity][] = new EntityWriteResult($primaryKey, [], $entity, EntityWriteResult::OPERATION_UPDATE);
             }
         }
 
         return $writeResults;
+    }
+
+    /**
+     * @param string|array          $primaryKey
+     * @param EntityWriteResult[][] $results
+     */
+    private function hasResult(string $entity, $primaryKey, array $results): bool
+    {
+        if (!isset($results[$entity])) {
+            return false;
+        }
+
+        foreach ($results[$entity] as $result) {
+            if ($result->getPrimaryKey() === $primaryKey) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function resolveParents(EntityDefinition $definition, array $rawData): array

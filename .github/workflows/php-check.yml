@@ -36,7 +36,7 @@ jobs:
 
     - name: Start MySQL
       run: ./development/platform/.github/setup-db.sh mysql:5.7
-    
+
     - name: Start Elasticsearch
       run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 
@@ -45,13 +45,13 @@ jobs:
         cd development
         cp platform/.github/.psh.yaml.override .
         ./psh.phar init
-     
+
     - name: Check Code
       run: |
-         cd development
-         php dev-ops/analyze/generate-composer.php
-         php dev-ops/analyze/vendor/bin/ecs check vendor/shopware/platform/src --config vendor/shopware/platform/easy-coding-standard.yml
-         php dev-ops/analyze/phpstan-config-generator.php
-         for module in $(ls platform/src/); do php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=$(nproc) --diff --show-info=false vendor/shopware/platform/src/$module; done
-         php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon
-         php dev-ops/analyze/vendor/bin/psalm --config=vendor/shopware/platform/psalm.xml --threads=$(nproc) --show-info=false src
+        cd development
+        php dev-ops/analyze/generate-composer.php
+        php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.yml
+        php dev-ops/analyze/phpstan-config-generator.php
+        php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
+        php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --diff-methods --show-info=false
+

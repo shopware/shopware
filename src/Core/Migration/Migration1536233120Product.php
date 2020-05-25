@@ -109,7 +109,6 @@ class Migration1536233120Product extends MigrationStep
               `description` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NULL,
               `meta_title` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `pack_unit` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
-              `pack_unit_plural` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL,
               `custom_fields` JSON NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,

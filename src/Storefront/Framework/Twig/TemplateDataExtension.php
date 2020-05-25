@@ -170,7 +170,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             $this->systemConfigService->all($context->getSalesChannel()->getId())
         );
 
-        /* @deprecated tag:v6.3.0 - core.listing.showReview instead */
+        /* @deprecated tag:v6.3.0 - Use core.listing.showReview instead */
         $config['detail']['showReviews'] = $config['core']['listing']['showReview'];
 
         return $config;

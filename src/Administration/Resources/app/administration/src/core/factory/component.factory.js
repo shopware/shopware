@@ -2,6 +2,7 @@
  * @module core/factory/component
  */
 import { warn } from 'src/core/service/utils/debug.utils';
+import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 
 export default {
@@ -248,12 +249,14 @@ function build(componentName, skipTemplate = false) {
     }
 
     if (overrideRegistry.has(componentName)) {
-        const overrides = overrideRegistry.get(componentName);
+        // clone the override configuration to prevent side-effects to the config
+        const overrides = cloneDeep(overrideRegistry.get(componentName));
 
         convertOverrides(overrides).forEach((overrideComp) => {
             const comp = Object.create(overrideComp);
 
             comp.extends = Object.create(config);
+            comp._isOverride = true;
             config = comp;
         });
     }
@@ -329,6 +332,11 @@ function convertOverrides(overrides) {
 function buildSuperRegistry(config) {
     let superRegistry = {};
 
+    // if it is an override build the super registry recursively
+    if (config._isOverride) {
+        superRegistry = buildSuperRegistry(config.extends);
+    }
+
     /**
      * Search for `this.$super()` call in every `computed` property and `method``
      * and resolve the call chain.
@@ -389,6 +397,7 @@ function addSuperBehaviour(inheritedFrom, superRegistry) {
             this._initVirtualCallStack(name);
 
             const superStack = this._findInSuperRegister(name);
+
             const superFuncObject = superStack[this._virtualCallStack[name]];
 
             this._virtualCallStack[name] = superFuncObject.parent;

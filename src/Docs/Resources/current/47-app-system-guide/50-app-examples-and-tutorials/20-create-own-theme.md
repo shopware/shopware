@@ -46,9 +46,9 @@ You can find out more about the theme configuration options in the [theme guide]
 
 ### Activate the theme
 
-Once your `theme.json` is set up you already have a valid theme. The theme can now be activated already - even though the
-theme hasn't done any modifications yet. This can be done in the administration inside the "Themes" section of the 
-main menu or with the `thmeme:change` command.
+Once your `theme.json` is set up you already have a valid theme. The theme can now be activated already 
+- even though the theme hasn't done any modifications yet. This can be done in the administration inside the "Themes" 
+section of the main menu or with the `thmeme:change` command.
 
 ```bash
 # run this to change the current storefront theme
@@ -73,18 +73,19 @@ Compiling theme 13e0a4a46af547479b1347617926995b for sales channel MyTheme
 
 ### Templates
 
-With the theme system it is possible to adjust or override shopware core templates. The shopware templates are using the
-[Twig](https://twig.symfony.com/) template engine. The template engine provides various functionalities like logical operations e.g. if-statements or for-loops. 
-Most importantly the template engine comes with a block system which can define logical sections in the HTML markup.
-Those blocks are wrapped around the most important parts of the core templates and can be modified by a theme.
+With the theme system it is possible to adjust or override Shopware core templates. The Shopware templates are using 
+the [Twig](https://twig.symfony.com/) template engine. The template engine provides various functionalities like 
+logical operations e.g. if-statements or for-loops. Most importantly the template engine comes with a block system 
+which can define logical sections in the HTML markup. Those blocks are wrapped around the most important parts of 
+the core templates and can be modified by a theme.
 
-The shopware storefront templates can be found in "views" directory of the Storefront bundle: 
+The Shopware storefront templates can be found in `views` directory of the Storefront bundle: 
 
 ```
 platform/src/Storefront/Resources/views/storefront
 ```
 
-In order to modify the templates you'll need a "views" directory in your theme app as well. The directory structure
+In order to modify the templates you'll need a `views` directory in your theme app as well. The directory structure
 is similar to the structure of the core storefront.
 
 ```
@@ -97,7 +98,7 @@ is similar to the structure of the core storefront.
     └── manifest.xml
 ```
 
-Every `*.html.twig` file which is placed under the same name and directory structure like the shopware core file will
+Every `*.html.twig` file which is placed under the same name and directory structure like the Shopware core file will
 be overwritten by your theme by default. To illustrate this we create a `logo.html.twig` file just like inside the core
 views direcotry:
 
@@ -132,8 +133,9 @@ Learn more about templates in the [twig section of the theme guide](./../30-them
 
 ### SCSS
 
-In order to provide custom styling for your theme you can add [SCSS](https://sass-lang.com/) files inside the `Resources/app` folder of your theme.
-The "app" folder represents the JavaScript/frontend application part of your theme where you can find all JavaScript and SCSS files.
+In order to provide custom styling for your theme you can add [SCSS](https://sass-lang.com/) files inside the 
+`Resources/app` folder of your theme.The "app" folder represents the JavaScript/frontend application part of 
+your theme where you can find all JavaScript and SCSS files.
 
 ```
 ...

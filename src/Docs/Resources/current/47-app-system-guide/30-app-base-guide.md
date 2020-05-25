@@ -136,11 +136,11 @@ You can use a variety of events to react to changes in Shopware that way. See th
 | `checkout.order.placed` | Triggers if an order is placed checkout-wose | 
 | `checkout.customer.register` | Triggers if a new customer was registered yo| 
 | `checkout.customer.login` | Triggers as soon as a customer logs in | 
-| `checkout.customer.double_opt_in_guest_order` | (?) | 
+| `checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | 
 | `checkout.customer.before.login` |  Triggers as soon as a customer logs in within the checkout process |
 | `checkout.customer.changed-payment-method` |  Triggers if a customer changes his payment method in checkout process |
 | `checkout.customer.logout` | Triggers if a customer logs out |
-| `checkout.customer.double_opt_in_registration` | Triggers if a customer commits his registration (?) |
+| `checkout.customer.double_opt_in_registration` | Triggers if a customer commits to his registration via double opt in |
 | `customer.recovery.request` | Triggers if a customer recovers his password |
 | `user.recovery.request` | Triggers if a user recovers his password |
 

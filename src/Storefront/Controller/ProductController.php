@@ -69,8 +69,7 @@ class ProductController extends StorefrontController
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         ProductReviewLoader $productReviewLoader,
         SystemConfigService $systemConfigService
-    )
-    {
+    ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
         $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;

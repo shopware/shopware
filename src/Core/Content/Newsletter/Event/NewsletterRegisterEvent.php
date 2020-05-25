@@ -86,12 +86,12 @@ class NewsletterRegisterEvent extends Event implements MailActionInterface
         $recipientName = $this->newsletterRecipient->getEmail();
 
         if ($this->newsletterRecipient->getFirstName() && $this->newsletterRecipient->getLastName()) {
-            $recipientName =  $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName();
+            $recipientName = $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName();
         }
 
         return new MailRecipientStruct(
             [
-                $this->newsletterRecipient->getEmail() => $recipientName
+                $this->newsletterRecipient->getEmail() => $recipientName,
             ]
         );
     }

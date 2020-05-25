@@ -14,8 +14,6 @@ class Migration1589447332AddFilterableToPropertyGroup extends MigrationStep
     }
 
     /**
-     * @param Connection $connection
-     *
      * @throws DBALException
      */
     public function update(Connection $connection): void

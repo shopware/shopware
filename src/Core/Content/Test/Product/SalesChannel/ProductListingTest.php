@@ -152,7 +152,6 @@ class ProductListingTest extends TestCase
         /** @var EntityResult $result */
         $result = $listing->getAggregations()->get('properties');
 
-        /** @var PropertyGroupCollection $properties */
         $propertyGroups = $result->getEntities();
         $propertyGroupIds = [];
 

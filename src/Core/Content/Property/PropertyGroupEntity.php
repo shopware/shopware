@@ -66,17 +66,11 @@ class PropertyGroupEntity extends Entity
         $this->name = $name;
     }
 
-    /**
-     * @return bool
-     */
     public function getFilterable(): bool
     {
         return $this->filterable;
     }
 
-    /**
-     * @param bool $filterable
-     */
     public function setFilterable(bool $filterable): void
     {
         $this->filterable = $filterable;

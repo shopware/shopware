@@ -16,6 +16,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added property `popoverClasses` to `sw-select-result-list` and `sw-single-select`
     * Fixed broken promotion exclusion configuration in `sw-promotion-basic-form`
     * Fixed positioning mixin for more than 25 entries
+    * Added twig blocks to the `sw-product-detail` template for the sidebar and sidebar-items
+        * `sw_product_detail_sidebar`
+        * `sw_product_detail_sidebar_additional_items`
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added

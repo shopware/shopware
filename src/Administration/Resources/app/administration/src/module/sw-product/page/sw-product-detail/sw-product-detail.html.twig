@@ -151,15 +151,20 @@
         {% endblock %}
 
         <template slot="sidebar">
-            <sw-sidebar :propagateWidth="true">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
-                            {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </sw-sidebar>
+            {% block sw_product_detail_sidebar %}
+                <sw-sidebar :propagateWidth="true">
+                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                        <template slot="context-menu-items" slot-scope="media">
+                            <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
+                                {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-sidebar-media-item>
+
+                    {% block sw_product_detail_sidebar_additional_items %}
+                    {% endblock %}
+                </sw-sidebar>
+            {% endblock %}
         </template>
     </sw-page>
 {% endblock %}

@@ -16,7 +16,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-class AclPermissionValidator implements EventSubscriberInterface
+class AclWriteValidator implements EventSubscriberInterface
 {
     public const VIOLATION_NO_PERMISSION = 'no_permission_violation';
 

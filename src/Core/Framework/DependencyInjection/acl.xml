@@ -14,7 +14,11 @@
             <tag name="shopware.entity.acl"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Acl\AclPermissionValidator">
+        <service id="Shopware\Core\Framework\Api\Acl\AclWriteValidator">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Acl\AclAnnotationValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

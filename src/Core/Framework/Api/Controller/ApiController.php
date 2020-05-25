@@ -166,7 +166,7 @@ class ApiController extends AbstractController
      *          ref="#/components/responses/401"
      *      )
      * )
-     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"}, requirements={"version"="\d+"})
+     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
      */
     public function compositeSearch(Request $request, Context $context, int $version): JsonResponse
     {

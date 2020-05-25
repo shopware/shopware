@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 class InsertCommand extends WriteCommand
 {
-    public function getPrivilege(): string
+    public function getPrivilege(): ?string
     {
-        return AclResourceDefinition::PRIVILEGE_CREATE;
+        return AclRoleDefinition::PRIVILEGE_CREATE;
     }
 }

@@ -4,43 +4,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <parameters>
-        <parameter key="acl_privilege_list" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_LIST</parameter>
-        <parameter key="acl_privilege_detail" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_DETAIL</parameter>
-        <parameter key="acl_privilege_create" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_CREATE</parameter>
-        <parameter key="acl_privilege_update" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_UPDATE</parameter>
-        <parameter key="acl_privilege_assign" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_ASSIGN</parameter>
-        <parameter key="acl_privilege_delete" type="constant">Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition::PRIVILEGE_DELETE</parameter>
-
-        <parameter key="acl_resource_privileges" type="collection">
-            <parameter key="%acl_privilege_list%" type="collection">
-            </parameter>
-            <parameter key="%acl_privilege_detail%" type="collection">
-                <parameter>%acl_privilege_list%</parameter>
-            </parameter>
-            <parameter key="%acl_privilege_create%" type="collection">
-                <parameter>%acl_privilege_detail%</parameter>
-                <parameter>%acl_privilege_list%</parameter>
-            </parameter>
-            <parameter key="%acl_privilege_delete%" type="collection">
-                <parameter>%acl_privilege_list%</parameter>
-            </parameter>
-            <parameter key="%acl_privilege_update%" type="collection">
-                <parameter>%acl_privilege_detail%</parameter>
-                <parameter>%acl_privilege_list%</parameter>
-            </parameter>
-            <parameter key="%acl_privilege_assign%" type="collection">
-                <parameter>%acl_privilege_detail%</parameter>
-                <parameter>%acl_privilege_list%</parameter>
-            </parameter>
-        </parameter>
-    </parameters>
-
     <services>
-        <service id="Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition">
-            <tag name="shopware.entity.definition"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -50,7 +14,7 @@
             <tag name="shopware.entity.acl"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Acl\Resource\AclPermissionValidator">
+        <service id="Shopware\Core\Framework\Api\Acl\AclPermissionValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

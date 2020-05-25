@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\Acl\Resource;
+namespace Shopware\Core\Framework\Api\Acl;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
@@ -42,15 +43,19 @@ class AclPermissionValidator implements EventSubscriberInterface
             $resource = $command->getDefinition()->getEntityName();
             $privilege = $command->getPrivilege();
 
+            if ($privilege === null) {
+                continue;
+            }
+
             if (is_subclass_of($command->getDefinition(), EntityTranslationDefinition::class)) {
                 $resource = $command->getDefinition()->getParentDefinition()->getEntityName();
 
-                if ($privilege !== AclResourceDefinition::PRIVILEGE_DELETE) {
+                if ($privilege !== AclRoleDefinition::PRIVILEGE_DELETE) {
                     $privilege = $this->getPrivilegeForParentWriteOperation($command, $commands);
                 }
             }
 
-            if (!$source->isAllowed($resource, $privilege)) {
+            if (!$source->isAllowed($resource . ':' . $privilege)) {
                 $this->violates($privilege, $resource, $command, $violationList);
             }
         }
@@ -123,7 +128,7 @@ class AclPermissionValidator implements EventSubscriberInterface
 
         // if we don't have a parentCommand it must be a update,
         // because the parentEntity must already exist
-        return AclResourceDefinition::PRIVILEGE_UPDATE;
+        return AclRoleDefinition::PRIVILEGE_UPDATE;
     }
 
     /**

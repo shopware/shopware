@@ -41,7 +41,7 @@ abstract class WriteCommand
         $this->path = $path;
     }
 
-    abstract public function getPrivilege(): string;
+    abstract public function getPrivilege(): ?string;
 
     public function isValid(): bool
     {

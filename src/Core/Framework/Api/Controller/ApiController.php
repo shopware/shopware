@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
@@ -204,7 +204,7 @@ class ApiController extends AbstractController
         $this->checkIfRouteAvailableInApiVersion($entity, $version);
 
         $definition = $this->definitionRegistry->getByEntityName($entity);
-        $this->validateAclPermissions($context, $definition, AclResourceDefinition::PRIVILEGE_CREATE);
+        $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
 
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $overwrites): EntityWrittenContainerEvent {
             /** @var EntityRepository $entityRepo */
@@ -339,7 +339,7 @@ class ApiController extends AbstractController
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
-        $this->validatePathSegments($context, $pathSegments, AclResourceDefinition::PRIVILEGE_DETAIL);
+        $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_DETAIL);
 
         $root = $pathSegments[0]['entity'];
         $id = $pathSegments[\count($pathSegments) - 1]['value'];
@@ -540,7 +540,7 @@ class ApiController extends AbstractController
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
-        $this->validatePathSegments($context, $pathSegments, AclResourceDefinition::PRIVILEGE_LIST);
+        $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_LIST);
 
         $first = array_shift($pathSegments);
 
@@ -1069,7 +1069,7 @@ class ApiController extends AbstractController
             $resource = $entity->getParentDefinition()->getEntityName();
         }
 
-        if (!$context->isAllowed($resource, $privilege)) {
+        if (!$context->isAllowed($resource . ':' . $privilege)) {
             throw new AccessDeniedHttpException(sprintf('Missing privilege "%s" for resource "%s"', $privilege, $resource));
         }
     }
@@ -1080,7 +1080,11 @@ class ApiController extends AbstractController
 
         foreach ($pathSegments as $segment) {
             // you need detail privileges for every parent entity
-            $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($segment), AclResourceDefinition::PRIVILEGE_DETAIL);
+            $this->validateAclPermissions(
+                $context,
+                $this->getDefinitionForPathSegment($segment),
+                AclRoleDefinition::PRIVILEGE_DETAIL
+            );
         }
 
         $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);

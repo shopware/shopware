@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -139,15 +140,14 @@ class CartRuleLoader
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
-
-        /** @var RuleCollection $rules */
-        $rules = $this->repository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        foreach ($rules as $key => $rule) {
-            if ($rule->isInvalid() || !$rule->getPayload()) {
-                $rules->remove($key);
+        $criteria->setLimit(500);
+        $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
+        $rules = new RuleCollection();
+        while (($result = $repositoryIterator->fetch()) !== null) {
+            foreach ($result->getEntities() as $rule) {
+                if (!$rule->isInvalid() && $rule->getPayload()) {
+                    $rules->add($rule);
+                }
             }
         }
 

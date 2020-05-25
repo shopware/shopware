@@ -106,6 +106,8 @@ describe('Minimal install', () => {
         cy.get('#c_config_admin_username').clear().type('admin');
         cy.get('#c_config_admin_password').clear().type('shopware');
 
+        cy.get('.alert.alert-error').should('not.exist');
+
         cy.get('.btn.btn-primary').contains('Next').click();
 
         // @frw: welcome

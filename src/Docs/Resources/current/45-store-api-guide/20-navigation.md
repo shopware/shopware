@@ -86,7 +86,7 @@ To get the footer navigation we're using the same route (`store-api.navigation`)
 Note, that your Sales Channel needs a footer-navigation attached to it, otherwise you won't get the data you expected to get.
 
 ```
-POST /store-api/v1/footer-navigation/footer-navigation
+POST /store-api/v1/navigation/footer-navigation/footer-navigation
 
 {
     "includes": {
@@ -127,7 +127,7 @@ POST /store-api/v1/footer-navigation/footer-navigation
 ]
 ```
 
-### Get cms page 
+### Get cms page
 
 To fetch an cms page via the api you can use this route `store-api.cms.detail`.
 
@@ -181,16 +181,16 @@ POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
 ```
 
 
-#### Get cms page with category  
+#### Get cms page with category
 
 If you want to load a cms page with a category you can use teh following route: `store-api.category.detail`
-In contrast to the `/cms/{id}` route, this route also considers the category settings of the cms page. 
+In contrast to the `/cms/{id}` route, this route also considers the category settings of the cms page.
 
 This route needs one parameter:
 * `navigationId`: the id of the navigation you want to fetch
 
-Note, that you cannot use the api aliases like: `main-navigation`, 'footer-navigation', etc... 
-This route supports an alias `home` to load the home page of the sales channel. 
+Note, that you cannot use the api aliases like: `main-navigation`, 'footer-navigation', etc...
+This route supports an alias `home` to load the home page of the sales channel.
 
 If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 

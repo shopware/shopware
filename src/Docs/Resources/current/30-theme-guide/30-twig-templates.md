@@ -77,7 +77,7 @@ First we create a new file inside our theme.
 $ cd custom/plugins/MyTheme
 
 # create coresponding folder structure
-$ mkdir -p src/Resources/app/storefront/views/layout/header
+$ mkdir -p src/Resources/views/storefront/layout/header
 
 # create a new file
 $ touch src/Resources/views/storefront/layout/header/logo.html.twig
@@ -86,7 +86,7 @@ $ touch src/Resources/views/storefront/layout/header/logo.html.twig
 Then we extend the existing file through the `sw_extends` command.
 
 ```twig
-# src/Resources/views/storefront/layout/header/logo.html.twig
+{# MyTheme/src/Resources/views/storefront/layout/header/logo.html.twig #}
 
 {% sw_extends '@Storefront/storefront/layout/header/logo.html.twig' %}
 ```
@@ -96,7 +96,7 @@ After that you save this new file. Everything should be rendered like before.
 To add new content into to template you can override the `layout_header_logo_link` block from the `logo.html.twig` like this.
 
 ```twig
-# src/Resources/app/storefront/views/layout/header/logo.html.twig
+{# MyTheme/src/Resources/views/storefront/layout/header/logo.html.twig #}
 
 {# extend the original twig file #}
 {% sw_extends '@Storefront/storefront/layout/header/logo.html.twig' %}

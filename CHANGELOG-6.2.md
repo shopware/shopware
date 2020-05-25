@@ -779,3 +779,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
     * Fix timezone of `orderDate` in ordergrid
     * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded

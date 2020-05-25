@@ -50,21 +50,22 @@
                     {% endblock %}
 
                     {% block page_product_detail_buy_product_buy_info %}
+                        {# fallback redirect back to detail page is deactivated via js #}
                         <input type="hidden"
-                               name="lineItems[{{ product.id }}][id]"
-                               value="{{ product.id }}">
+                               name="redirectTo"
+                               data-redirect-to="detail"
+                               value="frontend.detail.page">
+
                         <input type="hidden"
-                               name="lineItems[{{ product.id }}][type]"
-                               value="product">
+                               name="redirectParameters"
+                               data-redirect-parameters="true"
+                               value='{"productId": "{{ product.id }}"}'>
+
+                        {# offcanvas redirect is activated via js #}
                         <input type="hidden"
-                               name="lineItems[{{ product.id }}][referencedId]"
-                               value="{{ product.id }}">
-                        <input type="hidden"
-                               name="lineItems[{{ product.id }}][stackable]"
-                               value="1">
-                        <input type="hidden"
-                               name="lineItems[{{ product.id }}][removable]"
-                               value="1">
+                               name="redirectTo"
+                               data-redirect-to="offcanvas"
+                               value="frontend.cart.offcanvas" disabled/>
                     {% endblock %}
 
                     {% block page_product_detail_product_buy_meta %}

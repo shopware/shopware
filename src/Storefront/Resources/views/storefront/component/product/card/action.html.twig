@@ -23,9 +23,22 @@
                             {% block component_product_box_action_form %}
 
                                 {% block component_product_box_action_buy_redirect_input %}
+                                    {# fallback redirect back to detail page is deactivated via js #}
                                     <input type="hidden"
                                            name="redirectTo"
-                                           value="frontend.cart.offcanvas"/>
+                                           data-redirect-to="detail"
+                                           value="frontend.detail.page">
+
+                                    <input type="hidden"
+                                           name="redirectParameters"
+                                           data-redirect-parameters="true"
+                                           value='{"productId": "{{ product.id }}"}'>
+
+                                    {# offcanvas redirect is activated via js #}
+                                    <input type="hidden"
+                                           name="redirectTo"
+                                           data-redirect-to="offcanvas"
+                                           value="frontend.cart.offcanvas" disabled/>
                                 {% endblock %}
 
                                 {% block page_product_detail_buy_product_buy_info %}

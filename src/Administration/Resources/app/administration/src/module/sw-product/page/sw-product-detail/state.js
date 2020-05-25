@@ -10,6 +10,7 @@ export default {
             taxes: [],
             variants: [],
             customFieldSets: [],
+            defaultFeatureSet: {},
             loading: {
                 init: false,
                 product: false,
@@ -20,7 +21,8 @@ export default {
                 customFieldSets: false,
                 media: false,
                 rules: false,
-                variants: false
+                variants: false,
+                defaultFeatureSet: false
             },
             localMode: false
         };
@@ -58,6 +60,14 @@ export default {
             return productPrice.find((price) => {
                 return price.currencyId === getters.defaultCurrency.id;
             });
+        },
+
+        defaultFeatureSet(state) {
+            if (!state.defaultFeatureSet) {
+                return {};
+            }
+
+            return state.defaultFeatureSet;
         },
 
         productTaxRate(state) {
@@ -137,6 +147,10 @@ export default {
 
         setAttributeSet(state, newAttributeSets) {
             state.customFieldSets = newAttributeSets;
+        },
+
+        setDefaultFeatureSet(state, newDefaultFeatureSet) {
+            state.defaultFeatureSet = newDefaultFeatureSet;
         }
     }
 };

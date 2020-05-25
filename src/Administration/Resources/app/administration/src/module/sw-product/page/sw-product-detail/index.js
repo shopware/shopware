@@ -1,3 +1,5 @@
+import { ifNext6997, next6997 } from 'src/flag/feature_next6997';
+
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -56,7 +58,8 @@ Component.register('sw-product-detail', {
             'productRepository',
             'isLoading',
             'isChild',
-            'defaultCurrency'
+            'defaultCurrency',
+            'defaultFeatureSet'
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -101,6 +104,10 @@ Component.register('sw-product-detail', {
             return null;
         },
 
+        featureSetRepository() {
+            return this.repositoryFactory.create('product_feature_set');
+        },
+
         productCriteria() {
             const criteria = new Criteria();
 
@@ -136,6 +143,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('seoUrls')
                 .addAssociation('mainCategories');
 
+            ifNext6997(() => criteria.addAssociation('featureSets'));
+
             return criteria;
         },
 
@@ -146,6 +155,16 @@ Component.register('sw-product-detail', {
             criteria
                 .getAssociation('customFields')
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+
+            return criteria;
+        },
+
+        defaultFeatureSetCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria
+                .addSorting(Criteria.sort('createdAt', 'ASC'))
+                .addFilter(Criteria.equalsAny('name', ['Default', 'Standard']));
 
             return criteria;
         },
@@ -272,7 +291,8 @@ Component.register('sw-product-detail', {
             return Promise.all([
                 this.loadCurrencies(),
                 this.loadTaxes(),
-                this.loadAttributeSet()
+                this.loadAttributeSet(),
+                this.loadDefaultFeatureSet()
             ]).then(() => {
                 // set default product price
                 this.product.price = [{
@@ -281,6 +301,8 @@ Component.register('sw-product-detail', {
                     linked: true,
                     gross: null
                 }];
+
+                this.product.featureSets = this.defaultFeatureSet;
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
@@ -347,6 +369,20 @@ Component.register('sw-product-detail', {
                 Shopware.State.commit('swProductDetail/setAttributeSet', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
+            });
+        },
+
+        loadDefaultFeatureSet() {
+            if (!next6997()) {
+                return Promise.resolve();
+            }
+
+            Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', true]);
+
+            return this.featureSetRepository.search(this.defaultFeatureSetCriteria, Shopware.Context.api).then((res) => {
+                Shopware.State.commit('swProductDetail/setDefaultFeatureSet', res);
+            }).then(() => {
+                Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', false]);
             });
         },
 

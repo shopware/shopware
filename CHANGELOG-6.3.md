@@ -191,6 +191,8 @@ Table of contents
 * Added error page for routes without the correct privileges
 * Added a permission grid for users and permissions
 * Added rudimentary permissions for sales channel
+* Added `sw-product-feature-set-form` component
+    * Changed `sw-product-detail-base` to include the new component, which enables users to assign essential characteristics templates to products
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
@@ -233,6 +235,7 @@ Table of contents
     * `\Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition`
     * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition`
     * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition`
+* Added `featureSets` association to `\Shopware\Core\Content\Product\ProductEntity`
 
 #### Storefront
 * Added plugin injection in hot mode

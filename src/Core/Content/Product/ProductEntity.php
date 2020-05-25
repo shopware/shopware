@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -407,6 +408,11 @@ class ProductEntity extends Entity
      * @var ProductCrossSellingAssignedProductsCollection|null
      */
     protected $crossSellingAssignedProducts;
+
+    /**
+     * @var ProductFeatureSetCollection|null
+     */
+    protected $featureSets;
 
     public function __construct()
     {
@@ -1202,6 +1208,16 @@ class ProductEntity extends Entity
     public function setCrossSellingAssignedProducts(ProductCrossSellingAssignedProductsCollection $crossSellingAssignedProducts): void
     {
         $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
+    }
+
+    public function getFeatureSets(): ?ProductFeatureSetCollection
+    {
+        return $this->featureSets;
+    }
+
+    public function setFeatureSets(ProductFeatureSetCollection $featureSets): void
+    {
+        $this->featureSets = $featureSets;
     }
 
     public function getApiAlias(): string

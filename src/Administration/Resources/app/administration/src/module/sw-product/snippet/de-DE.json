@@ -334,6 +334,15 @@
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling-Konfiguration.",
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
       "assignPlaceholder": "Durchsuche Produkte ..."
+    },
+    "featureSets": {
+      "cardTitle": "Wesentliche Merkmale",
+      "descriptionTitle": "Wesentliche Merkmale",
+      "descriptionBody": "Wesentliche Merkmale helfen Dir relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden deutlich im Warenkorb und Checkout dargestellt.",
+      "configInformation": "Lege zuerst Vorlagen für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "linkFeatureSetsConfig": "Wesentliche Merkmale",
+      "templateSelectFieldLabel": "Vorlagen",
+      "templateSelectFieldPlaceholder": "Wähle eine oder mehrere Vorlagen aus..."
     }
   },
   "sw-privileges": {

@@ -9,6 +9,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryT
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinition;
@@ -64,6 +66,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
+use function Flag\next6997;
 use function Flag\next7399;
 
 class ProductDefinition extends EntityDefinition
@@ -263,6 +266,13 @@ class ProductDefinition extends EntityDefinition
         if (next7399()) {
             $collection->add(
                 (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
+            );
+        }
+
+        if (next6997()) {
+            $collection->add(
+                (new ManyToManyAssociationField('featureSets', ProductFeatureSetDefinition::class, ProductFeatureDefinition::class, 'product_id', 'product_feature_set_id'))
+                    ->addFlags(new CascadeDelete(), new Inherited())
             );
         }
 

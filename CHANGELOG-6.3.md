@@ -147,3 +147,9 @@ Table of contents
 
 #### Storefront
 * Added plugin injection in hot mode
+* Refactored Webpack configuration files to one single file
+    * Removed build/utils.js
+    * Removed build/webpack.base.config.js
+    * Removed build/webpack.dev.config.js
+    * Removed build/webpack.hot.config.js
+    * Removed build/webpack.prod.config.js

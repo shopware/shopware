@@ -19,6 +19,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added twig blocks to the `sw-product-detail` template for the sidebar and sidebar-items
         * `sw_product_detail_sidebar`
         * `sw_product_detail_sidebar_additional_items`
+    * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
+ 
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added

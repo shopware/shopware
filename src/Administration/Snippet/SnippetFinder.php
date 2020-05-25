@@ -80,7 +80,7 @@ class SnippetFinder implements SnippetFinderInterface
             $snippets[] = json_decode(file_get_contents($file), true) ?? [];
         }
 
-        $snippets = array_merge_recursive(...$snippets);
+        $snippets = array_replace_recursive(...$snippets);
 
         ksort($snippets);
 

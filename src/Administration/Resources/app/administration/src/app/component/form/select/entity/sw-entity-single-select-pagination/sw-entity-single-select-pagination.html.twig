@@ -2,12 +2,12 @@
     {% block sw_pagination %}
         <div class="sw-pagination sw-entity-single-select__pagination" v-if="shouldBeVisible">
             {% block sw_pagination_page_first %}
-                <button :disabled="currentPage === 1" @click.stop="firstPage" class="sw-pagination__page-button">
+                <button :disabled="isFirstPage" @click.stop="firstPage" class="sw-pagination__page-button">
                     <sw-icon name="small-arrow-medium-double-left" small/>
                 </button>
             {% endblock %}
             {% block sw_pagination_page_prev %}
-                <button :disabled="currentPage === 1" @click.stop="prevPage" class="sw-pagination__page-button">
+                <button :disabled="isFirstPage" @click.stop="prevPage" class="sw-pagination__page-button">
                     <sw-icon name="small-arrow-medium-left" small/>
                 </button>
             {% endblock %}
@@ -15,12 +15,12 @@
             {% block sw_pagination_page_list %}<span>{{ currentPage }}/{{ maxPage }}</span>{% endblock %}
 
             {% block sw_pagination_page_next %}
-                <button :disabled="currentPage === maxPage" @click.stop="nextPage" class="sw-pagination__page-button">
+                <button :disabled="isLastPage" @click.stop="nextPage" class="sw-pagination__page-button">
                     <sw-icon name="small-arrow-medium-right" small/>
                 </button>
             {% endblock %}
             {% block sw_pagination_page_last %}
-                <button :disabled="currentPage === maxPage" @click.stop="lastPage" class="sw-pagination__page-button">
+                <button :disabled="isLastPage" @click.stop="lastPage" class="sw-pagination__page-button">
                     <sw-icon name="small-arrow-medium-double-right" small/>
                 </button>
             {% endblock %}

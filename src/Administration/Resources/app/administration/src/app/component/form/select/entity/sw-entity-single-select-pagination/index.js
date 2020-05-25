@@ -4,5 +4,14 @@ import './sw-entity-single-select-pagination.scss';
 const { Component } = Shopware;
 
 Component.extend('sw-entity-single-select-pagination', 'sw-pagination', {
-    template
+    template,
+
+    computed: {
+        isFirstPage() {
+            return this.currentPage === 1;
+        },
+        isLastPage() {
+            return this.currentPage === this.maxPage;
+        }
+    }
 });

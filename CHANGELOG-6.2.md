@@ -24,6 +24,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
+    * Fixed mail headers and footers not being properly attached to mails when sending mails from the administration
 
 
 ### 6.2.0

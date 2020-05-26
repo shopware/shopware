@@ -129,6 +129,8 @@ class MailService implements MailServiceInterface
             }
 
             $templateData['salesChannel'] = $salesChannel;
+        } elseif (isset($templateData['salesChannel'])) {
+            $salesChannel = $templateData['salesChannel'];
         }
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);

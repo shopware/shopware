@@ -85,7 +85,13 @@
 
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
-                                    {{ product.optionNames|join(' | ') }}
+                                    {% for variation in product.variation %}
+                                        {{ variation.group }}: {{ variation.option }}
+
+                                        {% if product.variation|last != variation %}
+                                            {{ " | " }}
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
                             {% endblock %}
 

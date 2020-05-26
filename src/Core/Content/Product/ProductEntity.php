@@ -256,7 +256,7 @@ class ProductEntity extends Entity
     /**
      * @var array
      */
-    protected $optionNames = [];
+    protected $variation = [];
 
     /**
      * @var TaxEntity|null
@@ -1064,14 +1064,14 @@ class ProductEntity extends Entity
         $this->mainVariantId = $mainVariantId;
     }
 
-    public function getOptionNames(): array
+    public function getVariation(): array
     {
-        return $this->optionNames;
+        return $this->variation;
     }
 
-    public function setOptionNames(array $optionNames): void
+    public function setVariation(array $variation): void
     {
-        $this->optionNames = $optionNames;
+        $this->variation = $variation;
     }
 
     public function getAvailableStock(): ?int

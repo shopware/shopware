@@ -36,7 +36,7 @@
           content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
 {% endblock %}
 
-{% block layout_head_title_inner %}{{ page.product.translated.name }}{% if page.product.optionNames %} - {{ page.product.optionNames|join(' | ') }}{% endif %}{% endblock %}
+{% block layout_head_title_inner %}{{ page.product.translated.name }}{% if page.product.variation %} - {% for variation in page.product.variation %}{{ variation.group }}: {{ variation.option }}{% if page.product.variation|last != variation %}{{ " | " }}{% endif %}{% endfor %}{% endif %}{% endblock %}
 
 {% block layout_head_canonical %}
     <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}" />

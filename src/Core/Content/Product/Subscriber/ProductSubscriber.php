@@ -25,13 +25,13 @@ class ProductSubscriber implements EventSubscriberInterface
     {
         /** @var ProductEntity $product */
         foreach ($event->getEntities() as $product) {
-            $product->setOptionNames(
-                $this->buildOptionNames($product)
+            $product->setVariation(
+                $this->buildVariation($product)
             );
         }
     }
 
-    private function buildOptionNames(ProductEntity $product): array
+    private function buildVariation(ProductEntity $product): array
     {
         if (!$product->getOptions() || !next7399()) {
             return [];
@@ -42,7 +42,14 @@ class ProductSubscriber implements EventSubscriberInterface
         if (!$product->getConfiguratorGroupConfig()) {
             // fallback - simply take all option names unordered
             $names = $product->getOptions()->map(function (PropertyGroupOptionEntity $option) {
-                return $option->getTranslation('name');
+                if (!$option->getGroup()) {
+                    return [];
+                }
+
+                return [
+                    'group' => $option->getGroup()->getTranslation('name'),
+                    'option' => $option->getTranslation('name'),
+                ];
             });
 
             return array_values($names);
@@ -58,7 +65,12 @@ class ProductSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $parts[] = $option->getTranslation('name');
+            if ($option->getGroup()) {
+                $parts[] = [
+                    'group' => $option->getGroup()->getTranslation('name'),
+                    'option' => $option->getTranslation('name'),
+                ];
+            }
         }
 
         return $parts;

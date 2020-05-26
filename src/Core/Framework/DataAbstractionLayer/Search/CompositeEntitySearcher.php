@@ -40,7 +40,7 @@ class CompositeEntitySearcher
         $entities = [];
 
         foreach ($this->definitions as $definition) {
-            if (!$context->isAllowed($definition->getEntityName() . ':' . AclRoleDefinition::PRIVILEGE_LIST)) {
+            if (!$context->isAllowed($definition->getEntityName() . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
             }
 

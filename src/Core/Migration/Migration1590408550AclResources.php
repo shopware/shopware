@@ -21,7 +21,7 @@ class Migration1590408550AclResources extends MigrationStep
             return;
         }
 
-        $connection->executeUpdate('ALTER TABLE `acl_role` ADD `privileges` longtext COLLATE \'utf8mb4_unicode_ci\' NULL AFTER `name`;');
+        $connection->executeUpdate('ALTER TABLE `acl_role` ADD `privileges` json NULL AFTER `name`;');
 
         $roles = $this->getRoles($connection);
 
@@ -37,7 +37,7 @@ class Migration1590408550AclResources extends MigrationStep
             );
         }
 
-        $connection->executeUpdate('ALTER TABLE `acl_role` CHANGE `privileges` `privileges` longtext COLLATE \'utf8mb4_unicode_ci\' NOT NULL AFTER `name`;');
+        $connection->executeUpdate('ALTER TABLE `acl_role` CHANGE `privileges` `privileges` json NOT NULL;');
     }
 
     public function updateDestructive(Connection $connection): void
@@ -50,7 +50,7 @@ class Migration1590408550AclResources extends MigrationStep
         $roles = $connection->fetchAll("
             SELECT LOWER(HEX(`role`.id)) as id, CONCAT(`resource`.`resource`, ':', `resource`.`privilege`) as priv
             FROM acl_role `role`
-                INNER JOIN acl_resource `resource`
+                LEFT JOIN acl_resource `resource`
                     ON `role`.id = `resource`.acl_role_id
         ");
 

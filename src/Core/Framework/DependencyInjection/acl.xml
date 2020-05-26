@@ -21,5 +21,9 @@
         <service id="Shopware\Core\Framework\Api\Acl\AclAnnotationValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
     </services>
 </container>

@@ -20,8 +20,7 @@ use Shopware\Core\System\User\UserDefinition;
 
 class AclRoleDefinition extends EntityDefinition
 {
-    public const PRIVILEGE_LIST = 'list';
-    public const PRIVILEGE_DETAIL = 'detail';
+    public const PRIVILEGE_READ = 'read';
     public const PRIVILEGE_CREATE = 'create';
     public const PRIVILEGE_UPDATE = 'update';
     public const PRIVILEGE_DELETE = 'delete';

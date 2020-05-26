@@ -45,11 +45,6 @@ class AclRoleEntity extends Entity
         $this->users = $users;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'dal_acl_role';
-    }
-
     public function getPrivileges(): array
     {
         return $this->privileges;

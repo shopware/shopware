@@ -55,6 +55,10 @@
             <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingSiteVerificationFactory" method="createSiteVerificationResource" />
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\ContentProductResource">
+            <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingContentFactory" method="createContentProductResource" />
+        </service>
+
         <service id="Shopware\Core\Content\GoogleShopping\Client\Adapter\UserProfileResource">
             <factory service="Shopware\Core\Content\GoogleShopping\Client\GoogleShoppingUserProfileFactory" method="createUserProfileResource" />
         </service>
@@ -97,6 +101,11 @@
             <argument type="service" id="sales_channel.repository"/>
         </service>
 
+        <service id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantProduct">
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\ContentProductResource"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Client\Adapter\GoogleShoppingDatafeedsResource"/>
+        </service>
+
         <!-- Controllers-->
         <service id="Shopware\Core\Content\GoogleShopping\Controller\GoogleShoppingAccountController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
@@ -119,6 +128,7 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantAccount"/>
             <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingShippingSetting"/>
+            <argument type="service" id="Shopware\Core\Content\GoogleShopping\Service\GoogleShoppingMerchantProduct"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

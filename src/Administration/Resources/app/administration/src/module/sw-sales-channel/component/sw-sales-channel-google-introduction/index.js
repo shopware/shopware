@@ -62,7 +62,9 @@ Component.register('sw-sales-channel-google-introduction', {
 
                 const gauthOption = {
                     clientId: config['core.googleShopping.clientId'],
-                    scope: 'profile email https://www.googleapis.com/auth/content',
+                    scope: 'profile email ' +
+                        'https://www.googleapis.com/auth/content ' +
+                        'https://www.googleapis.com/auth/siteverification',
                     prompt: 'consent'
                 };
 

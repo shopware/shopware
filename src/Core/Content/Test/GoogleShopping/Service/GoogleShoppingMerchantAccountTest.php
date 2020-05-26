@@ -34,6 +34,11 @@ class GoogleShoppingMerchantAccountTest extends TestCase
     private $contentAccountResource;
 
     /**
+     * @var GoogleShoppingMerchantAccount
+     */
+    private $merchantAccountService;
+
+    /**
      * @var Context
      */
     private $context;
@@ -56,70 +61,41 @@ class GoogleShoppingMerchantAccountTest extends TestCase
     protected function setUp(): void
     {
         skipTestNext6050($this);
+        $this->getMockGoogleClient();
         $this->repository = $this->getContainer()->get('google_shopping_merchant_account.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-
         $this->context = Context::createDefaultContext();
         $this->contentAccountResource = $this->createMock(GoogleShoppingContentAccountResource::class);
         $this->siteVerificationResource = $this->createMock(SiteVerificationResource::class);
         $this->googleAccountRepository = $this->getContainer()->get('google_shopping_account.repository');
+        $this->merchantAccountService = $this->getContainer()->get(GoogleShoppingMerchantAccount::class);
     }
 
     public function testGetInfo(): void
     {
         $merchantId = Uuid::randomHex();
 
-        $this->contentAccountResource->expects(static::once())->method('get')->with($merchantId)->willReturn(['storeName' => 'John Doe Store']);
+        $merchantInfo = $this->merchantAccountService->getInfo($merchantId);
 
-        $merchantAccountService = $this->getGoogleShoppingMerchantAccountService();
-
-        $merchantInfo = $merchantAccountService->getInfo($merchantId);
-
-        static::assertEquals(['storeName' => 'John Doe Store'], $merchantInfo);
+        static::assertEquals([
+            'adultContent' => false,
+            'id' => '12345678',
+            'kind' => 'content#account',
+            'name' => 'Test merchant',
+            'websiteUrl' => "http:\/\/shopware.test",
+        ], $merchantInfo);
     }
 
     public function testList(): void
     {
-        $this->contentAccountResource->expects(static::once())->method('list')->willReturn([
-            [
-                'name' => 'John Doe Store',
-                'location' => 'Germany',
-                'id' => 123,
-            ],
-            [
-                'name' => 'Jane Doe Store',
-                'location' => 'Iceland',
-                'id' => 456,
-            ],
-            [
-                'name' => 'Jim Doe Store',
-                'location' => 'Netherland',
-                'id' => 789,
-            ],
-        ]);
+        $list = $this->merchantAccountService->list();
 
-        $merchantAccountService = new GoogleShoppingMerchantAccount(
-            $this->repository,
-            $this->contentAccountResource,
-            $this->siteVerificationResource,
-            $this->salesChannelRepository,
-            $this->googleAccountRepository
-        );
+        static::assertNotEmpty($list);
 
-        $list = $merchantAccountService->list();
-
-        static::assertEquals([
-            [
-                'name' => 'John Doe Store',
-                'id' => 123,
-            ], [
-                'name' => 'Jane Doe Store',
-                'id' => 456,
-            ], [
-                'name' => 'Jim Doe Store',
-                'id' => 789,
-            ],
-        ], $list);
+        foreach ($list as $account) {
+            static::assertArrayHasKey('id', $account);
+            static::assertArrayHasKey('name', $account);
+        }
     }
 
     public function testCreate(): void
@@ -174,7 +150,13 @@ class GoogleShoppingMerchantAccountTest extends TestCase
 
     public function testGetStatus(): void
     {
-        $merchantAccountService = $this->getGoogleShoppingMerchantAccountService();
+        $status = $this->merchantAccountService->getStatus('123456789');
+
+        static::assertNotEmpty($status);
+        static::assertArrayHasKey('accountLevelIssues', $status);
+        static::assertArrayHasKey('isSuspended', $status);
+        static::assertArrayHasKey('accountId', $status);
+        static::assertArrayHasKey('websiteClaimed', $status);
 
         $this->contentAccountResource->expects(static::exactly(3))->method('getStatus')->willReturnMap([
             [
@@ -221,6 +203,8 @@ class GoogleShoppingMerchantAccountTest extends TestCase
                 ],
             ],
         ]);
+
+        $merchantAccountService = $this->getGoogleShoppingMerchantAccountService();
 
         $status = $merchantAccountService->getStatus('account_with_no_error');
 

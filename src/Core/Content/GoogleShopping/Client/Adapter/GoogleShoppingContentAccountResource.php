@@ -86,13 +86,12 @@ class GoogleShoppingContentAccountResource
     public function updateWebsiteUrl(string $merchantId, string $accountId, string $websiteUrl): array
     {
         $account = $this->accountResource->get($merchantId, $accountId);
-        $updateAccount = new \Google_Service_ShoppingContent_Account();
 
-        $updateAccount->setWebsiteUrl($websiteUrl);
-        $updateAccount->setName($account->getName());
-        $updateAccount->setId($merchantId);
+        $account->setWebsiteUrl($websiteUrl);
+        $account->setName($account->getName());
+        $account->setId($merchantId);
 
-        $updateWebsiteRequest = $this->accountResource->update($merchantId, $accountId, $updateAccount);
+        $updateWebsiteRequest = $this->accountResource->update($merchantId, $accountId, $account);
 
         return (array) $updateWebsiteRequest->toSimpleObject();
     }

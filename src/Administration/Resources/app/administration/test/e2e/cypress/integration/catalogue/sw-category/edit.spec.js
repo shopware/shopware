@@ -30,7 +30,7 @@ describe('Category: Edit categories', () => {
             .should('be.visible')
             .contains('Katalog #1');
 
-        page.changeTranslation('English', 2);
+        page.changeTranslation('English', 1);
         cy.get('.sw-tree-item__label').should('be.visible');
         cy.get('.sw-empty-state__element').should('be.visible');
 

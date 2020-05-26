@@ -15,7 +15,8 @@ export default class CategoryPageObject {
     changeTranslation(language, position) {
         cy.get('.sw-language-switch').click();
         cy.get('.sw-field__select-load-placeholder').should('not.exist');
-        cy.get(`.sw-select-option:nth-of-type(${position})`).contains(language).click();
+        cy.get('.sw-select-result').should('be.visible');
+        cy.get(`.sw-select-option--${position}`).contains(language).click();
         cy.get('.sw-field__select-load-placeholder').should('not.exist');
     }
 }

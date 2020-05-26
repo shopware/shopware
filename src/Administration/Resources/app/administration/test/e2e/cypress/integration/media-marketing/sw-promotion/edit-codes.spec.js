@@ -22,7 +22,7 @@ describe('Promotion: Test promotion with codes', () => {
             });
     });
 
-    it('@base @marketing: use general promotion codes', () => {
+    it('@marketing: use general promotion codes', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -81,7 +81,7 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
     });
 
-    it('@marketing: use invalid code', () => {
+    it('@base @marketing: use invalid code', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -136,7 +136,7 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('.offcanvas.is-open').should('be.visible');
         cy.get('#addPromotionOffcanvasCartInput').type('not_funicular');
         cy.get('#addPromotionOffcanvasCart').click();
-        cy.contains('Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.');
+        cy.contains('Promotion with code "not_funicular" could not be found.');
         cy.get('.cart-item-promotion').should('not.exist');
     });
 });

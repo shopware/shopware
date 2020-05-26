@@ -206,6 +206,14 @@ You can add custom JavaScript to your theme by creating a `main.js` file which i
     └── manifest.xml
 ```
 
+Now you are able to add JavaScript code to your `main.js` file:
+
+```js
+// DemoTheme/Resources/app/storefront/src/main.js
+
+console.log('DemoTheme JavaScript loaded');
+```
+
 In contrast to SCSS you add the minified version of your JavaScript to your `theme.json` instead of the `main.js`:
 
 ```json

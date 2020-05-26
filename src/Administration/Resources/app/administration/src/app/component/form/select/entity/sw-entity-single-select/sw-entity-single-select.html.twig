@@ -80,13 +80,16 @@
                                     </template>
                                 {% endblock %}
 
-                                {% block sw_entity_single_select_base_results_list_pagination %}
+                                {% block sw_entity_single_select_base_results_list_after %}
                                     <template #after-item-list>
-                                        <sw-entity-single-select-pagination @page-change="changePage"
-                                                                            :total="totalItems"
-                                                                            :limit="resultLimit"
-                                                                            :page="criteria.page">
-                                        </sw-entity-single-select-pagination>
+                                        <slot name="after-item-list"></slot>
+                                        {% block sw_entity_single_select_base_results_list_pagination %}
+                                            <sw-entity-single-select-pagination @page-change="changePage"
+                                                                                :total="totalItems"
+                                                                                :limit="resultLimit"
+                                                                                :page="criteria.page">
+                                            </sw-entity-single-select-pagination>
+                                        {% endblock %}
                                     </template>
                                 {% endblock %}
                             {% endblock %}

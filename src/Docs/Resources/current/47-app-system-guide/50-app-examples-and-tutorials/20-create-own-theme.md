@@ -188,3 +188,40 @@ $ bin/console theme:compile
 ```
 
 Learn more about SCSS in the [SCSS section of the theme guide](./../../30-theme-guide/50-scss.md).
+
+### JavaScript
+
+You can add custom JavaScript to your theme by creating a `main.js` file which is the default entry-point for JavaScript:
+
+```
+...
+└── DemoTheme
+    ├── Resources
+    │   ├── app
+    │   │   └── storefront
+    │   │       └── src
+    │   │           └── main.js <-- JavaScript entry point file
+    │   ├── views
+    │   └── theme.json
+    └── manifest.xml
+```
+
+In contrast to SCSS you add the minified version of your JavaScript to your `theme.json` instead of the `main.js`:
+
+```json
+{
+  ...
+
+  "script": [
+    "@Storefront",
+    "app/storefront/dist/storefront/js/demo-theme.js" <-- Compiled JavaScript
+  ],
+
+  ...
+}
+```
+
+You can compile the JavaScript with the `./psh.phar storefront:build` command. The minified/compiled JavaScript can
+be found inside the `app/storefront/dist/storefront/js/` directory.
+
+Find out more about JavaScript in the [JavaScript section of the theme guide](./../../30-theme-guide/60-javascript.md).

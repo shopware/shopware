@@ -90,7 +90,6 @@ Core
     * This property is required
     * The name may be omitted now
 * Added new message `\Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders` to cleanup old cache folders in `var/cache`
-* Fixed a type error in the `\Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository` in a sorting closure
 
 Administration
 --------------

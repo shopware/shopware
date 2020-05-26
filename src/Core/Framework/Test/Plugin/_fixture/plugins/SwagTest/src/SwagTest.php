@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Shopware\Core\Framework\Test\Plugin\Bundles\FooBarBundle;
+use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SwagTest extends Plugin

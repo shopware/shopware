@@ -95,7 +95,6 @@ class Kernel extends HttpKernel
         /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                /** @var \Symfony\Component\HttpKernel\Bundle\Bundle $bundle */
                 $bundle = new $class();
                 $instanciatedBundleNames[] = $bundle->getName();
 

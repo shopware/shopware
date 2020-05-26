@@ -41,8 +41,10 @@ A basic `theme.json` for the "DemoTheme" looks like this:
 }
 ```
 
-In general the usage of the `theme.json` file is the same as for themes which are published through a regular plugin. 
-You can find out more about the theme configuration options in the [theme guide](./../30-theme-guide/20-configuration.md).
+In general the usage of the `theme.json` file is the same as for themes which are published through a regular plugin.
+In contrast to a regular plugin the `theme.json` has to be directly inside the "Resources" folder: `DemoTheme/Resources/theme.json`.
+
+You can find out more about the theme configuration options in the [theme guide](./../../30-theme-guide/20-configuration.md).
 
 ### Activate the theme
 
@@ -100,7 +102,7 @@ is similar to the structure of the core storefront.
 
 Every `*.html.twig` file which is placed under the same name and directory structure like the Shopware core file will
 be overwritten by your theme by default. To illustrate this we create a `logo.html.twig` file just like inside the core
-views direcotry:
+views directory:
 
 ```
 ...
@@ -129,12 +131,12 @@ specific blocks rather than overwriting an entire template you can use the `{% s
 {% endblock %}
 ```
 
-Learn more about templates in the [twig section of the theme guide](./../30-theme-guide/30-twig-templates.md).
+Learn more about templates in the [twig section of the theme guide](./../../30-theme-guide/30-twig-templates.md).
 
 ### SCSS
 
 In order to provide custom styling for your theme you can add [SCSS](https://sass-lang.com/) files inside the 
-`Resources/app` folder of your theme.The "app" folder represents the JavaScript/frontend application part of 
+`Resources/app` folder of your theme. The "app" folder represents the JavaScript/frontend application part of 
 your theme where you can find all JavaScript and SCSS files.
 
 ```
@@ -185,4 +187,4 @@ with the `theme:compile` command:
 $ bin/console theme:compile
 ```
 
-Learn more about SCSS in the [SCSS section of the theme guide](./../30-theme-guide/50-scss.md).
+Learn more about SCSS in the [SCSS section of the theme guide](./../../30-theme-guide/50-scss.md).

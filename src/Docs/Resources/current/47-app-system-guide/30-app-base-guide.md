@@ -6,7 +6,7 @@
 
 To get started with your app, create an `apps` folder in `custom` of your development template installation. In there, 
 create another folder for your application and provide a manifest file in it.
-```bash
+```
 ...
 └── custom
     ├── apps
@@ -239,7 +239,7 @@ as custom fields in Shopware are organised in sets. Here you need to consider so
 
 When defining custom fields in the `<fields>` element, you can configure a lot of things concerning the fields. 
 Please refer to 
-[Custom feield docs](https://docs.shopware.com/en/shopware-6-en/settings/custom-fields#create-custom-field)
+[Custom field documentation](https://docs.shopware.com/en/shopware-6-en/settings/custom-fields#create-custom-field)
 for further details.
 
 ## Examples

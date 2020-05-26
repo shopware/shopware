@@ -26,7 +26,7 @@ webhooks. However, first things first.
 
 To get started with your app, create an `apps` folder in `custom` of your development template installation. In there, 
 create another folder for your application and provide a manifest file in it.
-```bash
+```
 ...
 └── custom
     ├── apps
@@ -274,8 +274,8 @@ We're almost done. However, one thing would still be nice: If you send the promo
 display the code in his order. 
 
 This can be done in our app itself - as it's a tiny theme adjustment. Similar as in our 
-[exaple theme app](./20-create-own-theme.md), we'll create a file `order-detail.html.twig` in folder 
-`Example-App/Resources/views/storefront/page/account/order-historyg`:
+[example theme app](./20-create-own-theme.md), we'll create a file `order-detail.html.twig` in folder 
+`Example-App/Resources/views/storefront/page/account/order-history`:
 
 ```html
 {# Example-App/Resources/views/storefront/page/account/order-history/order-detail.html.twig #}

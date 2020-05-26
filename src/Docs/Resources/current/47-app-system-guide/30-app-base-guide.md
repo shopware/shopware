@@ -40,7 +40,7 @@ information concerning your app, as seen in the minimal version below:
         <version>1.0.0</version>
     </meta>
     <setup>
-        <registrationUrl/>
+        <registrationUrl>https://my.example.com/registration</registrationUrl>
     </setup>
     <permissions/>
 </manifest>
@@ -61,9 +61,12 @@ attribute
 
 ### Registration URL
 
+During installation a handshake must take place to give the app a token with which it can communicate with the shop.
+This is configured in the setup element
+
 ```xml
 <setup>
-    <registrationUrl/>
+    <registrationUrl>https://my.example.com/registration</registrationUrl>
 </setup>
 ```
 
@@ -80,7 +83,8 @@ A json object is expected in response:
 ```
 
 Where the proof is composed of the one hmac: $proof = hmac($shopurl . $appName, $secret); The secret can be used 
-to validate the requests of the shop.
+to validate the requests of the shop. Please keep in mind it must be a sha256 hash: 
+`hmac('sha256', $shopurl . $appName, $secret)`
 
 ### Permissions
 
@@ -91,14 +95,14 @@ the `<permissions>` element. For each permission, please add an own element as s
     <permissions>
         <create>product</create>
 
-        <list>product</list>
+        <read>product</read>
 
         <update>product</update>
     </permissions>
 ```
 
 You set permission to all entities available in Shopware. The permission types to choose from are defined in the 
-scheme, e.g. `list`, `detail`, `create` or `update`.
+scheme, e.g. `read`, `create` or `update`.
 
 ## Expansion possibilities
 
@@ -125,7 +129,8 @@ This example illustrates you how to define a webhook with the name `giveExample`
 url `http://example/event/example-with-paid-order` which will be triggered if the event `checkout.order.placed` 
 is fired. So if an order is placed, your custom logic will get executed.
 
-You can use a variety of events to react to changes in Shopware that way. See the table below for an overview.
+You can use a variety of events to react to changes in Shopware that way. See the table below for an overview of most
+important ones.
 
 | Event        | Description           | 
 | -------------- |-------------------- |
@@ -143,6 +148,9 @@ You can use a variety of events to react to changes in Shopware that way. See th
 | `checkout.customer.double_opt_in_registration` | Triggers if a customer commits to his registration via double opt in |
 | `customer.recovery.request` | Triggers if a customer recovers his password |
 | `user.recovery.request` | Triggers if a user recovers his password |
+| `product.written` | Triggers if a product is written |
+| `product_price.written` | Triggers if product price is written |
+| `category.written` | Triggers if a category is written |
 
 ### Create own module
 
@@ -242,12 +250,15 @@ Please refer to
 [Custom field documentation](https://docs.shopware.com/en/shopware-6-en/settings/custom-fields#create-custom-field)
 for further details.
 
+Please pay attention to the fact that the names of the custom fields must be unique! Therefore, it should always be 
+prefixed with the vendor prefix of the manufacturer.
+
 ## Examples
 
 ### Tutorials
 
 If you want to see a step-by-step tutorial on how to write an app, we got you covered. Please see 
-[How to write an app](50-app-examples-and-tutorials/10-create-own-app.md) for a detailed tutorial.
+[How to write an app](./50-app-examples-and-tutorials/10-create-own-app.md) for a detailed tutorial.
 
 ### One full example of a manifest file
 
@@ -293,14 +304,14 @@ Below you can take a look on an extended example on how a full manifest file can
         <create>customer_address</create>
         <create>state_machine_history</create>
 
-        <list>tax</list>
-        <list>currency</list>
-        <list>promotion_individual_code</list>
-        <list>salutation</list>
-        <list>country</list>
-        <list>customer_group</list>
-        <list>payment_method</list>
-        <list>order</list>
+        <read>tax</read>
+        <read>currency</read>
+        <read>promotion_individual_code</read>
+        <read>salutation</read>
+        <read>country</read>
+        <read>customer_group</read>
+        <read>payment_method</read>
+        <read>order</read>
 
         <update>product</update>
         <update>order</update>

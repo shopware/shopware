@@ -18,9 +18,11 @@ the customer will be given one of the previously generated codes. The customer c
 ## Own implementation outside of Shopware
 
 As emphasized before, you need run the endpoints for your apps, i.e. the logic you want to execute 
-when an event occurs, on an accessible web server yourself. In this article, we'll give you a short guidance on how 
-to react to Shopware's webhooks by yourself. For this example we use a simple Symfony project and use Rroutes for our 
-webhooks. However, first things first.
+when an event occurs, on an accessible web server yourself. 
+
+In this article, we'll give you a short guidance on how to react to Shopware's webhooks by yourself. For this example 
+we use a simple Symfony project and use Routes for our webhooks. Please don't forget to read about 
+[creating Symfony projects](https://symfony.com/doc/current/setup.html), in case you didn't know about that before.
 
 ## First steps in app
 
@@ -76,12 +78,7 @@ We'll start with the meta data. It's quite self-explanatory, so let's just take 
 As you see, it's the place to go to define all those basic information about your app, e.g. technical name, labels 
 and version of your app. 
 
-Next up are the permission we grant to our app. To implement our promotion idea, we need to set the following ones:
-* create: promotion, promotion, promotion_individual_codes, state_machine_history
-* list: tax, currency, promotion_individual_code, order
-* update: order
-
-In the manifest file, it looks like this:
+Next up are the permission we grant to our app. In the manifest file, it looks like this:
 ```xml
 <permissions>
     <create>product</create>
@@ -92,14 +89,14 @@ In the manifest file, it looks like this:
     <create>customer_address</create>
     <create>state_machine_history</create>
 
-    <list>tax</list>
-    <list>currency</list>
-    <list>promotion_individual_code</list>
-    <list>salutation</list>
-    <list>country</list>
-    <list>customer_group</list>
-    <list>payment_method</list>
-    <list>order</list>
+    <read>tax</read>
+    <read>currency</read>
+    <read>promotion_individual_code</read>
+    <read>salutation</read>
+    <read>country</read>
+    <read>customer_group</read>
+    <read>payment_method</read>
+    <read>order</read>
 
     <update>product</update>
     <update>order</update>
@@ -108,7 +105,7 @@ In the manifest file, it looks like this:
 
 Ok, we're ready to go now!
 
-## Using webhooks to subscribe to order
+## Using webhooks to subscribe to then order event
 
 We want the promotion code to be send to the customer after his or her order is paid. That means we need to react as soon
 as the order status "Paid" is set. The webhook `state_enter.order_transaction.state.paid` is the right one 
@@ -123,9 +120,9 @@ This is for the internal Shopware part. What about our implementation outside of
 
 ### Own implementation
 
-The `url` attribute is holding the URL of the route we want to use, with is implemented in a controller of
-our symfony project:
-
+We use [Symfony routes](https://symfony.com/doc/current/routing.html) to provide the needed endpoints for our app. 
+The `url` attribute is holding the URL of the route we want to use, with is implemented in a controller ofour symfony 
+project:
 
 ```php
 /**
@@ -175,6 +172,79 @@ by defining it in the `name` attribute. The `source` attribute of your `module` 
 be open in the iframe of that module. Within the `<module>` attribute, you set the label of your module which will
 be used in the module and as title of your module. You can even add your translations that way, as you see in the
 example above.
+
+### Own implementation
+
+Of course you need to display something in this iframe. In our example app, we again use a route to render our view.
+More precisely, we need a method in a controller to do that for us:
+
+```php
+/**
+     * @Route("promotion/view/promotion-config")
+     */
+    public function promotionCodeIframeView()
+    {
+        $url = $_ENV['SERVER_URL'];
+        $connection = Container::get('database.connection');
+
+        $query = $connection->prepare("SELECT * FROM instance WHERE instance_url = '" . $url . "' AND demo = '" . false . "'");
+        $query->execute();
+        $instance = $query->fetch();
+
+        Container::register(
+            [
+                'source' => [
+                    'apiKey' => $instance['api_key'],
+                    'secretKey' => $instance['secret_key'],
+                    'url' => $url,
+                ],
+            ],
+            'request.content'
+        );
+
+        $session = FrontendIframeController::setSession($instance['instance_id']);
+
+        $variables = [
+            'AppId' => ['value' => $session['sessionId'], 'name' => 'appId'],
+            'InstanceId' => ['value' => $instance['instance_id'], 'name' => 'instanceId'],
+            'AdminUrl' => ['value' => $url, 'name' => 'adminUrl'],
+            'refreshInterval' => ['value' => $session['refreshInterval'], 'name' => 'refreshInterval'],
+        ];
+
+        return $this->render('Promotion/promotion-code.html.twig', $variables, new Response(null, 200));
+    }
+```
+
+In the return statement, you can see the path to our view to be rendered. It looks like seen below:
+```twig
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="/get/css/promotion-style.css">
+{% endblock %}
+
+{% block body %}
+    <div id="promotions"></div>
+    <button onclick="getPromotions()">get Promotions</button>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/get/js/promotion-index.js"></script>
+{% endblock %}
+```
+
+One last thing in here - the most important of the javascript part of the view:
+At first, your new module will use a loading spinner to signalize your view is loading. So we need to give a 
+notification when the loading process is done. 
+
+```javascript
+function sendReadyState() {
+    window.parent.postMessage('connect-app-loaded', '*');
+}
+```
+
+This has to be done as soon as everything is loaded so that the loading spinner disappears. If your view is not 
+fully loaded after 5 seconds, it will be aborted.
 
 ## Add the action buttons to the administration
 
@@ -270,10 +340,14 @@ Finally, we create our field in the `fields` element:
 
 ## Enable the customer to see the promotion code
 
-We're almost done. However, one thing would still be nice: If you send the promotion code to your customer, of course you want him to be able to find it. A possibility is to 
-display the code in his order. 
+We're almost done. However, one thing would still be nice: If you send the promotion code to your customer, of course 
+you want him to be able to find it. A possibility is to display the code in his order. 
 
-This can be done in our app itself - as it's a tiny theme adjustment. Similar as in our 
+This can be done in our app itself - as it's a tiny theme adjustment. If you never did an adjustment in a theme, 
+we got you covered: Please read our [theme guide](https://docs.shopware.com/en/shopware-platform-dev-en/theme-guide/twig-templates?category=shopware-platform-dev-en/theme-guide)
+if you need.
+
+Similar as in our 
 [example theme app](./20-create-own-theme.md), we'll create a file `order-detail.html.twig` in folder 
 `Example-App/Resources/views/storefront/page/account/order-history`:
 
@@ -339,14 +413,14 @@ manifest file of our example app, for reference purposes:
         <create>customer_address</create>
         <create>state_machine_history</create>
 
-        <list>tax</list>
-        <list>currency</list>
-        <list>promotion_individual_code</list>
-        <list>salutation</list>
-        <list>country</list>
-        <list>customer_group</list>
-        <list>payment_method</list>
-        <list>order</list>
+        <read>tax</read>
+        <read>currency</read>
+        <read>promotion_individual_code</read>
+        <read>salutation</read>
+        <read>country</read>
+        <read>customer_group</read>
+        <read>payment_method</read>
+        <read>order</read>
 
         <update>product</update>
         <update>order</update>

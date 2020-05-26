@@ -4,6 +4,11 @@
 
 ## App system in Shopware platform
 
+The app system itself is build as a Shopware 6 plugin. This way, you can install it as you're used to do with plugins.
+Please clone the app system from its [repository in github](https://github.com/shopware/app-system).
+
+Afterwards you can finish the installation via command line or by hand in the administration.
+
 ## Setup of your app
 
 It's important to emphasize that you can define the endpoints for your apps - You have to run it yourself. 

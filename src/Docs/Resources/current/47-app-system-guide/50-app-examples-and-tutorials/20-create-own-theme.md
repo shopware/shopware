@@ -15,7 +15,7 @@ purposes. This file controls which resources the theme should load and which cor
     └── manifest.xml
 ```
 
-A basic `theme.json` for the "DemoTheme" looks like this:
+A minimal `theme.json` for the "DemoTheme" looks like this:
 
 ```json
 {
@@ -25,18 +25,6 @@ A basic `theme.json` for the "DemoTheme" looks like this:
      "@Storefront",
      "@Plugins",
      "@DemoTheme"
-  ],
-  "style": [
-    "app/storefront/src/scss/overrides.scss",
-    "@Storefront",
-    "app/storefront/src/scss/base.scss"
-  ],
-  "script": [
-    "@Storefront",
-    "app/storefront/dist/storefront/js/demo-theme.js"
-  ],
-  "asset": [
-    "app/storefront/src/assets"
   ]
 }
 ```

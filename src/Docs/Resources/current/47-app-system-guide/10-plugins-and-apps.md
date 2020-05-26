@@ -54,8 +54,8 @@ but also poses challenges for developers:
 * Plugins tend to be very sensitive to changes in the Shopware core. If the core changes at a point relevant 
 to a plugin, the plugin must also be adapted.
 * For the development of plugins, a developer needs to understand how Shopware itself works 
-* Since the PHP code of your plugin is executed in Shopware itself, it may be  to deploy plugins securely 
-and stably as part of a SaaS offering. 
+* Since the PHP code of your plugin is executed in Shopware itself, it could get impossible to deploy plugins securely 
+and stably, as part of a SaaS offering. 
 
 The app system is following a different approach. It is based on highly defined entry points, such as e.g.
 `mail.sent` `checkout.customer.register` or `user.recovery.request`. These entry points are called "events". 
@@ -70,6 +70,6 @@ PHP, NodeJS, Java, Go... whatever you like best
 A look into the Shopware source code to write an extension is virtually no longer necessary
 * The different events are defined by Shopware. However, after that your app actually has very little to do 
 with Shopware. Even someone who has never worked with Shopware before can start developing an app quickly that way.
-* By the possibility to include pages from your domain directly in the administration, 
-also such use cases become much easier.
+* By the possibility to include self-hosted user-interfaces from your external implementation directly 
+in the administration, such use cases become much easier as well.
 * The app system can be used both in the self-hosted and in the SaaS variant of Shopware

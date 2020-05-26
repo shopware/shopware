@@ -1,2 +1,2 @@
 [titleEn]: <>(App system guide)
-[hash]: <>(category:developer)
+[hash]: <>(category:app_system)

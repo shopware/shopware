@@ -128,6 +128,23 @@ To delete entities via the Sync API, the `payload` of an operation contains the 
 }
 ```
 
+#### Deleting Relations
+To delete relations for an entity it is not possible to do an update on the main entity, instead you have to delete the relation on the relation entity `MappingEntityDefinition` (e.g. `product_property`).
+The corresponding entries in the main entity (here `product`) will be updated with an indexer that will immediately run after the delete (for details on indexer behaviour see [More Performance](#more-performance))  
+
+```
+{
+    "delete-product-property": {
+        "entity": "product_property",
+        "action": "delete",
+        "payload": [
+            { "productId": "000bba26e2044b98a3ee4a84b03f9551", "optionId": "0446a1eb394c4e729178699a7bc2833f" },
+            { "productId": "5deed0c33b2a4866a6b2c88fa215561c", "optionId": "0446a1eb394c4e729178699a7bc2833f" }
+        ]
+    }
+}
+```
+
 ### More performance
 When using the Sync Api, by default each record is written individually. In addition, various indexing processes are also triggered in the background, depending on 
 which data was written. However, this leads to a high load on the server and can be a problem with large imports.

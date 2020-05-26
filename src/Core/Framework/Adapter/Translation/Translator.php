@@ -214,7 +214,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $this->snippetSetId = null;
     }
 
-    protected function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
+    private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
     {
         return mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;
     }
@@ -224,7 +224,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      * if the catalogue does not contain any dashes it means it is a symfony fallback catalogue
      * in that case we should not add the shopware fallback catalogue as it would result in circular references
      */
-    protected function isShopwareLocaleCatalogue(MessageCatalogueInterface $catalog): bool
+    private function isShopwareLocaleCatalogue(MessageCatalogueInterface $catalog): bool
     {
         return mb_strpos($catalog->getLocale(), '-') !== false;
     }

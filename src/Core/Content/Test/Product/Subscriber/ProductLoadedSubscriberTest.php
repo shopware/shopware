@@ -31,9 +31,9 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider optionNamesCases
+     * @dataProvider variationCases
      */
-    public function testOptionNames(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
+    public function testVariation(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
     {
         $this->getContainer()
             ->get('language.repository')
@@ -63,17 +63,17 @@ class ProductLoadedSubscriberTest extends TestCase
         $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
         $subscriber->loaded($productLoadedEvent);
 
-        $optionNames = $productEntity->getOptionNames();
+        $variation = $productEntity->getVariation();
 
         if ($sort) {
-            sort($optionNames);
+            sort($variation);
             sort($expected);
         }
 
-        static::assertEquals($expected, $optionNames);
+        static::assertEquals($expected, $variation);
     }
 
-    public function optionNamesCases(): array
+    public function variationCases(): array
     {
         $ids = new TestDataCollection();
 

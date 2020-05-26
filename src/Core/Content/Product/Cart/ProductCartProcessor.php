@@ -241,7 +241,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ];
 
         if (next7399()) {
-            $payload['options'] = $product->getOptionNames();
+            $payload['options'] = $product->getVariation();
         }
 
         $lineItem->replacePayload($payload);

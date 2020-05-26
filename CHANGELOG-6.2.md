@@ -21,6 +21,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw_product_detail_sidebar_additional_items`
     * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
  
+    * Fixed the administration multi-inheritance if a component was overriden and extended by multiple components
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added

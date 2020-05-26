@@ -1,6 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
+import { cloneDeep } from 'src/core/service/utils/object.utils';
 
 // Disable developer hints in jest output
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
@@ -937,6 +938,164 @@ describe('core/factory/component.factory.js', () => {
             const childComponent = shallowMount(ComponentFactory.build('child-component'));
 
             expect(childComponent.vm.fooBar()).toBe('called');
+        },
+    );
+
+    it(
+        // eslint-disable-next-line max-len
+        'correctly builds the super call stack when components in the beginning of the inheritance chain do not implement an overridden method when super is called from another super call',
+        () => {
+            let createdData = [];
+            ComponentFactory.register('root-component', {
+                template: '<div>This is a test template.</div>',
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.getData();
+                    },
+
+                    getData() {
+                        return ['root'];
+                    }
+                }
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    getData() {
+                        const data = this.$super('getData');
+                        data.push('overridden');
+
+                        createdData = data;
+
+                        return data;
+                    }
+                }
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    createdComponent() {
+                        this.$super('createdComponent');
+                    }
+                }
+            });
+
+            shallowMount(ComponentFactory.build('root-component'));
+
+            expect(createdData).toEqual(['root', 'overridden']);
+        }
+    );
+
+    it(
+        // eslint-disable-next-line max-len
+        'correctly builds the super call stack when components in the beginning of the inheritance chain do not implement an overridden method when super is called from another super call',
+        () => {
+            let createdData = [];
+            ComponentFactory.register('root-component', {
+                template: '<div>This is a test template.</div>',
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.getData();
+                    },
+
+                    getData() {
+                        return ['root'];
+                    }
+                }
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    getData() {
+                        const data = this.$super('getData');
+                        data.push('overridden');
+
+                        createdData = data;
+
+                        return data;
+                    }
+                }
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>'
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    createdComponent() {
+                        this.$super('createdComponent');
+                    }
+                }
+            });
+
+            shallowMount(ComponentFactory.build('root-component'));
+
+            expect(createdData).toEqual(['root', 'overridden']);
+        }
+    );
+
+    it(
+        'does not modify the override registry for extended components',
+        () => {
+            ComponentFactory.register('root-component', {
+                template: '<div>This is a test template.</div>',
+                created() {
+                    this.createdComponent();
+                },
+
+                methods: {
+                    createdComponent() {
+                        this.getData();
+                    },
+
+                    getData() {
+                        return ['root'];
+                    }
+                }
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    getData() {
+                        const data = this.$super('getData');
+                        data.push('overridden');
+
+                        return data;
+                    }
+                }
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>'
+            });
+            ComponentFactory.override('root-component', {
+                template: '<div>This is a test template.</div>',
+                methods: {
+                    createdComponent() {
+                        this.$super('createdComponent');
+                    }
+                }
+            });
+
+            shallowMount(ComponentFactory.build('root-component'));
+
+            const expected = cloneDeep(ComponentFactory.getOverrideRegistry().get('root-component'));
+
+            ComponentFactory.extend('child-component', 'root-component', {
+                template: '<div>This is a test template.</div>'
+            });
+            shallowMount(ComponentFactory.build('child-component'));
+
+            const actual = cloneDeep(ComponentFactory.getOverrideRegistry().get('root-component'));
+
+            expect(expected).toEqual(actual);
         }
     );
 });

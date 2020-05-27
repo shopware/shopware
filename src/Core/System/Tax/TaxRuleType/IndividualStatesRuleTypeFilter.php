@@ -34,8 +34,8 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
             return false;
         }
 
-        if ($customer !== null && $customer->getActiveBillingAddress()) {
-            return $customer->getActiveBillingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
+        if ($customer !== null && $customer->getActiveShippingAddress()) {
+            return $customer->getActiveShippingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
         }
 
         return $shippingLocation->getCountry()->getId() === $taxRuleEntity->getCountryId();
@@ -43,8 +43,8 @@ class IndividualStatesRuleTypeFilter implements TaxRuleTypeFilterInterface
 
     private function getStateId(?CustomerEntity $customer, ShippingLocation $shippingLocation): ?string
     {
-        if ($customer !== null && $customer->getActiveBillingAddress() !== null) {
-            return $customer->getActiveBillingAddress()->getCountryStateId();
+        if ($customer !== null && $customer->getActiveShippingAddress() !== null) {
+            return $customer->getActiveShippingAddress()->getCountryStateId();
         }
 
         return $shippingLocation->getState() !== null ? $shippingLocation->getState()->getId() : null;

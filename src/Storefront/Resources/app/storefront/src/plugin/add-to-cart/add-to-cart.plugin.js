@@ -7,9 +7,9 @@ import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 export default class AddToCartPlugin extends Plugin {
 
     static options = {
-        redirectOffcanvasSelector: '[data-redirect-to="offcanvas"]',
-        redirectDetailSelector: '[data-redirect-to="detail"]',
-        redirectDetailParamSelector: '[data-redirect-parameters="true"]'
+        redirectSelector: '[name="redirectTo"]',
+        redirectParamSelector: '[data-redirect-parameters="true"]',
+        redirectTo: 'frontend.cart.offcanvas'
     };
 
     init() {
@@ -33,13 +33,11 @@ export default class AddToCartPlugin extends Plugin {
      */
     _prepareFormRedirect() {
         try {
-            const redirectOffcanvasInput = DomAccess.querySelector(this._form, this.options.redirectOffcanvasSelector);
-            const redirectDetailInput = DomAccess.querySelector(this._form, this.options.redirectDetailSelector);
-            const redirectDetailParamInput = DomAccess.querySelector(this._form, this.options.redirectDetailParamSelector);
+            const redirectInput = DomAccess.querySelector(this._form, this.options.redirectSelector);
+            const redirectParamInput = DomAccess.querySelector(this._form, this.options.redirectParamSelector);
 
-            redirectOffcanvasInput.disabled = false;
-            redirectDetailInput.disabled = true;
-            redirectDetailParamInput.disabled = true;
+            redirectInput.value = this.options.redirectTo;
+            redirectParamInput.disabled = true;
         } catch (e) {
             // preparations are not needed if fields are not available
         }

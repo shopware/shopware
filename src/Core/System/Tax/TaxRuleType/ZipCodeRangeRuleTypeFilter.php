@@ -36,8 +36,8 @@ class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
             return false;
         }
 
-        if ($customer !== null && $customer->getActiveBillingAddress()) {
-            return $customer->getActiveBillingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
+        if ($customer !== null && $customer->getActiveShippingAddress()) {
+            return $customer->getActiveShippingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
         }
 
         return $shippingLocation->getCountry()->getId() === $taxRuleEntity->getCountryId();
@@ -45,8 +45,8 @@ class ZipCodeRangeRuleTypeFilter implements TaxRuleTypeFilterInterface
 
     private function getZipCode(?CustomerEntity $customer, ShippingLocation $shippingLocation): ?string
     {
-        if ($customer !== null && $customer->getActiveBillingAddress() !== null) {
-            return $customer->getActiveBillingAddress()->getZipcode();
+        if ($customer !== null && $customer->getActiveShippingAddress() !== null) {
+            return $customer->getActiveShippingAddress()->getZipcode();
         }
 
         $address = $shippingLocation->getAddress();

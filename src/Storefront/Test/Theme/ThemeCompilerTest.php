@@ -202,6 +202,11 @@ PHP_EOL;
                     'name' => 'sw-unset-margin',
                     'type' => 'text',
                 ],
+                'sw-empty-margin' => [
+                    'name' => 'sw-unset-margin',
+                    'type' => 'text',
+                    'value' => '',
+                ],
             ],
         ];
 

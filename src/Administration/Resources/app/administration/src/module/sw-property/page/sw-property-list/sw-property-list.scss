@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+$sw-property-list-color-error: $color-crimson;
+$sw-property-list-color-success: $color-emerald;
+
+.sw-property-list {
+
+    .is--inactive {
+        color: $sw-property-list-color-error;
+    }
+
+    .is--active {
+        color: $sw-property-list-color-success;
+    }
+}

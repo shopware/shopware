@@ -76,10 +76,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
 
         return [
             'shopware' => [
-                'config' => array_merge(
-                    $this->getDefaultConfiguration(),
-                    $this->systemConfigService->all($context->getSalesChannel()->getId())
-                ),
+                'config' => $this->getConfig($context),
                 'theme' => $this->getThemeConfig($context->getSalesChannel()->getId(), $themeId),
                 'dateFormat' => DATE_ATOM,
                 'csrfEnabled' => $this->csrfEnabled,
@@ -143,9 +140,6 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'confirm' => [
                 'revocationNotice' => true,
             ],
-            'detail' => [
-                'showReviews' => true,
-            ],
         ];
     }
 
@@ -167,5 +161,18 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         return $controllerInfo;
+    }
+
+    private function getConfig(SalesChannelContext $context): array
+    {
+        $config = array_merge(
+            $this->getDefaultConfiguration(),
+            $this->systemConfigService->all($context->getSalesChannel()->getId())
+        );
+
+        /* @deprecated tag:v6.3.0 - Use core.listing.showReview instead */
+        $config['detail']['showReviews'] = $config['core']['listing']['showReview'];
+
+        return $config;
     }
 }

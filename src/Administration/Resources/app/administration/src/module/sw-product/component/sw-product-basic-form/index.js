@@ -24,7 +24,10 @@ Component.register('sw-product-basic-form', {
             'loading'
         ]),
 
-        ...mapPropertyErrors('product', ['name', 'description', 'productNumber', 'manufacturerId', 'active', 'markAsTopseller']),
+        ...mapPropertyErrors(
+            'product',
+            ['name', 'description', 'productNumber', 'manufacturerId', 'active', 'markAsTopseller']
+        ),
 
         languageStore() {
             return StateDeprecated.getStore('language');

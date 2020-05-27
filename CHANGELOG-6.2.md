@@ -22,10 +22,58 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
  
     * Fixed the administration multi-inheritance if a component was overriden and extended by multiple components
+    * Added new filterable field to `sw-property-list` and `sw-property-filter`
+    * Added string for `packUnitPlural` to `sw-product-stream/snippet/en-EN.json` and `sw-product-stream/snippet/de-DE.json` 
+        * Added `packUnitPlural`
+    * Added strings for `packUnitPlural` to `sw-product/snippet/en-GB.json` and `sw-product/snippet/de-DE.json` 
+        * Added `placeholderPackUnitPlural`
+        * Added `labelPackUnitPlural`
+        * Added `packUnitPluralHelpText`
+    * Added translated `packUnitPlural` field to `sw-product-packaging-form`
+    * Added `packUnitPlural` to `entity-schema.mock.js`
+    * Added block `sw_product_packaging_form_height_field` to `sw-product-packaging-form`
+    * Price input fields substitute commas with dots automatically in Add Product page.
+    * Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
+    * Added property `fileAccept` to 
+        * `sw-media-upload-v2`
+        * `sw-media-compact-upload-v2`
+        * `sw-media-modal-v2`
+        * `sw-media-index`
+    * Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
+    * Added config option for disabling reviews in the storefront
+    * Fixed the displaying of the media filename in Media Library grid in case it only contains digits
+    * Added tooltips to the toolbar of text editor
+    * Added isInlineEdit property to component `sw-text-editor-toolbar`
+    * Added language switch to Scale Units list page to translate scale units
+    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
+    * Fix timezone of `orderDate` in order grid
+    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
-
+    * Added ability to show/hide properties from product filter panel in product listing
+    * Added protected `pack_unit_plural` to `Migration1536233120Product.php`
+    * Added protected `packUnitPlural` to `ProductTranslationEntity.php`
+    * Added StringField `packUnitPlural` to `ProductTranslationDefinition.php`
+    * Added protected `packUnitPlural` to `ProductEntity.php`
+    * Added TranslatedField `packUnitPlural` to `ProductDefinition.php`
+    * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
+    * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
+        * This exception is thrown if the review routes are called if reviews are disabled
+    * Added possibility to delete orders without documents on `sw-order-list`
+    * Fixed a type error in the `\Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository` in a sorting closure
+    
+* Storefront
+    * Added `pack_unit_plural` to `buy-widget-form.html.twig`
+    * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
+    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+        * page_checkout_aside_actions_csrf
+        * page_checkout_aside_actions_payment_method_id
+        * page_checkout_confirm_form_submit
+    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
+    * Removed alphanumeric filter product numbers in the quick add action
+    * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
+    * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
 
 ### 6.2.0
 
@@ -355,7 +403,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `order_transaction.state.refunded`
         * `order_transaction.state.paid_partially`
     * If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
-
 * Core    
     * Added support of module favicons from plugins, set the `faviconSrc` prop of your module to the name of your bundle in the public bundles folder.
     * Set `crossSellingAssignedProducts` and `tags` to `CascadeDelete` in `ProductDefinition`
@@ -591,7 +638,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
     * Theme configuration now allows zero as a value when overriding
-
+    
 **Removals**
 
 * Administration
@@ -741,3 +788,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Administration
     * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
+    * Fix timezone of `orderDate` in ordergrid
+    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded

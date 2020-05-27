@@ -7,10 +7,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -124,29 +121,10 @@ class ProductLoader
             $sorted[$group->getId()] = $group;
         }
 
-        usort(
-            $sorted,
-            static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
-                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-            }
-        );
+        $propertyGroupCollection = new PropertyGroupCollection($sorted);
+        $propertyGroupCollection->sortByPositions();
+        $propertyGroupCollection->sortByConfig();
 
-        foreach ($sorted as $group) {
-            $group->getOptions()->sort(
-                static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
-                    if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
-                    }
-
-                    if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return $a->getTranslation('name') <=> $b->getTranslation('name');
-                    }
-
-                    return $a->getPosition() <=> $b->getPosition();
-                }
-            );
-        }
-
-        return new PropertyGroupCollection($sorted);
+        return $propertyGroupCollection;
     }
 }

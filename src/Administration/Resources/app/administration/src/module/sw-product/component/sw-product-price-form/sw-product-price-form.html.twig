@@ -44,7 +44,8 @@
                                       :disabled="isInherited"
                                       :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
                                       :value="currentValue"
-                                      @change="updateCurrentValue">
+                                      @change="updateCurrentValue"
+                                      @keyup="keymonitor">
                                 <template #suffix>
                                     <span class="sw-product-price-form__currency" v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
                                 </template>

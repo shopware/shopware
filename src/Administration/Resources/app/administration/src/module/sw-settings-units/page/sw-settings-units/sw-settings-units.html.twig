@@ -31,6 +31,10 @@
             </template>
         {% endblock %}
 
+        {% block sw_settings_units_language_switch %}
+            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+        {% endblock %}
+
         {% block sw_settings_units_content %}
             <sw-card-view slot="content">
                 <sw-card :isLoading="isLoading" :class="{ 'sw-settings-units-card-empty': isEmpty }">

@@ -51,6 +51,13 @@ Component.register('sw-product-price-form', {
             this.product.price = prices;
 
             this.displayMaintainCurrencies = false;
+        },
+
+        keymonitor(event) {
+            if (event.key === ',') {
+                const value = event.currentTarget.value;
+                event.currentTarget.value = value.replace(/.$/, '.');
+            }
         }
     }
 });

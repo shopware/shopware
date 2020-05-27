@@ -142,10 +142,15 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                     this.createNotificationWarning({
                         title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
-                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants', null, null, {
-                            dependency: context.meta.parameters.dependency,
-                            dependantNames: context.meta.parameters.dependantNames
-                        })
+                        message: this.$tc(
+                            'sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants',
+                            null,
+                            null,
+                            {
+                                dependency: context.meta.parameters.dependency,
+                                dependantNames: context.meta.parameters.dependantNames
+                            }
+                        )
                     });
                 } else {
                     this.createNotificationError({

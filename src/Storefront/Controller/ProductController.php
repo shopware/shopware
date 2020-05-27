@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
@@ -54,13 +56,19 @@ class ProductController extends StorefrontController
      */
     private $productReviewLoader;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,
         MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
         ProductReviewService $productReviewService,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
-        ProductReviewLoader $productReviewLoader
+        ProductReviewLoader $productReviewLoader,
+        SystemConfigService $systemConfigService
     ) {
         $this->productPageLoader = $productPageLoader;
         $this->combinationFinder = $combinationFinder;
@@ -68,6 +76,7 @@ class ProductController extends StorefrontController
         $this->productReviewService = $productReviewService;
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
         $this->productReviewLoader = $productReviewLoader;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -125,6 +134,8 @@ class ProductController extends StorefrontController
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
+        $this->checkReviewsActive($context);
+
         $this->denyAccessUnlessLoggedIn();
 
         try {
@@ -157,11 +168,25 @@ class ProductController extends StorefrontController
      */
     public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
+        $this->checkReviewsActive($context);
+
         $reviews = $this->productReviewLoader->load($request, $context);
 
         return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
             'reviews' => $reviews,
             'ratingSuccess' => $request->get('success'),
         ]);
+    }
+
+    /**
+     * @throws ReviewNotActiveExeption
+     */
+    private function checkReviewsActive(SalesChannelContext $context): void
+    {
+        $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannel()->getId());
+
+        if (!$showReview) {
+            throw new ReviewNotActiveExeption();
+        }
     }
 }

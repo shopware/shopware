@@ -37,6 +37,8 @@ class ShopService
             $this->setDefaultLanguage($shop);
             $this->setDefaultCurrency($shop);
 
+            $this->deleteAllSalesChannelCurrencies();
+
             $this->createSalesChannel($shop);
             $this->createSalesChannelDomain($shop);
             $this->updateSalesChannelName($shop);
@@ -508,12 +510,21 @@ SQL;
         return $id;
     }
 
+    /**
+     * get the id of the sales channel via the sales channel type id
+     */
+    private function getIdOfSalesChannelViaTypeId(string $typeId): string
+    {
+        $statement = $this->connection->prepare('SELECT id FROM sales_channel WHERE type_id = UNHEX(?)');
+        $statement->execute([$typeId]);
+        $salesChannelId = $statement->fetchColumn();
+
+        return $salesChannelId;
+    }
+
     private function addAdditionalCurrenciesToSalesChannel(Shop $shop, string $salesChannelId): void
     {
-        // get id of the headless sales channel
-        $statement = $this->connection->prepare('SELECT id FROM sales_channel WHERE type_id = UNHEX(?)');
-        $statement->execute([Defaults::SALES_CHANNEL_TYPE_API]);
-        $idOfHeadlessSalesChannel = $statement->fetchColumn();
+        $idOfHeadlessSalesChannel = $this->getIdOfSalesChannelViaTypeId(Defaults::SALES_CHANNEL_TYPE_API);
 
         // set the default currency of the headless sales channel
         $statement = $this->connection->prepare('UPDATE sales_channel SET currency_id = ? WHERE id = ?');
@@ -560,5 +571,10 @@ SQL;
         $inputParameters = str_repeat('?,', count($shop->additionalCurrencies) - 1) . '?';
         $statement = $this->connection->prepare('DELETE FROM currency WHERE iso_code NOT IN (' . $inputParameters . ', ?)');
         $statement->execute($selectedCurrencies);
+    }
+
+    private function deleteAllSalesChannelCurrencies(): void
+    {
+        $this->connection->exec('DELETE FROM sales_channel_currency');
     }
 }

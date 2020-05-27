@@ -1,0 +1,11 @@
+.sw-sales-channel-detail-products {
+    .sw-card {
+        &.sw-sales-channel-detail-products__category-mapping {
+            .sw-card__content {
+                padding: 0;
+                overflow: hidden;
+                background: transparent;
+            }
+        }
+    }
+}

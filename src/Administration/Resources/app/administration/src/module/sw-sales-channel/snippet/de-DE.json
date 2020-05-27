@@ -267,7 +267,11 @@
       "textNoWebsiteClaimed": "Keine Website beansprucht",
       "textCompleteSetup": "Du musst die Einrichtung Deines Google-Kontos abschließen, um Produkte synchronisieren zu können.",
       "linkCompleteSetup": "Setup abschließen",
-      "textIssues": "Dein Konto wurde gesperrt. Du musst dieses Problem beheben, um Deine Produkte bei Google anzeigen zu können."
+      "textIssues": "Dein Konto wurde gesperrt. Du musst dieses Problem beheben, um Deine Produkte bei Google anzeigen zu können.",
+      "categoryMapping": {
+        "emptyCategories": "Wähle eine Shopware-Kategorie aus und weise sie einer Google-Produktkategorie zu.",
+        "labelHideAssigned": "Bereits zugewiesene Kategorien ausblenden"
+      }
     },
     "modalGooglePrograms": {
       "title": "Google-Konto verbinden",

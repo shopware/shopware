@@ -12,6 +12,9 @@ import './component/sw-sales-channel-detail-hreflang';
 import './component/sw-sales-channel-detail-protect-link';
 import './component/sw-sales-channel-detail-account-connect';
 import './component/sw-sales-channel-detail-account-disconnect';
+import './component/sw-sales-channel-detail-shop-categories';
+import './component/sw-sales-channel-detail-google-categories';
+import './component/sw-sales-channel-detail-empty-categories';
 
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
@@ -99,7 +102,13 @@ Module.register('sw-sales-channel', {
                 },
                 products: {
                     component: 'sw-sales-channel-detail-products',
-                    path: 'products'
+                    path: 'products',
+                    children: {
+                        category: {
+                            component: 'sw-sales-channel-detail-google-categories',
+                            path: 'category/:categoryId'
+                        }
+                    }
                 }
             }
         },

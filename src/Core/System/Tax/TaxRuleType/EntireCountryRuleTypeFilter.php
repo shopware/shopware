@@ -23,8 +23,8 @@ class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
 
     private function metPreconditions(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {
-        if ($customer !== null && $customer->getActiveBillingAddress() !== null) {
-            return $customer->getActiveBillingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
+        if ($customer !== null && $customer->getActiveShippingAddress() !== null) {
+            return $customer->getActiveShippingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
         }
 
         return $shippingLocation->getCountry()->getId() === $taxRuleEntity->getCountryId();

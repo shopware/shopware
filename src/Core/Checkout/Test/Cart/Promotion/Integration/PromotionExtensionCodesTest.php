@@ -3,11 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
@@ -17,9 +16,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Symfony\Component\HttpFoundation\Session\Session;
 
-class PromotionSessionCodesTest extends TestCase
+class PromotionExtensionCodesTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
@@ -61,14 +59,14 @@ class PromotionSessionCodesTest extends TestCase
 
     /**
      * This test verifies that our cart service does correctly
-     * add our code to the cart within the session.
+     * add our code to the cart within the extension.
      * We do not assert the final price here, only that the code is
      * correctly added
      *
      * @test
      * @group promotions
      */
-    public function testAddLineItemAddsToSession(): void
+    public function testAddLineItemAddsToExtension(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -88,21 +86,24 @@ class PromotionSessionCodesTest extends TestCase
         // add promotion to cart
         $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
-        static::assertEquals($promotionCode, $this->getSessionCodes()[0]);
+        /** @var CartExtension $extension */
+        $extension = $cart->getExtension(CartExtension::KEY);
+
+        static::assertTrue($extension->hasCode($promotionCode));
     }
 
     /**
      * This test verifies that our cart services
      * does also correctly remove the matching code
-     * within our session, if existing.
+     * within our extension, if existing.
      * We add a product and promotion code, then we grab the promotion
      * line item id and remove it.
-     * After that we verify that our code array is empty in our session.
+     * After that we verify that our code array is empty in our extension.
      *
      * @test
      * @group promotions
      */
-    public function testDeleteLineItemRemovesFromSession(): void
+    public function testDeleteLineItemRemovesExtension(): void
     {
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
@@ -127,9 +128,93 @@ class PromotionSessionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
-        static::assertCount(0, $this->getSessionCodes(), json_encode($this->getSessionCodes()));
+        /** @var CartExtension $extension */
+        $extension = $cart->getExtension(CartExtension::KEY);
+
+        static::assertCount(0, $extension->getCodes());
     }
 
+    /**
+     * This test verifies that we successfully block any promotion
+     * that does not have a code but gets removed by the user.
+     * In this case the promotion must not be added automatically again and again.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testAutoPromotionGetsBlockedWhenDeletingItem(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
+
+        // add a new promotion black friday
+        $this->createTestFixturePercentagePromotion($promotionId, null, 100, null, $this->getContainer());
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // add product to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        /** @var string $discountId */
+        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+
+        $this->cartService->remove($cart, $discountId, $this->context);
+
+        /** @var CartExtension $extension */
+        $extension = $cart->getExtension(CartExtension::KEY);
+
+        static::assertTrue($extension->isPromotionBlocked($promotionId));
+    }
+
+    /**
+     * This test verifies that we can remove a line item
+     * and then add that promotion again. In this case we
+     * should have the code again in our extension.
+     *
+     * @test
+     * @group promotions
+     */
+    public function testDeleteLineItemAndAddItAgainWorks(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $promotionCode = 'BF19';
+
+        // add a new sample product
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $this->context);
+
+        // add a new promotion black friday
+        $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, $this->getContainer());
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // add product to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        // add promotion to cart
+        $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
+
+        /** @var string $discountId */
+        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+
+        $this->cartService->remove($cart, $discountId, $this->context);
+
+        /** @var CartExtension $extension */
+        $extension = $cart->getExtension(CartExtension::KEY);
+
+        static::assertCount(0, $extension->getCodes());
+
+        $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
+
+        static::assertCount(1, $extension->getCodes());
+    }
+
+    /**
+     * @group promotions
+     */
     public function testResetCodesAfterOrder(): void
     {
         $productId = Uuid::randomHex();
@@ -157,7 +242,10 @@ class PromotionSessionCodesTest extends TestCase
         // add promotion to cart
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $context);
 
-        static::assertNotEmpty($this->getSessionCodes());
+        /** @var CartExtension $extension */
+        $extension = $cart->getExtension(CartExtension::KEY);
+
+        static::assertNotEmpty($extension->getCodes());
 
         /** @var string $discountId */
         $discountId = array_keys($cart->getLineItems()->getElements())[1];
@@ -166,17 +254,17 @@ class PromotionSessionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $context);
 
-        static::assertEmpty($this->getSessionCodes());
+        static::assertEmpty($extension->getCodes());
     }
 
     /**
      * This test verifies that our cart services
      * does also correctly remove the matching code
-     * within our session, if existing AND a fixed discount has been added that
+     * within our extension, if existing AND a fixed discount has been added that
      * is discounting TWO products.
      * We add two products and promotion code, then we grab one promotion discount
      * line item id and remove it.
-     * After that we verify that our code array is empty in our session (both discounts on the
+     * After that we verify that our code array is empty in our extension (both discounts on the
      * two products are removed).
      *
      * @test
@@ -216,7 +304,10 @@ class PromotionSessionCodesTest extends TestCase
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
-        static::assertCount(0, $this->getSessionCodes(), json_encode($this->getSessionCodes()));
+        /** @var CartExtension $extension */
+        $extension = $cart->getExtension(CartExtension::KEY);
+
+        static::assertCount(0, $extension->getCodes());
     }
 
     /**
@@ -267,18 +358,6 @@ class PromotionSessionCodesTest extends TestCase
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
 
         static::assertCount(2, $cart->getLineItems());
-    }
-
-    private function getSessionCodes(): array
-    {
-        /** @var Session $session */
-        $session = $this->getContainer()->get('session');
-
-        if (!$session->has(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES)) {
-            return [];
-        }
-
-        return $session->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
     }
 
     private function createCustomer(): string

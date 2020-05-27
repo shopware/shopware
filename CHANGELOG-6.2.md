@@ -48,6 +48,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
     * Fix timezone of `orderDate` in order grid
     * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added

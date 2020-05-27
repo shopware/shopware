@@ -156,6 +156,7 @@
             "src/Core/Flag/feature_next3722.php",
             "src/Core/Flag/feature_next6009.php",
             "src/Core/Flag/feature_next6050.php",
+            "src/Core/Flag/feature_next6997.php",
             "src/Core/Flag/feature_next7399.php"
         ],
         "exclude-from-classmap": [

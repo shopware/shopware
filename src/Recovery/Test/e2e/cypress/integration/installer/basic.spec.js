@@ -91,6 +91,7 @@ describe('Minimal install', () => {
 
         cy.get('#c_config_shop_currency').select('GBP');
 
+        cy.get('#c_config_shop_country').select('GBR');
 
         cy.get('#c_config_admin_email').clear().type('e2e@example.com');
 

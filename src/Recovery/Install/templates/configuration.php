@@ -89,6 +89,19 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                <?= $t->t('configuration_sconfig_currency_info'); ?>
             </span>
         </div>
+
+        <div class="input-group">
+            <label for="c_config_shop_country"><?= $t->t('configuration_sconfig_country'); ?></label>
+            <div class="select-wrapper">
+                <select name="c_config_shop_country" id="c_config_shop_country">
+                    <?php foreach ($countryIsos as $country): ?>
+                        <option value="<?= $country['iso3']; ?>" <?= $country['default'] === true ? 'selected' : null; ?>>
+                            <?= $t->t('select_country_' . strtolower($country['iso3'])); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
     </div>
 
         <div class="alert alert-warning">

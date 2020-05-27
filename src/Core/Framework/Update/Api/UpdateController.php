@@ -401,7 +401,7 @@ class UpdateController extends AbstractController
 
     private function replaceRecoveryFiles(string $fileDir): void
     {
-        $recoveryDir = $fileDir . '/recovery';
+        $recoveryDir = $fileDir . '/vendor/shopware/recovery';
         if (!is_dir($recoveryDir)) {
             return;
         }

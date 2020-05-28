@@ -88,7 +88,7 @@ class SalesChannelDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return [
-            'taxCalculationType' => self::CALCULATION_TYPE_VERTICAL,
+            'taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL,
         ];
     }
 

@@ -14,7 +14,7 @@ class Migration1589178550AddTaxCalculationType extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate("ALTER TABLE `sales_channel` ADD `tax_calculation_type` varchar(50) NOT NULL DEFAULT 'vertical' AFTER analytics_id");
+        $connection->executeUpdate("ALTER TABLE `sales_channel` ADD `tax_calculation_type` varchar(50) NOT NULL DEFAULT 'horizontal' AFTER analytics_id");
     }
 
     public function updateDestructive(Connection $connection): void

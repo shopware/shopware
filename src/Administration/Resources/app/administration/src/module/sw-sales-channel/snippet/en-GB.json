@@ -39,7 +39,6 @@
       "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
       "titleGeneralSettings": "General Settings",
-      "titleShippingPayment": "Payment and shipping",
       "labelInputName": "Name",
       "labelInputActive": "Active",
       "labelInputShippingMethods": "Shipping methods",
@@ -262,6 +261,15 @@
       "categoryMapping": {
         "emptyCategories": "Select a store category and assign it to a Google product category.",
         "labelHideAssigned": "Hide assigned categories"
+      },
+      "titleShippingPayment": "Payment and shipping",
+      "labelTaxCalculation": "Tax calculation",
+      "descriptionTaxCalculation": "Changing this setting could lead to acounting problems with external payment providers. Check back on how VAT is calculated by your employed payment provider(s) before you make any changes.",
+      "taxCalculation": {
+        "verticalName": "Column by column (vertical) calculation",
+        "verticalDescription": "VAT is calculated seperately from the net totals of all equally taxed items. This method yields fewer rounding errors, but does not provide individual VAT subtotals for each item.",
+        "horizontalName": "Line by line (horizontal) calculation",
+        "horizontalDescription": "VAT is calculated for each item individually. Potentially yields larger rounding errors, but provides individual VAT amount for each item"
       }
     },
     "modalGooglePrograms": {

@@ -41,7 +41,6 @@
       "titleProductComparisonPreview": "Vorschau",
       "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
       "labelAccessKeyField": "API-Zugangs-ID",
-
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
       "titleGeneralSettings": "Grundeinstellungen",
       "labelInputName": "Name",
@@ -271,6 +270,15 @@
       "categoryMapping": {
         "emptyCategories": "Wähle eine Shopware-Kategorie aus und weise sie einer Google-Produktkategorie zu.",
         "labelHideAssigned": "Bereits zugewiesene Kategorien ausblenden"
+      },
+      "titleShippingPayment": "Bezahlung und Versand",
+      "labelTaxCalculation": "Steuerberechnung",
+      "descriptionTaxCalculation": "Eine Änderung dieser Einstellung könnte zu Abrechnungsproblemen mit externen Zahlungsanbietern führen. \nInformiere Dich, wie die Mehrwertsteuer von Deinem Zahlungsanbieter berechnet wird, bevor Du Änderungen vornimmst.",
+      "taxCalculation": {
+        "verticalName": "Spaltenweise (vertikale) Berechnung",
+        "verticalDescription": "Die Mehrwertsteuer wird getrennt von den Nettosummen aller gleich besteuerten Produkte berechnet. Diese Methode führt zu weniger Rundungsfehlern, liefert aber keine individuellen Umsatzsteuer-Zwischensummen für jedes Produkt.",
+        "horizontalName": "Zeilenweise (horizontale) Berechnung",
+        "horizontalDescription": "Die Mehrwertsteuer wird für jedes Produkt einzeln berechnet. Dies führt möglicherweise zu größeren Rundungsfehlern, liefert jedoch für jedes Produkt individuelle MwSt.-Beiträge."
       }
     },
     "modalGooglePrograms": {

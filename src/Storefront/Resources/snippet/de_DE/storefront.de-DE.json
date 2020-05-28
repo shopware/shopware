@@ -427,7 +427,7 @@
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden diese schnellstmöglich bearbeiten."
   },
   "search": {
-    "headline": "{1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden|]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden"
+    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | ]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden"
   },
   "detail": {
     "ordernumberLabel": "Produkt-Nr.:",

@@ -114,6 +114,10 @@ Administration
     * Changed type of `queue` parameter of notification middleware function. It now contains an instance of the  `EntityCollection` class `src/core/data-new/entity-collection.data.js`.
     * Changed type of `entry` parameter of notification middleware function. It now contains an instance of the `Entity` class `src/core/data-new/entity.data.js`.
     * Removed parameter `response` of notification middleware function.
+* Replace the component 'sw-settings-user-detail' with 'sw-users-permissions-user-detail'
+* Replace the component 'sw-settings-user-create' with 'sw-users-permissions-user-create'
+* Replace the component 'sw-settings-user-list' with 'sw-users-permissions-user-listing'
+
 
 Storefront
 --------------

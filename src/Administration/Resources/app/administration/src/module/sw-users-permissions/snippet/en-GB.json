@@ -1,0 +1,110 @@
+{
+  "sw-users-permissions": {
+    "general": {
+      "label": "Users & permissions"
+    },
+    "permissions": {},
+    "users": {
+      "general": {
+        "mainMenuItemGeneral": "Users & permissions",
+        "placeholderSearchBar": "Find users...",
+        "labelUserList": "Users & permissions",
+        "labelCreateNewUser": "Create new user"
+      },
+      "user-grid": {
+        "labelUsername": "Username",
+        "labelFirstName": "First name",
+        "labelLastName": "Last name",
+        "labelRoles": "Roles",
+        "labelEmail": "Email address",
+        "contextMenuEdit": "Edit",
+        "contextMenuDelete": "Delete",
+        "contextMenuDuplicate": "Duplicate",
+        "titleModalDelete": "Delete user",
+        "textModalDelete": "Do you really want to delete the user \"{name}\"?",
+        "labelButtonCancel": "Cancel",
+        "labelButtonDelete": "Delete",
+        "notification": {
+          "deleteSuccess": {
+            "title": "Success",
+            "message": "User \"{name}\" has been deleted."
+          },
+          "deleteError": {
+            "title": "Error",
+            "message": "An error occurred while deleting the user \"{name}\"."
+          },
+          "deleteUserLoggedInError": {
+            "title": "Error",
+            "message": "Users cannot delete themselves."
+          }
+        }
+      },
+      "user-detail": {
+        "labelCard": "Basic information",
+        "labelIntegrationsCard": "Integrations",
+        "labelFirstName": "First name",
+        "labelLastName": "Last name",
+        "labelEmail": "Email",
+        "errorEmailUsed": "This email address is already in use.",
+        "errorUsernameUsed": "This username is already in use.",
+        "labelUsername": "Username",
+        "labelPassword": "Password",
+        "labelProfilePicture": "Profile picture",
+        "labelLanguage": "User interface language",
+        "labelLanguagePlaceholder": "Choose language...",
+        "labelChangePassword": "Change password",
+        "labelNewPassword": "New password",
+        "labelNewUser": "New user",
+        "placeholderNewPassword": "Enter new password...",
+        "placeholderNewPasswordConfirm": "Re-enter new password...",
+        "labelButtonCancel": "Cancel",
+        "labelButtonChangePassword": "Change",
+        "labelButtonSave": "Save",
+        "writeAccess": "Write",
+        "readAccess": "Read",
+        "contextMenuEdit": "Edit",
+        "contextMenuDelete": "Delete",
+        "textChangePassword": "Pressing the change button will immediately save the new password!",
+        "addAccessKey": "New access key",
+        "labelAccessKey": "Access key",
+        "labelPermissions": "Permissions",
+        "modal": {
+          "deleteModalTitle": "Delete",
+          "detailModalTitle": "Create integration",
+          "detailModalTitleEdit": "Edit",
+          "confirmDelete": "Are you sure you want to delete this integration?",
+          "buttonApply": "Save integration",
+          "buttonApplyEdit": "Save changes",
+          "buttonCancel": "Cancel",
+          "buttonDelete": "Delete",
+          "buttonCreateNewApiKeys": "Create new API key",
+          "hintCreateNewApiKeys": "For generating new API access keys, updating all associated scripts and applications is recommended.",
+          "labelFieldLabel": "Name",
+          "idFieldLabel": "Access key ID",
+          "secretFieldLabel": "Secret access key",
+          "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
+          "permissions": "Permissions",
+          "readAccessFieldLabel": "Read (default)",
+          "writeAccessFieldLabel": "Write (optional)",
+          "titleSaveSuccess": "Success",
+          "messageSaveSuccess": "Integration has been saved.",
+          "titleSaveError": "Error",
+          "messageSaveError": "Integration could not be saved.",
+          "titleCreateNewError": "Error",
+          "messageCreateNewError": "Integration could not be saved."
+        },
+        "notification": {
+          "saveError": {
+            "title": "Error",
+            "message": "An error occurred while saving the user \"{name}\"."
+          },
+          "saveSuccess": {
+            "title": "Success",
+            "message": "User \"{name}\" has been saved."
+          },
+          "notificationInvalidEmailErrorMessage": "Please enter a valid email address."
+        }
+      }
+    }
+  }
+}

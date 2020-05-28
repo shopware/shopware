@@ -75,6 +75,14 @@ Component.register('sw-avatar', {
             type: Object,
             required: false,
             default: null
+        },
+        variant: {
+            type: String,
+            required: false,
+            default: 'circle',
+            validator: (value) => {
+                return ['circle', 'square'].includes(value);
+            }
         }
     },
 

@@ -254,6 +254,11 @@ class ProductEntity extends Entity
     protected $configuratorGroupConfig;
 
     /**
+     * @var bool
+     */
+    protected $grouped = false;
+
+    /**
      * @var string|null
      */
     protected $mainVariantId;
@@ -952,6 +957,16 @@ class ProductEntity extends Entity
     public function setConfiguratorSettings(ProductConfiguratorSettingCollection $configuratorSettings): void
     {
         $this->configuratorSettings = $configuratorSettings;
+    }
+
+    public function setGrouped(bool $grouped): void
+    {
+        $this->grouped = $grouped;
+    }
+
+    public function isGrouped(): bool
+    {
+        return $this->grouped;
     }
 
     public function getCategoriesRo(): ?CategoryCollection

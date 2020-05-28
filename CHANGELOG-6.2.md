@@ -85,6 +85,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
     * Removed alphanumeric filter product numbers in the quick add action
     * If all variants are expanded in the listing display the buy button
+    * Fixed mail headers and footers not being properly attached to mails when sending mails from the administration
+
 
 ### 6.2.0
 

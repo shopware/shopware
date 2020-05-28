@@ -468,6 +468,7 @@ class OrderService
         // getting the correct sales channel domain with the help of the languageId of the order
         $languageId = $order->getLanguageId();
         $salesChannelCriteria = new Criteria([$order->getSalesChannel()->getId()]);
+        $salesChannelCriteria->addAssociation('mailHeaderFooter');
         $salesChannelCriteria->getAssociation('domains')
             ->addFilter(
                 new EqualsFilter('languageId', $languageId)

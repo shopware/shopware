@@ -187,7 +187,7 @@
         <service id="Shopware\Storefront\Theme\Subscriber\UpdateSubscriber">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
-            <argument type="service" id="theme.repository" />
+            <argument type="service" id="sales_channel.repository" />
 
             <tag name="kernel.event_subscriber"/>
         </service>

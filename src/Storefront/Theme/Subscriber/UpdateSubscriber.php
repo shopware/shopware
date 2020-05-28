@@ -6,7 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
-use Shopware\Storefront\Theme\ThemeEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -26,16 +27,16 @@ class UpdateSubscriber implements EventSubscriberInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $themeRepository;
+    private $salesChannelRepository;
 
     public function __construct(
         ThemeService $themeService,
         ThemeLifecycleService $themeLifecycleService,
-        EntityRepositoryInterface $themeRepository
+        EntityRepositoryInterface $salesChannelRepository
     ) {
         $this->themeService = $themeService;
         $this->themeLifecycleService = $themeLifecycleService;
-        $this->themeRepository = $themeRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public static function getSubscribedEvents()
@@ -54,17 +55,21 @@ class UpdateSubscriber implements EventSubscriberInterface
         $this->themeLifecycleService->refreshThemes($context);
 
         $criteria = new Criteria();
-        $criteria->addAssociation('salesChannels');
-        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-        if (!$theme) {
-            throw new \RuntimeException('Default theme not found');
-        }
+        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->getAssociation('themes')
+            ->addFilter(new EqualsFilter('active', true));
 
-        foreach ($theme->getSalesChannels() as $salesChannel) {
-            $salesChannelId = $salesChannel->getId();
-            $this->themeService->compileTheme($salesChannelId, $theme->getId(), $context);
+        /** @var SalesChannelEntity $salesChannel */
+        foreach ($this->salesChannelRepository->search($criteria, $context) as $salesChannel) {
+            $themes = $salesChannel->getExtension('themes');
+            if (!$themes instanceof ThemeCollection) {
+                continue;
+            }
+
+            foreach ($themes as $theme) {
+                $salesChannelId = $salesChannel->getId();
+                $this->themeService->compileTheme($salesChannelId, $theme->getId(), $context);
+            }
         }
     }
 }

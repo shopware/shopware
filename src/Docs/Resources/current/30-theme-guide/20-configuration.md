@@ -159,6 +159,7 @@ The following parameters can be defined for a config field item:
 You can use different field types in your theme manager:
 
 * A text field example:
+
 ```json
 "modal-padding": {
     "label": {
@@ -172,6 +173,7 @@ You can use different field types in your theme manager:
 ```
 
 * A number field example: 
+
 ```json
 "visible-slides": {
     "label": {
@@ -190,6 +192,7 @@ You can use different field types in your theme manager:
 ```
 
 * Two boolean field examples:
+
 ```json
 "navigation-fixed": {
     "label": {

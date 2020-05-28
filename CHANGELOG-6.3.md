@@ -129,6 +129,49 @@ Table of contents
         * Removed method `configHasSaleschannel`
         * Removed method `selectHasSaleschannel`
         * Removed method `undeleteSaleschannel`
+* Added `rawUrl` Twig function
+* The SalesChannel url is now available in every mail template
+* Fixed after order link in the following mail templates:
+    * `order_confirmation_mail`
+    * `order_delivery.state.cancelled`
+    * `order_delivery.state.returned`
+    * `order_delivery.state.shipped_partially`
+    * `order_delivery.state.shipped`
+    * `order_delivery.state.returned_partially`
+    * `order.state.cancelled`
+    * `order.state.open`
+    * `order.state.in_progress`
+    * `order.state.completed`
+    * `order_transaction.state.refunded_partially`
+    * `order_transaction.state.reminded`
+    * `order_transaction.state.open`
+    * `order_transaction.state.paid`
+    * `order_transaction.state.cancelled`
+    * `order_transaction.state.refunded`
+    * `order_transaction.state.paid_partially`
+* If you edited one of these mail templates you need to add the `rawUrl` function manually like this: `{{ rawUrl('frontend.account.edit-order.page', { 'orderId': order.id }, salesChannel.domain|first.url) }}` 
+* Refactor component `sw-customer-card` added inputs for password and password confirm
+    * Added block `sw_customer_card_password`
+    * Added block `sw_customer_card_password_confirm`
+* Refactor `sw-customer-detail`
+    * Added method `checkPassword` and use of it when editing customer 
+    * Added success notification message
+* Refactor `sw-settings-user-detail`
+    * Added `newPasswordConfirm`
+    * Fixed issue when saving new admin password
+    * Disabled `change` button if passwords doesnt match
+* Added language switch to Scale Units list page to translate scale units
+* Added tooltips to the toolbar of text editor
+* Added isInlineEdit property to component `sw-text-editor-toolbar`
+* Price input fields substitute commas with dots automatically in Add Product page.
+* Added a link to the customer name in the order overview. With this it is now possible to open the customer directly from the overview.
+* Added property `fileAccept` to 
+    * `sw-media-upload-v2`
+    * `sw-media-compact-upload-v2`
+    * `sw-media-modal-v2`
+    * `sw-media-index`
+* Change default value of `accept` in `sw-media-index` to `*/*` to allow all types of files in media management 
+* Added config option for disabling reviews in the storefront
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
@@ -144,6 +187,13 @@ Table of contents
     * `Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute`
     * `Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute`
     * `Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute`
+* Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`  
+* Refactor the component `sw_customer_base_form`
+    * Removed snippet `sw-customer.baseForm.helpTextPassword`  
 
 #### Storefront
 * Added plugin injection in hot mode
+* Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
+* Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
+* Fix timezone of `orderDate` in ordergrid
+* Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened

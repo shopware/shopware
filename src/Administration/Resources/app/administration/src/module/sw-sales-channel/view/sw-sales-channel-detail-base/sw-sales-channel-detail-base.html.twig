@@ -123,14 +123,6 @@
                         defaultPropertyName="countryId"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
-                    {% block sw_sales_channel_detail_base_general_input_countries_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
-                    {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
 
@@ -144,14 +136,6 @@
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
                         propertyNameInDomain="languageId">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
-                    {% block sw_sales_channel_detail_base_general_input_languages_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
-                    {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
-                    {% endblock %}
                 {% endblock %}
             </sw-card>
         {% endblock %}
@@ -167,14 +151,6 @@
                         defaultPropertyName="paymentMethodId"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_payments_methods_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_payments_methods_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
@@ -186,14 +162,6 @@
                         defaultPropertyName="shippingMethodId"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_shipping_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_shipping_methods_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_shipping_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_shipping_methods_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
@@ -206,14 +174,6 @@
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
                         propertyNameInDomain="currencyId">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_currencies instead #}
-                    {% block sw_sales_channel_detail_base_general_input_currencies_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_currencies instead #}
-                    {% block sw_sales_channel_detail_base_general_input_currencies_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
                 <sw-radio-field

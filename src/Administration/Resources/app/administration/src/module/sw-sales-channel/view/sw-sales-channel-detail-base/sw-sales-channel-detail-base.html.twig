@@ -113,6 +113,51 @@
                     </sw-entity-single-select>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_base_general_input_countries %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="countries"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputCountries')"
+                        :helpText="$tc('sw-sales-channel.detail.countryMultiSelectHelpText')"
+                        defaultPropertyName="countryId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
+                    </sw-sales-channel-defaults-select>
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
+                    {% block sw_sales_channel_detail_base_general_input_countries_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
+                    {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
+                    {% endblock %}
+                {% endblock %}
+
+
+                {% block sw_sales_channel_detail_base_general_input_languages %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="languages"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                        defaultPropertyName="languageId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
+                        propertyNameInDomain="languageId">
+                    </sw-sales-channel-defaults-select>
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
+                    {% block sw_sales_channel_detail_base_general_input_languages_selection %}
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
+                    {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
+                    {% endblock %}
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_shipping_payment %}
+            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleShippingPayment')">
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
                     <sw-sales-channel-defaults-select
                         v-if="!isProductComparison"
@@ -151,26 +196,6 @@
                     {% endblock %}
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_countries %}
-                    <sw-sales-channel-defaults-select
-                        v-if="!isProductComparison"
-                        :salesChannel="salesChannel"
-                        propertyName="countries"
-                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputCountries')"
-                        :helpText="$tc('sw-sales-channel.detail.countryMultiSelectHelpText')"
-                        defaultPropertyName="countryId"
-                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
-                    </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
-                    {% block sw_sales_channel_detail_base_general_input_countries_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
-                    {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
-                    {% endblock %}
-                {% endblock %}
-
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
                     <sw-sales-channel-defaults-select
                         v-if="!isProductComparison"
@@ -191,35 +216,15 @@
                     {% endblock %}
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_languages %}
-                    <sw-sales-channel-defaults-select
-                        v-if="!isProductComparison"
-                        :salesChannel="salesChannel"
-                        propertyName="languages"
-                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"
-                        defaultPropertyName="languageId"
-                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
-                        propertyNameInDomain="languageId">
-                    </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
-                    {% block sw_sales_channel_detail_base_general_input_languages_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
-                    {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
-                    {% endblock %}
-                {% endblock %}
-
                 <sw-radio-field
                     label="Tax calculation"
                     block
+                    class="sw-sales-channel-detail__tax-calculation"
                     identification="taxCalculation"
                     description="This setting might have an impact on the functioning of external payment providers. Check which calculation basis is used by your prefered payment providers."
                     v-model="salesChannel.taxCalculationType"
                     :options="taxCalculationTypeOptions"
                 ></sw-radio-field>
-
             </sw-card>
         {% endblock %}
 

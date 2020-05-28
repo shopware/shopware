@@ -39,6 +39,7 @@
       "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
       "titleGeneralSettings": "General Settings",
+      "titleShippingPayment": "Payment and shipping",
       "labelInputName": "Name",
       "labelInputActive": "Active",
       "labelInputShippingMethods": "Shipping methods",

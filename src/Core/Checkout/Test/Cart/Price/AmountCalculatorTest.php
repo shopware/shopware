@@ -37,7 +37,7 @@ class AmountCalculatorTest extends TestCase
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL);
+        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
 
         $calculator = new AmountCalculator(
             $detector,
@@ -65,7 +65,7 @@ class AmountCalculatorTest extends TestCase
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL);
+        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
 
         $calculator = new AmountCalculator(
             $detector,

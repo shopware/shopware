@@ -6,7 +6,7 @@
 [![Total Downloads](https://poser.pugx.org/shopware/platform/downloads)](https://packagist.org/packages/shopware/platform)
 [![License](https://img.shields.io/github/license/shopware/platform.svg)](https://github.com/shopware/platform/blob/master/license.txt)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/platform.svg)](https://github.com/shopware/platform/pulls)
-[![Gitter](https://badges.gitter.im/shopware/platform.svg)](https://gitter.im/shopware/platform?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Slack](https://img.shields.io/badge/chat-on%20slack-%23ECB22E)](http://slack.shopware.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Development Template](https://img.shields.io/badge/start%20with-shopware%2Fdevelopment-blue.svg)](https://github.com/shopware/development)
 
 </div>
@@ -164,7 +164,7 @@ We believe that our open source edition is our strongest asset and that we need,
 **Join the community now** 🖤
 
 - **Discuss:** [forum.shopware.com](https://forum.shopware.com/categories/international)
-- **Chat:** [gitter.im/shopware/platform](https://gitter.im/shopware/platform)
+- **Slack:** [slack.shopware.com](https://slack.shopware.com)
 - **Follow us on Twitter:** [@ShopwareDevs](https://twitter.com/ShopwareDevs)
 
 Subscribe to our **[developer newsletter](https://www.shopware.com/en/community/developers/#newsletter)** and get updates about:
@@ -227,7 +227,7 @@ You want to participate in the development of shopware? There are many ways to c
 
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)
--   Discuss shopware on e.g [Gitter](https://gitter.im/shopware/platform) or our [forum](https://forum.shopware.com/categories/shopware-6)
+-   Discuss shopware on e.g [Slack](https://slack.shopware.com) or our [forum](https://forum.shopware.com/categories/shopware-6)
 - Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6) 
 
 You have a question regarding contribution, or you want to contribute in another way?

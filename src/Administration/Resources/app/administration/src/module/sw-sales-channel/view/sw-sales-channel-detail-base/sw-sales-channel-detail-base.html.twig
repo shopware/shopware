@@ -210,6 +210,16 @@
                     {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
                     {% endblock %}
                 {% endblock %}
+
+                <sw-radio-field
+                    label="Tax calculation"
+                    block
+                    identification="taxCalculation"
+                    description="This setting might have an impact on the functioning of external payment providers. Check which calculation basis is used by your prefered payment providers."
+                    v-model="salesChannel.taxCalculationType"
+                    :options="taxCalculationTypeOptions"
+                ></sw-radio-field>
+
             </sw-card>
         {% endblock %}
 

@@ -53,6 +53,18 @@ Component.register('sw-radio-field', {
             default: false
         },
 
+        block: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        description: {
+            type: String,
+            required: false,
+            default: null
+        },
+
         options: {
             type: Array,
             required: false,
@@ -69,7 +81,8 @@ Component.register('sw-radio-field', {
     computed: {
         classes() {
             return [{
-                'sw-field--radio-bordered': this.bordered
+                'sw-field--radio-bordered': this.bordered,
+                'sw-field--radio-block': this.block
             }];
         },
         currentIndex() {

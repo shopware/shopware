@@ -5,29 +5,42 @@
                 v-bind="$attrs">
         <template #sw-field-input="{ identification, helpText, error, disabled }">
             <sw-help-text v-if="helpText" :text="helpText"></sw-help-text>
-                <div class="sw-field__radio-group">
-                    <div class="sw-field__radio-option group-bordered" v-for="(option, index) in options">
-                        <div class="sw-field__radio-input">
-                            <input type="radio"
-                                :name="identification"
-                                :id="`${identification}-${index}`"
-                                :value="index"
-                                :disabled="disabled"
-                                :checked="currentIndex === index"
-                                @change="onChange"/>
-                            <div class="sw-field__radio-state"></div>
-                        </div>
 
-                        <label :for="`${identification}-${index}`">
-                            <span>{{ option.name }}</span>
-                            {% block sw_radio_field_help_text %}
-                                <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
-                            {% endblock %}
-                        </label>
+            <div class="sw-field__radio-group">
+                <div
+                    class="sw-field__radio-option group-bordered"
+                    :class="{ 'sw-field__radio-option-checked': currentIndex === index }"
+                    v-for="(option, index) in options">
 
-                        <slot :name="`custom-field-${option.value}`" v-bind="{ option, disabled, checked: currentIndex === index }"></slot>
+                    <div class="sw-field__radio-input">
+                        <input type="radio"
+                            :name="identification"
+                            :id="`${identification}-${index}`"
+                            :value="index"
+                            :disabled="disabled"
+                            :checked="currentIndex === index"
+                            @change="onChange"/>
+                        <div class="sw-field__radio-state"></div>
                     </div>
+
+                    <label :for="`${identification}-${index}`">
+                        <span>{{ option.name }}</span>
+                        {% block sw_radio_field_help_text %}
+                            <sw-help-text v-if="option.helpText" :text="option.helpText"></sw-help-text>
+                        {% endblock %}
+
+                        <div v-if="option.description" class="sw-field__radio-option-description">
+                            {{ option.description }}
+                        </div>
+                    </label>
+
+                    <slot :name="`custom-field-${option.value}`" v-bind="{ option, disabled, checked: currentIndex === index }"></slot>
                 </div>
+            </div>
+
+            <div v-if="description" class="sw-field__radio-description">
+                {{ description }}
+            </div>
         </template>
     </sw-base-field>
 {% endblock %}

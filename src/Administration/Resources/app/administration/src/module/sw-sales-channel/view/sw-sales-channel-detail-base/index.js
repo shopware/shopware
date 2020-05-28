@@ -276,6 +276,23 @@ Component.register('sw-sales-channel-detail-base', {
             return null;
         },
 
+        taxCalculationTypeOptions() {
+            return [
+                {
+                    name: 'Column by column (vertical) calculation',
+                    value: 'vertical',
+                    helpText: 'The net sum per tax rate for the entire invoice is calculated then the VAT sum is calculated and added.',
+                    description: 'The net sum per tax rate for the entire invoice is calculated then the VAT sum is calculated and added.'
+                },
+                {
+                    name: 'Line by line (horizontal) calculation',
+                    value: 'horizontal',
+                    helpText: 'This will add the VAT rate to the individual unit price of the item, and then multiply the gross by the quantity',
+                    description: 'This will add the VAT rate to the individual unit price of the item, and then multiply the gross by the quantity'
+                }
+            ];
+        },
+
         maintenanceIpWhitelist: {
             get() {
                 return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];

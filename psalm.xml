@@ -64,6 +64,11 @@
                 <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
             </errorLevel>
         </InvalidCatch>
+        <InaccessibleMethod>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
+            </errorLevel>
+        </InaccessibleMethod>
 
         <LessSpecificImplementedReturnType errorLevel="info"/>
 

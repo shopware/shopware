@@ -1,14 +1,18 @@
 name: PHP analysis
 
 on:
-  push:
+    push:
+        branches:
+            - '6.2'
+            - master
+    pull_request:
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: 6.2-BoostDay
+      DEVELOPMENT_BRANCH: 6.2
 
     steps:
     - name: Clone development

@@ -1,13 +1,17 @@
 name: Jest
 
 on:
-  push:
+    push:
+        branches:
+            - '6.2'
+            - master
+    pull_request:
 
 jobs:
   admin:
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: 6.2-BoostDay
+      DEVELOPMENT_BRANCH: 6.2
 
     steps:
     - name: Clone development
@@ -35,7 +39,7 @@ jobs:
 
     - name: Start MySQL
       run: ./development/platform/.github/setup-db.sh mysql:5.7
-    
+
     - name: Start Elasticsearch
       run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 
@@ -81,7 +85,7 @@ jobs:
 
     - name: Start MySQL
       run: ./development/platform/.github/setup-db.sh mysql:5.7
-    
+
     - name: Start Elasticsearch
       run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 

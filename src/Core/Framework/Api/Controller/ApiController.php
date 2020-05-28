@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
@@ -96,13 +98,19 @@ class ApiController extends AbstractController
      */
     private $entityProtectionValidator;
 
+    /**
+     * @var AclCriteriaValidator
+     */
+    private $criteriaValidator;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,
         RequestCriteriaBuilder $searchCriteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
         ApiVersionConverter $apiVersionConverter,
-        EntityProtectionValidator $entityProtectionValidator
+        EntityProtectionValidator $entityProtectionValidator,
+        AclCriteriaValidator $criteriaValidator
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
@@ -110,6 +118,7 @@ class ApiController extends AbstractController
         $this->compositeEntitySearcher = $compositeEntitySearcher;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->entityProtectionValidator = $entityProtectionValidator;
+        $this->criteriaValidator = $criteriaValidator;
     }
 
     /**
@@ -166,7 +175,7 @@ class ApiController extends AbstractController
      *          ref="#/components/responses/401"
      *      )
      * )
-     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"}, requirements={"version"="\d+"})
+     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
      */
     public function compositeSearch(Request $request, Context $context, int $version): JsonResponse
     {
@@ -204,7 +213,7 @@ class ApiController extends AbstractController
         $this->checkIfRouteAvailableInApiVersion($entity, $version);
 
         $definition = $this->definitionRegistry->getByEntityName($entity);
-        $this->validateAclPermissions($context, $definition, AclResourceDefinition::PRIVILEGE_CREATE);
+        $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
 
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $overwrites): EntityWrittenContainerEvent {
             /** @var EntityRepository $entityRepo */
@@ -339,7 +348,7 @@ class ApiController extends AbstractController
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
-        $this->validatePathSegments($context, $pathSegments, AclResourceDefinition::PRIVILEGE_DETAIL);
+        $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
         $root = $pathSegments[0]['entity'];
         $id = $pathSegments[\count($pathSegments) - 1]['value'];
@@ -366,6 +375,9 @@ class ApiController extends AbstractController
         $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         $criteria->setIds([$id]);
+
+        // trigger acl validation
+        $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
 
         $entity = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria, $id): ?Entity {
             return $repository->search($criteria, $context)->get($id);
@@ -540,7 +552,7 @@ class ApiController extends AbstractController
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
-        $this->validatePathSegments($context, $pathSegments, AclResourceDefinition::PRIVILEGE_LIST);
+        $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
         $first = array_shift($pathSegments);
 
@@ -556,6 +568,9 @@ class ApiController extends AbstractController
         $criteria = new Criteria();
         if (empty($pathSegments)) {
             $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+
+            // trigger acl validation
+            $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
 
             return [$criteria, $repository];
         }
@@ -674,6 +689,8 @@ class ApiController extends AbstractController
         }
 
         $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
+
+        $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
 
         return [$criteria, $repository];
     }
@@ -1069,8 +1086,8 @@ class ApiController extends AbstractController
             $resource = $entity->getParentDefinition()->getEntityName();
         }
 
-        if (!$context->isAllowed($resource, $privilege)) {
-            throw new AccessDeniedHttpException(sprintf('Missing privilege "%s" for resource "%s"', $privilege, $resource));
+        if (!$context->isAllowed($resource . ':' . $privilege)) {
+            throw new MissingPrivilegeException($resource . ':' . $privilege);
         }
     }
 
@@ -1080,7 +1097,11 @@ class ApiController extends AbstractController
 
         foreach ($pathSegments as $segment) {
             // you need detail privileges for every parent entity
-            $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($segment), AclResourceDefinition::PRIVILEGE_DETAIL);
+            $this->validateAclPermissions(
+                $context,
+                $this->getDefinitionForPathSegment($segment),
+                AclRoleDefinition::PRIVILEGE_READ
+            );
         }
 
         $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);

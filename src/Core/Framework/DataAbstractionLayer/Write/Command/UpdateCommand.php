@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 class UpdateCommand extends WriteCommand implements ChangeSetAware
 {
     use ChangeSetAwareTrait;
 
-    public function getPrivilege(): string
+    public function getPrivilege(): ?string
     {
-        return AclResourceDefinition::PRIVILEGE_UPDATE;
+        return AclRoleDefinition::PRIVILEGE_UPDATE;
     }
 }

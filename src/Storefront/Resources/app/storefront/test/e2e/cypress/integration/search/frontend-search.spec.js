@@ -22,7 +22,7 @@ describe('Searches for products', () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 
-        cy.get('.search-headline').contains('1 products found for "' + product.name + '"');
+        cy.get('.search-headline').contains('One product found for "' + product.name + '"');
         cy.get('.cms-element-product-listing').contains(product.name);
 
         cy.get('input[name=search]').clear().type('Non existent stuff');

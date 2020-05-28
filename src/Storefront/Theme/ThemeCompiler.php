@@ -225,17 +225,24 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $variables = [];
         foreach ($config['fields'] as $key => $data) {
-            if (isset($data['value'])) {
-                // Do not include fields which have the scss option set to false
-                if (array_key_exists('scss', $data) && $data['scss'] === false) {
-                    continue;
-                }
+            if (!isset($data['value'])) {
+                continue;
+            }
 
-                if ($data['type'] === 'media') {
-                    $variables[$key] = '\'' . $data['value'] . '\'';
-                } else {
-                    $variables[$key] = $data['value'];
-                }
+            // Do not include fields which have the scss option set to false
+            if (array_key_exists('scss', $data) && $data['scss'] === false) {
+                continue;
+            }
+
+            // value must not be an empty string since because an empty value can not be compiled
+            if ($data['value'] === '') {
+                continue;
+            }
+
+            if ($data['type'] === 'media') {
+                $variables[$key] = '\'' . $data['value'] . '\'';
+            } else {
+                $variables[$key] = $data['value'];
             }
         }
 

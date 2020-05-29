@@ -44,28 +44,33 @@
                     {% endblock %}
 
                     {% block page_product_detail_buy_redirect_input %}
-                        <input type="hidden"
-                               name="redirectTo"
-                               value="frontend.cart.offcanvas"/>
-                    {% endblock %}
-
-                    {% block page_product_detail_buy_product_buy_info %}
                         {# fallback redirect back to detail page is deactivated via js #}
                         <input type="hidden"
                                name="redirectTo"
-                               data-redirect-to="detail"
                                value="frontend.detail.page">
 
                         <input type="hidden"
                                name="redirectParameters"
                                data-redirect-parameters="true"
                                value='{"productId": "{{ product.id }}"}'>
+                    {% endblock %}
 
-                        {# offcanvas redirect is activated via js #}
+                    {% block page_product_detail_buy_product_buy_info %}
                         <input type="hidden"
-                               name="redirectTo"
-                               data-redirect-to="offcanvas"
-                               value="frontend.cart.offcanvas" disabled/>
+                               name="lineItems[{{ product.id }}][id]"
+                               value="{{ product.id }}">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][type]"
+                               value="product">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][referencedId]"
+                               value="{{ product.id }}">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][stackable]"
+                               value="1">
+                        <input type="hidden"
+                               name="lineItems[{{ product.id }}][removable]"
+                               value="1">
                     {% endblock %}
 
                     {% block page_product_detail_product_buy_meta %}

@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Test\Theme\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +18,11 @@ use Shopware\Storefront\Theme\ThemeService;
 class UpdateSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
+
+    public function setUp(): void
+    {
+        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM `theme`');
+    }
 
     public function testCompilesAllThemes(): void
     {
@@ -55,57 +59,54 @@ class UpdateSubscriberTest extends TestCase
         $themeRepository = $this->getContainer()->get('theme.repository');
         $themeSalesChannelRepository = $this->getContainer()->get('theme_sales_channel.repository');
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Storefront'));
-        $defaultThemeId = $themeRepository->searchIds($criteria, $context)->firstId();
-
+        $parentThemeId = Uuid::randomHex();
         $otherThemeId = Uuid::randomHex();
-        $defaultChildId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
         $themes = [
-            $defaultThemeId => Defaults::SALES_CHANNEL,
+            $parentThemeId => Uuid::randomHex(),
             $otherThemeId => Uuid::randomHex(),
-            $defaultChildId => Uuid::randomHex(),
+            $childId => Uuid::randomHex(),
         ];
 
-        $this->createSalesChannel(['id' => $themes[$otherThemeId], 'domains' => [
+        $themeRepository->create(
             [
-                'languageId' => Defaults::LANGUAGE_SYSTEM,
-                'currencyId' => Defaults::CURRENCY,
-                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                'url' => 'http://localhost/child',
+                [
+                    'id' => $parentThemeId,
+                    'name' => 'Parent theme',
+                    'technicalName' => 'parentTheme',
+                    'author' => 'test',
+                    'active' => true,
+                ],
+                [
+                    'id' => $childId,
+                    'parentThemeId' => $parentThemeId,
+                    'name' => 'Child theme',
+                    'author' => 'test',
+                    'active' => true,
+                ],
+                [
+                    'id' => $otherThemeId,
+                    'name' => 'Other theme',
+                    'technicalName' => 'otherTheme',
+                    'author' => 'test',
+                    'active' => true,
+                ],
             ],
-        ]]);
-        $this->createSalesChannel(['id' => $themes[$defaultChildId], 'domains' => [
-            [
-                'languageId' => Defaults::LANGUAGE_SYSTEM,
-                'currencyId' => Defaults::CURRENCY,
-                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                'url' => 'http://localhost/other',
-            ],
-        ]]);
+            $context
+        );
 
-        $themeRepository->clone($defaultThemeId, $context, $otherThemeId, ['technicalName' => 'testTheme']);
-        $themeRepository->create([[
-            'id' => $defaultChildId,
-            'parentThemeId' => $defaultThemeId,
-            'name' => 'Child theme',
-            'author' => 'test',
-            'active' => true,
-        ]], $context);
+        foreach ($themes as $themeId => $salesChannelId) {
+            $this->createSalesChannel(['id' => $salesChannelId, 'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost/' . $themeId,
+                ],
+            ]]);
 
-        $themeSalesChannelRepository->create([
-            [
-                'themeId' => $defaultThemeId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-            ],
-            [
-                'themeId' => $otherThemeId,
-                'salesChannelId' => $themes[$otherThemeId],
-            ],
-            [
-                'themeId' => $defaultChildId,
-                'salesChannelId' => $themes[$defaultChildId],
-            ],
-        ], $context);
+            $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
+        }
 
         return $themes;
     }

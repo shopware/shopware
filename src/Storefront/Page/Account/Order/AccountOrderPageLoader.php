@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Page\Account\Order;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -92,10 +91,7 @@ class AccountOrderPageLoader
     {
         $criteria = $this->createCriteria($request);
 
-        /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load(new Request(), $context, $criteria)->getObject();
-
-        return $responseStruct->getOrders();
+        return $this->orderRoute->load(new Request(), $context, $criteria)->getOrders();
     }
 
     private function createCriteria(Request $request): Criteria

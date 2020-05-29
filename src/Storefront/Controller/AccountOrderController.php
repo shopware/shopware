@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -132,9 +131,7 @@ class AccountOrderController extends StorefrontController
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        /** @var OrderRouteResponseStruct $result */
-        $result = $this->orderRoute->load(new Request(), $context, $criteria)->getObject();
-        $order = $result->getOrders()->first();
+        $order = $this->orderRoute->load(new Request(), $context, $criteria)->getOrders()->first();
 
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();

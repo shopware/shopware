@@ -88,7 +88,7 @@ class OrderRoute extends AbstractOrderRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/order_flat"))
      *     )
      * )
-     * @Route(path="/store-api/v{version}/order", name="store-api.order", methods={"GET"})
+     * @Route(path="/store-api/v{version}/order", name="store-api.order", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): OrderRouteResponse
     {

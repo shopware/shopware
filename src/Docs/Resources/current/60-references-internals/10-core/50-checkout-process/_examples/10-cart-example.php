@@ -46,8 +46,8 @@ namespace ExampleCurrentCart {
 } // code-example-end
 
 namespace ExampleAddToCart {
+    use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-    use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
     use Symfony\Component\Routing\Annotation\Route;
 
@@ -57,17 +57,20 @@ namespace ExampleAddToCart {
         private $cartService;
 
         /**
+         * @var LineItemFactoryRegistry
+         */
+        private $lineItemFactory;
+
+        /**
          * @Route("/", name="cart.test")
          */
-        public function addToCart(SalesChannelContext $salesChannelContext): void
+        public function addToCart(SalesChannelContext $context): void
         {
-            // unique identifier to reference the line item, usually the source id, but can be random
-            // and id of the referenced product
-            $product = (new ProductLineItemFactory())->create('407f9c24dd414da485501085e3ead678', ['quantity' => 5]);
+            $product = $this->lineItemFactory->create(['type' => 'product', 'referencedId' => '596a70b408014230a140fd5d94d3402b', 'quantity' => 5], $context);
 
-            $cart = $this->cartService->getCart('596a70b408014230a140fd5d94d3402b', $salesChannelContext);
+            $cart = $this->cartService->getCart('596a70b408014230a140fd5d94d3402b', $context);
 
-            $this->cartService->add($cart, $product, $salesChannelContext);
+            $this->cartService->add($cart, $product, $context);
         }
     }
 } // code-example-end
@@ -85,11 +88,11 @@ namespace ExampleChangeQuantity {
         /**
          * @Route("/", name="cart.test")
          */
-        public function changeLineItemQuantity(SalesChannelContext $salesChannelContext): void
+        public function changeLineItemQuantity(SalesChannelContext $context): void
         {
-            $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+            $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            $this->cartService->changeQuantity($cart, '407f9c24dd414da485501085e3ead678', 9, $salesChannelContext);
+            $this->cartService->changeQuantity($cart, '407f9c24dd414da485501085e3ead678', 9, $context);
         }
     }
 } // code-example-end
@@ -107,11 +110,11 @@ namespace ExampleRemoveItem {
         /**
          * @Route("/", name="cart.test")
          */
-        public function removeLineItem(SalesChannelContext $salesChannelContext): void
+        public function removeLineItem(SalesChannelContext $context): void
         {
-            $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+            $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            $this->cartService->remove($cart, '407f9c24dd414da485501085e3ead678', $salesChannelContext);
+            $this->cartService->remove($cart, '407f9c24dd414da485501085e3ead678', $context);
         }
     }
 } // code-example-end
@@ -129,9 +132,9 @@ namespace ExampleGetDeliveries {
         /**
          * @Route("/", name="cart.test")
          */
-        public function getDeliveries(SalesChannelContext $salesChannelContext): void
+        public function getDeliveries(SalesChannelContext $context): void
         {
-            $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+            $cart = $this->cartService->getCart($context->getToken(), $context);
 
             $deliveries = $cart->getDeliveries();
         }
@@ -151,11 +154,11 @@ namespace ExampleOrder {
         /**
          * @Route("/", name="cart.test")
          */
-        public function order(SalesChannelContext $salesChannelContext): void
+        public function order(SalesChannelContext $context): void
         {
-            $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+            $cart = $this->cartService->getCart($context->getToken(), $context);
 
-            $this->cartService->order($cart, $salesChannelContext);
+            $this->cartService->order($cart, $context);
         }
     }
 } // code-example-end
@@ -171,6 +174,7 @@ namespace DocsTest {
     use PHPUnit\Framework\TestCase;
     use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
     use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+    use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
     use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
     use Shopware\Core\Defaults;
@@ -202,7 +206,7 @@ namespace DocsTest {
         public function testLineItemIsInCorrectVersion(): void
         {
             static::assertSame(
-                '58e1a3f98d74d1d150f29c02966a0f80871b62d6',
+                '63db348912ce21ced9e7a2b19c3e5c7c4b8dcef7',
                 sha1_file(TEST_PROJECT_DIR . '/platform/src/Core/Checkout/Cart/LineItem/LineItem.php'),
                 'The line item class changed apparently, ensure the docs are up to date'
             );
@@ -234,6 +238,9 @@ namespace DocsTest {
 
             $this->ensureProduct('407f9c24dd414da485501085e3ead678');
             $this->setUpController($controller);
+            $property = (new \ReflectionObject($controller))->getProperty('lineItemFactory');
+            $property->setAccessible(true);
+            $property->setValue($controller, $this->getContainer()->get(LineItemFactoryRegistry::class));
             $controller->addToCart($this->getSalesChannelContext());
 
             static::assertTrue(true); //indicate all went well

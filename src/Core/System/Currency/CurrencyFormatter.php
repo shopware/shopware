@@ -18,9 +18,14 @@ class CurrencyFormatter
     protected $languageRepository;
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $localeCache = [];
+
+    /**
+     * @var \NumberFormatter[]
+     */
+    private $formatter = [];
 
     public function __construct(EntityRepositoryInterface $languageRepository)
     {
@@ -33,37 +38,69 @@ class CurrencyFormatter
      */
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context): string
     {
-        if (!array_key_exists($languageId, $this->localeCache)) {
-            $criteria = (new Criteria())
-                ->addAssociation('locale')
-                ->addFilter(new EqualsFilter('language.id', $languageId));
-
-            /** @var LanguageEntity|null $language */
-            $language = $this->languageRepository->search($criteria, $context)->get($languageId);
-
-            if ($language === null) {
-                throw new LanguageNotFoundException($languageId);
-            }
-
-            $this->localeCache[$languageId] = $language->getLocale()->getCode();
-        }
-
-        return $this->formatCurrency($price, $this->localeCache[$languageId], $currency);
+        return $this->formatCurrency(
+            $price,
+            $this->getLocale($languageId, $context),
+            $currency,
+            \NumberFormatter::CURRENCY,
+            null,
+            $context->getCurrencyPrecision()
+        );
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed, use `formatCurrencyByLanguage` instead
+     */
     public function formatCurrency(
         float $price,
         string $locale,
         string $currency,
         int $format = \NumberFormatter::CURRENCY,
-        ?string $pattern = null
+        ?string $pattern = null,
+        ?int $digits = null
     ): ?string {
-        if ($pattern === null) {
-            $numberFormatter = new \NumberFormatter($locale, $format);
-        } else {
-            $numberFormatter = new \NumberFormatter($locale, $format, $pattern);
+        $formatter = $this->getFormatter($locale, $format, $pattern);
+
+        if ($digits !== null) {
+            $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $digits);
         }
 
-        return $numberFormatter->formatCurrency($price, $currency);
+        return $formatter->formatCurrency($price, $currency);
+    }
+
+    private function getFormatter(string $locale, int $format, ?string $pattern, ?int $digits = null): \NumberFormatter
+    {
+        // @deprecated tag:v6.4.0 - As soon as only the function 'formatCurrencyByLanguage' is left we can minimize the internal caches. Here we can remove the pattern and digits from the hash.
+        $hash = md5(json_encode([$locale, $format, $pattern, $digits]));
+
+        if (isset($this->formatter[$hash])) {
+            return $this->formatter[$hash];
+        }
+
+        if ($pattern === null) {
+            return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
+        }
+
+        return $this->formatter[$hash] = new \NumberFormatter($locale, $format, $pattern);
+    }
+
+    private function getLocale(string $languageId, Context $context): string
+    {
+        if (array_key_exists($languageId, $this->localeCache)) {
+            return $this->localeCache[$languageId];
+        }
+
+        $criteria = (new Criteria())
+            ->addAssociation('locale')
+            ->addFilter(new EqualsFilter('language.id', $languageId));
+
+        /** @var LanguageEntity|null $language */
+        $language = $this->languageRepository->search($criteria, $context)->get($languageId);
+
+        if ($language === null) {
+            throw new LanguageNotFoundException($languageId);
+        }
+
+        return $this->localeCache[$languageId] = $language->getLocale()->getCode();
     }
 }

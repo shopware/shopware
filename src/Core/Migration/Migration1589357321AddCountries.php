@@ -16,12 +16,12 @@ class Migration1589357321AddCountries extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $deLanguageId = $this->getDeDeLanguageId($connection);
+        $deLanguageId = $this->getLanguageId($connection, 'de-DE');
 
-        if ($deLanguageId) {
-            $languageDE = function (string $countryId, string $name) use ($connection) {
+        if ($deLanguageId && $deLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+            $languageDE = static function (string $countryId, string $name) use ($deLanguageId) {
                 return [
-                    'language_id' => $this->getDeDeLanguageId($connection),
+                    'language_id' => $deLanguageId,
                     'name' => $name,
                     'country_id' => $countryId,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -29,7 +29,20 @@ class Migration1589357321AddCountries extends MigrationStep
             };
         }
 
-        $languageEN = static function (string $countryId, string $name) {
+        $enLanguageId = $this->getLanguageId($connection, 'en-GB');
+
+        if ($enLanguageId && $enLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+            $languageEN = static function (string $countryId, string $name) use ($enLanguageId) {
+                return [
+                    'language_id' => $enLanguageId,
+                    'name' => $name,
+                    'country_id' => $countryId,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ];
+            };
+        }
+
+        $default = static function (string $countryId, string $name) {
             return [
                 'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'name' => $name,
@@ -40,11 +53,23 @@ class Migration1589357321AddCountries extends MigrationStep
 
         foreach ($this->createNewCountries() as $country) {
             $id = Uuid::randomBytes();
+            $exists = $connection->fetchColumn('SELECT 1 FROM country WHERE iso = :iso3', ['iso3' => $country['iso3']]);
+            if ($exists !== false) {
+                continue;
+            }
+
             $connection->insert('country', ['id' => $id, 'iso' => $country['iso'], 'position' => 10, 'iso3' => $country['iso3'], 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-            $connection->insert('country_translation', $languageEN($id, $country['en']));
+            $defaultTranslations = $country['en'];
+            if ($deLanguageId === Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $defaultTranslations = $country['de'];
+            }
+            $connection->insert('country_translation', $default($id, $defaultTranslations));
 
             if (isset($languageDE)) {
                 $connection->insert('country_translation', $languageDE($id, $country['de']));
+            }
+            if (isset($languageEN)) {
+                $connection->insert('country_translation', $languageEN($id, $country['en']));
             }
         }
     }
@@ -54,7 +79,7 @@ class Migration1589357321AddCountries extends MigrationStep
         // implement update destructive
     }
 
-    private function getDeDeLanguageId(Connection $connection): string
+    private function getLanguageId(Connection $connection, string $code): string
     {
         $sql = <<<SQL
             SELECT id
@@ -62,12 +87,12 @@ class Migration1589357321AddCountries extends MigrationStep
             WHERE translation_code_id = (
                SELECT id
                FROM locale
-               WHERE locale.code = 'de-DE'
+               WHERE locale.code = :code
             )
             ORDER BY created_at ASC
 SQL;
 
-        return (string) $connection->executeQuery($sql)->fetchColumn();
+        return (string) $connection->executeQuery($sql, ['code' => $code])->fetchColumn();
     }
 
     private function createNewCountries(): array

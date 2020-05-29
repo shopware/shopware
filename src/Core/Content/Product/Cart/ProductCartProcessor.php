@@ -18,6 +18,7 @@ use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuild
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use function Flag\next7399;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
@@ -221,7 +222,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        $lineItem->replacePayload([
+        $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
             'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -237,7 +238,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $this->getOptions($product),
-        ]);
+        ];
+
+        if (next7399()) {
+            $payload['options'] = $product->getVariation();
+        }
+
+        $lineItem->replacePayload($payload);
     }
 
     private function getNotCompleted(CartDataCollection $data, array $lineItems): array

@@ -4,8 +4,8 @@
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
-      "SHOPWARE_INVALID_IP": "Bitte gib eine valide IP-Adresse ein",
-      "INVALID_URL": "Bitte gib eine valide Url ein"
+      "SHOPWARE_INVALID_IP": "Bitte gib eine valide IP-Adresse ein.",
+      "INVALID_URL": "Bitte gib eine valide URL ein."
     },
     "default": {
       "add": "Hinzufügen",
@@ -14,6 +14,7 @@
       "delete": "Löschen",
       "edit": "Bearbeiten",
       "error": "Fehler",
+      "warning": "Warnung",
       "save": "Speichern",
       "success": "Erfolg",
       "info": "Info",
@@ -23,11 +24,13 @@
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
-      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
+      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
+      "messageDeleteSuccess": "\"{name}\" wurde erfolgreich gelöscht.",
+      "notificationFetchErrorMessage": "Beim Abrufen der Daten ist ein Fehler aufgetreten."
     },
     "notification-center": {
       "title": "Mitteilungen",
-      "emptyText": "Bravo, alles erledigt.",
+      "emptyText": "Nicht viel los hier.",
       "deleteModal": {
         "title": "Mitteilungen löschen",
         "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?"
@@ -35,55 +38,55 @@
       "worker-listener": {
         "thumbnailGeneration": {
           "title": "Vorschaubilder werden generiert",
-          "message": "Keine Bilder verbleibend. | Ein Bild verbleibend. | {n} Bilder verbleibend.",
-          "messageSuccess": "Generierung der Vorschaubilder wurde abgeschlossen."
+          "message": "Keine Bilder verbleibend. | Noch ein Bild verbleibend ... | {n} Bilder verbleibend ...",
+          "messageSuccess": "Vorschaubilder generiert."
         },
         "esIndexing": {
-          "message": "Elasticsearch wurde indexiert. | Ein Indizierungsaufruf verbleibt. | {n} verbleibende Indizierungsaufrufe.",
-          "messageSuccess": "Elasticsearch wurde indexiert."
+          "message": "Elasticsearch indexiert. | Noch ein Indexierungsaufruf verbleibend ... | {n} Indexierungsaufrufe verbleibend ...",
+          "messageSuccess": "Elasticsearch indexiert."
         },
         "dalIndexing": {
-          "message": "Alle Daten werden indexiert. | Daten indexieren verbleibt.",
-          "messageSuccess": "Datenindizierung wurde beendet."
+          "message": "Alle Daten werden indexiert. | Weitere Daten zur Indexierung verbleibend ...",
+          "messageSuccess": "Daten indexiert."
         },
         "warmupIndexing": {
-          "message": "Cache wurde aufgewärmt. | Eine Seite übrig. | Circa {n} Seiten übrig.",
-          "messageSuccess": "Cache-Aufwärmen wurde beendet."
+          "message": "Cache aufgewärmt. | Noch eine Seite verbleidend ... |  {n} Seiten verbleidend ...",
+          "messageSuccess": "Cache aufgewärmt."
         },
         "productStream": {
-          "title": "Dynamische Produktgruppen Indexierung",
-          "message": "Dynamische Produktgruppen indexiert. | Ein dynamische Produktgruppe übrig | Circa {n} dynamische Produktgruppe übrig",
-          "messageSuccess": "Dynamische Produktgruppen Indexierung wurde beendet"
+          "title": "Indexierung der dynamischen Produktgruppen",
+          "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppe verbleibend ...",
+          "messageSuccess": "Dynamische Produktgruppen indexiert."
         },
         "category":  {
-          "title": "Kategorie Indexierung",
-          "message": "Kategorien indexiert. | Ein Kategorie übrig | Circa {n} Kategorien übrig",
-          "messageSuccess": "Kategorie Indexierung wurde beendet"
+          "title": "Kategorie-Indexierung",
+          "message": "Kategorie indexiert. | Noch eine Kategorie verbleibend ... | Circa {n} Kategorien verbleibend ...",
+          "messageSuccess": "Kategorien indexiert."
         },
         "media": {
-          "title": "Medien Indexierung",
-          "message": "Medien indexiert. | Ein Media übrig | Circa {n} Medien übrig",
-          "messageSuccess": "Medien Indexierung wurde beendet"
+          "title": "Medien-Indexierung",
+          "message": "Medium indexiert. | Noch ein Medium verbleibend ... | Circa {n} Medien verbleibend ...",
+          "messageSuccess": "Medien indexiert."
         },
         "salesChannel": {
-          "title": "Sales Channel Indexierung",
-          "message": "Sales Channel indexiert. | Ein Sales Channel übrig | Circa {n} Sales Channel übrig",
-          "messageSuccess": "Sales Channel Indexierung wurde beendet"
+          "title": "Verkaufskanal-Indexierung",
+          "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanal verbleibend ...",
+          "messageSuccess": "Verkaufskanäle indexiert."
         },
         "rule":  {
-          "title": "Regel Indexierung",
-          "message": "Regeln indexiert. | Ein Regel übrig | Circa {n} Regeln übrig",
-          "messageSuccess": "Regel Indexierung wurde beendet"
+          "title": "Regel-Indexierung",
+          "message": "Regeln indexiert. | Noch eine Regel verbleibend ... | Circa {n} Regeln verbleibend ...",
+          "messageSuccess": "Regeln indexiert."
         },
         "product": {
           "title": "Produkt Indexierung",
-          "message": "Produkte indexiert. | Ein Produkt übrig | Circa {n} Produkte übrig",
-          "messageSuccess": "Produkt Indexierung wurde beendet"
+          "message": "Produkte indexiert. | Noch ein Produkt verbleibend ... | Circa {n} Produkte verbleibend ...",
+          "messageSuccess": "Produkte indexiert."
         },
         "promotion": {
-          "title": "Promotion Indexierung",
-          "message": "Promotions indexiert. | Ein Promotion übrig | Circa {n} Promotions übrig",
-          "messageSuccess": "Promotions Indexierung wurde beendet"
+          "title": "Indexierung der Rabattaktionen",
+          "message": "Rabattaktion indexiert. | Noch eine Rabattaktion verbleibend ... | Circa {n} Rabattaktionen verbleibend ...",
+          "messageSuccess": "Rabattaktionen indexiert."
         }
       },
       "plugin-updates-listener": {
@@ -110,7 +113,7 @@
     "entity-components": {
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",
-      "placeholderToManyAssociationCard": "Nach Assoziationen suchen",
+      "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
       "labelRemoveAssociation": "Zuweisung aufheben"
     },
     "sw-field": {
@@ -137,7 +140,7 @@
           "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
         },
         "invalidFileSize": {
-          "title": "Dateigröße überschreitet Upload-Limit",
+          "title": "Dateigröße überschreitet das Upload-Limit",
           "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
         }
       },

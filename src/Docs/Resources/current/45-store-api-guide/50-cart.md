@@ -2,65 +2,194 @@
 [hash]: <>(article:store_api_cart)
 
 ## Cart
-Here you can find all the available routes for the cart.
+Here you can find all the available routes for the cart. You should always send the header `sw-context-token` to work on the same cart.
 
-### Available Payment methods
-To get all available payment methods you can use this route: `store-api.payment.method`
-You can use the `onlyAvailable` to list only ...
+### Fetching cart
 
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+The api `/store-api/v1/checkout/cart` can be used to fetch the current state of the cart.
 
 ```
-POST /store-api/v1/payment-method
-
+POST /store-api/v1/checkout/cart
 {
     "includes": {
-        "payment_method": ["name", "description", "active"]
+        "cart": ["price", "lineItems"],
+        "cart_price": ["netPrice", "totalPrice"]
     }
 }
-
-[
-    {
-        "name": "Cash on delivery",
-        "description": "Payment upon receipt of goods.",
-        "active": true,
-        "apiAlias": "payment_method"
-    },
-    {
-        "name": "Paid in advance",
-        "description": "Pay in advance and get your order afterwards",
-        "active": true,
-        "apiAlias": "payment_method"
-    }
-]
-```
-
-### Available Shipping methods
-You can get all available shipping methods via this route: `store-api.shipping.method`
-For this route you also have the `onlyAvailable` parameter to fetch only ...
-
-Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
-
-```
-POST /store-api/v1/shipping-method
-
 {
-    "includes": {
-        "shipping_method": ["name", "active", "deliveryTime"],
-        "delivery_time": ["name", "unit"]
-    }
+  "price": {
+    "netPrice": 0,
+    "totalPrice": 0,
+    "apiAlias": "cart_price"
+  },
+  "lineItems": [],
+  "apiAlias": "cart"
 }
+```
 
-[
-    {
-        "name": "Express",
-        "active": true,
-        "deliveryTime": {
-            "name": "1-3 days",
-            "unit": "day",
-            "apiAlias": "delivery_time"
+
+### Deleting entire cart
+
+The api `/store-api/v1/checkout/cart` can be used to delete the entire cart.
+
+```
+DELETE /store-api/v1/checkout/cart
+```
+
+### Adding new items to the cart
+
+The api `POST /store-api/v1/checkout/cart/line-item` can be used to add multiple new line items.
+
+#### Product
+
+```
+POST /store-api/v1/checkout/cart/line-item
+{
+    "items": [
+        {
+            "type": "product",
+            "referencedId": "<productId>"
         },
-        "apiAlias": "shipping_method"
-    }
-]
+        {
+            "type": "product",
+            "referencedId": "<productId>",
+            "quantity": 2
+        }
+    ]
+}
 ```
+
+You can set following properties on a product line item: `referencedId`, `payload` and `quantity`. When the Line Item is wrong miss-configured, the cart will add an error. This error is in the `error` key in the response.
+
+#### Promotion
+
+```
+POST /store-api/v1/checkout/cart/line-item
+{
+    "items": [
+        {
+                "type": "promotion",
+                "referencedId": "<promotionCode>"
+            }
+    ]
+}
+```
+
+### Error-Handling
+
+When you pass invalid line item configuration to the api the cart calculation process will remove the line items again and add errors to the cart. This errors are in the `error` key in the cart response.
+An example for invalid `referencedId` would be look like this:
+
+```json
+"errors": {
+    "product-not-foundfc2376912354406d80dd8887fc30ffa8": {
+      "id": "fc2376912354406d80dd8887fc30ffa8",
+      "message": "The product %s could not be found",
+      "code": 0,
+      "line": 166,
+      "key": "product-not-foundfc2376912354406d80dd8887fc30ffa8",
+      "level": 10,
+      "messageKey": "product-not-found"
+    }
+  }
+```
+
+### Updating items in the cart
+
+The api `PATCH /store-api/v1/checkout/cart/line-item` can be used to update line items in to cart.
+
+```
+PATCH /store-api/v1/checkout/cart/line-item
+{
+    "items": [
+        {
+            "id": "<id>",
+            "quantity": <quantity>,
+            "referencedId": "<newReferenceId>"
+        }
+    ]
+}
+```
+
+### Deleting items in the cart
+
+The api `DELETE /store-api/v1/checkout/cart/line-item` can be used to remove line items to the cart
+
+```
+DELETE /store-api/v1/checkout/cart/line-item
+{
+    "ids": [
+        "<id>"
+    ]
+}
+```
+
+### Creating an order from cart
+
+The api `/store-api/v1/checkout/order` can be used to create an order from the cart. You will need items in the cart and you need to be logged in.
+
+```
+POST /store-api/v1/checkout/order
+{
+    "includes": {
+        "order": ["orderNumber", "price", "lineItems"],
+        "order_line_item": ["label", "price"]
+    }
+}
+{
+  "orderNumber": "10060",
+  "price": {
+    "netPrice": 557.94,
+    "totalPrice": 597,
+    "calculatedTaxes": [
+      {
+        "tax": 39.06,
+        "taxRate": 7,
+        "price": 597,
+        "apiAlias": "cart_tax_calculated"
+      }
+    ],
+    "taxRules": [
+      {
+        "taxRate": 7,
+        "percentage": 100,
+        "apiAlias": "cart_tax_rule"
+      }
+    ],
+    "positionPrice": 597,
+    "taxStatus": "gross",
+    "apiAlias": "cart_price"
+  },
+  "lineItems": [
+    {
+      "label": "Aerodynamic Bronze Prawn Crystals",
+      "price": {
+        "unitPrice": 597,
+        "quantity": 1,
+        "totalPrice": 597,
+        "calculatedTaxes": [
+          {
+            "tax": 39.06,
+            "taxRate": 7,
+            "price": 597,
+            "apiAlias": "cart_tax_calculated"
+          }
+        ],
+        "taxRules": [
+          {
+            "taxRate": 7,
+            "percentage": 100,
+            "apiAlias": "cart_tax_rule"
+          }
+        ],
+        "referencePrice": null,
+        "listPrice": null,
+        "apiAlias": "calculated_price"
+      },
+      "apiAlias": "order_line_item"
+    }
+  ],
+  "apiAlias": "order"
+}
+```
+

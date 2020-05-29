@@ -2,23 +2,23 @@
     <div class="sw-sales-channel-google-authentication">
         <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-2.titleYourGoogleAccount') }}</strong>
         {% block sw_sales_channel_google_authentication_account %}
-            <sw-card class="sw-sales-channel-google-authentication__account">
+            <sw-card v-if="googleShoppingAccount" class="sw-sales-channel-google-authentication__account">
                 {% block sw_sales_channel_google_authentication_account_user_profile %}
 
                     {% block sw_sales_channel_google_authentication_account_user_avatar %}
-                        <sw-avatar size="40px" :imageUrl="userProfile.picture"></sw-avatar>
+                        <sw-avatar size="40px" :imageUrl="googleShoppingAccount.picture"></sw-avatar>
                     {% endblock %}
 
                     {% block sw_sales_channel_google_authentication_account_user_info %}
                         <div class="sw-sales-channel-google-authentication__user-info">
-                            <p>{{ userProfile.name }}</p>
-                            <p>{{ userProfile.email }}</p>
+                            <p>{{ googleShoppingAccount.name }}</p>
+                            <p>{{ googleShoppingAccount.email }}</p>
                         </div>
                     {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_google_authentication_button_disconnect %}
-                    <sw-button size="small" variant="ghost" @click="onDisconnectAccount">
+                    <sw-button size="small" variant="ghost" @click="$emit('on-disconnect-account')">
                         {{ $tc('sw-sales-channel.modalGooglePrograms.step-2.buttonDisconnect') }}
                     </sw-button>
                 {% endblock %}

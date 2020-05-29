@@ -12,7 +12,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 {
     "name": "swag/example-plugin",
     "description": "Example plugin",
-    "version": "v1.0.1",
+    "version": "1.0.1",
     "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [

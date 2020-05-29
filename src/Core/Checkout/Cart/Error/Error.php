@@ -40,6 +40,7 @@ abstract class Error extends \Exception implements \JsonSerializable
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
         $data['messageKey'] = $this->getMessageKey();
+        unset($data['file'], $data['line']);
 
         return $data;
     }

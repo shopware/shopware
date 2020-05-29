@@ -20,6 +20,7 @@ const storeState = {
         inheritance: null,
         installationPath: null,
         languageId: null,
+        language: null,
         apiVersion: null,
         liveVersionId: null,
         systemLanguageId: null
@@ -44,6 +45,21 @@ export default {
 
         addAppConfigValue(state, { key, value }) {
             state.app.config[key] = value;
+        },
+
+        setApiLanguageId(state, newLanguageId) {
+            state.api.languageId = newLanguageId;
+            localStorage.setItem('sw-admin-current-language', newLanguageId);
+        },
+
+        resetLanguageToDefault(state) {
+            state.api.languageId = state.api.systemLanguageId;
+        }
+    },
+
+    getters: {
+        isSystemDefaultLanguage(state) {
+            return state.api.languageId === state.api.systemLanguageId;
         }
     }
 };

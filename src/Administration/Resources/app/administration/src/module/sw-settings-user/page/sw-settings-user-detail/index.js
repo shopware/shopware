@@ -34,6 +34,7 @@ Component.register('sw-settings-user-detail', {
             mediaItem: null,
             changePasswordModal: false,
             newPassword: '',
+            newPasswordConfirm: '',
             isEmailUsed: false,
             isUsernameUsed: false,
             isIntegrationsLoading: false,
@@ -93,13 +94,14 @@ Component.register('sw-settings-user-detail', {
         },
 
         disableConfirm() {
-            return this.newPassword === '' || this.newPassword === null;
+            return this.newPassword !== this.newPasswordConfirm || this.newPassword === '' || this.newPassword === null;
         },
 
         isCurrentUser() {
             if (!this.user || !this.currentUser) {
-                return true;
+                return false;
             }
+
             return this.userId === this.currentUser.id;
         },
 
@@ -160,7 +162,7 @@ Component.register('sw-settings-user-detail', {
             }
 
             const languagePromise = new Promise((resolve) => {
-                Shopware.StateDeprecated.getStore('language').setCurrentId(this.languageId);
+                Shopware.State.commit('context/setApiLanguageId', this.languageId);
                 resolve(this.languageId);
             });
 
@@ -345,14 +347,17 @@ Component.register('sw-settings-user-detail', {
 
         onClosePasswordModal() {
             this.newPassword = '';
+            this.newPasswordConfirm = '';
             this.changePasswordModal = false;
         },
 
-        onSubmit() {
-            this.changePasswordModal = false;
+        async onSubmit() {
             this.user.password = this.newPassword;
             this.newPassword = '';
-            this.onSave();
+            this.newPasswordConfirm = '';
+            await this.onSave();
+            this.user.password = '';
+            this.changePasswordModal = false;
         },
 
         onShowDetailModal(id) {

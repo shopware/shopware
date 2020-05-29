@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-sales-channel-detail-shop-categories {
+    &.sw-tree {
+        border-top: 0;
+        border-left: 0;
+        border-bottom: 0;
+        background: $color-white;
+    }
+
+    .sw-tree-item {
+        // Since :displayCheckbox="false" we need to recalculate columns size of ".sw-tree-item__element"
+        .sw-tree-item__element {
+            grid-template-columns: 30px 0 20px auto 30px;
+        }
+    }
+
+    &__actions-headline {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        border-bottom: 1px solid $color-steam-cloud;
+        box-shadow: 0 10px 24px rgba($color-black, 0.05);
+        padding: 14px 40px;
+        color: $color-kashmir;
+        font-size: 18px;
+        line-height: 32px;
+    }
+
+    &__hide-assigned {
+        &.sw-field--switch {
+            margin: 0;
+        }
+    }
+}

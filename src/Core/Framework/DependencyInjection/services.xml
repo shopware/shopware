@@ -180,6 +180,7 @@
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
+            <argument>%kernel.environment%</argument>
 
             <tag name="monolog.logger"/>
         </service>
@@ -420,5 +421,12 @@
         <service id="Shopware\Core\Framework\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
             <tag name="shopware.snippet.file" priority="1000"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <tag name="controller.argument_value_resolver"/>
+        </service>
+
     </services>
 </container>

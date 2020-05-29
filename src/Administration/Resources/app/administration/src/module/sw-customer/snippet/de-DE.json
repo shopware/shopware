@@ -18,6 +18,8 @@
       "placeholderLastName": "Nachname",
       "placeholderCompany": "Firma",
       "placeholderEmail": "E-Mail-Adresse",
+      "placeholderNewPassword": "Neues Passwort eingeben ...",
+      "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
       "labelSalutation": "Anrede",
       "labelTitle": "Titel",
       "labelFirstName": "Vorname",
@@ -185,7 +187,7 @@
       "placeholderAdditionalAddressLine1": "Gib eine zusätzliche Adresszeile 1 ein ...",
       "placeholderAdditionalAddressLine2": "Gib eine zusätzliche Adresszeile 2 ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
-      "placeholderVatId": "Gib Deine USt-IdNr. ein ..."
+      "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },
     "detail": {
       "buttonSave": "Speichern",
@@ -196,7 +198,10 @@
       "titleSaveError": "Fehler",
       "titleSaveSuccess": "Erfolg",
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
-      "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
+      "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
+      "notificationPasswordLengthErrorMessage": "Das Losungswort erfüllt nicht die Mindestlänge von 8."
+
     }
   }
 }

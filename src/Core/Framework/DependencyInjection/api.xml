@@ -44,6 +44,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

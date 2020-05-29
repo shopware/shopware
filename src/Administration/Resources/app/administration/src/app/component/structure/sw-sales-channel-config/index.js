@@ -17,6 +17,13 @@ Component.register('sw-sales-channel-config', {
         value: {
             type: Object,
             required: false
+        },
+        criteria: {
+            type: Object,
+            required: false,
+            default: () => {
+                return new Criteria();
+            }
         }
     },
 
@@ -66,7 +73,7 @@ Component.register('sw-sales-channel-config', {
     methods: {
         createdComponent() {
             if (!this.salesChannel.length) {
-                this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then(res => {
+                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then(res => {
                     res.add({
                         id: null,
                         translated: {
@@ -108,4 +115,3 @@ Component.register('sw-sales-channel-config', {
         }
     }
 });
-

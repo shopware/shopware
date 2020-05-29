@@ -76,8 +76,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\StopWordFilter"/>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
         </service>
@@ -94,7 +92,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument>%shopware.api.max_limit%</argument>
-            <argument>%shopware.api.allowed_limits%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>

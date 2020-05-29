@@ -30,7 +30,7 @@
       "info": {
         "headline": "Zurück zur Anmeldung",
         "info": "Wenn Du eine gültige E-Mail-Adresse angegeben hast, erhältst Du innerhalb weniger Minuten eine E-Mail zur Passwort-Wiederherstellung.",
-        "warning": "Bitte beachte, dass der Wiederherstellungs-Link nur für 2 Stunden gültig ist."
+        "warning": "Bitte beachte, dass der Wiederherstellungslink nur für 2 Stunden gültig ist."
       },
       "recovery": {
         "headline": "Passwort-Wiederherstellung",

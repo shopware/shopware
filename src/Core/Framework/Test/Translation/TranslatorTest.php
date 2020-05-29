@@ -102,31 +102,38 @@ class TranslatorTest extends TestCase
 
     public function testSymfonyDefaultTranslationFallback(): void
     {
+        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en');
         static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
+        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
 
+        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertEquals('en', $fallback->getLocale());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
+        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertEquals('en', $fallback->getLocale());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
+        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de_DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertEquals('en', $fallback->getLocale());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
+        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertEquals('en', $fallback->getLocale());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
+        $this->translator->resetInMemoryCache();
     }
 
     public function testDeleteSnippet(): void

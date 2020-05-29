@@ -112,6 +112,10 @@ return [
     'configuration_defaults_warning' => '.El idioma estándar y la moneda estándar del sistema no se podrán modificar posteriormente:',
     'configuration_email_help_text' => 'Esta dirección de correo electrónico se utilizará para los correos electrónicos salientes de la tienda.',
     'configuration_admin_language_de' => 'Deutsch',
+    'configuration_admin_currency_headline' => 'Monedas disponibles',
+    'configuration_admin_currency_text' => 'Añade más monedas a tu tienda de Shopware. Si quieres añadir monedas después, puedes hacerlo en cualquier momento en la administración.',
+
+    'configuration_admin_language_de' => 'Alemán',
     'configuration_admin_language_en' => 'Inglés',
     'configuration_admin_password' => 'Contraseña del administrador:',
     'finish_header' => 'Instalación terminada',

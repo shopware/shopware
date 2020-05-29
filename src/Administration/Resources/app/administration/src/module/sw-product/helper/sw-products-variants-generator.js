@@ -19,7 +19,6 @@ export default class VariantsGenerator extends EventEmitter {
 
         // local data
         this.languageId = null;
-        this.languageStore = this.StateDeprecated.getStore('language');
     }
 
     createNewVariants(forceGenerating, currencies, product) {
@@ -391,7 +390,7 @@ export default class VariantsGenerator extends EventEmitter {
         }];
 
         // Send the payload to the server
-        const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
+        const header = this.EntityStore.getLanguageHeader(Shopware.Context.api.languageId);
         header['single-operation'] = 1;
 
         this.syncService.sync(payload, {}, header).then(() => {
@@ -399,7 +398,10 @@ export default class VariantsGenerator extends EventEmitter {
         });
     }
 
+    /**
+     * @deprecated tag:v6.4.0
+     */
     getLanguageId() {
-        return this.languageStore.getCurrentId();
+        return Shopware.Context.api.languageId;
     }
 }

@@ -15,4 +15,5 @@
     <import resource="../../Currency/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Language/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Salutation/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Country/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

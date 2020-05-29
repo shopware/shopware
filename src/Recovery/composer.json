@@ -12,11 +12,16 @@
             "composer install -d Common --no-interaction --optimize-autoloader --no-suggest"
         ]
     },
-  "autoload-dev": {
-    "psr-4": {
-      "Shopware\\Recovery\\Test\\": "Test"
-    }
-  },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\Recovery\\Test\\": "Test"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.3.x-dev"
+        }
+    },
     "config": {
         "autoloader-suffix": "ShopwareRecovery",
         "platform": {

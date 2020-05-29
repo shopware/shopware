@@ -1,6 +1,6 @@
 import template from './sw-settings-customer-group-detail.html.twig';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-customer-group-detail', {
@@ -44,10 +44,6 @@ Component.register('sw-settings-customer-group-detail', {
     computed: {
         identifier() {
             return this.placeholder(this.customerGroup, 'name', '');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         customerGroupRepository() {
@@ -104,7 +100,7 @@ Component.register('sw-settings-customer-group-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.customerGroup = this.customerGroupRepository.create(Shopware.Context.api);
             this.isLoading = false;
         },

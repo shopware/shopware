@@ -75,6 +75,7 @@
                         {% block sw_sales_channel_detail_content_tab_products %}
                             <sw-tabs-item
                                 v-if="isGoogleShopping"
+                                :disabled="!!needToCompleteTheSetup.length"
                                 :title="$tc('sw-sales-channel.detail.tabProducts')"
                                 :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }">
                                 {{ $tc('sw-sales-channel.detail.tabProducts') }}

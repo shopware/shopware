@@ -1,0 +1,52 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-sales-channel-google-store-verification {
+    &__top {
+        padding-top: 0;
+    }
+
+    &__check-list {
+        padding: 10px 0;
+    }
+
+    .sw-sales-channel-google-store-verification__check-item {
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        .sw-label {
+            margin: 0;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+
+            @include circle(32px);
+        }
+
+        &-description {
+            padding-left: 20px;
+            font-size: $font-size-small;
+            line-height: 32px;
+        }
+    }
+
+    &__fix-link {
+        text-decoration: none;
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+        margin-left: 10px;
+
+        &:hover {
+            color: $color-shopware-brand-600;
+            text-decoration: underline;
+        }
+    }
+
+    &__bottom {
+        padding-bottom: 0;
+    }
+}

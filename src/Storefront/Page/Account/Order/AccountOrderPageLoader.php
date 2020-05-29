@@ -5,13 +5,11 @@ namespace Shopware\Storefront\Page\Account\Order;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,11 +36,6 @@ class AccountOrderPageLoader
     private $orderRoute;
 
     /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
-    /**
      * @var AccountService
      */
     private $accountService;
@@ -51,13 +44,11 @@ class AccountOrderPageLoader
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
         AccountService $accountService
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->accountService = $accountService;
     }
 
@@ -99,13 +90,8 @@ class AccountOrderPageLoader
     private function getOrders(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = $this->createCriteria($request);
-        $routeRequest = new Request();
-        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
 
-        /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($routeRequest, $context)->getObject();
-
-        return $responseStruct->getOrders();
+        return $this->orderRoute->load(new Request(), $context, $criteria)->getOrders();
     }
 
     private function createCriteria(Request $request): Criteria

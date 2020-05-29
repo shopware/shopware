@@ -11,6 +11,18 @@
     }
 }
 
+.product-detail-name-container {
+    display: flex;
+    align-items: center;
+
+    .product-detail-variant-characteristics {
+        padding-left: $spacer-sm;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $gray-500;
+    }
+}
+
 .product-detail-buy {
     margin-bottom: $spacer;
 }

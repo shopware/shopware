@@ -1,0 +1,22 @@
+{% block sw_sales_channel_google_done_verification %}
+    <div class="sw-sales-channel-google-done-verification">
+        {% block sw_sales_channel_google_done_verification_top %}
+            <div class="sw-sales-channel-google-done-verification__top">
+                <sw-label
+                        class="sw-sales-channel-google-done-verification__label"
+                        variant="success"
+                        appearance="circle">
+                    <sw-icon
+                        name="default-basic-checkmark-line"
+                        size="32px">
+                    </sw-icon>
+                </sw-label>
+
+                <strong>{{ $tc('sw-sales-channel.modalGooglePrograms.step-7.titleDone') }}</strong>
+                <p class="sw-sales-channel-google-done-verification__description">
+                    {{ $tc('sw-sales-channel.modalGooglePrograms.step-7.textDoneDescription') }}
+                </p>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Core\Framework\Api\Acl\Permission\AclPermission;
-use Shopware\Core\Framework\Api\Acl\Permission\AclPermissionCollection;
-
 class AdminApiSource implements ContextSource
 {
     /**
@@ -23,15 +20,14 @@ class AdminApiSource implements ContextSource
     private $isAdmin;
 
     /**
-     * @var AclPermissionCollection
+     * @var array
      */
-    private $permissions;
+    private $permissions = [];
 
     public function __construct(?string $userId, ?string $integrationId = null)
     {
         $this->userId = $userId;
         $this->integrationId = $integrationId;
-        $this->permissions = new AclPermissionCollection();
         $this->isAdmin = false;
     }
 
@@ -50,21 +46,18 @@ class AdminApiSource implements ContextSource
         $this->isAdmin = $isAdmin;
     }
 
-    public function addPermissions(array $permissions): void
+    public function setPermissions(array $permissions): void
     {
-        foreach ($permissions as $permission) {
-            $permission = new AclPermission($permission['resource'], $permission['privilege']);
-            $this->permissions->add($permission);
-        }
+        $this->permissions = $permissions;
     }
 
-    public function isAllowed(string $resource, string $privilege): bool
+    public function isAllowed(string $privilege): bool
     {
         if ($this->isAdmin) {
             return true;
         }
 
-        return $this->permissions->isAllowed($resource, $privilege);
+        return in_array($privilege, $this->permissions, true);
     }
 
     public function isAdmin(): bool

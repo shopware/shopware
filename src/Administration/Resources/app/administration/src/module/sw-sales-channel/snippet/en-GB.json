@@ -10,14 +10,18 @@
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",
       "buttonCancel": "Cancel",
+      "buttonDisconnect": "Disconnect",
       "titleDescription": "Information",
-      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
+      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first.",
+      "titleDisconnect": "Disconnect Google Account",
+      "textDisconnectDescription": "Are you sure you want to disconnect your Google account? If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected."
     },
     "detail": {
       "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Sales Channel \"{name}\" has been saved.",
       "titleSaveError": "Error",
       "titleActivateError": "Activation error",
+      "titleFetchError": "Error",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
@@ -225,8 +229,10 @@
         }
       },
       "googleShoppingGeneral": {
-        "title": "Select a storefront for the checkout process",
-        "description": "Sales Channels that don’t have a storefront require another linked storefront, which will be used to complete the checkout process."
+        "title": "Assign a storefront designated to performing the checkout process.",
+        "description": "All Sales Channels require an associated storefront to complete the checkout process.",
+        "titleSecond": "Select products to synchronise",
+        "descriptionSecond": "This dynamic product group is used to synchronise products with Google."
       },
       "googleShoppingAccountConnect": {
         "title": "Connect your Google Account to use Google Programs",
@@ -237,24 +243,39 @@
         "titleProfiles": "This Google Account can be used to access your Google Merchant Center account at",
         "titleLinkProfiles": "merchants.google.com.",
         "textDisconnectButton": "Disconnect",
-        "titleMerchant": "A suspended Google Merchant Center account cannot run shopping ads. Learn more",
+        "titleMerchant": "A suspended Google Merchant Center account cannot run shopping ads. Learn more.",
         "titleLinkMerchant": "about account suspensions.",
         "textGroupMerchant": "Merchant Center Account:",
         "titleWebsite": "Your website is associated with your Google Merchant Center account. It must be claimed to run Shopping ads.",
         "textGroupWebsite": "Website:"
+      },
+      "textConnected": "Active",
+      "textNotConnected": "Not connected",
+      "textClaimed": "Claimed",
+      "textNotclaimed": "Not claimed",
+      "textNoAccountConnected": "No account connected",
+      "textNoWebsiteClaimed": "No website claimed",
+      "textCompleteSetup": "You need to complete the setup of your Google Account to synchronize products.",
+      "linkCompleteSetup": "Complete setup",
+      "textIssues": "Your account has been suspended, you must fix this issue in order for your products to appear on Google.",
+      "categoryMapping": {
+        "emptyCategories": "Select a store category and assign it to a Google product category.",
+        "labelHideAssigned": "Hide assigned categories"
       }
     },
     "modalGooglePrograms": {
       "title": "Connect Google Account",
       "buttonNext": "Next",
       "buttonBack": "Back",
+      "buttonFinish": "Finish",
       "step-1": {
         "titleGetStarted": "Get started with Google Programs",
         "textGetStartedDescription": "Google’s retail solutions can help you welcome more customers to your site or your store. After you get set up, you’ll have access to reports so you can see how well your ads are doing.",
         "textLearnMore": "Learn more",
         "titleConnectGoogleAccount": "Connect your Google Account to use Google Programs",
         "textConnectGoogleAccountDescription": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
-        "buttonConnect": "Connect Account"
+        "buttonConnect": "Connect Account",
+        "messageErrorGoogleAuth": "Received an error message from Google service: {error}"
       },
       "step-2": {
         "titleYourGoogleAccount": "Your Google Account",
@@ -270,9 +291,57 @@
         "placeholderSelectMerchant": "Select an existing Google Merchant Center account...",
         "titleCreateMerchant": "Create a new Google Merchant Center account",
         "textCreateMerchantDescription": "Create a new Google Merchant Center account, if you wish.",
-        "buttonCreateMerchant": "Create a new Merchant Center account"
+        "buttonCreateMerchant": "Create a new Merchant Center account",
+
+        "website-claim": {
+          "titleCreateMerchant": "Create your Merchant Center account",
+          "textVerifyDescription": "Before you can upload product data, you’ll need to verify and claim your store’s website URL. Verification lets Google know you are the authorized owner of your website. Claiming associates your website URL with your Google Merchant Center account.",
+          "textLearnMore": "Learn more",
+          "linkClaimWebsiteUrl": "https://support.google.com/merchants/answer/176793?hl=en",
+          "textAutoClaimedInfo": "Your site will automatically be claimed and verified.",
+          "labelWebsiteUrl": "Website URL",
+          "placeholderWebsite": "examplestore.com",
+          "tooltipsWebsite": "This is the website used to create your Merchant Center account.",
+          "labelStoreName": "Store name",
+          "placeholderStoreName": "Enter store name...",
+          "tooltipsStoreName": "This name will appear in your Shopping ads.",
+          "labelShopContain": "My shop contains",
+          "textAdultContent": "adult content",
+          "linkAdultPolicyUrl": "https://support.google.com/merchants/answer/6150138?hl=en"
+        }
       },
-      "step-7": {
+      "step-4": {
+        "titleGeneral": "To use Shopping ads, your shop must meet these requirements:",
+        "textAdsPolicy": "Shopping ads policies",
+        "linkAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=en",
+        "textAccurateContact": "Accurate contact information",
+        "linkAccurateContactUrl": "https://support.google.com/merchants/answer/6150127",
+        "textSecureCheckoutProcess": "Secure checkout process and collection of personal data",
+        "linkSecureCheckoutProcessUrl": "https://support.google.com/merchants/answer/6150122",
+        "textReturnPolicy": "Return policy",
+        "linkReturnPolicyUrl": "https://support.google.com/merchants/answer/6150127",
+        "textBillingTerms": "Billing terms and conditions",
+        "linkBillingTermsUrl": "https://support.google.com/merchants/answer/6150127",
+        "textComplete": "Complete checkout process",
+        "linkCompleteUrl": "https://support.google.com/merchants/answer/6150118",
+        "textVerifiedWebsite": "Verified Storefront domain",
+        "linkVerifyWebsite": "https://support.google.com/webmasters/answer/9008080?hl=en",
+        "textFixHere": "Fix here",
+        "buttonCheckAgain": "Check again"
+      },
+      "step-5": {
+        "titleTerms": "Terms of Service for Google Programs",
+        "titleTermsDescription": "By purchasing Shopping ads, I agree to comply with Google's terms and policies, including:",
+        "textMerchantTerms": "Google's Merchant Center terms of service",
+        "textMerchantTermsUrl": "https://support.google.com/merchants/answer/160173?hl=en",
+        "textShoppingAdsPolicy": "Shopping ads policies",
+        "textShoppingAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=en",
+        "textAnd": "and",
+        "textGoogleAdsTerms": "Google Ads Terms and Conditions",
+        "textGoogleAdsTermsUrl": "https://billing.google.com/payments/u/0/paymentsinfofinder?style=:md#",
+        "labelAcceptTerms": "I have read and accept these terms."
+      },
+      "step-6": {
         "titleSetting": "Set up your shipping settings",
         "textSettingDescription": "To show ads to a particular country or region, you must offer shipping and set up shipping costs for that area. Your Merchant Center shipping costs must match the costs you charge on your website.",
         "textLearnMore": "Learn more",
@@ -280,9 +349,13 @@
         "textCurrentStoreOption": "Use current store shipping settings",
         "textFlatRateOption": "Use a flat rate for all orders",
         "textSelfSetupOption": "Don’t sync settings from Shopware. I’ll set this up myself in Google Merchant Center"
+      },
+      "step-7": {
+        "titleDone": "All done!",
+        "textDoneDescription": "Your Google Merchant account is now linked to this Sales Channel."
       }
     },
-    "sw-sales-channel-defaults-select": {
+     "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"%{url}\"."
     }
   }

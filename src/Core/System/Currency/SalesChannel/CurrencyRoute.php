@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -49,6 +50,7 @@ class CurrencyRoute extends AbstractCurrencyRoute
     }
 
     /**
+     * @Entity("currency")
      * @OA\Get(
      *      path="/currency",
      *      description="Loads all available currency",
@@ -63,14 +65,12 @@ class CurrencyRoute extends AbstractCurrencyRoute
      * )
      * @Route("/store-api/v{version}/currency", name="store-api.currency", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): CurrencyRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): CurrencyRouteResponse
     {
-        $criteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            new Criteria(),
-            $this->currencyDefinition,
-            $context->getContext()
-        );
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->currencyDefinition, $context->getContext());
+        }
 
         /** @var CurrencyCollection $currencyCollection */
         $currencyCollection = $this->currencyRepository->search($criteria, $context)->getEntities();

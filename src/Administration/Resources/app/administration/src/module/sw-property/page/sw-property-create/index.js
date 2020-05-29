@@ -14,7 +14,7 @@ Component.extend('sw-property-create', 'sw-property-detail', {
 
     methods: {
         createdComponent() {
-            if (Shopware.Context.api.languageId !== Shopware.Context.api.systemLanguageId) {
+            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
                 Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
             }
 

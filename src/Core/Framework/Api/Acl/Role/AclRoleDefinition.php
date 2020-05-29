@@ -2,19 +2,17 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -22,6 +20,11 @@ use Shopware\Core\System\User\UserDefinition;
 
 class AclRoleDefinition extends EntityDefinition
 {
+    public const PRIVILEGE_READ = 'read';
+    public const PRIVILEGE_CREATE = 'create';
+    public const PRIVILEGE_UPDATE = 'update';
+    public const PRIVILEGE_DELETE = 'delete';
+
     public const ENTITY_NAME = 'acl_role';
 
     public function getEntityName(): string
@@ -39,6 +42,11 @@ class AclRoleDefinition extends EntityDefinition
         return AclRoleEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return ['privileges' => []];
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -48,8 +56,8 @@ class AclRoleDefinition extends EntityDefinition
             new UpdatedAtField(),
 
             (new StringField('name', 'name'))->addFlags(new Required()),
-            (new OneToManyAssociationField('aclResources', AclResourceDefinition::class, 'acl_role_id', 'id'))
-                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
+
+            (new ListField('privileges', 'privileges'))->addFlags(new Required()),
 
             (new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id'))
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),

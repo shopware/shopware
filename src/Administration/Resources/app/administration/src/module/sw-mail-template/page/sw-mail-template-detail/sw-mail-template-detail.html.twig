@@ -65,7 +65,7 @@
                                     labelProperty="name"
                                     :criteria="salesChannelTypeCriteria"
                                     :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                    :placeholder="$tc('sw-mail-template.detail.basic.labelSalesChannels')">
+                                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')">
                                 </sw-entity-multi-select>
                             {% endblock %}
 
@@ -107,21 +107,23 @@
                     {% block sw_mail_template_detail_attachments_info %}
                         <sw-card :title="$tc('sw-mail-template.detail.media.titleCard')">
                             {% block sw_mail_template_detail_attachments_info_upload %}
-                                <sw-upload-store-listener
+                                <sw-upload-listener
                                     v-if="mailTemplate.id"
                                     :uploadTag="mailTemplate.id"
                                     autoUpload
-                                    @media-upload-finish="successfulUpload">
-                                </sw-upload-store-listener>
+                                    @media-upload-finish="successfulUpload"
+                                >
+                                </sw-upload-listener>
 
-                                <sw-media-upload
-                                        v-if="mailTemplate.id"
-                                        variant="regular"
-                                        defaultFolder="mail_template"
-                                        :uploadTag="mailTemplate.id"
-                                        :fileAccept="fileAccept"
-                                        @media-upload-sidebar-open="openMediaSidebar">
-                                </sw-media-upload>
+                                <sw-media-upload-v2
+                                    v-if="mailTemplate.id"
+                                    variant="regular"
+                                    defaultFolder="mail_template"
+                                    :uploadTag="mailTemplate.id"
+                                    :fileAccept="fileAccept"
+                                    @media-drop="onMediaDrop"
+                                    @media-upload-sidebar-open="openMediaSidebar">
+                                </sw-media-upload-v2>
                             {% endblock %}
 
                             {% block sw_mail_template_detail_attachments_info_grid %}

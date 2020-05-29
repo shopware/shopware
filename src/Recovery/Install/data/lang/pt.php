@@ -111,6 +111,9 @@ return [
     'configuration_defaults_warning' => 'O idioma padrão e a moeda padrão do sistema não podem ser alterados posteriormente.',
     'configuration_email_help_text' => 'Este endereço de e-mail é utilizado para enviar e-mails da loja.',
     'configuration_admin_language_de' => 'Deutsch',
+    'configuration_admin_currency_headline' => 'Moedas disponíveis',
+    'configuration_admin_currency_text' => 'Adicione mais moedas à sua loja de lojinhas. Se você quiser adicionar moedas depois, você pode fazer isso a qualquer momento na administração.',
+
     'configuration_admin_language_en' => 'Inglês',
     'configuration_admin_password' => 'Palavra-passe do Admin:',
     'finish_header' => 'Instalação concluída',

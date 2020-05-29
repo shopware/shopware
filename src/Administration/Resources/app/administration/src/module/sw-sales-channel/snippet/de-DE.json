@@ -15,14 +15,18 @@
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
       "buttonCancel": "Abbrechen",
+      "buttonDisconnect": "Trennen",
       "titleDescription": "Informationen",
-      "messageNoProductStreams": "Um Produktvergleiche anzulegen, muss zunächst eine dynamische Produktgruppe erstellt werden."
+      "messageNoProductStreams": "Um Produktvergleiche anzulegen, musst Du zunächst eine dynamische Produktgruppe erstellen.",
+      "titleDisconnect": "Google-Konto trennen",
+      "textDisconnectDescription": "Möchtest Du Dein Google-Konto wirklich trennen? Wenn Du Dein Google-Konto trennst, werden auch Dein Google Merchant Center und Deine Google-Ads-Konten getrennt."
     },
     "detail": {
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
       "titleSaveError": "Fehler",
       "titleActivateError": "Aktivierungsfehler",
+      "titleFetchError": "Fehler",
       "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
       "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
       "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
@@ -37,7 +41,7 @@
       "titleProductComparisonPreview": "Vorschau",
       "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
       "labelAccessKeyField": "API-Zugangs-ID",
-      "titleAPIError": "Fehler",
+
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
       "titleGeneralSettings": "Grundeinstellungen",
       "labelInputName": "Name",
@@ -236,35 +240,52 @@
       },
       "googleShoppingGeneral": {
         "title": "Wählen Sie eine Storefront für den Checkout-Prozess aus",
-        "description": "Für Verkaufskanäle ohne Storefront ist eine verknüpfte Storefront erforderlich, mit der die Kaufabwicklung abgeschlossen wird."
+        "description": "Für Vertriebskanäle ohne direkte Storefront ist das Verknüpfen einer funktionsfähigen Storefront dennoch erforderlich, um die Kaufabwicklung abschließen zu können.",
+        "titleSecond": "Wähle Produkte aus, die Du synchronisieren möchtest.",
+        "descriptionSecond": "Diese dynamische Produktgruppe wird verwendet, um Produkte mit Google zu synchronisieren."
       },
       "googleShoppingAccountConnect": {
         "title": "Verbinden Sie Ihr Google-Konto, um Google-Programme zu verwenden",
-        "subTitle": "Mit einem Google-Konto können Sie auf Ihre Google Merchant Center- und Google Ads-Konten zugreifen.",
+        "subTitle": "Mit einem Google-Konto können Sie auf Ihre Google-Merchant-Center- und Google-Ads-Konten zugreifen.",
         "textConnectButton": "Verbinden"
       },
       "googleShoppingAccountDisconnect": {
         "titleProfiles": "Mit diesem Google-Konto kannst Du auf Dein Google-Merchant-Center-Konto zugreifen",
         "titleLinkProfiles": "merchants.google.com.",
         "textDisconnectButton": "Trennen",
-        "titleMerchant": "Ein gesperrtes Google Merchant Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren",
+        "titleMerchant": "Ein gesperrtes Google-Merchant-Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren:",
         "titleLinkMerchant": "über Kontosperrungen.",
         "textGroupMerchant": "Merchant-Center-Konto:",
-        "titleWebsite": "Ihre Website ist mit Ihrem Google Merchant Center-Konto verknüpft. Es muss behauptet werden, Shopping-Anzeigen zu schalten.",
+        "titleWebsite": "Deine Website ist mit Deinem Google-Merchant-Center-Konto verknüpft. Das Konto muss beansprucht worden sein, um Shopping-Anzeigen zu schalten.",
         "textGroupWebsite": "Webseite:"
+      },
+      "textConnected": "Aktiv",
+      "textNotConnected": "Nicht verbunden",
+      "textClaimed": "Beansprucht",
+      "textNotclaimed": "Nicht beansprucht",
+      "textNoAccountConnected": "Kein Konto verbunden",
+      "textNoWebsiteClaimed": "Keine Website beansprucht",
+      "textCompleteSetup": "Du musst die Einrichtung Deines Google-Kontos abschließen, um Produkte synchronisieren zu können.",
+      "linkCompleteSetup": "Setup abschließen",
+      "textIssues": "Dein Konto wurde gesperrt. Du musst dieses Problem beheben, um Deine Produkte bei Google anzeigen zu können.",
+      "categoryMapping": {
+        "emptyCategories": "Wähle eine Shopware-Kategorie aus und weise sie einer Google-Produktkategorie zu.",
+        "labelHideAssigned": "Bereits zugewiesene Kategorien ausblenden"
       }
     },
     "modalGooglePrograms": {
       "title": "Google-Konto verbinden",
       "buttonNext": "Weiter",
       "buttonBack": "Zurück",
+      "buttonFinish": "Fertig",
       "step-1": {
         "titleGetStarted": "Starte mit Google Programs",
         "textGetStartedDescription": "Das Handelsangebot von Google kann Dir dabei helfen, mehr Kunden auf Deiner Website oder in Deinem Geschäft zu begrüßen. Nach der Einrichtung hast Du Zugriff auf Berichte, damit Du sehen kannst, wie gut Deine Anzeigen laufen.",
         "textLearnMore": "Erfahre mehr",
         "titleConnectGoogleAccount": "Verbinde Dein Google-Konto, um Google Programs zu nutzen",
         "textConnectGoogleAccountDescription": "Ein Google-Konto gibt Dir Zugriff auf Dein Google Merchant Center und Google-Ads-Konten.",
-        "buttonConnect": "Konto verbinden"
+        "buttonConnect": "Konto verbinden",
+        "messageErrorGoogleAuth": "Fehlermeldung vom Google Dienst erhalten: {error}"
       },
       "step-2": {
         "titleYourGoogleAccount": "Dein Google-Konto",
@@ -280,16 +301,69 @@
         "placeholderSelectMerchant": "Wähle ein existierendes Google-Merchant-Center-Konto ...",
         "titleCreateMerchant": "Erstelle ein neues Google-Merchant-Center-Konto",
         "textCreateMerchantDescription": "Erstelle ein neues Google-Merchant-Center-Konto, wenn du möchtest.",
-        "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto"
+        "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto",
+
+        "website-claim": {
+          "titleCreateMerchant": "Erstelle Dein Merchant-Center-Konto",
+          "textVerifyDescription": "Bevor Du Produktdaten hochladen kannst, musst Du Deine Shop-URL überprüfen lassen und beanspruchen. Mit diesem Verifikationsprozess überprüft Google, ob Du der autorisierte Eigentümer Deiner Website bist. Durch das Beanspruchen wird Deine Shop-URL mit Deinem Google Merchant Center-Konto verknüpft.",
+          "textLearnMore": "Erfahre mehr",
+          "linkClaimWebsiteUrl": "https://support.google.com/merchants/answer/176793?hl=de",
+          "textAutoClaimedInfo": "Deine Website wird automatisch beansprucht und verifiziert.",
+          "labelWebsiteUrl": "Shop-URL",
+          "placeholderWebsite": "beispielshop.de",
+          "tooltipsWebsite": "Diese Website wird verwendet, um Dein Google-Merchant-Center-Konto zu erstellen.",
+          "textStoreName": "Shopname",
+          "placeholderStoreName": "Shopname eintragen...",
+          "tooltipsStoreName": "Dieser Name wird in Deinen Google Shopping Anzeigen verwendet",
+          "labelBusinessLocation": "Geschäftsstandort",
+          "labelShopContain": "Mein Shop beinhaltet",
+          "textAdultContent": "Inhalte für Erwachsene",
+          "linkAdultPolicyUrl": "https://support.google.com/merchants/answer/6150138?hl=de"
+        }
       },
-      "step-7": {
+      "step-4": {
+        "titleGeneral":"Um Shopping ads verwenden zu können, muss Dein Shop folgende Anforderungen erfüllen:",
+        "textAdsPolicy":"Richtlinien für Google Shopping Anzeigen",
+        "linkAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=de",
+        "textAccurateContact": "vollständige Kontaktdaten",
+        "linkAccurateContactUrl": "https://support.google.com/merchants/answer/6150127",
+        "textSecureCheckoutProcess": "Sicherer Bestellvorgang und sichere personenbezogene Datensammlung",
+        "linkSecureCheckoutProcessUrl": "https://support.google.com/merchants/answer/6150122",
+        "textReturnPolicy": "Rückgabebedingungen",
+        "linkReturnPolicyUrl": "https://support.google.com/merchants/answer/6150127",
+        "textBillingTerms": "Rechnungsbedingungen und Konditionen",
+        "linkBillingTermsUrl": "https://support.google.com/merchants/answer/6150127",
+        "textComplete": "Vollständiger Bestellprozess",
+        "linkCompleteUrl": "https://support.google.com/merchants/answer/6150118",
+        "textVerifiedWebsite": "Verifizierte Storefront Domain",
+        "linkVerifyWebsite": "https://support.google.com/webmasters/answer/9008080?hl=en",
+        "textFixHere": "Hier beheben",
+        "buttonCheckAgain": "Erneut prüfen"
+      },
+      "step-5": {
+        "titleTerms": "Geschäftsbedingungen für Google Programs",
+        "titleTermsDescription": "Durch den Kauf von Google Shopping Anzeigen, stimme ich mit Googles Geschäftsbedingungen und Richtlinien überein, einschließlich:",
+        "textMerchantTerms": "Google Merchant Center Geschäftsbedingungen",
+        "textMerchantTermsUrl": "https://support.google.com/merchants/answer/160173?hl=de",
+        "textShoppingAdsPolicy": "Richtlinien der Google Shopping Anzeigen",
+        "textShoppingAdsPolicyUrl": "https://support.google.com/merchants/answer/6149970?hl=en",
+        "textAnd": "und die",
+        "textGoogleAdsTerms": "Richtlinien und Bedingungen von Google Ads",
+        "textGoogleAdsTermsUrl": "https://billing.google.com/payments/u/0/paymentsinfofinder?style=:md#",
+        "labelAcceptTerms": "Ich habe die Richtlinien gelesen und akzeptiert."
+      },
+      "step-6": {
         "titleSetting": "Versandeinstellungen konfigurieren",
         "textSettingDescription": "Um Werbung für bestimmte Länder/Regionen zu schalten, musst Du den Versand für diese Gebiete anbieten und Versandkosten konfiguriert haben. Deine Merchant-Center-Versandkosten müssen mit den Kosten auf Deiner Website übereinstimmen.",
         "textLearnMore": "Erfahre mehr",
         "linkLearnMore": "https://support.google.com/merchants/answer/7050921?hl=de&ref_topic=7293661",
         "textCurrentStoreOption": "Verwende die aktuellen Versandeinstellungen des Shops",
         "textFlatRateOption": "Verwende einen Pauschaltarif für alle Bestellungen",
-        "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten."
+        "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten"
+      },
+      "step-7": {
+        "titleDone": "Alles erledigt!",
+        "textDoneDescription": "Dein Google Merchant Konto ist nun mit diesem Verkaufskanal verknüpft."
       }
     },
     "sw-sales-channel-defaults-select": {

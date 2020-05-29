@@ -1,8 +1,6 @@
 [titleEn]: <>(Commands)
 [hash]: <>(article:e2e_testing_commands)
 
-# Commands
-
 The both [e2e-testsuite-platform](https://github.com/shopware/e2e-testsuite-platform) and Shopware platform contain 
 a bunch of pre-built commands for easier handling of all tasks necessary in testing the administration as well as 
 storefront using Cypress.

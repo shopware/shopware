@@ -18,6 +18,8 @@
       "placeholderLastName": "Last name",
       "placeholderCompany": "Company",
       "placeholderEmail": "Email address",
+      "placeholderNewPassword": "Enter new password...",
+      "placeholderNewPasswordConfirm": "Re-enter new password...",
       "labelSalutation": "Salutation",
       "labelTitle": "Title",
       "labelFirstName": "First name",
@@ -61,7 +63,7 @@
       "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
-      "labelEmail": "Email",
+      "labelEmail": "Email address",
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
@@ -76,10 +78,10 @@
       "placeholderTitle": "Enter title...",
       "placeholderFirstName": "Enter first name...",
       "placeholderLastName": "Enter last name...",
-      "placeholderEmail": "Enter email...",
+      "placeholderEmail": "Enter email address...",
       "placeholderCustomerNumber": "Enter customer number...",
       "placeholderCustomerGroup": "Please select a customer group...",
-      "placeholderSalesChannel": "Please select a sales channel...",
+      "placeholderSalesChannel": "Please select a Sales Channel...",
       "placeholderPaymentMethod": "Please select a payment method...",
       "labelTags": "Tags",
       "placeholderTags": "Select tags..."
@@ -196,7 +198,9 @@
       "titleSaveError": "Error",
       "titleSaveSuccess": "Success",
       "messageSaveError": "Customer could not be saved.",
-      "messageSaveSuccess": "Customer \"{name}\" has been saved."
+      "messageSaveSuccess": "Customer \"{name}\" has been saved.",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of 8."
     }
   }
 }

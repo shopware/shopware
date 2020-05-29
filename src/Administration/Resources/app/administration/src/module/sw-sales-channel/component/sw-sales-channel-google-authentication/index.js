@@ -1,10 +1,16 @@
 import template from './sw-sales-channel-google-authentication.html.twig';
+
 import './sw-sales-channel-google-authentication.scss';
 
-const { Component, State } = Shopware;
+const { Component, Mixin } = Shopware;
+const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-authentication', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         salesChannel: {
@@ -13,9 +19,26 @@ Component.register('sw-sales-channel-google-authentication', {
         }
     },
 
+    data() {
+        return {
+            isLoading: false,
+            isProcessSuccessful: false
+        };
+    },
+
     computed: {
-        userProfile() {
-            return State.get('swSalesChannel').googleShoppingAccount;
+        ...mapState('swSalesChannel', [
+            'googleShoppingAccount'
+        ])
+    },
+
+    watch: {
+        isLoading: {
+            handler: 'updateButtons'
+        },
+
+        isProcessSuccessful: {
+            handler: 'updateButtons'
         }
     },
 
@@ -34,22 +57,17 @@ Component.register('sw-sales-channel-google-authentication', {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonNext'),
                     variant: 'primary',
                     action: 'sw.sales.channel.detail.base.step-3',
-                    disabled: false
+                    disabled: this.isLoading || this.isProcessSuccessful
                 },
                 left: {
                     label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonBack'),
                     variant: null,
                     action: 'sw.sales.channel.detail.base.step-1',
-                    disabled: false
+                    disabled: this.isLoading || this.isProcessSuccessful
                 }
             };
 
             this.$emit('buttons-update', buttonConfig);
-        },
-
-        onDisconnectAccount() {
-            // TODO: Call disconnect account API
-            this.$router.push({ name: 'sw.sales.channel.detail.base.step-1' });
         }
     }
 });

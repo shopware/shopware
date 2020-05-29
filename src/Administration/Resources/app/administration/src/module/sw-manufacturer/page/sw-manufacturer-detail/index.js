@@ -60,10 +60,6 @@ Component.register('sw-manufacturer-detail', {
             return this.repositoryFactory.create('product_manufacturer');
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         /* @deprecated tag:v6.4.0 */
         mediaStore() {
             return StateDeprecated.getStore('media');
@@ -137,7 +133,7 @@ Component.register('sw-manufacturer-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.manufacturer = this.manufacturerRepository.create(Shopware.Context.api);
         },
 

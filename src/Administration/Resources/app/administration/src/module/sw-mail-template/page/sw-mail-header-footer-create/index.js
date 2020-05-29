@@ -16,18 +16,23 @@ Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail',
 
     methods: {
         createdComponent() {
-            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                Shopware.State.commit('context/resetLanguageToDefault');
             }
 
             if (this.$route.params.id) {
-                this.mailHeaderFooter = this.mailHeaderFooterStore.create(this.$route.params.id);
+                this.mailHeaderFooter = this.mailHeaderFooterRepository.create(
+                    Shopware.Context.api,
+                    this.$route.params.id
+                );
             }
+
+            this.isLoading = false;
         },
 
         saveFinish() {
             this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.mail.template.detail_head_foot', params: { id: this.mailHeaderFooter.id } });
+            this.$router.push({ name: 'sw.mail.template.detail_head_foot', params: { id: this.$route.params.id } });
         },
 
         onSave() {

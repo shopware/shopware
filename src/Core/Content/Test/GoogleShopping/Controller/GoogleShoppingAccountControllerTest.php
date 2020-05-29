@@ -59,7 +59,7 @@ class GoogleShoppingAccountControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         static::assertStringContainsString('CONTENT__GOOGLE_SHOPPING_INVALID_AUTHORIZATION_CODE', $response->getContent());
 
-        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex());
+        $googleAccounts = $this->createGoogleShoppingAccount(Uuid::randomHex(), $salesChannelId);
 
         $this->client->request(
             'POST',
@@ -111,6 +111,32 @@ class GoogleShoppingAccountControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testGetAccountUserProfileSuccess(): void
+    {
+        $googleAccount = $this->createGoogleShoppingAccount(Uuid::randomHex());
+
+        $this->client->request(
+            'GET',
+            '/api/v1/_action/sales-channel/' . $googleAccount['googleAccount']['salesChannelId'] . '/google-shopping/account/profile'
+        );
+
+        $response = $this->client->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = json_decode($response->getContent(), true);
+
+        static::assertEquals([
+            'verified_email' => true,
+            'given_name' => 'John',
+            'family_name' => 'Joe',
+            'email' => 'john.doe@example.com',
+            'id' => '1234567890',
+            'locale' => 'en',
+            'name' => 'John Doe',
+            'picture' => 'https://lh3.googleusercontent.com/a-/AOh14Ghvc3v9xTUIDTCW67gcdolbfBlHMoHYSFLc6hglZA', ], $content['data']);
     }
 
     public function testAccountAgreeTermOfServiceWithoutAcceptanceFailure(): void

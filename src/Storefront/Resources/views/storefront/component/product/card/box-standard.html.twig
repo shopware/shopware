@@ -83,6 +83,18 @@
                                 </a>
                             {% endblock %}
 
+                            {% block component_product_box_variant_characteristics %}
+                                <div class="product-variant-characteristics">
+                                    {% for variation in product.variation %}
+                                        {{ variation.group }}: {{ variation.option }}
+
+                                        {% if product.variation|last != variation %}
+                                            {{ " | " }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endblock %}
+
                             {% block component_product_box_description %}
                                 <div class="product-description">
                                     {{ product.translated.description|striptags|raw }}

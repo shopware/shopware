@@ -1,6 +1,6 @@
 import template from './sw-settings-payment-create.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
@@ -14,16 +14,10 @@ Component.extend('sw-settings-payment-create', 'sw-settings-payment-detail', {
         next();
     },
 
-    computed: {
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        }
-    },
-
     methods: {
         createdComponent() {
-            if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                Shopware.State.commit('context/resetLanguageToDefault');
             }
 
             this.paymentMethod = this.paymentMethodRepository.create(Shopware.Context.api, this.$route.params.id);

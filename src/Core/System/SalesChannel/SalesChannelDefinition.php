@@ -61,6 +61,8 @@ use function Flag\next6050;
 class SalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel';
+    public const CALCULATION_TYPE_VERTICAL = 'vertical';
+    public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
 
     public function getEntityName(): string
     {
@@ -81,6 +83,13 @@ class SalesChannelDefinition extends EntityDefinition
     {
         // disable old indexing process
         return false;
+    }
+
+    public function getDefaults(): array
+    {
+        return [
+            'taxCalculationType' => self::CALCULATION_TYPE_VERTICAL,
+        ];
     }
 
     protected function defineFields(): FieldCollection
@@ -112,6 +121,7 @@ class SalesChannelDefinition extends EntityDefinition
 
             new TranslatedField('name'),
             new StringField('short_name', 'shortName'),
+            new StringField('tax_calculation_type', 'taxCalculationType'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),

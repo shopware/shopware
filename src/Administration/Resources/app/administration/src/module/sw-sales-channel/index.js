@@ -4,6 +4,7 @@ import './component/sw-sales-channel-defaults-select';
 import './component/sw-sales-channel-modal';
 import './component/sw-sales-channel-modal-grid';
 import './component/sw-sales-channel-modal-detail';
+import './component/sw-sales-channel-modal-disconnect';
 
 import './component/sw-sales-channel-detail-domains';
 import './component/sw-sales-channel-detail-hreflang';
@@ -11,6 +12,9 @@ import './component/sw-sales-channel-detail-hreflang';
 import './component/sw-sales-channel-detail-protect-link';
 import './component/sw-sales-channel-detail-account-connect';
 import './component/sw-sales-channel-detail-account-disconnect';
+import './component/sw-sales-channel-detail-shop-categories';
+import './component/sw-sales-channel-detail-google-categories';
+import './component/sw-sales-channel-detail-empty-categories';
 
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
@@ -27,7 +31,11 @@ import './component/sw-sales-channel-google-programs-modal';
 import './component/sw-sales-channel-google-introduction';
 import './component/sw-sales-channel-google-authentication';
 import './component/sw-sales-channel-google-merchant';
+import './component/sw-sales-channel-google-store-verification';
+import './component/sw-sales-channel-google-website-claim';
+import './component/sw-sales-channel-google-terms-verification';
 import './component/sw-sales-channel-google-shipping-setting';
+import './component/sw-sales-channel-google-done-verification';
 
 const { Module } = Shopware;
 
@@ -66,8 +74,20 @@ Module.register('sw-sales-channel', {
                             component: 'sw-sales-channel-google-merchant',
                             path: 'step-3'
                         },
-                        'step-7': {
+                        'step-4': {
+                            component: 'sw-sales-channel-google-store-verification',
+                            path: 'step-4'
+                        },
+                        'step-5': {
+                            component: 'sw-sales-channel-google-terms-verification',
+                            path: 'step-5'
+                        },
+                        'step-6': {
                             component: 'sw-sales-channel-google-shipping-setting',
+                            path: 'step-6'
+                        },
+                        'step-7': {
+                            component: 'sw-sales-channel-google-done-verification',
                             path: 'step-7'
                         }
                     }
@@ -82,7 +102,13 @@ Module.register('sw-sales-channel', {
                 },
                 products: {
                     component: 'sw-sales-channel-detail-products',
-                    path: 'products'
+                    path: 'products',
+                    children: {
+                        category: {
+                            component: 'sw-sales-channel-detail-google-categories',
+                            path: 'category/:categoryId'
+                        }
+                    }
                 }
             }
         },

@@ -1,0 +1,212 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`module/sw-sales-channel/component/sw-sales-channel-google-store-verification should render item status and description correctly 1`] = `
+<div
+  class="sw-sales-channel-google-store-verification"
+>
+  <div
+    class="sw-sales-channel-google-store-verification__top"
+  >
+    <strong>
+      sw-sales-channel.modalGooglePrograms.step-4.titleGeneral
+    </strong>
+     
+    <div
+      class="sw-sales-channel-google-store-verification__check-list"
+    >
+      <div
+        class="sw-sales-channel-google-store-verification__check-item"
+      >
+        <span
+          class="sw-label sw-label--appearance-circle sw-label--size-default sw-label--success"
+        >
+          <span
+            class="sw-label__caption"
+          >
+            <sw-icon-stub
+              name="small-default-checkmark-line-medium"
+              size="16px"
+            />
+          </span>
+           
+          <!---->
+        </span>
+         
+        <span
+          class="sw-sales-channel-google-store-verification__check-item-description"
+        >
+          
+                                Verified storefront domain
+
+                                
+          <!---->
+        </span>
+      </div>
+      <div
+        class="sw-sales-channel-google-store-verification__check-item"
+      >
+        <span
+          class="sw-label sw-label--appearance-circle sw-label--size-default sw-label--danger"
+        >
+          <span
+            class="sw-label__caption"
+          >
+            <sw-icon-stub
+              name="small-default-x-line-medium"
+              size="16px"
+            />
+          </span>
+           
+          <!---->
+        </span>
+         
+        <span
+          class="sw-sales-channel-google-store-verification__check-item-description"
+        >
+          
+                                Shopping Ads policy
+
+                                
+          <sw-sales-channel-detail-protect-link-stub
+            class="sw-sales-channel-google-store-verification__fix-link"
+          >
+            
+                                        sw-sales-channel.modalGooglePrograms.step-4.textFixHere
+                                    
+          </sw-sales-channel-detail-protect-link-stub>
+        </span>
+      </div>
+      <div
+        class="sw-sales-channel-google-store-verification__check-item"
+      >
+        <span
+          class="sw-label sw-label--appearance-circle sw-label--size-default sw-label--danger"
+        >
+          <span
+            class="sw-label__caption"
+          >
+            <sw-icon-stub
+              name="small-default-x-line-medium"
+              size="16px"
+            />
+          </span>
+           
+          <!---->
+        </span>
+         
+        <span
+          class="sw-sales-channel-google-store-verification__check-item-description"
+        >
+          
+                                Accurate contact information
+
+                                
+          <router-link-stub
+            class="sw-sales-channel-google-store-verification__fix-link"
+            rel="noopener"
+            target="_blank"
+            to="[object Object]"
+          >
+            
+                                        sw-sales-channel.modalGooglePrograms.step-4.textFixHere
+                                    
+          </router-link-stub>
+        </span>
+      </div>
+      <div
+        class="sw-sales-channel-google-store-verification__check-item"
+      >
+        <span
+          class="sw-label sw-label--appearance-circle sw-label--size-default sw-label--success"
+        >
+          <span
+            class="sw-label__caption"
+          >
+            <sw-icon-stub
+              name="small-default-checkmark-line-medium"
+              size="16px"
+            />
+          </span>
+           
+          <!---->
+        </span>
+         
+        <span
+          class="sw-sales-channel-google-store-verification__check-item-description"
+        >
+          
+                                Complete checkout process
+
+                                
+          <!---->
+        </span>
+      </div>
+      <div
+        class="sw-sales-channel-google-store-verification__check-item"
+      >
+        <span
+          class="sw-label sw-label--appearance-circle sw-label--size-default sw-label--success"
+        >
+          <span
+            class="sw-label__caption"
+          >
+            <sw-icon-stub
+              name="small-default-checkmark-line-medium"
+              size="16px"
+            />
+          </span>
+           
+          <!---->
+        </span>
+         
+        <span
+          class="sw-sales-channel-google-store-verification__check-item-description"
+        >
+          
+                                Return policy
+
+                                
+          <!---->
+        </span>
+      </div>
+      <div
+        class="sw-sales-channel-google-store-verification__check-item"
+      >
+        <span
+          class="sw-label sw-label--appearance-circle sw-label--size-default sw-label--success"
+        >
+          <span
+            class="sw-label__caption"
+          >
+            <sw-icon-stub
+              name="small-default-checkmark-line-medium"
+              size="16px"
+            />
+          </span>
+           
+          <!---->
+        </span>
+         
+        <span
+          class="sw-sales-channel-google-store-verification__check-item-description"
+        >
+          
+                                Billing terms and conditions
+
+                                
+          <!---->
+        </span>
+      </div>
+    </div>
+     
+    <sw-button-stub
+      size="small"
+      variant="ghost"
+    >
+      
+                        sw-sales-channel.modalGooglePrograms.step-4.buttonCheckAgain
+                    
+    </sw-button-stub>
+  </div>
+</div>
+`;

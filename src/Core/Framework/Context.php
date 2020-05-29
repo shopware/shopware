@@ -231,10 +231,19 @@ class Context extends Struct
         return $this->useCache;
     }
 
-    public function isAllowed(string $resource, string $privilege): bool
+    /**
+     * @param string $resource - @deprecated tag:v6.4.0 - Resources and privileges are merged in 6.3.0, new pattern: `product:create`
+     */
+    public function isAllowed(string $privilege, ?string $resource = null): bool
     {
+        // @deprecated tag:v6.4.0 - Fallback will be removed
+        if ($resource !== null) {
+            // old pattern provided ->isAllowed('product', 'write');
+            $privilege = implode(':', [$privilege, $resource]);
+        }
+
         if ($this->source instanceof AdminApiSource) {
-            return $this->source->isAllowed($resource, $privilege);
+            return $this->source->isAllowed($privilege);
         }
 
         return true;

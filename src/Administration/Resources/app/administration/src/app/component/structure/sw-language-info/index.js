@@ -1,7 +1,9 @@
 import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
+const { mapState } = Shopware.Component.getComponentHelper();
+const { warn } = Shopware.Utils.debug;
 
 /**
  * @public
@@ -35,21 +37,30 @@ Component.register('sw-language-info', {
         }
     },
 
+    inject: ['repositoryFactory'],
+
     data() {
         return {
-            parentLanguage: { name: '' },
-            language: {},
-            infoParent: ''
+            parentLanguage: { name: '' }
         };
     },
 
     computed: {
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-        infoText() {
-            const language = this.language;
+        ...mapState('context', {
+            languageId: state => state.api.languageId,
+            systemLanguageId: state => state.api.systemLanguageId,
+            language: state => state.api.language
+        }),
 
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        infoParent() {
+            return this.parentLanguage.name;
+        },
+
+        infoText() {
             // Actual language is system default, because we are creating a new entity
             if (this.isNewEntity) {
                 return this.$tc(
@@ -59,20 +70,24 @@ Component.register('sw-language-info', {
                 );
             }
 
+            if (this.language === null) {
+                return '';
+            }
+
             // Actual language is a child language with the root language as fallback
-            if (language.parentId !== null && language.parentId.length > 0) {
+            if (this.language.parentId !== null && this.language.parentId.length > 0) {
                 return this.$tc(
                     'sw-language-info.infoTextChildLanguage',
                     0,
                     {
                         entityDescription: this.entityDescription,
-                        language: language.name
+                        language: this.language.name
                     }
                 );
             }
 
             // Actual language is the system default language
-            if (this.isSystemDefaultLanguage(language.id)) {
+            if (this.isDefaultLanguage) {
                 return '';
             }
 
@@ -82,9 +97,13 @@ Component.register('sw-language-info', {
                 0,
                 {
                     entityDescription: this.entityDescription,
-                    language: language.name
+                    language: this.language.name
                 }
             );
+        },
+
+        isDefaultLanguage() {
+            return this.languageId === this.systemLanguageId;
         }
     },
 
@@ -92,12 +111,7 @@ Component.register('sw-language-info', {
         // Watch the id because of ajax loading
         'language.name': {
             handler() {
-                this.refreshParentLanguage();
-            }
-        },
-        'parentLanguage.name': {
-            handler() {
-                this.infoParent = this.parentLanguage.name;
+                this.refreshParentLanguage().catch(error => warn(error));
             }
         }
     },
@@ -111,43 +125,35 @@ Component.register('sw-language-info', {
     },
 
     methods: {
-        createdComponent() {
-            this.language = this.languageStore.getCurrentLanguage();
+        /**
+         * @deprecated tag:v6.4.0 - use computed isDefaultLanguage instead
+         */
+        createdComponent() {},
 
-            // Refresh the info when the application language is changed
-            this.$root.$on('on-change-application-language', this.refreshLanguage);
-        },
+        /**
+         * @deprecated tag:v6.4.0 - use computed isDefaultLanguage instead
+         */
+        destroyedComponent() {},
 
-        destroyedComponent() {
-            this.$root.$off('on-change-application-language', this.refreshLanguage);
-        },
-
-        isSystemDefaultLanguage(languageId) {
-            return languageId === this.languageStore.systemLanguageId;
-        },
-
-        refreshLanguage() {
-            this.language = this.languageStore.getCurrentLanguage();
-        },
-
-        refreshParentLanguage() {
-            if (this.language.id.length < 1 || this.language.id === this.languageStore.systemLanguageId) {
+        async refreshParentLanguage() {
+            if (this.language.id.length < 1 || this.isDefaultLanguage) {
                 this.parentLanguage = { name: '' };
                 return;
             }
 
             if (this.language.parentId !== null && this.language.parentId.length > 0) {
-                this.parentLanguage = this.languageStore.getById(this.language.parentId);
+                this.parentLanguage = await this.languageRepository.get(this.language.parentId, Shopware.Context.api);
                 return;
             }
 
-            this.parentLanguage = this.languageStore.getById(this.languageStore.systemLanguageId);
+            this.parentLanguage = await this.languageRepository.get(this.systemLanguageId, Shopware.Context.api);
         },
 
         onClickParentLanguage() {
             if (!this.changeLanguageOnParentClick) {
                 return;
             }
+
             this.$root.$emit('on-change-language-clicked', this.parentLanguage.id);
         }
     }

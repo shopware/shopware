@@ -1,19 +1,15 @@
 import template from './sw-sales-channel-google-introduction.html.twig';
 import './sw-sales-channel-google-introduction.scss';
 
-const { Component } = Shopware;
-
-const gauthOption = {
-    // TODO: Import clientId from .env
-    clientId: '102783034147-mdukme083o5tbr5aodt9flffcvcm09oq.apps.googleusercontent.com',
-    scope: 'profile email https://www.googleapis.com/auth/content',
-    prompt: 'consent'
-};
+const { Component, State, Service, Mixin, Utils } = Shopware;
+const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-google-introduction', {
     template,
 
-    inject: ['googleAuthService'],
+    mixins: [
+        Mixin.getByName('notification')
+    ],
 
     props: {
         salesChannel: {
@@ -25,8 +21,14 @@ Component.register('sw-sales-channel-google-introduction', {
     data() {
         return {
             isLoading: false,
-            isSaveSuccessful: false
+            isProcessSuccessful: false
         };
+    },
+
+    computed: {
+        ...mapState('swSalesChannel', [
+            'googleShoppingAccount'
+        ])
     },
 
     watch: {
@@ -34,7 +36,7 @@ Component.register('sw-sales-channel-google-introduction', {
             handler: 'updateButtons'
         },
 
-        isSaveSuccessful: {
+        isProcessSuccessful: {
             handler: 'updateButtons'
         }
     },
@@ -52,26 +54,56 @@ Component.register('sw-sales-channel-google-introduction', {
             this.updateButtons();
         },
 
-        mountedComponent() {
-            this.googleAuthService.load(gauthOption);
+        async mountedComponent() {
+            this.isLoading = true;
+
+            try {
+                const config = await Service('systemConfigApiService').getValues('core.googleShopping');
+
+                const gauthOption = {
+                    clientId: config['core.googleShopping.clientId'],
+                    scope: 'profile email ' +
+                        'https://www.googleapis.com/auth/content ' +
+                        'https://www.googleapis.com/auth/siteverification',
+                    prompt: 'consent'
+                };
+
+                await Service('googleAuthService').load(gauthOption);
+            } catch (error) {
+                this.showErrorNotification(error);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         updateButtons() {
+            const buttonRight = {
+                label: this.$tc('sw-sales-channel.modalGooglePrograms.buttonNext'),
+                variant: 'primary',
+                action: 'sw.sales.channel.detail.base.step-2',
+                disabled: false,
+                isLoading: false
+            };
+
+            const buttonProcessRight = {
+                label: this.$tc('sw-sales-channel.modalGooglePrograms.step-1.buttonConnect'),
+                variant: 'primary',
+                action: this.onClickConnect,
+                disabled: this.isLoading || this.isProcessSuccessful,
+                isLoading: this.isLoading,
+                isProcessSuccessful: this.isProcessSuccessful,
+                processFinish: this.processFinish
+            };
+
             const buttonConfig = {
-                right: {
-                    label: this.$tc('sw-sales-channel.modalGooglePrograms.step-1.buttonConnect'),
-                    variant: 'primary',
-                    action: this.onClickConnect,
-                    disabled: this.isLoading,
-                    isLoading: this.isLoading,
-                    isSaveSuccessful: this.isSaveSuccessful,
-                    processFinish: this.saveFinish
-                },
+                right: this.googleShoppingAccount && !this.isProcessSuccessful
+                    ? buttonRight
+                    : buttonProcessRight,
                 left: {
                     label: this.$tc('global.default.cancel'),
                     variant: null,
                     action: this.onCloseModal,
-                    disabled: this.isLoading
+                    disabled: this.isLoading || this.isProcessSuccessful
                 }
             };
 
@@ -84,26 +116,76 @@ Component.register('sw-sales-channel-google-introduction', {
 
         async onClickConnect() {
             this.isLoading = true;
-            this.isSaveSuccessful = false;
+            this.isProcessSuccessful = false;
 
             try {
-                await this.googleAuthService.getAuthCode(this.connectGoogleAccount);
+                const authCode = await Service('googleAuthService').getAuthCode();
+                const { data: googleShoppingAccount } = await Service('googleShoppingService').connectGoogle(
+                    this.salesChannel.id,
+                    authCode
+                );
+
+                const googleShoppingAccountData = Utils.get(googleShoppingAccount, 'data', null);
+
+                if (googleShoppingAccountData) {
+                    const newGoogleShoppingAccount = {
+                        ...this.googleShoppingAccount,
+                        ...Utils.object.pick(googleShoppingAccountData, ['name', 'email', 'picture'])
+                    };
+
+                    State.commit('swSalesChannel/setGoogleShoppingAccount', newGoogleShoppingAccount);
+
+                    this.isProcessSuccessful = true;
+                }
             } catch (error) {
-                // TODO: Implement showing error in another ticket
-                console.error('google auth api', error);
+                this.showErrorNotification(error);
             } finally {
                 this.isLoading = false;
             }
         },
 
-        async connectGoogleAccount() {
-            // TODO: Integrate API service in another ticket
-            this.isSaveSuccessful = true;
+        processFinish() {
+            this.isProcessSuccessful = false;
+            this.$router.push({ name: 'sw.sales.channel.detail.base.step-2' });
         },
 
-        saveFinish() {
-            this.isSaveSuccessful = false;
-            this.$router.push({ name: 'sw.sales.channel.detail.base.step-2' });
+        showErrorNotification(error) {
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                message: this.getErrorMessage(error)
+            });
+        },
+
+        getErrorMessage(error) {
+            // Show error message based on
+            // https://developers.google.com/identity/sign-in/web/reference#googleauthsigninoptions
+
+            if (!error) {
+                return this.$tc('global.notification.unspecifiedSaveErrorMessage');
+            }
+
+            const { error: errorCode, details } = error;
+            if (errorCode && details) {
+                return this.$t('sw-sales-channel.modalGooglePrograms.step-1.messageErrorGoogleAuth',
+                    { error: `[${error.error}] - ${error.details}` });
+            }
+
+            if (errorCode) {
+                return this.$t('sw-sales-channel.modalGooglePrograms.step-1.messageErrorGoogleAuth',
+                    { error: `[${error.error}]` });
+            }
+
+            const errorDetail = Utils.get(error, 'response.data.errors[0]', null);
+
+            if (errorDetail && errorDetail.detail) {
+                if (typeof errorDetail.detail === 'object') {
+                    return errorDetail.detail.message;
+                }
+
+                return errorDetail.detail;
+            }
+
+            return this.$tc('global.notification.unspecifiedSaveErrorMessage');
         }
     }
 });

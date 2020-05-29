@@ -61,13 +61,13 @@ class GoogleShoppingRequestValueResolver implements ArgumentValueResolverInterfa
         );
 
         if ($googleShoppingAccount = $googleRequest->getGoogleShoppingAccount()) {
-            $this->setGoogleShoppingAccountToClient($googleShoppingAccount, $googleRequest);
+            $this->setGoogleShoppingAccountToClient($googleShoppingAccount, $googleRequest->getContext());
         }
 
         yield $googleRequest;
     }
 
-    private function setGoogleShoppingAccountToClient(GoogleShoppingAccountEntity $googleShoppingAccountEntity, GoogleShoppingRequest $context): void
+    public function setGoogleShoppingAccountToClient(GoogleShoppingAccountEntity $googleShoppingAccountEntity, Context $context): void
     {
         $this->googleShoppingClient->setAccessToken($googleShoppingAccountEntity->getCredential()->normalize());
 
@@ -83,7 +83,7 @@ class GoogleShoppingRequestValueResolver implements ArgumentValueResolverInterfa
         }
     }
 
-    private function fetchGoogleShoppingSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
+    public function fetchGoogleShoppingSalesChannel(string $salesChannelId, Context $context): SalesChannelEntity
     {
         $criteria = new Criteria([$salesChannelId]);
         $criteria->addAssociation('googleShoppingAccount.googleShoppingMerchantAccount');

@@ -135,7 +135,7 @@ Component.register('sw-settings-shipping-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
         }
     }

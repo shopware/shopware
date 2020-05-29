@@ -254,6 +254,11 @@ class ProductEntity extends Entity
     protected $mainVariantId;
 
     /**
+     * @var array
+     */
+    protected $variation = [];
+
+    /**
      * @var TaxEntity|null
      */
     protected $tax;
@@ -1057,6 +1062,16 @@ class ProductEntity extends Entity
     public function setMainVariantId(?string $mainVariantId): void
     {
         $this->mainVariantId = $mainVariantId;
+    }
+
+    public function getVariation(): array
+    {
+        return $this->variation;
+    }
+
+    public function setVariation(array $variation): void
+    {
+        $this->variation = $variation;
     }
 
     public function getAvailableStock(): ?int

@@ -1,0 +1,44 @@
+{% block sw_sales_channel_modal_disconnect %}
+    <sw-modal
+        size="460px"
+        :title="$tc('sw-sales-channel.modal.titleDisconnect')"
+        @modal-close="$emit('modal-close')"
+        class="sw-sales-channel-modal-disconnect">
+
+        {% block sw_sales_channel_modal_disconnect_description %}
+            <p class="sw-sales-channel-modal-disconnect__description">
+                {{ $tc('sw-sales-channel.modal.textDisconnectDescription') }}
+            </p>
+        {% endblock %}
+
+        <template #modal-footer>
+            {% block sw_sales_channel_modal_disconnect_button_group %}
+                <div class="sw-sales-channel-modal-disconnect__button-group">
+                    {% block sw_sales_channel_modal_disconnect_button_cancel %}
+                        <sw-button
+                            size="small"
+                            @click="$emit('modal-close')"
+                            class="sw-sales-channel-modal-disconnect__button">
+                            {{ $tc('sw-sales-channel.modal.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_modal_disconnect_button_disconnect %}
+                        <sw-button-process
+                            size="small"
+                            variant="primary"
+                            :isLoading="isDisconnectLoading"
+                            :processSuccess="isDisconnectSuccessful"
+                            :disabled="isDisconnectLoading"
+                            @process-finish="$emit('process-finish')"
+                            @click.prevent="$emit('on-disconnect')"
+                            class="sw-sales-channel-modal-disconnect__button">
+                            {{ $tc('sw-sales-channel.modal.buttonDisconnect') }}
+                        </sw-button-process>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </template>
+
+    </sw-modal>
+{% endblock %}

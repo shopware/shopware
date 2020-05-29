@@ -19,7 +19,7 @@ class GoogleAccountCredentialTest extends TestCase
         skipTestNext6050($this);
     }
 
-    public function testGetIdTokenFails(): void
+    public function testGetIdTokenPartsFails(): void
     {
         $this->expectException(InvalidGoogleIdToken::class);
 
@@ -31,7 +31,7 @@ class GoogleAccountCredentialTest extends TestCase
         $cred->getIdTokenParts();
     }
 
-    public function testGetIdTokenParts(): void
+    public function testGetIdTokenPartsSuccess(): void
     {
         $rawCredentials = $this->getSampleCredential();
 

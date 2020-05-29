@@ -110,6 +110,9 @@ return [
     'configuration_admin_lastName' => 'Cognome admin:',
     'configuration_defaults_warning' => 'La lingua e la valuta standard di sistema non possono essere modificate in un secondo momento.',
     'configuration_email_help_text' => 'Questo indirizzo e-mail verrà utilizzato per le mail in uscita del negozio.',
+    'configuration_admin_currency_headline' => 'Valute disponibili',
+    'configuration_admin_currency_text' => 'Aggiungi altre valute al tuo negozio Shopware. Se volete aggiungere altre valute in seguito, potete farlo in qualsiasi momento nell\'amministrazione.',
+
     'configuration_admin_language_de' => 'Tedesco',
     'configuration_admin_language_en' => 'Inglese',
     'configuration_admin_password' => 'Password admin:',

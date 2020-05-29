@@ -154,9 +154,7 @@ Component.register('sw-settings-shipping-detail', {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.StateDeprecated.getStore('language').setCurrentId(
-                    Shopware.StateDeprecated.getStore('language').systemLanguageId
-                );
+                Shopware.State.commit('context/resetLanguageToDefault');
 
                 const shippingMethod = this.shippingMethodRepository.create(Shopware.Context.api);
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);

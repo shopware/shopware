@@ -13,8 +13,32 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_products_category_mapping %}
-            <sw-card :title="$tc('sw-sales-channel.detail.titleCategoryMapping')">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam, velit.
+            <sw-card
+                :title="$tc('sw-sales-channel.detail.titleCategoryMapping')"
+                class="sw-sales-channel-detail-products__category-mapping">
+                <sw-container columns="1fr 1fr">
+                    {% block sw_sales_channel_detail_products_category_mapping_shop %}
+                        <sw-sales-channel-detail-shop-categories
+                            :isLoadingCategories="isLoadingCategories"
+                            :categories="categories"
+                            :categoryId="categoryId"
+                            :onChangeRoute="onChangeRoute"
+                            @get-tree-items="onGetTreeItems">
+                        </sw-sales-channel-detail-shop-categories>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_detail_products_category_mapping_google %}
+                        <sw-sales-channel-detail-empty-categories
+                            v-if="!categoryId || !category">
+                        </sw-sales-channel-detail-empty-categories>
+
+                        <router-view
+                            v-else
+                            :selectedShopCategory="category"
+                            @on-change-google-category="onChangeGoogleCategory">
+                        </router-view>
+                    {% endblock %}
+                </sw-container>
             </sw-card>
         {% endblock %}
 

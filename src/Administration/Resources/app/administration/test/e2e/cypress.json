@@ -5,7 +5,7 @@
   "watchForFileChanges": false,
   "requestTimeout": 30000,
   "responseTimeout": 60000,
-  "defaultCommandTimeout": 10000,
+  "defaultCommandTimeout": 30000,
   "salesChannelName": "Storefront",
   "useDarkTheme": false,
   "video": false,

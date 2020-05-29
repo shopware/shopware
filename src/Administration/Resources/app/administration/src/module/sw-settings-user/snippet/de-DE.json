@@ -50,6 +50,7 @@
       "labelNewPassword": "Neues Passwort",
       "labelNewUser": "Neuer Benutzer",
       "placeholderNewPassword": "Neues Passwort eingeben ...",
+      "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
       "labelButtonCancel": "Abbrechen",
       "labelButtonChangePassword": "Ändern",
       "labelButtonSave": "Speichern",

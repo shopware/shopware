@@ -96,6 +96,75 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
             <?= $t->t('configuration_defaults_warning'); ?>
         </div>
 
+        <p class="available-currencies__headline"><?= $t->t('configuration_admin_currency_headline'); ?></p>
+        <p class="available-currencies__text"><?= $t->t('configuration_admin_currency_text'); ?></p>
+
+        <div class="available-currencies__container">
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="eur"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('EUR'); ?>"/>
+                <label for="eur"><?= $t->t('configuration_admin_currency_eur'); ?></label>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="usd"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('USD'); ?>"/>
+                <label for="usd"><?= $t->t('configuration_admin_currency_usd'); ?></label>
+            </div>
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="gbp"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('GBP'); ?>"/>
+                <label for="gbp"><?= $t->t('configuration_admin_currency_gbp'); ?></label>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="pln"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('PLN'); ?>"/>
+                <label for="pln"><?= $t->t('configuration_admin_currency_pln'); ?></label>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="chf"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('CHF'); ?>"/>
+                <label for="chf"><?= $t->t('configuration_admin_currency_chf'); ?></label>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="sek"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('SEK'); ?>"/>
+                <label for="sek"><?= $t->t('configuration_admin_currency_sek'); ?></label>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="dkk"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('DKK'); ?>"/>
+                <label for="dkk"><?= $t->t('configuration_admin_currency_dkk'); ?></label>
+            </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="nok"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('NOK'); ?>"/>
+                <label for="nok"><?= $t->t('configuration_admin_currency_nok'); ?></label>
+            </div>
+        </div>
+
         <hr>
 
         <p>
@@ -157,5 +226,24 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
         </button>
     </div>
 </form>
+
+<script src="<?= $baseUrl; ?>../assets/common/javascript/default-currency-selector.js"></script>
+
+<script>
+    const selectField = document.querySelector('#c_config_shop_currency');
+
+    // apply styles for the default selected checkbox
+    const defaultValueOfSelectField = selectField.value.toLowerCase();
+    const defaultSelectedCheckbox = document.querySelector(`#${defaultValueOfSelectField}`);
+    setElementState(defaultSelectedCheckbox);
+
+    // listens when the select field changes its value
+    selectField.addEventListener('change', (event) => {
+        const selectedCurrency = event.target.value.toLowerCase();
+        const toBeTransformedCheckbox = document.querySelector(`#${selectedCurrency}`);
+
+        setElementState(toBeTransformedCheckbox);
+    });
+</script>
 
 <?php echo $app->getContainer()->get('renderer')->fetch('_footer.php'); ?>

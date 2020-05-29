@@ -1,0 +1,54 @@
+@import "~scss/variables";
+
+.sw-sales-channel-google-website-claim {
+    &__user-info.sw-card {
+        margin-top: 32px;
+        margin-bottom: 32px;
+        height: 66px;
+        width: 100%;
+
+        .sw-card__content {
+            margin: 0;
+            padding: 0;
+        }
+    }
+
+    &__description {
+        font-size: $font-size-small;
+        margin: 10px 0;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+    }
+
+    &__claim-info.sw-alert {
+        margin: 20px auto;
+        vertical-align: middle;
+        padding: 8px;
+
+        .sw-alert__icon {
+            top: 24px;
+        }
+    }
+
+    &__form-container {
+        position: relative;
+    }
+
+    &__form-helptext {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    &__adult-checkbox {
+        display: flex;
+
+        .sw-field--checkbox {
+            padding-right: 5px;
+        }
+
+        &-link {
+            line-height: 16px;
+        }
+    }
+}

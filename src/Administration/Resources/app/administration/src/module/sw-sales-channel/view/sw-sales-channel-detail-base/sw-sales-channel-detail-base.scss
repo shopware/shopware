@@ -3,108 +3,63 @@
 @import "~scss/mixins";
 
 $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
-$google-shopping-connection-gutter: 16px;
-$google-shopping-connection-image-size: 74px;
+
+%google-shopping-link {
+    color: $color-shopware-brand-500;
+    text-decoration: none;
+    cursor: pointer;
+}
 
 .sw-sales-channel-detail {
     .sw-card {
-        .google-shopping {
-            &__instruction-title {
-                margin: 0 0 8px;
-                color: $color-darkgray-200;
-                font-size: $font-size-default;
-                font-weight: $font-weight-bold;
+        &.sw-sales-channel-detail-base__feedbacks {
+            .sw-card__content {
+                border: 0;
+                border-radius: 0;
+                padding: 0;
+                background: transparent;
             }
 
-            &__instruction-subtitle {
-                margin: 0 0 22px;
-                color: $color-darkgray-200;
-                font-size: $font-size-small;
-            }
-
-            &__instruction-subtitle-link {
-                color: $color-shopware-brand-500;
-                text-decoration: none;
-            }
-
-            &__connection {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: $google-shopping-connection-gutter;
-                border: 1px solid $color-gray-300;
-                border-radius: $border-radius-default;
-            }
-
-            &__connection-image {
-                display: inline-block;
-                width: $google-shopping-connection-image-size;
-                height: $google-shopping-connection-image-size - ($google-shopping-connection-gutter * 2);
-                background: image('social-shopping/google.png') no-repeat 0 50%;
-                background-size: 100%;
-            }
-
-            &__profiles {
-                display: flex;
-            }
-
-            &__profiles-info {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                margin-left: 16px;
-            }
-
-            &__profiles-name {
+            .sw-alert {
                 margin: 0;
-                line-height: 14px;
-                font-size: $font-size-small;
-                font-weight: $font-weight-semi-bold;
-            }
-
-            &__profiles-email {
-                font-size: $font-size-small;
-            }
-
-            &__label {
-                display: flex;
-                align-items: center;
-                margin: 0;
-                font-weight: $font-weight-semi-bold;
-                line-height: 12px;
-            }
-
-            &__label-badge {
-                margin: 0;
-            }
-
-            &__label-text {
-                margin-left: 4px;
-            }
-
-            &__text-group {
-                max-width: 75%;
-                font-size: $font-size-small;
-                word-break: break-all;
-            }
-
-            &__text-group-highlight {
-                font-weight: $font-weight-semi-bold;
             }
         }
 
-        .google-shopping-crossbar {
+        .sw-sales-channel-detail-base__title {
+            margin: 0 0 8px;
+            color: $color-darkgray-200;
+            font-size: $font-size-default;
+            font-weight: $font-weight-bold;
+        }
+
+        .sw-sales-channel-detail-base__subtitle {
+            margin: 0 0 22px;
+            color: $color-darkgray-200;
+            font-size: $font-size-small;
+        }
+
+        .sw-sales-channel-detail-base__crossbar {
             height: 1px;
             margin: 0 0 16px;
             background: $color-gray-300;
         }
 
-        .google-shopping-switcher {
+        .sw-sales-channel-detail-base__switcher {
             margin-bottom: 0;
         }
 
-        .google-shopping-u-mb-32 {
+        .sw-sales-channel-detail-base__u-mb-32 {
             margin-bottom: 32px;
+        }
+
+        .sw-sales-channel-detail-base__u-mb-0 {
+            margin-bottom: 0;
+        }
+
+        .sw-sales-channel-detail-base__subtitle-link,
+        .sw-sales-channel-detail-base__complete-setup-link,
+        .sw-sales-channel-detail-base__issue-link {
+            @extend %google-shopping-link;
         }
     }
 }

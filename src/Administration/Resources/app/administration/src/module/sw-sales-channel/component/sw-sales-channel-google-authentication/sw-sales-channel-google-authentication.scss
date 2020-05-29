@@ -13,9 +13,9 @@
         }
     }
 
-    .sw-sales-channel-google-authentication__user-info {
+    &__user-info {
         flex-grow: 1;
         margin-left: 14px;
-        font-size: 14px;
+        font-size: $font-size-small;
     }
 }

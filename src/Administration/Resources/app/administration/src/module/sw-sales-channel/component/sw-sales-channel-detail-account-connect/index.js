@@ -1,4 +1,5 @@
 import template from './sw-sales-channel-detail-account-connect.html.twig';
+import './sw-sales-channel-detail-account-connect.scss';
 
 const { Component } = Shopware;
 

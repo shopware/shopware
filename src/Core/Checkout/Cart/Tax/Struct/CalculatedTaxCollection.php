@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -60,16 +61,26 @@ class CalculatedTaxCollection extends Collection
         $new = new self($this->elements);
 
         foreach ($taxCollection as $calculatedTax) {
-            if (!$new->exists($calculatedTax)) {
+            $exists = $new->get($this->getKey($calculatedTax));
+            if (!$exists) {
                 $new->add(clone $calculatedTax);
 
                 continue;
             }
 
-            $new->get($this->getKey($calculatedTax))->increment($calculatedTax);
+            $exists->increment($calculatedTax);
         }
 
         return $new;
+    }
+
+    public function round(PriceRoundingInterface $priceRounding, int $precision): void
+    {
+        foreach ($this->elements as $tax) {
+            $tax->setTax(
+                $priceRounding->round($tax->getTax(), $precision)
+            );
+        }
     }
 
     public function getApiAlias(): string

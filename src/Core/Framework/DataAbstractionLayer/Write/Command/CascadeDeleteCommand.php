@@ -9,4 +9,9 @@ class CascadeDeleteCommand extends DeleteCommand
         // prevent execution
         return false;
     }
+
+    public function getPrivilege(): ?string
+    {
+        return null;
+    }
 }

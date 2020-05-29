@@ -326,7 +326,9 @@ Component.register('sw-order-create-base', {
                     lineItemKeys.forEach(key => {
                         const removedTag = this.promotionCodeTags.find(tag => tag.discountId === key);
                         if (removedTag) {
-                            this.promotionCodeTags = this.promotionCodeTags.filter(item => item.discountId !== removedTag.discountId);
+                            this.promotionCodeTags = this.promotionCodeTags.filter(item => {
+                                return item.discountId !== removedTag.discountId;
+                            });
                         }
                     });
                 })

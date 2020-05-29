@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-sales-channel-modal-disconnect {
+    &__description {
+        font-size: $font-size-small;
+    }
+
+    &__button-group {
+        display: flex;
+    }
+
+    &__button {
+        + .sw-sales-channel-modal-disconnect__button {
+            margin-left: 8px;
+        }
+    }
+}

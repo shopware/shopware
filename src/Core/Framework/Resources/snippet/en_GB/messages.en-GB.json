@@ -44,8 +44,8 @@
         }
     },
     "filter": {
-        "sortByNameAscending": "Name, ascending",
-        "sortByNameDescending": "Name, descending",
+        "sortByNameAscending": "Name, A-Z",
+        "sortByNameDescending": "Name, Z-A",
         "sortByPriceAscending": "Price, ascending",
         "sortByPriceDescending": "Price, descending",
         "sortByScore": "Top results"

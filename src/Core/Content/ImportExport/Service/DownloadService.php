@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal We might break this in v6.2
@@ -49,13 +50,23 @@ class DownloadService
         }
 
         $headers = [
-            'Content-Disposition' => HeaderUtils::makeDisposition('attachment', $entity->getOriginalName()),
+            'Content-Disposition' => HeaderUtils::makeDisposition(
+                'attachment',
+                $entity->getOriginalName(),
+                // only printable ascii
+                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $entity->getOriginalName())
+            ),
             'Content-Length' => $this->filesystem->getSize($entity->getPath()),
             'Content-Type' => 'application/octet-stream',
         ];
-        $content = $this->filesystem->read($entity->getPath());
+        $stream = $this->filesystem->readStream($entity->getPath());
+        if (!is_resource($stream)) {
+            throw new FileNotFoundException($fileId);
+        }
 
-        return new Response($content, Response::HTTP_OK, $headers);
+        return new StreamedResponse(function () use ($stream): void {
+            fpassthru($stream);
+        }, Response::HTTP_OK, $headers);
     }
 
     private function findFile(Context $context, string $fileId): ImportExportFileEntity

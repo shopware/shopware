@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Suggest;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -49,7 +50,10 @@ class SuggestPageLoader
 
         $page = SuggestPage::createFrom($page);
 
-        $page->setSearchResult($this->productSuggestRoute->load($request, $salesChannelContext)->getListingResult());
+        $criteria = new Criteria();
+        $criteria->setLimit(10);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $page->setSearchResult($this->productSuggestRoute->load($request, $salesChannelContext, $criteria)->getListingResult());
 
         $page->setSearchTerm($request->query->get('search'));
 

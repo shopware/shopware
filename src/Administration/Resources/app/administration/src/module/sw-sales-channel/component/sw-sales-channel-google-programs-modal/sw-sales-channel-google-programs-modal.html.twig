@@ -6,6 +6,7 @@
             <div class="sw-sales-channel-google-programs-content__page">
                 <router-view :salesChannel="salesChannel"
                              @buttons-update="updateButtons"
+                             @on-disconnect-account="onDisconnectAccount"
                              @modal-close="onCloseModal">
                 </router-view>
             </div>
@@ -43,7 +44,7 @@
                                                :variant="buttonRight.variant"
                                                :disabled="buttonRight.disabled"
                                                :isLoading="buttonRight.isLoading"
-                                               :processSuccess="buttonRight.isSaveSuccessful"
+                                               :processSuccess="buttonRight.isProcessSuccessful"
                                                @process-finish="buttonRight.processFinish"
                                                size="small">
                                 {{ buttonRight.label }}

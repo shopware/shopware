@@ -4,14 +4,12 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderStateChangeRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -42,11 +40,6 @@ class AccountOrderController extends StorefrontController
     private $orderRoute;
 
     /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
-    /**
      * @var ContextSwitchRoute
      */
     private $contextSwitchRoute;
@@ -57,7 +50,7 @@ class AccountOrderController extends StorefrontController
     private $accountEditOrderPageLoader;
 
     /**
-     * @var AbstractOrderStateChangeRoute
+     * @var AbstractCancelOrderRoute
      */
     private $orderStateChangeRoute;
 
@@ -74,16 +67,14 @@ class AccountOrderController extends StorefrontController
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
         AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
         ContextSwitchRoute $contextSwitchRoute,
-        AbstractOrderStateChangeRoute $orderStateChangeRoute,
+        AbstractCancelOrderRoute $orderStateChangeRoute,
         AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute
     ) {
         $this->orderPageLoader = $orderPageLoader;
         $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->contextSwitchRoute = $contextSwitchRoute;
         $this->accountEditOrderPageLoader = $accountEditOrderPageLoader;
         $this->orderStateChangeRoute = $orderStateChangeRoute;
@@ -140,12 +131,7 @@ class AccountOrderController extends StorefrontController
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
-        $orderRequest = new Request();
-        $orderRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-
-        /** @var OrderRouteResponseStruct $result */
-        $result = $this->orderRoute->load($orderRequest, $context)->getObject();
-        $order = $result->getOrders()->first();
+        $order = $this->orderRoute->load(new Request(), $context, $criteria)->getOrders()->first();
 
         if (!$order instanceof OrderEntity) {
             throw new NotFoundHttpException();
@@ -164,7 +150,7 @@ class AccountOrderController extends StorefrontController
         $cancelOrderRequest->request->set('orderId', $request->get('orderId'));
         $cancelOrderRequest->request->set('transition', 'cancel');
 
-        $this->orderStateChangeRoute->change($cancelOrderRequest, $context);
+        $this->orderStateChangeRoute->cancel($cancelOrderRequest, $context);
 
         if ($context->getCustomer() && $context->getCustomer()->getGuest() === true) {
             return $this->redirectToRoute(

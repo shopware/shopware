@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\GoogleShopping\Client;
 
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Content\GoogleShopping\Exception\GoogleShoppingException;
+use Shopware\Core\Content\GoogleShopping\Exception\GoogleShoppingServiceException;
 
 class GoogleShoppingClient extends \Google_Client
 {
@@ -70,5 +73,25 @@ class GoogleShoppingClient extends \Google_Client
         $this->setDefer(false);
 
         return $response;
+    }
+
+    /**
+     * @param null $expectedClass
+     *
+     * @return object
+     */
+    public function execute(RequestInterface $request, $expectedClass = null)
+    {
+        try {
+            return parent::execute($request, $expectedClass);
+        } catch (\Google_Service_Exception $googleServiceException) {
+            throw new GoogleShoppingServiceException(
+                $googleServiceException->getMessage(),
+                $googleServiceException->getCode(),
+                $googleServiceException->getErrors()
+            );
+        } catch (\Google_Exception $googleException) {
+            throw new GoogleShoppingException($googleException->getMessage(), $googleException->getCode());
+        }
     }
 }

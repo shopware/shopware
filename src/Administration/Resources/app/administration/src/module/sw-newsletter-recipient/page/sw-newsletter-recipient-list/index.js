@@ -44,10 +44,6 @@ Component.register('sw-newsletter-recipient-list', {
             return this.getColumns();
         },
 
-        languageStore() {
-            return this.repositoryFactory.create('language');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },

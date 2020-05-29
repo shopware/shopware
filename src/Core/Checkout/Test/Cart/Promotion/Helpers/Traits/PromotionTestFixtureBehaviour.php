@@ -194,7 +194,7 @@ trait PromotionTestFixtureBehaviour
             'useCodes' => false,
             'useSetGroups' => false,
             'salesChannels' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
             ],
         ];
 

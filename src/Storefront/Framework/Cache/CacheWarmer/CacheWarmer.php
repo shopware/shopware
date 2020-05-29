@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Storefront\Framework\Cache\CacheStore;
+use Shopware\Storefront\Framework\Cache\CacheTagCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -54,6 +55,11 @@ class CacheWarmer extends AbstractMessageHandler
      */
     private $cacheIdLoader;
 
+    /**
+     * @var CacheTagCollection
+     */
+    private $cacheTagCollection;
+
     public function __construct(
         EntityRepositoryInterface $domainRepository,
         MessageBusInterface $bus,
@@ -61,7 +67,8 @@ class CacheWarmer extends AbstractMessageHandler
         Kernel $kernel,
         RouterInterface $router,
         RequestTransformerInterface $requestTransformer,
-        CacheIdLoader $cacheIdLoader
+        CacheIdLoader $cacheIdLoader,
+        CacheTagCollection $cacheTagCollection
     ) {
         $this->domainRepository = $domainRepository;
         $this->bus = $bus;
@@ -70,6 +77,7 @@ class CacheWarmer extends AbstractMessageHandler
         $this->router = $router;
         $this->requestTransformer = $requestTransformer;
         $this->cacheIdLoader = $cacheIdLoader;
+        $this->cacheTagCollection = $cacheTagCollection;
     }
 
     public static function getHandledMessages(): iterable
@@ -111,6 +119,10 @@ class CacheWarmer extends AbstractMessageHandler
             $request = $this->requestTransformer->transform(Request::create($url));
 
             $kernel->handle($request);
+
+            // the cache tag collection, collects all cache tags for a single request,
+            // after the request handled, the collection has to be reset for the next request
+            $this->cacheTagCollection->reset();
         }
     }
 

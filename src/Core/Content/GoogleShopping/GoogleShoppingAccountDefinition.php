@@ -5,13 +5,13 @@ namespace Shopware\Core\Content\GoogleShopping;
 use Shopware\Core\Content\GoogleShopping\Aggregate\GoogleShoppingMerchantAccount\GoogleShoppingMerchantAccountDefinition;
 use Shopware\Core\Content\GoogleShopping\DataAbstractionLayer\Field\GoogleAccountCredentialField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -45,7 +45,7 @@ class GoogleShoppingAccountDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new GoogleAccountCredentialField('credential', 'credential'))->addFlags(new Required()),
             (new DateTimeField('tos_accepted_at', 'tosAcceptedAt')),
-            (new JsonField('custom_fields', 'customFields')),
+            new CustomFields(),
 
             new OneToOneAssociationField('salesChannel', 'sales_channel_id', 'id', SalesChannelDefinition::class, false),
             (new OneToOneAssociationField('googleShoppingMerchantAccount', 'id', 'google_shopping_account_id', GoogleShoppingMerchantAccountDefinition::class, false))->addFlags(new CascadeDelete()),

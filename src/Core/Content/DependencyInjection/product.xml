@@ -109,6 +109,10 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer">
         </service>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
         </service>

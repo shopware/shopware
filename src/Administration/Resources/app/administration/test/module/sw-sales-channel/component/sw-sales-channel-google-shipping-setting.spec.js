@@ -33,6 +33,32 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
                 create: () => repositoryMockFactory()
             };
         });
+
+        Shopware.Service().register('googleShoppingService', () => {
+            const errorResponse = {
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                code: 'This is an error code',
+                                detail: 'This is an detailed error message'
+                            }
+                        ]
+                    }
+                }
+            };
+
+            return {
+                setupShipping: (salesChannelId, flatRate) => {
+                    if (salesChannelId && flatRate) {
+                        return Promise.resolve();
+                    }
+
+                    // eslint-disable-next-line prefer-promise-reject-errors
+                    return Promise.reject(errorResponse);
+                }
+            };
+        });
     });
 
     beforeEach(() => {
@@ -46,11 +72,12 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
             },
             mocks: {
                 $tc: (translationPath) => translationPath,
-                $route: { name: 'sw.sales.channel.detail.base.step-7' },
+                $route: { name: 'sw.sales.channel.detail.base.step-6' },
                 $router: { push: () => {} }
             },
             propsData: {
                 salesChannel: {
+                    id: 1,
                     productExports: [{ currencyId: '1' }]
                 }
             }
@@ -59,10 +86,6 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
 
     afterEach(() => {
         wrapper.destroy();
-    });
-
-    it('should be a vue js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
     });
 
     it('should render number of item which equals to settingOptions length', async () => {
@@ -82,7 +105,7 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
     });
 
     it('should show currency iso code in number field correctly', async () => {
-        const response = await repositoryMockFactory().get(1);
+        const response = await Shopware.Service('repositoryFactory').create().get(1);
 
         wrapper.setData({ currency: response[0] });
 
@@ -90,5 +113,50 @@ describe('module/sw-sales-channel/component/sw-sales-channel-google-shipping-set
 
         const numberField = wrapper.find('#number-field');
         expect(numberField.text()).toBe('EUR');
+    });
+
+    it('showErrorNotification should not be called update when onClickNext is successful', async () => {
+        wrapper.setData({
+            settingOptions: [
+                { value: 'flatRate', name: 'option 1' },
+                { value: 'selfSetup', name: 'option 2' }
+            ],
+            selectedSettingOption: 'flatRate',
+            flatRate: 10
+        });
+
+        wrapper.setMethods({ createNotificationError: jest.fn() });
+
+        const spy = jest.spyOn(wrapper.vm, 'showErrorNotification');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.onClickNext();
+
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('showErrorNotification should be called update when onClickNext is failed', async () => {
+        wrapper.setProps({
+            salesChannel: {
+                ...wrapper.vm.salesChannel,
+                id: ''
+            }
+        });
+
+        wrapper.setData({
+            settingOptions: [
+                { value: 'flatRate', name: 'option 1' },
+                { value: 'selfSetup', name: 'option 2' }
+            ]
+        });
+
+        wrapper.setMethods({ createNotificationError: jest.fn() });
+
+        const spy = jest.spyOn(wrapper.vm, 'showErrorNotification');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.onClickNext();
+
+        expect(spy).toHaveBeenCalled();
     });
 });

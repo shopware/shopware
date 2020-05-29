@@ -254,7 +254,18 @@
                                                 {% endblock %}
 
                                                 {% block document_line_item_table_row_label %}
-                                                    <td class="line-item-breakable">{{ lineItem.label }}</td>
+                                                    <td class="line-item-breakable">
+                                                        {{ lineItem.label }}
+                                                        {% if lineItem.payload.options|length >= 1 %}
+                                                            <br/>
+                                                            {% for option in lineItem.payload.options %}
+                                                                {{ option.group }}: {{ option.option }}
+                                                                {% if lineItem.payload.options|last != option %}
+                                                                    {{ " | " }}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </td>
                                                 {% endblock %}
 
                                                 {% block document_line_item_table_row_quantity %}

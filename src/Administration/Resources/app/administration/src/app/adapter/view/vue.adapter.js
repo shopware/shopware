@@ -103,6 +103,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     initComponents() {
         const componentRegistry = this.componentFactory.getComponentRegistry();
+        this.componentFactory.resolveComponentTemplates();
 
         componentRegistry.forEach((component) => {
             this.createComponent(component.name);

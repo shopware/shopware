@@ -13,8 +13,16 @@ export default {
     getComponentRegistry,
     getOverrideRegistry,
     getComponentHelper,
-    registerComponentHelper
+    registerComponentHelper,
+    resolveComponentTemplates,
+    markComponentTemplatesAsNotResolved
 };
+
+/**
+ * Indicates if the templates of the components are resolved.
+ * @type {boolean}
+ */
+let templatesResolved = false;
 
 /**
  * Registry which holds all components
@@ -148,7 +156,7 @@ function register(componentName, componentConfiguration = {}) {
  * @param {Object} componentConfiguration
  * @returns {Object} config
  */
-function extend(componentName, extendComponentName, componentConfiguration) {
+function extend(componentName, extendComponentName, componentConfiguration = {}) {
     const config = componentConfiguration;
 
     if (config.template) {
@@ -220,6 +228,9 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
  * @returns {string}
  */
 function getComponentTemplate(componentName) {
+    if (!templatesResolved) {
+        resolveComponentTemplates();
+    }
     return TemplateFactory.getRenderedTemplate(componentName);
 }
 
@@ -231,6 +242,10 @@ function getComponentTemplate(componentName) {
  * @returns {*}
  */
 function build(componentName, skipTemplate = false) {
+    if (!templatesResolved) {
+        resolveComponentTemplates();
+    }
+
     if (!componentRegistry.has(componentName)) {
         return false;
     }
@@ -534,4 +549,25 @@ function isAnOverride(config) {
  */
 function isNotEmptyObject(obj) {
     return (Object.keys(obj).length !== 0 && obj.constructor === Object);
+}
+
+/**
+ * Resolves the component templates using the template factory.
+ * @returns {boolean}
+ */
+function resolveComponentTemplates() {
+    TemplateFactory.resolveTemplates();
+    templatesResolved = true;
+    return true;
+}
+
+/**
+ * Helper method which clears the normalized templates and marks
+ * the indicator as `false`, so another resolve run is possible
+ * @returns {boolean}
+ */
+function markComponentTemplatesAsNotResolved() {
+    TemplateFactory.getNormalizedTemplateRegistry().clear();
+    templatesResolved = false;
+    return true;
 }

@@ -4,6 +4,7 @@ import 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-mat
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/sw-number-field';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
@@ -28,6 +29,7 @@ const createWrapper = () => {
             'sw-single-select': true,
             'sw-icon': true,
             'sw-popover': true,
+            'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-context-button': Shopware.Component.build('sw-context-button'),
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),

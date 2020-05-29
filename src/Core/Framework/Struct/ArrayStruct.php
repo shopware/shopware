@@ -9,9 +9,15 @@ class ArrayStruct extends Struct implements \ArrayAccess
      */
     protected $data;
 
-    public function __construct(array $data = [])
+    /**
+     * @var string|null
+     */
+    protected $apiAlias;
+
+    public function __construct(array $data = [], ?string $apiAlias = null)
     {
         $this->data = $data;
+        $this->apiAlias = $apiAlias;
     }
 
     public function has(string $property): bool
@@ -79,6 +85,6 @@ class ArrayStruct extends Struct implements \ArrayAccess
 
     public function getApiAlias(): string
     {
-        return 'array_struct';
+        return $this->apiAlias ?? 'array_struct';
     }
 }

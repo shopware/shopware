@@ -3,13 +3,11 @@
 namespace Shopware\Storefront\Page\Checkout\Offcanvas;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,20 +31,20 @@ class OffcanvasCartPageLoader
     private $genericLoader;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractShippingMethodRoute
      */
-    private $shippingMethodRepository;
+    private $shippingMethodRoute;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
         GenericPageLoaderInterface $genericLoader,
-        SalesChannelRepositoryInterface $shippingMethodRepository
+        AbstractShippingMethodRoute $shippingMethodRoute
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
         $this->genericLoader = $genericLoader;
-        $this->shippingMethodRepository = $shippingMethodRepository;
+        $this->shippingMethodRoute = $shippingMethodRoute;
     }
 
     /**
@@ -71,16 +69,11 @@ class OffcanvasCartPageLoader
         return $page;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
     private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $request = new Request();
+        $request->query->set('onlyAvailable', true);
 
-        /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
-
-        return $shippingMethods->filterByActiveRules($salesChannelContext);
+        return $this->shippingMethodRoute->load($request, $salesChannelContext)->getShippingMethods();
     }
 }

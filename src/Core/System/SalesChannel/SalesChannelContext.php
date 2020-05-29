@@ -260,4 +260,9 @@ class SalesChannelContext extends Struct
     {
         return 'sales_channel_context';
     }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->permissions[$permission] ?? false;
+    }
 }

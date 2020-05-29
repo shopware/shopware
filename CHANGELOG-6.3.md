@@ -192,6 +192,23 @@ Table of contents
 * Removed `v-fixed` directive in `sw-entity-single-select` of `sw-order-product-select`  
 * Refactor the component `sw_customer_base_form`
     * Removed snippet `sw-customer.baseForm.helpTextPassword`  
+* Added new `\Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute` class to allow fetching the cart using the store-api with the url GET `/store-api/v3/checkout/cart`
+* Added new `\Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute` class to allow deleting the cart using the store-api with the url DELETE `/store-api/v3/checkout/cart`
+* Added new `\Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute` class to allow adding line items to the cart using the store-api with the url POST `/store-api/v3/checkout/cart/line-item`
+* Added new `\Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute` class to allow updating line items in the cart using the store-api with the url POST `/store-api/v3/checkout/cart/line-item`
+* Added new `\Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute` class to allow deleting line items in the cart using the store-api with the url DELETE `/store-api/v3/checkout/cart/line-item`
+* Added new `\Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute` class to allow placing an order in the store-api with the url POST `/store-api/v3/checkout/order`
+* Added new `\Shopware\Core\System\Country\SalesChannel\CountryRoute` class to fetch available countries using the store-api with the url GET `/store-api/v3/country`
+* Added new `\Shopware\Core\Checkout\Cart\LineItemFactoryRegistry` class to create and update line items from array input. It's limited to the available handlers. When you add a new line item type, you should consider creating a new handler. Following handlers are available in default:
+    * `\Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory` - Creates product items
+    * `\Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory` - Creates promotion items from code
+    * `\Shopware\Core\Checkout\Cart\LineItemFactoryHandler\CreditLineItemFactory` - Creates credit items, only allowed using with permissions
+    * `\Shopware\Core\Checkout\Cart\LineItemFactoryHandler\CustomLineItemFactory` - Creates custom line items, only allowed using with permissions
+    * To support your custom line item. Please create a new class which implements the `\Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface` interface and is registered with the tag `shopware.cart.line_item.factory` in the di.
+* Added new method `hasPermission` to `\Shopware\Core\System\SalesChannel\SalesChannelContext` to check permissions in the context
+* Added new method `getOrders` to `\Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse`
+* Deprecated return object from method `getObject` in class `\Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse`. It will return in future a `\Shopware\Core\Framework\Struct\ArrayStruct` instead of `OrderRouteResponseStruct`
+* Added new constructor argument `$apiAlias` to `\Shopware\Core\Framework\Struct\ArrayStruct`. The given value will be used for `getApiAlias` method.
 
 #### Storefront
 * Added plugin injection in hot mode

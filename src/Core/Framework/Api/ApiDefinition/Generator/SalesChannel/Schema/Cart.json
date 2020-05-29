@@ -1,0 +1,115 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string"
+    },
+    "price": {
+      "type": "object",
+      "properties": {
+        "netPrice": {
+          "type": "number",
+          "format": "float"
+        },
+        "totalPrice": {
+          "type": "number",
+          "format": "float"
+        },
+        "positionPrice": {
+          "type": "number",
+          "format": "float"
+        },
+        "taxStatus": {
+          "type": "string"
+        }
+      }
+    },
+    "lineItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "referencedId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "priceDefinition": {
+            "type": "object",
+            "properties": []
+          },
+          "good": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "removable": {
+            "type": "boolean"
+          },
+          "stackable": {
+            "type": "boolean"
+          },
+          "modified": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": []
+      }
+    },
+    "deliveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": []
+      }
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "paymentMethodId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "modified": {
+      "type": "boolean"
+    },
+    "customerComment": {
+      "type": "string"
+    },
+    "affiliateCode": {
+      "type": "string"
+    },
+    "campaignCode": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "properties": []
+    }
+  }
+}

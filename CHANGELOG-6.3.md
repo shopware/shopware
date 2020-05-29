@@ -216,3 +216,4 @@ Table of contents
 * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
 * Fix timezone of `orderDate` in ordergrid
 * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+* fixed line break issue on form labels for iOS

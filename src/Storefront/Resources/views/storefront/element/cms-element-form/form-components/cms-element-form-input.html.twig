@@ -1,9 +1,8 @@
 {% block cms_element_form_input %}
     <div class="form-group {{ additionalClass }}">
         {% block cms_element_form_input_label %}
-            <label class="form-label" for="form-{{ fieldName }}">
-                {{ label|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}
-            </label>
+            <label class="form-label"
+                   for="form-{{ fieldName }}">{{ label|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}</label>
         {% endblock %}
 
         {% block cms_element_form_input_input %}
@@ -12,7 +11,7 @@
                    id="form-{{ fieldName }}"
                    value="{{ data.get( fieldName ) }}"
                    placeholder="{{ placeholder|trans }}"
-                   {% if required %}required="required"{% endif %}
+                {% if required %}required="required"{% endif %}
                    class="form-control{% if formViolations.getViolations( '/' ~ fieldName ) %} is-invalid{% endif %}"/>
 
             {% if formViolations.getViolations( '/' ~ fieldName ) is not empty %}

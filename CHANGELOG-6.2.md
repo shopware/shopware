@@ -66,6 +66,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added possibility to delete orders without documents on `sw-order-list`
     * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
+    * DB level write operation (e.g. cascade deletes) are not validated against the write prtoection anymore
  
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`

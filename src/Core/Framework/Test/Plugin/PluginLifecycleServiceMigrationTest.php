@@ -65,7 +65,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection = Kernel::getConnection();
 
         $connection->executeUpdate('DELETE FROM migration WHERE `class` LIKE "SwagManualMigrationTest%"');
-        $connection->executeUpdate('DELETE FROM plugin WHERE `name` = "SwagManualMigrationTest"');
+        $connection->executeUpdate('DELETE FROM plugin');
 
         KernelLifecycleManager::bootKernel();
     }

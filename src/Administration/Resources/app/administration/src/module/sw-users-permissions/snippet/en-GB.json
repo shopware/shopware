@@ -4,6 +4,32 @@
       "label": "Users & permissions"
     },
     "permissions": {},
+    "roles": {
+      "general": {
+        "labelCreateNewRole": "Create new role"
+      },
+      "role-grid": {
+        "labelName": "Name",
+        "labelDescription": "Description",
+        "messageEmptyTitle": "No roles yet",
+        "contextMenuEdit": "Edit",
+        "contextMenuDelete": "Delete",
+        "titleModalDelete": "Delete role",
+        "textModalDelete": "Do you really want to delete the role \"{name}\"?",
+        "labelButtonCancel": "Cancel",
+        "labelButtonDelete": "Delete",
+        "notification": {
+          "deleteSuccess":  {
+            "title": "Success",
+            "message": "Role \"{name}\" has been deleted."
+          },
+          "deleteError": {
+            "title": "Error",
+            "message": "An error occurred while deleting the role \"{name}\"."
+          }
+        }
+      }
+    },
     "users": {
       "general": {
         "mainMenuItemGeneral": "Users & permissions",

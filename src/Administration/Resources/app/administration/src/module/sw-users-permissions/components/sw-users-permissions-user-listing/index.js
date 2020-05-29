@@ -7,7 +7,10 @@ const { Criteria } = Data;
 Component.register('sw-users-permissions-user-listing', {
     template,
 
-    inject: ['userService'],
+    inject: [
+        'userService',
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -19,7 +22,8 @@ Component.register('sw-users-permissions-user-listing', {
         return {
             user: [],
             isLoading: false,
-            itemToDelete: null
+            itemToDelete: null,
+            disableRouteParams: true
         };
     },
 
@@ -36,7 +40,7 @@ Component.register('sw-users-permissions-user-listing', {
         },
 
         userRepository() {
-            return Shopware.Service('repositoryFactory').create('user');
+            return this.repositoryFactory.create('user');
         },
 
         currentUser: {

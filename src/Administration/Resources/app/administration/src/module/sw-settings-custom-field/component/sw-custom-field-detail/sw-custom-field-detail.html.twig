@@ -10,7 +10,9 @@
                             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldType')"
                             :placeholder="$tc('sw-settings-custom-field.customField.detail.placeholderCustomFieldType')"
                             type="select"
-                            v-model="currentCustomField.config.customFieldType">
+                            v-model="currentCustomField.config.customFieldType"
+                            :helpText="$tc('sw-settings-custom-field.general.tooltipType')"
+                            :disabled="!currentCustomField._isNew">
                         <option v-for="(option, key) in fieldTypes" :value="key">
                             {{ $tc(`sw-settings-custom-field.types.${key}`) }}
                         </option>

@@ -1,7 +1,11 @@
 name: PHPUnit
 
 on:
-  push:
+    push:
+        branches:
+            - '6.2'
+            - master
+    pull_request:
 
 jobs:
   build:
@@ -10,7 +14,7 @@ jobs:
         php: ['7.2', '7.3', '7.4']
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: 6.2-BoostDay
+      DEVELOPMENT_BRANCH: 6.2
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
 
     steps:
@@ -30,7 +34,7 @@ jobs:
         git checkout -
         cd ..
         git reset --hard @
-  
+
     - uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php }}
@@ -39,7 +43,7 @@ jobs:
 
     - name: Start MySQL
       run: ./development/platform/.github/setup-db.sh mysql:5.7
-    
+
     - name: Start Elasticsearch
       run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 
@@ -51,6 +55,6 @@ jobs:
         if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
         ./psh.phar init
-     
+
     - name: Run PHPUnit
       run: 'cd development; for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE"; done'

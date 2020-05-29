@@ -1,7 +1,11 @@
 name: Javascript analysis
 
 on:
-  push:
+    push:
+        branches:
+            - '6.2'
+            - master
+    pull_request:
 
 jobs:
   build:
@@ -15,7 +19,7 @@ jobs:
         node-version: '12.x'
 
     - uses: actions/checkout@v2
-    
+
     - name: ESLint
       run: |
         cd src/Administration/Resources/app/administration

@@ -184,9 +184,28 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles());
-        static::assertCount(2, $bundles);
+
+        static::assertCount(3, $bundles);
         static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
-        static::assertSame($loader, $bundles[1]);
+        static::assertSame($loader, $bundles[2]);
+    }
+
+    public function testGetBundlesWithAdditionalBundlesThatAreDuplicates(): void
+    {
+        $activePluginData = $this->getActivePlugin()->jsonSerialize();
+        $activePluginDataWithUnneededBundles = $this->getActivePluginWithBundle()->jsonSerialize();
+        $loader = new StaticKernelPluginLoader($this->classLoader, null, [
+            $activePluginData, $activePluginDataWithUnneededBundles,
+        ]);
+        $loader->initializePlugins(TEST_PROJECT_DIR);
+
+        $bundles = iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
+
+        static::assertCount(4, $bundles);
+        static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle', $bundles[1]);
+        static::assertInstanceOf('SwagTestWithBundle\SwagTestWithBundle', $bundles[2]);
+        static::assertSame($loader, $bundles[3]);
     }
 
     public function testGetBundlesNoActive(): void

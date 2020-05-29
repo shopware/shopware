@@ -3,10 +3,12 @@
 namespace SwagTest;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SwagTest extends Plugin
@@ -92,5 +94,14 @@ class SwagTest extends Plugin
     public function getMigrationNamespace(): string
     {
         return $_SERVER['FAKE_MIGRATION_NAMESPACE'] ?? parent::getMigrationNamespace();
+    }
+
+    public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
+    {
+        require_once __DIR__ . '/../../../bundles/FooBarBundle.php';
+
+        return [
+            new FooBarBundle(),
+        ];
     }
 }

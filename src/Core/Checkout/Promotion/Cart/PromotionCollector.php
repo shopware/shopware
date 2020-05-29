@@ -290,21 +290,12 @@ class PromotionCollector implements CartDataCollectorInterface
     {
         $result = new CartPromotionsDataDefinition();
 
-        // array that holds all excluded promotion ids.
-        // if a promotion has exclusions they are added on the stack
-        $exclusions = [];
-
         // we now have a list of promotions that could be added to our cart.
         // verify if they have any discounts. if so, add them to our
         // data struct, which ensures that they will be added later in the enrichment process.
         /** @var PromotionCodeTuple $tuple */
         foreach ($dataDefinition->getPromotionCodeTuples() as $tuple) {
             $promotion = $tuple->getPromotion();
-
-            // if promotion is on exclusions stack it is ignored
-            if (isset($exclusions[$promotion->getId()])) {
-                continue;
-            }
 
             if (!$promotion->isOrderCountValid()) {
                 continue;
@@ -317,11 +308,6 @@ class PromotionCollector implements CartDataCollectorInterface
             // check if no discounts have been set
             if (!$promotion->hasDiscount()) {
                 continue;
-            }
-
-            // add all exclusions to the stack
-            foreach ($promotion->getExclusionIds() as $id) {
-                $exclusions[$id] = true;
             }
 
             // now add it to our result definition object.

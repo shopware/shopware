@@ -86,6 +86,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'applierKey' => null,
                 'usageKey' => null,
             ],
+            'exclusions' => [],
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -131,6 +132,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'applierKey' => null,
                 'usageKey' => null,
             ],
+            'exclusions' => [],
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -228,6 +230,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'applierKey' => null,
                 'usageKey' => null,
             ],
+            'exclusions' => [],
         ];
 
         static::assertEquals($expected, $item->getPayload());

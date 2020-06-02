@@ -89,6 +89,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed mail headers and footers not being properly attached to mails when sending mails from the administration
     * Excluded Promotions will now be handled in `PromotionCalculator` and `PromotionDeliveryCalculator` instead of `PromotionCalculator`
     * The storefront session is now invalidated after logout. This can be configured in `Settings -> Login / Registration`
+    * Enabled the Slugify TwigFilter extension
+
 
 ### 6.2.0
 

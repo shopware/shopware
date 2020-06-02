@@ -51,9 +51,11 @@
         <service id="Shopware\Storefront\Controller\AuthController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CartLineItemController">

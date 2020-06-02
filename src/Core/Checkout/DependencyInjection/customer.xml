@@ -153,6 +153,9 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute" public="true">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute" public="true">

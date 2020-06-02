@@ -2,15 +2,17 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -29,10 +31,33 @@ class LogoutRoute extends AbstractLogoutRoute
      */
     private $eventDispatcher;
 
-    public function __construct(SalesChannelContextPersister $contextPersister, EventDispatcherInterface $eventDispatcher)
-    {
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfig;
+
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(
+        SalesChannelContextPersister $contextPersister,
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfig,
+        CartService $cartService,
+        Connection $connection
+    ) {
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfig = $systemConfig;
+        $this->cartService = $cartService;
+        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractLogoutRoute
@@ -59,18 +84,37 @@ class LogoutRoute extends AbstractLogoutRoute
             throw new CustomerNotLoggedInException();
         }
 
-        $this->contextPersister->save(
-            $context->getToken(),
-            [
-                'customerId' => null,
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ]
-        );
+        $salesChannelId = $context->getSalesChannel()->getId();
+        if ($this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
+            $this->cartService->deleteCart($context);
+            $this->deleteContextToken($context->getToken());
+        } else {
+            $this->contextPersister->save(
+                $context->getToken(),
+                [
+                    'customerId' => null,
+                    'billingAddressId' => null,
+                    'shippingAddressId' => null,
+                ]
+            );
+        }
 
         $event = new CustomerLogoutEvent($context, $context->getCustomer());
         $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
+    }
+
+    /**
+     * @deprecated tag:v6.3.0 use \Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete
+     */
+    private function deleteContextToken(string $token): void
+    {
+        $this->connection->executeUpdate(
+            'DELETE FROM sales_channel_api_context WHERE token = :token',
+            [
+                'token' => $token,
+            ]
+        );
     }
 }

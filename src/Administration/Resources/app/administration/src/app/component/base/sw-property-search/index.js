@@ -202,6 +202,7 @@ Component.register('sw-property-search', {
                 page: this.optionPage,
                 limit: 10,
                 queries: queries,
+                'total-count-mode': 1,
                 associations: {
                     group: {}
                 }
@@ -226,7 +227,11 @@ Component.register('sw-property-search', {
         },
 
         loadGroups() {
-            const params = { page: this.groupPage, limit: 10 };
+            const params = {
+                page: this.groupPage,
+                limit: 10,
+                'total-count-mode': 1
+            };
 
             this.groupOptions = [];
             this.groupStore.getList(params).then((response) => {
@@ -237,7 +242,11 @@ Component.register('sw-property-search', {
         },
 
         loadOptions() {
-            const params = { page: this.optionPage, limit: 10 };
+            const params = {
+                page: this.optionPage,
+                limit: 10,
+                'total-count-mode': 1
+            };
 
             if (this.currentGroup.sortingType === 'position') {
                 params.sortBy = 'position';

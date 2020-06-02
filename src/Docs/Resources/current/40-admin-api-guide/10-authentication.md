@@ -142,27 +142,45 @@ You can see a shortened example below:
     }
 ```
 
-#### Example: Authentication
+#### Example: Authentication using Username and Password
 
 The following example shows how to authenticate a user by his password.
 
-```javascript
-    const baseUrl = '{insert your url}';
-    const data = {
-        client_id: "administration",
-        grant_type: "password",
-        scopes: "write",
-        username: "admin",
-        password: "shopware"
-    };
-    const init = {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-    };
-    fetch(`${baseUrl}/api/oauth/token`, init)
-        .then((response) => response.json())
-        .then(({ access_token }) => {
-            console.log('access_token', access_token);
-        });
 ```
+POST /api/oauth/token
+{
+    "client_id": "administration",
+    "grant_type": "password",
+    "scopes": "write",
+    "username": "<user-username>",
+    "password": "<user-password>"
+}
+
+{
+  "token_type": "Bearer",
+  "expires_in": 600,
+  "access_token": "xxxxxxxxxxxxxx",
+  "refresh_token": "token"
+}
+```
+
+#### Example: Authentication using Integration
+
+The following example shows how to authenticate with an integration. A guide how create an integration can be found [here](https://docs.shopware.com/en/shopware-6-en/settings/system/integrationen)
+
+```
+POST /api/oauth/token
+{
+    "grant_type": "client_credentials",
+    "client_id": "<client-id>",
+    "client_secret": "<client-secret>"
+}
+
+{
+  "token_type": "Bearer",
+  "expires_in": 600,
+  "access_token": "xxxxxxxxxxxxxx",
+  "refresh_token": "token"
+}
+```
+

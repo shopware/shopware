@@ -106,11 +106,24 @@ class DeprecatedTagTest extends TestCase
         if (is_string($envVersion) && $envVersion !== '') {
             return $envVersion;
         }
+        $tags = $this->exec('git describe --tags $(git rev-list --tags --max-count=50)');
 
-        return str_replace('v', '', $this->exec('git describe --tags $(git rev-list --tags --max-count=1)'));
+        $highest = str_replace('v', '', $tags[0]);
+        foreach ($tags as $tag) {
+            if (strlen($tag) > 8) {
+                continue;
+            }
+            $tag = str_replace('v', '', $tag);
+
+            if (version_compare($highest, $tag) === -1) {
+                $highest = $tag;
+            }
+        }
+
+        return $tag;
     }
 
-    private function exec(string $command): string
+    private function exec(string $command): array
     {
         $result = [];
         $exitCode = 0;
@@ -121,6 +134,6 @@ class DeprecatedTagTest extends TestCase
             throw new \Exception("Could not execute {$command} successfully. EXITING \n");
         }
 
-        return $result[0];
+        return $result;
     }
 }

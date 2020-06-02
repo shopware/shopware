@@ -209,6 +209,7 @@ Table of contents
 * Added new method `getOrders` to `\Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse`
 * Deprecated return object from method `getObject` in class `\Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse`. It will return in future a `\Shopware\Core\Framework\Struct\ArrayStruct` instead of `OrderRouteResponseStruct`
 * Added new constructor argument `$apiAlias` to `\Shopware\Core\Framework\Struct\ArrayStruct`. The given value will be used for `getApiAlias` method.
+* Added new method `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete`
 
 #### Storefront
 * Added plugin injection in hot mode

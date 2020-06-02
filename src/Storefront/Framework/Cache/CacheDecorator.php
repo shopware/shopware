@@ -45,14 +45,10 @@ class CacheDecorator implements TagAwareAdapterInterface
 
     public function getItems(array $keys = [])
     {
-        $items = $this->decorated->getItems($keys);
-
-        $items = iterator_to_array($items);
-        foreach ($items as $item) {
+        foreach ($this->decorated->getItems($keys) as $item) {
             $this->collection->add($this->getTags($item));
+            yield $item;
         }
-
-        return $items;
     }
 
     public function clear(string $prefix = '')

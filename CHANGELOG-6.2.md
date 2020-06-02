@@ -88,7 +88,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * If all variants are expanded in the listing display the buy button
     * Fixed mail headers and footers not being properly attached to mails when sending mails from the administration
     * Excluded Promotions will now be handled in `PromotionCalculator` and `PromotionDeliveryCalculator` instead of `PromotionCalculator`
-
+    * The storefront session is now invalidated after logout. This can be configured in `Settings -> Login / Registration`
 
 ### 6.2.0
 

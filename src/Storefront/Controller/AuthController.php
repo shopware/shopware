@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,10 +40,22 @@ class AuthController extends StorefrontController
      */
     private $accountService;
 
-    public function __construct(AccountLoginPageLoader $loginPageLoader, AccountService $accountService)
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfig;
+
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
+    public function __construct(AccountLoginPageLoader $loginPageLoader, AccountService $accountService, SystemConfigService $systemConfig, CartService $cartService)
     {
         $this->loginPageLoader = $loginPageLoader;
         $this->accountService = $accountService;
+        $this->systemConfig = $systemConfig;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -71,7 +85,7 @@ class AuthController extends StorefrontController
     /**
      * @Route("/account/logout", name="frontend.account.logout.page", methods={"GET"})
      */
-    public function logout(SalesChannelContext $context): Response
+    public function logout(Request $request, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() === null) {
             return $this->redirectToRoute('frontend.account.login.page');
@@ -79,6 +93,10 @@ class AuthController extends StorefrontController
 
         try {
             $this->accountService->logout($context);
+            $salesChannelId = $context->getSalesChannel()->getId();
+            if ($request->hasSession() && $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
+                $request->getSession()->invalidate();
+            }
 
             $this->addFlash('success', $this->trans('account.logoutSucceeded'));
 

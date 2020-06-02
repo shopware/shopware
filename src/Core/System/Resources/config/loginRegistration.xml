@@ -108,5 +108,11 @@
             <label>Additional address 2 field required</label>
             <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>invalidateSessionOnLogOut</name>
+            <label>Clear session data on log out</label>
+            <label lang="de-DE">Sitzungsdaten bei Abmeldung löschen</label>
+        </input-field>
     </card>
 </config>

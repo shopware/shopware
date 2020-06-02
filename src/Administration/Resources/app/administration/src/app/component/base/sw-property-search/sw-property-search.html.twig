@@ -135,7 +135,14 @@
 
                         <template slot="pagination">
                             {% block sw_property_search_option_search_grid_pagination %}
-                                <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionSearchPageChange" :steps="[10]" />
+                                <sw-pagination :page="optionPage"
+                                               :limit="10"
+                                               :total="optionTotal"
+                                               :total-visible="7"
+                                               @page-change="onOptionSearchPageChange"
+                                               :steps="[10]"
+                                               :autoHide="false">
+                                </sw-pagination>
                             {% endblock %}
                         </template>
                     </sw-grid>

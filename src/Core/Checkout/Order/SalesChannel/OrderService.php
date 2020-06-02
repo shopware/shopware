@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -171,12 +172,13 @@ class OrderService
         $fromPlace = $stateMachineStates->get('fromPlace');
 
         if ($toPlace) {
-            $orderCriteria = $this->getOrderCriteria($orderId, $customerId);
-            /** @var OrderEntity|null $order */
-            $order = $this->orderRepository->search($orderCriteria, $context)->first();
-            if ($order === null) {
-                throw new OrderNotFoundException($orderId);
+            $orderCriteria = new Criteria([$orderId]);
+            if ($customerId !== null) {
+                $orderCriteria->addFilter(
+                    new EqualsFilter('order.orderCustomer.customerId', $customerId)
+                );
             }
+            $order = $this->getOrder($orderCriteria, $context);
 
             $technicalName = 'order.state.' . $toPlace->getTechnicalName();
 
@@ -225,13 +227,10 @@ class OrderService
         $fromPlace = $stateMachineStates->get('fromPlace');
 
         if ($toPlace) {
-            $orderCriteria = $this->getOrderCriteria();
+            //We need to get the order twice to get it in the correct context
+            $orderCriteria = new Criteria();
             $orderCriteria->addFilter(new EqualsFilter('transactions.id', $orderTransactionId));
-            /** @var OrderEntity|null $order */
-            $order = $this->orderRepository->search($orderCriteria, $context)->first();
-            if ($order === null) {
-                throw new OrderNotFoundException('with transactionId: ' . $orderTransactionId);
-            }
+            $order = $this->getOrder($orderCriteria, $context);
 
             $technicalName = 'order_transaction.state.' . $toPlace->getTechnicalName();
 
@@ -280,13 +279,10 @@ class OrderService
         $fromPlace = $stateMachineStates->get('fromPlace');
 
         if ($toPlace) {
-            $orderCriteria = $this->getOrderCriteria();
+            //We need to get the order twice to get it in the correct context
+            $orderCriteria = new Criteria();
             $orderCriteria->addFilter(new EqualsFilter('deliveries.id', $orderDeliveryId));
-            /** @var OrderEntity|null $order */
-            $order = $this->orderRepository->search($orderCriteria, $context)->first();
-            if ($order === null) {
-                throw new OrderNotFoundException('with deliveryId: ' . $orderDeliveryId);
-            }
+            $order = $this->getOrder($orderCriteria, $context);
 
             $technicalName = 'order_delivery.state.' . $toPlace->getTechnicalName();
 
@@ -359,34 +355,13 @@ class OrderService
         return $validation;
     }
 
-    private function getOrderCriteria(?string $orderId = null, ?string $customerId = null): Criteria
-    {
-        if ($orderId) {
-            $orderCriteria = new Criteria([$orderId]);
-        } else {
-            $orderCriteria = new Criteria([]);
-        }
-
-        if ($customerId !== null) {
-            $orderCriteria->addFilter(
-                new EqualsFilter('order.orderCustomer.customerId', $customerId)
-            );
-        }
-
-        $orderCriteria->addAssociation('orderCustomer.salutation');
-        $orderCriteria->addAssociation('stateMachineState');
-        $orderCriteria->addAssociation('transactions');
-        $orderCriteria->addAssociation('deliveries.shippingMethod');
-        $orderCriteria->addAssociation('salesChannel');
-
-        return $orderCriteria;
-    }
-
     private function getMailTemplate(Context $context, string $technicalName, OrderEntity $order): ?MailTemplateEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', $technicalName));
         $criteria->setLimit(1);
+
+        $orderContext = $this->getOrderContext($context, $order);
 
         if ($order->getSalesChannelId()) {
             $criteria->addFilter(
@@ -395,9 +370,18 @@ class OrderService
         }
 
         /** @var MailTemplateEntity|null $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
+        $mailTemplate = $this->mailTemplateRepository->search($criteria, $orderContext)->first();
 
         return $mailTemplate;
+    }
+
+    private function getLanguageIdChain(OrderEntity $order): array
+    {
+        return [
+            $order->getLanguageId(),
+            $order->getLanguage()->getParentId(),
+            Defaults::LANGUAGE_SYSTEM,
+        ];
     }
 
     private function addCustomerComment(Cart $cart, DataBag $data): void
@@ -520,5 +504,57 @@ class OrderService
             'fileName' => $document->getFilename(),
             'mimeType' => $document->getContentType(),
         ];
+    }
+
+    private function getOrderAssociations(Criteria $orderCriteria): Criteria
+    {
+        $orderCriteria->addAssociation('orderCustomer.salutation');
+        $orderCriteria->addAssociation('stateMachineState');
+        $orderCriteria->addAssociation('transactions');
+        $orderCriteria->addAssociation('deliveries.shippingMethod');
+        $orderCriteria->addAssociation('salesChannel');
+        $orderCriteria->addAssociation('language');
+        $orderCriteria->addAssociation('currency');
+
+        return $orderCriteria;
+    }
+
+    private function getOrderContext(Context $context, OrderEntity $order): Context
+    {
+        /*
+         * we need a context with the correct settings for the order
+         */
+        $orderContext = new Context(
+            $context->getSource(),
+            $context->getRuleIds(),
+            $order->getCurrencyId(),
+            $this->getLanguageIdChain($order),
+            $context->getVersionId(),
+            $order->getCurrencyFactor(),
+            $order->getCurrency()->getDecimalPrecision(),
+            true,
+            $order->getTaxStatus()
+        );
+
+        return $orderContext;
+    }
+
+    private function getOrder(Criteria $criteria, Context $context): OrderEntity
+    {
+        //We need to get the order twice to get it in the correct context
+        $criteria->addAssociation('language');
+        $criteria->addAssociation('currency');
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($criteria, $context)->first();
+        if ($order === null) {
+            throw new OrderNotFoundException(json_encode($criteria));
+        }
+        $orderContext = $this->getOrderContext($context, $order);
+        $orderIdCriteria = new Criteria([$order->getId()]);
+        $orderIdCriteria = $this->getOrderAssociations($orderIdCriteria);
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($orderIdCriteria, $orderContext)->first();
+
+        return $order;
     }
 }

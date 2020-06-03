@@ -48,6 +48,11 @@ class UserEntity extends Entity
     protected $lastName;
 
     /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
      * @var string
      */
     protected $email;
@@ -305,5 +310,15 @@ class UserEntity extends Entity
     public function getApiAlias(): string
     {
         return 'user';
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
     }
 }

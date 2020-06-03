@@ -210,6 +210,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                         'createdAt' => '2018-01-15T08:01:16+00:00',
                         'updatedAt' => null,
                         'admin' => true,
+                        'title' => null,
                     ],
                     'links' => [
                         'self' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
@@ -309,6 +310,7 @@ class TestBasicWithToOneRelationship extends SerializationFixture
                 'updatedAt' => null,
                 'extensions' => [],
                 'admin' => true,
+                'title' => null,
                 'aclRoles' => null,
                 'apiAlias' => 'user',
             ],

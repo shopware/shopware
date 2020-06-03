@@ -188,6 +188,21 @@ Table of contents
         * Removed `webpack.prod.conf.js`
         * Removed `webpack.test.conf.js`
 * Added `block` and `description` property to `sw-radio-field`. Furthermore, each `option` can now also have a `description`
+* Deprecated data fetching methods in `ApiService` classes, use the repository class for data fetching instead
+    * Deprecated `getList` method, use `src/core/data-new/repository.data.js` `search()` function instead
+    * Deprecated `getById` method, use `src/core/data-new/repository.data.js` `get()` function instead
+    * Deprecated `updateById` method, use `src/core/data-new/repository.data.js` `save()` function instead
+    * Deprecated `deleteAssociation` method, use `src/core/data-new/repository.data.js` `delete()` function instead
+    * Deprecated `create` method, use `src/core/data-new/repository.data.js` `create()` function instead
+    * Deprecated `delete` method, use `src/core/data-new/repository.data.js` `delete()` function instead
+    * Deprecated `clone` method, use `src/core/data-new/repository.data.js` `clone()` function instead
+    * Deprecated `versionize` method, use `src/core/data-new/repository.data.js` `createVersion()` function instead
+    * Deprecated `mergeVersion` method, use `src/core/data-new/repository.data.js` `mergeVersion()` function instead
+    * Deprecated `getList` method  of `src/core/service/api/custom-field.service.js`, use `src/core/data-new/repository.data.js` `search()` function instead
+    * Deprecated `getList` method  of `src/core/service/api/custom-field-set.service.js`, use `src/core/data-new/repository.data.js` `search()` function instead
+    * Deprecated `getListByCustomerId` method  of `src/core/service/api/customer-address.api.service.js`, use `src/core/data-new/repository.data.js` `search()` function instead
+    * Deprecated `save` method  of `src/core/service/api/snippet.api.service.js`, use `src/core/data-new/repository.data.js` `save()` function instead
+    
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

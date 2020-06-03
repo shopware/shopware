@@ -1,7 +1,8 @@
 import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
-const { Component, StateDeprecated, Defaults } = Shopware;
+const { Component, Defaults } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-modal-grid', {
     template,
@@ -36,8 +37,8 @@ Component.register('sw-sales-channel-modal-grid', {
     },
 
     computed: {
-        salesChannelTypeStore() {
-            return StateDeprecated.getStore('sales_channel_type');
+        salesChannelTypeRepository() {
+            return this.repositoryFactory.create('sales_channel_type');
         }
     },
 
@@ -47,17 +48,11 @@ Component.register('sw-sales-channel-modal-grid', {
 
     methods: {
         createdComponent() {
-            const params = {
-                limit: 500,
-                page: 1
-            };
-            const { languageId } = Shopware.State.get('session');
-
             this.isLoading = true;
 
-            this.salesChannelTypeStore.getList(params, false, languageId).then((response) => {
+            this.salesChannelTypeRepository.search(new Criteria(1, 500), Shopware.Context.api).then((response) => {
                 this.total = response.total;
-                this.salesChannelTypes = response.items;
+                this.salesChannelTypes = response;
                 this.isLoading = false;
             });
         },

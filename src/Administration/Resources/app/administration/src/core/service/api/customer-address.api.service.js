@@ -1,6 +1,8 @@
 import ApiService from '../api.service';
 
 /**
+ * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js for handling entity data
+ *
  * Gateway for the API end point "customer_address"
  * @class
  * @extends ApiService
@@ -11,7 +13,12 @@ class CustomerAddressApiService extends ApiService {
         this.name = 'customerAddressService';
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - use src/core/data-new/repository.data.js search() function instead
+     */
     getListByCustomerId(customerId, page, limit, additionalParams = {}, additionalHeaders = {}) {
+        this.showDeprecationWarning('getListByCustomerId');
+
         const headers = this.getBasicHeaders(additionalHeaders);
         let params = {};
 

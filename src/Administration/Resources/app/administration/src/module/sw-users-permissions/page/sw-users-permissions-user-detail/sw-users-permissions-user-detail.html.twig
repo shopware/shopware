@@ -134,6 +134,35 @@
                                                 </option>
                                             </sw-select-field>
                                         {% endblock %}
+
+                                        {% block sw_settings_user_detail_grid_content_acl_is_admin %}
+                                            <sw-switch-field
+                                                class="sw-settings-user-detail__grid-is-admin"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
+                                                :disabled="isCurrentUser"
+                                                v-model="user.admin">
+                                            </sw-switch-field>
+                                        {% endblock %}
+
+                                        {% block sw_settings_user_detail_grid_content_job_title %}
+                                            <sw-text-field
+                                                class="sw-settings-user-detail__grid-jobTitle"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
+                                                v-model="user.title">
+                                            </sw-text-field>
+                                        {% endblock %}
+
+                                        {% block sw_settings_user_detail_grid_content_acl_roles %}
+                                            <sw-entity-multi-select
+                                                class="sw-settings-user-detail__grid-aclRoles"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
+                                                v-model="user.aclRoles"
+                                                entity="aclRole"
+                                                label="Roles"
+                                                :disabled="user.admin"
+                                                labelProperty="name">
+                                            </sw-entity-multi-select>
+                                        {% endblock %}
                                     </div>
                                 {% endblock %}
 

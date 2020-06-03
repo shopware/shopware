@@ -16,7 +16,9 @@ $sw-field-help-color: $color-gutenberg;
             "EMail ProfilePicture"
             "Username ProfilePicture"
             "Password Language"
-            "ChangePassword none";
+            "ChangePassword none"
+            "IsAdmin ."
+            "JobTitle AclRoles";
         grid-column-gap: 32px;
     }
 
@@ -58,6 +60,18 @@ $sw-field-help-color: $color-gutenberg;
         color: $sw-settings-user-detail-change-password;
         margin-left: auto;
         cursor: pointer;
+    }
+
+    .sw-settings-user-detail__grid-jobTitle {
+        grid-area: JobTitle;
+    }
+
+    .sw-settings-user-detail__grid-aclRoles {
+        grid-area: AclRoles;
+    }
+
+    .sw-settings-user-detail__grid-is-admin {
+        grid-area: IsAdmin;
     }
 
     .sw-settings-user-detail__detail {

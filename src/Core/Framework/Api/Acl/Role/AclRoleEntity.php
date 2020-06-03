@@ -16,6 +16,11 @@ class AclRoleEntity extends Entity
     protected $name;
 
     /**
+     * @var string|null
+     */
+    protected $description;
+
+    /**
      * @var array
      */
     protected $privileges = [];
@@ -53,5 +58,15 @@ class AclRoleEntity extends Entity
     public function setPrivileges(array $privileges): void
     {
         $this->privileges = $privileges;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 }

@@ -85,8 +85,10 @@ class CacheWarmer extends AbstractMessageHandler
         return [WarmUpMessage::class];
     }
 
-    public function warmUp(string $cacheId): void
+    public function warmUp(?string $cacheId = null): void
     {
+        $cacheId = $cacheId ?? $this->cacheIdLoader->load();
+        
         $criteria = new Criteria();
         $domains = $this->domainRepository->search($criteria, Context::createDefaultContext());
 

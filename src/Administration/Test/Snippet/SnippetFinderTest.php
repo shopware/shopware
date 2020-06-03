@@ -136,9 +136,7 @@ class SnippetFinderTest extends TestCase
     private function getResultSnippetsByCase(string $folder, string $locale): array
     {
         $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $locale . '.json/');
-
-        // because core should be overwritten by plugin fixture
-        $files = array_reverse($files);
+        $files = $this->ensureFileOrder($files);
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('parseFiles');
@@ -148,5 +146,21 @@ class SnippetFinderTest extends TestCase
             $this->snippetFinder,
             $files
         );
+    }
+
+    private function ensureFileOrder(array $files): array
+    {
+        // core should be overwritten by plugin fixture, therefore core should be index 0
+        if (strpos($files[0], '/core/') === false) {
+            foreach ($files as $currentIndex => $file) {
+                if (strpos($file, '/core/') !== false) {
+                    [$files[0], $files[$currentIndex]] = [$files[$currentIndex], $files[0]];
+
+                    return $files;
+                }
+            }
+        }
+
+        return $files;
     }
 }

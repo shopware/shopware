@@ -30,9 +30,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -763,7 +765,8 @@ class EntityRepositoryTest extends TestCase
         $repository->create([$data], $context);
         $newId = Uuid::randomHex();
 
-        $result = $repository->clone($id, $context, $newId, ['productNumber' => 'abc']);
+        $behavior = new CloneBehavior(['productNumber' => 'abc']);
+        $result = $repository->clone($id, $context, $newId, $behavior);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
 
         $written = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
@@ -788,6 +791,39 @@ class EntityRepositoryTest extends TestCase
         static::assertSame($old->getTags(), $new->getTags());
         static::assertSame($old->getTagIds(), $new->getTagIds());
         static::assertNotSame($old->getProductNumber(), $new->getProductNumber());
+    }
+
+    public function testCloneWithoutChildren(): void
+    {
+        $ids = new TestDataCollection();
+
+        $data = [
+            'id' => $ids->create('parent'),
+            'name' => 'parent',
+            'children' => [
+                ['id' => $ids->create('child-1'), 'name' => 'child'],
+                ['id' => $ids->create('child-2'), 'name' => 'child'],
+            ],
+        ];
+
+        $this->getContainer()->get('category.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $this->getContainer()->get('category.repository')
+            ->clone($ids->get('parent'), Context::createDefaultContext(), $ids->create('parent-new'), new CloneBehavior([], false));
+
+        $children = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT * FROM category WHERE parent_id = :parent', ['parent' => Uuid::fromHexToBytes($ids->get('parent-new'))]);
+
+        static::assertCount(0, $children);
+
+        $this->getContainer()->get('category.repository')
+            ->clone($ids->get('parent'), Context::createDefaultContext(), $ids->create('parent-new-2'), new CloneBehavior([], true));
+
+        $children = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT * FROM category WHERE parent_id = :parent', ['parent' => Uuid::fromHexToBytes($ids->get('parent-new-2'))]);
+
+        static::assertCount(2, $children);
     }
 
     public function testReadPaginatedOneToManyChildrenAssociation(): void

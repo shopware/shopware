@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -206,14 +207,22 @@ class EntityRepository implements EntityRepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function clone(string $id, Context $context, ?string $newId = null, array $overwrites = []): EntityWrittenContainerEvent
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
     {
         $newId = $newId ?? Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
         }
 
-        $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context), true, $overwrites);
+        $affected = $this->versionManager->clone(
+            $this->definition,
+            $id,
+            $newId,
+            $context->getVersionId(),
+            WriteContext::createFromContext($context),
+            $behavior ?? new CloneBehavior()
+        );
+
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch($event);
 

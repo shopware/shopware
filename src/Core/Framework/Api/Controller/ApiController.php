@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -207,7 +208,10 @@ class ApiController extends AbstractController
      */
     public function clone(Context $context, string $entity, string $id, int $version, Request $request): JsonResponse
     {
-        $overwrites = $request->request->get('overwrites', []);
+        $behavior = new CloneBehavior(
+            $request->request->get('overwrites', []),
+            $request->request->get('cloneChildren', true)
+        );
 
         $entity = $this->urlToSnakeCase($entity);
         $this->checkIfRouteAvailableInApiVersion($entity, $version);
@@ -215,11 +219,11 @@ class ApiController extends AbstractController
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
 
-        $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $overwrites): EntityWrittenContainerEvent {
+        $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
             /** @var EntityRepository $entityRepo */
             $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
 
-            return $entityRepo->clone($id, $context, null, $overwrites);
+            return $entityRepo->clone($id, $context, null, $behavior);
         });
 
         $event = $eventContainer->getEventByEntityName($definition->getEntityName());

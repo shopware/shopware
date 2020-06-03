@@ -17,6 +17,30 @@ Core
     * Removed deprecated property `allowedLimits` and method `getAllowedLimits` in `Shopware\Core\Framework\DataAbstractionLayer\Search/RequestCriteriaBuilder.php`
     * Removed deprecated configuration `api.allowed_limits` in `src/Core/Framework/Resources/config/packages/shopware.yaml`
     * Removed class `Shopware\Core\Framework\DataAbstractionLayer\Exception\DisallowedLimitQueryException`
+* Added `CloneBehavior $behavior` parameter to `\Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface::clone`. This parameter will be introduced in 6.4.0.
+    * If you implement an own class of EntityRepository, you have to change your clone function as follow:
+    * Before:
+    ```
+    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent
+    ```
+
+    * After
+    ```
+    public function clone(string $id, Context $context, ?string $newId = null, CloneBehavior $behavior = null): EntityWrittenContainerEvent
+    {
+        // ...
+        $affected = $this->versionManager->clone(
+            $this->definition,
+            $id,
+            $newId,
+            $context->getVersionId(),
+            WriteContext::createFromContext($context),
+            $behavior ?? new CloneBehavior()
+        );
+    
+        // ...
+    }
+    ```
 
 Administration
 --------------

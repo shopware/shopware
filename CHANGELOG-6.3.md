@@ -20,6 +20,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
         * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
     * Added salesChannel state in `sw-sales-channel` module
+    * Set `sw-data-grid-column-boolean` as default template for boolean values in `sw-data-grid` and with that in entity listings
 
 * Core
     * Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`

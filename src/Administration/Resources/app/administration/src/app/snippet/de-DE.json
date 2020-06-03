@@ -879,7 +879,7 @@
     "functionSpecialShortcutClearCacheWindows": "Windows: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheWindows": "alt c",
     "functionSpecialShortcutClearCacheMac": "Mac: Cache löschen",
-    "keyboardShortcutSpecialShortcutClearCacheMac": "control s",
+    "keyboardShortcutSpecialShortcutClearCacheMac": "control c",
     "functionSpecialShortcutClearCacheLinux": "Linux: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheLinux": "alt c"
   },

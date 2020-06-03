@@ -86,8 +86,11 @@ class CachedEntityReader implements EntityReaderInterface
     {
         //generate cache key list for multi cache get
         $keys = [];
+        $criteriaIds = [];
         foreach ($criteria->getIds() as $id) {
-            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
+            $stringId = is_array($id) ? implode('-', $id) : $id;
+            $criteriaIds[$stringId] = $id;
+            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($stringId, $definition, $context, $criteria);
         }
 
         $items = $this->cache->getItems($keys);
@@ -112,11 +115,18 @@ class CachedEntityReader implements EntityReaderInterface
         $collection = new $collection(array_filter($mapped));
 
         //check which ids are not loaded from cache
-        $fallback = array_diff(array_values($criteria->getIds()), array_keys($mapped));
+        $uncached = array_diff(array_keys($criteriaIds), array_keys($mapped));
+        $fallback = array_values(array_filter(
+            $criteriaIds,
+            function ($key) use ($uncached) {
+                return in_array($key, $uncached, true);
+            },
+            ARRAY_FILTER_USE_KEY
+        ));
 
         if (empty($fallback)) {
             //sort collection by provided id sorting
-            $collection->sortByIdArray($criteria->getIds());
+            $collection->sortByIdArray(array_values($criteriaIds));
 
             return $collection;
         }
@@ -135,7 +145,7 @@ class CachedEntityReader implements EntityReaderInterface
         }
 
         //check if invalid ids provided and cache them with null to prevent further storage access with invalid id calls
-        foreach ($criteria->getIds() as $id) {
+        foreach (array_keys($criteriaIds) as $id) {
             if ($collection->has($id)) {
                 continue;
             }
@@ -145,7 +155,7 @@ class CachedEntityReader implements EntityReaderInterface
         $this->cache->commit();
 
         //sort collection by provided id sorting
-        $collection->sortByIdArray($criteria->getIds());
+        $collection->sortByIdArray(array_values($criteriaIds));
 
         return $collection;
     }

@@ -3,12 +3,15 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Cache;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\CachedEntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -192,5 +195,49 @@ class CachedEntityReaderTest extends TestCase
 
             static::assertEquals($databaseEntities, $cachedEntities);
         });
+    }
+
+    public function testCacheHitWithMultiplePrimaryKeys(): void
+    {
+        $dbalReader = $this->createMock(EntityReader::class);
+
+        $pid1 = Uuid::randomHex();
+        $cid1 = Uuid::randomHex();
+        $cid2 = Uuid::randomHex();
+
+        //read in EntityReader will be only called once
+        $dbalReader->expects(static::once())
+            ->method('read')
+            ->willReturn(
+                new EntityCollection([
+                    (new ProductTranslationEntity())->assign([
+                        'productId' => $pid1,
+                        'languageId' => $cid1,
+                        '_uniqueIdentifier' => $pid1 . '-' . $cid1,
+                    ]),
+                    (new ProductTranslationEntity())->assign([
+                        'productId' => $pid1,
+                        'languageId' => $cid2,
+                        '_uniqueIdentifier' => $pid1 . '-' . $cid2,
+                    ]),
+                ])
+            );
+
+        $generator = $this->getContainer()->get(EntityCacheKeyGenerator::class);
+
+        $cachedReader = new CachedEntityReader($this->cache, $dbalReader, $generator, true, 3600);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $pid1));
+
+        $context = Context::createDefaultContext();
+
+        //first call should not match and the expects of the dbal reader should called
+        $databaseEntities = $cachedReader->read($this->getContainer()->get(ProductTranslationDefinition::class), $criteria, $context);
+
+        //second call should hit the cache items and the dbal reader shouldn't be called
+        $cachedEntities = $cachedReader->read($this->getContainer()->get(ProductTranslationDefinition::class), $criteria, $context);
+
+        static::assertEquals($databaseEntities, $cachedEntities);
     }
 }

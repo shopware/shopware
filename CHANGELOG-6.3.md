@@ -174,6 +174,32 @@ Table of contents
 * Added config option for disabling reviews in the storefront
 * Removed the Vue event `inline-edit-assign` from `onClickCancelInlineEdit` method in `src/Administration/Resources/app/administration/src/app/component/data-grid/sw-data-grid/index.js`
     * In order to react to saving or cancelling the inline-edit of the `sw-data-grid`, use the `inline-edit-save` and `inline-edit-cancel` events.
+    * Refactored sw-mail-template
+        * Replaced store with repositories    
+    * Refactored Webpack configuration files to one single file
+        * Removed `sw-devmode-loader.js`
+        * Removed `build.js`
+        * Removed `check-versions.js`
+        * Removed `dev-client.js`
+        * Removed `dev-server.js`
+        * Removed `utils.js`
+        * Removed `webpack.base.conf.js`
+        * Removed `webpack.dev.conf.js`
+        * Removed `webpack.prod.conf.js`
+        * Removed `webpack.test.conf.js`
+* Core    
+
+* Storefront
+    * Added plugin injection in hot mode
+
+
+**Removals**
+
+* Administration
+
+* Core
+
+* Storefront
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

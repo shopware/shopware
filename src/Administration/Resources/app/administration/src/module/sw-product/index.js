@@ -1,6 +1,7 @@
 import './component/sw-product-basic-form';
 import './component/sw-product-deliverability-form';
 import './component/sw-product-category-form';
+import './component/sw-product-clone-modal';
 import './component/sw-product-variants/sw-product-modal-variant-generation';
 import './component/sw-product-variants/sw-product-modal-delivery';
 import './component/sw-product-price-form';

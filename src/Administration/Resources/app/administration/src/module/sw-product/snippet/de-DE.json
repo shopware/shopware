@@ -19,8 +19,9 @@
       "inheritanceModuleName": "Dieses Produkt",
       "backToParent": "zurück zur Variantenübersicht",
       "copy": "Kopie",
-      "variantDuplication": "Die Duplizierung von Varianten wird derzeit nicht unterstützt."
-
+      "cloneSuffix": "Varianten",
+      "cloneNotice": "Die Produktvarianten werden dupliziert. Sollte dieser Prozess unterbrochen werden, kann es sein, dass nicht alle Varianten vollständig dupliziert werden. In diesem Fall kannst Du die Varianten im neuen Produkt erneut generieren.",
+      "cloneTitle": "Varianten duplizieren"
     },
     "basicForm": {
       "labelTitle": "Titel",

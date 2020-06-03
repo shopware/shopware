@@ -24,7 +24,9 @@ Component.register('sw-product-list', {
             naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
-            total: 0
+            total: 0,
+            product: null,
+            cloning: false
         };
     },
 
@@ -214,24 +216,17 @@ Component.register('sw-product-list', {
         },
 
         onDuplicate(referenceProduct) {
-            return this.numberRangeService.reserve('product').then((response) => {
-                return this.productRepository.clone(referenceProduct.id, Shopware.Context.api, {
-                    productNumber: response.number,
-                    name: `${referenceProduct.name} ${this.$tc('sw-product.general.copy')}`,
-                    productReviews: null,
-                    active: false
-                });
-            }).then((duplicate) => {
-                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
-            });
+            this.product = referenceProduct;
+            this.cloning = true;
         },
 
-        duplicationDisabledTitle(product) {
-            if (product.childCount > 0) {
-                return this.$tc('sw-product.general.variantDuplication');
-            }
+        onDuplicateFinish(duplicate) {
+            this.cloning = false;
+            this.product = null;
 
-            return '';
+            this.$nextTick(() => {
+                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+            });
         }
     }
 });

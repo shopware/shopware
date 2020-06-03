@@ -48,8 +48,7 @@
                             {% block sw_product_detail_actions_duplicate %}
                                 <sw-context-menu-item
                                     class="sw-product-detail__save-duplicate-action"
-                                    :disabled="product.childCount > 0"
-                                    :title="duplicationDisabledTitle"
+                                    :disabled="product.parentId != null"
                                     @click="onDuplicate">
                                     {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
                                 </sw-context-menu-item>
@@ -146,6 +145,10 @@
 
                 {% block sw_product_detail_content_view %}
                     <router-view @media-drop="onAddItemToProduct" @cover-change="onCoverChange"></router-view>
+                {% endblock %}
+
+                {% block sw_product_detail_content_clone_modal %}
+                    <sw-product-clone-modal :product="product" v-if="cloning" @clone-finish="onDuplicateFinish"></sw-product-clone-modal>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

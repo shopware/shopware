@@ -276,6 +276,21 @@ Component.register('sw-sales-channel-detail-base', {
             return null;
         },
 
+        taxCalculationTypeOptions() {
+            return [
+                {
+                    value: 'vertical',
+                    name: this.$tc('sw-sales-channel.detail.taxCalculation.verticalName'),
+                    description: this.$tc('sw-sales-channel.detail.taxCalculation.verticalDescription')
+                },
+                {
+                    value: 'horizontal',
+                    name: this.$tc('sw-sales-channel.detail.taxCalculation.horizontalName'),
+                    description: this.$tc('sw-sales-channel.detail.taxCalculation.horizontalDescription')
+                }
+            ];
+        },
+
         maintenanceIpWhitelist: {
             get() {
                 return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];

@@ -200,6 +200,7 @@ Table of contents
 * Core
 
 * Storefront
+* Added `block` and `description` property to `sw-radio-field`. Furthermore, each `option` can now also have a `description`
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

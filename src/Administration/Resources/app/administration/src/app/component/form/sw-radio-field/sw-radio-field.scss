@@ -89,4 +89,50 @@ $sw-field--radio-color-border: $color-steam-cloud;
             border: 5px solid $color-crimson;
         }
     }
+
+    .sw-field__radio-option-description {
+        margin-top: 8px;
+        color: $color-darkgray-200;
+        font-size: $font-size-small;
+        font-weight: normal;
+        line-height: 22px;
+    }
+
+    .sw-field__radio-description {
+        color: $color-gray-500;
+        font-size: $font-size-small;
+        line-height: 22px;
+        padding-top: 8px;
+    }
+
+    &.sw-field--radio-block {
+        .sw-field__label {
+            font-size: $font-size-default;
+            font-weight: bold;
+            line-height: 22px;
+            margin-bottom: 20px;
+        }
+
+        .sw-field__radio-option {
+            border: 1px solid $color-gray-200;
+            border-radius: $border-radius-default;
+            padding: 12px 19px;
+        }
+
+        .sw-field__radio-option label {
+            font-size: $font-size-default;
+            font-weight: $font-weight-semi-bold;
+            line-height: 22px;
+            padding-left: 12px;
+        }
+
+        .sw-field__radio-input {
+            margin-top: 5px;
+        }
+
+        .sw-field__radio-option.sw-field__radio-option-checked {
+            background: rgba($color-shopware-brand-500, 0.05);
+            border: 1px solid $color-shopware-brand-500;
+        }
+    }
 }

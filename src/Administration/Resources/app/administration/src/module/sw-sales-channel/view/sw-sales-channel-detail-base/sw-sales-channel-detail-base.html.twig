@@ -113,6 +113,35 @@
                     </sw-entity-single-select>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_base_general_input_countries %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="countries"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputCountries')"
+                        :helpText="$tc('sw-sales-channel.detail.countryMultiSelectHelpText')"
+                        defaultPropertyName="countryId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
+                    </sw-sales-channel-defaults-select>
+                {% endblock %}
+
+
+                {% block sw_sales_channel_detail_base_general_input_languages %}
+                    <sw-sales-channel-defaults-select
+                        v-if="!isProductComparison"
+                        :salesChannel="salesChannel"
+                        propertyName="languages"
+                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"
+                        defaultPropertyName="languageId"
+                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
+                        propertyNameInDomain="languageId">
+                    </sw-sales-channel-defaults-select>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_shipping_payment %}
+            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleShippingPayment')">
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
                     <sw-sales-channel-defaults-select
                         v-if="!isProductComparison"
@@ -122,14 +151,6 @@
                         defaultPropertyName="paymentMethodId"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_payments_methods_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_payments_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_payments_methods_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
@@ -141,34 +162,6 @@
                         defaultPropertyName="shippingMethodId"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_shipping_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_shipping_methods_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_shipping_methods instead #}
-                    {% block sw_sales_channel_detail_base_general_input_shipping_methods_assignment %}
-                    {% endblock %}
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_general_input_countries %}
-                    <sw-sales-channel-defaults-select
-                        v-if="!isProductComparison"
-                        :salesChannel="salesChannel"
-                        propertyName="countries"
-                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputCountries')"
-                        :helpText="$tc('sw-sales-channel.detail.countryMultiSelectHelpText')"
-                        defaultPropertyName="countryId"
-                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
-                    </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
-                    {% block sw_sales_channel_detail_base_general_input_countries_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_countries instead #}
-                    {% block sw_sales_channel_detail_base_general_input_countries_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_base_general_input_currencies %}
@@ -181,35 +174,17 @@
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
                         propertyNameInDomain="currencyId">
                     </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_currencies instead #}
-                    {% block sw_sales_channel_detail_base_general_input_currencies_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_currencies instead #}
-                    {% block sw_sales_channel_detail_base_general_input_currencies_assignment %}
-                    {% endblock %}
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_base_general_input_languages %}
-                    <sw-sales-channel-defaults-select
-                        v-if="!isProductComparison"
-                        :salesChannel="salesChannel"
-                        propertyName="languages"
-                        :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"
-                        defaultPropertyName="languageId"
-                        :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
-                        propertyNameInDomain="languageId">
-                    </sw-sales-channel-defaults-select>
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
-                    {% block sw_sales_channel_detail_base_general_input_languages_selection %}
-                    {% endblock %}
-
-                    {# @deprecated tag:v6.3.0 - Use block sw_sales_channel_detail_base_general_input_languages instead #}
-                    {% block sw_sales_channel_detail_base_general_input_languages_assignment %}
-                    {% endblock %}
-                {% endblock %}
+                <sw-radio-field
+                    :label="$tc('sw-sales-channel.detail.labelTaxCalculation')"
+                    block
+                    class="sw-sales-channel-detail__tax-calculation"
+                    identification="taxCalculation"
+                    :description="$tc('sw-sales-channel.detail.descriptionTaxCalculation')"
+                    v-model="salesChannel.taxCalculationType"
+                    :options="taxCalculationTypeOptions"
+                ></sw-radio-field>
             </sw-card>
         {% endblock %}
 

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class TaxCalculationTypeTest extends TestCase
 {
@@ -27,8 +28,8 @@ class TaxCalculationTypeTest extends TestCase
      */
     public function testCalculation(
         array $items,
-        CalculatedTaxCollection $vertical,
         CalculatedTaxCollection $horizontal,
+        CalculatedTaxCollection $vertical,
         bool $useNet = false
     ): void {
         $context = $this->getContainer()
@@ -39,7 +40,7 @@ class TaxCalculationTypeTest extends TestCase
         $calculator = $this->getContainer()->get(AmountCalculator::class);
         $cart = $this->createCart($items, $context);
 
-        $context->getSalesChannel()->setTaxCalculationType('horizontal');
+        $context->getSalesChannel()->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
         $amount = $calculator->calculate(
             $cart->getLineItems()->getPrices(),
             $cart->getDeliveries()->getShippingCosts(),
@@ -47,7 +48,7 @@ class TaxCalculationTypeTest extends TestCase
         );
         static::assertEquals($horizontal, $amount->getCalculatedTaxes());
 
-        $context->getSalesChannel()->setTaxCalculationType('vertical');
+        $context->getSalesChannel()->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL);
         $amount = $calculator->calculate(
             $cart->getLineItems()->getPrices(),
             $cart->getDeliveries()->getShippingCosts(),

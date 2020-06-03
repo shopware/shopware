@@ -144,7 +144,7 @@ class AmountCalculator
 
     private function calculateTaxes(PriceCollection $prices, SalesChannelContext $context): CalculatedTaxCollection
     {
-        if ($context->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_VERTICAL) {
+        if ($context->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL) {
             return $prices->getCalculatedTaxes();
         }
 

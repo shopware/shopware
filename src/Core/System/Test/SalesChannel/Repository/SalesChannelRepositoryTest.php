@@ -179,6 +179,6 @@ class SalesChannelRepositoryTest extends TestCase
             ->search(new Criteria([$id]), Context::createDefaultContext())
             ->first();
 
-        static::assertSame(SalesChannelDefinition::CALCULATION_TYPE_VERTICAL, $salesChannel->getTaxCalculationType());
+        static::assertSame(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL, $salesChannel->getTaxCalculationType());
     }
 }

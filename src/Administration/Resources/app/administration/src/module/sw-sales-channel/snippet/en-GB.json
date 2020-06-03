@@ -261,6 +261,15 @@
       "categoryMapping": {
         "emptyCategories": "Select a store category and assign it to a Google product category.",
         "labelHideAssigned": "Hide assigned categories"
+      },
+      "titleShippingPayment": "Payment and shipping",
+      "labelTaxCalculation": "Tax calculation",
+      "descriptionTaxCalculation": "Changing this setting could lead to acounting problems with external payment providers. Check back on how VAT is calculated by your employed payment provider(s) before you make any changes.",
+      "taxCalculation": {
+        "verticalName": "Column by column (vertical) calculation",
+        "verticalDescription": "The value added tax of each individual shopping cart item is not shown to the customer in the shopping cart. The value added tax sum is calculated on the basis of the total amount of the shopping cart.",
+        "horizontalName": "Line by line (horizontal) calculation",
+        "horizontalDescription": "The value added tax is calculated per shopping cart item. The value added tax of each individual shopping cart item is displayed to the customer in the shopping cart. The VAT sum is calculated by adding up the VAT of the individual items."
       }
     },
     "modalGooglePrograms": {

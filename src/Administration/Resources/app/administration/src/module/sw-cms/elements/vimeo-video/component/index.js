@@ -19,7 +19,7 @@ Component.register('sw-cms-el-vimeo-video', {
             return this.element.config.videoID.value;
         },
 
-        /** @deprecated:v6.4.0 */
+        /** @deprecated tag:v6.4.0 - This computed prop will be removed because videos should never have autoplay in the administration */
         autoplay() {
             if (!this.element.config.autoplay.value) {
                 return '';

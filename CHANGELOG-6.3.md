@@ -232,3 +232,9 @@ Table of contents
 * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
 * Fix timezone of `orderDate` in ordergrid
 * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+* Refactored Webpack configuration files to one single file
+    * Removed build/utils.js
+    * Removed build/webpack.base.config.js
+    * Removed build/webpack.dev.config.js
+    * Removed build/webpack.hot.config.js
+    * Removed build/webpack.prod.config.js

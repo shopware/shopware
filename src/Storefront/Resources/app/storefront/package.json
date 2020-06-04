@@ -19,8 +19,7 @@
     "lint-fix": "eslint --fix --config .eslintrc.js ./src && stylelint --fix --config stylelint.config.js ./src/scss",
     "production": "NODE_ENV=production webpack --config webpack.config.js",
     "unit": "jest --config jest.config.js --ci && npm run lint",
-    "unit-watch": "jest --config jest.config.js --watch",
-    "watch": "NODE_ENV=development MODE=watch webpack --watch --config webpack.config.js"
+    "unit-watch": "jest --config jest.config.js --watch"
   },
   "dependencies": {
     "@shopware-ag/webpack-plugin-injector": "1.0.5",

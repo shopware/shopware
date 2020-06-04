@@ -105,6 +105,7 @@ class AccountOrderPageLoader
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
+            ->addAssociation('addresses')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);

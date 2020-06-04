@@ -67,6 +67,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added possibility to delete orders without documents on `sw-order-list`
     * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
     * DB level write operation (e.g. cascade deletes) are not validated against the write prtoection anymore
+    * Changed exit code from command `es:index` to 0
  
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`

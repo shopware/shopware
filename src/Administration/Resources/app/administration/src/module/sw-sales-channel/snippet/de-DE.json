@@ -271,12 +271,12 @@
         "emptyCategories": "Wähle eine Shopware-Kategorie aus und weise sie einer Google-Produktkategorie zu.",
         "labelHideAssigned": "Bereits zugewiesene Kategorien ausblenden"
       },
-      "titleShippingPayment": "Bezahlung und Versand",
+      "titleShippingPayment": "Zahlung und Versand",
       "labelTaxCalculation": "Steuerberechnung",
       "descriptionTaxCalculation": "Eine Änderung dieser Einstellung könnte zu Abrechnungsproblemen mit externen Zahlungsanbietern führen. \nInformiere Dich, wie die Mehrwertsteuer von Deinem Zahlungsanbieter berechnet wird, bevor Du Änderungen vornimmst.",
       "taxCalculation": {
         "verticalName": "Spaltenweise (vertikale) Berechnung",
-        "verticalDescription": "Die Mehrwertsteuer jeder einzelnen Warenkorb-Position wird dem Kunden im Warenkorb nicht angezeigt. Die Mehrwertsteuersumme wird anhand des Warenkorb Gesamtbetrags errechnet.",
+        "verticalDescription": "Die Mehrwertsteuer jeder einzelnen Warenkorb-Position wird dem Kunden im Warenkorb nicht angezeigt. Die Mehrwertsteuersumme wird anhand des Warenkorb-Gesamtbetrags errechnet.",
         "horizontalName": "Zeilenweise (horizontale) Berechnung",
         "horizontalDescription": "Es wird pro Warenkorb-Position die Mehrwertsteuer berechnet. Die Mehrwertsteuer jeder einzelnen Warenkorb-Position wird dem Kunden im Warenkorb angezeigt. Die Mehrwertsteuersumme wird berechnet, indem die Mehrwertsteuer der einzelnen Positionen summiert wird."
       }

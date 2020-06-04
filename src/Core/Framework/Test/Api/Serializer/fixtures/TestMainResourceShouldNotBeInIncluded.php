@@ -61,6 +61,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                     'createdAt' => '2018-01-15T08:01:16+00:00',
                     'updatedAt' => null,
                     'admin' => true,
+                    'title' => null,
                 ],
                 'links' => [
                     'self' => sprintf('%s/user/f343a3c119cf42a7841aa0ac5094908c', $baseUrl),
@@ -332,6 +333,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
                         'updatedAt' => null,
                         'extensions' => [],
                         'admin' => true,
+                        'title' => null,
                         'aclRoles' => null,
                         'apiAlias' => 'user',
                     ],
@@ -379,6 +381,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
             'updatedAt' => null,
             'extensions' => [],
             'admin' => true,
+            'title' => null,
             'aclRoles' => null,
         ];
     }

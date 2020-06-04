@@ -19,6 +19,7 @@ Component.register('sw-cms-el-vimeo-video', {
             return this.element.config.videoID.value;
         },
 
+        /** @deprecated:v6.4.0 */
         autoplay() {
             if (!this.element.config.autoplay.value) {
                 return '';
@@ -94,7 +95,6 @@ Component.register('sw-cms-el-vimeo-video', {
         videoUrl() {
             return `https://player.vimeo.com/video/
             ${this.videoID}?\
-            ${this.autoplay}\
             ${this.byLine}\
             ${this.color}\
             ${this.doNotTrack}\

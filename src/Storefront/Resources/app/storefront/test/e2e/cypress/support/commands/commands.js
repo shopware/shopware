@@ -192,7 +192,8 @@ Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
                 analytics: {
                     trackingId: 'UA-000000000-0',
                     active: true,
-                    trackOrders: true
+                    trackOrders: true,
+                    anonymizeIp: true
                 }
             }
         })

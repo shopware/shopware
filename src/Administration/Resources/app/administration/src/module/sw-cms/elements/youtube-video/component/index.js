@@ -19,7 +19,7 @@ Component.register('sw-cms-el-youtube-video', {
             return 'rel=0&';
         },
 
-        /** @deprecated:v6.4.0 */
+        /** @deprecated tag:v6.4.0 - This computed prop will be removed because videos should never have autoplay in the administration */
         autoPlay() {
             if (!this.element.config.autoPlay.value) {
                 return '';

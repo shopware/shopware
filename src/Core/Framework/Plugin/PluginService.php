@@ -310,8 +310,8 @@ class PluginService
         }
 
         // if the plugin has no translation for en-gb, use the first translation of the plugin as default translation
-        if (count($translations) > 0) {
-            $translations[Defaults::LANGUAGE_SYSTEM] = array_values($translations)[0];
+        if (!isset($translations[Defaults::LANGUAGE_SYSTEM])) {
+            $translations[Defaults::LANGUAGE_SYSTEM] = array_values($localeMapping)[0];
         }
 
         return $translations;

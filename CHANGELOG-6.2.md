@@ -8,6 +8,25 @@ To get the diff for a specific change, go to https://github.com/shopware/platfor
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
 
+### 6.2.2
+
+**Addition / Changes**
+
+* Administration
+
+* Core
+    * Added `Czech koruna` as currency
+
+* Storefront
+
+**Removals**
+
+* Administration
+
+* Core
+
+* Storefront
+
 ### 6.2.1
 
 **Addition / Changes**
@@ -811,3 +830,4 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix timezone of `orderDate` in ordergrid
     * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
     * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
+    

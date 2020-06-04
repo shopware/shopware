@@ -59,29 +59,44 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
             <label for="c_config_shop_currency"><?= $t->t('configuration_sconfig_currency'); ?></label>
             <div class="select-wrapper">
                 <select name="c_config_shop_currency" id="c_config_shop_currency">
-                    <option
-                        value="EUR" <?= $parameters['c_config_shop_currency'] === 'EUR' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_eur'); ?>
+                    <option value="EUR"
+                        <?= $parameters['c_config_shop_currency'] === 'EUR' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_eur'); ?>
                     </option>
-                    <option
-                        value="USD" <?= $parameters['c_config_shop_currency'] === 'USD' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_usd'); ?>
+
+                    <option value="USD"
+                        <?= $parameters['c_config_shop_currency'] === 'USD' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_usd'); ?>
                     </option>
-                    <option
-                        value="GBP" <?= $parameters['c_config_shop_currency'] === 'GBP' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_gbp'); ?>
+
+                    <option value="GBP"
+                        <?= $parameters['c_config_shop_currency'] === 'GBP' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_gbp'); ?>
                     </option>
-                    <option
-                        value="PLN" <?= $parameters['c_config_shop_currency'] === 'PLN' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_pln'); ?>
+
+                    <option value="PLN" <?= $parameters['c_config_shop_currency'] === 'PLN' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_pln'); ?>
                     </option>
-                    <option
-                        value="CHF" <?= $parameters['c_config_shop_currency'] === 'CHF' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_chf'); ?>
+
+                    <option value="CHF" <?= $parameters['c_config_shop_currency'] === 'CHF' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_chf'); ?>
                     </option>
-                    <option
-                        value="SEK" <?= $parameters['c_config_shop_currency'] === 'SEK' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_sek'); ?>
+
+                    <option value="SEK" <?= $parameters['c_config_shop_currency'] === 'SEK' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_sek'); ?>
                     </option>
-                    <option
-                        value="DKK" <?= $parameters['c_config_shop_currency'] === 'DKK' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_dkk'); ?>
+
+                    <option value="DKK"
+                        <?= $parameters['c_config_shop_currency'] === 'DKK' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_dkk'); ?>
                     </option>
-                    <option
-                        value="NOK" <?= $parameters['c_config_shop_currency'] === 'NOK' ? 'selected' : ''; ?>><?= $t->t('configuration_admin_currency_nok'); ?>
+
+                    <option value="NOK" <?= $parameters['c_config_shop_currency'] === 'NOK' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_nok'); ?>
+                    </option>
+
+                    <option value="CZK" <?= $parameters['c_config_shop_currency'] === 'CZK' ? 'selected' : ''; ?>>
+                        <?= $t->t('configuration_admin_currency_czk'); ?>
                     </option>
                 </select>
             </div>

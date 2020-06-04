@@ -19,8 +19,13 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
+use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
+use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
+use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -59,7 +64,7 @@ class AccountOrderController extends StorefrontController
     /**
      * @var AbstractCancelOrderRoute
      */
-    private $orderStateChangeRoute;
+    private $cancelOrderRoute;
 
     /**
      * @var AbstractSetPaymentOrderRoute
@@ -71,24 +76,31 @@ class AccountOrderController extends StorefrontController
      */
     private $handlePaymentMethodRoute;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
         AbstractOrderRoute $orderRoute,
         RequestCriteriaBuilder $requestCriteriaBuilder,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
         ContextSwitchRoute $contextSwitchRoute,
-        AbstractCancelOrderRoute $orderStateChangeRoute,
+        AbstractCancelOrderRoute $cancelOrderRoute,
         AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
-        AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute
+        AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->orderPageLoader = $orderPageLoader;
         $this->orderRoute = $orderRoute;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->contextSwitchRoute = $contextSwitchRoute;
         $this->accountEditOrderPageLoader = $accountEditOrderPageLoader;
-        $this->orderStateChangeRoute = $orderStateChangeRoute;
+        $this->cancelOrderRoute = $cancelOrderRoute;
         $this->setPaymentOrderRoute = $setPaymentOrderRoute;
         $this->handlePaymentMethodRoute = $handlePaymentMethodRoute;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -102,7 +114,10 @@ class AccountOrderController extends StorefrontController
 
         $page = $this->orderPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/account/order-history/index.html.twig',
+            ['page' => $page]
+        );
     }
 
     /**
@@ -114,7 +129,10 @@ class AccountOrderController extends StorefrontController
     {
         $page = $this->orderPageLoader->load($request, $context);
 
-        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/account/order-history/index.html.twig',
+            ['page' => $page]
+        );
     }
 
     /**
@@ -143,8 +161,11 @@ class AccountOrderController extends StorefrontController
         $orderRequest = new Request();
         $orderRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
 
+        $event = new OrderRouteRequestEvent($request, $orderRequest, $context);
+        $this->eventDispatcher->dispatch($event);
+
         /** @var OrderRouteResponseStruct $result */
-        $result = $this->orderRoute->load($orderRequest, $context)->getObject();
+        $result = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
         $order = $result->getOrders()->first();
 
         if (!$order instanceof OrderEntity) {
@@ -152,7 +173,10 @@ class AccountOrderController extends StorefrontController
         }
         $lineItems = $order->getNestedLineItems();
 
-        return $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', ['orderDetails' => $lineItems, 'orderId' => $orderId]);
+        return $this->renderStorefront(
+            '@Storefront/storefront/page/account/order-history/order-detail-list.html.twig',
+            ['orderDetails' => $lineItems, 'orderId' => $orderId]
+        );
     }
 
     /**
@@ -164,7 +188,10 @@ class AccountOrderController extends StorefrontController
         $cancelOrderRequest->request->set('orderId', $request->get('orderId'));
         $cancelOrderRequest->request->set('transition', 'cancel');
 
-        $this->orderStateChangeRoute->cancel($cancelOrderRequest, $context);
+        $event = new CancelOrderRouteRequestEvent($request, $cancelOrderRequest, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $this->cancelOrderRoute->cancel($event->getStoreApiRequest(), $context);
 
         if ($context->getCustomer() && $context->getCustomer()->getGuest() === true) {
             return $this->redirectToRoute(
@@ -197,7 +224,7 @@ class AccountOrderController extends StorefrontController
     /**
      * @Route("/account/order/payment/{orderId}", name="frontend.account.edit-order.change-payment-method", methods={"POST"})
      */
-    public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $this->contextSwitchRoute->switchContext(
             new RequestDataBag(
@@ -205,7 +232,7 @@ class AccountOrderController extends StorefrontController
                     SalesChannelContextService::PAYMENT_METHOD_ID => $request->get('paymentMethodId'),
                 ]
             ),
-            $salesChannelContext
+            $context
         );
 
         return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
@@ -214,7 +241,7 @@ class AccountOrderController extends StorefrontController
     /**
      * @Route("/account/order/update/{orderId}", name="frontend.account.edit-order.update-order", methods={"POST"})
      */
-    public function updateOrder(string $orderId, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function updateOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [
             'orderId' => $orderId,
@@ -231,23 +258,35 @@ class AccountOrderController extends StorefrontController
         $setPaymentRequest->request->set('orderId', $request->get('orderId'));
         $setPaymentRequest->request->set('paymentMethodId', $request->get('paymentMethodId'));
 
-        $this->setPaymentOrderRoute->setPayment($setPaymentRequest, $salesChannelContext);
+        $setPaymentOrderRouteRequestEvent = new SetPaymentOrderRouteRequestEvent($request, $setPaymentRequest, $context);
+        $this->eventDispatcher->dispatch($setPaymentOrderRouteRequestEvent);
+
+        $this->setPaymentOrderRoute->setPayment($setPaymentOrderRouteRequestEvent->getStoreApiRequest(), $context);
 
         $handlePaymentRequest = new Request();
         $handlePaymentRequest->request->set('orderId', $request->get('orderId'));
         $handlePaymentRequest->request->set('finishUrl', $finishUrl);
         $handlePaymentRequest->request->set('errorUrl', $errorUrl);
 
+        $handlePaymentMethodRouteRequestEvent = new HandlePaymentMethodRouteRequestEvent($request, $handlePaymentRequest, $context);
+        $this->eventDispatcher->dispatch($handlePaymentMethodRouteRequestEvent);
+
         try {
-            $routeResponse = $this->handlePaymentMethodRoute->load($handlePaymentRequest, $salesChannelContext);
+            $routeResponse = $this->handlePaymentMethodRoute->load(
+                $handlePaymentMethodRouteRequestEvent->getStoreApiRequest(),
+                $context
+            );
             $response = $routeResponse->getRedirectResponse();
         } catch (PaymentProcessException $paymentProcessException) {
-            return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true]);
-        }
-        if ($response !== null) {
-            return $response;
+            return $this->forwardToRoute(
+                'frontend.checkout.finish.page',
+                ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true]
+            );
         }
 
-        return $this->redirectToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => true]);
+        return $response ?? $this->redirectToRoute(
+            'frontend.checkout.finish.page',
+            ['orderId' => $orderId, 'changedPayment' => true]
+        );
     }
 }

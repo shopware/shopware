@@ -1,14 +1,11 @@
-import Axios from 'axios';
-import ApiService from 'src/core/service/api.service';
-
 const { Application, WorkerNotification } = Shopware;
 
 export const POLL_BACKGROUND_INTERVAL = 30000;
 export const POLL_FOREGROUND_INTERVAL = 5000;
 
 class WorkerNotificationListener {
-    constructor(loginService, context) {
-        this._messageQueueStatsService = WorkerNotificationListener.getMessageQueueStatsService(loginService, context);
+    constructor(context) {
+        this._context = context;
         this._isRunning = false;
         this._isRequestRunning = false;
         this._interval = POLL_BACKGROUND_INTERVAL;
@@ -45,21 +42,14 @@ class WorkerNotificationListener {
         this._isIntervalWatcherSetup = true;
     }
 
-    static getMessageQueueStatsService(loginService, context) {
-        const baseURL = process.env.NODE_ENV !== 'production' ?
-            `${window.location.origin}${context.apiResourcePath}` :
-            context.apiResourcePath;
-
-        const client = Axios.create({
-            baseURL: baseURL
-        });
-
-        return new ApiService(client, loginService, 'message-queue-stats');
+    getMessageQueueStatsRepository() {
+        return Shopware.Service().get('repositoryFactory').create('message_queue_stats');
     }
 
     _checkQueue() {
         this._isRequestRunning = true;
-        this._messageQueueStatsService.getList({}).then((res) => {
+        const repository = this.getMessageQueueStatsRepository();
+        repository.search(new Shopware.Data.Criteria(1, 25), this._context).then((res) => {
             this._isRequestRunning = false;
             this._timeoutId = null;
 
@@ -94,7 +84,7 @@ class WorkerNotificationListener {
 
     runNotificationMiddleware(response) {
         const appRoot = this._getApplicationRootReference();
-        const queue = response.data;
+        const queue = response;
 
         const middlewareParams = {
             $root: appRoot,
@@ -112,7 +102,6 @@ class WorkerNotificationListener {
                     );
                 }
             },
-            response,
             queue
         };
 

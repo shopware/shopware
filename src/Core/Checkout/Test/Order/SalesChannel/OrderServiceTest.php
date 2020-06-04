@@ -113,7 +113,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -166,7 +166,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -236,7 +236,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -327,7 +327,12 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/' . $orderId;
+        $criteria = new Criteria([$orderId]);
+
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
@@ -406,7 +411,7 @@ class OrderServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $url = $domain . '/account/order/edit/';
+        $url = $domain . '/account/order';
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {

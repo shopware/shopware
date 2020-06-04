@@ -11,14 +11,17 @@
 
             function gtag() { dataLayer.push(arguments); }
 
-            window.gtagCallback = () => {
-                gtag('js', new Date());
+            {% block component_head_analytics_tag_config %}
+                window.gtagCallback = () => {
+                    gtag('js', new Date());
 
-                gtag('config', '{{ trackingId }}', {
-                    'cookie_domain': 'none',
-                    'cookie_prefix': '_swag_ga',
-                });
-            };
+                    gtag('config', '{{ trackingId }}', {
+                        'anonymize_ip': true,
+                        'cookie_domain': 'none',
+                        'cookie_prefix': '_swag_ga',
+                    });
+                };
+            {% endblock %}
         </script>
     {% endif %}
 {% endblock %}

@@ -19,6 +19,7 @@ Component.register('sw-cms-el-youtube-video', {
             return 'rel=0&';
         },
 
+        /** @deprecated:v6.4.0 */
         autoPlay() {
             if (!this.element.config.autoPlay.value) {
                 return '';
@@ -67,7 +68,6 @@ Component.register('sw-cms-el-youtube-video', {
             const url = `https://www.youtube-nocookie.com/embed/\
             ${this.videoID}?\
             ${this.relatedVideos}\
-            ${this.autoPlay}\
             ${this.loop}\
             ${this.showControls}\
             ${this.start}\

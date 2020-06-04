@@ -26,6 +26,11 @@ class SalesChannelAnalyticsEntity extends Entity
     protected $trackOrders;
 
     /**
+     * @var bool
+     */
+    protected $anonymizeIp;
+
+    /**
      * @var SalesChannelEntity
      */
     protected $salesChannel;
@@ -58,6 +63,16 @@ class SalesChannelAnalyticsEntity extends Entity
     public function setTrackOrders(bool $trackOrders): void
     {
         $this->trackOrders = $trackOrders;
+    }
+
+    public function isAnonymizeIp(): bool
+    {
+        return $this->anonymizeIp;
+    }
+
+    public function setAnonymizeIp(bool $anonymizeIp): void
+    {
+        $this->anonymizeIp = $anonymizeIp;
     }
 
     public function getSalesChannel(): SalesChannelEntity

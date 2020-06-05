@@ -363,7 +363,7 @@ class ThumbnailService
         return $media->getMediaType() instanceof ImageType
             && !$media->getMediaType()->is(ImageType::VECTOR_GRAPHIC)
             && !$media->getMediaType()->is(ImageType::ANIMATED)
-            && $media->getMimeType() !== ImageType::ICON;
+            && !$media->getMediaType()->is(ImageType::ICON);
     }
 
     private function deleteAssociatedThumbnails(MediaEntity $media, Context $context): void

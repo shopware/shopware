@@ -68,6 +68,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerTagRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule">
             <tag name="shopware.rule.definition"/>
         </service>

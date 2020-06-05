@@ -62,6 +62,9 @@ List of all rule classes across Shopware 6.
 [Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule)
  : Matches multiple customer groups to the current customers group. True if one customer group matches.
 
+[Shopware\Core\Checkout\Customer\Rule\CustomerTagRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Customer\Rule\CustomerTagRule)
+ : Matches multiple tags to the current customer's tags. True if one tag matches.
+
 [Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule)
  : Matches multiple countries to the customer's active shipping address country. True if one country matches.
 

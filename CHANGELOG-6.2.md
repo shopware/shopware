@@ -68,6 +68,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
     * DB level write operation (e.g. cascade deletes) are not validated against the write prtoection anymore
     * Changed exit code from command `es:index` to 0
+    * Added new `Shopware\Core\Checkout\Cusomer\Rule\CustomerTagRule` to check for tags assigned to customer 
  
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`

@@ -20,4 +20,9 @@ class QueryBuilder extends DBALQueryBuilder
     {
         return \in_array($state, $this->states, true);
     }
+
+    public function getStates(): array
+    {
+        return $this->states;
+    }
 }

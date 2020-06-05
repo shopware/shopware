@@ -104,6 +104,7 @@
       "linkMinimizeMenu": "Minimize menu",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "administrator": "Administrator",
       "navigation": {
         "mainMenuItemCatalogue": "Catalogues",
         "mainMenuItemContent": "Content",

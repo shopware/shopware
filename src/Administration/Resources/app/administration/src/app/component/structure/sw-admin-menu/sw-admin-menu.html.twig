@@ -83,7 +83,7 @@
                         {% block sw_admin_menu_user_actions_custom_fields %}
                             <div class="sw-admin-menu__user-custom-fields collapsible-text">
                                 <div class="sw-admin-menu__user-name">{{ userName }}</div>
-                                <div class="sw-admin-menu__user-type">Administrator</div>
+                                <div class="sw-admin-menu__user-type">{{ userTitle }}</div>
 
                                 {% block sw_admin_menu_user_actions_toggle_icon %}
                                     <sw-icon :name="userActionsToggleIcon" class="sw-admin-menu__user-actions-indicator" small></sw-icon>

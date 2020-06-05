@@ -80,11 +80,7 @@
                         <template #column-aclRoles="{ item, compact }">
                             <template v-if="item.aclRoles && item.aclRoles.length > 0">
                                 <span v-for="(role, index) in item.aclRoles">
-                                    {{ role.name }}
-
-                                    <template v-if="index + 1 < item.aclRoles.length">
-                                        ,
-                                    </template>
+                                    {{ role.name }}<template v-if="index + 1 < item.aclRoles.length">,&nbsp;</template>
                                 </span>
                             </template>
                             <span v-else> </span>

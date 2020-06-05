@@ -76,5 +76,13 @@
       "messageUpdateCheck": "Die zurzeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
       "backupLabel": "Ja, ich habe ein Backup erstellt."
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "core_update": "Update starten",
+        "plugin_maintain": "Plugins verwalten"
+      }
+    }
   }
 }

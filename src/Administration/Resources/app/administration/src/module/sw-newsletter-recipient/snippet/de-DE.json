@@ -39,5 +39,12 @@
       "direct": "Sofort aktiv",
       "messageEmpty": "Noch keine Newsletter-Empfänger"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "marketing": {
+        "send_newsletter": "Newsletter versenden"
+      }
+    }
   }
 }

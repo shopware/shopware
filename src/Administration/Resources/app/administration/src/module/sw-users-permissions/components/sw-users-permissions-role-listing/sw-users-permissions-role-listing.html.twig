@@ -15,9 +15,7 @@
 
                     {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
                         <sw-button
-                            {# :routerLink="{ name: 'sw.users.permissions.user.create' }" #}
-                            {# TODO: will be enabled in NEXT-8878 #}
-                            :disabled="true"
+                            :routerLink="{ name: 'sw.users.permissions.role.detail' }"
                             variant="ghost"
                             size="small"
                             class="sw-users-permissions-role-listing__add-role-button">
@@ -55,6 +53,16 @@
                     </template>
                 {% endblock %}
 
+                {% block sw_users_permissions_role_listing_grid_columns %}
+                    <template #column-name="{ item }">
+                        {% block sw_users_permissions_role_listing_grid_columns_name %}
+                            <router-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
+                                {{ item.name }}
+                            </router-link>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
                 {% block sw_users_permissions_role_listing_grid_action_modals %}
                     <template #action-modals="{ item }">
                         {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
@@ -64,7 +72,7 @@
                                       variant="small">
                                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
                                     <p class="sw-users-permissions-role-listing__confirm-delete-text">
-                                        {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', 0, { name: salutation(item) }) }}
+                                        {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', 0, { name: item.name }) }}
                                     </p>
                                 {% endblock %}
 

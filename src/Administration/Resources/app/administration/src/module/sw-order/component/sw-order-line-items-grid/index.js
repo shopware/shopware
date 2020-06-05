@@ -6,7 +6,7 @@ const { Component, Service } = Shopware;
 Component.register('sw-order-line-items-grid', {
     template,
 
-    inject: ['orderService'],
+    inject: ['orderService', 'acl'],
 
     data() {
         return {
@@ -30,6 +30,10 @@ Component.register('sw-order-line-items-grid', {
         }
     },
     computed: {
+        canCreateDiscounts() {
+            return this.acl.can('orders.create_discounts');
+        },
+
         orderLineItemRepository() {
             return Service('repositoryFactory').create('order_line_item');
         },

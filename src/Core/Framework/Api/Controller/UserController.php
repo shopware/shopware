@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\User\UserDefinition;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,8 +50,10 @@ class UserController extends AbstractController
 
         $userId = $context->getSource()->getUserId();
 
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        $criteria = new Criteria([$userId]);
+        $criteria->addAssociation('aclRoles');
+
+        $user = $this->userRepository->search($criteria, $context)->first();
         if (!$user) {
             throw OAuthServerException::invalidCredentials();
         }

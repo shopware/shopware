@@ -45,6 +45,14 @@ Component.register('sw-admin-menu', {
             return StateDeprecated.getStore('user');
         },
 
+        userTitle() {
+            if (this.currentUser.admin) {
+                return this.$tc('global.sw-admin-menu.administrator');
+            }
+
+            return this.currentUser.title;
+        },
+
         currentLocale() {
             return Shopware.State.get('session').currentLocale;
         },

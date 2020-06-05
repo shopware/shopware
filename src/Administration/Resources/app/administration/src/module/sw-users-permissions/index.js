@@ -1,12 +1,12 @@
 import './page/sw-users-permissions';
 import './components/sw-users-permissions-user-listing';
 import './components/sw-users-permissions-role-listing';
+import './components/sw-users-permissions-additional-permissions';
 import './page/sw-users-permissions-user-detail';
 import './page/sw-users-permissions-user-create';
+import './page/sw-users-permissions-role-detail';
 
-const { Module } = Shopware;
-
-Module.register('sw-users-permissions', {
+Shopware.Module.register('sw-users-permissions', {
     type: 'core',
     name: 'users-permissions',
     title: 'sw-users-permissions.general.label',
@@ -38,6 +38,13 @@ Module.register('sw-users-permissions', {
             // @deprecated tag:v6.4.0 - use 'sw-users-permissions-user-create' instead
             component: 'sw-settings-user-create',
             path: 'user.create',
+            meta: {
+                parentPath: 'sw.users.permissions.index'
+            }
+        },
+        'role.detail': {
+            component: 'sw-users-permissions-role-detail',
+            path: 'role.detail/:id?',
             meta: {
                 parentPath: 'sw.users.permissions.index'
             }

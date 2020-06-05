@@ -72,6 +72,7 @@ $sw-field-help-color: $color-gutenberg;
 
     .sw-settings-user-detail__grid-is-admin {
         grid-area: IsAdmin;
+        margin-top: 0;
     }
 
     .sw-settings-user-detail__detail {

@@ -8,7 +8,8 @@ Component.register('sw-users-permissions-role-listing', {
     template,
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -90,12 +91,16 @@ Component.register('sw-users-permissions-role-listing', {
             return this.itemToDelete.id === item.id;
         },
 
+        onDelete(role) {
+            this.itemToDelete = role;
+        },
+
         onCloseDeleteModal() {
             this.itemToDelete = null;
         },
 
         onConfirmDelete(role) {
-            this.roleRepository().delete(role.id, Shopware.Context.api).then(() => {
+            this.roleRepository.delete(role.id, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.title'),
                     message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',

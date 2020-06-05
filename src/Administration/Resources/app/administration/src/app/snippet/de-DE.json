@@ -499,6 +499,7 @@
         "billingStreetRule": "Rechnungsstraße",
         "billingZipCodeRule": "Rechnungsadresse-PLZ",
         "customerGroupRule": "Kundengruppe",
+        "customerTagRule": "Kunden Tag",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",

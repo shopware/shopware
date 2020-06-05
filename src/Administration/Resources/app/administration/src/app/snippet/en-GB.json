@@ -499,6 +499,7 @@
         "billingStreetRule": "Billing street",
         "billingZipCodeRule": "Billing postal code",
         "customerGroupRule": "Customer group",
+        "customerTagRule": "Customer tag",
         "customerNumberRule": "Customer number",
         "differentAddressesRule": "Different addresses",
         "isNewCustomerRule": "New customer",

@@ -85,7 +85,7 @@ class CustomerEntity extends Entity
     protected $company;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $password;
 
@@ -409,12 +409,12 @@ class CustomerEntity extends Entity
         $this->company = $company;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(?string $password): void
     {
         $this->password = $password;
     }

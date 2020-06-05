@@ -114,8 +114,7 @@
                                         {% block sw_product_list_grid_columns_actions_duplicate %}
                                             <sw-context-menu-item
                                                 class="sw-product-list-grid__duplicate-action"
-                                                :disabled="item.childCount > 0"
-                                                :title="duplicationDisabledTitle(item)"
+                                                :disabled="item.parentId != null"
                                                 @click="onDuplicate(item)">
                                                 {{ $tc('sw-product.list.buttonDuplicate') }}
                                             </sw-context-menu-item>
@@ -136,6 +135,11 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+
+            {% block sw_product_list_content_clone_modal %}
+                <sw-product-clone-modal :product="product" v-if="cloning" @clone-finish="onDuplicateFinish"></sw-product-clone-modal>
+            {% endblock %}
+
         </template>
 
         {% block sw_product_list_sidebar %}

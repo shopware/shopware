@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -218,7 +219,7 @@ class VersionManager
             $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
         });
 
-        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false, false);
+        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, new CloneBehavior(), false);
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -360,9 +361,15 @@ class VersionManager
         }
     }
 
-    public function clone(EntityDefinition $definition, string $id, string $newId, string $versionId, WriteContext $context, bool $cloneChildren = true, array $overwrites = []): array
-    {
-        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $cloneChildren, true, $overwrites);
+    public function clone(
+        EntityDefinition $definition,
+        string $id,
+        string $newId,
+        string $versionId,
+        WriteContext $context,
+        CloneBehavior $behavior
+    ): array {
+        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $behavior, true);
     }
 
     private function cloneEntity(
@@ -371,12 +378,11 @@ class VersionManager
         string $newId,
         string $versionId,
         WriteContext $context,
-        bool $cloneChildren = true,
-        bool $writeAuditLog = false,
-        array $overwrites = []
+        CloneBehavior $behavior,
+        bool $writeAuditLog = false
     ): array {
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria, $cloneChildren);
+        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren());
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -391,7 +397,7 @@ class VersionManager
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
-        $data = array_replace_recursive($data, $overwrites);
+        $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -698,6 +704,8 @@ class VersionManager
             if ($cascade instanceof ChildrenAssociationField) {
                 //break endless loop
                 if ($childCounter >= 30 || !$cloneChildren) {
+                    $criteria->removeAssociation($cascade->getPropertyName());
+
                     continue;
                 }
 

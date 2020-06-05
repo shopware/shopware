@@ -19,7 +19,9 @@
       "inheritanceModuleName": "This product",
       "backToParent": "Go back to variant overview",
       "copy": "Copy",
-      "variantDuplication": "Duplication of variants is currently not supported"
+      "cloneSuffix": "variants",
+      "cloneNotice": "The product variants are duplicated. If this process is interrupted, it is possible that not all variants are duplicated completely. In this case you can generate the variants in the new product again.",
+      "cloneTitle": "Duplicate variants"
     },
     "basicForm": {
       "labelTitle": "Title",

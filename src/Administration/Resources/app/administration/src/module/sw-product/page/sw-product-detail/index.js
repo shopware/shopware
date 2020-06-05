@@ -34,7 +34,8 @@ Component.register('sw-product-detail', {
     data() {
         return {
             productNumberPreview: '',
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            cloning: false
         };
     },
 
@@ -163,14 +164,6 @@ Component.register('sw-product-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
-        },
-
-        duplicationDisabledTitle() {
-            if (this.product.childCount > 0) {
-                return this.$tc('sw-product.general.variantDuplication');
-            }
-
-            return '';
         }
     },
 
@@ -589,18 +582,11 @@ Component.register('sw-product-detail', {
         },
 
         onDuplicate() {
-            return this.onSave().then(() => {
-                return this.numberRangeService.reserve('product');
-            }).then((response) => {
-                return this.productRepository.clone(this.product.id, Shopware.Context.api, {
-                    productNumber: response.number,
-                    name: `${this.product.name} ${this.$tc('sw-product.general.copy')}`,
-                    productReviews: null,
-                    active: false
-                });
-            }).then((duplicate) => {
-                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
-            });
+            this.cloning = true;
+        },
+
+        onDuplicateFinish(duplicate) {
+            this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
         }
     }
 });

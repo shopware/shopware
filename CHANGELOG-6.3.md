@@ -240,6 +240,7 @@ Table of contents
 * Added new constructor argument `$apiAlias` to `\Shopware\Core\Framework\Struct\ArrayStruct`. The given value will be used for `getApiAlias` method.
 * Added new method `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete`
 * Deprecated `\Shopware\Core\System\Currency\CurrencyFormatter::formatCurrency`, use `\Shopware\Core\System\Currency\CurrencyFormatter::formatCurrencyByLanguage` instead
+* Added `CloneBehavior $behavior` parameter to `\Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface::clone`. This parameter will be introduced in 6.4.0
 
 #### Storefront
 * Added plugin injection in hot mode

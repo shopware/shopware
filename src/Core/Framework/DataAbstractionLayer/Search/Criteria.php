@@ -547,6 +547,11 @@ class Criteria extends Struct
         return true;
     }
 
+    public function removeAssociation(string $association): void
+    {
+        unset($this->associations[$association]);
+    }
+
     private function collectFields(array $parts): array
     {
         $fields = [];

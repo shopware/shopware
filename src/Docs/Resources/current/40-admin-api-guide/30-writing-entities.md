@@ -141,7 +141,28 @@ DELETE /api/v1/tax/5840ff0975ac428ebf7838359e47737f
 }
 ```
 
-### Writing associations
+### Cloning an entity
+To clone an entity the route `POST /api/v1/_action/clone/{entity}/{id}` can be used. The API clones all àssociations which is marked with `CascadeDelete`.
+Some entities have a 'ChildrenAssociationField'. The children are also considered in a clone request. However, since this results in large amounts of data, the parameter `cloneChildren: false` can be sent in the payload so that they are no longer duplicated.
+It is also possible to overwrite fields in the clone using the payload parameter 'overwrites'. This is especially helpful if the entity has an unique constraint in the database.
+As response, the API returns the new id of the entity:
+```
+POST /api/v1/_action/clone/product/53be6fb93e4b44ed877736cbe01a47b8
+{
+	"overwrites": {
+		"name" : "New name",
+		"productNumber" : "new number"
+	},
+	"cloneChildren": false
+}
+
+{
+    "id": "cddde8ad9f81497b9a280c7eb5c6bd2e"
+}
+```
+
+
+## Writing associations
 The Admin API allows you to create several data records simultaneously within one request. This is possible by using associations. 
 For example, when a product is written, the prices can be written at the same time. This is not limited to entities that are directly related to the main entity
 but can be continued for as long as you wish and another association is defined.

@@ -40,6 +40,7 @@ class EntityReader implements EntityReaderInterface
 
     public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
     public const FOREIGN_KEYS = 'foreignKeys';
+    public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
     /**
      * @var Connection
@@ -641,8 +642,14 @@ class EntityReader implements EntityReaderInterface
         $root = EntityDefinitionQueryHelper::escape(
             $association->getToManyReferenceDefinition()->getEntityName() . '.' . $reference->getPropertyName() . '.mapping'
         );
+
+        $query = new QueryBuilder($this->connection);
+        // to many selects results in a `group by` clause. In this case the order by parts will be executed with MIN/MAX aggregation
+        // but at this point the order by will be moved to an sub select where we don't have a group state, the `state` prevents this behavior
+        $query->addState(self::MANY_TO_MANY_LIMIT_QUERY);
+
         $query = $this->buildQueryByCriteria(
-            new QueryBuilder($this->connection),
+            $query,
             $association->getToManyReferenceDefinition(),
             $fieldCriteria,
             $context
@@ -657,6 +664,8 @@ class EntityReader implements EntityReaderInterface
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetQueryPart('orderBy');
         }
+        // order by is handled in group_concat
+        $fieldCriteria->resetSorting();
 
         $query->select([
             'LOWER(HEX(' . $root . '.' . $localColumn . ')) as `key`',

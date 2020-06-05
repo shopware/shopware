@@ -90,7 +90,7 @@ trait CriteriaQueryHelper
 
         $this->addQueries($definition, $criteria, $query, $context);
 
-        $this->addSortings($definition, $criteria->getSorting(), $query, $context);
+        $this->addSortings($definition, $criteria, $criteria->getSorting(), $query, $context);
 
         return $query;
     }
@@ -224,7 +224,7 @@ trait CriteriaQueryHelper
         }
     }
 
-    private function addSortings(EntityDefinition $definition, array $sortings, QueryBuilder $query, Context $context): void
+    private function addSortings(EntityDefinition $definition, Criteria $criteria, array $sortings, QueryBuilder $query, Context $context): void
     {
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
@@ -242,8 +242,28 @@ trait CriteriaQueryHelper
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());
             }
 
+            if (!$this->hasGroupBy($criteria, $query)) {
+                $query->addOrderBy($accessor, $sorting->getDirection());
+
+                continue;
+            }
+
+            if ($sorting->getDirection() === FieldSorting::ASCENDING) {
+                $accessor = 'MIN(' . $accessor . ')';
+            } else {
+                $accessor = 'MAX(' . $accessor . ')';
+            }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }
+    }
+
+    private function hasGroupBy(Criteria $criteria, QueryBuilder $query): bool
+    {
+        if ($query->hasState(EntityReader::MANY_TO_MANY_LIMIT_QUERY)) {
+            return false;
+        }
+
+        return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || !empty($criteria->getGroupFields());
     }
 
     /**

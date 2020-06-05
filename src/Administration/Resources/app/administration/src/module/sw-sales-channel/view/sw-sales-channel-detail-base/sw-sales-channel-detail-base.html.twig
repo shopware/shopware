@@ -2,7 +2,7 @@
     <div class="sw-sales-channel-detail-base">
 
         {% block sw_sales_channel_detail_base_general %}
-            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')">
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralSettings')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
                     <sw-select-field
                         v-if="isProductComparison"
@@ -141,7 +141,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_shipping_payment %}
-            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleShippingPayment')">
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleShippingPayment')">
                 {% block sw_sales_channel_detail_base_general_input_payments_methods %}
                     <sw-sales-channel-defaults-select
                         v-if="!isProductComparison"
@@ -202,122 +202,6 @@
                 :salesChannel="salesChannel"
                 :isLoading="isLoading">
             </sw-sales-channel-detail-domains>
-        {% endblock %}
-
-        {% block sw_sales_channel_detail_base_google_shopping_general_feedbacks %}
-            <sw-card
-                v-if="salesChannel && isGoogleShopping && needToCompleteTheSetup.length && !isGoogleShoppingCreate"
-                class="sw-sales-channel-detail-base__feedbacks">
-                <sw-alert variant="warning" appearance="default" :showIcon="true" :closable="false">
-                    {{ $tc('sw-sales-channel.detail.textCompleteSetup') }}
-                    <span @click="onNeedToCompleteTheSetup" class="sw-sales-channel-detail-base__complete-setup-link">
-                        {{ $tc('sw-sales-channel.detail.linkCompleteSetup') }}
-                    </span>
-                </sw-alert>
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_sales_channel_detail_base_google_shopping_general %}
-            <sw-card v-if="salesChannel && isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleGeneralInformation')">
-                {% block sw_sales_channel_detail_base_google_shopping_general_name %}
-                    <sw-text-field
-                        required
-                        v-model="salesChannel.name"
-                        :label="$tc('sw-sales-channel.detail.labelInputName')"
-                        :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
-                        validation="required">
-                    </sw-text-field>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_crossbar %}
-                    <div class="sw-sales-channel-detail-base__crossbar"></div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_instruction %}
-                    {% block sw_sales_channel_detail_base_google_shopping_general_instruction_title %}
-                        <h4 class="sw-sales-channel-detail-base__title">
-                            {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.title') }}
-                        </h4>
-                    {% endblock %}
-
-                    {% block sw_sales_channel_detail_base_google_shopping_general_instruction_description %}
-                        <p class="sw-sales-channel-detail-base__subtitle">
-                            {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.description') }}
-                        </p>
-                    {% endblock %}
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_storefront %}
-                    <sw-entity-single-select
-                        @input="onStorefrontSelectionChange"
-                        :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
-                        :criteria="storefrontSalesChannelCriteria"
-                        labelProperty="name"
-                        valueProperty="id"
-                        entity="sales_channel"
-                        required
-                        v-model="productExport.storefrontSalesChannelId">
-                    </sw-entity-single-select>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_storefront_domain %}
-                    <sw-entity-single-select
-                        @input="onStorefrontDomainSelectionChange"
-                        :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
-                        :criteria="storefrontSalesChannelDomainCriteria"
-                        labelProperty="url"
-                        valueProperty="id"
-                        entity="sales_channel_domain"
-                        required
-                        :disabled="!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId"
-                        v-model="productExport.salesChannelDomainId">
-                    </sw-entity-single-select>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_storefront_domain_currency %}
-                    <div class="sw-sales-channel-detail-base__product-comparison-container" v-if="productExport.salesChannelDomain">
-                        <sw-entity-single-select
-                            :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
-                            :criteria="storefrontSalesChannelCurrencyCriteria"
-                            labelProperty="name"
-                            valueProperty="id"
-                            required
-                            entity="currency"
-                            v-model="productExport.currencyId">
-                        </sw-entity-single-select>
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_crossbar_second %}
-                    <div class="sw-sales-channel-detail-base__crossbar"></div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_instruction_second %}
-                    {% block sw_sales_channel_detail_base_google_shopping_general_instruction_second_title %}
-                        <h4 class="sw-sales-channel-detail-base__title">
-                            {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.titleSecond') }}
-                        </h4>
-                    {% endblock %}
-
-                    {% block sw_sales_channel_detail_base_google_shopping_general_instruction_second_description %}
-                        <p class="sw-sales-channel-detail-base__subtitle">
-                            {{ $tc('sw-sales-channel.detail.googleShoppingGeneral.descriptionSecond') }}
-                        </p>
-                    {% endblock %}
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_general_dynamic_product_group %}
-                    <sw-entity-single-select
-                        class="sw-sales-channel-detail-base__u-mb-0"
-                        :label="$tc('sw-sales-channel.detail.productComparison.productStream')"
-                        labelProperty="name"
-                        valueProperty="id"
-                        required
-                        entity="product_stream"
-                        v-model="productExport.productStreamId">
-                    </sw-entity-single-select>
-                {% endblock %}
-            </sw-card>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
@@ -398,22 +282,6 @@
                         </sw-help-text>
                     </div>
                 {% endblock %}
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_sales_channel_detail_base_google_shopping_account %}
-            <sw-card v-if="salesChannel && isGoogleShopping" :isLoading="isLoading || isLoadingMerchant" :title="$tc('sw-sales-channel.detail.titleAccount')">
-                <sw-sales-channel-detail-account-connect
-                    v-if="!googleShoppingAccount"
-                    :isGoogleShoppingCreate="isGoogleShoppingCreate"
-                    @on-connect-to-google="onConnectToGoogle">
-                </sw-sales-channel-detail-account-connect>
-
-                <sw-sales-channel-detail-account-disconnect
-                    v-else
-                    :salesChannel="salesChannel"
-                    @on-disconnect-to-google="onDisconnectToGoogle">
-                </sw-sales-channel-detail-account-disconnect>
             </sw-card>
         {% endblock %}
 
@@ -505,7 +373,7 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_api %}
-            <sw-card v-if="salesChannel && !isGoogleShopping" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')">
+            <sw-card v-if="salesChannel" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')">
                 {% block sw_sales_channel_detail_base_options_api_description %}
                     <div class="sw-sales-channel-detail-base__description-text" v-html="$tc('sw-sales-channel.detail.textApiAccessDescription')"></div>
                 {% endblock %}
@@ -574,28 +442,8 @@
             </sw-card>
         {% endblock %}
 
-        {% block sw_sales_channel_detail_base_google_shopping_status %}
-            <sw-card v-if="isGoogleShopping" :title="$tc('sw-sales-channel.detail.titleStatus')" :isLoading="isLoading">
-                {% block sw_sales_channel_detail_base_google_shopping_status_text %}
-                    <div class="sw-sales-channel-detail-base__description-text">
-                        {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
-                    </div>
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_base_google_shopping_status_input %}
-                    <sw-field
-                        type="switch"
-                        v-model="salesChannel.active"
-                        :label="$tc('sw-sales-channel.detail.labelInputActive')"
-                        @change="onToggleActive"
-                        class="sw-sales-channel-detail-base__switcher">
-                    </sw-field>
-                {% endblock %}
-            </sw-card>
-        {% endblock %}
-
         {% block sw_sales_channel_detail_base_options_status %}
-            <sw-card v-if="salesChannel && !isGoogleShopping" :title="$tc('sw-sales-channel.detail.titleStatus')" :isLoading="isLoading">
+            <sw-card v-if="salesChannel" :title="$tc('sw-sales-channel.detail.titleStatus')" :isLoading="isLoading">
                 {% block sw_sales_channel_detail_base_options_status_description %}
                     <div class="sw-sales-channel-detail-base__description-text">
                         {{ $tc('sw-sales-channel.detail.textActiveDescription') }}
@@ -721,26 +569,6 @@
                     :sets="customFieldSets">
                 </sw-custom-field-set-renderer>
             </sw-card>
-        {% endblock %}
-
-        {% block sw_sales_channel_google_oauth_modal %}
-            <sw-sales-channel-google-programs-modal
-                v-if="showGoogleProgramsModal"
-                :salesChannel="salesChannel"
-                @on-disconnect-account="onDisconnectToGoogle"
-                @modal-close="onCloseGoogleProgramsModal">
-            </sw-sales-channel-google-programs-modal>
-        {% endblock %}
-
-        {% block sw_sales_channel_modal_disconnect %}
-            <sw-sales-channel-modal-disconnect
-                v-if="showDisconnectModal"
-                :isDisconnectLoading="isDisconnectLoading"
-                :isDisconnectSuccessful="isDisconnectSuccessful"
-                @on-disconnect="onDisconnect"
-                @process-finish="onDisconnectSuccessful"
-                @modal-close="onCloseDisconnectModal">
-            </sw-sales-channel-modal-disconnect>
         {% endblock %}
     </div>
 {% endblock %}

@@ -68,10 +68,6 @@ Component.register('sw-sales-channel-modal-grid', {
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
-        },
-
-        isGoogleShoppingSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === Defaults.googleShoppingTypeId;
         }
     }
 });

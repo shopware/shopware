@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use function Flag\next6050;
 
 class ProductExportDefinition extends EntityDefinition
 {
@@ -42,7 +41,7 @@ class ProductExportDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
             (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->addFlags(new Required()),
             (new FkField('storefront_sales_channel_id', 'storefrontSalesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
@@ -60,6 +59,7 @@ class ProductExportDefinition extends EntityDefinition
             (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml()),
             (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml()),
             (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml()),
+            (new BoolField('paused_schedule', 'pausedSchedule')),
 
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),
@@ -67,13 +67,5 @@ class ProductExportDefinition extends EntityDefinition
             new ManyToOneAssociationField('salesChannelDomain', 'sales_channel_domain_id', SalesChannelDomainDefinition::class, 'id', false),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
         ]);
-
-        if (next6050()) {
-            $collection->add(
-                (new BoolField('paused_schedule', 'pausedSchedule'))
-            );
-        }
-
-        return $collection;
     }
 }

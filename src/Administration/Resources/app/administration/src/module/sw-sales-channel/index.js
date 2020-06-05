@@ -4,38 +4,19 @@ import './component/sw-sales-channel-defaults-select';
 import './component/sw-sales-channel-modal';
 import './component/sw-sales-channel-modal-grid';
 import './component/sw-sales-channel-modal-detail';
-import './component/sw-sales-channel-modal-disconnect';
 
 import './component/sw-sales-channel-detail-domains';
 import './component/sw-sales-channel-detail-hreflang';
-
-import './component/sw-sales-channel-detail-protect-link';
-import './component/sw-sales-channel-detail-account-connect';
-import './component/sw-sales-channel-detail-account-disconnect';
-import './component/sw-sales-channel-detail-shop-categories';
-import './component/sw-sales-channel-detail-google-categories';
-import './component/sw-sales-channel-detail-empty-categories';
 
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-detail-analytics';
-import './view/sw-sales-channel-detail-products';
 import './view/sw-sales-channel-create-base';
 import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
-
-import './component/sw-sales-channel-google-programs-modal';
-import './component/sw-sales-channel-google-introduction';
-import './component/sw-sales-channel-google-authentication';
-import './component/sw-sales-channel-google-merchant';
-import './component/sw-sales-channel-google-store-verification';
-import './component/sw-sales-channel-google-website-claim';
-import './component/sw-sales-channel-google-terms-verification';
-import './component/sw-sales-channel-google-shipping-setting';
-import './component/sw-sales-channel-google-done-verification';
 
 const { Module } = Shopware;
 
@@ -60,37 +41,7 @@ Module.register('sw-sales-channel', {
             children: {
                 base: {
                     component: 'sw-sales-channel-detail-base',
-                    path: 'base',
-                    children: {
-                        'step-1': {
-                            component: 'sw-sales-channel-google-introduction',
-                            path: 'step-1'
-                        },
-                        'step-2': {
-                            component: 'sw-sales-channel-google-authentication',
-                            path: 'step-2'
-                        },
-                        'step-3': {
-                            component: 'sw-sales-channel-google-merchant',
-                            path: 'step-3'
-                        },
-                        'step-4': {
-                            component: 'sw-sales-channel-google-store-verification',
-                            path: 'step-4'
-                        },
-                        'step-5': {
-                            component: 'sw-sales-channel-google-terms-verification',
-                            path: 'step-5'
-                        },
-                        'step-6': {
-                            component: 'sw-sales-channel-google-shipping-setting',
-                            path: 'step-6'
-                        },
-                        'step-7': {
-                            component: 'sw-sales-channel-google-done-verification',
-                            path: 'step-7'
-                        }
-                    }
+                    path: 'base'
                 },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',
@@ -99,16 +50,6 @@ Module.register('sw-sales-channel', {
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
                     path: 'analytics'
-                },
-                products: {
-                    component: 'sw-sales-channel-detail-products',
-                    path: 'products',
-                    children: {
-                        category: {
-                            component: 'sw-sales-channel-detail-google-categories',
-                            path: 'category/:categoryId'
-                        }
-                    }
                 }
             }
         },

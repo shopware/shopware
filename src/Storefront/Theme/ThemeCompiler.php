@@ -7,6 +7,7 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Context;
@@ -236,6 +237,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $variables = [];
+        $mediaIds = [];
         foreach ($config['fields'] as $key => $data) {
             if (!isset($data['value'])) {
                 continue;
@@ -252,25 +254,30 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if ($data['type'] === 'media') {
-                // Resolve path if media id is given
+                // Add id of media which needs to be resolved
                 if (Uuid::isValid($data['value'])) {
-                    /** @var MediaEntity|null $media */
-                    $media = $this->mediaRepository
-                        ->search(
-                            new Criteria([$data['value']]),
-                            Context::createDefaultContext()
-                        )
-                        ->getEntities()
-                        ->first();
-
-                    if ($media) {
-                        $data['value'] = $media->getUrl();
-                    }
+                    $mediaIds[$key] = $data['value'];
                 }
 
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } else {
                 $variables[$key] = $data['value'];
+            }
+        }
+
+        // Resolve media urls
+        if (count($mediaIds) > 0) {
+            /** @var MediaCollection $medias */
+            $medias = $this->mediaRepository
+            ->search(
+                new Criteria($mediaIds),
+                Context::createDefaultContext()
+            )
+            ->getEntities();
+
+            foreach ($medias as $key => $media) {
+                /* @var MediaEntity $media */
+                $variables[$key] = '\'' . $media->getUrl() . '\'';
             }
         }
 

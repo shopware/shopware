@@ -7,7 +7,12 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -55,6 +60,11 @@ class ThemeCompiler implements ThemeCompilerInterface
     private $tempFilesystem;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
      * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
      */
     public function __construct(
@@ -64,7 +74,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         string $cacheDir,
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
-        ?ThemeFileImporterInterface $themeFileImporter = null
+        ?ThemeFileImporterInterface $themeFileImporter = null,
+        EntityRepositoryInterface $mediaRepository
     ) {
         $this->publicFilesystem = $publicFilesystem;
         $this->tempFilesystem = $tempFilesystem;
@@ -77,6 +88,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
         $this->eventDispatcher = $eventDispatcher;
+        $this->mediaRepository = $mediaRepository;
     }
 
     public function compileTheme(
@@ -240,6 +252,22 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if ($data['type'] === 'media') {
+                // Resolve path if media id is given
+                if (Uuid::isValid($data['value'])) {
+                    /** @var MediaEntity|null $media */
+                    $media = $this->mediaRepository
+                        ->search(
+                            new Criteria([$data['value']]),
+                            Context::createDefaultContext()
+                        )
+                        ->getEntities()
+                        ->first();
+
+                    if ($media) {
+                        $data['value'] = $media->getUrl();
+                    }
+                }
+
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } else {
                 $variables[$key] = $data['value'];

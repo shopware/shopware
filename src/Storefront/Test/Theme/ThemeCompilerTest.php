@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Theme;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -26,6 +27,11 @@ class ThemeCompilerTest extends TestCase
      */
     private $mockSalesChannelId;
 
+    /**
+     * @var string
+     */
+    private $mockMediaId;
+
     public function setUp(): void
     {
         $themeFileResolver = $this->getContainer()->get(ThemeFileResolver::class);
@@ -37,13 +43,27 @@ class ThemeCompilerTest extends TestCase
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
+        // Insert demo media
+        $this->mockMediaId = '98432def39fc4624b33213a56b8c955d';
+        $data = [
+            'id' => $this->mockMediaId,
+            'fileName' => 'testImage',
+            'mimeType' => 'image/png',
+            'fileExtension' => 'png',
+        ];
+
+        $mediaRepository = $this->getContainer()->get('media.repository');
+        $mediaRepository->create([$data], Context::createDefaultContext());
+
         $this->themeCompiler = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
             $themeFileResolver,
             $mockCacheDir,
             true,
-            $eventDispatcher
+            $eventDispatcher,
+            null,
+            $mediaRepository
         );
     }
 
@@ -245,5 +265,32 @@ PHP_EOL;
         ];
 
         static::assertSame($expected, $actual);
+    }
+
+    public function testMediaIdsInThemeConfigGetResolvedToPaths(): void
+    {
+        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
+        $dumpVariables = $themeCompilerReflection->getMethod('dumpVariables');
+        $dumpVariables->setAccessible(true);
+
+        $mockConfig = [
+            'fields' => [
+                'sw-color-brand-primary' => [
+                    'name' => 'sw-color-brand-primary',
+                    'type' => 'color',
+                    'value' => '#008490',
+                ],
+                // Should be resolved to media URL
+                'sw-logo-desktop' => [
+                    'name' => 'sw-logo-desktop',
+                    'type' => 'media',
+                    'value' => $this->mockMediaId,
+                ],
+            ],
+        ];
+
+        $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, $this->mockSalesChannelId);
+
+        static::assertStringContainsString('testImage.png', $actual);
     }
 }

@@ -700,6 +700,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
     * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
     * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
+    * Added resolving of media ids to `Shopware\Storefront\Theme\ThemeCompiler`
     
     * Added `utilities_thumbnail`, `utilities_thumbnail_logic`, `utilities_thumbnail_image` twig blocks to thumbnail.html.twig
 

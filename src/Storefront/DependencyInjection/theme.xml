@@ -21,6 +21,7 @@
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="media.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>

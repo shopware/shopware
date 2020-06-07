@@ -270,14 +270,14 @@ class ThemeCompiler implements ThemeCompilerInterface
             /** @var MediaCollection $medias */
             $medias = $this->mediaRepository
             ->search(
-                new Criteria($mediaIds),
+                new Criteria(array_values($mediaIds)),
                 Context::createDefaultContext()
             )
             ->getEntities();
 
-            foreach ($medias as $key => $media) {
+            foreach ($mediaIds as $key => $mediaId) {
                 /* @var MediaEntity $media */
-                $variables[$key] = '\'' . $media->getUrl() . '\'';
+                $variables[$key] = '\'' . $medias->get($mediaId)->getUrl() . '\'';
             }
         }
 

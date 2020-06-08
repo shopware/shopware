@@ -227,13 +227,13 @@ class AccountOrderController extends StorefrontController
             'paymentFailed' => true,
         ]);
 
-        $setPaymentRequest = new Request();
+        $setPaymentRequest = clone $request;
         $setPaymentRequest->request->set('orderId', $request->get('orderId'));
         $setPaymentRequest->request->set('paymentMethodId', $request->get('paymentMethodId'));
 
         $this->setPaymentOrderRoute->setPayment($setPaymentRequest, $salesChannelContext);
 
-        $handlePaymentRequest = new Request();
+        $handlePaymentRequest = clone $request;
         $handlePaymentRequest->request->set('orderId', $request->get('orderId'));
         $handlePaymentRequest->request->set('finishUrl', $finishUrl);
         $handlePaymentRequest->request->set('errorUrl', $errorUrl);

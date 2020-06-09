@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits;
 
+use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -48,6 +49,14 @@ trait RulesTestFixtureBehaviour
     {
         $rule = new LineItemWithQuantityRule();
         $rule->assign(['id' => $itemID, 'quantity' => $quantity, 'operator' => LineItemWithQuantityRule::OPERATOR_GTE]);
+
+        return $rule;
+    }
+
+    private function getProductsRule(array $itemIDs): LineItemRule
+    {
+        $rule = new LineItemRule();
+        $rule->assign(['identifiers' => $itemIDs, 'operator' => LineItemRule::OPERATOR_EQ]);
 
         return $rule;
     }

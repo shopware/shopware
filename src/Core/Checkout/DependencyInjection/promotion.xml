@@ -98,6 +98,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageRules"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager"/>
@@ -117,7 +119,7 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber">
             <argument type="service" id="session"/>
-
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -129,6 +131,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -141,8 +144,16 @@
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker">
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageRules">
+        </service>
+
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry">
             <argument type="tagged" tag="promotion.filter.sorter"/>
+            <argument type="tagged" tag="promotion.filter.picker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc">
@@ -151,6 +162,14 @@
 
         <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceDesc">
             <tag name="promotion.filter.sorter"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Picker\VerticalPicker">
+            <tag name="promotion.filter.picker"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Picker\HorizontalPicker">
+            <tag name="promotion.filter.picker"/>
         </service>
 
 
@@ -194,7 +213,7 @@
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <tag name="kernel.event_subscriber" />
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionExclusionUpdater">

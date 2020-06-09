@@ -1,7 +1,9 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-item.html.twig' %}
 
 {% block page_checkout_item_quantity_form %}
-    {{ block('page_checkout_item_quantity_number') }}
+    {% if lineItem.type != "promotion" %}
+        {{ block('page_checkout_item_quantity_number') }}
+    {% endif %}
 {% endblock %}
 
 {% block page_checkout_item_remove_form %}

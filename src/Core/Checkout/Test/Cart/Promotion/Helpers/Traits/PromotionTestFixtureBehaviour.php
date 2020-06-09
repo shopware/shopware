@@ -126,6 +126,69 @@ trait PromotionTestFixtureBehaviour
     }
 
     /**
+     * Creates a new percentage promotion in the database.
+     *
+     * @return string
+     */
+    private function createTestFixtureSetGroupPromotion(string $promotionId, ?string $code, ContainerInterface $container)
+    {
+        /** @var EntityRepositoryInterface $promotionRepository */
+        $promotionRepository = $container->get('promotion.repository');
+
+        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $this->createSetGroupPromotion(
+            $promotionId,
+            $code,
+            $promotionRepository,
+            $context
+        );
+    }
+
+    private function createSetGroupDiscount(
+        string $promotionId,
+        int $groupIndex,
+        ContainerInterface $container,
+        float $value,
+        ?float $maxValue,
+        string $discountType = PromotionDiscountEntity::TYPE_PERCENTAGE,
+        string $sortKey = 'PRICE_ASC',
+        string $applierKey = 'ALL',
+        string $usageKey = 'ALL',
+        string $pickerKey = 'VERTICAL'
+    ) {
+        $scope = PromotionDiscountEntity::SCOPE_SETGROUP . '-' . $groupIndex;
+
+        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        /** @var EntityRepositoryInterface $discountRepository */
+        $discountRepository = $container->get('promotion_discount.repository');
+
+        $discountId = Uuid::randomHex();
+
+        $data = [
+            'id' => $discountId,
+            'promotionId' => $promotionId,
+            'scope' => $scope,
+            'type' => $discountType,
+            'value' => $value,
+            'considerAdvancedRules' => true,
+            'sorterKey' => $sortKey,
+            'applierKey' => $applierKey,
+            'usageKey' => $usageKey,
+            'pickerKey' => $pickerKey,
+        ];
+
+        if ($maxValue !== null) {
+            $data['maxValue'] = $maxValue;
+        }
+
+        $discountRepository->create([$data], $context->getContext());
+
+        return $discountId;
+    }
+
+    /**
      * Creates a new advanced currency price for the provided discount
      */
     private function createTestFixtureAdvancedPrice(string $discountId, string $currency, float $price, ContainerInterface $container): void
@@ -193,6 +256,27 @@ trait PromotionTestFixtureBehaviour
             'active' => true,
             'useCodes' => false,
             'useSetGroups' => false,
+            'salesChannels' => [
+                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
+            ],
+        ];
+
+        if ($code !== null) {
+            $data['code'] = $code;
+            $data['useCodes'] = true;
+        }
+
+        $promotionRepository->create([$data], $context->getContext());
+    }
+
+    private function createSetGroupPromotion(string $promotionId, ?string $code, EntityRepositoryInterface $promotionRepository, SalesChannelContext $context): void
+    {
+        $data = [
+            'id' => $promotionId,
+            'name' => 'Black Friday',
+            'active' => true,
+            'useCodes' => false,
+            'useSetGroups' => true,
             'salesChannels' => [
                 ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
             ],

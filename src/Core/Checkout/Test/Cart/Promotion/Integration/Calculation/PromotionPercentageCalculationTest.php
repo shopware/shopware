@@ -3,7 +3,10 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
@@ -13,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionPercentageCalculationTest extends TestCase
 {
@@ -36,16 +38,9 @@ class PromotionPercentageCalculationTest extends TestCase
      */
     protected $promotionRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
@@ -57,13 +52,12 @@ class PromotionPercentageCalculationTest extends TestCase
      * We add a product to the cart and apply a code for a promotion with 100% discount.
      * Our cart should have a total value of 0,00 in the end.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function test100PercentageDiscount(): void
     {
@@ -81,7 +75,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         // create product and add to cart
-        $cart = $this->addProduct($productId, 10, $cart, $this->cartService, $context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
@@ -97,13 +91,12 @@ class PromotionPercentageCalculationTest extends TestCase
      * We add a product to the cart and apply a code for a promotion with 50% discount.
      * Our cart should have a total value of 15,00 in the end.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function test50PercentageDiscount(): void
     {
@@ -138,7 +131,6 @@ class PromotionPercentageCalculationTest extends TestCase
      * of 30 EUR discount. This means our cart should be minimum 70 EUR in the end.
      * We have
      *
-     * @test
      * @group promotions
      */
     public function test50PercentageDiscountWithMaximumValue(): void
@@ -177,7 +169,6 @@ class PromotionPercentageCalculationTest extends TestCase
      * But for your currency, we use 30 EUR instead.
      * Our test needs to verify that we use 30 EUR, and end with a product sum of 70 EUR in the end.
      *
-     * @test
      * @group promotions
      */
     public function test50PercentageDiscountWithMaximumValueAndCurrencies(): void
@@ -221,7 +212,6 @@ class PromotionPercentageCalculationTest extends TestCase
      * We fake a product with 0,00 price and just try to add our promotion in here.
      * We must not get a division by zero!
      *
-     * @test
      * @group promotions
      * @ticket NEXT-4146
      */

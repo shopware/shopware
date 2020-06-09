@@ -1,0 +1,110 @@
+{
+  "sw-users-permissions": {
+    "general": {
+      "label": "Benutzer & Rechte"
+    },
+    "permissions": {},
+    "users": {
+      "general": {
+        "mainMenuItemGeneral": "Benutzer & Rechte",
+        "placeholderSearchBar": "Finde Benutzer ...",
+        "labelUserList": "Benutzer & Rechte",
+        "labelCreateNewUser": "Neuer Benutzer"
+      },
+      "user-grid": {
+        "labelUsername": "Benutzername",
+        "labelFirstName": "Vorname",
+        "labelLastName": "Nachname",
+        "labelRoles": "Rollen",
+        "labelEmail": "E-Mail-Adresse",
+        "contextMenuEdit": "Bearbeiten",
+        "contextMenuDelete": "Löschen",
+        "contextMenuDuplicate": "Duplizieren",
+        "titleModalDelete": "Benutzer löschen",
+        "textModalDelete": "Möchtest Du den Benutzer \"{name}\" wirklich löschen?",
+        "labelButtonCancel": "Abbrechen",
+        "labelButtonDelete": "Löschen",
+        "notification": {
+          "deleteSuccess": {
+            "title": "Erfolg",
+            "message": "Der Benutzer \"{name}\" wurde erfolgreich gelöscht."
+          },
+          "deleteError": {
+            "title": "Fehler",
+            "message": "Beim Löschen des Benutzers \"{name}\" ist ein Fehler aufgetreten."
+          },
+          "deleteUserLoggedInError": {
+            "title": "Fehler",
+            "message": "Benutzer können sich nicht selbst löschen."
+          }
+        }
+      },
+      "user-detail": {
+        "labelCard": "Basisinformationen",
+        "labelIntegrationsCard": "Integrationen",
+        "labelFirstName": "Vorname",
+        "labelLastName": "Nachname",
+        "labelEmail": "E-Mail-Adresse",
+        "errorEmailUsed": "Diese E-Mail-Adresse wird schon benutzt.",
+        "errorUsernameUsed": "Dieser Benutzername wird schon benutzt.",
+        "labelUsername": "Benutzername",
+        "labelPassword": "Passwort",
+        "labelProfilePicture": "Profilbild",
+        "labelLanguage": "Sprache der Benutzeroberfläche",
+        "labelLanguagePlaceholder": "Sprache auswählen ...",
+        "labelChangePassword": "Passwort ändern",
+        "labelNewPassword": "Neues Passwort",
+        "labelNewUser": "Neuer Benutzer",
+        "placeholderNewPassword": "Neues Passwort eingeben ...",
+        "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
+        "labelButtonCancel": "Abbrechen",
+        "labelButtonChangePassword": "Ändern",
+        "labelButtonSave": "Speichern",
+        "writeAccess": "Schreiben",
+        "readAccess": "Lesen",
+        "contextMenuEdit": "Bearbeiten",
+        "contextMenuDelete": "Löschen",
+        "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
+        "addAccessKey": "Neuer Zugangsschlüssel",
+        "labelAccessKey": "Zugangsschlüssel",
+        "labelPermissions": "Berechtigungen",
+        "modal": {
+          "deleteModalTitle": "Löschen",
+          "detailModalTitle": "Integration anlegen",
+          "detailModalTitleEdit": "Bearbeiten",
+          "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
+          "buttonApply": "Integration speichern",
+          "buttonApplyEdit": "Änderungen speichern",
+          "buttonCancel": "Abbrechen",
+          "buttonDelete": "Löschen",
+          "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
+          "hintCreateNewApiKeys": "Die Neugenerierung der API-Zugangsdaten erfordert die Aktualisierung aller zugehörigen Skripte oder Anwendungen.",
+          "labelFieldLabel": "Name",
+          "idFieldLabel": "Zugangs-ID",
+          "secretFieldLabel": "Sicherheitsschlüssel",
+          "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt. Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
+          "permissions": "Berechtigungen",
+          "readAccessFieldLabel": "Lesen (Standard)",
+          "writeAccessFieldLabel": "Schreiben (optional)",
+          "titleSaveSuccess": "Erfolg",
+          "messageSaveSuccess": "Integration erfolgreich gespeichert.",
+          "titleSaveError": "Fehler",
+          "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
+          "titleCreateNewError": "Fehler",
+          "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
+        },
+        "notification": {
+          "saveError": {
+            "title": "Fehler",
+            "message": "Beim Speichern des Benutzers \"{name}\" ist ein Fehler aufgetreten."
+          },
+          "saveSuccess": {
+            "title": "Erfolg",
+            "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
+          },
+          "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein."
+        }
+      }
+    }
+  }
+}

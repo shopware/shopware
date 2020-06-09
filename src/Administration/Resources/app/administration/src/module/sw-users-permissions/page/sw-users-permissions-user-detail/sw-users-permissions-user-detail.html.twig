@@ -10,7 +10,7 @@
             <template #smart-bar-actions>
                 {% block sw_settings_user_detail_actions_cancel %}
                     <sw-button v-tooltip.bottom="tooltipCancel" @click="onCancel">
-                        {{ $tc('sw-settings-user.user-detail.labelButtonCancel') }}
+                        {{ $tc('sw-users-permissions.users.user-detail.labelButtonCancel') }}
                     </sw-button>
                 {% endblock %}
 
@@ -24,7 +24,7 @@
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
-                        {{ $tc('sw-settings-user.user-detail.labelButtonSave') }}
+                        {{ $tc('sw-users-permissions.users.user-detail.labelButtonSave') }}
                     </sw-button-process>
                 {% endblock %}
             </template>
@@ -35,7 +35,7 @@
                 <sw-card-view>
                     {% block sw_settings_user_detail_content_inner %}
                         {%  block sw_setting_user_detail_card_basic_information %}
-                            <sw-card :title="$tc('sw-settings-user.user-detail.labelCard')"
+                            <sw-card :title="$tc('sw-users-permissions.users.user-detail.labelCard')"
                                      :isLoading="isLoading">
                                 {% block sw_settings_user_detail_content_grid %}
                                     <div v-if="user" class="sw-settings-user-detail__grid">
@@ -44,7 +44,7 @@
                                                 class="sw-settings-user-detail__grid-firstName"
                                                 v-model="user.firstName"
                                                 required
-                                                :label="$tc('sw-settings-user.user-detail.labelFirstName')">
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelFirstName')">
                                             </sw-text-field>
                                         {% endblock %}
 
@@ -54,18 +54,18 @@
                                                 v-model="user.lastName"
                                                 :error="userLastNameError"
                                                 required
-                                                :label="$tc('sw-settings-user.user-detail.labelLastName')">
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelLastName')">
                                             </sw-text-field>
                                         {% endblock %}
 
                                         {% block sw_settings_user_detail_content_email %}
                                             <sw-text-field
                                                 class="sw-settings-user-detail__grid-eMail"
-                                                :errorMessage="isEmailUsed ? $tc('sw-settings-user.user-detail.errorEmailUsed') : ''"
+                                                :errorMessage="isEmailUsed ? $tc('sw-users-permissions.users.user-detail.errorEmailUsed') : ''"
                                                 v-model="user.email"
                                                 :error="userEmailError"
                                                 required
-                                                :label="$tc('sw-settings-user.user-detail.labelEmail')"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelEmail')"
                                                 @change="checkEmail()">
                                             </sw-text-field>
                                         {% endblock %}
@@ -73,11 +73,11 @@
                                         {% block sw_settings_user_detail_content_username %}
                                             <sw-text-field
                                                 class="sw-settings-user-detail__grid-username"
-                                                :errorMessage="isUsernameUsed ? $tc('sw-settings-user.user-detail.errorUsernameUsed') : ''"
+                                                :errorMessage="isUsernameUsed ? $tc('sw-users-permissions.users.user-detail.errorUsernameUsed') : ''"
                                                 v-model="user.username"
                                                 :error="userUsernameError"
                                                 required
-                                                :label="$tc('sw-settings-user.user-detail.labelUsername')"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelUsername')"
                                                 @change="checkUsername">
                                             </sw-text-field>
                                         {% endblock %}
@@ -91,7 +91,7 @@
                                             <sw-media-upload-v2
                                                 class="sw-settings-user-detail__grid-profile-picture"
                                                 :source="avatarMedia"
-                                                :label="$tc('sw-settings-user.user-detail.labelProfilePicture')"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelProfilePicture')"
                                                 :uploadTag="user.id"
                                                 :allowMultiSelect="false"
                                                 :sourceContext="user"
@@ -105,7 +105,7 @@
                                             <sw-password-field
                                                 class="sw-settings-user-detail__grid-password"
                                                 :value="user.password"
-                                                :label="$tc('sw-settings-user.user-detail.labelPassword')"
+                                                :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                                                 :passwordToggleAble="false"
                                                 :copyAble="false"
                                                 :disabled="true">
@@ -114,7 +114,7 @@
 
                                         {% block sw_settings_user_detail_grid_change_password %}
                                             <a v-if="isCurrentUser" class="sw-settings-user-detail__grid-change-password" @click="onChangePassword">
-                                                {{ $tc('sw-settings-user.user-detail.labelChangePassword') }}
+                                                {{ $tc('sw-users-permissions.users.user-detail.labelChangePassword') }}
                                             </a>
                                         {% endblock %}
 
@@ -122,11 +122,11 @@
                                         {% block sw_settings_user_detail_grid_content_language %}
                                             <sw-select-field
                                                     class="sw-settings-user-detail__grid-language"
-                                                    :label="$tc('sw-settings-user.user-detail.labelLanguage')"
+                                                    :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
                                                     v-model="user.localeId"
                                                     :error="userLocaleIdError"
                                                     required
-                                                    :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
+                                                    :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')">
                                                 <option v-for="language in languages"
                                                         :value="language.locale.id"
                                                         :selected="language.locale.id === user.localeId">
@@ -140,9 +140,9 @@
                                 {% block sw_settings_user_detail_content_password_modal %}
                                     <sw-modal v-if="changePasswordModal"
                                               @modal-close="onClosePasswordModal"
-                                              :title="$tc('sw-settings-user.user-detail.labelNewPassword')"
+                                              :title="$tc('sw-users-permissions.users.user-detail.labelNewPassword')"
                                               variant="small">
-                                        {{ $tc('sw-settings-user.user-detail.textChangePassword') }}
+                                        {{ $tc('sw-users-permissions.users.user-detail.textChangePassword') }}
 
                                         {% block sw_settings_user_detail_content_password_modal_input %}
                                             <sw-password-field
@@ -150,7 +150,7 @@
                                                 v-model="newPassword"
                                                 :passwordToggleAble="true"
                                                 :copyAble="false"
-                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPassword')">
+                                                :placeholder="$tc('sw-users-permissions.users.user-detail.placeholderNewPassword')">
                                             </sw-password-field>
 
                                             <sw-password-field
@@ -158,7 +158,7 @@
                                                 v-model="newPasswordConfirm"
                                                 :passwordToggleAble="true"
                                                 :copyAble="false"
-                                                :placeholder="$tc('sw-settings-user.user-detail.placeholderNewPasswordConfirm')">
+                                                :placeholder="$tc('sw-users-permissions.users.user-detail.placeholderNewPasswordConfirm')">
                                             </sw-password-field>
                                         {% endblock %}
 
@@ -167,7 +167,7 @@
                                                 {% block sw_settings_user_detail_password_modal_actions_cancel %}
                                                     <sw-button @click="onClosePasswordModal"
                                                                size="small">
-                                                        {{ $tc('sw-settings-user.user-detail.labelButtonCancel') }}
+                                                        {{ $tc('sw-users-permissions.users.user-detail.labelButtonCancel') }}
                                                     </sw-button>
                                                 {% endblock %}
 
@@ -176,7 +176,7 @@
                                                                variant="primary"
                                                                size="small"
                                                                :disabled="disableConfirm">
-                                                        {{ $tc('sw-settings-user.user-detail.labelButtonChangePassword') }}
+                                                        {{ $tc('sw-users-permissions.users.user-detail.labelButtonChangePassword') }}
                                                     </sw-button>
                                                 {% endblock %}
                                             </template>
@@ -187,7 +187,7 @@
                         {% endblock %}
 
                         {%  block sw_setting_user_detail_card_integrations %}
-                            <sw-card :title="$tc('sw-settings-user.user-detail.labelIntegrationsCard')">
+                            <sw-card :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')">
                                 {% block sw_settings_user_detail_grid_toolbar %}
                                     <template #toolbar>
                                         {% block sw_settings_user_detail_grid_add_key %}
@@ -195,7 +195,7 @@
                                                        variant="primary"
                                                        size="small"
                                                        :disabled="!$route.params.id">
-                                                {{ $tc('sw-settings-user.user-detail.addAccessKey') }}
+                                                {{ $tc('sw-users-permissions.users.user-detail.addAccessKey') }}
                                             </sw-button>
                                         {% endblock %}
                                     </template>
@@ -215,8 +215,8 @@
 
                                                 {% block sw_settings_user_detail_key_grid_column_write_access %}
                                                     <template #column-writeAccess="{ item }">
-                                                        <sw-label size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.readAccess') }}</sw-label>
-                                                        <sw-label v-if="item.writeAccess" size="medium" ghost caps>{{ $tc('sw-settings-user.user-detail.writeAccess') }}</sw-label>
+                                                        <sw-label size="medium" ghost caps>{{ $tc('sw-users-permissions.users.user-detail.readAccess') }}</sw-label>
+                                                        <sw-label v-if="item.writeAccess" size="medium" ghost caps>{{ $tc('sw-users-permissions.users.user-detail.writeAccess') }}</sw-label>
                                                     </template>
                                                 {% endblock %}
 
@@ -224,13 +224,13 @@
                                                     <template #actions="{ item }">
                                                         {% block sw_settings_user_detail_grid_columns_actions_edit %}
                                                             <sw-context-menu-item class="sw-product-list__edit-action" @click="onShowDetailModal(item.id)">
-                                                                {{ $tc('sw-settings-user.user-detail.contextMenuEdit') }}
+                                                                {{ $tc('sw-users-permissions.users.user-detail.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_user_detail_grid_columns_actions_delete %}
                                                             <sw-context-menu-item @click="showDeleteModal = item.id" variant="danger">
-                                                                {{ $tc('sw-settings-user.user-detail.contextMenuDelete') }}
+                                                                {{ $tc('sw-users-permissions.users.user-detail.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                     </template>
@@ -246,11 +246,11 @@
 
                 {% block sw_settings_user_detail_grid_inner_slot_delete_modal %}
                     <sw-modal v-if="showDeleteModal"
-                              :title="$tc('sw-settings-user.user-detail.modal.deleteModalTitle')"
+                              :title="$tc('sw-users-permissions.users.user-detail.modal.deleteModalTitle')"
                               @modal-close="onCloseDeleteModal">
                         {% block sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text %}
                             <p>
-                                {{ $tc('sw-settings-user.user-detail.modal.confirmDelete') }}
+                                {{ $tc('sw-users-permissions.users.user-detail.modal.confirmDelete') }}
                             </p>
                         {% endblock %}
 
@@ -258,12 +258,12 @@
                             <template #modal-footer>
                                 <sw-button size="small"
                                            @click="onCloseDeleteModal">
-                                    {{ $tc('sw-settings-user.user-detail.modal.buttonCancel') }}
+                                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
                                 </sw-button>
                                 <sw-button size="small"
                                            variant="primary"
                                            @click="onConfirmDelete(showDeleteModal)">
-                                    {{ $tc('sw-settings-user.user-detail.modal.buttonDelete') }}
+                                    {{ $tc('sw-users-permissions.users.user-detail.modal.buttonDelete') }}
                                 </sw-button>
                             </template>
                         {% endblock %}
@@ -275,16 +275,16 @@
                               size="550px"
                               class="sw-settings-user-detail__detail"
                               :isLoading="isModalLoading"
-                              :title="showSecretAccessKey ? $tc('sw-settings-user.user-detail.modal.detailModalTitle') : $tc('sw-settings-user.user-detail.modal.detailModalTitleEdit')"
+                              :title="showSecretAccessKey ? $tc('sw-users-permissions.users.user-detail.modal.detailModalTitle') : $tc('sw-users-permissions.users.user-detail.modal.detailModalTitleEdit')"
                               @modal-close="onCloseDetailModal">
                         {% block sw_settings_user_detail_detail_modal_inner %}
 
                             <div class="sw-field">
-                                <label>{{ $tc('sw-settings-user.user-detail.modal.permissions') }}</label>
+                                <label>{{ $tc('sw-users-permissions.users.user-detail.modal.permissions') }}</label>
 
                                 <sw-container columns="repeat(auto-fit, minmax(200px, 1fr)">
                                     {% block sw_settings_user_detail_detail_modal_inner_field_read_access %}
-                                        <sw-field :label="$tc('sw-settings-user.user-detail.modal.readAccessFieldLabel')"
+                                        <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.readAccessFieldLabel')"
                                                   :value="true"
                                                   disabled="disabled"
                                                   type="checkbox">
@@ -292,7 +292,7 @@
                                     {% endblock %}
 
                                     {% block sw_settings_user_detail_detail_modal_inner_field_write_access %}
-                                        <sw-field :label="$tc('sw-settings-user.user-detail.modal.writeAccessFieldLabel')"
+                                        <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.writeAccessFieldLabel')"
                                                   type="checkbox"
                                                   v-model="currentIntegration.writeAccess">
                                         </sw-field>
@@ -301,7 +301,7 @@
                             </div>
 
                             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
-                                <sw-field :label="$tc('sw-settings-user.user-detail.modal.idFieldLabel')"
+                                <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
                                           :disabled="true"
                                           v-model="currentIntegration.accessKey"
                                           :copyAble="true"
@@ -313,7 +313,7 @@
                                 {% block sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field %}
                                     <sw-field v-if="showSecretAccessKey"
                                               :type="secretAccessKeyFieldType"
-                                              :label="$tc('sw-settings-user.user-detail.modal.secretFieldLabel')"
+                                              :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                                               :disabled="true"
                                               v-model="currentIntegration.secretAccessKey"
                                               :passwordToggleAble="false"
@@ -328,7 +328,7 @@
                                                @click="addAccessKey"
                                                variant="danger"
                                                :block="true">
-                                        {{ $tc('sw-settings-user.user-detail.modal.buttonCreateNewApiKeys') }}
+                                        {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
                                     </sw-button>
                                 {% endblock %}
 
@@ -336,7 +336,7 @@
                                     <sw-alert v-if="!showSecretAccessKey"
                                               variant="warning"
                                               class="sw-settings-user-detail__secret-help-text-alert">
-                                        {{ $tc('sw-settings-user.user-detail.modal.hintCreateNewApiKeys') }}
+                                        {{ $tc('sw-users-permissions.users.user-detail.modal.hintCreateNewApiKeys') }}
                                     </sw-alert>
                                 {% endblock %}
                             {% endblock %}
@@ -345,7 +345,7 @@
                                 <sw-alert v-else
                                           variant="warning"
                                           class="sw-settings-user-detail__secret-help-text-alert">
-                                    {{ $tc('sw-settings-user.user-detail.modal.secretHelpText') }}
+                                    {{ $tc('sw-users-permissions.users.user-detail.modal.secretHelpText') }}
                                 </sw-alert>
                             {% endblock %}
 
@@ -353,7 +353,7 @@
                                 <template #modal-footer>
                                     {% block sw_settings_user_detail_detail_modal_inner_footer_cancel %}
                                         <sw-button size="small" @click="onCloseDetailModal" :disabled="isModalLoading">
-                                            {{ $tc('sw-settings-user.user-detail.modal.buttonCancel') }}
+                                            {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCancel') }}
                                         </sw-button>
                                     {% endblock %}
 
@@ -363,7 +363,7 @@
                                                    :disabled="isModalLoading && !!currentIntegration.label"
                                                    variant="primary"
                                                    @click="onSaveIntegration">
-                                            {{ showSecretAccessKey ? $tc('sw-settings-user.user-detail.modal.buttonApply') : $tc('sw-settings-user.user-detail.modal.buttonApplyEdit') }}
+                                            {{ showSecretAccessKey ? $tc('sw-users-permissions.users.user-detail.modal.buttonApply') : $tc('sw-users-permissions.users.user-detail.modal.buttonApplyEdit') }}
                                         </sw-button>
                                     {% endblock %}
                                 </template>

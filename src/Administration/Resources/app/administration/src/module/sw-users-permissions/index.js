@@ -1,5 +1,6 @@
 import './page/sw-users-permissions';
 import './components/sw-users-permissions-user-listing';
+import './components/sw-users-permissions-role-listing';
 import './page/sw-users-permissions-user-detail';
 import './page/sw-users-permissions-user-create';
 

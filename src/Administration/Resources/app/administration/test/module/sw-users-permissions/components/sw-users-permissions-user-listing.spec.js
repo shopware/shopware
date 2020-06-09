@@ -7,7 +7,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     beforeEach(() => {
         wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-listing'), {
             provide: {
-                userService: {}
+                userService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([])
+                    })
+                }
             },
             mocks: {
                 $tc: v => v,

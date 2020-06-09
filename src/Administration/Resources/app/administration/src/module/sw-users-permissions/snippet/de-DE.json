@@ -4,6 +4,32 @@
       "label": "Benutzer & Rechte"
     },
     "permissions": {},
+    "roles": {
+      "general": {
+        "labelCreateNewRole": "Neue Regel"
+      },
+      "role-grid": {
+        "labelName": "Name",
+        "labelDescription": "Beschreibung",
+        "messageEmptyTitle": "Noch keine Rollen vorhanden",
+        "contextMenuEdit": "Bearbeiten",
+        "contextMenuDelete": "Löschen",
+        "titleModalDelete": "Rolle löschen",
+        "textModalDelete": "Möchtest Du die Rolle \"{name}\" wirklich löschen?",
+        "labelButtonCancel": "Abbrechen",
+        "labelButtonDelete": "Löschen",
+        "notification": {
+          "deleteSuccess":  {
+            "title": "Erfolg",
+            "message": "Die Rolle \"{name}\" wurde erfolgreich gelöscht."
+          },
+          "deleteError": {
+            "title": "Fehler",
+            "message": "Beim Löschen der Rolle \"{name}\" ist ein Fehler aufgetreten."
+          }
+        }
+      }
+    },
     "users": {
       "general": {
         "mainMenuItemGeneral": "Benutzer & Rechte",

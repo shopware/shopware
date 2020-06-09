@@ -91,6 +91,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Excluded Promotions will now be handled in `PromotionCalculator` and `PromotionDeliveryCalculator` instead of `PromotionCalculator`
     * The storefront session is now invalidated after logout. This can be configured in `Settings -> Login / Registration`
     * Enabled the Slugify TwigFilter extension
+    * Added new events to be able to extend the requests which are used for the Store-API calls. Use them to pass request parameters from the original storefront request to the new request for the Store-API call
+        * `CancelOrderRouteRequestEvent`
+        * `CurrencyRouteRequestEvent`
+        * `HandlePaymentMethodRouteRequestEvent`
+        * `LanguageRouteRequestEvent`
+        * `OrderRouteRequestEvent`
+        * `PaymentMethodRouteRequestEvent`
+        * `SalutationRouteRequestEvent`
+        * `SetPaymentOrderRouteRequestEvent`
+        * `ShippingMethodRouteRequestEvent`
 
 
 ### 6.2.0

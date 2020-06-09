@@ -241,6 +241,10 @@ Table of contents
 * Added new method `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete`
 * Deprecated `\Shopware\Core\System\Currency\CurrencyFormatter::formatCurrency`, use `\Shopware\Core\System\Currency\CurrencyFormatter::formatCurrencyByLanguage` instead
 * Added `CloneBehavior $behavior` parameter to `\Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface::clone`. This parameter will be introduced in 6.4.0
+* Added new entities needed for the essential characteristics feature
+    * `\Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition`
+    * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition`
+    * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition`
 
 #### Storefront
 * Added plugin injection in hot mode

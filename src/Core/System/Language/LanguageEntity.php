@@ -17,6 +17,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -314,6 +315,11 @@ class LanguageEntity extends Entity
      * @var ImportExportProfileTranslationCollection|null
      */
     protected $importExportProfileTranslations;
+
+    /**
+     * @var ProductFeatureSetTranslationCollection|null
+     */
+    protected $productFeatureSetTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -843,6 +849,16 @@ class LanguageEntity extends Entity
     public function setImportExportProfileTranslations(ImportExportProfileTranslationCollection $importExportProfileTranslations): void
     {
         $this->importExportProfileTranslations = $importExportProfileTranslations;
+    }
+
+    public function getProductFeatureSetTranslations(): ?ProductFeatureSetTranslationCollection
+    {
+        return $this->productFeatureSetTranslations;
+    }
+
+    public function setProductFeatureSetTranslations(ProductFeatureSetTranslationCollection $productFeatureSetTranslations): void
+    {
+        $this->productFeatureSetTranslations = $productFeatureSetTranslations;
     }
 
     public function getApiAlias(): string

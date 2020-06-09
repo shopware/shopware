@@ -202,7 +202,7 @@ Table of contents
     * Deprecated `getList` method  of `src/core/service/api/custom-field-set.service.js`, use `src/core/data-new/repository.data.js` `search()` function instead
     * Deprecated `getListByCustomerId` method  of `src/core/service/api/customer-address.api.service.js`, use `src/core/data-new/repository.data.js` `search()` function instead
     * Deprecated `save` method  of `src/core/service/api/snippet.api.service.js`, use `src/core/data-new/repository.data.js` `save()` function instead
-    
+* Refactored the `template.factory` to fix issues of inheritance when extending or overriding components 
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

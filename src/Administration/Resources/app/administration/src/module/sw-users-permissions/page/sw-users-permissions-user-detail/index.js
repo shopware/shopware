@@ -78,6 +78,7 @@ Component.register('sw-users-permissions-user-detail', {
 
             criteria.addAssociation('accessKeys');
             criteria.addAssociation('locale');
+            criteria.addAssociation('aclRoles');
 
             return criteria;
         },
@@ -322,6 +323,14 @@ Component.register('sw-users-permissions-user-detail', {
                 promises = [Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId)];
             }
 
+            if (!this.user.title || this.user.title.length <= 0) {
+                const firstRole = this.user.aclRoles.first();
+
+                if (firstRole) {
+                    this.user.title = firstRole.name;
+                }
+            }
+
             return Promise.all(promises).then(this.checkEmail().then(() => {
                 if (!this.isEmailUsed) {
                     this.isLoading = true;
@@ -350,7 +359,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         onCancel() {
-            this.$router.push({ name: 'sw.settings.user.list' });
+            this.$router.push({ name: 'sw.users.permissions.index' });
         },
 
         onChangePassword() {

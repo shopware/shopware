@@ -205,6 +205,7 @@ Table of contents
 * Refactored the `template.factory` to fix issues of inheritance when extending or overriding components 
 * Replace the module 'sw-settings-user' with 'sw-users-permissions'
 * Added listing for roles in users and permissions module
+* Added fields for roles and jobTitle in user detail page
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

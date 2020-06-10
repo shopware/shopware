@@ -124,10 +124,15 @@
                     {% endblock %}
 
                     {% if price.referencePrice is not null %}
+                        {% block page_product_detail_price_unit_reference_content %}
+
+                        {# @deprecated tag:v6.4.0 #}
                         {% block page_product_detail_price_unit_refrence_content %}
                             <span class="price-unit-reference-content">
                                 ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
                             </span>
+                        {% endblock %}
+
                         {% endblock %}
                     {% endif %}
                 </div>

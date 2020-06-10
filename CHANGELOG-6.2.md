@@ -658,6 +658,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `StoreApiClient` which allows to send requests to `store-api` and `sales-channel-api` routes.
     * Theme configuration now allows zero as a value when overriding
     * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
+    * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
     
 **Removals**
 

@@ -198,8 +198,12 @@ class EntityHydrator
                 $decoded = $typedField->getSerializer()->decode($typedField, $value);
                 $entity->addTranslated($propertyName, $decoded);
 
+                $inherited = $definition->isInheritanceAware() && $context->considerInheritance();
+                $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
                 // assign translated value of the first language
-                $key = $root . '.translation.' . $propertyName;
+                $key = array_shift($chain) . '.' . $propertyName;
+
                 $decoded = $typedField->getSerializer()->decode($typedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
 
@@ -296,16 +300,16 @@ class EntityHydrator
 
         $value = $row[$key];
 
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
         if ($field instanceof TranslatedField) {
-            $key = $root . '.translation.' . $propertyName;
+            $key = $chain[0] . '.' . $propertyName;
             $decoded = $customField->getSerializer()->decode($customField, $row[$key]);
             $entity->assign([$propertyName => $decoded]);
 
-            $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
-
             $values = [];
-            foreach ($chain as $part) {
-                $key = $part['alias'] . '.' . $propertyName;
+            foreach ($chain as $accessor) {
+                $key = $accessor . '.' . $propertyName;
                 $values[] = $row[$key] ?? null;
             }
 

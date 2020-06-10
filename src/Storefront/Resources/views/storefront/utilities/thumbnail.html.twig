@@ -1,56 +1,61 @@
-{# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
-{% if media.thumbnails|length > 0 %}
-    {% if columns and sizes is not defined %}
-        {# set image size for every viewport #}
-        {% set sizes = {
-            'xs': (shopware.theme.breakpoint.sm - 1) ~'px',
-            'sm': (shopware.theme.breakpoint.md - 1) ~'px',
-            'md': ((shopware.theme.breakpoint.lg - 1) / columns)|round(0, 'ceil') ~'px',
-            'lg': ((shopware.theme.breakpoint.xl - 1) / columns)|round(0, 'ceil') ~'px'
-        } %}
+{% block utilities_thumbnail %}
+    {% block utilities_thumbnail_logic %}
+        {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
+        {% if media.thumbnails|length > 0 %}
+            {% if columns and sizes is not defined %}
+                {# set image size for every viewport #}
+                {% set sizes = {
+                    'xs': (shopware.theme.breakpoint.sm - 1) ~'px',
+                    'sm': (shopware.theme.breakpoint.md - 1) ~'px',
+                    'md': ((shopware.theme.breakpoint.lg - 1) / columns)|round(0, 'ceil') ~'px',
+                    'lg': ((shopware.theme.breakpoint.xl - 1) / columns)|round(0, 'ceil') ~'px'
+                } %}
 
-        {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
-        {% if layout == 'full-width' %}
-            {% set container = 100 %}
-            {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'vw'}) %}
-        {% else %}
-            {% set container = 1360 %}
-            {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'px'}) %}
+                {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
+                {% if layout == 'full-width' %}
+                    {% set container = 100 %}
+                    {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'vw'}) %}
+                {% else %}
+                    {% set container = 1360 %}
+                    {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'px'}) %}
+                {% endif %}
+            {% endif %}
+
+            {% set thumbnails = media.thumbnails|sort|reverse %}
+
+            {# generate srcset with all available thumbnails #}
+            {% set srcsetValue %}{% apply spaceless %}
+                {{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
+            {% endapply %}{% endset %}
+
+            {# generate sizes #}
+            {% set sizesValue %}{% apply spaceless %}
+                {% set sizeFallback = 100 %}
+
+                {# set largest size depending on column count of cms block #}
+                {% if columns %}
+                    {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
+                {% endif %}
+
+                {% if thumbnails|first.width > shopware.theme.breakpoint|reverse|first %}
+                    {% set maxWidth = thumbnails|first.width %}
+                {% endif %}
+
+                {% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
+            {% endapply %}{% endset %}
         {% endif %}
-    {% endif %}
-
-    {% set thumbnails = media.thumbnails|sort|reverse %}
-
-    {# generate srcset with all available thumbnails #}
-    {% set srcsetValue %}{% apply spaceless %}
-        {{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
-    {% endapply %}{% endset %}
-
-    {# generate sizes #}
-    {% set sizesValue %}{% apply spaceless %}
-        {% set sizeFallback = 100 %}
-
-        {# set largest size depending on column count of cms block #}
-        {% if columns %}
-            {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
-        {% endif %}
-
-        {% if thumbnails|first.width > shopware.theme.breakpoint|reverse|first %}
-            {% set maxWidth = thumbnails|first.width %}
-        {% endif %}
-
-        {% for key, value in shopware.theme.breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
-    {% endapply %}{% endset %}
-{% endif %}
-<img src="{{ media|sw_encode_media_url }}"
-    {% if media.thumbnails|length > 0 %}
-        srcset="{{ srcsetValue }}"
-        {% if sizes['default'] %}
-        sizes="{{ sizes['default'] }}"
-        {% elseif sizes|length > 0 %}
-        sizes="{{ sizesValue }}"
-        {% endif %}
-    {% endif %}
-    {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
-/>
-
+    {% endblock %}
+    {% block utilities_thumbnail_image %}
+        <img src="{{ media|sw_encode_media_url }}"
+            {% if media.thumbnails|length > 0 %}
+                srcset="{{ srcsetValue }}"
+                {% if sizes['default'] %}
+                sizes="{{ sizes['default'] }}"
+                {% elseif sizes|length > 0 %}
+                sizes="{{ sizesValue }}"
+                {% endif %}
+            {% endif %}
+            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+        />
+    {% endblock %}
+{% endblock %}

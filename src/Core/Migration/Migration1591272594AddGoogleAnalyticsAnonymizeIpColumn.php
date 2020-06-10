@@ -16,7 +16,7 @@ class Migration1591272594AddGoogleAnalyticsAnonymizeIpColumn extends MigrationSt
     {
         $connection->executeUpdate(
             'ALTER TABLE sales_channel_analytics
-            ADD COLUMN anonymize_ip TINYINT(1) NOT NULL DEFAULT \'1\''
+            ADD COLUMN anonymize_ip TINYINT(1) NOT NULL DEFAULT 1'
         );
     }
 

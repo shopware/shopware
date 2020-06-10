@@ -241,6 +241,8 @@ Administration
 This was an important change, because every checkbox and switch field has the same id. This causes problems when you click
 on the corresponding label.
 
+* Added block `sw_sales_channel_detail_analytics_fields_anonymize_ip` to `sw-sales-channel-detail-analytics.html.twig`
+
 
 Storefront
 ----------
@@ -367,6 +369,8 @@ Now the variable can be overwritten with `replace_recursive`:
             }
         }
         ```
+
+* Added block `component_head_analytics_tag_config` to `analytics.html.twig`
 
 Refactorings
 ------------

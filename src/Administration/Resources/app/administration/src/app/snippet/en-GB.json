@@ -404,7 +404,8 @@
           "message": "Error while saving settings."
         }
       },
-      "labelDefaultFolder": "Default location for:"
+      "labelDefaultFolder": "Default location for:",
+      "placeholderDefaultFolder": "Select a default location..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximum size"
@@ -644,7 +645,8 @@
       "theme": "Theme | Themes",
       "unit": "Unit | Units",
       "user": "User | Users",
-      "delivery_time": "Delivery time | Delivery times"
+      "delivery_time": "Delivery time | Delivery times",
+      "import_export_profile": "Import/Export Profile | Import/Export Profiles"
     },
     "day-of-week": {
       "monday": "Monday",

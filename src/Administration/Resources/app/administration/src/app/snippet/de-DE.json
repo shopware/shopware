@@ -404,7 +404,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:"
+      "labelDefaultFolder": "Standardspeicherort für:",
+      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -644,7 +645,8 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
-      "delivery_time": "Lieferzeit | Lieferzeiten"
+      "delivery_time": "Lieferzeit | Lieferzeiten",
+      "import_export_profile": "Import/Export Profil | Import/Export Profile"
     },
     "day-of-week": {
       "monday": "Montag",

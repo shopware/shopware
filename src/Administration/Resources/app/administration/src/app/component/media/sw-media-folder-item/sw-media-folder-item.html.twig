@@ -19,13 +19,13 @@
 
                 {% block sw_media_folder_default_icon%}
                     <span v-else-if="!!item.defaultFolderId" key="sw-media-folder-preview">
-                        <sw-icon name="default-folder-thumbnail"
+                        <sw-icon :name="iconName"
                                  size="90%"
                                  class="sw-media-folder-item__folder-thumbnails"
-                                 v-bind="iconConfig">
+                                 v-bind="iconConfig"
+                                 multicolor>
                         </sw-icon>
                         <sw-icon v-if="iconConfig.name"
-                                 size="45%"
                                  class="sw-media-folder-item__folder-thumbnails is--inner"
                                  v-bind="iconConfig">
                         </sw-icon>

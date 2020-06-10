@@ -1,14 +1,28 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-folder-item';
-import cmsModule from 'src/module/sw-cms/index';
-import mailTemplateModule from 'src/module/sw-mail-template/index';
-import productModule from 'src/module/sw-product/index';
-import importExportModule from 'src/module/sw-import-export/index';
 
-Shopware.State.registerModule('cms', cmsModule);
-Shopware.State.registerModule('settings', mailTemplateModule);
-Shopware.State.registerModule('product', productModule);
-Shopware.State.registerModule('importExport', importExportModule);
+const { Module } = Shopware;
+
+// mocking modules
+const modulesToCreate = new Map();
+modulesToCreate.set('sw-product', { icon: 'default-symbol-products', entity: 'product' });
+modulesToCreate.set('sw-mail-template', { icon: 'default-action-settings', entity: 'mail_template' });
+modulesToCreate.set('sw-cms', { icon: 'default-symbol-content', entity: 'cms_page' });
+
+Array.from(modulesToCreate.keys()).forEach(moduleName => {
+    const currentModuleValues = modulesToCreate.get(moduleName);
+
+    Module.register(moduleName, {
+        icon: currentModuleValues.icon,
+        entity: currentModuleValues.entity,
+        routes: {
+            index: {
+                components: {},
+                path: 'index'
+            }
+        }
+    });
+});
 
 const ID_MAILTEMPLATE_FOLDER = '4006d6aa64ce409692ac2b952fa56ade';
 const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
@@ -19,7 +33,7 @@ function createWrapper(defaultFolderId) {
         propsData: {
             item: {
                 useParentConfiguration: false,
-                configurationId: 'a73ef286f6c748…deacdbdfd5aab3cca7',
+                configurationId: 'a73ef286f6c748deacdbdfd5aab3cca7',
                 defaultFolderId: defaultFolderId,
                 parentId: null,
                 childCount: 0,

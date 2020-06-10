@@ -24,7 +24,15 @@
         {% block sw_settings_units_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_units_actions_save %}
-                    <sw-button variant="primary" @click="createNewUnit">
+                    <sw-button
+                        variant="primary"
+                        :disabled="isAddingUnitsDisabled"
+                        v-tooltip="{
+                            showOnDisabledElements: true,
+                            message: $tc('sw-settings-units.general.disableAddNewUnitMessage'),
+                            disabled: !isAddingUnitsDisabled
+                        }"
+                        @click="createNewUnit">
                         {{ $tc('sw-settings-units.general.createNewUnit') }}
                     </sw-button>
                 {% endblock %}
@@ -32,7 +40,10 @@
         {% endblock %}
 
         {% block sw_settings_units_language_switch %}
-            <sw-language-switch slot="language-switch" @on-change="onChangeLanguage"></sw-language-switch>
+            <sw-language-switch
+                slot="language-switch"
+                :disabled="!!newUnit"
+                @on-change="onChangeLanguage"></sw-language-switch>
         {% endblock %}
 
         {% block sw_settings_units_content %}

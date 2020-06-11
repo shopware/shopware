@@ -61,7 +61,11 @@ class MultiInsertQueryQueue
                 $type = $types[$key];
             }
 
-            $value = $this->connection->quote($value, $type);
+            if ($value === null) {
+                $value = 'NULL';
+            } else {
+                $value = $this->connection->quote($value, $type);
+            }
         }
 
         $this->inserts[$table][] = [

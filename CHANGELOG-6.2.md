@@ -58,6 +58,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added StringField `packUnitPlural` to `ProductTranslationDefinition.php`
     * Added protected `packUnitPlural` to `ProductEntity.php`
     * Added TranslatedField `packUnitPlural` to `ProductDefinition.php`
+    * Added ManyToManyIdField `tagIds` to `CustomerDefinition.php`
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
         * This exception is thrown if the review routes are called if reviews are disabled

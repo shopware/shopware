@@ -260,6 +260,11 @@ class CustomerEntity extends Entity
     protected $tags;
 
     /**
+     * @var array|null
+     */
+    protected $tagIds;
+
+    /**
      * @var PromotionCollection|null
      */
     protected $promotions;
@@ -740,6 +745,16 @@ class CustomerEntity extends Entity
     public function setTags(TagCollection $tags): void
     {
         $this->tags = $tags;
+    }
+
+    public function getTagIds(): ?array
+    {
+        return $this->tagIds;
+    }
+
+    public function setTagIds(array $tagIds): void
+    {
+        $this->tagIds = $tagIds;
     }
 
     /**

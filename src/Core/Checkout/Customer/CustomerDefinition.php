@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -60,6 +61,11 @@ class CustomerDefinition extends EntityDefinition
     public function getEntityClass(): string
     {
         return CustomerEntity::class;
+    }
+
+    public function hasManyToManyIdFields(): bool
+    {
+        return true;
     }
 
     protected function defineFields(): FieldCollection
@@ -123,6 +129,7 @@ class CustomerDefinition extends EntityDefinition
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'customer_id'))->addFlags(new CascadeDelete()),
             new OneToOneAssociationField('recoveryCustomer', 'id', 'customer_id', CustomerRecoveryDefinition::class, false),
             new RemoteAddressField('remote_address', 'remoteAddress'),
+            new ManyToManyIdField('tag_ids', 'tagIds', 'tags'),
         ]);
     }
 }

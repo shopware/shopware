@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\Tag\TagCollection;
-use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -172,7 +170,7 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagId = Uuid::randomHex();
 
-        $this->salesChannelContext->getCustomer()->setTags($this->getTagCollectionFromIds([$tagId]));
+        $this->salesChannelContext->getCustomer()->setTagIds([$tagId]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_EQ, [$tagId]);
 
@@ -185,7 +183,7 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagId = Uuid::randomHex();
 
-        $this->salesChannelContext->getCustomer()->setTags($this->getTagCollectionFromIds([]));
+        $this->salesChannelContext->getCustomer()->setTagIds([]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, [$tagId]);
 
@@ -198,7 +196,7 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagId = Uuid::randomHex();
 
-        $this->salesChannelContext->getCustomer()->setTags($this->getTagCollectionFromIds([$tagId]));
+        $this->salesChannelContext->getCustomer()->setTagIds([$tagId]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, [$tagId]);
 
@@ -211,7 +209,7 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->salesChannelContext->getCustomer()->setTags($this->getTagCollectionFromIds([$tagIds[0]]));
+        $this->salesChannelContext->getCustomer()->setTagIds([$tagIds[0]]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_EQ, $tagIds);
 
@@ -224,7 +222,7 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->salesChannelContext->getCustomer()->setTags($this->getTagCollectionFromIds([$tagIds[0]]));
+        $this->salesChannelContext->getCustomer()->setTagIds([$tagIds[0]]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, [$tagIds[1], $tagIds[2]]);
 
@@ -237,25 +235,12 @@ class CustomerTagRuleTest extends TestCase
     {
         $tagIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->salesChannelContext->getCustomer()->setTags($this->getTagCollectionFromIds([$tagIds[0]]));
+        $this->salesChannelContext->getCustomer()->setTagIds([$tagIds[0]]);
 
         $rule = new CustomerTagRule(CustomerTagRule::OPERATOR_NEQ, $tagIds);
 
         static::assertFalse(
             $rule->match(new CheckoutRuleScope($this->salesChannelContext))
         );
-    }
-
-    private function getTagCollectionFromIds(array $tagIds): TagCollection
-    {
-        $tagCollection = new TagCollection();
-
-        foreach ($tagIds as $id) {
-            $tag = new TagEntity();
-            $tag->setId($id);
-            $tagCollection->add($tag);
-        }
-
-        return $tagCollection;
     }
 }

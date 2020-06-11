@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Shopware\Core\System\Tag\TagCollection;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -72,15 +71,12 @@ class CustomerTagRule extends Rule
 
     private function extractTagIds(CustomerEntity $customer): array
     {
-        /** @var TagCollection $tagCollection */
-        $tagCollection = $customer->getTags();
+        $tagIds = $customer->getTagIds();
 
-        if (!$tagCollection) {
+        if (!$tagIds) {
             return [];
         }
 
-        return $tagCollection->map(function ($tag) {
-            return $tag->getId();
-        });
+        return $tagIds;
     }
 }

@@ -103,13 +103,21 @@
                 {% block sw_product_variants_overview_data_grid_column_name %}
                     <template slot="column-name" slot-scope="{ item }">
                         <template v-if="item.options">
-                            <a @click="onOptionEdit(item)" class="sw-product-variants-overview__variation-link">
+                            {# @deprecated tag:6.4.0 will be removed user router link element instead #}
+                            <a class="sw-product-variants-overview__variation-link"></a>
+
+                            <router-link
+                                @click="onOptionEdit(item)"
+                                :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
+                                class="sw-product-variants-overview__variation-link">
+
                                 <sw-icon name="default-text-editor-link"></sw-icon>
+
                                 <span v-for="singleVariation in item.options"
                                       class="sw-product-variants-overview__single-variation">
                                     {{ singleVariation.translated.name }}
                                 </span>
-                            </a>
+                            </router-link>
                         </template>
                     </template>
                 {% endblock %}

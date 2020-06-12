@@ -238,7 +238,7 @@ class ThumbnailService
         if (!$image) {
             throw new FileTypeNotSupportedException($media->getId());
         }
-        
+
         try {
             $exif = exif_read_data($filePath);
 

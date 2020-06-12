@@ -150,7 +150,7 @@ class ProductListingPriceIndexerTest extends TestCase
         $prices = $product->getListingPrices();
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
-        static::assertCount(24, $prices);
+        static::assertCount(27, $prices);
 
         $aPrices = $this->filterByRuleId($prices, $ruleA);
         $aPrices = $this->filterByCurrencyId($aPrices, Defaults::CURRENCY);
@@ -179,7 +179,7 @@ class ProductListingPriceIndexerTest extends TestCase
         $prices = $product->getListingPrices();
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
-        static::assertCount(24, $prices);
+        static::assertCount(27, $prices);
 
         $aPrices = $this->filterByRuleId($prices, $ruleA);
         $aPrices = $this->filterByCurrencyId($aPrices, Defaults::CURRENCY);

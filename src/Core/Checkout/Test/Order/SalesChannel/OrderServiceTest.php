@@ -170,7 +170,7 @@ class OrderServiceTest extends TestCase
         $phpunit = $this;
         $eventDidRun = false;
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
-            $phpunit->assertStringContainsString('Die Bestellung hat jetzt den Zahlungsstatus: Abgebrochen.', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $event->getContents()['text/html']);
             $phpunit->assertStringContainsString($url, $event->getContents()['text/html']);
             $eventDidRun = true;
         };

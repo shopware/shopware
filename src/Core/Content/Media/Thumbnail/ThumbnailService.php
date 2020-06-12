@@ -242,12 +242,12 @@ class ThumbnailService
         try {
             $exif = exif_read_data($filePath);
 
-            if(!empty($exif['Orientation']) && $exif['Orientation'] == 8) {
-                $image = imagerotate($image,90,0);
-            } elseif(!empty($exif['Orientation']) && $exif['Orientation'] == 3) {
-                $image = imagerotate($image,180,0);
-            } elseif(!empty($exif['Orientation']) && $exif['Orientation'] == 6) {
-                $image = imagerotate($image,-90,0);
+            if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
+                $image = imagerotate($image, 90, 0);
+            } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
+                $image = imagerotate($image, 180, 0);
+            } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
+                $image = imagerotate($image, -90, 0);
             }
         } catch (\Exception $e) {
             // Ignore.

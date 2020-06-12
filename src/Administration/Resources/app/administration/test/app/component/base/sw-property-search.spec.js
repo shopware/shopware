@@ -15,46 +15,7 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-property-search'), {
         propsData: {
             options: [
-                {
-                    groupId: 'eae570103a5c4f28829cf4def4e99045',
-                    name: '14 mm',
-                    position: 1,
-                    colorHexCode: null,
-                    mediaId: null,
-                    customFields: null,
-                    createdAt: '2020-05-28T08:07:37+00:00',
-                    updatedAt: null,
-                    translated: {
-                        name: '14 mm',
-                        position: 1,
-                        customFields: []
-                    },
-                    id: '50cd02e2a6c441c28dbe6bf35f79219f',
-                    translations: [],
-                    productConfiguratorSettings: [],
-                    productProperties: [],
-                    productOptions: []
-                },
-                {
-                    groupId: '9ac8029c902541d285730375383ec00c',
-                    name: '16 mm',
-                    position: 1,
-                    colorHexCode: null,
-                    mediaId: null,
-                    customFields: null,
-                    createdAt: '2020-05-28T08:07:37+00:00',
-                    updatedAt: null,
-                    translated: {
-                        name: '16 mm',
-                        position: 1,
-                        customFields: []
-                    },
-                    id: 'cbc2c3e714c940dd9f39daff82867531',
-                    translations: [],
-                    productConfiguratorSettings: [],
-                    productProperties: [],
-                    productOptions: []
-                }
+                {}
             ]
         },
         stubs: {
@@ -275,5 +236,22 @@ describe('components/base/sw-property-search', () => {
         nextPageButton.trigger('click');
 
         expect(wrapper.vm.optionPage).toBe(2);
+    });
+
+    it('should keep text when entering something into the search input', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        const searchInput = wrapper.find('#sw-field--searchTerm');
+
+        // check if input is empty
+        expect(searchInput.element.value).toBe('');
+
+        // entering text into input field
+        searchInput.setValue('color');
+
+        // check if content of input field is not empty
+        expect(searchInput.element.value).toBe('color');
     });
 });

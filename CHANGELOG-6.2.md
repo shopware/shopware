@@ -8,6 +8,17 @@ To get the diff for a specific change, go to https://github.com/shopware/platfor
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
 
+### 6.2.2
+
+**Addition / Changes**
+
+* Administration
+    * Added `v-model` attribute to input field in `sw-property-search`
+
+* Core
+
+* Storefront
+
 ### 6.2.1
 
 **Addition / Changes**

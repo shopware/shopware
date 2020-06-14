@@ -144,6 +144,10 @@ Component.register('sw-system-config', {
                 } else if (bind.type === 'bool') {
                     // Add inheritedValue for checkbox fields to restore the inherited state
                     bind.config.inheritedValue = this.actualConfigData.null[bind.name] || false;
+                } else if (bind.type === 'password') {
+                    // Add inherited placeholder and mark placeholder as password so the rendering element can choose to hide it
+                    bind.placeholderIsPassword = true;
+                    bind.placeholder = `${this.actualConfigData.null[bind.name]}`;
                 } else if (bind.type !== 'multi-select' && !types.isUndefined(this.actualConfigData.null[bind.name])) {
                     // Add inherited placeholder
                     bind.placeholder = `${this.actualConfigData.null[bind.name]}`;

@@ -21,6 +21,12 @@ Component.extend('sw-password-field', 'sw-text-field', {
             default: true
         },
 
+        placeholderIsPassword: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        
         autocomplete: {
             type: String,
             required: false

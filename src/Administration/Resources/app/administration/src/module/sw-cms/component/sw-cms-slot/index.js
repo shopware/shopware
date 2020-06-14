@@ -1,12 +1,16 @@
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 
-const { Component } = Shopware;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-cms-slot', {
     template,
 
-    inject: ['cmsService'],
+    inject: [
+        'cmsService',
+        'repositoryFactory'
+    ],
 
     props: {
         element: {
@@ -27,8 +31,22 @@ Component.register('sw-cms-slot', {
     data() {
         return {
             showElementSettings: false,
-            showElementSelection: false
+            showElementSelection: false,
+            showOverrides: false,
+            categorySlotConfigOverrides: null
         };
+    },
+
+    created() {
+        const criteria = new Criteria();
+        // TODO use something similar to this to not run into Syntax error or access violation: 3143 Invalid JSON path expression when ids start with a digit
+        // criteria.addFilter(Criteria.not('OR', [Criteria.equals(`slotConfig.${this.element.id}`, null)]));
+        criteria.addFilter(Criteria.contains('slotConfig', this.element.id));
+
+        this.categoryRepository.search(criteria, Context.api)
+            .then(categories => {
+                this.categorySlotConfigOverrides = categories;
+            });
     },
 
     computed: {
@@ -38,6 +56,10 @@ Component.register('sw-cms-slot', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
+        },
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
         },
 
         cmsSlotSettingsClasses() {
@@ -72,6 +94,14 @@ Component.register('sw-cms-slot', {
             this.showElementSettings = false;
         },
 
+        onOverrideButtonClick() {
+            this.showOverrides = true;
+        },
+
+        onCloseOverrideModal() {
+            this.showOverrides = false;
+        },
+
         onElementButtonClick() {
             this.showElementSelection = true;
         },
@@ -85,6 +115,18 @@ Component.register('sw-cms-slot', {
             this.element.config = {};
             this.element.type = elementType;
             this.showElementSelection = false;
+        },
+
+        gotoCategory(categoryId) {
+            this.showOverrides = false;
+            this.$nextTick(() => {
+                this.$router.push({
+                    name: 'sw.category.detail',
+                    params: {
+                        id: categoryId
+                    }
+                });
+            });
         }
     }
 });

@@ -35,7 +35,7 @@
 
     .sw-cms-slot__actions {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         justify-content: right;
         justify-items: right;
         align-content: center;
@@ -49,6 +49,7 @@
         border-bottom-left-radius: 4px;
     }
 
+    .sw-cms-slot__settings-override,
     .sw-cms-slot__settings-action,
     .sw-cms-slot__element-action {
         padding: 10px;
@@ -68,6 +69,13 @@
         &:hover {
             color: $color-shopware-blue;
         }
+    }
+}
+
+.sw-cms-slot__overrides-modal {
+    .sw-cms-slot__overrides-modal-category {
+        color: #189EFF;
+        cursor: pointer;
     }
 }
 

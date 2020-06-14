@@ -86,6 +86,7 @@
         "blockCategoryForm": "Form",
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
+        "buttonElementOverridesClose": "Close",
         "blockNameField": "Block name",
         "blockNameFieldPlaceholder": "Enter name...",
         "blockSizingField": "Sizing mode",
@@ -150,7 +151,8 @@
       },
       "title": {
         "elementSettingsModal": "Element settings",
-        "elementChangeModal": "Replace element"
+        "elementChangeModal": "Replace element",
+        "elementOverridesModal": "Element overrides"
       },
       "tooltip": {
         "blockNameField": "Name each block individually to keep track of your work.",

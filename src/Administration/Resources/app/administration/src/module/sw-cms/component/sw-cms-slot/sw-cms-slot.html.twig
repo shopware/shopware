@@ -13,6 +13,16 @@
             <div class="sw-cms-slot__overlay" v-if="active">
                 {% block sw_cms_slot_overlay_content %}
                     <div class="sw-cms-slot__actions">
+                        {% block sw_cms_slot_overlay_action_override %}
+                            <div
+                                v-if="categorySlotConfigOverrides.length > 0"
+                                class="sw-cms-slot__settings-override"
+                                @click="onOverrideButtonClick"
+                            >
+                                <sw-icon name="default-object-lightbulb" size="16" color="#f39c12"></sw-icon>
+                            </div>
+                        {% endblock %}
+
                         {% block sw_cms_slot_overlay_action_settings %}
                             <div
                                 class="sw-cms-slot__settings-action"
@@ -47,6 +57,44 @@
                         {% block sw_cms_slot_settings_modal_action_confirm %}
                             <sw-button variant="primary" @click="onCloseSettingsModal">
                                 {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
+        {% endblock %}
+
+        {% block sw_cms_slot_overrides_modal %}
+            <sw-modal
+                class="sw-cms-slot__overrides-modal"
+                v-if="showOverrides"
+                :title="$tc('sw-cms.detail.title.elementOverridesModal')"
+                @modal-close="onCloseOverrideModal"
+            >
+                {% block sw_cms_slot_overrides_modal_overrides %}
+                    {% block sw_cms_slot_overrides_modal_overrides_category %}
+                        <div>
+                            {% block sw_cms_slot_overrides_modal_overrides_category_items %}
+                                <div
+                                    class="sw-cms-slot__overrides-modal-category"
+                                    v-for="category of categorySlotConfigOverrides"
+                                    :key="category.id"
+                                    @click="gotoCategory(category.id)"
+                                >
+                                    {% block sw_cms_slot_overrides_modal_overrides_category_item %}
+                                        {{ category.name || category.translated.name }}
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endblock %}
+
+                {% block sw_cms_slot_overrides_modal_footer %}
+                    <template slot="modal-footer">
+                        {% block sw_cms_slot_overrides_modal_action_confirm %}
+                            <sw-button variant="primary" @click="onCloseOverrideModal">
+                                {{ $tc('sw-cms.detail.label.buttonElementOverridesClose') }}
                             </sw-button>
                         {% endblock %}
                     </template>

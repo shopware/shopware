@@ -86,6 +86,7 @@
         "blockCategoryForm": "Formular",
         "buttonElementSettingsConfirm": "Fertig",
         "buttonElementChangeAbort": "Abbrechen",
+        "buttonElementOverridesClose": "Schließen",
         "blockNameField": "Block-Name",
         "blockNameFieldPlaceholder": "Gib einen Namen ein ...",
         "blockSizingField": "Größenmodus",
@@ -150,7 +151,8 @@
       },
       "title": {
         "elementSettingsModal": "Element-Einstellungen",
-        "elementChangeModal": "Element austauschen"
+        "elementChangeModal": "Element austauschen",
+        "elementOverridesModal": "Element Überschreibungen"
       },
       "tooltip": {
         "blockNameField": "Benenne jeden Block individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu behalten.",

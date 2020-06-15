@@ -156,6 +156,7 @@ class ElasticsearchHelper
         );
 
         $search->addQuery($query, BoolQuery::FILTER);
+        $search->setSize(count(array_values($ids)));
     }
 
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void

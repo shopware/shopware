@@ -110,7 +110,11 @@ class MailService implements MailServiceInterface
     {
         $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
-
+        
+        if ($mailBeforeValidateEvent->isPropagationStopped()) {
+            return null;
+        }
+        
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
 

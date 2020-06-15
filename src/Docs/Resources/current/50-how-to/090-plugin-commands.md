@@ -54,7 +54,9 @@ class ExampleCommand extends Command
 ```
 
 In this example, it would be located in the directory `<plugin root>/src/Command`.
-After installing, you can now execute your command by running this command: `bin/console plugin-commands:example`
+After installing, you can now execute your command by running this command: `bin/console plugin-commands:example`.
+The auto completion is done automatically for command names and option names.
+If you have a defined set of values for an argument or option you can implement the [CompletionAwareInterface](https://github.com/stecman/symfony-console-completion#implementing-completionawareinterface).
 
 Make sure to read the full guide about [Symfony commands](https://symfony.com/doc/current/console.html) to understand, how to deal with commands and how they can be configured.
 

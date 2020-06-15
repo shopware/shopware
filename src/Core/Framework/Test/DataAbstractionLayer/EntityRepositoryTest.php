@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Rule\Container\AndRule;
@@ -65,6 +67,44 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::assertInstanceOf(EntityWrittenEvent::class, $event->getEventByEntityName(LocaleDefinition::ENTITY_NAME));
+    }
+
+    public function testMaxJoinBug(): void
+    {
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [Uuid::randomHex(), Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM]
+        );
+
+        $context->setConsiderInheritance(true);
+
+        // creates a select with 20x base tables
+        // original each table gets 3x translation tables as join table
+        // this results in a query of 79x joins
+        $criteria = new Criteria();
+        $criteria->addAssociation('type');
+        $criteria->addAssociation('language.locale');
+        $criteria->addAssociation('language.translationCode');
+        $criteria->addAssociation('customerGroup');
+        $criteria->addAssociation('currency');
+        $criteria->addAssociation('paymentMethod.media');
+        $criteria->addAssociation('paymentMethod.media.mediaFolder');
+        $criteria->addAssociation('paymentMethod.availabilityRule');
+        $criteria->addAssociation('shippingMethod.media');
+        $criteria->addAssociation('shippingMethod.media.mediaFolder');
+        $criteria->addAssociation('shippingMethod.availabilityRule');
+        $criteria->addAssociation('shippingMethod.deliveryTime');
+        $criteria->addAssociation('country');
+        $criteria->addAssociation('navigationCategory');
+        $criteria->addAssociation('footerCategory');
+        $criteria->addAssociation('serviceCategory');
+
+        $data = $this->getContainer()->get('sales_channel.repository')
+            ->search($criteria, $context);
+
+        static::assertInstanceOf(EntitySearchResult::class, $data);
     }
 
     public function testWrittenEventsFired(): void

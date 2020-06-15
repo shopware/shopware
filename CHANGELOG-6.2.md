@@ -67,7 +67,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
     * Fix timezone of `orderDate` in order grid
     * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
-    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
 
 * Core
     * Added new `PromotionNotFoundError` and `PromotionNotEligibleError` errors to the cart if a promotion couldn't be added
@@ -80,9 +79,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added `\Shopware\Core\Content\Product\Exception\ReviewNotActiveException` exception
         * This exception is thrown if the review routes are called if reviews are disabled
-    * Added possibility to delete orders without documents on `sw-order-list`
     * Fixed a type error in the `\Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository` in a sorting closure
-    * `SystemConfigService::get` will now return the value that was set with `SystemConfigService::set`. Now when a `0` is set, a `0` will be the returned with `get` instead of `null`.
     * Added possibility to delete orders without documents on `sw-order-list`
     * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
     * DB level write operation (e.g. cascade deletes) are not validated against the write prtoection anymore
@@ -91,12 +88,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`
     * The `ThemeFileResolver` doesn't produce duplicates if you have a theme that inherits from `@Storefront` and contains `@Plugins` (NEXT-8435)
-    * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
-        * page_checkout_aside_actions_csrf
-        * page_checkout_aside_actions_payment_method_id
-        * page_checkout_confirm_form_submit
-    * Added JS plugins `FormCsrfHandler` and `FormPreserver` to the `<form>` element in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
-    * Removed alphanumeric filter product numbers in the quick add action
     * Removed `required` status for `firstName` and `lastName`on `newsletter-form.html.twig`
     * Added fallback for missing `getFirstName` and `getLastName` on `NewsletterRegisterEvent.php`
     * Added new Twig blocks in `src/Storefront/Resources/views/storefront/page/account/order/index.html.twig`
@@ -110,6 +101,16 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Excluded Promotions will now be handled in `PromotionCalculator` and `PromotionDeliveryCalculator` instead of `PromotionCalculator`
     * The storefront session is now invalidated after logout. This can be configured in `Settings -> Login / Registration`
     * Enabled the Slugify TwigFilter extension
+    * Added new events to be able to extend the requests which are used for the Store-API calls. Use them to pass request parameters from the original storefront request to the new request for the Store-API call
+        * `CancelOrderRouteRequestEvent`
+        * `CurrencyRouteRequestEvent`
+        * `HandlePaymentMethodRouteRequestEvent`
+        * `LanguageRouteRequestEvent`
+        * `OrderRouteRequestEvent`
+        * `PaymentMethodRouteRequestEvent`
+        * `SalutationRouteRequestEvent`
+        * `SetPaymentOrderRouteRequestEvent`
+        * `ShippingMethodRouteRequestEvent`
 
 
 ### 6.2.0
@@ -119,7 +120,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Administration
     * Added `onDuplicate` to `sw-product-detail` and `sw-product-list`
     * Added Overwrites parameter to `clone` in `repository.data.js`. Overwrites contain entity field which should be overwritten with the given data. Example in `sw-product-detail` -> `onDuplicate`
-    * Added `disabled` attribute of fields to `sw-customer-address-form` component
     * Deprecated `tagStore` in `sw-newsletter-recipient-list`
     * Moved `sw-manufacturer`, it now uses `repositoryFactory` instead of `StateDeprecated` for fetching and editing data
         * Deprecated `mediaStore`
@@ -616,7 +616,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
 
 * Storefront
-    * Deprecated `$connection->executeQuery()` for write operations
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
     * Added new `\Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to check available attributes in cart 
     * Deprecated `$connection->executeQuery()` for write operations
@@ -678,6 +677,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Theme configuration now allows zero as a value when overriding
     * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
     * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
+    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
     
     * Added `utilities_thumbnail`, `utilities_thumbnail_logic`, `utilities_thumbnail_image` twig blocks to thumbnail.html.twig
 

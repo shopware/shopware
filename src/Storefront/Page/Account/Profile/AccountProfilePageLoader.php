@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
+use Shopware\Storefront\Event\RouteRequest\SalutationRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +58,7 @@ class AccountProfilePageLoader
 
         $page = AccountProfilePage::createFrom($page);
 
-        $page->setSalutations($this->getSalutations($salesChannelContext));
+        $page->setSalutations($this->getSalutations($salesChannelContext, $request));
 
         $this->eventDispatcher->dispatch(
             new AccountProfilePageLoadedEvent($page, $salesChannelContext, $request)
@@ -66,12 +67,12 @@ class AccountProfilePageLoader
         return $page;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
+    private function getSalutations(SalesChannelContext $context, Request $request): SalutationCollection
     {
-        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext)->getSalutations();
+        $event = new SalutationRouteRequestEvent($request, new Request(), $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $salutations = $this->salutationRoute->load($event->getStoreApiRequest(), $context)->getSalutations();
 
         $salutations->sort(static function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();

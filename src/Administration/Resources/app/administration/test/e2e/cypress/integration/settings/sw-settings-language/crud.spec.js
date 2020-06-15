@@ -63,7 +63,7 @@ describe('Language: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        productPage.changeTranslation('Japanese', 3);
+        productPage.changeTranslation('Japanese', 2);
 
         cy.get('.sw-language-info').contains('"Product name" displayed in the content language "Japanese".');
     });

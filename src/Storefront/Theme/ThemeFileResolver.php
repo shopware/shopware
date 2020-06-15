@@ -112,7 +112,7 @@ class ThemeFileResolver
                 $considerPlugins = false;
 
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, ++$recursionLevel) as $item) {
+                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, $recursionLevel + 1) as $item) {
                         $resolvedFiles->add($item);
                     }
                 }
@@ -137,7 +137,7 @@ class ThemeFileResolver
                 throw new InvalidThemeException($name);
             }
 
-            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, ++$recursionLevel) as $item) {
+            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, $recursionLevel + 1) as $item) {
                 $resolvedFiles->add($item);
             }
         }

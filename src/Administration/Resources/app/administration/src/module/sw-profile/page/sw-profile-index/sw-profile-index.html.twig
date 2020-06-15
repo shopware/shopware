@@ -29,7 +29,7 @@
                         <sw-card class="sw-profile__card"
                                  :title="$tc('sw-profile.index.titleInfoCard')"
                                  :isLoading="isUserLoading || !languageId">
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
                                 {% block sw_profile_index_info_card_first_name_field %}
                                     <sw-text-field v-model="user.firstName"
                                                    :label="$tc('sw-profile.index.labelFirstNameField')"
@@ -45,7 +45,7 @@
                                 {% endblock %}
                             </sw-container>
 
-                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0 30px">
+                            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0 30px">
                                 {% block sw_profile_index_info_card_username_field %}
                                     <sw-text-field v-model="user.username"
                                                    :label="$tc('sw-profile.index.labelUsernameField')"

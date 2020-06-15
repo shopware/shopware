@@ -71,7 +71,7 @@
                                 {% block sw_customer_card_row_secondary %}
                                     <sw-card-section secondary slim>
                                         <slot name="default">
-                                            <sw-container class="sw-review-base-info" columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 15px">
+                                            <sw-container class="sw-review-base-info" columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 15px">
                                                 <sw-loader v-if="isLoading"></sw-loader>
                                                 <div v-if="!isLoading" class="sw-review-base-info-columns">
                                                     {% block sw_customer_base_metadata_created_at %}

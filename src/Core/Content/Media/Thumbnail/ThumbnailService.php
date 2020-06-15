@@ -239,7 +239,7 @@ class ThumbnailService
             throw new FileTypeNotSupportedException($media->getId());
         }
 
-        if (extension_loaded('exif')) {
+        if (function_exists('exif_read_data')) {
             try {
                 $exif = exif_read_data($filePath);
 

@@ -33,7 +33,15 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
     onChangePage(event) {
         this.tempValue = event.target.value;
         this.listing.changeListing();
+        this._scrollToTop();
         this.tempValue = null;
+    }
+
+    _scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
 
     /**

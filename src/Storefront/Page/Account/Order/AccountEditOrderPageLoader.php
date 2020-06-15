@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
+use Shopware\Storefront\Event\RouteRequest\PaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,7 +84,7 @@ class AccountEditOrderPageLoader
 
         $page->setPaymentChangeable($orderRouteResponse->getPaymentChangeable($page->getOrder()->getId()));
 
-        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
+        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request));
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
@@ -100,8 +102,11 @@ class AccountEditOrderPageLoader
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $routeRequest->query->set('checkPromotion', true);
 
+        $event = new OrderRouteRequestEvent($request, $routeRequest, $context);
+        $this->eventDispatcher->dispatch($event);
+
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($routeRequest, $context)->getObject();
+        $responseStruct = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
 
         return $responseStruct;
     }
@@ -130,18 +135,21 @@ class AccountEditOrderPageLoader
         return $criteria;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
+    private function getPaymentMethods(SalesChannelContext $context, Request $request): PaymentMethodCollection
     {
         $criteria = new Criteria([]);
         $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
 
-        $request = new Request();
-        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-        $request->query->set('onlyAvailable', 1);
+        $routeRequest = new Request();
+        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
+        $routeRequest->query->set('onlyAvailable', 1);
 
-        return $this->paymentMethodRoute->load($request, $salesChannelContext)->getPaymentMethods();
+        $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        return $this->paymentMethodRoute->load(
+            $event->getStoreApiRequest(),
+            $context
+        )->getPaymentMethods();
     }
 }

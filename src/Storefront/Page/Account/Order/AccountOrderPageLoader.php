@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -81,7 +82,7 @@ class AccountOrderPageLoader
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
-        if ($request->get('deepLinkCode') && $page->getOrders() !== null && $page->getOrders()->first() !== null) {
+        if ($request->get('deepLinkCode') && $page->getOrders()->first() !== null) {
             $this->accountService->login(
                 $page->getOrders()->first()->getOrderCustomer()->getCustomer()->getEmail(),
                 $salesChannelContext,
@@ -102,8 +103,11 @@ class AccountOrderPageLoader
         $routeRequest = new Request();
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
 
+        $event = new OrderRouteRequestEvent($request, $routeRequest, $context);
+        $this->eventDispatcher->dispatch($event);
+
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($routeRequest, $context)->getObject();
+        $responseStruct = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
 
         return $responseStruct->getOrders();
     }

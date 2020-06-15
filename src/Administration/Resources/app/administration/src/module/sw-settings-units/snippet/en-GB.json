@@ -3,7 +3,8 @@
     "general": {
       "mainMenuItemGeneral": "Scale units",
       "placeholderSearchBar": "Search scale units...",
-      "createNewUnit": "Create new scale unit"
+      "createNewUnit": "Add scale unit",
+      "disableAddNewUnitMessage": "New scale units can only be added in the system default language."
     },
     "grid": {
       "columnName": "Scale unit",

@@ -64,6 +64,7 @@
         "marc1706/fast-image-size": "1.1.6",
         "nyholm/psr7": "1.2.1",
         "psr/cache": "1.0.1",
+        "psr/event-dispatcher": "1.0.0",
         "psr/http-factory": "1.0.1",
         "psr/http-message": "1.0.1",
         "psr/log": "1.1.2",

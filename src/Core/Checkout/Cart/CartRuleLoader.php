@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -118,9 +119,7 @@ class CartRuleLoader
         $context->setRuleIds($rules->getIds());
 
         // save the cart if errors exist, so the errors get persisted
-        if ($cart->getErrors()->count() > 0) {
-            $this->cartPersister->save($cart, $context);
-        }
+        $this->checkAndHandleErrors($cart, $context);
 
         return new RuleLoaderResult($cart, $rules);
     }
@@ -168,5 +167,15 @@ class CartRuleLoader
             || $previousLineItems->getKeys() !== $currentLineItems->getKeys()
             || $previousLineItems->getTypes() !== $currentLineItems->getTypes()
         ;
+    }
+
+    private function checkAndHandleErrors(Cart $cart, SalesChannelContext $context): void
+    {
+        foreach ($cart->getErrors() as $error) {
+            if (!$error instanceof PromotionCartAddedInformationError) {
+                $this->cartPersister->save($cart, $context);
+                return;
+            }
+        }
     }
 }

@@ -8,7 +8,14 @@
                 <slot name="toolbar">
                     <div class="sw-property-search__search-field-container">
                         <slot name="toolbar-search-field">
-                            <sw-field :placeholder="$tc('sw-property-search.placeholderSearch')"  autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
+                            <sw-field class="sw-property-search__search-field"
+                                      v-model="searchTerm"
+                                      ref="searchField"
+                                      :placeholder="$tc('sw-property-search.placeholderSearch')"
+                                      autocomplete="off"
+                                      @focus="onFocusSearch"
+                                      @input="onSearchOptions">
+                            </sw-field>
                         </slot>
                     </div>
 

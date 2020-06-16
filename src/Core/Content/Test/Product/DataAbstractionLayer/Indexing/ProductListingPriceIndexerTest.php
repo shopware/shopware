@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
@@ -18,6 +19,369 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ProductListingPriceIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function testVariantsWithSimplePrices(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 2],
+        ], $ids->context);
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'stock' => 10,
+                'name' => 'Simple 2',
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
+                ],
+            ],
+            [
+                // no prices & inherited price
+                'id' => $ids->create('child-1'),
+                'parentId' => $ids->get('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
+                ],
+            ],
+            [
+                // no prices & own price
+                'id' => $ids->create('child-2'),
+                'parentId' => $ids->get('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 10, 'linked' => false],
+                ],
+            ],
+            [
+                // inherited price & own prices
+                'id' => $ids->create('child-3'),
+                'parentId' => $ids->get('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 30, 'net' => 10, 'linked' => false],
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, $ids->getContext());
+
+        $context = new Context(new SystemSource(), [$ids->get('rule-a')], Defaults::CURRENCY);
+        $context->addExtension('test', new Criteria());
+        $context->setConsiderInheritance(true);
+
+        $products = $this->getContainer()
+            ->get('product.repository')
+            ->search(new Criteria($ids->prefixed('child-')), $context);
+
+        /** @var ProductEntity $child */
+        $child = $products->get($ids->get('child-1'));
+        static::assertInstanceOf(ProductEntity::class, $child);
+        static::assertInstanceOf(ListingPriceCollection::class, $child->getListingPrices());
+
+        $price = $child->getListingPrices()->getContextPrice($context);
+        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertEquals(30, $price->getTo()->getGross());
+
+        $child = $products->get($ids->get('child-2'));
+        static::assertInstanceOf(ListingPriceCollection::class, $child->getListingPrices());
+        $price = $child->getListingPrices()->getContextPrice($context);
+        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertEquals(30, $price->getTo()->getGross());
+
+        $child = $products->get($ids->get('child-3'));
+        static::assertInstanceOf(ListingPriceCollection::class, $child->getListingPrices());
+        $price = $child->getListingPrices()->getContextPrice($context);
+        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertEquals(30, $price->getTo()->getGross());
+    }
+
+    public function testMixedRuleAndSimplePrices(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 2],
+        ], $ids->context);
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'stock' => 10,
+                'name' => 'Simple 2',
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
+                ],
+            ],
+            [
+                // no prices & inherited price
+                'id' => $ids->create('child-1'),
+                'parentId' => $ids->get('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+            ],
+            [
+                // no prices & own price
+                'id' => $ids->create('child-2'),
+                'parentId' => $ids->get('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 10, 'linked' => false],
+                ],
+            ],
+            [
+                // inherited price & own prices
+                'id' => $ids->create('child-3'),
+                'parentId' => $ids->get('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'prices' => [
+                    $this->formatPrice(100, Defaults::CURRENCY, $ids->get('rule-a'), 1, 4),
+                    $this->formatPrice(44, Defaults::CURRENCY, $ids->get('rule-a'), 5),
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, $ids->getContext());
+
+        $context = new Context(new SystemSource(), [$ids->get('rule-a')], Defaults::CURRENCY);
+        $context->addExtension('test', new Criteria());
+        $context->setConsiderInheritance(true);
+
+        $products = $this->getContainer()
+            ->get('product.repository')
+            ->search(new Criteria($ids->prefixed('child-')), $context);
+
+        /** @var ProductEntity $child */
+        $child = $products->get($ids->get('child-1'));
+        static::assertInstanceOf(ProductEntity::class, $child);
+        static::assertInstanceOf(ListingPriceCollection::class, $child->getListingPrices());
+
+        $price = $child->getListingPrices()->getContextPrice($context);
+        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertEquals(100, $price->getTo()->getGross());
+
+        $child = $products->get($ids->get('child-2'));
+        static::assertInstanceOf(ListingPriceCollection::class, $child->getListingPrices());
+        $price = $child->getListingPrices()->getContextPrice($context);
+        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertEquals(100, $price->getTo()->getGross());
+
+        $child = $products->get($ids->get('child-3'));
+        static::assertInstanceOf(ListingPriceCollection::class, $child->getListingPrices());
+        $price = $child->getListingPrices()->getContextPrice($context);
+        static::assertEquals(10, $price->getFrom()->getGross());
+        static::assertEquals(100, $price->getTo()->getGross());
+    }
+
+    public function testListingPriceWithDifferentCurrencies(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('currency.repository')->create([
+            [
+                'id' => $ids->create('dollar'),
+                'name' => 'Dollar',
+                'shortName' => 'DO',
+                'symbol' => '$',
+                'factor' => 2,
+                'isoCode' => 'us',
+                'decimalPrecision' => 2,
+            ],
+        ], $ids->context);
+
+        $product = [
+            'id' => $ids->create('product'),
+            'stock' => 10,
+            'name' => 'Simple 2',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'productNumber' => $ids->create('product'),
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 10, 'linked' => false],
+                ['currencyId' => $ids->get('dollar'), 'gross' => 50, 'net' => 40, 'linked' => false],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], $ids->getContext());
+
+        /** @var ProductEntity $product */
+        $product = $this->getContainer()->get('product.repository')
+            ->search(new Criteria([$ids->get('product')]), $ids->getContext())
+            ->first();
+
+        static::assertCount(2, $product->getListingPrices());
+
+        $price = $product->getListingPrices()->getContextPrice($ids->getContext());
+        static::assertInstanceOf(ListingPrice::class, $price);
+        static::assertEquals(20, $price->getFrom()->getGross());
+        static::assertEquals(10, $price->getFrom()->getNet());
+
+        $context = new Context(new SystemSource(), [], $ids->get('dollar'));
+        $price = $product->getListingPrices()->getContextPrice($context);
+        static::assertInstanceOf(ListingPrice::class, $price);
+        static::assertEquals(50, $price->getFrom()->getGross());
+        static::assertEquals(40, $price->getFrom()->getNet());
+
+        $context = new Context(new SystemSource(), [], Uuid::randomHex());
+        $price = $product->getListingPrices()->getContextPrice($context);
+        static::assertInstanceOf(ListingPrice::class, $price);
+        static::assertEquals(20, $price->getFrom()->getGross());
+        static::assertEquals(10, $price->getFrom()->getNet());
+    }
+
+    public function testListingPriceWithNotUnifiedCurrencies(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 2],
+        ], $ids->context);
+
+        $this->getContainer()->get('currency.repository')->create([
+            [
+                'id' => $ids->create('dollar'),
+                'name' => 'Dollar',
+                'shortName' => 'DO',
+                'symbol' => '$',
+                'factor' => 2,
+                'isoCode' => 'us',
+                'decimalPrecision' => 2,
+            ],
+        ], $ids->context);
+
+        $product = [
+            'id' => $ids->create('product'),
+            'stock' => 10,
+            'name' => 'Simple 2',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'productNumber' => $ids->create('product'),
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 10, 'linked' => false],
+            ],
+            'prices' => [
+                $this->formatPrices($ids->get('rule-a'), 1, 10, [Defaults::CURRENCY => 100, $ids->get('dollar') => 200]),
+
+                // test: while indexing, this price will be calculated for dollar currency, each rule prices has to be the same currency base
+                $this->formatPrices($ids->get('rule-a'), 11, null, [Defaults::CURRENCY => 50]),
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], $ids->getContext());
+
+        /** @var ProductEntity $product */
+        $product = $this->getContainer()->get('product.repository')
+            ->search(new Criteria([$ids->get('product')]), $ids->getContext())
+            ->first();
+
+        static::assertCount(3, $product->getListingPrices());
+
+        $context = new Context(new SystemSource(), [$ids->get('rule-a')], Defaults::CURRENCY);
+        $price = $product->getListingPrices()->getContextPrice($context);
+        static::assertInstanceOf(ListingPrice::class, $price);
+        static::assertEquals(50, $price->getFrom()->getGross());
+        static::assertEquals(100, $price->getTo()->getGross());
+
+        $context = new Context(new SystemSource(), [$ids->get('rule-a')], $ids->get('dollar'));
+        $price = $product->getListingPrices()->getContextPrice($context);
+        static::assertInstanceOf(ListingPrice::class, $price);
+        static::assertEquals(100, $price->getFrom()->getGross());
+        static::assertEquals(200, $price->getTo()->getGross());
+    }
+
+    public function testSortingWithDifferentCurrencies(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 2],
+        ], $ids->context);
+
+        $this->getContainer()->get('currency.repository')->create([
+            [
+                'id' => $ids->create('dollar'),
+                'name' => 'Dollar',
+                'shortName' => 'DO',
+                'symbol' => '$',
+                'factor' => 2,
+                'isoCode' => 'us',
+                'decimalPrecision' => 2,
+            ],
+        ], $ids->context);
+
+        $products = [
+            [
+                'id' => $ids->create('product-1'),
+                'stock' => 10,
+                'name' => 'Simple 2',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 20, 'net' => 10, 'linked' => false],
+                    // 40$ on demand calculation
+                ],
+                'prices' => [
+                    $this->formatPrices($ids->get('rule-a'), 1, 10, [Defaults::CURRENCY => 100, $ids->get('dollar') => 120]),
+
+                    // 40$ on demand calculation
+                    $this->formatPrices($ids->get('rule-a'), 11, null, [Defaults::CURRENCY => 50]),
+                ],
+            ],
+            [
+                'id' => $ids->create('product-2'),
+                'stock' => 10,
+                'name' => 'Simple 2',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false],
+                    ['currencyId' => $ids->get('dollar'), 'gross' => 10, 'net' => 10, 'linked' => false],
+                ],
+                'prices' => [
+                    $this->formatPrices($ids->get('rule-a'), 1, 10, [Defaults::CURRENCY => 150, $ids->get('dollar') => 90]),
+                    $this->formatPrices($ids->get('rule-a'), 11, null, [Defaults::CURRENCY => 75, $ids->get('dollar') => 80]),
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, $ids->getContext());
+
+        $criteria = new Criteria($ids->getList(['product-1', 'product-2']));
+
+        // rule-a & euro
+        // product-1: 50-100€   |  product-2: 75-150€
+        $this->assertSorting($criteria, [$ids->get('rule-a')], Defaults::CURRENCY, $ids->getList(['product-1', 'product-2']));
+
+        // rule-a & dollar
+        // product-1: 100-120$   |  product-2: 80-90$
+        $this->assertSorting($criteria, [$ids->get('rule-a')], $ids->get('dollar'), $ids->getList(['product-2', 'product-1']), 2);
+
+        // no-rule & euro
+        // product-1: 20€   |  product-2: 100€
+        $this->assertSorting($criteria, [], Defaults::CURRENCY, $ids->getList(['product-1', 'product-2']));
+
+        // no-rule & dollar
+        // product-1: 40$   |  product-2: 10$
+        $this->assertSorting($criteria, [], $ids->get('dollar'), $ids->getList(['product-2', 'product-1']), 2);
+    }
 
     public function testListingPriceSortingWithInheritance(): void
     {
@@ -150,7 +514,7 @@ class ProductListingPriceIndexerTest extends TestCase
         $prices = $product->getListingPrices();
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
-        static::assertCount(27, $prices);
+        static::assertCount(4, $prices, 'Onyl one price per rule and one default price should be generated');
 
         $aPrices = $this->filterByRuleId($prices, $ruleA);
         $aPrices = $this->filterByCurrencyId($aPrices, Defaults::CURRENCY);
@@ -179,7 +543,7 @@ class ProductListingPriceIndexerTest extends TestCase
         $prices = $product->getListingPrices();
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
-        static::assertCount(27, $prices);
+        static::assertCount(4, $prices);
 
         $aPrices = $this->filterByRuleId($prices, $ruleA);
         $aPrices = $this->filterByCurrencyId($aPrices, Defaults::CURRENCY);
@@ -342,6 +706,8 @@ class ProductListingPriceIndexerTest extends TestCase
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
 
+        static::assertCount(2, $prices);
+
         $prices = $this->filterByRuleId($prices, $ids->get('rule-a'));
         $prices = $this->filterByCurrencyId($prices, Defaults::CURRENCY);
 
@@ -366,7 +732,7 @@ class ProductListingPriceIndexerTest extends TestCase
         $prices = $product->getListingPrices();
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
-        static::assertEquals(0, $prices->count());
+        static::assertEquals(1, $prices->count());
     }
 
     private function filterByCurrencyId(iterable $prices, string $currencyId): array
@@ -420,5 +786,45 @@ class ProductListingPriceIndexerTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function formatPrices(string $ruleId, int $start, ?int $end, array $prices): array
+    {
+        $formatted = [];
+        foreach ($prices as $currencyId => $price) {
+            $formatted[] = [
+                'currencyId' => $currencyId,
+                'gross' => $price,
+                'net' => $price / 1.19,
+                'linked' => false,
+            ];
+        }
+
+        return [
+            'quantityStart' => $start,
+            'quantityEnd' => $end,
+            'ruleId' => $ruleId,
+            'price' => $formatted,
+        ];
+    }
+
+    private function assertSorting(Criteria $original, array $ruleIds, string $currencyId, array $expected, int $factor = 1): void
+    {
+        $criteria = clone $original;
+        $criteria->addSorting(new FieldSorting('product.listingPrices'));
+
+        $context = new Context(new SystemSource(), $ruleIds, $currencyId, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, $factor);
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context);
+
+        static::assertEquals(array_values($expected), array_values($result->getIds()));
+
+        $criteria = clone $original;
+        $criteria->addSorting(new FieldSorting('product.listingPrices', FieldSorting::DESCENDING));
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context);
+
+        static::assertEquals(array_reverse(array_values($expected)), array_values($result->getIds()));
     }
 }

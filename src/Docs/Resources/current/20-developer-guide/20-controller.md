@@ -153,7 +153,7 @@ class SwagCustomStorefrontController extends StorefrontController
 ```
 
 This controller can now use a
-[`PageLoader`](./../60-references-internals/30-storefront/10-composite-data-loading.md)
+[`PageLoader`](./../60-references-internals/30-storefront/010-composite-data-loading.md)
 or similar service to load a page:
 
 ```php

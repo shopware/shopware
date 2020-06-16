@@ -210,4 +210,52 @@ describe('Product: Check cross selling integration', () => {
         cy.get('#tns1-item1 .product-name').contains('Second product');
         cy.get('#tns1-item0 .product-name').contains('Third product');
     });
+
+    it('@catalogue: should handle required fields', () => {
+        const page = new ProductStreamObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/product/*',
+            method: 'patch'
+        }).as('saveData');
+        cy.route({
+            url: '/api/v*/search/product-stream',
+            method: 'post'
+        }).as('saveStream');
+        cy.route({
+            url: '/api/v*/search/product-cross-selling/**/assigned-products',
+            method: 'post'
+        }).as('assignProduct');
+
+        // Open product and add cross selling
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.contains('Original product').click();
+
+        cy.get('.sw-product-detail__tab-cross-selling').click();
+        cy.get(page.elements.loader).should('not.exist');
+
+        cy.contains(
+            `.sw-product-detail-cross-selling__empty-state ${page.elements.ghostButton}`,
+            'Add new Cross Selling'
+        ).should('be.visible').click();
+        cy.get('.product-detail-cross-selling-form').should('be.visible');
+
+        // Save and verify cross selling stream
+        cy.get('.sw-button-process').click();
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 400);
+        });
+
+        cy.get('.sw-tabs__content').contains('.sw-tabs-item', 'Cross Selling').then((field) => {
+            cy.wrap(field).should('have.class', 'sw-tabs-item--has-error');
+        });
+
+        cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
+            cy.wrap(field).should('have.class', 'has--error');
+            cy.get('input', { withinSubject: field }).type('1').blur();
+            cy.wrap(field).should('not.have.class', 'has--error');
+        });
+    });
 });

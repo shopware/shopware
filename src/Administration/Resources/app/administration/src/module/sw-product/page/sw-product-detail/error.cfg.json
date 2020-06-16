@@ -7,5 +7,12 @@
       "manufacturerId",
       "name"
     ]
+  },
+  "sw.product.detail.cross.selling": {
+    "product_cross_selling": [
+      "name",
+      "type",
+      "position"
+    ]
   }
 }

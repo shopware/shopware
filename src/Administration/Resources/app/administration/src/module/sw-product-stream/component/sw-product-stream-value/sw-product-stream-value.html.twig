@@ -33,7 +33,46 @@
             <template v-if="fieldType === 'uuid'">
                 {% block sw_product_stream_value_entity_single_value %}
                     <sw-entity-single-select
-                        v-if="actualCondition.type === 'equals'"
+                        v-if="next7399 && definition.entity === 'product' && actualCondition.type === 'equals'"
+                        size="medium"
+                        :entity="definition.entity"
+                        :criteria="productCriteria"
+                        :context="context"
+                        v-model="actualCondition.value">
+                        <template #selection-label-property="{ item }">
+                            <slot name="selection-label-property" v-bind="{ item }">
+                                <div>{{ item.name || item.translated.name }}</div>
+                                <div v-if="item.variation">
+                                    <span v-for="(variation, index) in item.variation" :key="variation.group">
+                                        <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                        <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
+                                    </span>
+                                </div>
+                            </slot>
+                        </template>
+
+                        <template #result-item="{ item, index }">
+                            <slot name="result-item" v-bind="{ item, index }">
+                                <li is="sw-select-result" v-bind="{ item, index }">
+                                    {% block sw_entity_single_select_base_results_list_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            {{ item.translated.name || item.name }}
+                                        </span>
+
+                                        <div v-if="item.variation">
+                                            <span v-for="(variation, index) in item.variation" :key="variation.group">
+                                                <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                                <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
+                                            </span>
+                                        </div>
+                                    {% endblock %}
+                                </li>
+                            </slot>
+                        </template>
+                    </sw-entity-single-select>
+
+                    <sw-entity-single-select
+                        v-else-if="actualCondition.type === 'equals'"
                         size="medium"
                         :entity="definition.entity"
                         :context="context"
@@ -42,6 +81,45 @@
                 {% endblock %}
 
                 {% block sw_product_stream_value_entity_multi_value %}
+                    <sw-entity-multi-id-select
+                        v-else-if="next7399 && actualCondition.type === 'equalsAny'"
+                        size="medium"
+                        :repository="repository"
+                        :criteria="productCriteria"
+                        :context="context"
+                        v-model="multiValue">
+                        <template #selection-label-property="{ item }">
+                            <slot name="selection-label-property" v-bind="{ item }">
+                                {{ item.name || item.translated.name }}
+
+                                <span v-if="item.variation">
+                                    <span v-for="(variation, index) in item.variation" :key="variation.group">
+                                        <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                        <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
+                                    </span>
+                                </span>
+                            </slot>
+                        </template>
+
+                        <template #result-item="{ item, index }">
+                            <slot name="result-item" v-bind="{ item, index }">
+                                <li is="sw-select-result" v-bind="{ item, index }">
+                                    {% block sw_entity_single_select_base_results_list_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            {{ item.translated.name || item.name }}
+                                        </span>
+                                        <div v-if="item.variation">
+                                            <span v-for="(variation, index) in item.variation" :key="variation.group">
+                                                <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                                <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
+                                            </span>
+                                        </div>
+                                    {% endblock %}
+                                </li>
+                            </slot>
+                        </template>
+                    </sw-entity-multi-id-select>
+
                     <sw-entity-multi-id-select
                         v-else-if="actualCondition.type === 'equalsAny'"
                         size="medium"

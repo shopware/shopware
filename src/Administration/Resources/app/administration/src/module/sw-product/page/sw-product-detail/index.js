@@ -135,7 +135,9 @@ Component.register('sw-product-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .getAssociation('assignedProducts')
                 .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('product');
+                .addAssociation('product')
+                .getAssociation('product')
+                .addAssociation('options.group');
 
             criteria
                 .addAssociation('cover')

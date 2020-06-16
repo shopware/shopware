@@ -55,6 +55,8 @@ Component.register('sw-product-cross-selling-assignment', {
         searchCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
+            criteria.addAssociation('options.group');
+
             return criteria;
         },
 

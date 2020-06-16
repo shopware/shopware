@@ -110,6 +110,7 @@ Component.register('sw-product-stream-modal-preview', {
             criteria.term = this.searchTerm || null;
             criteria.filters = this.mapFiltersForSearch(this.filters);
             criteria.addAssociation('manufacturer');
+            criteria.addAssociation('options.group');
 
             return this.productRepository.search(criteria, {
                 ...Context.api,

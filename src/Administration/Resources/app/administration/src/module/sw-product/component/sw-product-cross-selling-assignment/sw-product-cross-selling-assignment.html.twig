@@ -18,6 +18,12 @@
                                     <span class="sw-select-result__result-item-text">
                                         {{ item.translated.name || item.name }}
                                     </span>
+                                    <div v-if="next7399 && item.variation">
+                                        <span v-for="(variation, index) in item.variation" :key="variation.group">
+                                            <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                            <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
+                                        </span>
+                                    </div>
                                 {% endblock %}
                             </li>
                         </slot>
@@ -41,6 +47,22 @@
                             {{ $tc('global.default.delete') }}
                         </sw-context-menu-item>
                     </template>
+
+                    <template v-if="next7399"
+                              #column-product.translated.name="{ item }">
+                        {% block sw_data_grid_columns_render_value %}
+                            <span class="sw-data-grid__cell-value">
+                                {{ item.product.translated.name }}
+                            </span>
+                            <div v-if="item.product.variation">
+                                <span v-for="(variation, index) in item.product.variation" :key="variation.group">
+                                    <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                    <span v-if="index != Object.keys(item.product.variation).length - 1"> | </span>
+                                </span>
+                            </div>
+                        {% endblock %}
+                    </template>
+
                     {% block sw_product_cross_selling_assignment_option_grid_column_position %}
                         <template #column-position="{ item }">
                             <sw-data-grid-column-position

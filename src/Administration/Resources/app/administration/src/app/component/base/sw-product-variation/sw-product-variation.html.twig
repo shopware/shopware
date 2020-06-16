@@ -1,0 +1,17 @@
+{% block sw_product_variation %}
+    <div class="sw-product-variant-information">
+        {% block sw_product_variation_options %}
+            <span
+                v-for="(variation, index) in variations"
+                :key="variation.group">
+
+                {% block sw_product_variation_options_text %}
+                <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                {% endblock %}
+                <template v-if="index !== Object.keys(variations).length - 1"> | </template>
+
+                {% endblock %}
+            </span>
+        {% endblock %}
+    </div>
+{% endblock %}

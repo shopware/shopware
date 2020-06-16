@@ -31,13 +31,34 @@
                         :isLoading="isLoading"
                         fullPage>
 
-                        <template #column-name="{ item, column }">
+                        <template
+                            v-if="next7399"
+                            #column-name="{ item, column }">
+                            {% block sw_product_stream_modal_preview_grid_column_name %}
+                                <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
+                                    {{ item.name || item.translated.name }}
+                                </router-link>
+                            {% endblock %}
+
+                            {% block sw_product_stream_modal_preview_grid_column_name_variation %}
+                                <div v-if="item.variation">
+                                    <span v-for="(variation, index) in item.variation" :key="variation.group">
+                                        <strong>{{ variation.group }}</strong>: {{ variation.option }}
+                                        <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
+                                    </span>
+                                </div>
+                            {% endblock %}
+                        </template>
+
+                        <template v-else
+                                  #column-name="{ item, column }">
                             {% block sw_product_stream_modal_preview_grid_column_name %}
                                 <router-link :to="{ name: column.routerLink, params: { id: item.id } }">
                                      {{ item.name || item.translated.name }}
                                 </router-link>
                             {% endblock %}
                         </template>
+
 
                         <template #column-active="{ item }">
                             {% block sw_product_stream_modal_preview_grid_column_active %}

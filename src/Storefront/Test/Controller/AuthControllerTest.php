@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class AuthControllerTest extends TestCase
@@ -98,6 +99,11 @@ class AuthControllerTest extends TestCase
         );
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('GET', '/');
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+        static::assertNotNull($response->getContext()->getCustomer());
 
         return $browser;
     }

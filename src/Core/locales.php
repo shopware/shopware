@@ -1560,7 +1560,7 @@ return [
         ],
         'territory' => [
             'en-GB' => 'Ivory Coast',
-            'de-DE' => 'Côte d?Ivoire',
+            'de-DE' => 'Elfenbeinküste',
         ],
     ],
     [
@@ -1768,7 +1768,7 @@ return [
             'de-DE' => 'Lettisch',
         ],
         'territory' => [
-            'en-GB' => 'Lettland',
+            'en-GB' => 'Latvia',
             'de-DE' => 'Lettland',
         ],
     ],

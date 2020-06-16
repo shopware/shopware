@@ -164,7 +164,9 @@ describe('components/sw-import-export-exporter', () => {
 
         wrapper.setData({
             config: {
-                includeVariants: true
+                parameters: {
+                    includeVariants: true
+                }
             }
         });
 
@@ -182,7 +184,9 @@ describe('components/sw-import-export-exporter', () => {
 
         wrapper.setData({
             config: {
-                includeVariants: true
+                parameters: {
+                    includeVariants: true
+                }
             }
         });
 
@@ -202,7 +206,9 @@ describe('components/sw-import-export-exporter', () => {
 
         wrapper.setData({
             config: {
-                includeVariants: true
+                parameters: {
+                    includeVariants: true
+                }
             }
         });
 
@@ -222,7 +228,9 @@ describe('components/sw-import-export-exporter', () => {
 
         wrapper.setData({
             config: {
-                includeVariants: true
+                parameters: {
+                    includeVariants: true
+                }
             }
         });
 

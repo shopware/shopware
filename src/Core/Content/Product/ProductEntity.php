@@ -69,7 +69,7 @@ class ProductEntity extends Entity
     protected $active;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $displayGroup;
 
@@ -1149,12 +1149,12 @@ class ProductEntity extends Entity
         $this->ratingAverage = $ratingAverage;
     }
 
-    public function getDisplayGroup(): string
+    public function getDisplayGroup(): ?string
     {
         return $this->displayGroup;
     }
 
-    public function setDisplayGroup(string $displayGroup): void
+    public function setDisplayGroup(?string $displayGroup): void
     {
         $this->displayGroup = $displayGroup;
     }

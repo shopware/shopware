@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +69,7 @@ class AccountOverviewPageLoader
 
         $page = AccountOverviewPage::createFrom($page);
 
-        $order = $this->loadNewestOrder($salesChannelContext);
+        $order = $this->loadNewestOrder($salesChannelContext, $request);
 
         if ($order !== null) {
             $page->setNewestOrder($order);
@@ -81,24 +82,25 @@ class AccountOverviewPageLoader
         return $page;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function loadNewestOrder(SalesChannelContext $salesChannelContext): ?OrderEntity
+    private function loadNewestOrder(SalesChannelContext $context, Request $request): ?OrderEntity
     {
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
             ->addAssociation('lineItems')
+            ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 
-        $request = new Request();
-        $request->query->replace($this->requestCriteriaBuilder->toArray($criteria));
+        $routeRequest = new Request();
+        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
+
+        $event = new OrderRouteRequestEvent($request, $routeRequest, $context);
+        $this->eventDispatcher->dispatch($event);
 
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($request, $salesChannelContext)->getObject();
+        $responseStruct = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
 
         return $responseStruct->getOrders()->first();
     }

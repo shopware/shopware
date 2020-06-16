@@ -605,7 +605,7 @@
       "integration": "Integration | Integrationen",
       "language": "Sprache | Sprachen",
       "mail_header_footer": "Header & Footer",
-      "mail_template": "E-Mail-Vorlage | E-Mail-Vorlagen",
+      "mail_template": "E-Mail-Template | E-Mail-Templates",
       "media": "Medium | Medien",
       "media_default_folder": "Standardordner",
       "media_folder": "Ordner",
@@ -657,7 +657,7 @@
   "sw-text-editor-toolbar": {
     "link": {
       "openInNewTab": "Link in neuem Tab öffnen",
-      "displayAsButton": "Links als Button darstellen",
+      "displayAsButton": "Link als Button darstellen",
       "buttonVariant": "Buttontyp",
       "buttonVariantPrimary": "Primär",
       "buttonVariantSecondary": "Sekundär",
@@ -757,14 +757,14 @@
     "infoTextInheritedField": "{moduleName} hat vererbte Felder. Das bedeutet, dass solange der vererbte Zustand aktiv ist, der Inhalt vererbt wird. Vererbte Felder können durch Anklicken des Link-Symbols aufgelöst werden. Ein erneuter Klick auf das Symbol setzt den vererbten Zustand wieder zurück."
   },
   "sw-license-violation": {
-    "title": "Plugin Warnungen",
+    "title": "Plugin-Warnungen",
     "reload": "Neu laden",
-    "alert-text": "Für mindestens eines Deiner installierten Plugins in dieser Installation liegt eine Lizenzverletzung vor. Buche die Plugin-Subscription nach oder Kaufe/Miete das Plugin (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du das Plugin nicht mehr? Dann lösche es vollständig aus dem Plugin-Manager. Falls keiner dieser Schritte vorgenommen wird, behält die Shopware AG sich vor, die Lizenzverletzung zu berechnen.",
-    "delete-plugin": "Plugin vollständig entfernen",
-    "message-delete-confirm": "Möchtest Du das Plugin \"{pluginName}\" vollständig löschen?",
-    "checkbox-message": "Ich habe die Warnung gelesen und zur Kenntnis genommen",
-    "close-modal": "Warnung schließen",
-    "ignore-plugin": "Dauerhaft ignorieren",
+    "alertText": "Für mindestens eines Deiner installierten Plugins in dieser Installation liegt eine Lizenzverletzung vor. Buche die Plugin-Subscription nach oder kaufe/miete das Plugin (je nach Art des Verstoßes), um die Lizenzverletzung zu beheben und rechtliche Konsequenzen zu vermeiden. Nutzt Du das Plugin nicht mehr? Dann lösche es vollständig aus dem Plugin-Manager. Falls keiner dieser Schritte von Dir vollzogen wird, behält sich die shopware AG vor, Strafgebühren für die Lizenzverletzung zu berechnen.",
+    "deletePlugin": "Plugin vollständig entfernen",
+    "messageDeleteConfirm": "Möchtest Du das Plugin \"{pluginName}\" vollständig löschen?",
+    "checkboxMessage": "Ich habe die Warnung gelesen und verstehe die möglichen Konsequenzen.",
+    "closeModal": "Warnung schließen",
+    "ignorePlugin": "Dauerhaft ignorieren",
     "table": {
       "plugin": "Plugin",
       "warning": "Warnung"
@@ -879,7 +879,7 @@
     "functionSpecialShortcutClearCacheWindows": "Windows: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheWindows": "alt c",
     "functionSpecialShortcutClearCacheMac": "Mac: Cache löschen",
-    "keyboardShortcutSpecialShortcutClearCacheMac": "control s",
+    "keyboardShortcutSpecialShortcutClearCacheMac": "control c",
     "functionSpecialShortcutClearCacheLinux": "Linux: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheLinux": "alt c"
   },

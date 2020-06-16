@@ -720,3 +720,4 @@ List of products with their media associations limited to one.
 ## Full schema
 
 The full schema can be explored with swagger: `/api/v1/_info/swagger.html`
+To access the full schema, you have to make sure, that the `APP_ENV` is set to `dev`.

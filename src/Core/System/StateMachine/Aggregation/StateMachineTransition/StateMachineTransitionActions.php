@@ -10,10 +10,6 @@ final class StateMachineTransitionActions
     public const ACTION_FAIL = 'fail';
     public const ACTION_PAID = 'paid';
     public const ACTION_PAID_PARTIALLY = 'paid_partially';
-    /** @deprecated tag:v6.3.0 Use ACTION_DO_PAY */
-    public const ACTION_PAY = 'pay';
-    /** @deprecated tag:v6.3.0 Use ACTION_PAID_PARTIALLY */
-    public const ACTION_PAY_PARTIALLY = 'pay_partially';
     public const ACTION_PROCESS = 'process';
     public const ACTION_REFUND = 'refund';
     public const ACTION_REFUND_PARTIALLY = 'refund_partially';
@@ -23,4 +19,11 @@ final class StateMachineTransitionActions
     public const ACTION_RETOUR_PARTIALLY = 'retour_partially';
     public const ACTION_SHIP = 'ship';
     public const ACTION_SHIP_PARTIALLY = 'ship_partially';
+    public const ACTION_AUTHORIZE = 'authorize';
+    public const ACTION_CHARGEBACK = 'chargeback';
+
+    /** @deprecated tag:v6.3.0 Use ACTION_DO_PAY */
+    public const ACTION_PAY = 'pay';
+    /** @deprecated tag:v6.3.0 Use ACTION_PAID_PARTIALLY */
+    public const ACTION_PAY_PARTIALLY = 'pay_partially';
 }

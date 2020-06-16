@@ -533,7 +533,7 @@ class EntityAggregator implements EntityAggregatorInterface
     private function addSorting(FieldSorting $sorting, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
         if ($sorting->getField() !== '_count') {
-            $this->addSortings($definition, [$sorting], $query, $context);
+            $this->addSortings($definition, new Criteria(), [$sorting], $query, $context);
 
             return;
         }

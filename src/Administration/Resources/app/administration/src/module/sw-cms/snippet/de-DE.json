@@ -452,10 +452,10 @@
         "textTeaserSection": {
           "label": "Zwei Spalten, Teaser-Text"
         },
-        "textThreeColumn": {
+        "textTwoColumn": {
           "label": "Zwei Spalten, Text"
         },
-        "textTwoColumn": {
+        "textThreeColumn": {
           "label": "Drei Spalten, Text"
         }
       },

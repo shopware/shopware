@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Theme;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Test\Theme\fixtures\MockStorefront\MockStorefront;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
+use Shopware\Storefront\Test\Theme\fixtures\ThemeNotIncludingPluginJsAndCss\ThemeNotIncludingPluginJsAndCss;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithMultiInheritance;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
@@ -92,5 +93,54 @@ class ThemeFileResolverTest extends TestCase
         $expected = array_unique($scriptFiles->getFilepaths());
 
         static::assertEquals($expected, $actual);
+    }
+
+    public function testParentThemeIncludesPlugins(): void
+    {
+        $themePluginBundle = new ThemeNotIncludingPluginJsAndCss();
+        $storefrontBundle = new MockStorefront();
+        $pluginBundle = new SimplePlugin();
+
+        $config = StorefrontPluginConfiguration::createFromConfigFile($themePluginBundle);
+        $storefront = StorefrontPluginConfiguration::createFromConfigFile($storefrontBundle);
+        $plugin = StorefrontPluginConfiguration::createFromBundle($pluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+        $configCollection->add($plugin);
+
+        $themeFileResolver = new ThemeFileResolver();
+        $resolvedFiles = $themeFileResolver->resolveFiles(
+            $config,
+            $configCollection,
+            false
+        );
+
+        /** @var FileCollection $scriptFiles */
+        $scriptFiles = $resolvedFiles['script'];
+        $pluginScriptFile = 'SimplePlugin/Resources/app/storefront/dist/storefront/js/main.js';
+        $pluginScriptIncluded = false;
+
+        foreach ($scriptFiles->getFilepaths() as $path) {
+            if (stripos($path, $pluginScriptFile) !== false) {
+                $pluginScriptIncluded = true;
+            }
+        }
+
+        static::assertTrue($pluginScriptIncluded);
+
+        /** @var FileCollection $styleFiles */
+        $styleFiles = $resolvedFiles['style'];
+        $pluginStyleFile = 'SimplePlugin/Resources/app/storefront/src/scss/example.scss';
+        $pluginStyleIncluded = false;
+
+        foreach ($styleFiles->getFilepaths() as $path) {
+            if (stripos($path, $pluginStyleFile) !== false) {
+                $pluginStyleIncluded = true;
+            }
+        }
+
+        static::assertTrue($pluginStyleIncluded);
     }
 }

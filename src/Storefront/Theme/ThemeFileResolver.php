@@ -34,25 +34,20 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                true,
                 function (StorefrontPluginConfiguration $configuration, bool $onlySourceFiles) {
                     $fileCollection = new FileCollection();
                     $scriptFiles = $configuration->getScriptFiles();
-
                     $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
-
                     // add source file at the beginning if no other theme is included first
                     if ($addSourceFile && ($scriptFiles->count() === 0 || !$this->isInclude($scriptFiles->first()->getFilepath()))) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
-
                     foreach ($scriptFiles as $scriptFile) {
                         if (!$this->isInclude($scriptFile->getFilepath()) && $onlySourceFiles) {
                             continue;
                         }
                         $fileCollection->add($scriptFile);
                     }
-
                     if ($addSourceFile && $scriptFiles->count() > 0 && $this->isInclude($scriptFiles->first()->getFilepath())) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
@@ -64,7 +59,6 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                true,
                 function (StorefrontPluginConfiguration $configuration) {
                     return $configuration->getStyleFiles();
                 }
@@ -76,19 +70,22 @@ class ThemeFileResolver
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $onlySourceFiles,
-        bool $considerPlugins,
         callable $configFileResolver,
-        int $recursionLevel = 0
+        array $included = []
     ): FileCollection {
         /** @var FileCollection $files */
         $files = $configFileResolver($themeConfig, $onlySourceFiles);
-
         if ($files->count() === 0) {
             return $files;
         }
-
         $resolvedFiles = new FileCollection();
-
+        $nextIncluded = $included;
+        foreach ($files as $file) {
+            $filepath = $file->getFilepath();
+            if ($this->isInclude($filepath)) {
+                $nextIncluded[] = $filepath;
+            }
+        }
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
@@ -104,22 +101,20 @@ class ThemeFileResolver
                 );
             }
 
+            // bundle or wildcard already included? skip to prevent duplicate style/script injection
+            if (in_array($filepath, $included, true)) {
+                continue;
+            }
+            $included[] = $filepath;
             if ($filepath === '@Plugins') {
-                if (!$considerPlugins || $recursionLevel > 0) {
-                    continue;
-                }
-
-                $considerPlugins = false;
-
                 foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, ++$recursionLevel) as $item) {
+                    foreach ($this->resolve($plugin, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
                         $resolvedFiles->add($item);
                     }
                 }
 
                 continue;
             }
-
             if ($filepath === '@StorefrontBootstrap') {
                 $resolvedFiles->add(new File(
                     __DIR__ . '/../Resources/app/storefront/src/scss/base.scss',
@@ -128,16 +123,13 @@ class ThemeFileResolver
 
                 continue;
             }
-
             // Resolve @ dependencies
             $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);
-
             if (!$configuration) {
                 throw new InvalidThemeException($name);
             }
-
-            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $considerPlugins, $configFileResolver, ++$recursionLevel) as $item) {
+            foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
                 $resolvedFiles->add($item);
             }
         }

@@ -98,6 +98,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
             <argument type="service" id="plugin.repository"/>

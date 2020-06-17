@@ -38,7 +38,7 @@ Styling for category navigation component.
 .category-navigation-link {
     display: block;
     padding: 8px 20px;
-    font-weight: normal;
+    font-weight: $font-weight-normal;
     color: $sw-text-color;
 
     &:hover {
@@ -47,10 +47,10 @@ Styling for category navigation component.
 
     &.is-active {
         color: $sw-color-brand-primary;
-        font-weight: bold;
+        font-weight: $font-weight-bold;
     }
 
     &.in-path {
-        font-weight: bold;
+        font-weight: $font-weight-bold;
     }
 }

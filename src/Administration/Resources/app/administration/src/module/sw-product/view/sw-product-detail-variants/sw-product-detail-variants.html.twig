@@ -29,7 +29,14 @@
                                 <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>
                             </div>
 
-                            <sw-button variant="ghost" @click="openModal('variantGeneration')">
+                            <sw-button variant="ghost"
+                                       :disabled="!acl.can('product.creator')"
+                                       v-tooltip="{
+                                            message: this.$tc('sw-privileges.tooltip.warning'),
+                                            disabled: this.acl.can('product.creator'),
+                                            showOnDisabledElements: true
+                                        }"
+                                       @click="openModal('variantGeneration')">
                                 {{ $tc('sw-product.variations.emptyStateButton') }}
                             </sw-button>
                         </div>

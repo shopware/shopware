@@ -7,6 +7,12 @@ export default class PrivilegesService {
         privilegesMappings: []
     });
 
+    requiredPrivileges = [
+        'language:read', // for entityInit and languageSwitch
+        'locale:read', // for localeToLanguage service
+        'message_queue_stats:read' // for message queue
+    ];
+
     /**
      *
      * @param privileges {Array}
@@ -124,5 +130,12 @@ export default class PrivilegesService {
      */
     getPrivilegesMappings() {
         return this.state.privilegesMappings;
+    }
+
+    /**
+     * @returns {[string, string, string]}
+     */
+    getRequiredPrivileges() {
+        return this.requiredPrivileges;
     }
 }

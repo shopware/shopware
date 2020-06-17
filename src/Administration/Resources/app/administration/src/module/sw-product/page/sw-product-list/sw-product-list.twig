@@ -31,7 +31,15 @@
         {% block sw_product_list_smart_bar_actions %}
             <template #smart-bar-actions>
                 {% block sw_product_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.product.create' }" variant="primary">
+                    <sw-button :routerLink="{ name: 'sw.product.create' }"
+                               variant="primary"
+                               :disabled="!acl.can('product.creator')"
+                               v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('product.creator'),
+                                    showOnDisabledElements: true
+                                }"
+                    >
                         {{ $tc('sw-product.list.buttonAddProduct') }}
                     </sw-button>
                 {% endblock %}
@@ -57,6 +65,9 @@
                                            detailRoute="sw.product.detail"
                                            :showSelection="true"
                                            :isLoading="isLoading"
+                                           :editPrivilege="acl.can('product.editor')"
+                                           :deletePrivilege="acl.can('product.deleter')"
+                                           :allowInlineEdit="acl.can('product.editor')"
                                            @inline-edit-save="onInlineEditSave"
                                            @selection-change="updateSelection"
                                            @update-records="updateTotal">
@@ -114,7 +125,12 @@
                                         {% block sw_product_list_grid_columns_actions_duplicate %}
                                             <sw-context-menu-item
                                                 class="sw-product-list-grid__duplicate-action"
-                                                :disabled="item.parentId != null"
+                                                :disabled="item.parentId != null || !acl.can('product.creator')"
+                                                v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('product.creator'),
+                                                        showOnDisabledElements: true
+                                                   }"
                                                 @click="onDuplicate(item)">
                                                 {{ $tc('sw-product.list.buttonDuplicate') }}
                                             </sw-context-menu-item>

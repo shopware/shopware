@@ -216,6 +216,7 @@ Table of contents
 * Core
 
 * Storefront
+* Added ACL permissions to product module
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

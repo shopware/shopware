@@ -13,7 +13,7 @@ const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentH
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService'],
+    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -170,6 +170,14 @@ Component.register('sw-product-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('product.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('product.creator'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -417,6 +425,10 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
+            if (!this.acl.can('product.editor')) {
+                return Promise.reject();
+            }
+
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
                     this.numberRangeService.reserve('product').then((response) => {

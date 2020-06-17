@@ -30,6 +30,7 @@ import './view/sw-product-detail-variants';
 import './view/sw-product-detail-cross-selling';
 import './page/sw-product-list';
 import './page/sw-product-detail';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -50,7 +51,10 @@ Module.register('sw-product', {
             components: {
                 default: 'sw-product-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'product.viewer'
+            }
         },
 
         create: {
@@ -59,12 +63,16 @@ Module.register('sw-product', {
             redirect: {
                 name: 'sw.product.create.base'
             },
+            meta: {
+                privilege: 'product.creator'
+            },
             children: {
                 base: {
                     component: 'sw-product-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.product.index'
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.creator'
                     }
                 }
             }
@@ -79,40 +87,48 @@ Module.register('sw-product', {
             redirect: {
                 name: 'sw.product.detail.base'
             },
+            meta: {
+                privilege: 'product.viewer'
+            },
             children: {
                 base: {
                     component: 'sw-product-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.product.index'
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
                     }
                 },
                 prices: {
                     component: 'sw-product-detail-context-prices',
                     path: 'prices',
                     meta: {
-                        parentPath: 'sw.product.index'
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
                     }
                 },
                 properties: {
                     component: 'sw-product-detail-properties',
                     path: 'properties',
                     meta: {
-                        parentPath: 'sw.product.index'
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
                     }
                 },
                 variants: {
                     component: 'sw-product-detail-variants',
                     path: 'variants',
                     meta: {
-                        parentPath: 'sw.product.index'
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
                     }
                 },
                 crossSelling: {
                     component: 'sw-product-detail-cross-selling',
                     path: 'cross-selling',
                     meta: {
-                        parentPath: 'sw.product.index'
+                        parentPath: 'sw.product.index',
+                        privilege: 'product.viewer'
                     }
                 }
             }
@@ -132,6 +148,7 @@ Module.register('sw-product', {
         path: 'sw.product.index',
         icon: 'default-symbol-products',
         parent: 'sw-catalogue',
+        privilege: 'product.viewer',
         position: 10
     }]
 });

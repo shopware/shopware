@@ -58,7 +58,7 @@
                     {% endblock %}
 
                     {% block sw_users_permissions_permissions_grid_permissions_all_roles %}
-                        <div class="sw-users-permissions-permissions-grid__all">
+                        <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
                             {% block sw_users_permissions_permissions_grid_permissions_all_roles_field %}
                                 <sw-field
                                     v-if="Object.keys(permission.roles).length > 0"

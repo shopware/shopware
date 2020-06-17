@@ -3,6 +3,38 @@ import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
 function createWrapper({ propsData = {}, privileges = [] } = {}) {
+    const $router = {
+        match: (route) => {
+            let match = propsData.entry;
+
+            const path = route.replace(/\//g, '.');
+
+            const matchedChild = propsData.entry.children.find(child => {
+                return child.path === path;
+            });
+
+            if (matchedChild) {
+                match = matchedChild;
+            }
+
+            return {
+                ...match,
+                privilege: undefined,
+                meta: {
+                    privilege: match.privilege
+                }
+            };
+        }
+    };
+
+    const can = (privilege) => {
+        if (!privilege) {
+            return true;
+        }
+
+        return privileges.includes(privilege);
+    };
+
     return shallowMount(Shopware.Component.build('sw-admin-menu-item'), {
         sync: false,
         propsData: propsData,
@@ -19,38 +51,20 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
             $route: {
                 meta: {}
             },
-            $router: {
-                match: (route) => {
-                    let match = propsData.entry;
-
-                    const path = route.replace(/\//g, '.');
-
-                    const matchedChild = propsData.entry.children.find(child => {
-                        return child.path === path;
-                    });
-
-                    if (matchedChild) {
-                        match = matchedChild;
-                    }
-
-                    return {
-                        ...match,
-                        privilege: undefined,
-                        meta: {
-                            privilege: match.privilege
-                        }
-                    };
-                }
-            }
+            $router
         },
         provide: {
             acl: {
-                can: (privilege) => {
-                    if (!privilege) {
+                can,
+                hasAccessToRoute: (path) => {
+                    const route = path.replace(/\./g, '/');
+                    const match = $router.match(route);
+
+                    if (!match.meta) {
                         return true;
                     }
 
-                    return privileges.includes(privilege);
+                    return can(match.meta.privilege);
                 }
             }
         }

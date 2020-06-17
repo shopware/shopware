@@ -6,7 +6,7 @@ const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-product-media-form', {
     template,
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')

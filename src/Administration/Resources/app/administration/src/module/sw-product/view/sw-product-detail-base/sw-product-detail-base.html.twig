@@ -51,7 +51,8 @@
                 <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
 
                     {% block sw_product_detail_base_media_card %}
-                        <sw-card :isLoading="loading.product || loading.customFieldSets || loading.media" :class="{ 'sw-card__inherited': isInherited }">
+                        <sw-card :isLoading="loading.product || loading.customFieldSets || loading.media"
+                                 :class="{ 'sw-card__inherited': isInherited }">
                             <template #title>
                                 {% block sw_product_detail_base_media_card_title %}
                                     <div class="sw-card__title" :class="{ 'sw-card__title__inherited': isInherited }">

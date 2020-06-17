@@ -210,8 +210,6 @@ trait CriteriaQueryHelper
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $this->addSortings($definition, [new FieldSorting('_score', FieldSorting::DESCENDING)], $query, $context);
-
         $minScore = array_map(function (ScoreQuery $query) {
             return $query->getScore();
         }, $criteria->getQueries());

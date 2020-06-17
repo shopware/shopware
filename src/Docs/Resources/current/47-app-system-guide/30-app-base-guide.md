@@ -2,117 +2,15 @@
 [metaDescriptionEn]: <>(This is a guide about the basic information about apps - the base you need to know when developing them.)
 [hash]: <>(article:app_base)
 
-### File structure
+# Interaction
 
-To get started with your app, create an `apps` folder in `custom` of your development template installation. In there, 
-create another folder for your application and provide a manifest file in it.
-```
-...
-└── custom
-    ├── apps
-    │   └── MyExampleApp
-    │       └── manifest.xml
-    └── plugins
-...
-```
-
-### Start writing apps
-
-After creating this file structure and the manifest file, you should be able to install your app via 
-`bin/console app:refresh`.
-
-## Manifest file
-
-The manifest file is the central point of your app. It is the only file which is required, providing all 
-information concerning your app, as seen in the minimal version below:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/app-system/0.1.0/src/Core/Content/App/Manifest/Schema/manifest-1.0.xsd">
-    <meta>
-        <name>YourTechnicalAppName</name>
-        <label>Label</label>
-        <label lang="de-DE">Name</label>
-        <description>A description</description>
-        <description lang="de-DE">Eine Beschreibung</description>
-        <author>Your Company Ltd.</author>
-        <copyright>(c) by Your Company Ltd.</copyright>
-        <version>1.0.0</version>
-    </meta>
-    <setup>
-        <registrationUrl>https://my.example.com/registration</registrationUrl>
-    </setup>
-    <permissions/>
-</manifest>
-```
-
-### Meta data
-
-At first, all general information will be stored in the manifest file. Via `<meta>` element you are able to define all
-meta data of your app. Most are self-explanatory:
-
-* `name`: This is the element for the technical name of your app
-* `label`: In this element, you can set al label for your app. You can even use it to include translations using the `lang`
-attribute
-* `description`
-* `author`
-* `copyright`
-* `version`
-
-### Registration URL
-
-During installation a handshake must take place to give the app a token with which it can communicate with the shop.
-This is configured in the setup element
-
-```xml
-<setup>
-    <registrationUrl>https://my.example.com/registration</registrationUrl>
-</setup>
-```
-
-A request is sent there, with the data to register the shop. The data comes as a query parameter with the following: 
-https://my.app.com/registration?shop=shopurl.com&timestamp=12345&hmac=13abcdef
-A json object is expected in response:
-
-```json
-{
-  "proof": "proof123",
-  "secret": "random secret string",
-  "confirmation_url": "https://my.example.com/registration/confirm"
-}
-```
-
-Where the proof is composed of the one hmac: $proof = hmac($shopurl . $appName, $secret); The secret can be used 
-to validate the requests of the shop. Please keep in mind it must be a sha256 hash: 
-`hmac('sha256', $shopurl . $appName, $secret)`
-
-### Permissions
-
-Your app should be able to work with the data store in your shop. To define the permissions, your app can get in
-the `<permissions>` element. For each permission, please add an own element as seen in the example below:
-
-```xml
-    <permissions>
-        <create>product</create>
-
-        <read>product</read>
-
-        <update>product</update>
-    </permissions>
-```
-
-You set permission to all entities available in Shopware. The permission types to choose from are defined in the 
-scheme, e.g. `read`, `create` or `update`.
-
-## Expansion possibilities
-
-The manifest file takes over even more tasks: There are lots of possibilities to extend Shopware by using apps. In general, all of them can be achieved by adding some
+Your app can define a range of ways to be notified of events in Shopware and to extend the administration ui. In general, all of them can be achieved by adding some
 nodes to the manifest files. The following paragraphs will show you all possibilities we can provide. 
 
 ### Webhooks
 
 With webhooks you are able to subscribe to events occurring in Shopware. Whenever such an event occurs 
-- a notification will be send to your stored URL. Behind this URL there is a program you have defined in your own 
+- a POST request will be send to your stored URL. This URL points to a web application running on your own 
 infrastructure, which for example sends an e-mail with a voucher to the customer who has just placed an order.
 It's important to note that you have to operate the endpoints for your apps by yourself, i.e. the logic you want 
 to execute when an event occurs.
@@ -121,13 +19,50 @@ To use webhooks in your app, please implement a `<webhooks>` element in your man
 
 ```xml
     <webhooks>
-        <webhook name="giveExample" url="http://example/event/example-with-paid-order" event="checkout.order.placed"/>
+        <webhook name="product-changed" url="product-changed" event="product.written"/>
     </webhooks>
 ```
 
-This example illustrates you how to define a webhook with the name `giveExample` and the 
-url `http://example/event/example-with-paid-order` which will be triggered if the event `checkout.order.placed` 
-is fired. So if an order is placed, your custom logic will get executed.
+This example illustrates you how to define a webhook with the name `product-changed` and the 
+url `https://example.com/event/example-with-paid-order` which will be triggered if the event `product.writte` 
+is fired. So every time a product is changed, your custom logic will get executed.
+
+An event contains as much data as is needed to react to that event. The data is json contained in the request body. 
+For example:
+
+```json
+{
+  "data":{
+    "payload":[
+      {
+        "entity":"product",
+        "operation":"delete",
+        "primaryKey":"7b04ebe416db4ebc93de4d791325e1d9",
+        "updatedFields":[
+
+        ]
+      }
+    ],
+    "event":"product.written"
+  },
+  "source":{
+    "url":"http:\/\/localhost:8000",
+    "appVersion":"0.0.1",
+    "shopId":"dgrH7nLU6tlE"
+  }
+}
+
+```
+
+Where the `source` property contains all necessary information about the Shopware instance that send the request:
+* `url` is the url under which your app can reach the Shopware instance and its api
+* `appVersion` is the version of the app that is installed
+* `shopId` is the id by which you can identify the Shopware instance
+
+The next property `data` contains the contents of the event formatted as json.
+
+You can verify the authenticity of the incoming request by checking the `shopware-shop-signature` every request should have a sha256 hmac of the 
+request body, that is signed with the secret your app assigned the shop during the registration.
 
 You can use a variety of events to react to changes in Shopware that way. See the table below for an overview of most
 important ones.
@@ -152,6 +87,64 @@ important ones.
 | `product_price.written` | Triggers if product price is written |
 | `category.written` | Triggers if a category is written |
 
+### Buttons
+
+Another extension possibility in the administration is the ability to add own buttons to the smartbar. For now, you can add
+them in the smartbar of detail and index views:
+
+![custom-buttons](./img/custom-buttons.png)
+
+To get those buttons, you start in the `admin` section of your manifest file. There you can define `<action-button>` 
+elements in order to add your button, as seen as below:
+
+```xml
+<admin>
+    <action-button action="setPromotion" entity="promotion" view="detail" url="https://example.com/promotion/set-promotion">
+        <label>set Promotion</label>
+    </action-button>
+    <action-button action="deletePromotion" entity="promotion" view="detail" url="https://example.com/promotion/delete-promotion">
+        <label>delete Promotion</label>
+    </action-button>
+    <action-button action="restockProduct" entity="product" view="detail" url="https://example.com/restock">
+        <label>restock</label>
+    </action-button>
+</admin>
+```
+
+An action button can have the following attributes:
+* action: Unique identifier for the action, can be set freely.
+* entity: Here you define which entity you're working on.
+* view: To set the view the button should be added to. Currently, you can choose between index and listing view.
+
+When the user then clicks on the Button your app receives a request similar to the the one generated by a webhook above.
+The main difference is that it contains the name of the entity and an array of ids that the user selected 
+(or an array containing just a single id in case the detail page).
+
+```json
+{
+  "source":{
+    "url":"http:\/\/localhost:8000",
+    "appVersion":"1.0.0",
+    "shopId":"F0nWInXj5Xyr"
+  },
+  "data":{
+    "ids":[
+      "2132f284f71f437c9da71863d408882f"
+    ],
+    "entity":"product",
+    "action":"restockProduct"
+  },
+  "meta":{
+    "timestamp":1592403610,
+    "reference":"9e968471797b4f29be3e3cf09f52d8da",
+    "language":"2fbb5fe2e29a4d70aa5854ce7ce3e20b"
+  }
+}
+```
+
+Again you can verify the authenticity of the incoming request, like with webhooks, by checking the `shopware-shop-signature` it too should contain a sha256 hmac of the
+request body, that is signed with the secret your app assigned the shop during the registration.
+
 ### Create own module
 
 In your app, you are able to add your own module to the administration. In this case, your app will add an own module
@@ -173,46 +166,26 @@ there.
 
 ```xml
 <admin>
-    <module name="exampleConfig" source="http://localhost:7777/example/view/example-config">
+    <module name="exampleConfig" source="https://example.com//promotion/view/promotion-config">
         <label>Example config</label>
         <label lang="de-DE">Beispiel Einstellungen</label>
     </module>
 </admin>
 ```
 
-### Buttons
+When the user opens the module in the administration your app will receive a request to the given source url.
+Your app can determine the shop that has opened the module through query parameters added to the url:
+`https://example.com//promotion/view/promotion-config?shop-id=HKTOOpH9nUQ2&shop-url=http%3A%2F%2Fmy.shop.com&timestamp=1592406102&shopware-shop-signature=3621fffa80187f6d43ce6cb25760340ab9ba2ea2f601e6a78a002e601579f415`
 
-Another extension possibility in the administration is the ability to add own buttons to the smartbar. For now, you can 
-them in the smartbar of detail and index views:
+In this case the `shopware-shop-signature` parameter contains an sha256 hmac of the rest of the query string, signed again with the secret your app assigned the shop during the registration.
 
-![custom-buttons](./img/custom-buttons.png)
-
-To get those buttons, you start in the `admin` section of your manifest file. There you can define `<action-button>` 
-elements in order to add your button, as seen as below:
-
-```xml
-<admin>
-    <action-button action="setPromotion" entity="promotion" view="detail" url="http://example/promotion/set-promotion">
-        <label>set Promotion</label>
-    </action-button>
-    <action-button action="deletePromotion" entity="promotion" view="detail" url="http://example/promotion/delete-promotion">
-        <label>delete Promotion</label>
-    </action-button>
-</admin>
-```
-
-An action button can have the following attributes:
-* action: Unique identifier for the action, can be set freely.
-* entity: Here you define which entity you're working on.
-* view: To set the view the button should be added to. Currently, you can choose between index and listing view.
 
 ### Custom fields
 
 ![custom-buttons](./img/custom-fields.png)
 
-By using `<custom-fields>` element, you can add custom fields to Shopware. The additional fields replace 
-the free text fields known from Shopware 5 and offer you the possibility to add your own fields 
-for the different program areas. In other words, existing data records can be extended with additional fields. 
+By using `<custom-fields>` element, you can add custom fields to Shopware.
+And offer you the possibility to add your own fields extending data records. 
 
 ```xml
 <custom-fields>
@@ -245,20 +218,30 @@ as custom fields in Shopware are organised in sets. Here you need to consider so
 </fields>
 ```
 
-When defining custom fields in the `<fields>` element, you can configure a lot of things concerning the fields. 
+When defining custom fields in the `<fields>` element, you can configure additional properties of the fields.
+For example a `placeholder`, `min`, `max` and `step` size of a float field:
+
+```xml
+<float name="test_float_field">
+    <label>Test float field</label>
+    <label lang="de-DE">Test Kommazahlenfeld</label>
+    <help-text>This is an float field.</help-text>
+    <position>2</position>
+    <placeholder>Enter an float...</placeholder>
+    <min>0.5</min>
+    <max>1.6</max>
+    <steps>0.2</steps>
+</float>
+```
+
 Please refer to 
 [Custom field documentation](https://docs.shopware.com/en/shopware-6-en/settings/custom-fields#create-custom-field)
 for further details.
 
-Please pay attention to the fact that the names of the custom fields must be unique! Therefore, it should always be 
-prefixed with the vendor prefix of the manufacturer.
+Watch out! The names of the custom fields are global and therefore should always 
+contain a vendor prefix, like "swag" for "shopware ag", to keep them unique.
 
 ## Examples
-
-### Tutorials
-
-If you want to see a step-by-step tutorial on how to write an app, we got you covered. Please see 
-[How to write an app](./50-app-examples-and-tutorials/10-create-own-app.md) for a detailed tutorial.
 
 ### One full example of a manifest file
 
@@ -279,17 +262,17 @@ Below you can take a look on an extended example on how a full manifest file can
         <icon>icon.png</icon>
     </meta>
     <setup>
-        <registrationUrl/>
+        <registrationUrl>https://example/</registrationUrl>
     </setup>
     <admin>
-        <action-button action="setPromotion" entity="promotion" view="detail" url="http://example/promotion/set-promotion">
+        <action-button action="setPromotion" entity="promotion" view="detail" url="https://example.com/promotion/set-promotion">
             <label>set Promotion</label>
         </action-button>
-        <action-button action="deletePromotion" entity="promotion" view="detail" url="http://example/promotion/delete-promotion">
+        <action-button action="deletePromotion" entity="promotion" view="detail" url="https://example.com/promotion/delete-promotion">
             <label>delete Promotion</label>
         </action-button>
 
-        <module name="promotionConfig" source="http://localhost:7777/promotion/view/promotion-config">
+        <module name="promotionConfig" source="https://example.com//promotion/view/promotion-config">
             <label>Promotion config</label>
             <label lang="de-DE">Gutscheincode Einstellungen</label>
         </module>
@@ -335,7 +318,7 @@ Below you can take a look on an extended example on how a full manifest file can
     </custom-fields>
 
     <webhooks>
-        <webhook name="orderPromotion" url="http://example/promotion/event/state-enter-order-transaction-state-paid" event="state_enter.order_transaction.state.paid"/>
+        <webhook name="orderPromotion" url="https://example.com//promotion/event/state-enter-order-transaction-state-paid" event="state_enter.order_transaction.state.paid"/>
     </webhooks>
 </manifest>
 ```

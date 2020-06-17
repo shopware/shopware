@@ -21,6 +21,14 @@
 
 .cart-item-discount-icon {
     text-align: center;
+    height: 100%;
+
+    .icon {
+        height: 100%;
+        > svg {
+            top: 0;
+        }
+    }
 }
 
 .cart-item-nested-icon {

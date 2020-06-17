@@ -171,9 +171,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Util\AssetService">
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
 
         <!-- Requirement -->

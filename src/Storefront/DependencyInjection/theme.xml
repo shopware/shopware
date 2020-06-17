@@ -14,13 +14,15 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
             <argument type="service" id="media.repository"/>
+            <argument type="tagged" tag="shopware.asset"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>

@@ -132,7 +132,7 @@ class InfoController extends AbstractController
     private function getBundles(): array
     {
         $assets = [];
-        $package = $this->packages->getPackage();
+        $package = $this->packages->getPackage('asset');
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {

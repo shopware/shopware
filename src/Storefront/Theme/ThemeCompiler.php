@@ -9,6 +9,7 @@ use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ThemeCompiler implements ThemeCompilerInterface
@@ -26,7 +28,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     /**
      * @var FilesystemInterface
      */
-    private $publicFilesystem;
+    private $filesystem;
 
     /**
      * @var Compiler
@@ -58,16 +60,28 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private $mediaRepository;
 
+    /**
+     * @var Package[]
+     */
+    private $packages;
+
+    /**
+     * @var CacheClearer
+     */
+    private $cacheClearer;
+
     public function __construct(
-        FilesystemInterface $publicFilesystem,
+        FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
         ThemeFileImporterInterface $themeFileImporter,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepositoryInterface $mediaRepository,
+        iterable $packages,
+        CacheClearer $cacheClearer
     ) {
-        $this->publicFilesystem = $publicFilesystem;
+        $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->themeFileImporter = $themeFileImporter;
@@ -78,6 +92,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
         $this->eventDispatcher = $eventDispatcher;
         $this->mediaRepository = $mediaRepository;
+        $this->packages = $packages;
+        $this->cacheClearer = $cacheClearer;
     }
 
     public function compileTheme(
@@ -90,8 +106,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
         $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
 
-        if ($withAssets && $this->publicFilesystem->has($outputPath)) {
-            $this->publicFilesystem->deleteDir($outputPath);
+        if ($withAssets && $this->filesystem->has($outputPath)) {
+            $this->filesystem->deleteDir($outputPath);
         }
 
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
@@ -104,7 +120,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
-        $this->publicFilesystem->put($cssFilepath, $compiled);
+        $this->filesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
@@ -114,12 +130,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
-        $this->publicFilesystem->put($scriptFilepath, $concatenatedScripts);
+        $this->filesystem->put($scriptFilepath, $concatenatedScripts);
 
         // assets
         if ($withAssets) {
             $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
         }
+
+        // Reset cache buster state for improving performance in getMetadata
+        $this->cacheClearer->invalidateTags(['theme-metaData']);
     }
 
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
@@ -152,7 +171,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
             // method copyBatch is provided by copyBatch filesystem plugin
-            $this->publicFilesystem->copyBatch(...$assets);
+            $this->filesystem->copyBatch(...$assets);
         }
     }
 
@@ -255,6 +274,10 @@ class ThemeCompiler implements ThemeCompilerInterface
                 /* @var MediaEntity $media */
                 $variables[$key] = '\'' . $medias->get($mediaId)->getUrl() . '\'';
             }
+        }
+
+        foreach ($this->packages as $key => $package) {
+            $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
         }
 
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);

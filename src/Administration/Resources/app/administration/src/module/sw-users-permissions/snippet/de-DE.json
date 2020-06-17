@@ -36,6 +36,9 @@
         "labelDescription": "Beschreibung",
         "permissions": "Berechtigungen"
       },
+      "grid": {
+        "title": "Berechtigungen"
+      },
       "additional-permissions": {
         "title": "Zusätzliche Berechtigungen"
       }
@@ -141,12 +144,20 @@
             "title": "Erfolg",
             "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
           },
-          "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein."
+          "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail-Adresse ein.",
+          "duplicateEmailErrorMessage": "Deine E-Mail-Adresse wird bereits verwendet."
         }
       }
     }
   },
   "sw-privileges": {
+    "roles": {
+      "all": "Alle",
+      "viewer": "Ansehen",
+      "editor": "Bearbeiten",
+      "creator": "Erstellen",
+      "deleter": "Löschen"
+    },
     "additional_permissions": {
       "system": {
         "label": "System"

@@ -8,6 +8,8 @@ const { Component } = Shopware;
 Component.register('sw-admin-menu-item', {
     template,
 
+    inject: ['acl'],
+
     props: {
         entry: {
             type: Object,
@@ -53,10 +55,53 @@ Component.register('sw-admin-menu-item', {
                 return (this.entry.label.translated) ? this.entry.label.label : this.$tc(this.entry.label.label);
             }
             return this.$tc(this.entry.label);
+        },
+
+        showMenuItem() {
+            if (this.children.length > 0) {
+                return true;
+            }
+
+            if (this.getLinkToProp && this.getLinkToProp.name) {
+                const { name } = this.getLinkToProp;
+
+                return this.hasAccessToRoute(name);
+            }
+
+            return false;
+        },
+
+        entryPath() {
+            if (this.entry.path && this.hasAccessToRoute(this.entry.path)) {
+                return this.entry.path;
+            }
+
+            return undefined;
+        },
+
+        children() {
+            return this.entry.children.filter(child => {
+                if (!child.privilege) {
+                    return true;
+                }
+
+                return this.acl.can(child.privilege);
+            });
         }
     },
 
     methods: {
+        hasAccessToRoute(path) {
+            const route = path.replace(/\./g, '/');
+            const match = this.$router.match(route);
+
+            if (!match.meta) {
+                return true;
+            }
+
+            return this.acl.can(match.meta.privilege);
+        },
+
         getIconName(name) {
             return `${name}`;
         },

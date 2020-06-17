@@ -1,0 +1,9 @@
+{
+  "sw-privilege-error": {
+    "general": {
+      "mainMenuItemGeneral": "Access denied",
+      "descriptionTextModule": "Looks like you don’t have permission to access this page. Reach out to an administrator to gain access.",
+      "goBack": "Go back"
+    }
+  }
+}

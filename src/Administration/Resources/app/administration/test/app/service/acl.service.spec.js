@@ -1,6 +1,10 @@
 import AclService from 'src/app/service/acl.service';
 
 describe('src/app/service/acl.service.js', () => {
+    beforeAll(() => {
+        Shopware.FeatureConfig.isActive = () => true;
+    });
+
     it('should be an admin', () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: true } })

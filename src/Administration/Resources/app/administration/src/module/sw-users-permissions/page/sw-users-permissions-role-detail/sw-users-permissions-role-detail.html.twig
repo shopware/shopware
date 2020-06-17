@@ -62,10 +62,7 @@
                         {% endblock %}
 
                         {% block sw_users_permissions_role_detail_content_card_view_permissions %}
-                            <sw-card
-                                v-if="false" {# TODO: enable with NEXT-8880 #}
-                                :title="$tc('sw-users-permissions.roles.detail.permissions')">
-                            </sw-card>
+                            <sw-users-permissions-permissions-grid :role="role" />
                         {% endblock %}
 
                         {% block sw_users_permissions_role_detail_content_card_view_additional_permissions %}

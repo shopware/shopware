@@ -335,5 +335,12 @@
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
       "assignPlaceholder": "Durchsuche Produkte ..."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product": {
+        "label": "Produkte"
+      }
+    }
   }
 }

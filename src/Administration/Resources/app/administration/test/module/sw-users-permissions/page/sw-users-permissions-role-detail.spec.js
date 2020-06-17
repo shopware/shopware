@@ -137,7 +137,13 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         wrapper.vm.onSave();
 
         expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
-            { privileges: ['system.clear_cache', 'system:clear:cache'] },
+            {
+                privileges: [
+                    'system.clear_cache',
+                    'system:clear:cache',
+                    ...wrapper.vm.requiredPrivileges
+                ]
+            },
             expect.anything()
         );
     });
@@ -182,7 +188,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 'system.clear_cache',
                 'system:clear:cache',
                 'orders.create_discounts',
-                'order:create:discount'
+                'order:create:discount',
+                ...wrapper.vm.requiredPrivileges
             ] },
             expect.anything()
         );

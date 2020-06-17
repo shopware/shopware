@@ -1,3 +1,5 @@
+import { next3722 } from 'src/flag/feature_next3722';
+
 export default class AclService {
     state;
 
@@ -19,6 +21,10 @@ export default class AclService {
      * @returns {boolean}
      */
     can(privilegeKey) {
+        if (!next3722()) {
+            return true;
+        }
+
         if (this.isAdmin() || !privilegeKey) {
             return true;
         }

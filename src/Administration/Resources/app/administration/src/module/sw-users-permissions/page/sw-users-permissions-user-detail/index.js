@@ -358,6 +358,12 @@ Component.register('sw-users-permissions-user-detail', {
                             this.isLoading = false;
                         });
                 }
+
+                this.createNotificationError({
+                    title: this.$tc('sw-users-permissions.users.user-detail.notification.saveError.title'),
+                    message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
+                });
+
                 return Promise.resolve();
             }).finally(() => {
                 this.isLoading = false;

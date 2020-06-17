@@ -20,7 +20,7 @@ Component.register('sw-users-permissions-additional-permissions', {
     },
 
     computed: {
-        additionalPrivileges() {
+        additionalPermissions() {
             const privileges = this.privileges.getPrivilegesMappings();
 
             return privileges.filter(privilege => privilege.category === 'additional_permissions');

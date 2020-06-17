@@ -35,21 +35,33 @@ Module.register('sw-sales-channel', {
         detail: {
             component: 'sw-sales-channel-detail',
             path: 'detail/:id',
+            meta: {
+                privilege: 'sales_channel.viewer'
+            },
             redirect: {
                 name: 'sw.sales.channel.detail.base'
             },
             children: {
                 base: {
                     component: 'sw-sales-channel-detail-base',
-                    path: 'base'
+                    path: 'base',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',
-                    path: 'product-comparison'
+                    path: 'product-comparison',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 },
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
-                    path: 'analytics'
+                    path: 'analytics',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 }
             }
         },
@@ -63,7 +75,10 @@ Module.register('sw-sales-channel', {
             children: {
                 base: {
                     component: 'sw-sales-channel-create-base',
-                    path: 'base'
+                    path: 'base',
+                    meta: {
+                        privilege: 'sales_channel.creator'
+                    }
                 }
             }
         }

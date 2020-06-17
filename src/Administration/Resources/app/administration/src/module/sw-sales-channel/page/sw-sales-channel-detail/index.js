@@ -8,7 +8,8 @@ Component.register('sw-sales-channel-detail', {
 
     inject: [
         'repositoryFactory',
-        'exportTemplateService'
+        'exportTemplateService',
+        'acl'
     ],
 
     mixins: [
@@ -101,12 +102,24 @@ Component.register('sw-sales-channel-detail', {
         },
 
         tooltipSave() {
+            if (!this.allowSaving) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSaving,
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
                 message: `${systemKey} + S`,
                 appearance: 'light'
             };
+        },
+
+        allowSaving() {
+            return this.acl.can('sales_channel.editor');
         }
     },
 

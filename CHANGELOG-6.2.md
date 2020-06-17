@@ -19,6 +19,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` to return empty string instead null.
 
 * Storefront
+    * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
 
 **Removals**
 

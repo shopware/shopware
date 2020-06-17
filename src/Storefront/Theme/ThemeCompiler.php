@@ -248,10 +248,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if (in_array($data['type'], ['media','text','textarea'])) {
-                // Add id of media which needs to be resolved
-                if (Uuid::isValid($data['value'])) {
-                    $mediaIds[$key] = $data['value'];
+            if (in_array($data['type'], ['media', 'textarea'], true)) {
+                if ($data['type'] === 'media') {
+                    // Add id of media which needs to be resolved
+                    if (Uuid::isValid($data['value'])) {
+                        $mediaIds[$key] = $data['value'];
+                    }
                 }
 
                 $variables[$key] = '\'' . $data['value'] . '\'';

@@ -58,8 +58,12 @@ class CmsController extends StorefrontController
      * @throws MissingRequestParameterException
      * @throws PageNotFoundException
      */
-    public function page(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
+        if (!$id) {
+            throw new MissingRequestParameterException('Parameter id missing');
+        }
+
         $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
         return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
@@ -76,8 +80,12 @@ class CmsController extends StorefrontController
      * @throws PageNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function category(string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
+        if (!$navigationId) {
+            throw new MissingRequestParameterException('Parameter navigationId missing');
+        }
+
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
         if (!$category->getCmsPageId()) {

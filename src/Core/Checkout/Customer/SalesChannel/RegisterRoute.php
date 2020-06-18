@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
+use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
@@ -175,6 +176,8 @@ class RegisterRoute extends AbstractRegisterRoute
             $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl')));
         } elseif (!$customerEntity->getGuest()) {
             $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customerEntity));
+        } else {
+            $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($context, $customerEntity));
         }
 
         // We don't want to leak the hash in store-api

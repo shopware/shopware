@@ -241,11 +241,6 @@ Administration
 This was an important change, because every checkbox and switch field has the same id. This causes problems when you click
 on the corresponding label.
 
-* Implemented blocks for the different options in the `sw-cms-el-config-product-box` modules `sw-select-field`s. 
-This allows to append additional options to the `sw-select-field`s.
-    * Added `{% block sw_cms_element_product_box_config_layout_select_options %}`
-    * Added `{% block sw_cms_element_product_box_config_displaymode_select_options %}`
-    * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
 
 Storefront
 ----------

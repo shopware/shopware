@@ -246,9 +246,7 @@ Component.register('sw-promotion-detail', {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage',
-                        0,
-                        { entityName: this.promotion.name }
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
                 throw error;
@@ -285,9 +283,7 @@ Component.register('sw-promotion-detail', {
                             this.createNotificationError({
                                 title: this.$tc('global.default.error'),
                                 message: this.$tc(
-                                    'global.notification.notificationSaveErrorMessage',
-                                    0,
-                                    { entityName: this.promotion.name }
+                                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                                 )
                             });
                             throw error;

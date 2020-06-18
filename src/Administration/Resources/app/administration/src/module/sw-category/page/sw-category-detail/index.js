@@ -360,13 +360,10 @@ Component.register('sw-category-detail', {
             }).catch(() => {
                 this.isLoading = false;
 
-                const categoryName = this.category.name || this.category.translated.name;
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage',
-                        0,
-                        { entityName: categoryName }
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
             });

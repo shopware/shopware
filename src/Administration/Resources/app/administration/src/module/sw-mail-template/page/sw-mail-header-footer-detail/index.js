@@ -133,15 +133,10 @@ Component.register('sw-mail-header-footer-detail', {
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    const mailHeaderFooterName = this.mailHeaderFooter.name || this.placeholder(
-                        this.mailHeaderFooter,
-                        'name'
-                    );
-
                     const notificationError = {
                         title: this.$tc('global.default.error'),
                         message: this.$tc(
-                            'global.notification.notificationSaveErrorMessage', 0, { entityName: mailHeaderFooterName }
+                            'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         )
                     };
 

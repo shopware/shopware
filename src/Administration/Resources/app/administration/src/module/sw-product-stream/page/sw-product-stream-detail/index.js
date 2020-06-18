@@ -238,7 +238,7 @@ Component.register('sw-product-stream-detail', {
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
                 message: this.$tc(
-                    'global.notification.notificationSaveErrorMessage', 0, { entityName: this.productStream.name }
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                 )
             });
         },

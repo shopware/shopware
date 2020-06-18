@@ -143,10 +143,9 @@ Component.register('sw-settings-payment-detail', {
         },
 
         onSave() {
-            const paymentMethodName = this.paymentMethod.name || this.placeholder(this.paymentMethod, 'name');
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: paymentMethodName }
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
             this.isSaveSuccessful = false;
             this.isLoading = true;

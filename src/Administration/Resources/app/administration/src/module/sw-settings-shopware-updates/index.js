@@ -3,6 +3,7 @@ import './page/sw-settings-shopware-updates-wizard';
 import './view/sw-settings-shopware-updates-info';
 import './view/sw-settings-shopware-updates-requirements';
 import './view/sw-settings-shopware-updates-plugins';
+import './acl';
 
 
 const { Module } = Shopware;
@@ -23,19 +24,22 @@ Module.register('sw-settings-shopware-updates', {
             component: 'sw-settings-shopware-updates-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.core_update'
             }
         },
         wizard: {
             component: 'sw-settings-shopware-updates-wizard',
             path: 'wizard',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.core_update'
             }
         }
     },
 
     settingsItem: {
+        privilege: 'system.core_update',
         group: 'system',
         to: 'sw.settings.shopware.updates.index',
         icon: 'default-arrow-360-full'

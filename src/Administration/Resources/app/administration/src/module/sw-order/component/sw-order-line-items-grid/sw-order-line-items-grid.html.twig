@@ -36,7 +36,10 @@
                                             <sw-context-menu-item @click="onInsertBlankItem">
                                                 {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
                                             </sw-context-menu-item>
-                                            <sw-context-menu-item @click="onInsertCreditItem">
+                                            <sw-context-menu-item
+                                                class="sw-order-line-items-grid__can-create-discounts-button"
+                                                :disabled="!canCreateDiscounts"
+                                                @click="onInsertCreditItem">
                                                 {{ $tc('sw-order.detailBase.buttonAddCredit') }}
                                             </sw-context-menu-item>
                                         {% endblock %}

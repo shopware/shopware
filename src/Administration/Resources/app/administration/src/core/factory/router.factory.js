@@ -130,6 +130,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                 }
             }
 
+            // User tries to access a route which needs a special privilege
+            if (to.meta.privilege && !Shopware.Service('acl').can(to.meta.privilege)) {
+                return next({ name: 'sw.privilege.error' }); // TODO: NEXT-8880 implement this page
+            }
+
             return resolveRoute(to, from, next);
         });
 

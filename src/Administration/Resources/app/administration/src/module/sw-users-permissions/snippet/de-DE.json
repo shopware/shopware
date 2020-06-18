@@ -28,6 +28,16 @@
             "message": "Beim Löschen der Rolle \"{name}\" ist ein Fehler aufgetreten."
           }
         }
+      },
+      "detail": {
+        "role": "Rolle",
+        "basicInformation": "Basisinformationen",
+        "labelName": "Name",
+        "labelDescription": "Beschreibung",
+        "permissions": "Berechtigungen"
+      },
+      "additional-permissions": {
+        "title": "Zusätzliche Berechtigungen"
       }
     },
     "users": {
@@ -133,6 +143,19 @@
           },
           "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein."
         }
+      }
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "label": "System"
+      },
+      "marketing": {
+        "label": "Marketing"
+      },
+      "orders": {
+        "label": "Bestellungen"
       }
     }
   }

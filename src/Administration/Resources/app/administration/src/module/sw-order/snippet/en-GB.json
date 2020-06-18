@@ -315,5 +315,12 @@
       "messageNoItems": "No automatic promotions active.",
       "buttonDisable": "Disable"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "orders": {
+        "create_discounts": "Create discounts"
+      }
+    }
   }
 }

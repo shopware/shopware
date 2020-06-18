@@ -76,5 +76,13 @@
       "messageUpdateCheck": "Your current version can be updated to {version}. What do you want to do?",
       "backupLabel": "Yes, I've already created a backup."
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "core_update": "Run updates",
+        "plugin_maintain": "Maintain plugins"
+      }
+    }
   }
 }

@@ -315,5 +315,12 @@
       "messageNoItems": "Noch keine automatischen Werbeaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "orders": {
+        "create_discounts": "Rabatte erstellen"
+      }
+    }
   }
 }

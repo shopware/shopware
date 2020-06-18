@@ -340,7 +340,10 @@ Component.register('sw-users-permissions-user-detail', {
                     );
 
                     return this.userRepository.save(this.user, Shopware.Context.api).then(() => {
-                        this.isLoading = false;
+                        return this.updateCurrentUser();
+                    }).then(() => {
+                        this.createdComponent();
+
                         this.isSaveSuccessful = true;
                     }).catch((exception) => {
                         this.createNotificationError({
@@ -350,12 +353,24 @@ Component.register('sw-users-permissions-user-detail', {
                         warn(this._name, exception.message, exception.response);
                         this.isLoading = false;
                         throw exception;
-                    });
+                    })
+                        .finally(() => {
+                            this.isLoading = false;
+                        });
                 }
                 return Promise.resolve();
             }).finally(() => {
                 this.isLoading = false;
             }));
+        },
+
+        updateCurrentUser() {
+            return this.userService.getUser().then((response) => {
+                const data = response.data;
+                delete data.password;
+
+                return Shopware.State.commit('setCurrentUser', data);
+            });
         },
 
         onCancel() {

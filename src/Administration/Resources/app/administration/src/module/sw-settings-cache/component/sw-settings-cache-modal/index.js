@@ -14,7 +14,8 @@ Component.register('sw-settings-cache-modal', {
     ],
 
     inject: [
-        'cacheApiService'
+        'cacheApiService',
+        'acl'
     ],
 
     created() {
@@ -37,6 +38,10 @@ Component.register('sw-settings-cache-modal', {
         },
 
         openModal() {
+            if (!this.acl.can('system.clear_cache')) {
+                return;
+            }
+
             this.open = true;
         },
 

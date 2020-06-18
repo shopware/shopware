@@ -39,5 +39,12 @@
       "direct": "Instantly active",
       "messageEmpty": "No newsletter recipients yet"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "marketing": {
+        "send_newsletter": "Send newsletter"
+      }
+    }
   }
 }

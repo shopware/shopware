@@ -8,6 +8,8 @@ import VueAdapter from 'src/app/adapter/view/vue.adapter';
 
 /** Services */
 import MenuService from 'src/app/service/menu.service';
+import PrivilegesService from 'src/app/service/privileges.service';
+import AclService from 'src/app/service/acl.service';
 import LoginService from 'src/core/service/login.service';
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
@@ -55,6 +57,12 @@ Object.keys(allInitializers).forEach((key) => {
 Application
     .addServiceProvider('menuService', () => {
         return MenuService(factoryContainer.module);
+    })
+    .addServiceProvider('privileges', () => {
+        return new PrivilegesService();
+    })
+    .addServiceProvider('acl', () => {
+        return new AclService(Shopware.State);
     })
     .addServiceProvider('loginService', () => {
         const serviceContainer = Application.getContainer('service');

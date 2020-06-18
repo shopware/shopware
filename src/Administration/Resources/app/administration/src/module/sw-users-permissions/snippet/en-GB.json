@@ -28,6 +28,16 @@
             "message": "An error occurred while deleting the role \"{name}\"."
           }
         }
+      },
+      "detail": {
+        "role": "Role",
+        "basicInformation": "Basic information",
+        "labelName": "Name",
+        "labelDescription": "Description",
+        "permissions": "Permissions"
+      },
+      "additional-permissions": {
+        "title": "Additional permissions"
       }
     },
     "users": {
@@ -133,6 +143,19 @@
           },
           "notificationInvalidEmailErrorMessage": "Please enter a valid email address."
         }
+      }
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "label": "System"
+      },
+      "marketing": {
+        "label": "Marketing"
+      },
+      "orders": {
+        "label": "Orders"
       }
     }
   }

@@ -206,6 +206,15 @@ Table of contents
 * Replace the module 'sw-settings-user' with 'sw-users-permissions'
 * Added listing for roles in users and permissions module
 * Added fields for roles and jobTitle in user detail page
+* Added `acl` service for checking if the user have the correct rights
+* Added `privileges` service for adding new privileges
+* Added editing for roles in users and permissions module
+    * additional permissions
+* Added some additional permissions and implement them in the admin
+    * Order: create discounts
+    * Cache: clear cache
+    * System: update core
+    * System: maintain plugins
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

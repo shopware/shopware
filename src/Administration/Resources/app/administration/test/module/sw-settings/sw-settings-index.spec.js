@@ -5,8 +5,9 @@ import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-function createWrapper(settingsItems = null) {
-    const settingsItemsMock = settingsItems || [
+
+function createWrapper(privileges = []) {
+    const settingsItemsMock = [
         {
             group: 'system',
             to: 'sw.settings.store.index',
@@ -57,8 +58,6 @@ function createWrapper(settingsItems = null) {
         }
     ];
 
-    Shopware.State.get('settingsItems').settingsGroups = {};
-
     settingsItemsMock.forEach((settingsItem) => {
         Shopware.State.commit('settingsItems/addItem', settingsItem);
     });
@@ -74,6 +73,15 @@ function createWrapper(settingsItems = null) {
             'router-link': '<a></a>',
             'sw-icon': '<span></span>'
         },
+        provide: {
+            acl: {
+                can: (key) => {
+                    if (!key) return true;
+
+                    return privileges.includes(key);
+                }
+            }
+        },
         mocks: {
             $tc: (value) => value,
             $device: { onResize: () => {} }
@@ -82,6 +90,10 @@ function createWrapper(settingsItems = null) {
 }
 
 describe('module/sw-settings/page/sw-settings-index', () => {
+    beforeEach(() => {
+        Shopware.State.get('settingsItems').settingsGroups = {};
+    });
+
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
         expect(wrapper.isVueInstance()).toBeTruthy();
@@ -159,5 +171,67 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
             });
         });
+    });
+
+    it('should add the setting to the settingsGroups in store', () => {
+        const settingsItemToAdd = {
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b'
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = createWrapper();
+
+        const settingsGroups = wrapper.vm.settingsGroups.shop;
+        const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
+
+        expect(barSetting).toBeDefined();
+    });
+
+    it('should show the setting with the privileges', () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b'
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = createWrapper('system.foo_bar');
+
+        const settingsGroups = wrapper.vm.defaultSettingsGroups.shop;
+        const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
+
+        expect(barSetting).toBeDefined();
+    });
+
+    it('should not show the setting with the privileges', () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b'
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = createWrapper();
+
+        const settingsGroups = wrapper.vm.defaultSettingsGroups.shop;
+        const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
+
+        expect(barSetting).toBeUndefined();
     });
 });

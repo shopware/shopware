@@ -30,7 +30,7 @@ if (isDev) {
 }
 
 // Error Handling when something is not defined
-if (!process.env.ENV_FILE) {
+if (isDev && !process.env.ENV_FILE) {
     console.error(chalk.red('\n \u{26A0}️  You need to add the "ENV_FILE" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }

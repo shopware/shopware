@@ -190,6 +190,8 @@ Administration
             {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
         </template>
         ```
+* Removed the `inheritance` header being set to `true` in the method `loadProduct` of the component `sw-product-detail`
+* Removed unnecessary loading of `crossSelling` associations in the computed property `productCriteria` of the component `sw-product-detail`
 
 Storefront
 --------------

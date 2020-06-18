@@ -145,7 +145,7 @@ Component.register('sw-inherit-wrapper', {
                 return this.value.length <= 0;
             }
 
-            return this.value === null;
+            return this.value === null || this.value === undefined;
         }
     },
 

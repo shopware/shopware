@@ -25,15 +25,24 @@
                             <div v-for="set in sets"
                                  v-if="set.customFields"
                                  v-show="active === set.name">
-                                <template v-for="customField in set.customFields">
-                                    {% block sw_custom_field_set_renderer_card_form_renderer %}
-                                        <sw-form-field-renderer
-                                                v-bind="customField"
-                                                :disabled="disabled"
-                                                v-model="entity.customFields[customField.name]">
-                                        </sw-form-field-renderer>
-                                    {% endblock %}
-                                </template>
+                                {% block sw_custom_field_set_renderer_card_form_renderer %}
+                                    <template v-for="customField in set.customFields">
+                                        <sw-inherit-wrapper v-if="entity && entity.customFields"
+                                                            v-model="entity.customFields[customField.name]"
+                                                            :hasParent="hasParent"
+                                                            :inheritedValue="getInheritValue('customFields', customField.name)"
+                                                            :label="getInlineSnippet(customField.config.label)">
+                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                <sw-form-field-renderer
+                                                    v-bind="getBind(customField)"
+                                                    :disabled="disabled || isInherited"
+                                                    :value="currentValue"
+                                                    @change="updateCurrentValue">
+                                                </sw-form-field-renderer>
+                                            </template>
+                                        </sw-inherit-wrapper>
+                                    </template>
+                                {% endblock %}
                             </div>
                         </template>
                     {% endblock %}

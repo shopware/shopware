@@ -22,6 +22,7 @@ Component.register('sw-custom-field-set-renderer', {
     provide() {
         return {
             getEntity: this.entity,
+            getParentEntity: this.parentEntity,
             getCustomFieldSet: this.set,
             getCustomFieldSetVariant: this.variant
         };
@@ -35,6 +36,11 @@ Component.register('sw-custom-field-set-renderer', {
         entity: {
             type: Object,
             required: true
+        },
+        parentEntity: {
+            type: Object,
+            required: false,
+            default: null
         },
         variant: {
             type: String,
@@ -56,12 +62,18 @@ Component.register('sw-custom-field-set-renderer', {
         isLoading: {
             type: Boolean,
             default: false,
-            require: false
+            required: false
         },
         isSaveSuccessful: {
             type: Boolean,
             default: false,
-            require: false
+            required: false
+        }
+    },
+
+    computed: {
+        hasParent() {
+            return this.parentEntity ? !!this.parentEntity.id : false;
         }
     },
 
@@ -86,6 +98,23 @@ Component.register('sw-custom-field-set-renderer', {
             if (!this.entity.customFields) {
                 this.entity.customFields = {};
             }
+        },
+
+        getInheritValue(firstKey, secondKey) {
+            const parentEntity = this.parentEntity;
+
+            if (parentEntity && parentEntity[firstKey]) {
+                return parentEntity[firstKey].hasOwnProperty(secondKey) ? parentEntity[firstKey][secondKey] : parentEntity[firstKey];
+            }
+
+            return null;
+        },
+
+        getBind(customField) {
+            const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
+            delete customFieldClone.config.label;
+
+            return customFieldClone;
         }
     }
 });

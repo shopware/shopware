@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/view/sw-customer-detail-base';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';
+import 'src/app/component/utils/sw-inherit-wrapper';
 
 const customFields = [
     {
@@ -74,7 +75,8 @@ function createWrapper() {
             'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
             'sw-tabs': '<div><slot name="content"></slot></div>',
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': '<div></div>'
+            'sw-field': '<div></div>',
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
         }
     });
 }

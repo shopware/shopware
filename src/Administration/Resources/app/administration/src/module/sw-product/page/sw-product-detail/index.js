@@ -330,8 +330,7 @@ Component.register('sw-product-detail', {
             this.productRepository.get(
                 this.productId || this.product.id,
                 {
-                    ...Shopware.Context.api,
-                    inheritance: true
+                    ...Shopware.Context.api
                 },
                 this.productCriteria
             ).then((res) => {

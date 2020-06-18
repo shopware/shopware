@@ -20,6 +20,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+    * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
 
 **Removals**
 

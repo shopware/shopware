@@ -417,7 +417,7 @@
           "label": "Bild-Slider"
         },
         "imageThreeColumn": {
-          "label": "Zwei Spalten, zentriert"
+          "label": "Drei Spalten, zentriert"
         },
         "imageThreeCover": {
           "label": "Drei Spalten, gestreckt"
@@ -453,10 +453,10 @@
           "label": "Zwei Spalten, Teaser-Text"
         },
         "textThreeColumn": {
-          "label": "Zwei Spalten, Text"
+          "label": "Drei Spalten, Text"
         },
         "textTwoColumn": {
-          "label": "Drei Spalten, Text"
+          "label": "Zwei Spalten, Text"
         }
       },
       "textImage": {

@@ -53,7 +53,7 @@ Component.register('sw-product-list', {
             }).map(item => {
                 return {
                     property: `price-${item.isoCode}`,
-                    dataIndex: `price-${item.id}`,
+                    dataIndex: 'price',
                     label: `${item.name}`,
                     routerLink: 'sw.product.detail',
                     allowResize: true,

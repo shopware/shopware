@@ -124,7 +124,7 @@ class ThemeVariablesSubscriber implements EventSubscriberInterface
 
 ### All config fields as SCSS variables
 
-Adding config fields via `$event->addVariable()` individually for every field may be a bit cumbersome in some cases. You could also loop over all config fields and call `addVariable()` for each config field. But this depends on your usecase.
+Adding config fields via `$event->addVariable()` individually for every field may be a bit cumbersome in some cases. You could also loop over all config fields and call `addVariable()` for each config field. But this depends on your use case.
 
 ```php
 // ScssPlugin/src/Subscriber/ThemeVariablesSubscriber.php

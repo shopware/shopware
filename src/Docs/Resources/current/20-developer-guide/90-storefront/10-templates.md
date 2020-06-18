@@ -3,7 +3,7 @@
 [hash]: <>(article:developer_storefront_templates)
 
 The storefront theme is using [Boostrap](https://getbootstrap.com/). 
-Therefore the template structure is a derivate of the 
+Therefore the template structure is a derivative of the 
 [bootstrap starter template](https://getbootstrap.com/docs/4.3/getting-started/introduction/#starter-template). 
 The templating engine used is [Twig](https://twig.symfony.com/).
 For styling [SASS](https://sass-lang.com/) is used as CSS preprocessor.

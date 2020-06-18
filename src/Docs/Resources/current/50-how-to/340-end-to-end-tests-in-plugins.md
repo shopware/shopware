@@ -75,7 +75,7 @@ similar to this one:
 * `fixtures`: Here you can save and access your test's fixture data
 * `integration`: In here, the actual test files are located.
 * `plugins`: If you want to extend Cypress, this is the place to add plugins.
-* `support`: Here, all custom commands, page obejct and other helpers are stored. The `cypress/support/index.js` 
+* `support`: Here, all custom commands, page object and other helpers are stored. The `cypress/support/index.js` 
 will be run before every test. 
 * `cypress.json`: This is the configuration file.
 

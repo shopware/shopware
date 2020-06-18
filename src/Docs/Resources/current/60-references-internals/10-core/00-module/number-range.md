@@ -1,7 +1,7 @@
 [titleEn]: <>(Number Range)
 [hash]: <>(article:number-range)
 
-Shopware 6 integrates a configurable number range generator and manager. Numberranges are defined unique identifiers for specific entities.
+Shopware 6 integrates a configurable number range generator and manager. Number ranges are defined unique identifiers for specific entities.
 
 ## Components
 
@@ -42,7 +42,7 @@ You only need to derive a class from `ValueGeneratorPattern` and implement your 
 ### IncrementConnector
 
 The increment pattern is somewhat special because it needs to communicate with a persistence layer in some way.
-The IncrementConnector allows you to overwrite the connection interface for the increment pattern to switch to a more perfomant solution for this sepcific task.
+The IncrementConnector allows you to overwrite the connection interface for the increment pattern to switch to a more performant solution for this specific task.
 If you want to overwrite the IncrementConnector you have to implement the IncrementConnectorInterface in your new connector class and register your new class with the id of the interface.
 
 ```xml

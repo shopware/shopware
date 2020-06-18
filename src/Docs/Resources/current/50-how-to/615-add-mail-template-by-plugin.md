@@ -6,7 +6,7 @@
 
 With [plugins](./../20-developer-guide/10-plugin-base.md) it is possible to add custom mail templates to Shopware.
 
-For this you only need to add the suitable entrys to the database.
+For this you only need to add the suitable entries to the database.
 
 ## Plugin Class
 

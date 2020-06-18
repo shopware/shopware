@@ -3,7 +3,7 @@
 
 [Back to modules](./../10-modules.md)
 
-Snippets are translatble placeholders.
+Snippets are translatable placeholders.
 
 ![Custom placeholder translations](./dist/erd-shopware-core-framework-snippet.png)
 

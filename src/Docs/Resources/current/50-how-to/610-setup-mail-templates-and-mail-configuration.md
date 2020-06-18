@@ -4,7 +4,7 @@
 
 ## Overview
 
-Shopware 6 sends different emails on different purposes. E.g for the registration of a customer or as an order confirmation. To prevent your system from accidently sending mails while it is not live, no mail template is assigned to a sales channel by default.
+Shopware 6 sends different emails on different purposes. E.g for the registration of a customer or as an order confirmation. To prevent your system from accidentally sending mails while it is not live, no mail template is assigned to a sales channel by default.
 
 ## Setup
 

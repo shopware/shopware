@@ -199,11 +199,11 @@ Now all that's left to do is to present you a working example `config.xml` and s
             <name>email</name>
             <copyable>true</copyable>
             <label>eMail address</label>
-            <label lang="de-DE">E-Mail Adresse</label>
+            <label lang="de-DE">E-Mailadresse</label>
             <placeholder>you@example.com</placeholder>
             <placeholder lang="de-DE">du@beispiel.de</placeholder>
             <helpText>Please fill in your personal eMail address</helpText>
-            <helpText lang="de-DE">Bitte trage deine persönliche E-Mail Adresse ein</helpText>
+            <helpText lang="de-DE">Bitte trage deine persönliche E-Mailadresse ein</helpText>
         </input-field>
 
         <input-field type="single-select">
@@ -222,7 +222,7 @@ Now all that's left to do is to present you a working example `config.xml` and s
             </options>
             <defaultValue>smtp</defaultValue>
             <label>Mail method</label>
-            <label lang="de-DE">Versand Protokoll</label>
+            <label lang="de-DE">Versand-Protokoll</label>
         </input-field>
     </card>
 
@@ -233,7 +233,7 @@ Now all that's left to do is to present you a working example `config.xml` and s
         <input-field type="password">
             <name>secret</name>
             <label>Secret token</label>
-            <label lang="de-DE">Geheim Schlüssel</label>
+            <label lang="de-DE">Geheimschlüssel</label>
             <helpText>Your secret token for xyz...</helpText>
             <helpText lang="de-DE">Dein geheimer Schlüssel für xyz...</helpText>
         </input-field>

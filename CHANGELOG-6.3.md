@@ -206,6 +206,8 @@ Table of contents
 * Replace the module 'sw-settings-user' with 'sw-users-permissions'
 * Added listing for roles in users and permissions module
 * Added fields for roles and jobTitle in user detail page
+* Change growl error message for unfilled required fields for saving entities
+    * Added snippet `global.notification.notificationSaveErrorMessageRequiredField`sInvalid
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

@@ -198,11 +198,10 @@ Component.register('sw-manufacturer-detail', {
                 this.loadEntityData();
             }).catch((exception) => {
                 this.isLoading = false;
-                const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage', 0, { entityName: manufacturerName }
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
                 throw exception;

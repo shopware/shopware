@@ -437,10 +437,9 @@ Component.register('sw-product-detail', {
                     }
 
                     default: {
-                        const productName = this.product.translated ? this.product.translated.name : this.product.name;
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
-                            'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                            'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         );
 
                         this.createNotificationError({

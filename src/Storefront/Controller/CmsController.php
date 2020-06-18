@@ -52,7 +52,7 @@ class CmsController extends StorefrontController
      * Route for cms data (used in XmlHttpRequest)
      *
      * @HttpCache()
-     * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
      *
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
@@ -73,7 +73,7 @@ class CmsController extends StorefrontController
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *
-     * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
      *
      * @throws CategoryNotFoundException
      * @throws MissingRequestParameterException

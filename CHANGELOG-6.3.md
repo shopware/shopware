@@ -217,6 +217,7 @@ Table of contents
     * System: maintain plugins
 * Change growl error message for unfilled required fields for saving entities
     * Added snippet `global.notification.notificationSaveErrorMessageRequiredField`sInvalid
+* Fixed required fields in products for cross-sellings
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

@@ -20,6 +20,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
+    public const MAX_LIMIT = 10000;
+
     /**
      * @var Client
      */
@@ -113,6 +115,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $this->helper->addTerm($criteria, $search, $context, $definition);
 
         $search->setSize($criteria->getLimit());
+        if ($criteria->getLimit() === null) {
+            $search->setSize(self::MAX_LIMIT);
+        }
         $search->setFrom($criteria->getOffset());
 
         return $search;

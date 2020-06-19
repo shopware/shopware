@@ -1426,6 +1426,21 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals($expected, $ids->getIds());
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testMaxLimit(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        // check simple equals filter
+        $criteria = new Criteria($data->getList(['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'n7', 'n8', 'n9', 'n10', 'n11']));
+
+        $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertCount(11, $ids->getIds());
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -1489,6 +1504,11 @@ class ElasticsearchProductTest extends TestCase
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
             $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
             $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n7', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n8', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n9', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n10', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n11', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
         ], Context::createDefaultContext());
     }
 }

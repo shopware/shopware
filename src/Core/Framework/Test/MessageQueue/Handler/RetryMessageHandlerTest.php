@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\MessageQueue\Handler;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler;
+use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -39,7 +41,7 @@ class RetryMessageHandlerTest extends TestCase
         $this->deadMessageRepository = $this->getContainer()->get('dead_message.repository');
         $this->context = Context::createDefaultContext();
 
-        $this->retryMessageHandler = new RetryMessageHandler($this->getContainer(), $this->deadMessageRepository);
+        $this->retryMessageHandler = $this->getContainer()->get(RetryMessageHandler::class);
     }
 
     public function testGetHandledMessages(): void
@@ -65,12 +67,16 @@ class RetryMessageHandlerTest extends TestCase
         $deadMessageId = Uuid::randomHex();
 
         $dummyHandler = new DummyHandler();
-        $this->getContainer()->set(DummyHandler::class, $dummyHandler);
 
         $e = new \Exception('exception');
         $this->insertDeadMessage($deadMessageId, $message, $e);
 
-        ($this->retryMessageHandler)(new RetryMessage($deadMessageId));
+        $retryMessageHandler = new RetryMessageHandler(
+            $this->deadMessageRepository,
+            [$dummyHandler],
+            $this->getContainer()->get('logger')
+        );
+        ($retryMessageHandler)(new RetryMessage($deadMessageId));
 
         $messages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(0, $messages);
@@ -85,14 +91,19 @@ class RetryMessageHandlerTest extends TestCase
         $e = new \Exception('will be thrown');
 
         $dummyHandler = (new DummyHandler())->willThrowException($e);
-        $this->getContainer()->set(DummyHandler::class, $dummyHandler);
 
         $this->insertDeadMessage($deadMessageId, $message, $e);
 
         $catched = null;
 
+        $retryMessageHandler = new RetryMessageHandler(
+            $this->deadMessageRepository,
+            [$dummyHandler],
+            $this->getContainer()->get('logger')
+        );
+
         try {
-            ($this->retryMessageHandler)(new RetryMessage($deadMessageId));
+            ($retryMessageHandler)(new RetryMessage($deadMessageId));
         } catch (MessageFailedException $exception) {
             $catched = $exception;
         }
@@ -105,14 +116,50 @@ class RetryMessageHandlerTest extends TestCase
         static::assertEquals($message, $dummyHandler->getLastMessage());
     }
 
-    private function insertDeadMessage(string $deadMessageId, TestMessage $message, \Exception $e): void
+    public function testWithRealMessages(): void
     {
+        $message = new SitemapMessage(null, null, null, null, true);
+        $deadMessageId = Uuid::randomHex();
+
+        $e = new \Exception('exception');
+        $this->insertDeadMessage($deadMessageId, $message, $e, SitemapGenerateTaskHandler::class);
+
+        ($this->retryMessageHandler)(new RetryMessage($deadMessageId));
+
+        $messages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(0, $messages);
+    }
+
+    public function testWithOwnMessages(): void
+    {
+        $message = new SitemapMessage(null, null, null, null, true);
+        $deadMessageId = Uuid::randomHex();
+
+        $e = new \Exception('exception');
+        $this->insertDeadMessage($deadMessageId, $message, $e, SitemapGenerateTaskHandler::class);
+
+        $retryMessage = new RetryMessage($deadMessageId);
+        $retryMessageId = Uuid::randomHex();
+        $this->insertDeadMessage($retryMessageId, $retryMessage, $e, RetryMessageHandler::class);
+
+        ($this->retryMessageHandler)(new RetryMessage($retryMessageId));
+
+        $messages = $this->deadMessageRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(0, $messages);
+    }
+
+    private function insertDeadMessage(string $deadMessageId, $message, \Exception $e, ?string $handlerClass = null): void
+    {
+        if (!$handlerClass) {
+            $handlerClass = DummyHandler::class;
+        }
+
         $this->deadMessageRepository->create([
             [
                 'id' => $deadMessageId,
                 'originalMessageClass' => get_class($message),
                 'serializedOriginalMessage' => serialize($message),
-                'handlerClass' => DummyHandler::class,
+                'handlerClass' => $handlerClass,
                 'encrypted' => false,
                 'nextExecutionTime' => DeadMessageEntity::calculateNextExecutionTime(1),
                 'exception' => get_class($e),

@@ -1,0 +1,63 @@
+{
+  "sw-settings-product-feature-sets": {
+    "general": {
+      "mainMenuItemGeneral": "Essential characteristics",
+      "placeholderSearchBar": "Search settings",
+      "searchType": "Essential characteristics"
+    },
+    "list": {
+      "textHeadline": "Essential characteristics",
+      "textDeleteConfirm": "Are you sure you want to delete the essential characteristic \"{name}\"?",
+      "columnValues": "Values",
+      "columnTemplate": "Template",
+      "columnDescription": "Description",
+      "buttonAddEssentialCharacteristics": "Create new",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "modalTitleDelete": "Delete essential characteristics",
+      "titleDeleteSuccess": "Essential characteristics",
+      "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New template",
+      "titleCard": "General information",
+      "titleCardValues": "Values",
+      "titleSaveSuccess": "Success",
+      "messageSaveSuccess": "Product feature set \"{name}\" has been saved.",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelValues": "Values",
+      "placeholderName": "Enter a template name...",
+      "placeholderDescription": "Enter a description...",
+      "buttonSave": "Save",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "An error occurred while saving your Product feature set.",
+      "labelCreateNew": "Add values"
+    },
+    "valuesCard": {
+      "createStateDescription": "Add values to define Product feature sets that are custom-tailored to your product range.",
+      "labelCreateNew": "Add field",
+      "cardTitle": "Values",
+      "searchBarPlaceholder": "Search Fields...",
+      "labelValues": "Values",
+      "labelType": "Type",
+      "labelPosition": "Position",
+      "emptyStateDescription": "Add values to define Product feature sets that are custom-tailored to your product range."
+    },
+    "modal": {
+      "buttonAdd": "Add",
+      "textPropertyLabel": "Property",
+      "textCustomFieldLabel": "Custom field",
+      "textProductInfoLabel": "Product information",
+      "textBasePriceLabel": "Base price",
+      "labelTitlePageOne": "Choose a field type you want to add to your template",
+      "labelTitleModal": "Add values",
+      "labelName": "Name",
+      "labelProperty": "Property",
+      "buttonNext": "Next",
+      "buttonCancel": "Cancel"
+    }
+  }
+}

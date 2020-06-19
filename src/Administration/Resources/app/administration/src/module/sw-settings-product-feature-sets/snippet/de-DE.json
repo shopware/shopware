@@ -1,0 +1,63 @@
+{
+  "sw-settings-product-feature-sets": {
+    "general": {
+      "mainMenuItemGeneral": "Wesentliche Merkmale",
+      "placeholderSearchBar": "Search settings",
+      "searchType": "Wesentliche Merkmale"
+    },
+    "list": {
+      "textHeadline": "Wesentliche Merkmale",
+      "textDeleteConfirm": "Bist du sicher, dass du das wesentliche Merkmal \"{name}\" löschen willst?",
+      "columnValues": "Werte",
+      "columnTemplate": "Template",
+      "columnDescription": "Beschreibung",
+      "buttonAddEssentialCharacteristics": "Neu erstellen",
+      "contextMenuEdit": "Bearbeiten",
+      "contextMenuDelete": "Löschen",
+      "modalTitleDelete": "Lösche wesentliches Merkmal",
+      "titleDeleteSuccess": "Wesentliche Merkmale",
+      "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht.",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen"
+    },
+    "detail": {
+      "textHeadline": "Neues Template",
+      "titleCard": "Allgemeine Information",
+      "titleCardValues": "Werte",
+      "titleSaveSuccess": "Erfolg",
+      "messageSaveSuccess": "Wesentliches Merkmal \"{name}\" wurde gespeichert.",
+      "labelName": "Name",
+      "labelDescription": "Beschreibung",
+      "labelValues": "Werte",
+      "placeholderName": "Gebe ein Template Namen ein...",
+      "placeholderDescription": "Gebe eine Beschreibung ein...",
+      "buttonSave": "Speichern",
+      "notificationErrorTitle": "Error",
+      "notificationErrorMessage": "Ein Fehler ist aufgetreten beim Speichern des wesentlichen Merkmals.",
+      "labelCreateNew": "Werte hinzufügen"
+    },
+    "valuesCard": {
+      "createStateDescription": "Fügen Sie Werte hinzu, um wesentliche Merkmale zu definieren, die auf Ihr Produktsortiment zugeschnitten sind.",
+      "labelCreateNew": "Feld hinzufügen",
+      "cardTitle": "Werte",
+      "searchBarPlaceholder": "Suche custom fields...",
+      "labelValues": "Werte",
+      "labelType": "Typ",
+      "labelPosition": "Position",
+      "emptyStateDescription": "Fügen Sie Werte hinzu, um wesentliche Merkmale zu definieren, die auf Ihr Produktsortiment zugeschnitten sind."
+    },
+    "modal": {
+      "buttonAdd": "Hinzufügen",
+      "textPropertyLabel": "Eigenschaft",
+      "textCustomFieldLabel": "Custom field",
+      "textProductInfoLabel": "Produkt Information",
+      "textBasePriceLabel": "Grundpreis",
+      "labelTitlePageOne": "Wählen Sie einen Feldtyp, den Sie zu Ihrer Vorlage hinzufügen möchten",
+      "labelTitleModal": "Werte hinzufügen",
+      "labelName": "Name",
+      "labelProperty": "Eigenschaft",
+      "buttonNext": "Weiter",
+      "buttonCancel": "Abbrechen"
+    }
+  }
+}

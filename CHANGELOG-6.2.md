@@ -16,6 +16,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core
     * Added `Czech koruna` as currency
+    * Changed `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` to return empty string instead null.
 
 * Storefront
 

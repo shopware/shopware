@@ -89,7 +89,7 @@ class ImportEntityCommand extends Command
 
         $progress = new Progress($log->getId(), Progress::STATE_PROGRESS, 0);
         do {
-            $progress = $importExport->export(Context::createDefaultContext(), new Criteria(), $progress->getOffset());
+            $progress = $importExport->import(Context::createDefaultContext(), new Criteria(), $progress->getOffset());
             $progressBar->setProgress($progress->getOffset());
             $records += $progress->getProcessedRecords();
         } while (!$progress->isFinished());

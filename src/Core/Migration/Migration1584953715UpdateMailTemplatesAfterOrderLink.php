@@ -218,8 +218,8 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
     private function updateMailTemplate(
         string $mailTemplateType,
         Connection $connection,
-        string $enLangId,
-        string $deLangId,
+        ?string $enLangId,
+        ?string $deLangId,
         $getHtmlTemplateEn,
         $getPlainTemplateEn,
         $getHtmlTemplateDe,
@@ -227,21 +227,25 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $getHtmlTemplateEn,
-                $getPlainTemplateEn
-            );
+            if ($enLangId !== null) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $enLangId,
+                    $getHtmlTemplateEn,
+                    $getPlainTemplateEn
+                );
+            }
 
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $deLangId,
-                $getHtmlTemplateDe,
-                $getPlainTemplateDe
-            );
+            if ($deLangId !== null) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $deLangId,
+                    $getHtmlTemplateDe,
+                    $getPlainTemplateDe
+                );
+            }
         }
     }
 

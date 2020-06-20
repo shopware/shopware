@@ -44,15 +44,17 @@
         {% endapply %}{% endset %}
     {% endif %}
 
-    <img src="{{ media|sw_encode_media_url }}"
-        {% if media.thumbnails|length > 0 %}
-            srcset="{{ srcsetValue }}"
-            {% if sizes['default'] %}
-            sizes="{{ sizes['default'] }}"
-            {% elseif sizes|length > 0 %}
-            sizes="{{ sizesValue }}"
+    {% block utilities_thumbnail_image %}
+        <img src="{{ media|sw_encode_media_url }}"
+            {% if media.thumbnails|length > 0 %}
+                srcset="{{ srcsetValue }}"
+                {% if sizes['default'] %}
+                sizes="{{ sizes['default'] }}"
+                {% elseif sizes|length > 0 %}
+                sizes="{{ sizesValue }}"
+                {% endif %}
             {% endif %}
-        {% endif %}
-        {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
-    />
+            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+        />
+    {% endblock %}
 {% endblock %}

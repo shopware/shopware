@@ -70,7 +70,7 @@ class CartDeleteRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
         $this->browser
             ->request(
@@ -135,7 +135,7 @@ class CartDeleteRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
         // Check
         $this->browser

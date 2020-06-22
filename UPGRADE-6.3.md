@@ -41,6 +41,7 @@ Core
         // ...
     }
     ```
+* Changed status code of `\Shopware\Core\System\SalesChannel\NoContentResponse` from `200` to `204`.
 
 Administration
 --------------

@@ -24,7 +24,7 @@ class HttpCacheWarmUpCommand extends Command
         $this->warmer = $warmer;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption('keep-cache', null, InputOption::VALUE_NONE, 'Keeps the same cache id so no cache invalidation is triggered');
     }

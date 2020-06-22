@@ -2,7 +2,7 @@
 [hash]: <>(article:sitemap)
 
 Shopware generates a default sitemap which is compressed and cached in the file system. To support shops
-with a lot of products and categories the sitemap is splitted into multiple files and can be generated in the background.
+with a lot of products and categories the sitemap is split into multiple files and can be generated in the background.
 
 # sitemap generation
 
@@ -42,7 +42,7 @@ you can find the config file at config/packages/shopware.yaml
 
 ### custom URLs
 
-You should find a sitemap entry in your shopware.yaml. To add a custom URL to your sitemap, create a subentry with the following syntax:
+You should find a sitemap entry in your shopware.yaml. To add a custom URL to your sitemap, create a sub entry with the following syntax:
 ```
 sitemap:
    custom_urls:
@@ -58,7 +58,7 @@ sitemap:
 
 ### excluding URLs
 
-Like adding URLs, you can also remove them via an subentry in you shopware.yaml file:
+Like adding URLs, you can also remove them via a sub entry in you shopware.yaml file:
 ```
 sitemap:
    excluded_urls:

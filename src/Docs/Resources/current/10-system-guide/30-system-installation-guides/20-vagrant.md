@@ -3,7 +3,7 @@
 
 If using docker is not an option for you, vagrant is another great technology to quickly get a local Shopware up and running.
 
-Other than with the docker or local setup, with vagrant you will have a complete seperate server on your machine.
+Other than with the docker or local setup, with vagrant you will have a complete separate server on your machine.
 
 Because of technical reasons, the vagrant machine acts like a remote web server, so with this setup, you'll develop your code on your PC and then upload/synchronize it to the vagrant machine.
 
@@ -33,7 +33,7 @@ Next, execute `vagrant up` and wait while Vagrant downloads a virtual box image,
 > vagrant up
 ```
 
-*Note: This will take **quite a while** on first execution. But caches will be created and used on any futher `up` call.*
+*Note: This will take **quite a while** on first execution. But caches will be created and used on any further `up` call.*
 
 ## Advanced Setup
 

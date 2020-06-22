@@ -45,7 +45,7 @@ If you use the app system to publish your theme, there are some limitations to k
 
 * You can't extend the Shopware php backend, all php files you may include in your theme won't be executed. Currently,
 this leads to the limitation that it is not possible to add custom snippets to your theme.
-* You can't extend the Shopware adminstration, all js files provided in the `administration` namespace will be ignored.
+* You can't extend the Shopware administration, all js files provided in the `administration` namespace will be ignored.
 Instead, you can achieve that in another way: You are able to add your own module, custom fields or buttons via 
 manifest file - see our [base app guide](./30-app-base-guide.md) for details.
 

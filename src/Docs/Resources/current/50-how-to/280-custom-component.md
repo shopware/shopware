@@ -37,7 +37,7 @@ For this example, this scenario is used.
 `<plugin-root>/src/Resources/app/administration/app/src/component/<name of your plugin>/<name of your component>`
 
 Those are **not** a hard requirement, but rather a recommendation. This way, third party developers having a glance at your code will
-get used to it real quick, because you sticked to Shopware 6's core conventions.
+get used to it real quick, because you stuck to Shopware 6's core conventions.
 
 Since the latter example is being used, this is the path being created in the plugin now:
 `<plugin-root>/src/Resources/app/administration/app/src/component/custom-component/hello-world`

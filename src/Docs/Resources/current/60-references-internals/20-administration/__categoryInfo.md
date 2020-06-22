@@ -89,4 +89,4 @@ State-Management
 So a more accurate representation of a typical module is this diagram:
 
 
-![Shopware Administration Cross Cuttiong Concerns](./dist/admin-component-cross-cutting.png)
+![Shopware Administration Cross Cutting Concerns](./dist/admin-component-cross-cutting.png)

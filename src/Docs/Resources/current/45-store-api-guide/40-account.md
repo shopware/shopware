@@ -128,7 +128,7 @@ Using this route `store-api.account.logout` you can log out a customer.
 
 This route does not need any parameter.
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
 POST /store-api/v1/account/logout
@@ -145,7 +145,7 @@ With the following route you can get information about the logged in user: `stor
 
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
 POST /store-api/v1/account/customer
@@ -176,7 +176,7 @@ This route takes three parameters:
 * `firstName`: the new firstname of the user
 * `lastName`: the new firstname of the user
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
 POST /store-api/v1/account/change-profile
@@ -201,7 +201,7 @@ It takes in three parameters:
 * `emailConfirmation`: this parameter confirm that the email the customer entered is correct. The value has to be the sames as the value for the `email` parameter.
 * `password`: the password of the customer
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
 POST /store-api/v1/account/change-email
@@ -226,7 +226,7 @@ The parameters for this route are:
 * `newPassword`: this parameters takes the new password
 * `newPasswordConfirm`: and this parameters confirms the new password. It does so by being the same value that in used for the `newPassword` parameter.
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 In this example we change the password with a new password that is more secure than the old one.
 
@@ -299,7 +299,7 @@ You can change the default payment method of an customer with this route: `store
 This route has a parameter the following parameter:
 * `paymentMethodId`: This parameter determines which payment method will be the new default payment method for this customer.
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
 POST /store-api/v1/account/change-payment-method/da4aa20cd7b9417094a0eb51426f0912
@@ -315,7 +315,7 @@ You can view an order of the customer with the `store-api.order` route.
 
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
-**Note** that you need the `sw-context-token` header for this route, wich contains the context token of the login route response.
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
 GET /store-api/v1/order
@@ -418,7 +418,7 @@ This route needs a few parameters:
 * `salutationId`: here you need to enter the id of the salutation of your customer
 * `firstName`: this parameter takes in the firstname of your customer 
 * `lastName`: this parameter needs the lastname of your customer 
-* `email`: here you enter the wich email address should receive the message
+* `email`: here you enter the which email address should receive the message
 * `phone`: for this parameter you enter the phone number of your customer 
 * `subject`: this parameters determines the parameter for the subject of the email 
 * `comment`: this parameters takes the actual message the customer wants to send you

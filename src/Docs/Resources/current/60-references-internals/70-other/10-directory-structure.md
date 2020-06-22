@@ -45,7 +45,7 @@ If you are familiar with Symfony applications you will recognize most of the dir
 Since this is mostly a Symfony boilerplate, we will ignore most files and folders for now. The noteworthy exceptions are:
 
 `custom`
- : An empty directory in a fresh install. The Shopware Pltform loads plugins from here. If you want to get started with plugin development this directory is for you.
+ : An empty directory in a fresh install. The Shopware Platform loads plugins from here. If you want to get started with plugin development this directory is for you.
  
 `src`
  : Contains small bootstrapping helpers. If you want to customize the application outside of the plugin scope feel free to start developing here.

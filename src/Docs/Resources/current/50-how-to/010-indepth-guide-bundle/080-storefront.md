@@ -270,7 +270,7 @@ Also, copy the original HTML in here again to manipulate it to your needs afterw
 {% endblock %}
 ```
 
-Once again, replace every occurence of 'description' and replace it with 'bundle'.
+Once again, replace every occurrence of 'description' and replace it with 'bundle'.
 Also, remove the `active`  and `show` classes, because otherwise your tab's content would immediately be displayed, together with the description tab. You don't want that.
 Replace the 'description' in the elements ID, the same for the `aria-labelledby` attribute.
 The div's content can also be emptied, you're going to add your own template here now.

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -161,7 +162,7 @@ class AuthController extends StorefrontController
     public function generateAccountRecovery(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         try {
-            $data->get('email')->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url') . $request->attributes->get('sw-sales-channel-base-url'));
+            $data->get('email')->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
             $this->accountService->generateAccountRecovery($data->get('email'), $context);
 
             $this->addFlash('success', $this->trans('account.recoveryMailSend'));

@@ -140,7 +140,7 @@ describe('Rule builder: Test crud operations', () => {
 
         cy.get('button.sw-button').contains('Save').click();
 
-        cy.awaitAndCheckNotification('Please fill in all required fields.');
+        cy.awaitAndCheckNotification('An error occurred while saving rule "Ruler".');
         cy.get('.sw-condition .sw-condition__container').should('have.class', 'has--error');
         cy.get('.sw-condition')
             .contains('You must choose a type for this rule.').should('be.visible');

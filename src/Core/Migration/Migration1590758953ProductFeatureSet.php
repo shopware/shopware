@@ -152,9 +152,9 @@ SQL;
             'id' => $featureSetId,
             'features' => json_encode([
                 [
-                    'type' => 'product',
-                    'id' => 'referencePrice',
-                    'position' => 1,
+                    'type' => 'referencePrice',
+                    'id' => null,
+                    'position' => 0,
                 ],
             ]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

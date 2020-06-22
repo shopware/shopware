@@ -30,17 +30,19 @@ trait ProductFeatureSetFixtures
             ],
             'FeatureSetComplete' => [
                 'id' => Uuid::randomHex(),
-                'name' => 'Template with relations',
+                'name' => 'Template with features',
                 'description' => 'This template contains features',
                 'features' => [
                     [
-                        'id' => 'description',
-                        'type' => 'product',
+                        'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
+                        'id' => null,
+                        'name' => null,
                         'position' => 1,
                     ],
                     [
-                        'id' => 'listingPrices',
-                        'type' => 'product',
+                        'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                        'id' => null,
+                        'name' => 'description',
                         'position' => 2,
                     ],
                 ],

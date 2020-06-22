@@ -21,6 +21,11 @@ class ProductFeatureSetDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_feature_set';
 
+    public const TYPE_PRODUCT_ATTRIBUTE = 'product';
+    public const TYPE_PRODUCT_PROPERTY = 'property';
+    public const TYPE_PRODUCT_CUSTOM_FIELD = 'customField';
+    public const TYPE_PRODUCT_REFERENCE_PRICE = 'referencePrice';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;

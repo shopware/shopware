@@ -173,6 +173,23 @@ Administration
     * `cartSalesChannelService`: use `cartStoreApiService`
     * `checkOutSalesChannelService`: use `checkoutStoreService`
     * `salesChannelContextService`: use `storeContextService`
+* When using `getCurrencyPriceByCurrencyId` in `sw-product-list/index.js` parameters must be changed from `(itemId, currencyId)` to `(currencyId, prices)`.
+    * Before:
+        ```
+        <template v-for="currency in currencies"
+                  :slot="`column-price-${currency.isoCode}`"
+                  slot-scope="{ item }">
+            {{ getCurrencyPriceByCurrencyId(item.id, currency.id).gross | currency(currency.isoCode) }}
+        </template>
+        ```
+    * After:
+        ```
+        <template v-for="currency in currencies"
+                  :slot="`column-price-${currency.isoCode}`"
+                  slot-scope="{ item }">
+            {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+        </template>
+        ```
 
 Storefront
 --------------

@@ -65,9 +65,12 @@
                                            detailRoute="sw.product.detail"
                                            :showSelection="true"
                                            :isLoading="isLoading"
+                                           identifier="sw-product-list"
                                            :allowEdit="acl.can('product.editor')"
                                            :allowDelete="acl.can('product.deleter')"
                                            :allowInlineEdit="acl.can('product.editor')"
+                                           @column-sort="onColumnSort"
+                                           @paginate="onColumnSort"
                                            @inline-edit-save="onInlineEditSave"
                                            @selection-change="updateSelection"
                                            @update-records="updateTotal">
@@ -99,7 +102,7 @@
                                     <template v-for="currency in currencies"
                                               :slot="`column-price-${currency.isoCode}`"
                                               slot-scope="{ item }">
-                                        {{ getCurrencyPriceByCurrencyId(item.id, currency.id).gross | currency(currency.isoCode) }}
+                                        {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
                                     </template>
                                 {% endblock %}
 

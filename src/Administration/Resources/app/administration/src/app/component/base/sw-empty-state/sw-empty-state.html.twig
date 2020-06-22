@@ -1,5 +1,5 @@
 {% block sw_empty_state %}
-    <div class="sw-empty-state">
+    <div class="sw-empty-state" :class="classes">
         {% block sw_empty_state_element %}
             <div class="sw-empty-state__element">
 
@@ -20,7 +20,7 @@
                 {% endblock %}
 
                 {% block sw_empty_state_description %}
-                    <div class="sw-empty-state__description">
+                    <div v-if="showDescription" class="sw-empty-state__description">
                         <slot>
                             {% block sw_empty_state_slot_default %}
                                 <div class="sw-empty-state__description-content"

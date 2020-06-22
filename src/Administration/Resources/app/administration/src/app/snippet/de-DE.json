@@ -115,7 +115,12 @@
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
-      "labelRemoveAssociation": "Zuweisung aufheben"
+      "labelRemoveAssociation": "Zuweisung aufheben",
+      "productStreamPreview": {
+        "emptyMessageNoStream": "Keine dynamische Produktgruppe ausgewählt",
+        "emptyMessageNoProducts": "Keine Produkte gefunden",
+        "emptyMessageNoSearchResults": "Keine Produkte gefunden für \"{term}\""
+      }
     },
     "sw-field": {
       "notification": {

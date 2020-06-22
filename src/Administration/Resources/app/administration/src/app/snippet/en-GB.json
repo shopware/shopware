@@ -115,7 +115,12 @@
       "deleteMessage": "Are you sure you want to delete this item? | Are you sure you want to delete these {count} items?",
       "deleteTitle": "Delete entry",
       "placeholderToManyAssociationCard": "Search associations...",
-      "labelRemoveAssociation": "Remove association"
+      "labelRemoveAssociation": "Remove association",
+      "productStreamPreview": {
+        "emptyMessageNoStream": "No dynamic product group selected",
+        "emptyMessageNoProducts": "No products found",
+        "emptyMessageNoSearchResults": "No products found for \"{term}\""
+      }
     },
     "sw-field": {
       "notification": {

@@ -67,7 +67,7 @@ class OpenApiSchemaBuilder
     {
         return new Info([
             'title' => 'Shopware ' . self::API[$api]['name'],
-            'version' => $version,
+            'version' => (string) $version,
         ]);
     }
 

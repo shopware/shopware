@@ -262,7 +262,6 @@ Table of contents
     * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition`
 
 #### Storefront
-* Show required asterisk on telephone number field if the field is required in registration form.
 * Added plugin injection in hot mode
 * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
 * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`

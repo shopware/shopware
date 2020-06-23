@@ -552,6 +552,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `storefront.htmlPurifier.enableCache`: Boolean to turn `HTMLPurifier`s cache cache on or off (defaults to `true`)
     * Deprecated `sort` parameter for product listing, search and suggest gateway, use `order` instead
     * Added block `document_line_item_table_iterator` to `@Framework\documents\base.html.twig` to override the lineItem iterator
+    * Show required asterisk on telephone number field if the field is required in registration form.
     
 **Removals**
 

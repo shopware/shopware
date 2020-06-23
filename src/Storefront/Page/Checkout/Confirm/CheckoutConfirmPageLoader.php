@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,16 +37,23 @@ class CheckoutConfirmPageLoader
      */
     private $cartService;
 
+    /**
+     * @var GenericPageLoaderInterface
+     */
+    private $genericLoader;
+
     public function __construct(
         SalesChannelRepositoryInterface $paymentMethodRepository,
         SalesChannelRepositoryInterface $shippingMethodRepository,
         EventDispatcherInterface $eventDispatcher,
-        CartService $cartService
+        CartService $cartService,
+        GenericPageLoaderInterface $genericPageLoader
     ) {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
+        $this->genericLoader = $genericPageLoader;
     }
 
     /**
@@ -53,11 +61,12 @@ class CheckoutConfirmPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutConfirmPage
     {
-        $page = new CheckoutConfirmPage(
-            $this->getPaymentMethods($salesChannelContext),
-            $this->getShippingMethods($salesChannelContext)
-        );
+        $page = $this->genericLoader->load($request, $salesChannelContext);
 
+        $page = CheckoutConfirmPage::createFrom($page);
+
+        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
+        $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(

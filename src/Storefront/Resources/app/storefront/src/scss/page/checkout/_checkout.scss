@@ -10,3 +10,12 @@
 .checkout-confirm-tos-label {
     cursor: pointer;
 }
+
+.is-ctl-checkout,
+.is-act-checkoutregisterpage {
+    .footer-minimal {
+        .footer-service-menu-list {
+            display: block;
+        }
+    }
+}

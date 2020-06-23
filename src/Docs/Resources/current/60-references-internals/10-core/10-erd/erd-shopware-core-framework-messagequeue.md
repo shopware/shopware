@@ -10,7 +10,7 @@ The message queue provides the necessary glue code between the API and the inter
 
 ### Table `dead_message`
 
-Failing messages in the queue. Requeued with an ever increasing threshold.
+Failing messages in the queue. Requeued with an ever-increasing threshold.
 
 
 ### Table `message_queue_stats`

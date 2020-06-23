@@ -197,7 +197,7 @@ class OverwrittenPriceCollector implements CartDataCollectorInterface, CartProce
                 true
             );
 
-            // build CalculatedPrice over calculator class for overwitten price
+            // build CalculatedPrice over calculator class for overwritten price
             $calculated = $this->calculator->calculate($definition, $context);
 
             // set new price into line item

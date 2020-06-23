@@ -55,7 +55,7 @@ input field to the form. It also accepts a `mode` parameter which can be set to 
     * Mode `input` renders a hidden input field with the token as value
     * Important: Note that the parameter of the `sw_csrf` function must match the route name for the action. 
     Every token is only valid for a specific route.
-* The data attribute `data-form-csrf-handler="true"` initialises the JS plugin if the `csrf` mdoe is set to `ajax`. 
+* The data attribute `data-form-csrf-handler="true"` initialises the JS plugin if the `csrf` mode is set to `ajax`. 
 This will fetch a valid token on submit and then appends it to the form.
     * The `FormCsrfHandler` plugin is only needed for native form submits.
     * `POST` requests made with the `http-client.service` are automatically protected when `csrf` mode is set to `ajax`
@@ -75,4 +75,4 @@ public function exampleAction() {}
 ### Caching and CSRF
 The default configuration for the `csrf` mode is `twig` and works fine with the shopware http cache. 
 If an external cache (e.g. varnish) is used, the mode needs to be `ajax`. 
-A valid CRSF token is then fetched before a `POST` request and appended.
+A valid CSRF token is then fetched before a `POST` request and appended.

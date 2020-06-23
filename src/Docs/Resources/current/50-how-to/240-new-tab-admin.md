@@ -94,7 +94,7 @@ It's basically pointing to a new route, which you never defined as of yet.
 
 Guess what you'll have to do now: Create a new route and map it to your own component.
 This is done by registering a new dummy module, which then overrides the method `routeMiddleware` of an module.
-It get's called for each and every route that is called in the administration.
+It gets called for each and every route that is called in the administration.
 Once the `sw.product.detail` route is called, you want to add your new child route to it.
 
 You can add those changes to your `main.js` file, which could then look like this:

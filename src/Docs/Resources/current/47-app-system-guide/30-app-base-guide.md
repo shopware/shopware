@@ -73,7 +73,7 @@ important ones.
 | `mail.sent` | Triggers if a mail is send from Shopware | 
 | `mail.after.create.message` | Triggers if a mail after creating a message is send (?) | 
 | `mail.before.send` | Triggers before a mail is send | 
-| `checkout.order.placed` | Triggers if an order is placed checkout-wose | 
+| `checkout.order.placed` | Triggers if an order is placed checkout-wise | 
 | `checkout.customer.register` | Triggers if a new customer was registered yo| 
 | `checkout.customer.login` | Triggers as soon as a customer logs in | 
 | `checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | 
@@ -168,7 +168,7 @@ there.
 <admin>
     <module name="exampleConfig" source="https://example.com//promotion/view/promotion-config">
         <label>Example config</label>
-        <label lang="de-DE">Beispiel Einstellungen</label>
+        <label lang="de-DE">Beispiel-Einstellungen</label>
     </module>
 </admin>
 ```
@@ -224,7 +224,7 @@ For example a `placeholder`, `min`, `max` and `step` size of a float field:
 ```xml
 <float name="test_float_field">
     <label>Test float field</label>
-    <label lang="de-DE">Test Kommazahlenfeld</label>
+    <label lang="de-DE">Test-Kommazahlenfeld</label>
     <help-text>This is an float field.</help-text>
     <position>2</position>
     <placeholder>Enter an float...</placeholder>
@@ -274,7 +274,7 @@ Below you can take a look on an extended example on how a full manifest file can
 
         <module name="promotionConfig" source="https://example.com//promotion/view/promotion-config">
             <label>Promotion config</label>
-            <label lang="de-DE">Gutscheincode Einstellungen</label>
+            <label lang="de-DE">Gutscheincode-Einstellungen</label>
         </module>
     </admin>
 

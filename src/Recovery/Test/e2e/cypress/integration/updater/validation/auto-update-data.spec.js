@@ -7,34 +7,6 @@ describe('Minimal auto update', () => {
      * - install.lock must exist
      * - update-service-mock.js must be running
      */
-    before(() => {
-        cy.visit('/admin');
-
-        cy.get('.sw-login__content').should('be.visible');
-        cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-        cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-        cy.get('.sw-button__content').click();
-
-        cy.prepareMinimalUpdate(Cypress.env('expectedVersion')).then(() => {
-            cy.runMinimalAutoUpdate(Cypress.env('expectedVersion'));
-        });
-    });
-
-    beforeEach(() => {
-        cy.visit('/admin');
-        cy.getCookie('bearerAuth')
-            .then((val) => {
-                // we need to login, if the new auth cookie does not exist - e.g. update from 6.1.x -> 6.2.x
-                cy.log(val);
-                if (!val) {
-                    cy.get('.sw-login__content').should('be.visible');
-                    cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-                    cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-                    cy.get('.sw-button__content').click();
-                    cy.get('.sw-version__title').contains('Administration');
-                }
-            });
-    });
 
     it('@update: Check product', () => {
         // Request we want to wait for later

@@ -16,5 +16,6 @@
   "reporterOptions": {
     "mochaFile": "artifacts/my-test-output-[hash].xml",
     "toConsole": true
-  }
+  },
+  "chromeWebSecurity": false
 }

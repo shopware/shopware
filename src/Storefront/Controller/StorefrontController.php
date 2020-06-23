@@ -37,8 +37,7 @@ abstract class StorefrontController extends AbstractController
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
         }
 
-        $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
-            . $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL);
+        $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
 
         /** @var SeoUrlPlaceholderHandlerInterface $seoUrlReplacer */
         $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);

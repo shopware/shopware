@@ -23,6 +23,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
     * Added the `--keep-cache` option to the `http:cache:warm:up` to keep the current cache as warmup target
     * Show required asterisk on telephone number field if the field is required in registration form.
+    * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
+    * Fixed urls in emails for shops with virtual paths like /de
 
 **Removals**
 

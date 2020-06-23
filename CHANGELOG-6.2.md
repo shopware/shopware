@@ -18,6 +18,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `GuestCustomerRegisterEvent`
     * Changed `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` to return empty string instead null.
     * Fixed RetryMessage-mechanism if message handler class was not a public service
+    * Added ProductCrossSelling Events
+        * Added `CrossSellingProductCriteriaEvent`
+        * Added `CrossSellingProductListCriteriaEvent`
+        * Added `CrossSellingProductStreamCriteriaEvent`
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

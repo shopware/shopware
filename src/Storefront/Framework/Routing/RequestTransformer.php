@@ -24,13 +24,43 @@ use TrueBV\Punycode;
 class RequestTransformer implements RequestTransformerInterface
 {
     public const REQUEST_TRANSFORMER_CACHE_KEY = 'request_transformer_domains';
+
+    /**
+     * Virtual path of the "domain"
+     *
+     * @example
+     * - `/de`
+     * - `/en`
+     * - {empty} - the virtual path is optional
+     */
     public const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
+
+    /**
+     * Scheme + Host + port + subdir in web root
+     *
+     * @example
+     * - `https://shop.example` - no subdir
+     * - `http://localhost:8000/subdir` - with sub dir `/subdir`
+     */
     public const SALES_CHANNEL_ABSOLUTE_BASE_URL = 'sw-sales-channel-absolute-base-url';
+
+    /**
+     * Scheme + Host + port + subdir in web root + virtual path
+     *
+     * @example
+     * - `https://shop.example` - no sub dir and no virtual path
+     * - `https://shop.example/en` - no sub dir and virtual path `/en`
+     * - `http://localhost:8000/subdir` - with sub directory `/subdir`
+     * - `http://localhost:8000/subdir/de` - with sub directory `/subdir` and virtual path `/de`
+     */
+    public const STOREFRONT_URL = 'sw-storefront-url';
+
     public const SALES_CHANNEL_RESOLVED_URI = 'resolved-uri';
 
     private const INHERITABLE_ATTRIBUTE_NAMES = [
         self::SALES_CHANNEL_BASE_URL,
         self::SALES_CHANNEL_ABSOLUTE_BASE_URL,
+        self::STOREFRONT_URL,
         self::SALES_CHANNEL_RESOLVED_URI,
 
         PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID,
@@ -174,6 +204,11 @@ class RequestTransformer implements RequestTransformerInterface
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
+        $transformedRequest->attributes->set(
+            self::STOREFRONT_URL,
+            $transformedRequest->attributes->get(self::SALES_CHANNEL_ABSOLUTE_BASE_URL)
+            . $transformedRequest->attributes->get(self::SALES_CHANNEL_BASE_URL)
+        );
         $transformedRequest->attributes->set(self::SALES_CHANNEL_RESOLVED_URI, $resolved['pathInfo']);
 
         $transformedRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannel['salesChannelId']);

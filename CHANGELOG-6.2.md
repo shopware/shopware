@@ -18,9 +18,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `GuestCustomerRegisterEvent`
     * Changed `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` to return empty string instead null.
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+    * Fixed RetryMessage-mechanism if message handler class was not a public service
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
+    * Added the `--keep-cache` option to the `http:cache:warm:up` to keep the current cache as warmup target
+    * Show required asterisk on telephone number field if the field is required in registration form.
+    * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
+    * Fixed urls in emails for shops with virtual paths like /de
 
 **Removals**
 
@@ -101,6 +106,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added methods `isProductGroup` `setIsProductGroup` `isVariantProduct` in `\Shopware\Core\Content\Product\ProductEntity` 
     * DB level write operation (e.g. cascade deletes) are not validated against the write prtoection anymore
     * Changed exit code from command `es:index` to 0
+    * Added support for nullable values for MultiInsertQueryQueue
  
 * Storefront
     * Added `pack_unit_plural` to `buy-widget-form.html.twig`

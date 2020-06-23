@@ -5,6 +5,8 @@ $sw-product-variants-configurator-prices-search-border: $color-steam-cloud;
 
 .sw-product-variants-configurator-prices {
     height: 100%;
+    display: flex;
+    flex-direction: column;
 
     .sw-product-variants-configurator-prices__alert {
         margin-right: 8px;

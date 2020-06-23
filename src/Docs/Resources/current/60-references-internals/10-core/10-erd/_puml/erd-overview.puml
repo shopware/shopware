@@ -87,7 +87,7 @@ Table(ShopwareCoreFrameworkSnippet, "Shopware\Core\System\Snippet\n(Custom place
    snippet_set Table
    snippet Table
 }
-Table(ShopwareCoreSystemSalutation, "Shopware\Core\System\Salutation\n(Solutations)") {
+Table(ShopwareCoreSystemSalutation, "Shopware\Core\System\Salutation\n(Salutations)") {
    salutation Table
    salutation_translation Table
 }

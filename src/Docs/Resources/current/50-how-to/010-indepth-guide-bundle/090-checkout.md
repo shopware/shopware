@@ -273,7 +273,7 @@ class BundleCartProcessor implements CartProcessorInterface, CartDataCollectorIn
 
             case self::DISCOUNT_TYPE_PERCENTAGE:
                 $priceDefinition = new PercentagePriceDefinition($bundleData->getDiscount() * -1, $context->getContext()->getCurrencyPrecision());
-                $label = sprintf('Percental bundle voucher (%s%%)', $bundleData->getDiscount());
+                $label = sprintf('Percentual bundle voucher (%s%%)', $bundleData->getDiscount());
                 break;
 
             default:
@@ -599,7 +599,7 @@ private function createDiscount(BundleEntity $bundleData, SalesChannelContext $c
                 $context->getContext()->getCurrencyPrecision()
             );
 
-            $label = sprintf('Percental bundle voucher (%s%%)', $bundleData->getDiscount());
+            $label = sprintf('Percentual bundle voucher (%s%%)', $bundleData->getDiscount());
             break;
 
         default:
@@ -655,7 +655,7 @@ For those of you wondering about the method `setGood`:
 The method `setGood` marks a line item as a `good` if it's set to `true`. This is necessary for properly filtering the line items
 for e.g. a rule of the rule system.
 Imagine a rule "Cart discount", which applies a 10€ discount if the cart's sum is more than 100.
-Now imagine you'd have a cart sum of 102€, the discount would be applied and substract 10€.
+Now imagine you'd have a cart sum of 102€, the discount would be applied and subtract 10€.
 In a next iteration, the rule's validity would be checked again and the rule system would notice, that the discount is no longer valid,
 since the cart's sum is only 92€. The discount would be removed, which raises the sum to 102€ again.
 This way, the discount would be added, only to then invalidate it's own rule.

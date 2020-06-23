@@ -475,7 +475,7 @@ Install this plugin via `bin/console plugin:install --activate CustomCmsElement`
 and start using your new element in the administration!
 Of course, the Storefront implementation is still missing, so your element wouldn't be rendered in the Storefront yet.
 
-#### Sidenote: swag-youtube-field
+#### Side note: swag-youtube-field
 
 In the final plugin, whose source you can find at the end of this HowTo, there's a `swag-youtube-field` being used instead of the `sw-field` text component for the video ID.
 This is **not** necessary, but it comes with a neat feature: It is capable of dealing with both a full video's URL, as well as just the video's ID.

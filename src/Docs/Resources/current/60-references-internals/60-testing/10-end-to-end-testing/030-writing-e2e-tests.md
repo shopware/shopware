@@ -167,7 +167,7 @@ describe('We are using hooks', function() {
 
 As we mentioned before, we use these hooks to build up the ideal situation for our test to run. This includes
 cleaning up its previous states. According to Cypress'
-[thoughts on antipatterns](https://docs.cypress.io/guides/references/best-practices.html#Using-after-or-afterEach-hooks)
+[thoughts on anti-patterns](https://docs.cypress.io/guides/references/best-practices.html#Using-after-or-afterEach-hooks)
 we clean up the previous state of Shopware beforehand. The reason is pretty simple: You can't be completely sure to reach 
 the `after` hook (sometimes tests may fail), the safer way to cleanup your tests is the `beforeEach` hook. 
 On top of stability advantages, it's possible to stop the tests anytime without manual cleanup.

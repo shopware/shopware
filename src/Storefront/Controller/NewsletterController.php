@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,7 +87,7 @@ class NewsletterController extends StorefrontController
             $dataBag->set('option', 'unsubscribe');
         }
 
-        $dataBag->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
+        $dataBag->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
         $messages = [];
         $success = null;

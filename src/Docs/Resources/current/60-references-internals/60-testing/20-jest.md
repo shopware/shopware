@@ -25,7 +25,7 @@ As an example a test for `src/core/service/login.service.js` should be created
 in `test/core/service/login.service.spec.js`. 
 
 ## Test commands
-Before you are using the commands make sure that you installed all dependencies for your adminstration.
+Before you are using the commands make sure that you installed all dependencies for your administration.
 If you didn't have done this already then you can use this PSH command:
 `./psh.phar administration:install-dependencies`
 

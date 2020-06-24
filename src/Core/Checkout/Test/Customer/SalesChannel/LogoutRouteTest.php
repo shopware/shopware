@@ -90,9 +90,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-        static::assertIsArray($response);
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
 
         $this->browser
             ->request(

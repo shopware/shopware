@@ -35,6 +35,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed urls in emails for shops with virtual paths like /de
     * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
     * Added resolving of media ids to `Shopware\Storefront\Theme\ThemeCompiler`
+    * Fixed active state in the flyout navigation
 
 **Removals**
 

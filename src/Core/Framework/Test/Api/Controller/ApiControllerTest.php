@@ -1992,6 +1992,45 @@ EOF;
         static::assertEquals('test tax', $tax['data']['attributes']['name']);
     }
 
+    public function testAggregationWorksForAdminStartPage(): void
+    {
+        $data = [
+            'page' => 1,
+            'limit' => 10,
+            'filter' => [
+                [
+                    'type' => 'range',
+                    'field' => 'orderDate',
+                    'parameters' => [
+                        'gte' => '2020-05-16',
+                    ],
+                ],
+            ],
+            'aggregations' => [
+                [
+                    'type' => 'histogram',
+                    'name' => 'order_count_month',
+                    'field' => 'orderDateTime',
+                    'interval' => 'day',
+                    'format' => null,
+                    'aggregation' => [
+                        'type' => 'sum',
+                        'name' => 'totalAmount',
+                        'field' => 'amountTotal',
+                    ],
+                ],
+            ],
+            'total-count-mode' => 1,
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/order', [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertArrayHasKey('aggregations', $response);
+        static::assertArrayHasKey('order_count_month', $response['aggregations']);
+    }
+
     private function createSalesChannel(string $id): void
     {
         $data = [

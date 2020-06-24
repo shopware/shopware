@@ -14,6 +14,8 @@ class Migration1592807051TriggerProductIndexer extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $connection->executeUpdate('UPDATE product SET listing_prices = NULL');
+
         $this->registerIndexer($connection, 'product.indexer');
     }
 

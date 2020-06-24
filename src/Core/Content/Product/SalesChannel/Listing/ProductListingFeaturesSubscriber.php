@@ -211,20 +211,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function handlePropertyFilter(Request $request, Criteria $criteria): void
     {
-        $criteria->addAggregation(
-            new FilterAggregation(
-                'filterable-properties',
-                new TermsAggregation('properties', 'product.properties.id'),
-                [new EqualsFilter('product.properties.group.filterable', true)]
-            )
-        );
-        $criteria->addAggregation(
-            new FilterAggregation(
-                'filterable-options',
-                new TermsAggregation('options', 'product.options.id'),
-                [new EqualsFilter('product.options.group.filterable', true)]
-            )
-        );
+        $criteria->addAggregation(new TermsAggregation('properties', 'product.properties.id'));
+        $criteria->addAggregation(new TermsAggregation('options', 'product.options.id'));
 
         $ids = $this->getPropertyIds($request);
 
@@ -426,6 +414,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = new Criteria($ids);
         $criteria->addAssociation('group');
         $criteria->addAssociation('media');
+        $criteria->addFilter(new EqualsFilter('group.filterable', true));
 
         $result = $this->optionRepository->search($criteria, $event->getContext());
 

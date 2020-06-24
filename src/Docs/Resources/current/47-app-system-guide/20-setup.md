@@ -165,8 +165,8 @@ Once your app received the confirmation request you are good to go.
 
 ### Permissions
 
-Your app should be able to work with the data store in your shop. To define the permissions, your app can get in
-the `<permissions>` element. For each permission, please add an own element as seen in the example below:
+Your app needs permissions to read and write data and to receive events. To define the permissions, your app requests during the installation
+ you add them to the `<permissions>` element. For each permission, add element as seen in the example below:
 
 ```xml
     <permissions>
@@ -179,5 +179,6 @@ the `<permissions>` element. For each permission, please add an own element as s
 ```
 
 You set permission to all entities available in Shopware. The permission types to choose from are defined in the 
-scheme, e.g. `read`, `create` or `update`.
+scheme, e.g. `read`, `create` or `update`. Keep in mind that read permissions also extend to the data contained
+in the requests so that your app needs read permissions for the entities contained in the subscribed events.
 

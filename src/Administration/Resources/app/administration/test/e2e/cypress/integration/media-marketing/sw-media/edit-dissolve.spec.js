@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -28,11 +28,13 @@ describe('Media: Dissolve folder', () => {
 
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-        runOn('chrome', () => {
+
+        if (Cypress.isBrowser({ family: 'chromium' })) {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
             page.dissolve('sw-login-background.png');
-        });
-        runOn('firefox', () => {
+        }
+
+        if (Cypress.isBrowser('firefox')) {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload-v2__button-url-upload',
@@ -40,6 +42,6 @@ describe('Media: Dissolve folder', () => {
             );
             page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
             page.dissolve('sw_logo_white.png');
-        });
+        }
     });
 });

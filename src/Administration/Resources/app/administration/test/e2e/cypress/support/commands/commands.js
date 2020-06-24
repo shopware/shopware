@@ -1,4 +1,3 @@
-
 /**
  * Types in the global search field and verify search terms in url
  * @memberOf Cypress.Chainable#

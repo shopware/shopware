@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('FirstRunWizard Test language Auto-Install', () => {
     beforeEach(() => {

@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -132,48 +132,46 @@ describe('Search bar: Check main functionality', () => {
             .contains('Order 10000');
     });
 
-    runOn('chrome', () => {
-        it('@searchBar @search: search for a media', () => {
-            cy.createDefaultFixture('media-folder')
-                .then(() => {
-                    cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-                });
+    it('@searchBar @search: search for a media', { browser: "!firefox" }, () => {
+        cy.createDefaultFixture('media-folder')
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+            });
 
-            const page = new MediaPageObject();
+        const page = new MediaPageObject();
 
-            cy.get(page.elements.loader).should('not.exist');
-            cy.clickContextMenuItem(
-                page.elements.showMediaAction,
-                page.elements.contextMenuButton,
-                `${page.elements.gridItem}--0`
-            );
+        cy.get(page.elements.loader).should('not.exist');
+        cy.clickContextMenuItem(
+            page.elements.showMediaAction,
+            page.elements.contextMenuButton,
+            `${page.elements.gridItem}--0`
+        );
 
-            // Upload image in folder
-            cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        // Upload image in folder
+        cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-            cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
 
-            cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
-            cy.get('.sw-dashboard')
-                .should('exist');
+        cy.get('.sw-dashboard')
+            .should('exist');
 
-            cy.get('.sw-loader__element')
-                .should('not.exist');
+        cy.get('.sw-loader__element')
+            .should('not.exist');
 
-            cy.get('input.sw-search-bar__input').type('sw-login-background');
-            cy.get('.sw-search-bar__results').should('be.visible');
+        cy.get('input.sw-search-bar__input').type('sw-login-background');
+        cy.get('.sw-search-bar__results').should('be.visible');
 
-            cy.get('.sw-search-bar-item')
-                .should('be.visible')
-                .contains('sw-login-background')
-                .click();
+        cy.get('.sw-search-bar-item')
+            .should('be.visible')
+            .contains('sw-login-background')
+            .click();
 
-            cy.get('.sw-media-media-item')
-                .should('be.visible')
-                .get('.sw-media-base-item__name')
-                .contains('sw-login-background');
-        });
+        cy.get('.sw-media-media-item')
+            .should('be.visible')
+            .get('.sw-media-base-item__name')
+            .contains('sw-login-background');
     });
 });

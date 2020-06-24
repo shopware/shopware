@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 

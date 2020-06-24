@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -40,7 +40,7 @@ describe('Product: Test crud operations', () => {
         cy.get('#sw-price-field-gross').type('10');
 
 
-        runOn('chrome', () => {
+        if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
             cy.fixture('img/sw-login-background.png').then(fileContent => {
                 cy.get('#files').upload(
@@ -57,7 +57,7 @@ describe('Product: Test crud operations', () => {
                 .should('have.attr', 'src')
                 .and('match', /sw-login-background/);
             cy.awaitAndCheckNotification('File has been saved.');
-        });
+        }
 
         // Check net price calculation
         cy.wait('@calculatePrice').then(() => {

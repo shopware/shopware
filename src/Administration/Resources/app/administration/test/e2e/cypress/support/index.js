@@ -16,11 +16,3 @@ require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 
 // Custom administration commands
 require('./commands/commands');
-
-const runOn = (browser, fn) => {
-    if (Cypress.isBrowser(browser)) {
-        fn()
-    }
-};
-
-global.runOn = runOn;

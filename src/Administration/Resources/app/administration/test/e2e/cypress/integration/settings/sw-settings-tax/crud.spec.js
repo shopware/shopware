@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 

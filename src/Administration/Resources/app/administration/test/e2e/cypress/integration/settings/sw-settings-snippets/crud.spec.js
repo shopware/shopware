@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SnippetPageObject from '../../../support/pages/module/sw-snippet.page-object';
 

@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ShippingPageObject from '../../../support/pages/module/sw-shipping.page-object';
 

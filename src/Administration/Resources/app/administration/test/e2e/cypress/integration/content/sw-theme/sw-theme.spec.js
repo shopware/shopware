@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('Theme: Test loading and saving of theme', () => {
     beforeEach(() => {

@@ -23,7 +23,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `CrossSellingProductListCriteriaEvent`
         * Added `CrossSellingProductStreamCriteriaEvent`
     * Changed `\Shopware\Core\System\SalesChannel\Api\StructEncoder` to work correctly with aggregations
-    * Changed `product.listing_prices` data structure. The new structure will be applied over the `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer`
+    * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

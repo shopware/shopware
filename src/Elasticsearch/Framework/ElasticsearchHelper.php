@@ -83,6 +83,9 @@ class ElasticsearchHelper
 
     public function logOrThrowException(\Throwable $exception): bool
     {
+        if ($this->environment === 'test') {
+            throw $exception;
+        }
         if ($this->environment === 'dev') {
             $this->logger->critical($exception->getMessage());
         }

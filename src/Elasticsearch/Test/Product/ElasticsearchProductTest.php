@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -51,11 +53,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class ElasticsearchProductTest extends TestCase
 {
@@ -108,6 +113,11 @@ class ElasticsearchProductTest extends TestCase
      */
     private $salesChannelRepository;
 
+    /**
+     * @var string
+     */
+    private $navigationId;
+
     protected function setUp(): void
     {
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
@@ -116,6 +126,11 @@ class ElasticsearchProductTest extends TestCase
         $this->languageRepository = $this->getContainer()->get('language.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->navigationId = $this->connection->fetchColumn(
+            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+        );
 
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
@@ -1441,6 +1456,32 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(11, $ids->getIds());
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testStorefrontListing(TestDataCollection $data): void
+    {
+        $this->helper->setEnabled(true);
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $request = new Request();
+
+        $result = $this->getContainer()->get(ProductListingRoute::class)
+            ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context);
+
+        $listing = $result->getResult();
+
+        static::assertTrue($listing->getTotal() > 0);
+        static::assertTrue($listing->getAggregations()->has('shipping-free'));
+        static::assertTrue($listing->getAggregations()->has('rating'));
+        static::assertTrue($listing->getAggregations()->has('price'));
+        static::assertTrue($listing->getAggregations()->has('options'));
+        static::assertTrue($listing->getAggregations()->has('properties'));
+        static::assertTrue($listing->getAggregations()->has('manufacturer'));
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -1477,11 +1518,13 @@ class ElasticsearchProductTest extends TestCase
             'customFields' => [
                 'testField' => $name,
             ],
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
 
-        if (!empty($categories)) {
-            $data['categories'] = $categories;
-        }
+        $categories[] = ['id' => $this->navigationId];
+        $data['categories'] = $categories;
 
         foreach ($extensions as $extensionKey => $extension) {
             $data[$extensionKey] = $extension;

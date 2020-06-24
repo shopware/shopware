@@ -24,7 +24,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     public const CUSTOM_PRICE = 'customPrice';
 
     public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
-    
+
     public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
 
     public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
@@ -178,7 +178,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         if (!$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
             $lineItem->setLabel($product->getTranslation('name'));
         }
-        
+
         if ($product->getCover()) {
             $lineItem->setCover($product->getCover()->getMedia());
         }

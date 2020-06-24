@@ -3,11 +3,14 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -232,6 +235,73 @@ class PromotionEntityTest extends TestCase
                 ),
                 new OrRule(
                     [$fakeOrderRule]
+                ),
+            ]
+        );
+
+        static::assertEquals($expected, $promotion->getPreconditionRule());
+    }
+
+    /**
+     * This test verifies that all set groups in the promotion are added
+     * with an AND condition. So all groups need to exist
+     * to have a valid precondition rule.
+     *
+     * @test
+     * @group promotions2
+     */
+    public function testPreconditionRuleSetGroupsWithAndCondition(): void
+    {
+        $group1 = new PromotionSetGroupEntity();
+        $group1->setId('g1');
+        $group1->setPackagerKey('p1');
+        $group1->setSorterKey('s1');
+        $group1->setValue(1);
+
+        $group2 = new PromotionSetGroupEntity();
+        $group2->setId('g2');
+        $group2->setPackagerKey('p2');
+        $group2->setSorterKey('s2');
+        $group2->setValue(2);
+
+        $groups = new PromotionSetGroupCollection();
+        $groups->add($group1);
+        $groups->add($group2);
+
+        $promotion = new PromotionEntity();
+        $promotion->setId('p1');
+        $promotion->setUseSetGroups(true);
+        $promotion->setSetgroups($groups);
+
+        $rule1 = new LineItemGroupRule();
+        $rule1->assign(
+            [
+                'groupId' => $group1->getId(),
+                'packagerKey' => $group1->getPackagerKey(),
+                'value' => $group1->getValue(),
+                'sorterKey' => $group1->getSorterKey(),
+                'rules' => $group1->getSetGroupRules(),
+            ]
+        );
+
+        $rule2 = new LineItemGroupRule();
+        $rule2->assign(
+            [
+                'groupId' => $group2->getId(),
+                'packagerKey' => $group2->getPackagerKey(),
+                'value' => $group2->getValue(),
+                'sorterKey' => $group2->getSorterKey(),
+                'rules' => $group2->getSetGroupRules(),
+            ]
+        );
+
+        $expected = new AndRule(
+            [
+                new AndRule(
+                    [
+                        $rule1,
+                        $rule2,
+                    ]
                 ),
             ]
         );

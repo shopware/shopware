@@ -24,6 +24,7 @@ Component.register('sw-product-packaging-form', {
             'purchaseUnit',
             'referenceUnit',
             'packUnit',
+            'PackUnitPlural',
             'width',
             'height',
             'length',

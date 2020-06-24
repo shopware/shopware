@@ -63,7 +63,8 @@
                                                                       :to="{ name: settingsItem.to }"
                                                                       :id="settingsItem.id">
                                                         <template #icon>
-                                                            <sw-icon :name="settingsItem.icon"></sw-icon>
+                                                            <component v-if="settingsItem.iconComponent" :is="settingsItem.iconComponent"></component>
+                                                            <sw-icon v-else :name="settingsItem.icon"></sw-icon>
                                                         </template>
                                                     </sw-settings-item>
 
@@ -86,9 +87,9 @@
                                                                       :label="$tc(pluginSettingsItem.label)"
                                                                       :to="{ name: pluginSettingsItem.to }"
                                                                       :id="pluginSettingsItem.id">
-                                                        <component v-if="pluginSettingsItem.iconComponent" :is="pluginSettingsItem.iconComponent"></component>
-                                                        <template v-else #icon>
-                                                            <sw-icon :name="pluginSettingsItem.icon"></sw-icon>
+                                                        <template #icon>
+                                                            <component v-if="pluginSettingsItem.iconComponent" :is="pluginSettingsItem.iconComponent"></component>
+                                                            <sw-icon v-else :name="pluginSettingsItem.icon"></sw-icon>
                                                         </template>
                                                     </sw-settings-item>
 

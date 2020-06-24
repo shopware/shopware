@@ -10,7 +10,7 @@ Central file management of the system. The media component provides a rich set o
 
 ### Table `media`
 
-Root table for all media files managed by the system. Contains meta information, seo friendly url's and display friendly internationalized custom input. *Attention: A media item may actually not have a file when it was just recently created*.
+Root table for all media files managed by the system. Contains meta information, SEO friendly URLs and display friendly internationalized custom input. *Attention: A media item may actually not have a file when it was just recently created*.
 
 
 ### Table `media_default_folder`

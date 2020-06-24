@@ -118,6 +118,10 @@ class CrossSellingLoader
 
         $criteria = $this->handleAvailableStock($criteria, $context);
 
+        $this->eventDispatcher->dispatch(
+            new CrossSellingProductStreamCriteriaEvent($crossSelling, $criteria, $context)
+        );
+
         $searchResult = $this->productRepository->search($criteria, $context);
 
         /** @var ProductCollection $products */
@@ -165,6 +169,10 @@ class CrossSellingLoader
         }
 
         $criteria = $this->handleAvailableStock($criteria, $context);
+
+        $this->eventDispatcher->dispatch(
+            new CrossSellingProductListCriteriaEvent($crossSelling, $criteria, $context)
+        );
 
         $searchResult = $this->productRepository->search($criteria, $context);
 

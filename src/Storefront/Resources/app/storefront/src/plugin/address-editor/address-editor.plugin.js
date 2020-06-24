@@ -27,7 +27,7 @@ export default class AddressEditorPlugin extends Plugin {
             throw new Error('One or both of the options "changeShipping" or "changeShipping" has to be true!');
         }
 
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
         this._registerEvents();
     }
 

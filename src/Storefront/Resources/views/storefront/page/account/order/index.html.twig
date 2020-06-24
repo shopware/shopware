@@ -46,11 +46,17 @@
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
+              data-form-csrf-handler="true"
+              data-form-preserver="true"
               method="post">
 
-            {{ sw_csrf('frontend.account.edit-order.update-order') }}
+            {% block page_checkout_aside_actions_csrf %}
+                {{ sw_csrf('frontend.account.edit-order.update-order') }}
+            {% endblock %}
 
-            <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
+            {% block page_checkout_aside_actions_payment_method_id %}
+                <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
+            {% endblock %}
 
             {% set paymentMethodInvalid = true %}
 
@@ -60,14 +66,16 @@
                 {% endif %}
             {% endfor %}
 
-            <button
-                class="btn btn-primary btn-block"
-                {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
-                    disabled="disabled"
-                {% endif %}
-                type="submit">
-                {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
-            </button>
+            {% block page_checkout_confirm_form_submit %}
+                <button
+                    class="btn btn-primary btn-block"
+                    {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
+                        disabled="disabled"
+                    {% endif %}
+                    type="submit">
+                    {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
         </form>
 
         {% block page_checkout_aside_cancel_order_modal_toggle %}

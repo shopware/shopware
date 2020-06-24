@@ -97,3 +97,6 @@ Plugins are automatically checked with PhpStan and SonarQube to ensure a certain
 
 # Automatic code review fails
 If the automatic code review fails for a plugin an error with the reason is provided. We have a list of common errors and their fixes in the [code review section of the plugin quality guidelines](https://docs.shopware.com/en/plugin-standard-for-community-store#code-review-errors)
+
+# Include compiled Javascript files
+If your plugin includes Javascript files, please make sure, that you include the folder `src/Resources/app/storefront/dist` in your zip file. This is necessary because your Javascript files won't be compiled, when the plugin is activated in the administration.

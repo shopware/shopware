@@ -59,7 +59,7 @@
           "message": "Dynamic product group indexed. | One dynamic product group remaining... | {n} dynamic product groups remaining...",
           "messageSuccess": "Dynamic product groups have been indexed."
         },
-        "category":  {
+        "category": {
           "title": "Indexing categories",
           "message": "Categories indexed. | One category remaining... | {n} categories remaining...",
           "messageSuccess": "Categories have been indexed."
@@ -74,7 +74,7 @@
           "message": "Sales Channel indexed. | One Sales Channel remaining... | {n} Sales Channels remaining...",
           "messageSuccess": "Sales Channels have been indexed."
         },
-        "rule":  {
+        "rule": {
           "title": "Indexing rules",
           "message": "Rule indexed. | One rule remaining... | {n} rules remaining...",
           "messageSuccess": "Rules have been indexed."
@@ -498,7 +498,7 @@
         },
         "placeholder": "Search conditions...",
         "orderCountRule": "Count of orders",
-        "salesChannelRule": "Sales channel",
+        "salesChannelRule": "Sales Channel",
         "currencyRule": "Currency",
         "billingCountryRule": "Billing country",
         "billingStreetRule": "Billing street",
@@ -506,7 +506,7 @@
         "customerGroupRule": "Customer group",
         "customerNumberRule": "Customer number",
         "differentAddressesRule": "Different addresses",
-        "isNewCustomerRule": "Is new customer",
+        "isNewCustomerRule": "New customer",
         "lastNameRule": "Last name",
         "isCompanyRule": "Business customer",
         "daysSinceLastOrderRule": "Days since last order",
@@ -638,7 +638,7 @@
       "rule": "Rule | Rules",
       "rule_condition": "Condition | Conditions",
       "sales_channel": "Sales Channel | Sales Channels",
-      "sales_channel_type": "Sales channel type | Sales channel types",
+      "sales_channel_type": "Sales Channel type | Sales Channel types",
       "salutation": "Salutation | Salutations",
       "seo_url": "SEO URL | SEO URLs",
       "shipping_method": "Shipping method | Shipping methods",
@@ -678,6 +678,36 @@
       "cols": "Columns",
       "rows": "Rows",
       "editInfo": "Table can still be extended later."
+    },
+    "title": {
+      "format": "Format",
+      "paragraph": "Paragraph",
+      "h1": "Headline 1",
+      "h2": "Headline 2",
+      "h3": "Headline 3",
+      "h4": "Headline 4",
+      "h5": "Headline 5",
+      "h6": "Headline 6",
+      "blockquote": "Blockquote",
+      "text-color": "Text color",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "superscript": "Superscript",
+      "subscript": "Subscript",
+      "textAlign": "Text alignment",
+      "alignLeft": "Align left",
+      "alignCenter": "Align center",
+      "alignRight": "Align right",
+      "justify": "Justified",
+      "insert-unordered-list": "Insert unordered list",
+      "insert-ordered-list": "Insert ordered list",
+      "link": "Link",
+      "undo": "Undo",
+      "redo": "Redo",
+      "insert-table": "Insert table",
+      "code-switch": "Switch edit modes"
     }
   },
   "sw-tree": {
@@ -735,12 +765,12 @@
   "sw-license-violation": {
     "title": "Plugin warning(s)",
     "reload": "Reload",
-    "alert-text": "We have detected a license violation for at least one of your plugins in this installation. To fix the license violation and avoid legal consequences, book the plugin subscription after or buy/rent the plugin (depending on the type of violation). You are not using the plugin anymore? Then delete it completely from the Plugin Manager. If none of these measure are taken, shopware AG reserves the right to charge for the license violation.",
-    "delete-plugin": "Delete plugin permanently",
-    "message-delete-confirm": "Do you want to completely delete the plugin \"{pluginName} \"?",
-    "checkbox-message": "I have taken this message to notice",
-    "close-modal": "Close notification",
-    "ignore-plugin": "Ignore permanently",
+    "alertText": "We have detected a license violation for at least one of your plugins in this installation. To fix the license violation and avoid legal consequences, book a plugin subscription or buy/rent the plugin (according to inflicted violation type). You do not use the plugin anymore? Then delete it via the Plugin Manager. If none of these measures are taken, shopware AG reserves itself the right to charge penalty fees for any license violation.",
+    "deletePlugin": "Delete plugin permanently",
+    "messageDeleteConfirm": "Do you want to delete the plugin \"{pluginName} \" completely?",
+    "checkboxMessage": "I have taken notice of this message and eventually accruing consequences.",
+    "closeModal": "Close notification",
+    "ignorePlugin": "Ignore permanently",
     "table": {
       "plugin": "Plugin",
       "warning": "Warning"

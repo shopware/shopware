@@ -3,7 +3,7 @@
 
 [Back to modules](./../10-modules.md)
 
-The import/export funtionality of Shopware 6 centrally 
+The import/export functionality of Shopware 6 centrally 
 
 ![Import/Export](./dist/erd-shopware-core-content-importexport.png)
 

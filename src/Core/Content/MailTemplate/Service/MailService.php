@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -107,8 +108,8 @@ class MailService implements MailServiceInterface
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
-        $mailSentEvent = new MailBeforeValidateEvent($data, $context, $templateData);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
@@ -118,8 +119,8 @@ class MailService implements MailServiceInterface
         $salesChannel = null;
 
         if ($salesChannelId !== null && !isset($templateData['salesChannel'])) {
-            $criteria = new Criteria([$salesChannelId]);
-            $criteria->addAssociation('mailHeaderFooter');
+            $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
+
             /** @var SalesChannelEntity|null $salesChannel */
             $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 
@@ -128,6 +129,8 @@ class MailService implements MailServiceInterface
             }
 
             $templateData['salesChannel'] = $salesChannel;
+        } elseif (isset($templateData['salesChannel'])) {
+            $salesChannel = $templateData['salesChannel'];
         }
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
@@ -182,10 +185,10 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
-        $mailSentEvent = new MailBeforeSentEvent($data, $message, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
+        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 
-        if ($mailSentEvent->isPropagationStopped()) {
+        if ($mailBeforeSentEvent->isPropagationStopped()) {
             return null;
         }
 
@@ -257,5 +260,17 @@ class MailService implements MailServiceInterface
         }
 
         return $urls;
+    }
+
+    private function getSalesChannelDomainCriteria(string $salesChannelId, Context $context): Criteria
+    {
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('mailHeaderFooter');
+        $criteria->getAssociation('domains')
+            ->addFilter(
+                new EqualsFilter('languageId', $context->getLanguageId())
+            );
+
+        return $criteria;
     }
 }

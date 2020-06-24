@@ -271,10 +271,6 @@ class SystemConfigService
         $key = array_shift($keys);
 
         if (empty($keys)) {
-            if ($value !== false && empty($value)) {
-                return $configValues;
-            }
-
             $configValues[$key] = $value;
         } else {
             if (!\array_key_exists($key, $configValues)) {

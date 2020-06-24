@@ -3,12 +3,9 @@
 
     {% if shopware.config.core.listing.allowBuyInListing %}
         <div class="product-action">
-            {% set isVariant = product.parentId is not null %}
-            {% set isParent = product.childCount > 0 %}
             {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
 
-            {% if isAvailable and not isParent and not isVariant  %}
-
+            {% if isAvailable and not product.isGrouped  %}
                 {% block component_product_box_action_buy %}
                     {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
                        <form action="{{ path('frontend.checkout.line-item.add') }}"
@@ -23,9 +20,15 @@
                             {% block component_product_box_action_form %}
 
                                 {% block component_product_box_action_buy_redirect_input %}
+                                    {# fallback redirect back to detail page is deactivated via js #}
                                     <input type="hidden"
                                            name="redirectTo"
-                                           value="frontend.cart.offcanvas"/>
+                                           value="frontend.detail.page">
+
+                                    <input type="hidden"
+                                           name="redirectParameters"
+                                           data-redirect-parameters="true"
+                                           value='{"productId": "{{ product.id }}"}'>
                                 {% endblock %}
 
                                 {% block page_product_detail_buy_product_buy_info %}

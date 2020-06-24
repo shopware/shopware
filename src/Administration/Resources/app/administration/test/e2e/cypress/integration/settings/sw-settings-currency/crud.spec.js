@@ -89,11 +89,14 @@ describe('Currency: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
+        // filter currency via search bar
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('ZZ Yen');
+
         // Delete currency
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--8`
+            `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
@@ -106,6 +109,6 @@ describe('Currency: Test crud operations', () => {
         });
 
         cy.get(page.elements.modal).should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--8 ${page.elements.currencyColumnName}`).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).should('not.exist');
     });
 });

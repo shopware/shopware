@@ -31,6 +31,7 @@ Repository Split:
         refs:
             - master
             - /^6\..*$/
+            - saas-release
     environment:
         name: Github
         url: https://github.com/shopware

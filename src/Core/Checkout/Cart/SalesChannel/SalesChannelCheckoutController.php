@@ -186,7 +186,8 @@ class SalesChannelCheckoutController extends AbstractController
     public function payOrder(string $orderId, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
         $finishUrl = $dataBag->get('finishUrl');
-        $response = $this->paymentService->handlePaymentByOrder($orderId, $dataBag, $context, $finishUrl);
+        $errorUrl = $dataBag->get('errorUrl');
+        $response = $this->paymentService->handlePaymentByOrder($orderId, $dataBag, $context, $finishUrl, $errorUrl);
 
         if ($response) {
             return new JsonResponse(['paymentUrl' => $response->getTargetUrl()]);

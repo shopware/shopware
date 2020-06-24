@@ -29,7 +29,7 @@ export default class ListingPlugin extends Plugin {
     init() {
         this._registry = [];
 
-        this.httpClient = new HttpClient(window.accessKey, window.contextToken);
+        this.httpClient = new HttpClient();
 
         this._urlFilterParams = querystring.parse(HistoryUtil.getSearch());
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
@@ -110,10 +111,10 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $context->getContext()
         );
 
-        if (!$customer->getGuest()) {
-            $event = new CustomerRegisterEvent($context, $customer);
-
-            $this->eventDispatcher->dispatch($event);
+        if ($customer->getGuest()) {
+            $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($context, $customer));
+        } else {
+            $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customer));
         }
 
         return new CustomerResponse($customer);

@@ -82,7 +82,7 @@
                 @modal-close="onCloseCreateDomainModal">
 
                 {% block sw_sales_channel_detail_domains_create_modal_content %}
-                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
                         {% block sw_sales_channel_detail_domains_input_url %}
                             <sw-url-field type="text" label="Url" v-model="currentDomain.url"></sw-url-field>
                         {% endblock %}
@@ -99,7 +99,7 @@
                         {% endblock %}
                     </sw-container>
 
-                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="0px 30px">
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
                         {% block sw_sales_channel_detail_domains_input_currency %}
                             <sw-entity-single-select
                                 :label="$tc('sw-sales-channel.detail.labelInputCurrency')"

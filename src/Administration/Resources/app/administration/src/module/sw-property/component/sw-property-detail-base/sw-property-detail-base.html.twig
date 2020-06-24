@@ -18,6 +18,15 @@
                       :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))" />
         {% endblock %}
 
+        {% block sw_property_detail_base_filterable %}
+            <sw-switch-field
+                    name="propertyGroupFilterable"
+                    class="sw-property-detail__filterable"
+                    :label="$tc('sw-property.detail.labelFilterable')"
+                    v-model="propertyGroup.filterable">
+            </sw-switch-field>
+        {% endblock %}
+
         {% block sw_property_detail_sorting_display_container %}
             <sw-container columns="repeat(3, 1fr)" gap="0px 30px">
                 {% block sw_property_detail_display_type %}

@@ -16,17 +16,16 @@ needs to have at least one gateway. Gateways need to be defined in the correspon
     <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\ReaderRegistry" />
     <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalEnvironmentReader" />
     <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalTableReader" />
-    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalTableCountReader" />
     <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactory" />
     <argument type="service" id="currency.repository"/>
     <tag name="shopware.migration.gateway" />
 </service>
 
 <service id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\ShopwareApiGateway">
-    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\ApiReader" />
-    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\ApiEnvironmentReader" />
-    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\ApiTableReader" />
-    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\ApiTableCountReader" />
+    <argument type="service" id="SwagMigrationAssistant\Migration\Gateway\Reader\ReaderRegistry"/>
+    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\EnvironmentReader" />
+    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\TableReader" />
+    <argument type="service" id="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\TableCountReader" />
     <argument type="service" id="currency.repository"/>
     <tag name="shopware.migration.gateway" />
 </service>
@@ -41,6 +40,7 @@ the migration's context and a unique identifier, composed by a combination of pr
 
 namespace SwagMigrationAssistant\Migration\Gateway;
 
+use SwagMigrationAssistant\Exception\MigrationContextPropertyMissingException;
 use SwagMigrationAssistant\Exception\GatewayNotFoundException;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
 
@@ -51,6 +51,9 @@ class GatewayRegistry implements GatewayRegistryInterface
      */
     private $gateways;
 
+    /**
+     * @param GatewayInterface[] $gateways
+    */
     public function __construct(iterable $gateways)
     {
         $this->gateways = $gateways;
@@ -58,6 +61,8 @@ class GatewayRegistry implements GatewayRegistryInterface
 
     /**
      * @throws GatewayNotFoundException
+     *
+     * @return GatewayInterface[]
      */
     public function getGateways(MigrationContextInterface $migrationContext): array
     {
@@ -76,8 +81,13 @@ class GatewayRegistry implements GatewayRegistryInterface
      */
     public function getGateway(MigrationContextInterface $migrationContext): GatewayInterface
     {
-        $profileName = $migrationContext->getConnection()->getProfileName();
-        $gatewayName = $migrationContext->getConnection()->getGatewayName();
+        $connection = $migrationContext->getConnection();
+        if ($connection === null) {
+            throw new MigrationContextPropertyMissingException('Connection');
+        }
+
+        $profileName = $connection->getProfileName();
+        $gatewayName = $connection->getGatewayName();
 
         foreach ($this->gateways as $gateway) {
             if ($gateway->supports($migrationContext) && $gateway->getName() === $gatewayName) {
@@ -104,14 +114,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use SwagMigrationAssistant\Migration\EnvironmentInformation;
+use SwagMigrationAssistant\Migration\Gateway\Reader\EnvironmentReaderInterface;
+use SwagMigrationAssistant\Migration\Gateway\Reader\ReaderRegistry;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
-use SwagMigrationAssistant\Migration\Profile\ReaderInterface;
 use SwagMigrationAssistant\Migration\RequestStatusStruct;
-use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ShopwareDataSet;
 use SwagMigrationAssistant\Profile\Shopware\Exception\DatabaseConnectionException;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\Connection\ConnectionFactoryInterface;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\ShopwareGatewayInterface;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\TableCountReaderInterface;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\TableReaderInterface;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 
@@ -125,7 +134,7 @@ class ShopwareLocalGateway implements ShopwareGatewayInterface
     private $readerRegistry;
 
     /**
-     * @var ReaderInterface
+     * @var EnvironmentReaderInterface
      */
     private $localEnvironmentReader;
 
@@ -133,11 +142,6 @@ class ShopwareLocalGateway implements ShopwareGatewayInterface
      * @var TableReaderInterface
      */
     private $localTableReader;
-
-    /**
-     * @var TableCountReaderInterface
-     */
-    private $localTableCountReader;
 
     /**
      * @var ConnectionFactoryInterface
@@ -151,16 +155,14 @@ class ShopwareLocalGateway implements ShopwareGatewayInterface
 
     public function __construct(
         ReaderRegistry $readerRegistry,
-        ReaderInterface $localEnvironmentReader,
+        EnvironmentReaderInterface $localEnvironmentReader,
         TableReaderInterface $localTableReader,
-        TableCountReaderInterface $localTableCountReader,
         ConnectionFactoryInterface $connectionFactory,
         EntityRepositoryInterface $currencyRepository
     ) {
         $this->readerRegistry = $readerRegistry;
         $this->localEnvironmentReader = $localEnvironmentReader;
         $this->localTableReader = $localTableReader;
-        $this->localTableCountReader = $localTableCountReader;
         $this->connectionFactory = $connectionFactory;
         $this->currencyRepository = $currencyRepository;
     }
@@ -170,6 +172,11 @@ class ShopwareLocalGateway implements ShopwareGatewayInterface
         return self::GATEWAY_NAME;
     }
 
+    public function getSnippetName(): string
+    {
+        return 'swag-migration.wizard.pages.connectionCreate.gateways.shopwareLocal';
+    }
+
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface;
@@ -177,18 +184,28 @@ class ShopwareLocalGateway implements ShopwareGatewayInterface
 
     public function read(MigrationContextInterface $migrationContext): array
     {
-        /** @var ShopwareDataSet $dataSet */
-        $dataSet = $migrationContext->getDataSet();
-
         $reader = $this->readerRegistry->getReader($migrationContext);
-
-        return $reader->read($migrationContext, $dataSet->getExtraQueryParameters());
+        
+        return $reader->read($migrationContext);
     }
 
     public function readEnvironmentInformation(MigrationContextInterface $migrationContext, Context $context): EnvironmentInformation
     {
         $connection = $this->connectionFactory->createDatabaseConnection($migrationContext);
         $profile = $migrationContext->getProfile();
+
+        if ($connection === null) {
+            $error = new DatabaseConnectionException();
+
+            return new EnvironmentInformation(
+                $profile->getSourceSystemName(),
+                $profile->getVersion(),
+                '-',
+                [],
+                [],
+                new RequestStatusStruct($error->getErrorCode(), $error->getMessage())
+            );
+        }
 
         try {
             $connection->connect();
@@ -231,7 +248,20 @@ class ShopwareLocalGateway implements ShopwareGatewayInterface
 
     public function readTotals(MigrationContextInterface $migrationContext, Context $context): array
     {
-        return $this->localTableCountReader->readTotals($migrationContext, $context);
+        $readers = $this->readerRegistry->getReaderForTotal($migrationContext);
+        
+        $totals = [];
+        foreach ($readers as $reader) {
+            $total = $reader->readTotal($migrationContext);
+
+            if ($total === null) {
+                continue;
+            }
+
+            $totals[$total->getEntityName()] = $total;
+        }
+
+        return $totals;
     }
 
     public function readTable(MigrationContextInterface $migrationContext, string $tableName, array $filter = []): array
@@ -256,30 +286,59 @@ To prepare this data, the structure can be modified and associated data can be f
 namespace SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use SwagMigrationAssistant\Migration\DataSelection\DefaultEntities;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
+use SwagMigrationAssistant\Migration\TotalStruct;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\ShopwareLocalGateway;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 
-class LocalMediaReader extends LocalAbstractReader implements LocalReaderInterface
+class MediaReader extends AbstractReader
 {
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareLocalGateway::GATEWAY_NAME
             && $migrationContext->getDataSet()::getEntity() === DefaultEntities::MEDIA;
     }
 
-    public function read(MigrationContextInterface $migrationContext, array $params = []): array
+    public function supportsTotal(MigrationContextInterface $migrationContext): bool
+    {
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareLocalGateway::GATEWAY_NAME;
+    }
+
+    public function read(MigrationContextInterface $migrationContext): array
     {
         $this->setConnection($migrationContext);
         $fetchedMedia = $this->fetchData($migrationContext);
 
         $media = $this->mapData(
-            $fetchedMedia, [], ['asset']
+            $fetchedMedia,
+            [],
+            ['asset']
         );
 
         $resultSet = $this->prepareMedia($media);
 
         return $this->cleanupResultSet($resultSet);
+    }
+
+    public function readTotal(MigrationContextInterface $migrationContext): ?TotalStruct
+    {
+        $this->setConnection($migrationContext);
+
+        $query = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from('s_media')
+            ->execute();
+
+        $total = 0;
+        if ($query instanceof ResultStatement) {
+            $total = (int) $query->fetchColumn();
+        }
+
+        return new TotalStruct(DefaultEntities::MEDIA, $total);
     }
 
     private function fetchData(MigrationContextInterface $migrationContext): array
@@ -298,7 +357,12 @@ class LocalMediaReader extends LocalAbstractReader implements LocalReaderInterfa
 
         $query->addOrderBy('asset.id');
 
-        return $query->execute()->fetchAll();
+        $query = $query->execute();
+        if (!($query instanceof ResultStatement)) {
+            return [];
+        }
+
+        return $query->fetchAll();
     }
 
     private function prepareMedia(array $media): array

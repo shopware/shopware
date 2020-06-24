@@ -156,10 +156,8 @@ class PromotionValidatorTest extends TestCase
      * @test
      * @group promotions
      * @testWith ["percentage", -0.01]
-     *           ["percentage", 0]
      *           ["percentage", 100.01]
      *           ["absolute", -0.01]
-     *           ["absolute", 0.0]
      *
      * @throws \ReflectionException
      * @throws InvalidUuidException
@@ -201,12 +199,15 @@ class PromotionValidatorTest extends TestCase
      * This test verifies that we do not get an exception when
      * we send correct values within the allowed range to
      * our discount validator.
+     * The value 0,00 is indeed allowed to make sure you can
+     * use fixed prices of 0,00...and thus percentage and
+     * absolute do also get that minValue (to make things easier).
      *
      * @test
      * @group promotions
-     * @testWith ["percentage", 0.01]
+     * @testWith ["percentage", 0.00]
      *           ["percentage", 100]
-     *           ["absolute", 0.01]
+     *           ["absolute", 0.00]
      *           ["absolute", 260.0]
      *
      * @throws \ReflectionException

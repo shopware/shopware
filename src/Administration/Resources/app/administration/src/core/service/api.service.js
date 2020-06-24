@@ -37,6 +37,7 @@ class ApiService {
      * @param {Object} headers
      * @param {String} versionId
      * @param {Array} ids
+     * @param {Number} total-count-mode
      * @returns {Promise<T>}
      */
     getList({
@@ -50,7 +51,8 @@ class ApiService {
         associations,
         headers,
         versionId,
-        ids
+        ids,
+        'total-count-mode': totalCountMode = 0
     }) {
         this.showDeprecationWarning('getList');
 
@@ -89,6 +91,10 @@ class ApiService {
 
         if (queries) {
             params.query = queries;
+        }
+
+        if (totalCountMode) {
+            params['total-count-mode'] = totalCountMode;
         }
 
         // Switch to the general search end point when we're having a search term or aggregations

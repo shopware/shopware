@@ -8,5 +8,5 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
 interface TaxRuleTypeFilterInterface
 {
-    public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool;
+    public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customerEntity, ShippingLocation $shippingLocation): bool;
 }

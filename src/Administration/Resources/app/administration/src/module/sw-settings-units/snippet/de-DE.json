@@ -3,7 +3,8 @@
     "general": {
       "mainMenuItemGeneral": "Maßeinheiten",
       "placeholderSearchBar": "Durchsuche alle Maßeinheiten ...",
-      "createNewUnit": "Maßeinheit erstellen"
+      "createNewUnit": "Maßeinheit erstellen",
+      "disableAddNewUnitMessage": "Neue Maßeinheiten können nur in der System-Standardsprache angelegt werden."
     },
     "grid": {
       "columnName": "Name",

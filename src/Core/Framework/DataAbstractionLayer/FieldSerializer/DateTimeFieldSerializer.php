@@ -34,14 +34,16 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
             $value = new \DateTimeImmutable($value['date']);
         }
 
-        $data->setValue($value);
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
-
         if ($value === null) {
             yield $field->getStorageName() => null;
 
             return;
         }
+
+        $value = $value->setTimezone(new \DateTimeZone('UTC'));
+
+        $data->setValue($value);
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }

@@ -1,4 +1,5 @@
 import template from './sw-property-list.html.twig';
+import './sw-property-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -101,6 +102,12 @@ Component.register('sw-property-list', {
                 property: 'description',
                 label: 'sw-property.list.columnDescription',
                 allowResize: true
+            }, {
+                property: 'filterable',
+                label: 'sw-property.list.columnFilterable',
+                inlineEdit: 'boolean',
+                allowResize: true,
+                align: 'center'
             }];
         }
     }

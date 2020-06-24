@@ -12,5 +12,17 @@
         <service id="Shopware\Core\System\Snippet\SnippetDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\System\Snippet\SnippetValidatorInterface" class="Shopware\Core\System\Snippet\SnippetValidator">
+            <argument type="tagged" tag="shopware.snippet.file" />
+            <argument>%kernel.project_dir%/</argument>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand">
+            <argument type="service" id="Shopware\Core\System\Snippet\SnippetValidatorInterface" />
+
+            <tag name="console.command"/>
+        </service>
+
     </services>
 </container>

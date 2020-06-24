@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionAbsoluteCalculationTest extends TestCase
@@ -128,6 +129,38 @@ class PromotionAbsoluteCalculationTest extends TestCase
         static::assertEquals(58.82, $cart->getPrice()->getNetPrice());
     }
 
+    public function testNetCustomerAbsoluteDiscountHigherThanCartTotal(): void
+    {
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $code = 'BF' . Random::getAlphanumericString(5);
+
+        /** @var SalesChannelContext $context */
+        $context = $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [SalesChannelContextService::CUSTOMER_ID => $this->createNetCustomer()]
+            );
+
+        $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer(), $context);
+
+        $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 300, 600);
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        // create product and add to cart
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
+
+        static::assertEquals(0, $cart->getPrice()->getPositionPrice());
+        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+        static::assertEquals(0, $cart->getPrice()->getNetPrice());
+    }
+
     /**
      * create a promotion with a currency based price value discount.
      */
@@ -166,5 +199,67 @@ class PromotionAbsoluteCalculationTest extends TestCase
             ],
             Context::createDefaultContext()
         );
+    }
+
+    private function createNetCustomer(): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => Uuid::randomHex() . '@example.com',
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => $this->createNetCustomerGroup(),
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->getContainer()
+            ->get('customer.repository')
+            ->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
+    }
+
+    private function createNetCustomerGroup(): string
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'displayGross' => false,
+            'translations' => [
+                'en-GB' => [
+                    'name' => 'Net price customer group',
+                ],
+                'de-DE' => [
+                    'name' => 'Nettopreis-Kundengruppe',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
+
+        return $id;
     }
 }

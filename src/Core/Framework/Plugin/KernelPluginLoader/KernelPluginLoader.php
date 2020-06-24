@@ -73,26 +73,37 @@ abstract class KernelPluginLoader extends Bundle
         return $this->pluginInstances;
     }
 
-    final public function getBundles($kernelParameters = []): iterable
+    final public function getBundles($kernelParameters = [], array $loadedBundles = []): iterable
     {
         if (!$this->initialized) {
             return;
         }
 
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            yield $plugin;
+            if (!in_array($plugin->getName(), $loadedBundles, true)) {
+                yield $plugin;
+                $loadedBundles[] = $plugin->getName();
+            }
 
             $copy = new KernelPluginCollection($this->getPluginInstances()->all());
             $additionalBundleParameters = new AdditionalBundleParameters($this->classLoader, $copy, $kernelParameters);
             $additionalBundles = $plugin->getAdditionalBundles($additionalBundleParameters);
+
             if (empty($additionalBundles)) {
-                yield from $plugin->getExtraBundles($this->classLoader);
-            } else {
-                yield from $additionalBundles;
+                $additionalBundles = $plugin->getExtraBundles($this->classLoader);
+            }
+
+            foreach ($additionalBundles as $bundle) {
+                if (!in_array($bundle->getName(), $loadedBundles, true)) {
+                    yield $bundle;
+                    $loadedBundles[] = $bundle->getName();
+                }
             }
         }
 
-        yield $this;
+        if (!in_array($this->getName(), $loadedBundles, true)) {
+            yield $this;
+        }
     }
 
     /**
@@ -268,7 +279,7 @@ abstract class KernelPluginLoader extends Bundle
             $className = $pluginData['baseClass'];
 
             $pluginClassFilePath = $this->classLoader->findFile($className);
-            if (!$pluginClassFilePath || !file_exists($pluginClassFilePath)) {
+            if (!class_exists($className) || !$pluginClassFilePath || !file_exists($pluginClassFilePath)) {
                 continue;
             }
 

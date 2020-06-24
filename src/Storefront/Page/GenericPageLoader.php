@@ -10,8 +10,11 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Event\RouteRequest\PaymentMethodRouteRequestEvent;
+use Shopware\Storefront\Event\RouteRequest\ShippingMethodRouteRequestEvent;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class GenericPageLoader implements GenericPageLoaderInterface
@@ -34,25 +37,32 @@ class GenericPageLoader implements GenericPageLoaderInterface
     /**
      * @var AbstractPaymentMethodRoute
      */
-    private $paymentMethodPageRoute;
+    private $paymentMethodRoute;
 
     /**
      * @var AbstractShippingMethodRoute
      */
-    private $shippingMethodPageRoute;
+    private $shippingMethodRoute;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     public function __construct(
         HeaderPageletLoaderInterface $headerLoader,
         FooterPageletLoaderInterface $footerLoader,
         SystemConfigService $systemConfigService,
-        AbstractPaymentMethodRoute $paymentMethodPageRoute,
-        AbstractShippingMethodRoute $shippingMethodPageRoute
+        AbstractPaymentMethodRoute $paymentMethodRoute,
+        AbstractShippingMethodRoute $shippingMethodRoute,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->headerLoader = $headerLoader;
         $this->footerLoader = $footerLoader;
         $this->systemConfigService = $systemConfigService;
-        $this->paymentMethodPageRoute = $paymentMethodPageRoute;
-        $this->shippingMethodPageRoute = $shippingMethodPageRoute;
+        $this->paymentMethodRoute = $paymentMethodRoute;
+        $this->shippingMethodRoute = $shippingMethodRoute;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -60,7 +70,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): Page
+    public function load(Request $request, SalesChannelContext $context): Page
     {
         $page = new Page();
 
@@ -68,19 +78,23 @@ class GenericPageLoader implements GenericPageLoaderInterface
             return $page;
         }
         $page->setHeader(
-            $this->headerLoader->load($request, $salesChannelContext)
+            $this->headerLoader->load($request, $context)
         );
 
         $page->setFooter(
-            $this->footerLoader->load($request, $salesChannelContext)
+            $this->footerLoader->load($request, $context)
         );
 
+        $shippingMethodRouteRequestEvent = new ShippingMethodRouteRequestEvent($request, new Request(), $context);
+        $this->eventDispatcher->dispatch($shippingMethodRouteRequestEvent);
         $page->setSalesChannelShippingMethods(
-            $this->shippingMethodPageRoute->load(new Request(), $salesChannelContext)->getShippingMethods()
+            $this->shippingMethodRoute->load($shippingMethodRouteRequestEvent->getStoreApiRequest(), $context)->getShippingMethods()
         );
 
+        $paymentMethodRouteRequestEvent = new PaymentMethodRouteRequestEvent($request, new Request(), $context);
+        $this->eventDispatcher->dispatch($paymentMethodRouteRequestEvent);
         $page->setSalesChannelPaymentMethods(
-            $this->paymentMethodPageRoute->load(new Request(), $salesChannelContext)->getPaymentMethods()
+            $this->paymentMethodRoute->load($paymentMethodRouteRequestEvent->getStoreApiRequest(), $context)->getPaymentMethods()
         );
 
         $page->setMetaInformation((new MetaInformation())->assign([

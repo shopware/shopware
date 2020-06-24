@@ -81,7 +81,12 @@ class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
 
     public function getCode(): string
     {
-        return sprintf('SWAG_MIGRATION_EMPTY_NECESSARY_FIELD_%s', mb_strtoupper($this->getEntity()));
+        $entity = $this->getEntity();
+        if ($entity === null) {
+            return 'SWAG_MIGRATION_EMPTY_NECESSARY_FIELD';
+        }
+
+        return sprintf('SWAG_MIGRATION_EMPTY_NECESSARY_FIELD_%s', mb_strtoupper($entity));
     }
 
     public function getLevel(): string
@@ -91,7 +96,12 @@ class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
 
     public function getTitle(): string
     {
-        return sprintf('The %s entity has one or more empty necessary fields', $this->getEntity());
+        $entity = $this->getEntity();
+        if ($entity === null) {
+            return 'The entity has one or more empty necessary fields';
+        }
+
+        return sprintf('The %s entity has one or more empty necessary fields', $entity);
     }
 
     public function getParameters(): array
@@ -109,10 +119,10 @@ class EmptyNecessaryFieldRunLog extends BaseRunLogEntry
 
         return sprintf(
             'The %s entity with the source id %s does not have the necessary data for the field(s): %s',
-                $args['entity'],
-                $args['sourceId'],
-                $args['emptyField']
-            );
+            $args['entity'],
+            $args['sourceId'],
+            $args['emptyField']
+        );
     }
 
     public function getTitleSnippet(): string

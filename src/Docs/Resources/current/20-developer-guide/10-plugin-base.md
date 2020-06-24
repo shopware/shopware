@@ -23,32 +23,31 @@ What's needed to create a new plugin in Shopware 6 is nothing more than a class
 extending the plugin base class along with a `composer.json` in the correct
 directory. The plugin's class name and directory are determined by its name. You
 may choose a name freely, but it should be prefixed by convention with a unique
-shorthand for the developer or the developing company respectively. If someone
-at Acme corporation is implementing a plugin integrating a monitoring solution,
-this plugin could for example be called `AcmeMonitoring`. Staying with this
-example, the plugin's file structure would need to look like this:
+shorthand for the developer or the developing company respectively. The file
+structure for a plugin integrating a monitoring solution could for example look
+like this:
 
 ```
 ./
-+-- AcmeMonitoring/
++-- SwagMonitoring/
     +-- composer.json
     +-- src/
-        +-- AcmeMonitoring.php
+        +-- SwagMonitoring.php
 ```
 
 ### The content
 
-The plugin's base class `AcmeMonitoring.php` needs to extend Shopware's
+The plugin's base class `SwagMonitoring.php` needs to extend Shopware's
 `Plugin` class. Apart from that, no other information is needed in this file:
 
 ```php
 <?php declare(strict_types=1);
 
-namespace Acme\Monitoring;
+namespace Swag\Monitoring;
 
 use Shopware\Core\Framework\Plugin;
 
-class AcmeMonitoring extends Plugin
+class SwagMonitoring extends Plugin
 {
 }
 ```
@@ -62,14 +61,14 @@ find the plugin when it is installed via composer, the `type` needs to be set to
 
 ```json
 {
-    "name": "acme/monitoring",
+    "name": "swag/monitoring",
     "description": "Lorem ipsum dolor sit amet",
     "version": "v1.0.0",
     "type": "shopware-platform-plugin",
     "license": "AGPL-3.0-or-later",
     "authors": [
         {
-            "name": "Acme corporation",
+            "name": "shopware AG",
             "role": "Manufacturer"
         }
     ],
@@ -77,7 +76,7 @@ find the plugin when it is installed via composer, the `type` needs to be set to
         "shopware/core": "6.2.*"
     },
     "extra": {
-        "shopware-plugin-class": "Acme\\Monitoring\\AcmeMonitoring",
+        "shopware-plugin-class": "Swag\\Monitoring\\SwagMonitoring",
         "plugin-icon": "Resources/config/plugin.png",
         "label": {
             "de-DE": "Monitoring Plugin",
@@ -86,7 +85,7 @@ find the plugin when it is installed via composer, the `type` needs to be set to
     },
     "autoload": {
         "psr-4": {
-            "Acme\\Monitoring\\": "src/"
+            "Swag\\Monitoring\\": "src/"
         }
     }
 }
@@ -146,7 +145,7 @@ public function uninstall(UninstallContext $context): void
 
 ## Plugin configuration
 
-To allow the users of your plugin to change the plugin's behaviour, you may add 
+To allow the users of your plugin to change the plugin's behaviour, you may add
 a `config.xml`. This file is interpreted by Shopware to automatically
 create a settings form in the administration. This is how a basic `config.xml`
 might look:

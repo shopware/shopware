@@ -29,6 +29,8 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     .sw-text-editor-toolbar-button__icon {
         display: flex;
         align-items: center;
+        justify-content: center;
+        width: 100%;
     }
 
     .sw-text-editor-toolbar-button__children {

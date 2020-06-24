@@ -7,8 +7,8 @@
                 <h1 class="search-headline">
                     {% block page_search_headline_text %}
                         {{ "search.headline"|trans({
+                            '%count%': page.listing.total,
                             '%searchTerm%': page.searchTerm,
-                            '%totalCount%': page.listing.total,
                         })|sw_sanitize }}
                     {% endblock %}
                 </h1>

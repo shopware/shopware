@@ -42,6 +42,6 @@ class ElasticsearchIndexingCommand extends Command implements EventSubscriberInt
 
         $this->indexer->sendIndexingMessage(['elasticsearch.indexer']);
 
-        return 1;
+        return 0;
     }
 }

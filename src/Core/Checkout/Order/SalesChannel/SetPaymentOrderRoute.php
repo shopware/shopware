@@ -94,25 +94,27 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      * )
      * @Route(path="/store-api/v{version}/order/payment", name="store-api.order.set-payment", methods={"POST"})
      */
-    public function setPayment(Request $request, SalesChannelContext $salesChannelContext): SetPaymentOrderRouteResponse
+    public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
         $paymentMethodId = $request->get('paymentMethodId');
 
-        $this->validateRequest($salesChannelContext, $paymentMethodId);
+        $this->validateRequest($context, $paymentMethodId);
 
-        $this->setPaymentMethod($paymentMethodId, $request->get('orderId'), $salesChannelContext);
+        $this->setPaymentMethod($paymentMethodId, $request->get('orderId'), $context);
 
         return new SetPaymentOrderRouteResponse();
     }
 
     private function setPaymentMethod(string $paymentMethodId, string $orderId, SalesChannelContext $salesChannelContext): void
     {
-        $initialState = $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $salesChannelContext->getContext());
+        $context = $salesChannelContext->getContext();
+        $initialState = $this->stateMachineRegistry->getInitialState(
+            OrderTransactionStates::STATE_MACHINE,
+            $context
+        );
 
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');
-
-        $criteria = new Criteria();
 
         if ($salesChannelContext->getCustomer() === null) {
             throw new CustomerNotLoggedInException();
@@ -125,11 +127,11 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         );
 
         /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context)->first();
 
-        $salesChannelContext->getContext()->scope(
+        $context->scope(
             Context::SYSTEM_SCOPE,
-            function () use ($order, $initialState, $orderId, $paymentMethodId, $salesChannelContext): void {
+            function () use ($order, $initialState, $orderId, $paymentMethodId, $context): void {
                 if ($order->getTransactions() !== null && $order->getTransactions()->count() >= 1) {
                     foreach ($order->getTransactions() as $transaction) {
                         if ($transaction->getStateMachineState()->getTechnicalName() !== OrderTransactionStates::STATE_CANCELLED) {
@@ -137,7 +139,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                                 $transaction->getId(),
                                 'cancel',
                                 new ParameterBag(),
-                                $salesChannelContext->getContext()
+                                $context
                             );
                         }
                     }
@@ -162,12 +164,12 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                             ],
                         ],
                     ],
-                ], $salesChannelContext->getContext());
+                ], $context);
             }
         );
     }
 
-    private function validateRequest(SalesChannelContext $salesChannelContext, $paymentMethodId): void
+    private function validateRequest(SalesChannelContext $salesChannelContext, string $paymentMethodId): void
     {
         $paymentRequest = new Request();
         $paymentRequest->query->set('onlyAvailable', 1);

@@ -45,13 +45,13 @@ class LineItemTagRule extends Rule
             return false;
         }
 
+        $identifiers = [];
+
         foreach ($scope->getCart()->getLineItems() as $lineItem) {
-            if ($this->lineItemMatches($lineItem)) {
-                return true;
-            }
+            $identifiers = array_merge($identifiers, $this->extractTagIds($lineItem));
         }
 
-        return false;
+        return $this->tagsMatches($identifiers);
     }
 
     public function getConstraints(): array
@@ -66,11 +66,16 @@ class LineItemTagRule extends Rule
     {
         $identifiers = $this->extractTagIds($lineItem);
 
+        return $this->tagsMatches($identifiers);
+    }
+
+    private function tagsMatches(array $tags): bool
+    {
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return !empty(array_intersect($identifiers, $this->identifiers));
+                return !empty(array_intersect($tags, $this->identifiers));
             case self::OPERATOR_NEQ:
-                return empty(array_intersect($identifiers, $this->identifiers));
+                return empty(array_intersect($tags, $this->identifiers));
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }

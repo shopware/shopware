@@ -44,7 +44,7 @@ export default class ShippingMethodPageObject {
         cy.get(`${this.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).first().clear();
         cy.get(`${this.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).first().type('8.00');
         cy.get(`${this.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(1).click();
-        cy.get(`${this.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '59.76');
+        cy.get(`${this.elements.dataGridRow}--1 .sw-settings-shipping-price-matrix__price input`).eq(2).should('have.value', '213.88');
 
         cy.get(this.elements.shippingSaveAction).click();
         cy.get(this.elements.successIcon).should('be.visible');

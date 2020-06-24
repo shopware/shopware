@@ -37,42 +37,40 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
     {
         $context->getConsole()->progressStart($numberOfItems);
 
-        $categories = $context->getIds('category');
-        $manufacturer = $context->getIds('product_manufacturer');
-        $products = $context->getIds('product');
+        $faker = $context->getFaker();
 
         $pool = [
-            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GTE => random_int(1, 1000)]],
-            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GTE => random_int(1, 1000)]],
-            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GTE => random_int(1, 1000)]],
-            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::LTE => random_int(1, 1000)]],
-            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::LTE => random_int(1, 1000)]],
-            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::LTE => random_int(1, 1000)]],
-            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GT => random_int(1, 500), RangeFilter::LT => random_int(500, 1000)]],
-            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GT => random_int(1, 500), RangeFilter::LT => random_int(500, 1000)]],
-            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GT => random_int(1, 500), RangeFilter::LT => random_int(500, 1000)]],
+            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GTE => $faker->numberBetween(1, 1000)]],
+            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GTE => $faker->numberBetween(1, 1000)]],
+            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GTE => $faker->numberBetween(1, 1000)]],
+            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::LTE => $faker->numberBetween(1, 1000)]],
+            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::LTE => $faker->numberBetween(1, 1000)]],
+            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::LTE => $faker->numberBetween(1, 1000)]],
+            ['field' => 'height', 'type' => 'range', 'parameters' => [RangeFilter::GT => $faker->numberBetween(1, 500), RangeFilter::LT => $faker->numberBetween(500, 1000)]],
+            ['field' => 'width', 'type' => 'range', 'parameters' => [RangeFilter::GT => $faker->numberBetween(1, 500), RangeFilter::LT => $faker->numberBetween(500, 1000)]],
+            ['field' => 'weight', 'type' => 'range', 'parameters' => [RangeFilter::GT => $faker->numberBetween(1, 500), RangeFilter::LT => $faker->numberBetween(500, 1000)]],
             ['field' => 'stock', 'type' => 'equals', 'value' => '1000'],
             ['field' => 'name', 'type' => 'contains', 'value' => 'Awesome'],
-            ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => implode('|', [$categories[random_int(0, \count($categories) - 1)], $categories[random_int(0, \count($categories) - 1)]])],
-            ['field' => 'id', 'type' => 'equalsAny', 'value' => implode('|', [$products[random_int(0, \count($products) - 1)], $products[random_int(0, \count($products) - 1)]])],
-            ['field' => 'manufacturerId', 'type' => 'equals', 'value' => $manufacturer[random_int(0, \count($manufacturer) - 1)]],
+            ['field' => 'categories.id', 'type' => 'equalsAny', 'value' => implode('|', [$context->getRandomId('category'), $context->getRandomId('category')])],
+            ['field' => 'id', 'type' => 'equalsAny', 'value' => implode('|', [$context->getRandomId('product'), $context->getRandomId('product')])],
+            ['field' => 'manufacturer.id', 'type' => 'equals', 'value' => $context->getRandomId('product_manufacturer')],
         ];
 
-        $pool[] = ['type' => 'multi', 'queries' => [$pool[random_int(0, \count($pool) - 1)], $pool[random_int(0, \count($pool) - 1)]]];
-        $pool[] = ['type' => 'multi', 'operator' => 'OR', 'queries' => [$pool[random_int(0, \count($pool) - 1)], $pool[random_int(0, \count($pool) - 1)]]];
+        $pool[] = ['type' => 'multi', 'operator' => 'AND', 'queries' => [$faker->randomElement($pool), $faker->randomElement($pool)]];
+        $pool[] = ['type' => 'multi', 'operator' => 'OR', 'queries' => [$faker->randomElement($pool), $faker->randomElement($pool)]];
 
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $filters = [];
 
-            for ($j = 0, $jMax = random_int(1, 5); $j < $jMax; ++$j) {
-                $filters[] = array_merge($pool[random_int(0, \count($pool) - 1)], ['position' => $j]);
+            for ($j = 0, $jMax = $faker->numberBetween(1, 5); $j < $jMax; ++$j) {
+                $filters[] = array_merge($faker->randomElement($pool), ['position' => $j]);
             }
 
             $payload[] = [
                 'id' => Uuid::randomHex(),
-                'name' => $context->getFaker()->productName,
-                'description' => $context->getFaker()->text(),
+                'name' => $faker->productName,
+                'description' => $faker->text(),
                 'filters' => [['type' => 'multi', 'operator' => 'OR', 'queries' => $filters]],
             ];
         }

@@ -97,4 +97,4 @@ For more information on how template extension works, take a look [here](./30-tw
 
 With this template extension your plugin is active on every content page, like the homepage or category listing pages.
 
-More about Storefront JavaScript: [Storefront JavaScript reference documentation](./../60-references-internals/30-storefront/90-storefront-javascript.md)
+More about Storefront JavaScript: [Storefront JavaScript reference documentation](./../60-references-internals/30-storefront/090-storefront-javascript.md)

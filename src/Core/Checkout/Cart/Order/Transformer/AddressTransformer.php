@@ -44,6 +44,7 @@ class AddressTransformer
             'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
             'countryId' => $address->getCountryId(),
             'countryStateId' => $address->getCountryStateId(),
+            'customFields' => $address->getCustomFields(),
         ]);
     }
 }

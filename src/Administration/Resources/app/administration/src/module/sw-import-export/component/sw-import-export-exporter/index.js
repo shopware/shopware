@@ -28,7 +28,9 @@ Shopware.Component.register('sw-import-export-exporter', {
         return {
             selectedProfileId: null,
             selectedProfile: null,
-            config: {},
+            config: {
+                parameters: {}
+            },
             progressOffset: 0,
             progressTotal: null,
             progressText: '',
@@ -60,7 +62,8 @@ Shopware.Component.register('sw-import-export-exporter', {
             return this.selectedProfile &&
                 this.selectedProfile.sourceEntity === 'product' &&
                 this.config &&
-                this.config.includeVariants;
+                this.config.parameters &&
+                this.config.parameters.includeVariants;
         },
 
         logRepository() {

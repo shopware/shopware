@@ -5,12 +5,15 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -67,13 +70,17 @@ class ProductListingLoader
 
         $variantIds = $ids->getIds();
 
+        $mapping = array_combine($ids->getIds(), $ids->getIds());
+
         if (!$this->hasOptionFilter($criteria)) {
-            $variantIds = $this->resolvePreviews($ids->getIds(), $context);
+            list($variantIds, $mapping) = $this->resolvePreviews($ids->getIds(), $context);
         }
 
         $read = $criteria->cloneForRead($variantIds);
 
         $entities = $this->repository->search($read, $context);
+
+        $this->addExtensions($ids, $entities, $mapping);
 
         return new EntitySearchResult(
             $ids->getTotal(),
@@ -167,7 +174,7 @@ class ProductListingLoader
 
         // now we have a mapping for "child => main variant"
         if (empty($mapping)) {
-            return $ids;
+            return [$ids, array_combine($ids, $ids)];
         }
 
         // filter inactive and not available variants
@@ -177,12 +184,14 @@ class ProductListingLoader
 
         $available = $this->repository->searchIds($criteria, $context);
 
+        $remapped = [];
         // replace existing ids with main variant id
         $sorted = [];
         foreach ($ids as $id) {
             // id has no mapped main_variant - keep old id
             if (!isset($mapping[$id])) {
                 $sorted[] = $id;
+                $remapped[$id] = $id;
 
                 continue;
             }
@@ -193,16 +202,42 @@ class ProductListingLoader
             // main variant is configured but not active/available - keep old id
             if (!$available->has($main)) {
                 $sorted[] = $id;
+                $remapped[$id] = $id;
 
                 continue;
             }
 
             // main variant is configured and available - add main variant id
             if (!in_array($main, $sorted, true)) {
+                $remapped[$id] = $main;
                 $sorted[] = $main;
             }
         }
 
-        return $sorted;
+        return [$sorted, $remapped];
+    }
+
+    private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void
+    {
+        foreach ($ids->getExtensions() as $name => $extension) {
+            $entities->addExtension($name, $extension);
+        }
+
+        foreach ($ids->getIds() as $id) {
+            if (!isset($mapping[$id])) {
+                continue;
+            }
+
+            // current id was mapped to another variant
+            if (!$entities->has($mapping[$id])) {
+                continue;
+            }
+
+            /** @var Entity $entity */
+            $entity = $entities->get($mapping[$id]);
+
+            // get access to the data of the search result
+            $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
+        }
     }
 }

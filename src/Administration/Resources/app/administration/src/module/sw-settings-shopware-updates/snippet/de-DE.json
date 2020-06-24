@@ -39,8 +39,8 @@
         "message": "Voraussetzung"
       },
       "message": {
-        "phpVersion": "Erforderliche PHP Version: {minVersion}. Installierte PHP Version: {currentVersion}.",
-        "mysqlVersion": "Erforderliche MySQL Version: {minVersion}. Installierte MySQL Version: {currentVersion}.",
+        "phpVersion": "Erforderliche PHP-Version: {minVersion}. Installierte PHP-Version: {currentVersion}.",
+        "mysqlVersion": "Erforderliche MySQL-Version: {minVersion}. Installierte MySQL-Version: {currentVersion}.",
         "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
         "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind nicht beschreibbar:<br>{failedDirectories}",
         "validShopwareLicense": "Deine Shopware-Version ist veraltet. Du solltest ein Update in Betracht ziehen.",

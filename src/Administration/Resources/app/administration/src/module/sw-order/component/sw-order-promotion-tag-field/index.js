@@ -78,8 +78,8 @@ Component.register('sw-order-promotion-tag-field', {
                 ? value
                 : format.currency(Number(value), this.currency.shortName);
 
-            return this.$t(
-                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,
+            return this.$tc(
+                `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0,
                 { value: discountValue, groupId }
             );
         }

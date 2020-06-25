@@ -1,10 +1,13 @@
 {% block sw_order_promotion_tag_field %}
     <sw-block-field class="sw-tagged-field sw-order-promotion-tag-field" :class="taggedFieldClasses" v-bind="$attrs" v-on="$listeners" :disabled="disabled">
         <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+
             {% block sw_tagged_field_inner %}
                 <ul class="sw-tagged-field__tag-list" :class="taggedFieldListClasses" @click="setFocus(true)">
+
                     {% block sw_order_promotion_tag_field_tag_list %}
                         <li v-for="(item, index) in value" :key="`sw-tagged-field-value--${index}`">
+
                             {% block sw_order_promotion_tag_field_tag_item %}
                                 <sw-label v-if="item.isInvalid"
                                           :key="item.code + item.isInvalid"
@@ -14,6 +17,7 @@
                                           @dismiss="dismissTag(item)">
                                     {{ item.code }}
                                 </sw-label>
+
                                 <sw-label v-else
                                           :key="item.code + item.isInvalid"
                                           :size="size"
@@ -28,6 +32,7 @@
                             {% endblock %}
                         </li>
                     {% endblock %}
+
                     {% block sw_order_promotion_tag_field_item_input %}
                         <li>
                             {% block sw_order_promotion_tag_field_input %}

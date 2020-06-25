@@ -9,14 +9,15 @@ const proxy = require('http-proxy-middleware');
 const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const config = require('../config');
 
-const injector = new WebpackPluginInjector('var/plugins.json', {}, 'administration');
-
 if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV);
 }
+
 const webpackConfig = process.env.NODE_ENV === 'testing'
     ? require('./webpack.prod.conf')
     : require('./webpack.dev.conf');
+
+const injector = new WebpackPluginInjector('var/plugins.json', webpackConfig, 'administration');
 
 // default host + port where dev server listens for incoming traffic
 const port = process.env.PORT || config.dev.port;

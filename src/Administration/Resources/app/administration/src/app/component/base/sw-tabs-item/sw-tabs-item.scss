@@ -14,15 +14,17 @@ $sw-side-navigation-item-link-distance: 10px;
 
     .sw-tabs-item__error-badge {
         position: relative;
-        bottom: 2px;
+        bottom: 0;
+        right: -5px;
         color: $color-crimson-300;
+        transform: translateY(-12%);
     }
 
     &.sw-tabs-item--active {
         color: $color-darkgray-800;
 
         .sw-tabs-item__error-badge {
-            color: $color-crimson-500;
+            color: $color-crimson-400;
         }
     }
 
@@ -51,7 +53,7 @@ $sw-side-navigation-item-link-distance: 10px;
     border-left: 2px solid $color-gray-300;
 }
 
-.sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item{
+.sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item {
     border-left: 0;
     border-right: 2px solid $color-gray-300;
 }

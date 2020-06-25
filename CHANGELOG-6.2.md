@@ -12,6 +12,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
+    * Added `v-model` attribute to input field in `sw-property-search`
+    * Implemented blocks for the different options in the `sw-cms-el-config-product-box` modules `sw-select-field`s.
+    This allows appending additional options to the `sw-select-field`s.
+        * Added `{% block sw_cms_element_product_box_config_layout_select_options %}`
+        * Added `{% block sw_cms_element_product_box_config_displaymode_select_options %}`
+        * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
+    * Added property `placeholderIsPassword` to `sw-password-field` component
+    * Added CSP header to the admin page. Inline scripts are now disallowed by default. You have to add a nonce attribute with the value `cspNonce` to authorize inline scripts. 
 
 * Core
     * Added `Czech koruna` as currency
@@ -39,13 +47,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Removals**
 
 * Administration
-    * Added `v-model` attribute to input field in `sw-property-search`
-    * Implemented blocks for the different options in the `sw-cms-el-config-product-box` modules `sw-select-field`s. 
-    This allows to append additional options to the `sw-select-field`s.
-        * Added `{% block sw_cms_element_product_box_config_layout_select_options %}`
-        * Added `{% block sw_cms_element_product_box_config_displaymode_select_options %}`
-        * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
-    * Added property `placeholderIsPassword` to `sw-password-field` component
+    * Disallow adding script with `document.write` due to new CSP header. Use `document.createElement('script')` and `element.appendChild` instead.
 
 * Core
 

@@ -440,6 +440,14 @@
         }
     }
 
+    .sw-data-grid__body .sw-data-grid__cell--multi-line {
+        .sw-data-grid__cell-content {
+            display: block;
+            height: auto;
+            white-space: normal;
+        }
+    }
+
     .sort-indicator-enter-active,
     .sort-indicator-leave-active {
         transition: all 0.1s ease-in-out;

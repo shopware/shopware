@@ -149,7 +149,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('productReviews')
                 .addAssociation('seoUrls')
                 .addAssociation('mainCategories')
-                .addAssociation('options.group');
+                .addAssociation('options.group')
+                .addAssociation('customFieldSets');
 
             ifNext6997(() => criteria.addAssociation('featureSets'));
 

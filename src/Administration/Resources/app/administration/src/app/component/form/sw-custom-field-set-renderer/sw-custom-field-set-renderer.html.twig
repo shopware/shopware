@@ -1,15 +1,58 @@
 {% block sw_custom_field_set_renderer %}
     <div class="sw-custom-field-set-renderer">
-        <template v-if="sets.length > 0">
+
+        <template v-if="customFieldSetSelectionAvailable">
+            <sw-field
+                type="switch"
+                class="sw-custom-field-set-renderer__selection-switch"
+                :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelectSwitch')"
+                @change="onChangeFieldSetSelectionSwitch"
+                v-model="customFieldSetSelectionActive">
+            </sw-field>
+
+            <template v-if="customFieldSetSelectionActive">
+                <sw-entity-multi-select
+                    :criteria="customFieldSetCriteria"
+                    @change="onChangeCustomFieldSets"
+                    :placeholder="$tc('sw-custom-field-set-renderer.placeholderCustomFieldSetSelect')"
+                    v-model="entity.customFieldSets"
+                    :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelect')">
+                    <template #selection-label-property="{ item, index, labelProperty, valueProperty, getKey}">
+                        {{ getInlineSnippet(item.config.label) || item.name }}
+                    </template>
+
+                    <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
+                        <sw-highlight-text
+                            :text="getInlineSnippet(item.config.label) || item.name"
+                            :searchTerm="searchTerm">
+                        </sw-highlight-text>
+                    </template>
+
+                </sw-entity-multi-select>
+
+                <template v-if="globalCustomFieldSets.length > 0">
+                    <h3>{{ $tc('sw-custom-field-set-renderer.messagePluginSets') }}</h3>
+                    <ul class="sw-custom-field-set-renderer__global-custom-field-list">
+                        <li v-for="set in globalCustomFieldSets">
+                            {{ getInlineSnippet(set.config.label) || set.name }}
+                        </li>
+                    </ul>
+                </template>
+            </template>
+
+        </template>
+
+        <template v-if="visibleCustomFieldSets.length > 0">
             {% block sw_custom_field_set_renderer_card %}
                 <sw-tabs v-if="variant === 'tabs'"
+                         ref="tabComponent"
                          class="sw-custom-field-set-renderer__card-tabs"
                          variant="minimal"
-                         :defaultItem="sets[0].name">
+                         :defaultItem="visibleCustomFieldSets[0].name">
                     {% block sw_custom_field_set_renderer_card_tabs %}
                         <template slot-scope="{ active }">
                             <sw-tabs-item
-                                    v-for="set in sets"
+                                    v-for="set in visibleCustomFieldSets"
                                     v-if="set.customFields"
                                     :key="`sw-tab--${set.id}`"
                                     variant="minimal"
@@ -22,7 +65,7 @@
 
                     {% block sw_custom_field_set_renderer_card_tabs_content %}
                         <template slot="content" slot-scope="{ active }">
-                            <div v-for="set in sets"
+                            <div v-for="set in visibleCustomFieldSets"
                                  v-if="set.customFields"
                                  v-show="active === set.name">
                                 {% block sw_custom_field_set_renderer_card_form_renderer %}
@@ -52,7 +95,7 @@
             {% block sw_custom_field_set_renderer_media %}
                 <template v-else-if="variant === 'media-collapse'">
                     <sw-media-collapse
-                            v-for="set in sets"
+                            v-for="set in visibleCustomFieldSets"
                             v-if="set.customFields.length > 0"
                             :key="`sw-media-collapse--${set.id}`"
                             :expandOnLoading="false"
@@ -63,6 +106,7 @@
                                     <sw-form-field-renderer
                                             v-bind="customField"
                                             :disabled="disabled"
+                                            :required="customField.config.validation === 'required'"
                                             v-model="entity.customFields[customField.name]">
                                     </sw-form-field-renderer>
                                 {% endblock %}

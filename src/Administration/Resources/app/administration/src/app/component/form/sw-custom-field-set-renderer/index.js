@@ -2,6 +2,7 @@ import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -15,7 +16,8 @@ Component.register('sw-custom-field-set-renderer', {
     template,
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
+        Mixin.getByName('placeholder')
     ],
 
     // Grant access to some variables to the child form render components
@@ -68,12 +70,54 @@ Component.register('sw-custom-field-set-renderer', {
             type: Boolean,
             default: false,
             required: false
+        },
+        showCustomFieldSetSelection: {
+            type: Boolean,
+            default: false,
+            require: false
         }
+    },
+
+    data() {
+        return {
+            customFieldSetSelectionActive: false
+        };
     },
 
     computed: {
         hasParent() {
             return this.parentEntity ? !!this.parentEntity.id : false;
+        },
+
+        customFieldSetSelectionAvailable() {
+            return this.showCustomFieldSetSelection && !!this.entity.customFieldSets;
+        },
+
+        visibleCustomFieldSets() {
+            if (!this.customFieldSetSelectionActive
+                || !this.customFieldSetSelectionAvailable) {
+                return this.sets;
+            }
+
+            return this.sets.filter(set => {
+                return this.entity.customFieldSets.has(set.id) || set.global;
+            });
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 500);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
+            criteria.addFilter(Criteria.equals('global', 0));
+            criteria
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+
+            return criteria;
+        },
+
+        globalCustomFieldSets() {
+            return this.sets.filter((set) => set.global);
         }
     },
 
@@ -81,6 +125,18 @@ Component.register('sw-custom-field-set-renderer', {
         'entity.customFields': {
             handler() {
                 this.initializeCustomFields();
+            }
+        },
+
+        'entity.customFieldsSets': {
+            handler() {
+                this.initializeCustomFieldSets();
+            }
+        },
+
+        'entity.id': {
+            handler() {
+                this.initializeCustomFieldSets();
             }
         }
     },
@@ -92,6 +148,7 @@ Component.register('sw-custom-field-set-renderer', {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
+            this.initializeCustomFieldSets();
         },
 
         initializeCustomFields() {
@@ -115,6 +172,30 @@ Component.register('sw-custom-field-set-renderer', {
             delete customFieldClone.config.label;
 
             return customFieldClone;
+        },
+
+        initializeCustomFieldSets() {
+            if (this.customFieldSetSelectionAvailable) {
+                this.customFieldSetSelectionActive = this.entity.customFieldSets.length > 0;
+            }
+
+            this.onChangeCustomFieldSets();
+        },
+
+        onChangeCustomFieldSets() {
+            if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
+                this.$refs.tabComponent.active = this.visibleCustomFieldSets[0].name;
+                this.$refs.tabComponent.updateActiveItem();
+            }
+        },
+
+        onChangeFieldSetSelectionSwitch(state) {
+            // Remove all associated custom field sets if custom field set selects is set inactive
+            if (!state) {
+                this.entity.customFieldSets = this.entity.customFieldSets.filter(() => false);
+            }
+
+            this.onChangeCustomFieldSets();
         }
     }
 });

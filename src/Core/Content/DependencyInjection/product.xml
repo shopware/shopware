@@ -29,6 +29,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition">
+            <tag name="shopware.entity.definition" entity="product_custom_field_set"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

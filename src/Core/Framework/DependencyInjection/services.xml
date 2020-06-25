@@ -207,8 +207,18 @@
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="plugin.repository"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">
+            <factory service="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory" method="createSnippetFileCollection"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory">
             <argument type="tagged" tag="shopware.snippet.file"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileLoader"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory" public="true">

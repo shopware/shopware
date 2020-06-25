@@ -33,6 +33,11 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: ''
         },
+        resetOption: {
+            type: String,
+            required: false,
+            default: ''
+        },
         labelProperty: {
             type: String,
             required: false,
@@ -160,6 +165,13 @@ Component.register('sw-entity-single-select', {
          */
         loadSelected() {
             if (this.value === '' || this.value === null) {
+                if (this.resetOption) {
+                    this.singleSelection = {
+                        id: null,
+                        name: this.resetOption
+                    };
+                }
+
                 return Promise.resolve();
             }
 
@@ -236,6 +248,15 @@ Component.register('sw-entity-single-select', {
                         this.resultCollection.push(item);
                     }
                 });
+            }
+
+            if (this.resetOption) {
+                if (!this.resultCollection.has(null)) {
+                    this.resultCollection.unshift({
+                        id: null,
+                        name: this.resetOption
+                    });
+                }
             }
         },
 

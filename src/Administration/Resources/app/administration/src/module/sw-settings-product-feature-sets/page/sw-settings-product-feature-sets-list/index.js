@@ -71,13 +71,13 @@ Component.register('sw-settings-product-feature-sets-list', {
         onInlineEditSave(promise, productFeatureSets) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-product-feature-sets.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveSuccess', 0, { name: productFeatureSets.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-product-feature-sets.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveError')
                 });
             });
@@ -99,11 +99,9 @@ Component.register('sw-settings-product-feature-sets-list', {
             });
         },
 
-
-        getproductFeatureSetsColumns() {
+        getProductFeatureSetsColumns() {
             return [{
-                property: 'translated.name',
-                dataIndex: 'translated.name',
+                property: 'name',
                 inlineEdit: 'string',
                 label: 'sw-settings-product-feature-sets.list.columnTemplate',
                 routerLink: 'sw.settings.product.feature.sets.detail',
@@ -111,20 +109,15 @@ Component.register('sw-settings-product-feature-sets-list', {
                 primary: true
             },
             {
-                property: 'translated.description',
-                dataIndex: 'translated.description',
+                property: 'description',
                 inlineEdit: 'string',
                 label: 'sw-settings-product-feature-sets.list.columnDescription',
-                allowResize: true,
-                primary: false
+                allowResize: true
             },
             {
-                property: 'features.id',
-                dataIndex: 'features.id',
-                inlineEdit: 'string',
+                property: 'features',
                 label: 'sw-settings-product-feature-sets.list.columnValues',
-                allowResize: true,
-                primary: false
+                allowResize: true
             }];
         }
     }

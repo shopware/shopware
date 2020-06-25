@@ -1,15 +1,13 @@
 import template from './sw-settings-product-feature-sets-values-card.html.twig';
 import './sw-settings-product-feature-sets-values-card.scss';
 
-const { Component, Context } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-product-feature-sets-values-card', {
     template,
 
-    inject: [
-        'repositoryFactory'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         productFeatureSet: {
@@ -36,7 +34,6 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             deleteButtonDisabled: true,
             term: '',
             showModal: false,
-            showDeleteModal: false,
             currentValue: null
         };
     },
@@ -52,32 +49,15 @@ Component.register('sw-settings-product-feature-sets-values-card', {
 
         valuesCardClasses() {
             return {
-                'sw-settings-product-feature-sets-values-card--is-empty': this.productFeatureSetsEmpty
+                'is--empty': this.valuesEmpty
             };
         },
 
         productFeatureSetCriteria() {
             const criteria = new Criteria();
-            criteria.addSorting(Criteria.sort('product_feature_set.features.position', 'ASC'));
             criteria.addFilter(Criteria.equals('product_feature_set.id', this.productFeatureSet.id));
 
             return criteria;
-        },
-
-        getColumns() {
-            return [{
-                property: 'id',
-                dataIndex: 'id',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelValues',
-                primary: true
-            }, {
-                property: 'type',
-                dataIndex: 'type',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelType'
-            }, {
-                property: 'position',
-                label: 'sw-settings-product-feature-sets.valuesCard.labelPosition'
-            }];
         }
     },
 
@@ -100,14 +80,26 @@ Component.register('sw-settings-product-feature-sets-values-card', {
         },
 
         onSearch() {
-            this.productFeatureSetCriteria.setTerm(this.term);
-            this.getList();
+            if (!this.term) {
+                this.getList();
+            }
+
+            this.values = this.productFeatureSet.features.filter((item) => {
+                return item.name.match(this.term) || item.type.match(this.term);
+            });
         },
 
         getList() {
             this.valuesLoading = true;
             this.values = [];
-            this.values.push(this.productFeatureSet.features);
+
+            if (this.productFeatureSet.features) {
+                this.values = this.productFeatureSet.features;
+
+                if (this.term) {
+                    this.onSearch();
+                }
+            }
 
             this.valuesLoading = false;
         },
@@ -122,29 +114,37 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             this.showModal = true;
         },
 
-        onDelete(id) {
-            this.showDeleteModal = id;
-        },
-
         onDeleteFields() {
             if (this.selection) {
-                Object.values(this.selection).forEach((field) => {
-                    this.onDelete(field);
+                const deletedKeys = Object.keys(this.selection);
+
+                this.productFeatureSet.features = this.productFeatureSet.features.filter((feature) => {
+                    return !deletedKeys.includes(feature.id);
                 });
+
+                this.resetPositions();
                 this.getList();
             }
         },
 
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
+        resetPositions() {
+            this.productFeatureSet.features.forEach((feature, index) => {
+                feature.position = index + 1;
+            });
         },
 
-        onConfirmDelete(id) {
-            this.showDeleteModal = false;
-
-            return this.productFeatureSetRepository.delete(id, Context.api).then(() => {
-                this.getList();
-            });
+        getColumns() {
+            return [{
+                property: 'name',
+                label: 'sw-settings-product-feature-sets.valuesCard.labelValue',
+                primary: true
+            }, {
+                property: 'type',
+                label: 'sw-settings-product-feature-sets.valuesCard.labelType'
+            }, {
+                property: 'position',
+                label: 'sw-settings-product-feature-sets.valuesCard.labelPosition'
+            }];
         }
     }
 });

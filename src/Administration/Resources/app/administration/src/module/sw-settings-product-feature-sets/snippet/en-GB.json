@@ -15,7 +15,6 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "modalTitleDelete": "Delete essential characteristics",
-      "titleDeleteSuccess": "Essential characteristics",
       "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -24,27 +23,24 @@
       "textHeadline": "New template",
       "titleCard": "General information",
       "titleCardValues": "Values",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Product feature set \"{name}\" has been saved.",
+      "messageSaveSuccess": "Characteristic template \"{name}\" has been saved.",
       "labelName": "Name",
       "labelDescription": "Description",
       "labelValues": "Values",
       "placeholderName": "Enter a template name...",
       "placeholderDescription": "Enter a description...",
       "buttonSave": "Save",
-      "notificationErrorTitle": "Error",
-      "notificationErrorMessage": "An error occurred while saving your Product feature set.",
+      "notificationErrorMessage": "An error occurred while saving your product essential characteristic template.",
       "labelCreateNew": "Add values"
     },
     "valuesCard": {
-      "createStateDescription": "Add values to define Product feature sets that are custom-tailored to your product range.",
+      "createStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range.",
       "labelCreateNew": "Add field",
       "cardTitle": "Values",
-      "searchBarPlaceholder": "Search Fields...",
-      "labelValues": "Values",
+      "labelValue": "Value",
       "labelType": "Type",
       "labelPosition": "Position",
-      "emptyStateDescription": "Add values to define Product feature sets that are custom-tailored to your product range."
+      "emptyStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range."
     },
     "modal": {
       "buttonAdd": "Add",
@@ -56,6 +52,15 @@
       "labelTitleModal": "Add values",
       "labelName": "Name",
       "labelProperty": "Property",
+      "labelManufacturer": "Manufacturer",
+      "labelWidth": "Width",
+      "labelHeight": "Height",
+      "labelLength": "Length",
+      "labelWeight": "Weight",
+      "labelReleaseDate": "Release date",
+      "labelDescription": "Description",
+      "labelManufacturerNumber": "Manufacturer product number",
+      "labelEan": "EAN",
       "buttonNext": "Next",
       "buttonCancel": "Cancel"
     }

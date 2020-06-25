@@ -90,6 +90,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
     methods: {
         createdComponent() {
             this.isLoading = true;
+
             if (this.productFeatureSetId) {
                 this.productFeatureSetId = this.$route.params.id;
                 this.productFeatureSetsRepository.get(this.productFeatureSetId, Shopware.Context.api).then((productFeatureSet) => {
@@ -104,9 +105,10 @@ Component.register('sw-settings-product-feature-sets-detail', {
         },
 
         loadEntityData() {
-            this.productFeatureSet = this.productFeatureSetsRepository.get(this.productFeatureSetId, Shopware.Context.api).then((productFeatureSet) => {
-                this.productFeatureSet = productFeatureSet;
-            });
+            this.productFeatureSetsRepository.get(this.productFeatureSetId, Shopware.Context.api)
+                .then((productFeatureSet) => {
+                    this.productFeatureSet = productFeatureSet;
+                });
         },
 
         saveFinish() {
@@ -120,18 +122,23 @@ Component.register('sw-settings-product-feature-sets-detail', {
             return this.productFeatureSetsRepository.save(this.productFeatureSet, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
                 if (!this.productFeatureSetId) {
-                    this.$router.push({ name: 'sw.settings.product.feature.sets.detail', params: { id: this.productFeatureSet.id } });
+                    this.$router.push({
+                        name: 'sw.settings.product.feature.sets.detail',
+                        params: { id: this.productFeatureSet.id }
+                    });
                 }
 
-                this.productFeatureSetsRepository.get(this.productFeatureSet.id, Shopware.Context.api).then((updatedproductFeatureSet) => {
-                    this.productFeatureSet = updatedproductFeatureSet;
-                    this.isLoading = false;
-                });
+                this.productFeatureSetsRepository.get(this.productFeatureSet.id, Shopware.Context.api)
+                    .then((updatedProductFeatureSet) => {
+                        this.productFeatureSet = updatedProductFeatureSet;
+                        this.isLoading = false;
+                    });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
                 });
+            }).finally(() => {
                 this.isLoading = false;
             });
         },

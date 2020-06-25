@@ -69,9 +69,10 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     public function testDefaultFeatureSetIsCreated(): void
     {
         $expectedFeature = [
+            'id' => 'd45b40f6a99c4c2abe66c410369b9d3c',
             'type' => 'referencePrice',
-            'id' => null,
-            'position' => 0,
+            'name' => 'basePrice',
+            'position' => 1,
         ];
         $expectedFeatures = [$expectedFeature];
 

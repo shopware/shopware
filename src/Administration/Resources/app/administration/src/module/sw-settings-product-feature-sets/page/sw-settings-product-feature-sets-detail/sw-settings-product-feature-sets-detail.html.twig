@@ -7,18 +7,24 @@
             </template>
         {% endblock %}
 
+        {% block sw_settings_product_feature_set_detail_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage"></sw-language-switch>
+            </template>
+        {% endblock %}
+
         {% block sw_settings_product_feature_set_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_product_feature_set_detail_actions_save %}
                 <sw-button-process
                         class="sw-settings-currency-detail__save-action"
                         :isLoading="isLoading"
-                        v-model="isSaveSuccessful"
                         :disabled="isLoading"
+                        v-model="isSaveSuccessful"
                         variant="primary"
                         @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
+                        @click.prevent="onSave"
+                        v-tooltip.bottom="tooltipSave">
                     {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
                 </sw-button-process>
                 {% endblock %}
@@ -42,7 +48,7 @@
                                       class="sw-settings-product-feature-sets-detail__name"
                                       required
                                       :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
-                                      :placeholder="$tc('sw-settings-product-feature-sets.detail.placeholderName')"
+                                      :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
                                       v-model="productFeatureSet.name">
                             </sw-field>
                         {% endblock %}
@@ -50,19 +56,21 @@
                         {% block sw_settings_product_feature_set_detail_content_field_description %}
                             <sw-field type="textarea"
                                       :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
-                                      :placeholder="$tc('sw-settings-product-feature-sets.detail.placeholderDescription')"
+                                      :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
                                       v-model="productFeatureSet.description">
                             </sw-field>
                         {% endblock %}
                     </sw-card>
                 {% endblock %}
+
                 {% block sw_settings_product_feature_set_detail_content_values_card %}
-                    <sw-settings-product-feature-sets-values-card v-if="productFeatureSet.id"
-                                                                       :disabled="!productFeatureSetId"
-                                                                       class="sw-settings-product-feature-sets-detail__tax-rule-grid"
-                                                                       :productFeatureSet="productFeatureSet"
-                                                                       @product-feature-set-rule-save="onSave"
-                                                                       :isLoading="isLoading">
+                    <sw-settings-product-feature-sets-values-card
+                        v-if="productFeatureSet.id"
+                        :disabled="!productFeatureSetId"
+                        class="sw-settings-product-feature-sets-detail__tax-rule-grid"
+                        :productFeatureSet="productFeatureSet"
+                        @product-feature-set-rule-save="onSave"
+                        :isLoading="isLoading">
                     </sw-settings-product-feature-sets-values-card>
                 {% endblock %}
             </sw-card-view>

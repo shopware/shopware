@@ -13,7 +13,7 @@ class StorefrontResponse extends Response
     protected $data;
 
     /**
-     * @var SalesChannelContext
+     * @var SalesChannelContext|null
      */
     protected $context;
 
@@ -27,12 +27,12 @@ class StorefrontResponse extends Response
         $this->data = $data;
     }
 
-    public function getContext(): SalesChannelContext
+    public function getContext(): ?SalesChannelContext
     {
         return $this->context;
     }
 
-    public function setContext(SalesChannelContext $context): void
+    public function setContext(?SalesChannelContext $context): void
     {
         $this->context = $context;
     }

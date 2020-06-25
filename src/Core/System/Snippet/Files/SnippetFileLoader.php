@@ -76,7 +76,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             switch (count($nameParts)) {
                 case 2:
                     $snippetFile = new GenericSnippetFile(
-                        $nameParts[0],
+                        implode('.', $nameParts),
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
@@ -86,7 +86,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                     break;
                 case 3:
                     $snippetFile = new GenericSnippetFile(
-                        $nameParts[0],
+                        implode('.', [$nameParts[0], $nameParts[1]]),
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),

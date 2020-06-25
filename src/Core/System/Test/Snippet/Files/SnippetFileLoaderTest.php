@@ -38,7 +38,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(2, $collection);
 
         $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
-        static::assertEquals('storefront', $snippetFile->getName());
+        static::assertEquals('storefront.de-DE', $snippetFile->getName());
         static::assertEquals(
             __DIR__ . '/_fixtures/ShopwareBundleWithSnippets/Resources/snippet/storefront.de-DE.json',
             $snippetFile->getPath()
@@ -48,7 +48,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertFalse($snippetFile->isBase());
 
         $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];
-        static::assertEquals('storefront', $snippetFile->getName());
+        static::assertEquals('storefront.en-GB', $snippetFile->getName());
         static::assertEquals(
             __DIR__ . '/_fixtures/ShopwareBundleWithSnippets/Resources/snippet/storefront.en-GB.json',
             $snippetFile->getPath()
@@ -148,7 +148,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(2, $collection);
 
         $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
-        static::assertEquals('storefront', $snippetFile->getName());
+        static::assertEquals('storefront.de-DE', $snippetFile->getName());
         static::assertEquals(
             __DIR__ . '/_fixtures/SnippetSet/Resources/snippet/storefront.de-DE.json',
             $snippetFile->getPath()
@@ -158,7 +158,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertFalse($snippetFile->isBase());
 
         $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];
-        static::assertEquals('storefront', $snippetFile->getName());
+        static::assertEquals('storefront.en-GB', $snippetFile->getName());
         static::assertEquals(
             __DIR__ . '/_fixtures/SnippetSet/Resources/snippet/storefront.en-GB.json',
             $snippetFile->getPath()
@@ -203,7 +203,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertCount(2, $collection);
 
         $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
-        static::assertEquals('storefront', $snippetFile->getName());
+        static::assertEquals('storefront.de-DE', $snippetFile->getName());
         static::assertEquals(
             __DIR__ . '/_fixtures/BaseSnippetSet/Resources/snippet/storefront.de-DE.base.json',
             $snippetFile->getPath()
@@ -213,7 +213,7 @@ class SnippetFileLoaderTest extends TestCase
         static::assertTrue($snippetFile->isBase());
 
         $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];
-        static::assertEquals('storefront', $snippetFile->getName());
+        static::assertEquals('storefront.en-GB', $snippetFile->getName());
         static::assertEquals(
             __DIR__ . '/_fixtures/BaseSnippetSet/Resources/snippet/storefront.en-GB.base.json',
             $snippetFile->getPath()

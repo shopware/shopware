@@ -26,7 +26,6 @@ import LocaleToLanguageService from 'src/app/service/locale-to-language.service'
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
-import GoogleAuthService from 'src/core/service/google-auth.service';
 
 /** Import decorators */
 import 'src/app/decorator';
@@ -118,7 +117,4 @@ Application
             snippetService: Shopware.Service('snippetService'),
             localeFactory: Application.getContainer('factory').locale
         });
-    })
-    .addServiceProvider('googleAuthService', () => {
-        return new GoogleAuthService();
     });

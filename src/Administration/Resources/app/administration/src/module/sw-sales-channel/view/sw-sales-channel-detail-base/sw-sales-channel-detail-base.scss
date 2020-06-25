@@ -1,68 +1,6 @@
 @import "~scss/variables";
-@import "~scss/functions";
-@import "~scss/mixins";
 
 $sw-sales-channel-detail-color-text-access-key: $color-gutenberg;
-
-%google-shopping-link {
-    color: $color-shopware-brand-500;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.sw-sales-channel-detail {
-    .sw-card {
-        &.sw-sales-channel-detail-base__feedbacks {
-            .sw-card__content {
-                border: 0;
-                border-radius: 0;
-                padding: 0;
-                background: transparent;
-            }
-
-            .sw-alert {
-                margin: 0;
-            }
-        }
-
-        .sw-sales-channel-detail-base__title {
-            margin: 0 0 8px;
-            color: $color-darkgray-200;
-            font-size: $font-size-default;
-            font-weight: $font-weight-bold;
-        }
-
-        .sw-sales-channel-detail-base__subtitle {
-            margin: 0 0 22px;
-            color: $color-darkgray-200;
-            font-size: $font-size-small;
-        }
-
-        .sw-sales-channel-detail-base__crossbar {
-            height: 1px;
-            margin: 0 0 16px;
-            background: $color-gray-300;
-        }
-
-        .sw-sales-channel-detail-base__switcher {
-            margin-bottom: 0;
-        }
-
-        .sw-sales-channel-detail-base__u-mb-32 {
-            margin-bottom: 32px;
-        }
-
-        .sw-sales-channel-detail-base__u-mb-0 {
-            margin-bottom: 0;
-        }
-
-        .sw-sales-channel-detail-base__subtitle-link,
-        .sw-sales-channel-detail-base__complete-setup-link,
-        .sw-sales-channel-detail-base__issue-link {
-            @extend %google-shopping-link;
-        }
-    }
-}
 
 .sw-sales-channel-detail-base {
     .sw-sales-channel-detail-base__secret-help-text-alert {

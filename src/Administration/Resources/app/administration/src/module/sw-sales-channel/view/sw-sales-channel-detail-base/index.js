@@ -1,14 +1,13 @@
 import template from './sw-sales-channel-detail-base.html.twig';
-import { getErrorMessage } from '../../helper/get-error-message.helper';
 import './sw-sales-channel-detail-base.scss';
 
-const { Component, Mixin, Context, Defaults, State, Service } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
-const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-sales-channel-detail-base', {
     template,
@@ -87,11 +86,7 @@ Component.register('sw-sales-channel-detail-base', {
             selectedStorefrontSalesChannel: null,
             invalidFileName: false,
             isFileNameChecking: false,
-            disableGenerateByCronjob: false,
-            showGoogleProgramsModal: false,
-            showDisconnectModal: false,
-            isDisconnectLoading: false,
-            isDisconnectSuccessful: false
+            disableGenerateByCronjob: false
         };
     },
 
@@ -115,14 +110,6 @@ Component.register('sw-sales-channel-detail-base', {
 
         isProductComparison() {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
-        },
-
-        isGoogleShopping() {
-            return this.salesChannel && this.salesChannel.typeId === Defaults.googleShoppingTypeId;
-        },
-
-        isGoogleShoppingCreate() {
-            return this.isGoogleShopping && this.$route.path.includes(Defaults.googleShoppingTypeId);
         },
 
         storefrontSalesChannelDomainCriteria() {
@@ -304,16 +291,7 @@ Component.register('sw-sales-channel-detail-base', {
             [
                 'customerGroupId',
                 'navigationCategoryId'
-            ]),
-
-        ...mapState('swSalesChannel', [
-            'googleShoppingAccount',
-            'isLoadingMerchant'
-        ]),
-
-        ...mapGetters('swSalesChannel', [
-            'needToCompleteTheSetup'
-        ])
+            ])
     },
 
     methods: {
@@ -367,7 +345,7 @@ Component.register('sw-sales-channel-detail-base', {
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true || this.isProductComparison || this.isGoogleShopping) {
+            if (this.salesChannel.active !== true || this.isProductComparison) {
                 return;
             }
 
@@ -495,60 +473,6 @@ Component.register('sw-sales-channel-detail-base', {
             if (this.disableGenerateByCronjob) {
                 this.productExport.generateByCronjob = false;
             }
-        },
-
-        onConnectToGoogle() {
-            this.showGoogleProgramsModal = true;
-        },
-
-        onCloseGoogleProgramsModal() {
-            this.showGoogleProgramsModal = false;
-
-            this.$router.push({ name: 'sw.sales.channel.detail.base' });
-        },
-
-        onNeedToCompleteTheSetup() {
-            this.showGoogleProgramsModal = true;
-        },
-
-        onDisconnectToGoogle() {
-            this.showDisconnectModal = true;
-        },
-
-        async onDisconnect() {
-            this.isDisconnectLoading = true;
-            this.isDisconnectSuccessful = false;
-
-            try {
-                await Service('googleShoppingService').disconnectGoogle(this.salesChannel.id);
-
-                this.isDisconnectSuccessful = true;
-            } catch (error) {
-                const errorMessage = getErrorMessage(error) || this.$tc('global.notification.unspecifiedSaveErrorMessage');
-
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: errorMessage
-                });
-            } finally {
-                this.isDisconnectLoading = false;
-            }
-        },
-
-        onDisconnectSuccessful() {
-            this.isDisconnectSuccessful = false;
-
-            this.showDisconnectModal = false;
-
-            State.commit('swSalesChannel/removeGoogleShoppingAccount');
-
-            if (this.$route.name.includes('sw.sales.channel.detail.base.step-2')) {
-                this.$router.push({ name: 'sw.sales.channel.detail.base.step-1' });
-            }
-        },
-
-        onCloseDisconnectModal() {
-            this.showDisconnectModal = false;
         }
     }
 });

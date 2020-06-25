@@ -33,14 +33,12 @@ Component.register('sw-sales-channel-modal', {
         addChannelAction() {
             return {
                 loading: (salesChannelTypeId) => {
-                    return (this.isGoogleShoppingSalesChannelType(salesChannelTypeId) ||
-                        this.isProductComparisonSalesChannelType(salesChannelTypeId)) &&
+                    return this.isProductComparisonSalesChannelType(salesChannelTypeId) &&
                         this.productStreamsLoading;
                 },
 
                 disabled: (salesChannelTypeId) => {
-                    return (this.isGoogleShoppingSalesChannelType(salesChannelTypeId) ||
-                        this.isProductComparisonSalesChannelType(salesChannelTypeId)) &&
+                    return this.isProductComparisonSalesChannelType(salesChannelTypeId) &&
                         !this.productStreamsExist;
                 }
             };
@@ -80,10 +78,6 @@ Component.register('sw-sales-channel-modal', {
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
-        },
-
-        isGoogleShoppingSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === Defaults.googleShoppingTypeId;
         }
     }
 });

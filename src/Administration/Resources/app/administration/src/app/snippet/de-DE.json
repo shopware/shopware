@@ -26,8 +26,7 @@
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
-      "messageDeleteSuccess": "\"{name}\" wurde erfolgreich gelöscht.",
-      "notificationFetchErrorMessage": "Beim Abrufen der Daten ist ein Fehler aufgetreten."
+      "messageDeleteSuccess": "\"{name}\" wurde erfolgreich gelöscht."
     },
     "notification-center": {
       "title": "Mitteilungen",

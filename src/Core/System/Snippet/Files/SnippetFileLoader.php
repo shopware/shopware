@@ -107,7 +107,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function getAuthorFromBundle(Bundle $bundle): string
     {
         if (!$bundle instanceof Plugin) {
-            return 'shopware AG';
+            return 'Shopware';
         }
 
         $plugin = $this->getPluginEntityFromPluginBundle($bundle);

@@ -44,7 +44,7 @@ class SnippetFileLoaderTest extends TestCase
             $snippetFile->getPath()
         );
         static::assertEquals('de-DE', $snippetFile->getIso());
-        static::assertEquals('shopware AG', $snippetFile->getAuthor());
+        static::assertEquals('Shopware', $snippetFile->getAuthor());
         static::assertFalse($snippetFile->isBase());
 
         $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];
@@ -54,7 +54,7 @@ class SnippetFileLoaderTest extends TestCase
             $snippetFile->getPath()
         );
         static::assertEquals('en-GB', $snippetFile->getIso());
-        static::assertEquals('shopware AG', $snippetFile->getAuthor());
+        static::assertEquals('Shopware', $snippetFile->getAuthor());
         static::assertFalse($snippetFile->isBase());
     }
 

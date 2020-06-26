@@ -99,12 +99,17 @@
                                                     {% endif %}
                                                 {% endblock %}
 
-                                                {% block page_checkout_item_info_ordernumber %}
-                                                    {% if lineItem.payload.productNumber %}
-                                                        <div class="cart-item-ordernumber">
-                                                            {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
-                                                        </div>
-                                                    {% endif %}
+                                                {% block page_checkout_item_info_variant_characteristics %}
+                                                    <div class="cart-item-details-characteristics">
+                                                        {% for option in lineItem.payload.options %}
+                                                            {{ option.group }}:
+                                                            <span class="cart-item-details-characteristics-option">{{ option.option }}</span>
+
+                                                            {% if lineItem.payload.options|last != option %}
+                                                                {{ " | " }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
                                                 {% endblock %}
 
                                                 {% if lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
@@ -125,6 +130,14 @@
                                                                     <div class="cart-item-variants-properties-value">{{ option.option }}</div>
                                                                 </div>
                                                             {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endblock %}
+
+                                                {% block page_checkout_item_info_ordernumber %}
+                                                    {% if lineItem.payload.productNumber %}
+                                                        <div class="cart-item-ordernumber">
+                                                            {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}

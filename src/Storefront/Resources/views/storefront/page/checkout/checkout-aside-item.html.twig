@@ -53,7 +53,8 @@
                     {% block page_checkout_aside_item_variant_characteristics %}
                         <div class="checkout-aside-item-characteristics">
                             {% for option in lineItem.payload.options %}
-                                {{ option.group }}: {{ option.option }}
+                                {{ option.group }}:
+                                <span class="checkout-aside-item-characteristics-option">{{ option.option }}</span>
 
                                 {% if lineItem.payload.options|last != option %}
                                     {{ " | " }}

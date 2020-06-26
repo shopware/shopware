@@ -34,6 +34,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
     * Fixed urls in emails for shops with virtual paths like /de
     * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
+    * Added resolving of media ids to `Shopware\Storefront\Theme\ThemeCompiler`
 
 **Removals**
 
@@ -709,7 +710,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
     * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
     * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
-    
     * Added `utilities_thumbnail`, `utilities_thumbnail_logic`, `utilities_thumbnail_image` twig blocks to thumbnail.html.twig
 
 **Removals**

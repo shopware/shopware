@@ -151,61 +151,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->installPluginWithUpdate($this->context);
     }
 
-    public function testUninstallPlugin(): void
-    {
-        $this->uninstallPlugin($this->context);
-    }
-
-    public function testUninstallPluginThrowsException(): void
-    {
-        $this->uninstallPluginThrowsException($this->context);
-    }
-
-    public function testUpdatePlugin(): void
-    {
-        $this->updatePlugin($this->context);
-    }
-
-    public function testActivatePlugin(): void
-    {
-        $this->activatePlugin($this->context);
-    }
-
-    public function testActivatePluginThrowsException(): void
-    {
-        $this->activatePluginThrowsException($this->context);
-    }
-
-    public function testDeactivatePlugin(): void
-    {
-        $this->deactivatePlugin($this->context);
-    }
-
-    public function testDeactivatePluginNotInstalledThrowsException(): void
-    {
-        $this->deactivatePluginNotInstalledThrowsException($this->context);
-    }
-
-    public function testDeactivatePluginNotActivatedThrowsException(): void
-    {
-        $this->deactivatePluginNotActivatedThrowsException($this->context);
-    }
-
-    public function testRemoveMigrations(): void
-    {
-        $this->removeMigrations($this->context);
-    }
-
-    public function testDontRemoveMigrations(): void
-    {
-        $this->dontRemoveMigrations($this->context);
-    }
-
-    public function testRemoveMigrationsCannotRemoveShopwareMigrations(): void
-    {
-        $this->removeMigrationsCannotRemoveShopwareMigrations($this->context);
-    }
-
     public function testInstallPluginWithNonStandardLanguage(): void
     {
         $this->installPluginTest($this->createNonStandardLanguageContext());
@@ -230,6 +175,16 @@ class PluginLifecycleServiceTest extends TestCase
         $this->resetSystemLanguage();
     }
 
+    public function testUninstallPlugin(): void
+    {
+        $this->uninstallPlugin($this->context);
+    }
+
+    public function testUninstallPluginThrowsException(): void
+    {
+        $this->uninstallPluginThrowsException($this->context);
+    }
+
     public function testUninstallPluginWithNonStandardLanguage(): void
     {
         $this->uninstallPlugin($this->createNonStandardLanguageContext());
@@ -240,11 +195,26 @@ class PluginLifecycleServiceTest extends TestCase
         $this->uninstallPluginThrowsException($this->createNonStandardLanguageContext());
     }
 
+    public function testUpdatePlugin(): void
+    {
+        $this->updatePlugin($this->context);
+    }
+
     public function testUpdatePluginWithNonStandardLanguage(): void
     {
         $this->setNewSystemLanguage($this->iso);
         $this->updatePlugin($this->context);
         $this->resetSystemLanguage();
+    }
+
+    public function testActivatePlugin(): void
+    {
+        $this->activatePlugin($this->context);
+    }
+
+    public function testActivatePluginThrowsException(): void
+    {
+        $this->activatePluginThrowsException($this->context);
     }
 
     public function testActivatePluginWithNonStandardLanguage(): void
@@ -255,6 +225,21 @@ class PluginLifecycleServiceTest extends TestCase
     public function testActivatePluginThrowsExceptionWithNonStandardLanguage(): void
     {
         $this->activatePluginThrowsException($this->createNonStandardLanguageContext());
+    }
+
+    public function testDeactivatePlugin(): void
+    {
+        $this->deactivatePlugin($this->context);
+    }
+
+    public function testDeactivatePluginNotInstalledThrowsException(): void
+    {
+        $this->deactivatePluginNotInstalledThrowsException($this->context);
+    }
+
+    public function testDeactivatePluginNotActivatedThrowsException(): void
+    {
+        $this->deactivatePluginNotActivatedThrowsException($this->context);
     }
 
     public function testDeactivatePluginWithNonStandardLanguage(): void
@@ -270,6 +255,21 @@ class PluginLifecycleServiceTest extends TestCase
     public function testDeactivatePluginNotActivatedThrowsExceptionWithNonStandardLanguage(): void
     {
         $this->deactivatePluginNotActivatedThrowsException($this->createNonStandardLanguageContext());
+    }
+
+    public function testRemoveMigrations(): void
+    {
+        $this->removeMigrations($this->context);
+    }
+
+    public function testDontRemoveMigrations(): void
+    {
+        $this->dontRemoveMigrations($this->context);
+    }
+
+    public function testRemoveMigrationsCannotRemoveShopwareMigrations(): void
+    {
+        $this->removeMigrationsCannotRemoveShopwareMigrations($this->context);
     }
 
     public function testRemoveMigrationsWithNonStandardLanguage(): void

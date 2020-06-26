@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -152,7 +153,7 @@ class RegisterController extends StorefrontController
                 $data->remove('shippingAddress');
             }
 
-            $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
+            $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
             $this->accountRegistrationService->register($data, $data->has('guest'), $context, $this->getAdditionalRegisterValidationDefinitions($data, $context));
@@ -235,6 +236,10 @@ class RegisterController extends StorefrontController
             $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('email'),
             ]));
+        }
+
+        if ($data->has('guest')) {
+            return $definition;
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannel()->getId())) {

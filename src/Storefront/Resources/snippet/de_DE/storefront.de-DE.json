@@ -43,7 +43,7 @@
     "searchButton": "Suchen",
     "searchPlaceholder": "Suchbegriff...",
     "searchAllResults": "Alle Ergebnisse anzeigen",
-    "searchResults": "Ergebnisse",
+    "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden."
@@ -207,6 +207,7 @@
     "orderHeadline": "Bestellung:",
     "orderStatus": "Status:",
     "orderStatusActionRequired": "Bearbeitung notwendig",
+    "orderNumber": "Bestellnummer:",
     "orderShippingStatus": "Lieferstatus",
     "orderPaymentStatus": "Zahlungsstatus",
     "orderPaymentMethod": "Zahlungsart",
@@ -218,7 +219,7 @@
     "editOrderUpdateButton": "Änderungen bestätigen",
     "editOrderBackToAccountButton": "Zurück zum Account",
     "editOrderBackToOrderButton": "Zurück zur Bestellung",
-    "editOrderCancelOrderButton": "Bestellung abbrechen",
+    "editOrderCancelOrderButton": "Bestellung stornieren",
     "editOrderCancelOrderModalHeader": "Bestellung stornieren",
     "editOrderCancelOrderModalBodyText": "Achtung, wenn Sie die Bestellung stornieren, gehen alle bereits getätigten Zahlungen und alle enthaltenen Rabatte und Aktionen verloren!",
     "editOrderCancelOrderModalBodyQuestion": "Sind sie sicher, dass sie die Bestellung unwiderruflich stornieren wollen?",
@@ -311,8 +312,6 @@
     "cartItemInfoId": "Produkt-Nr.:",
     "addPromotionLabel": "Gutschein-Code",
     "addPromotionPlaceholder": "Gutschein-Code eingeben ...",
-    "promotionAlreadyExistsInfo": "Der Gutschein-Code wurde nicht auf den Warenkorb angewendet, da er bereits hinzugefügt wurde.",
-    "promotionExistsButRulesDoNotMatch": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
     "addProductLabel": "Produktnummer eingeben",
     "addProductPlaceholder": "Produktnummer eingeben ...",
     "summaryPositionPrice": "Summe",
@@ -351,7 +350,7 @@
     "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
     "finishButtonBackToShop": "Zurück zum Shop",
     "finishChangePayment":  "Zahlungsart ändern",
-    "finishPaymentFailed": "Unfortunately, your payment process went wrong. Please change your payment method to finish your order.",
+    "finishPaymentFailed": "Leider ist die Zahlung fehlgeschlagen. Bitte ändere die Zahlart um die Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
     "codeAddedSuccessful": "Code wurde erfolgreich hinzugefügt.",
     "addToCartSuccess": "{1} 1 Produkt wurde erfolgreich zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte wurden erfolgreich zum Warenkorb hinzugefügt.",
     "shippingCosts": "Versandkosten",
@@ -365,6 +364,8 @@
     "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
     "promotion-discount-deleted": "Der Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
     "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
+    "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
+    "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
@@ -426,10 +427,11 @@
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden diese schnellstmöglich bearbeiten."
   },
   "search": {
-    "headline": "Zu \"%searchTerm%\" wurden %totalCount% Produkt(e) gefunden"
+    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | ]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden"
   },
   "detail": {
-    "ordernumberLabel": "Produkt-Nr.:",
+    "ordernumberLabel": "Produktnummer:",
+    "productNumberLabel": "Produktnummer:",
     "addProduct": "In den Warenkorb",
     "tabsDescription": "Beschreibung",
     "tabsPreviewMore": "mehr",
@@ -494,8 +496,8 @@
     "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "Ihre E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets unter den Ersten sein, über neue Produkte und Angebote informiert werden.",
-    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
-    "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+    "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
     "copyrightInfo": "Realisiert mit Shopware"
   },
   "cookie": {

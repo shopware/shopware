@@ -122,6 +122,8 @@ class PluginLifecycleServiceTest extends TestCase
             ->get(Connection::class)
             ->rollBack();
 
+        $this->resetSystemLanguage();
+
         if (isset($_SERVER['FAKE_MIGRATION_NAMESPACE'])) {
             unset($_SERVER['FAKE_MIGRATION_NAMESPACE']);
         }

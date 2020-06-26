@@ -1,0 +1,8 @@
+{
+    "name":"projects/123456789/serviceAccounts/TEST@shopware.iam.gserviceaccount.com/keys/534534534534534",
+    "privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE",
+    "privateKeyData":"MHGZZJ . . .",
+    "validBeforeTime": "2028-05-08T21:00:00Z",
+    "validAfterTime": "2016-01-25T18:38:09.000Z",
+    "keyAlgorithm": "KEY_ALG_RSA_2048"
+}

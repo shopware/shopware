@@ -22,6 +22,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -180,5 +181,53 @@ class UpdateControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('/admin', $response->headers->get('location'));
+    }
+
+    public function testAutoUpdateReplacesItSelf(): void
+    {
+        $rootDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService
+            ->method('get')
+            ->willReturnMap([
+                [UpdateController::UPDATE_TOKEN_KEY, null, 'valid_token'],
+            ]);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $updateController = new UpdateController(
+            $rootDir,
+            $this->getContainer()->get(ApiClient::class),
+            $this->getContainer()->get(RequirementsValidator::class),
+            $this->getContainer()->get(PluginCompatibility::class),
+            $eventDispatcher,
+            $systemConfigService,
+            $this->getContainer()->get(PluginLifecycleService::class),
+            $this->getContainer()->get('user.repository'),
+            $this->getContainer()->getParameter('kernel.shopware_version')
+        );
+        $updateController->setContainer($this->getContainer());
+
+        $replaceRecoveryFiles = \Closure::bind(function (UpdateController $controller, string $dir): void {
+            $controller->replaceRecoveryFiles($dir);
+        }, null, $updateController);
+
+        // Prepare update folder
+        $fs = new Filesystem();
+        $recoveryPath = '/vendor/shopware/recovery/';
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true);
+        $tmpRecoveryPath = $tmpDir . $recoveryPath;
+
+        $fs->mkdir($tmpRecoveryPath);
+        $fs->dumpFile($tmpRecoveryPath . '/test.txt', 'B');
+
+        // Prepare old system
+        $fs->mkdir($rootDir . $recoveryPath);
+        $fs->dumpFile($rootDir . $recoveryPath . '/test.txt', 'A');
+
+        $replaceRecoveryFiles($updateController, $tmpDir);
+
+        static::assertStringEqualsFile($rootDir . $recoveryPath . '/test.txt', 'B');
+        $fs->remove($tmpDir);
+        $fs->remove($rootDir . $recoveryPath);
     }
 }

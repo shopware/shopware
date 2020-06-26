@@ -31,10 +31,14 @@ use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 class Shopware55Profile implements ShopwareProfileInterface
 {
     public const PROFILE_NAME = 'shopware55';
-
+    
     public const SOURCE_SYSTEM_NAME = 'Shopware';
 
     public const SOURCE_SYSTEM_VERSION = '5.5';
+
+    public const AUTHOR_NAME = 'shopware AG';
+
+    public const ICON_PATH = '/swagmigrationassistant/static/img/migration-assistant-plugin.svg';
 
     public function getName(): string
     {
@@ -49,6 +53,16 @@ class Shopware55Profile implements ShopwareProfileInterface
     public function getVersion(): string
     {
         return self::SOURCE_SYSTEM_VERSION;
+    }
+
+    public function getAuthorName(): string
+    {
+        return self::AUTHOR_NAME;
+    }
+
+    public function getIconPath(): string
+    {
+        return self::ICON_PATH;
     }
 }
 ```

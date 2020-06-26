@@ -282,6 +282,13 @@ Component.register('sw-price-field', {
             const calculatedPrice = value * this.currency.factor;
             const priceRounded = calculatedPrice.toFixed(this.currency.decimalPrecision);
             return Number(priceRounded);
+        },
+
+        keymonitor(event) {
+            if (event.key === ',') {
+                const value = event.currentTarget.value;
+                event.currentTarget.value = value.replace(/.$/, '.');
+            }
         }
     }
 });

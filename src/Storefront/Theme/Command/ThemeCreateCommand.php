@@ -35,13 +35,11 @@ class ThemeCreateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $helper = $this->getHelper('question');
-
         $themeName = $input->getArgument('theme-name');
 
         if (!$themeName) {
-            $question = new Question('Please enter a theme name:');
-            $themeName = $helper->ask($input, $output, $question);
+            $question = new Question('Please enter a theme name: ');
+            $themeName = $this->getHelper('question')->ask($input, $output, $question);
         }
 
         if (preg_match('/^[A-Za-z]\w{3,}$/', $themeName) !== 1) {

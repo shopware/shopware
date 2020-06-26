@@ -1,0 +1,13 @@
+{
+    "test": {
+        "uniqueNamespacePlugin": {
+            "someLabel": "Nobody would ever see those",
+            "anotherLabel": "Nobody would ever see those"
+        },
+        "someSharedNamespace": {
+            "uniqueKeyPlugin": "Nobody would ever see those",
+            "shouldBeOverwritten": "Nobody would ever see those",
+            "shouldAlsoBeOverwritten": "Nobody would ever see those"
+        }
+    }
+}

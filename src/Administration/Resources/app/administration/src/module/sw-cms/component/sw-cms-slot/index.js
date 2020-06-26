@@ -54,7 +54,7 @@ Component.register('sw-cms-slot', {
                 };
             }
             return {
-                message: this.$tc('sw-cms.elements.configTabSettings'),
+                message: this.$tc('sw-cms.elements.general.config.tab.settings'),
                 disabled: true
             };
         }

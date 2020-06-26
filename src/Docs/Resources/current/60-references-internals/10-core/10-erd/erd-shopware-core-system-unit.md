@@ -3,7 +3,7 @@
 
 [Back to modules](./../10-modules.md)
 
-Measuring and order quantity units for prodcuts and the checkout process.
+Measuring and order quantity units for products and the checkout process.
 
 ![Units](./dist/erd-shopware-core-system-unit.png)
 

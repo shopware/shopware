@@ -17,7 +17,7 @@ $order-grid-gutter-width: 20px;
 }
 
 .order-table-header {
-    font-weight: bold;
+    font-weight: $font-weight-bold;
 }
 
 .order-item-name {
@@ -26,7 +26,7 @@ $order-grid-gutter-width: 20px;
 
 .order-detail-content-header {
     margin-top: $spacer-md;
-    font-weight: bold;
+    font-weight: $font-weight-bold;
 }
 
 .order-item-product-name {
@@ -79,5 +79,5 @@ $order-grid-gutter-width: 20px;
 }
 
 .order-item-variants-properties-name {
-    font-weight: bold;
+    font-weight: $font-weight-bold;
 }

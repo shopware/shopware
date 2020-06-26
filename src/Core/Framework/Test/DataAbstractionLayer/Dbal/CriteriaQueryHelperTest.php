@@ -88,7 +88,7 @@ class CriteriaQueryHelperTest extends TestCase
         $queryMock
             ->expects(static::exactly(2))
             ->method('addOrderBy')
-            ->withConsecutive(['`product`.`created_at`', 'ASC'], ['_score', 'DESC']);
+            ->withConsecutive(['MIN(`product`.`created_at`)', 'ASC'], ['_score', 'DESC']);
 
         $this->buildQueryByCriteria($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
     }
@@ -104,7 +104,7 @@ class CriteriaQueryHelperTest extends TestCase
         $queryMock
             ->expects(static::exactly(2))
             ->method('addOrderBy')
-            ->withConsecutive(['`product`.`created_at`', 'ASC'], ['_score', 'ASC']);
+            ->withConsecutive(['MIN(`product`.`created_at`)', 'ASC'], ['_score', 'ASC']);
 
         $this->buildQueryByCriteria($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
     }

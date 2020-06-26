@@ -197,6 +197,9 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
     public function sendIndexingMessages(EntityDefinition $definition, array $ids): void
     {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
         $languages = $this->getLanguages();
 
         foreach ($languages as $language) {

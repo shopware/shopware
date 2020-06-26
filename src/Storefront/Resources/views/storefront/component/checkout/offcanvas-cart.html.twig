@@ -18,14 +18,18 @@
                     <div class="col">
                         {{ "checkout.cartHeader"|trans|sw_sanitize }}
                     </div>
+                    
+                    {% set checkoutItemCounter = page.cart.lineItems|length %}
 
-                    {% if isCartNotEmpty %}
-                        <div class="col-auto">
-                            <small class="offcanvas-cart-header-count">
-                                {{ "checkout.itemCounter"|trans({'%count%': page.cart.lineItems|length})|sw_sanitize }}
-                            </small>
-                        </div>
-                    {% endif %}
+                    {% block component_offcanvas_cart_header_item_counter %}
+                        {% if isCartNotEmpty %}
+                            <div class="col-auto">
+                                <small class="offcanvas-cart-header-count">
+                                    {{ "checkout.itemCounter"|trans({'%count%': checkoutItemCounter})|sw_sanitize }}
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% endblock %}
                 </div>
             {% endblock %}
 

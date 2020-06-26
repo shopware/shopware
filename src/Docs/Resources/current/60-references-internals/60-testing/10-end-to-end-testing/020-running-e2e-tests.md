@@ -15,8 +15,21 @@ If using `./psh.phar e2e:open` or `run`, this is done automatically.
 ## Running tests using ./psh.phar
 
 If you use docker for your development environment, you are able to start right away. 
+
+To prepare your shopware installation, your environment and install dependencies, please run the following command as
+first step, **outside** of your docker container:
+ ```bash
+ ./psh.phar e2e:init
+ ```
+
+In our tests, we assume a clean shopware installation, so we strongly recomment to use `e2e:init`. However, if your 
+shopware installation is already clean and prepared, you can skip the preparation of your shopware installation 
+by using the following command **inside** your docker container:
+ ```bash
+ ./psh.phar e2e:prepare-environment
+ ```
  
-Just use the following command outside of your container to run the Cypress Test Runner:
+Afterwards, just use the following command outside of your container to run the Cypress Test Runner:
 ```bash
 ./psh.phar e2e:open
 ```
@@ -26,16 +39,24 @@ If you want to run the tests in CLI, please use the following command outside yo
 ./psh.phar e2e:run
 ```
 
-Both commands will take care of preparation and setup of your Shopware environment and Cypress. This means:
-* Assigning your Shopware theme correctly
-* Clearing caches
-* Creating database dump for Shopware's backup
-
 Please keep in mind that we use `Administration` as default app environment. If you want to use `Storefront` environment,
 add the following parameter:
 ```bash
 ./psh.phar e2e:open --CYPRESS_ENV=Storefront
 ```
+
+### Overview of ./phar.phar E2E commands
+
+| Command        | Description           | 
+| -------------- |-------------------- | 
+| ./psh.phar e2e:cleanup | Sets Shopware back to state of the backup |
+| ./psh.phar e2e:dump-db | Creates a backup of Shopware's database |
+| ./psh.phar e2e:init | Prepares Shopware installation and environment for Cypress usage |
+| ./psh.phar e2e:open | Opens Cypress' e2e tests runner |
+| ./psh.phar e2e:prepare-environment | Install dependencies and prepare database for Cypress usage |
+| ./psh.phar e2e:prepare-shopware | Prepare shopware installation for Cypress usage |
+| ./psh.phar e2e:restore-db | Restores shopware backup |
+| ./psh.phar e2e:run | Runs Cypress' e2e tests in CLI |
 
 ## Running tests in plugins
 

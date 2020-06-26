@@ -472,7 +472,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
-        foreach ([42, 23, 8, 10, 14] as $price) {
+        foreach ([42, 23, 8, 10, 14, 17, 25, 33, 52, 78] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
             $priceEntity->setCurrencyPrice(new PriceCollection([
@@ -515,7 +515,7 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        static::assertSame(52.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingPricesCalculationWeight(): void

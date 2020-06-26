@@ -73,7 +73,7 @@ console.log('MyPlugin JS loaded');
 
 In the end, by running the command `bin/console theme:compile` your custom JS plugin is loaded. 
 By default, the compiled js file is saved as 
-<plugin root>/src/resources/app/storefront/dist/storefront/js/<plugin-name>.js`.
+`<plugin root>/src/resources/app/storefront/dist/storefront/js/<plugin-name>.js`.
 It is detected by Shopware automatically.
 
 ## Using custom assets

@@ -132,6 +132,14 @@ export default class ErrorResolver {
             return;
         }
 
+        if (definition.isToOneAssociation(field)) {
+            this.resolveOneToOneFieldError(
+                `${entity.getEntityName()}.${entity.id}.${fieldName}`,
+                error,
+            );
+            return;
+        }
+
         if (definition.isJsonField(field)) {
             this.resolveJsonFieldError(
                 `${entity.getEntityName()}.${entity.id}.${fieldName}`,
@@ -169,6 +177,19 @@ export default class ErrorResolver {
             }
 
             this.resolveJsonFieldError(path, error[fieldName]);
+        });
+    }
+
+    resolveOneToOneFieldError(basePath, error) {
+        Object.keys(error).forEach((fieldName) => {
+            const path = `${basePath}.${fieldName}`;
+
+            if (error[fieldName] instanceof this.ShopwareError) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: path,
+                    error: error[fieldName]
+                });
+            }
         });
     }
 

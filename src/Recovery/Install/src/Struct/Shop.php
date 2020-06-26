@@ -56,6 +56,13 @@ class Shop extends Struct
     public $currency = 'EUR';
 
     /**
+     * Default shop country e.g. "Sweden"
+     *
+     * @var string
+     */
+    public $country;
+
+    /**
      * Additional currencies that will get installed
      *
      * @var array|null

@@ -129,7 +129,7 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         $result = new ContactFormRouteResponseStruct();
         $result->assign([
-            'individualSuccessMessage' => $message,
+            'individualSuccessMessage' => $message ?? '',
         ]);
 
         return new ContactFormRouteResponse($result);

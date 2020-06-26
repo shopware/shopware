@@ -36,7 +36,7 @@ describe('Product: Test crud operations', () => {
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
-        cy.get('select[name=sw-field--product-taxId]').select('19%');
+        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
         cy.get('#sw-price-field-gross').type('10');
 
 

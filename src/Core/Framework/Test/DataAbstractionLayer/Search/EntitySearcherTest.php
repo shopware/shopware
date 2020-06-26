@@ -372,4 +372,51 @@ class EntitySearcherTest extends TestCase
 
         static::assertEquals($expected, $result->getIds());
     }
+
+    public function testSortingWithToMany(): void
+    {
+        $defaults = [
+            'name' => 'test',
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $ids = new TestDataCollection();
+        $data = [
+            array_merge($defaults, [
+                'id' => $ids->create('product-1'),
+                'productNumber' => Uuid::randomHex(),
+                'categories' => [
+                    ['name' => 'F'],
+                    ['name' => 'B'],
+                ],
+            ]),
+            array_merge($defaults, [
+                'id' => $ids->create('product-2'),
+                'productNumber' => Uuid::randomHex(),
+                'categories' => [
+                    ['name' => 'X'],
+                    ['name' => 'A'],
+                ],
+            ]),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($data, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->setIds($ids->getList(['product-1', 'product-2']));
+        $criteria->addSorting(new FieldSorting('categories.name', FieldSorting::ASCENDING));
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertEquals(
+            [$ids->get('product-2'), $ids->get('product-1')],
+            $result->getIds()
+        );
+    }
 }

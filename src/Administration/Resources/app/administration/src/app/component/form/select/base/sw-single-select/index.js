@@ -50,6 +50,14 @@ Component.register('sw-single-select', {
             default: 'value'
         },
 
+        popoverClasses: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            }
+        },
+
         /**
          * @deprecated tag:v6.3.0
          */

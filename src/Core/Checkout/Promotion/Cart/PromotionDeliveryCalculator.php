@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -77,6 +78,8 @@ class PromotionDeliveryCalculator
         // reduce discount lineItems if fixed price discounts are in collection
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
 
+        $exclusions = $this->buildExclusions($checkedDiscountLineItems);
+
         /* @var LineItem $discountLineItem */
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -92,7 +95,20 @@ class PromotionDeliveryCalculator
             }
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
+                $this->addPromotionNotEligibleError($discountItem->getLabel(), $toCalculate);
+
+                continue;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            if (!$discountItem->hasPayloadValue('promotionId')) {
+                continue;
+            }
+
+            $promotionId = $discountItem->getPayloadValue('promotionId');
+
+            if (array_key_exists($promotionId, $exclusions)) {
+                $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription()));
 
                 continue;
             }
@@ -102,11 +118,50 @@ class PromotionDeliveryCalculator
             if ($deliveryItemAdded) {
                 // ensure that a lineItem will be added to cart if a discount has been added
                 $this->addFakeLineitem($toCalculate, $discountItem, $context);
-                $this->addAddedNoticeToCart($original, $toCalculate, $discountItem);
+                $this->addPromotionAddedNotice($original, $toCalculate, $discountItem);
             } else {
-                $this->addDeleteNoticeToCart($original, $toCalculate, $discountItem);
+                $this->addPromotionDeletedNotice($original, $toCalculate, $discountItem);
             }
         }
+    }
+
+    /**
+     * This function builds a complete list of promotions
+     * that are excluded somehow.
+     * The validation which one to take will be done later.
+     */
+    private function buildExclusions(LineItemCollection $discountLineItems): array
+    {
+        // array that holds all excluded promotion ids.
+        // if a promotion has exclusions they are added on the stack
+        $exclusions = [];
+
+        /* @var LineItem $discountLineItem */
+        foreach ($discountLineItems as $discountItem) {
+            // if we dont have a scope
+            // then skip it, it might not belong to us
+            if (!$discountItem->hasPayloadValue('discountScope')) {
+                continue;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            if ($discountItem->hasPayloadValue('promotionId')) {
+                $promotionId = $discountItem->getPayloadValue('promotionId');
+
+                // if promotion is on exclusions stack it is ignored
+                // this avoids cycles that both promotions exclude each other
+                if (isset($exclusions[$promotionId])) {
+                    continue;
+                }
+            }
+
+            // add all exclusions to the stack
+            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
+                $exclusions[$id] = true;
+            }
+        }
+
+        return $exclusions;
     }
 
     /**

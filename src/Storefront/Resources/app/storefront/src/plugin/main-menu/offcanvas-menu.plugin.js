@@ -32,7 +32,7 @@ export default class OffcanvasMenuPlugin extends Plugin {
 
     init() {
         this._cache = {};
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
         this._content = LoadingIndicator.getTemplate();
 
         this._registerEvents();

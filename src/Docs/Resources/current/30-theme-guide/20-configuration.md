@@ -46,7 +46,7 @@ Let's have a closer look at each section.
 ```
 
 Here change the `name` of your theme and the `author`.
-The `description` section is optional and as you notice it is also translateable.
+The `description` section is optional and as you notice it is also translatable.
 
 ## Theme template inheritance
 
@@ -89,7 +89,7 @@ Defining the above configuration results in the following behavior:
 ```
 
 The `style` section determines the order of the CSS compilation. In the `app/storefront/src/scss/base.scss` file you can apply your changes your want to make to the `@Storefront` standard styles or add other styles you need.
-The `app/storefront/src/scss/overrides.scss` file is used for a special case. Maybe you need to override some defined `variables` or `functions` defined by Shopware or Boostraop, you can implement your changes here.
+The `app/storefront/src/scss/overrides.scss` file is used for a special case. Maybe you need to override some defined `variables` or `functions` defined by Shopware or Boostrap, you can implement your changes here.
 
 ## Assets
 
@@ -140,7 +140,7 @@ The `theme.json` contains a `config` property which consists a list of tabs, blo
 
 The key of each config fields item is also the technical name which you use to access the config option
 in your theme or scss files. `config` entries will show up in the administration and 
-can be customized by the enduser (if `editable` is set to `true`, see table below).
+can be customized by the end user (if `editable` is set to `true`, see table below).
 
 The following parameters can be defined for a config field item:
 
@@ -159,6 +159,7 @@ The following parameters can be defined for a config field item:
 You can use different field types in your theme manager:
 
 * A text field example:
+
 ```json
 "modal-padding": {
     "label": {
@@ -172,6 +173,7 @@ You can use different field types in your theme manager:
 ```
 
 * A number field example: 
+
 ```json
 "visible-slides": {
     "label": {
@@ -190,6 +192,7 @@ You can use different field types in your theme manager:
 ```
 
 * Two boolean field examples:
+
 ```json
 "navigation-fixed": {
     "label": {

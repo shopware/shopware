@@ -23,7 +23,7 @@
       "fieldDisplayNamePlaceholder": "Bitte gib eine Anrede an ...",
       "fieldLetterNameLabel": "Briefanrede",
       "fieldLetterNamePlaceholder": "Bitte gib eine Briefanrede an ...",
-      "fieldSalutationKeyTooltip": "Ein eindeutiger, technischer Name, der zur Einbindung der Anreden in z.B. E-Mail-Vorlagen benötigt wird.",
+      "fieldSalutationKeyTooltip": "Ein eindeutiger, technischer Name, der zur Einbindung der Anreden in z.B. E-Mail-Templates benötigt wird.",
       "fieldSalutationKeyLabel": "Technischer Name",
       "fieldSalutationKeyPlaceholder": "Bitte gib einen technischen Namen an ...",
       "placeholderNewSalutation": "Neue Anrede anlegen ...",

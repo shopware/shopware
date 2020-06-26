@@ -23,6 +23,7 @@ Component.register('sw-order-list', {
             sortDirection: 'DESC',
             isLoading: false,
             filterLoading: false,
+            showDeleteModal: false,
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
@@ -62,6 +63,7 @@ Component.register('sw-order-list', {
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
+            criteria.addAssociation('documents');
             criteria.addAssociation('transactions');
             criteria.addAssociation('deliveries');
             criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
@@ -123,10 +125,15 @@ Component.register('sw-order-list', {
                 this.isLoading = false;
             });
         },
+
         getBillingAddress(order) {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;
             });
+        },
+
+        disableDeletion(order) {
+            return order.documents.length > 0;
         },
 
         getOrderColumns() {
@@ -193,9 +200,10 @@ Component.register('sw-order-list', {
 
         getVariantFromPaymentState(order) {
             let technicalName = order.transactions.last().stateMachineState.technicalName;
+            // set the payment status to the first transaction that is not cancelled
             for (let i = 0; i < order.transactions.length; i += 1) {
                 if (order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
-                    technicalName = order.stateMachineState.technicalName;
+                    technicalName = order.transactions[i].stateMachineState.technicalName;
                 }
             }
             return this.stateStyleDataProviderService.getStyle(
@@ -231,6 +239,22 @@ Component.register('sw-order-list', {
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
             this.getList();
+        },
+
+        onDelete(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
+            return this.orderRepository.delete(id, Shopware.Context.api).then(() => {
+                this.getList();
+            });
         }
     }
 });

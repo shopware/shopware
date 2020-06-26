@@ -47,10 +47,27 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="finishUrl",
+     *          in="post",
+     *          required=false,
+     *          description="URL to which the external payment provider should redirect after successful payment",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="errorUrl",
+     *          in="post",
+     *          required=false,
+     *          description="URL to which the external payment provider should redirect after erroneous payment",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="All available payment methods",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/payment_method_flat"))
+     *          description="Redirect to external payment provider"
      *     )
      * )
      * @Route("/store-api/v{version}/handle-payment", name="store-api.payment.handle", methods={"GET", "POST"})

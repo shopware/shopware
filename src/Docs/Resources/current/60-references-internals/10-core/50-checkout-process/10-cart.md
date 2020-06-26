@@ -129,7 +129,7 @@ Contrary to other entities in the System the Cart is not managed through the Dat
 
 ## Cart Control
 
-The state changes and cart mutation is handled automatically by a facade the [`\Shopware\Core\Checkout\Cart\SalesChannel\CartService`](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/SalesChannel/CartService.php). It controlls, sets up and modifies the cart struct.
+The state changes and cart mutation is handled automatically by a facade the [`\Shopware\Core\Checkout\Cart\SalesChannel\CartService`](https://github.com/shopware/platform/blob/master/src/Core/Checkout/Cart/SalesChannel/CartService.php). It controls, sets up and modifies the cart struct.
 
 The Interface therefore handles alike:
 

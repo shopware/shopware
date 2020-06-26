@@ -55,7 +55,6 @@ export default class ArrowNavigationHelper {
 
         switch (event.key) {
             case 'Enter':
-                event.preventDefault();
                 this._onPressEnter(event);
                 return;
             case 'ArrowDown':
@@ -91,10 +90,9 @@ export default class ArrowNavigationHelper {
             return;
         }
 
-        event.preventDefault();
-
         try {
             const a = DomAccess.querySelector(this._getCurrentSelection(), 'a');
+            event.preventDefault();
             a.click();
         } catch (e) {
             // do nothing, if no link has been found in result item

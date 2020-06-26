@@ -2,7 +2,7 @@
 
 hide empty description
 
-title Order State Maschine
+title Order State Machine
 
 state "Open" as open
 state "In Progress" as inProgress

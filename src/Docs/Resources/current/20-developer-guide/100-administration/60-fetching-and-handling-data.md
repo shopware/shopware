@@ -266,7 +266,7 @@ Component.register('sw-show-case-list', {
 
 ## Working with lazy loaded associations
 
-In most cases, *ToMany* assocations are loaded over an additional request. The product prices, for example, are fetched when the prices tab will be activated.
+In most cases, *ToMany* associations are loaded over an additional request. The product prices, for example, are fetched when the prices tab will be activated.
 
 ### Working with OneToMany associations
 

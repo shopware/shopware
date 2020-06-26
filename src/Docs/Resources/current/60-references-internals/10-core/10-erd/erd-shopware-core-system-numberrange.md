@@ -3,7 +3,7 @@
 
 [Back to modules](./../10-modules.md)
 
-Numberranges are used to provide and generate non random but unique numbers for a variety of entities. For example the default stock keeping units (SKU) are generated here.
+Number ranges are used to provide and generate non-random but unique numbers for a variety of entities. For example the default stock keeping units (SKU) are generated here.
 
 ![Number ranges](./dist/erd-shopware-core-system-numberrange.png)
 

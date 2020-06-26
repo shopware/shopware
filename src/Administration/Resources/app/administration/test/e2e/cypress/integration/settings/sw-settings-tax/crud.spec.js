@@ -41,7 +41,7 @@ describe('Tax: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
+        cy.get(`${page.elements.dataGridRow}--4 ${page.elements.taxColumnName}`).should('be.visible')
             .contains('Very high tax');
     });
 
@@ -60,7 +60,7 @@ describe('Tax: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--2`
+            `${page.elements.dataGridRow}--0`
         );
         cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
         cy.get(page.elements.taxSaveAction).click();
@@ -71,7 +71,7 @@ describe('Tax: Test crud operations', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 ${page.elements.taxColumnName}`).should('be.visible')
+        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`).should('be.visible')
             .contains('Still high tax');
     });
 
@@ -89,7 +89,7 @@ describe('Tax: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--2`
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -102,7 +102,7 @@ describe('Tax: Test crud operations', () => {
         });
 
         cy.get(page.elements.modal).should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--3`).should('not.exist');
 
         cy.contains('High tax').should('not.exist');
     });

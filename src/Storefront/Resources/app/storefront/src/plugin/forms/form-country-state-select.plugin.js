@@ -18,7 +18,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     initClient() {
-        this._client = new HttpClient(window.accessKey, window.contextToken);
+        this._client = new HttpClient();
     }
 
     initSelects() {

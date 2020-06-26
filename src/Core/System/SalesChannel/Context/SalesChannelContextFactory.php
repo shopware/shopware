@@ -376,7 +376,9 @@ class SalesChannelContextFactory
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('defaultPaymentMethod');
         $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultBillingAddress.countryState');
         $criteria->addAssociation('defaultShippingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.countryState');
 
         $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
 

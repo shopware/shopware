@@ -111,7 +111,10 @@ class StructEncoder
                 continue;
             }
 
-            $object = $struct->getVars()[$property];
+            $object = $value;
+            if (array_key_exists($property, $struct->getVars())) {
+                $object = $struct->getVars()[$property];
+            }
 
             if ($object instanceof Struct) {
                 $data[$property] = $this->encode($object, $apiVersion, $fields);

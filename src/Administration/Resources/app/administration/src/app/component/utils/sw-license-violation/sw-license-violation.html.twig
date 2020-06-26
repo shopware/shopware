@@ -6,7 +6,7 @@
           v-if="visible">
 
     <sw-alert variant="error" class="sw-license-violation__alert">
-        {{ $tc('sw-license-violation.alert-text') }}
+        {{ $tc('sw-license-violation.alertText') }}
 
         <a href="#" @click.prevent="reloadViolations">{{ $tc('sw-license-violation.reload') }}</a>
     </sw-alert>
@@ -45,7 +45,7 @@
                     <a class="sw-license-violation__table-action-remove"
                        href="#"
                        @click.prevent="deletePlugin(violation)">
-                        {{ $tc('sw-license-violation.delete-plugin') }}
+                        {{ $tc('sw-license-violation.deletePlugin') }}
                     </a>
 
                     <sw-button :link="action.externalLink"
@@ -57,18 +57,18 @@
 
         </tr>
     </table>
-    
+
     <template slot="modal-footer">
         <sw-field type="checkbox"
                   v-model="readNotice"
-                  :label="$tc('sw-license-violation.checkbox-message')">
+                  :label="$tc('sw-license-violation.checkboxMessage')">
         </sw-field>
 
         <sw-button variant="primary"
                    :disabled="!readNotice"
                    size="small"
                    @click="deactivateTempoarary">
-            {{ $tc('sw-license-violation.close-modal') }}
+            {{ $tc('sw-license-violation.closeModal') }}
         </sw-button>
     </template>
 
@@ -79,7 +79,7 @@
               variant="small">
 
         <p class="sw-plugin-list__confirm-delete-text">
-            {{ $tc('sw-license-violation.message-delete-confirm', '', { pluginName: deletePluginItem.label }) }}
+            {{ $tc('sw-license-violation.messageDeleteConfirm', '', { pluginName: deletePluginItem.label }) }}
         </p>
 
         <template #modal-footer>

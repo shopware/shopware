@@ -8,7 +8,7 @@ sits on top of the [Core](./../../60-references-internals/10-core/__categoryInfo
 **SalesChannel** and executes in the **same process** as the Core. It is architecturally in part a 
 [Backend for Frontends](https://samnewman.io/patterns/architectural/bff/) and a classical PHP application with HTML 
 rendering, JavaScript enhancements (along the lines of 
-[graceful degragation](https://www.w3.org/wiki/Graceful_degradation_versus_progressive_enhancement)) and 
+[graceful degradation](https://www.w3.org/wiki/Graceful_degradation_versus_progressive_enhancement)) and 
 [SASS](https://sass-lang.com/) styling as an extension of the [Bootstrap Framework](https://www.getbootstrap.com/).
 
 ## Building Blocks 
@@ -22,7 +22,7 @@ The Storefront's main concerns are:
    data sets on a single page.
    
 **[Mapping Requests to the Core](./../../60-references-internals/30-storefront/200-storefront-writing-data.md)** 
-([Pagecontroller](https://github.com/shopware/platform/tree/master/src/Storefront/PageController), 
+([PageController](https://github.com/shopware/platform/tree/master/src/Storefront/PageController), 
 [PageletController](https://github.com/shopware/platform/tree/master/src/Storefront/PageletController))
    : The Storefront uses the SalesChannel API internally and forwards possibly slightly changed requests to the core.
    

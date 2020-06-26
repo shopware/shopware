@@ -8,14 +8,12 @@ The mapping is saved for the current connection. Converted data will be removed 
 ## Converter
 All converters are registered in service container like this:
 ```xml
-<service id="SwagMigrationNext\Profile\Shopware55\Converter\ProductConverter">
-    <argument type="service" id="SwagMigrationNext\Migration\Mapping\MappingService"/>
-    <argument type="service" id="SwagMigrationNext\Migration\Media\MediaFileService"/>
-    <argument type="service" id="SwagMigrationNext\Migration\Logging\LoggingService"/>
-    <tag name="shopware.migration.converter"/>
+<service id="SwagMigrationAssistant\Profile\Shopware\Converter\ProductConverter"
+         parent="SwagMigrationAssistant\Profile\Shopware\Converter\ShopwareConverter" abstract="true">
+    <argument type="service" id="SwagMigrationAssistant\Migration\Media\MediaFileService"/>
 </service>
 ```
-The converters have to extend the `AbstractConverter` class and implement the `convert` method.
+The converters have to extend the `ShopwareConverter` class and implement the `convert` method.
 This method will receive one data entry at a time. It will have to return it in the right format in order to be usable for the `writer`.
 
 ```php
@@ -35,13 +33,21 @@ abstract class ProductConverter extends ShopwareConverter
         Context $context,
         MigrationContextInterface $migrationContext
     ): ConvertStruct {
+        $this->generateChecksum($data);
         $this->context = $context;
         $this->migrationContext = $migrationContext;
         $this->runId = $migrationContext->getRunUuid();
-        $this->connectionId = $migrationContext->getConnection()->getId();
         $this->oldProductId = $data['detail']['ordernumber'];
         $this->mainProductId = $data['detail']['articleID'];
         $this->locale = $data['_locale'];
+
+        $connection = $migrationContext->getConnection();
+        $this->connectionName = '';
+        $this->connectionId = '';
+        if ($connection !== null) {
+            $this->connectionId = $connection->getId();
+            $this->connectionName = $connection->getName();
+        }
 
         $fields = $this->checkForEmptyRequiredDataFields($data, $this->requiredDataFieldKeys);
         if (!empty($fields)) {
@@ -86,12 +92,15 @@ abstract class ProductConverter extends ShopwareConverter
             unset($data['detail']);
         }
 
-        if (empty($data)) {
-            $data = null;
+        $returnData = $data;
+        if (empty($returnData)) {
+            $returnData = null;
         }
         $this->updateMainMapping($migrationContext, $context);
 
-        return new ConvertStruct($converted, $data, $this->mainMapping['id']);
+        $mainMapping = $this->mainMapping['id'] ?? null;
+
+        return new ConvertStruct($converted, $returnData, $mainMapping);
     }
     
     /* ... */
@@ -136,11 +145,13 @@ Find a mapping example in the following code snippet:
             $this->context,
             $this->checksum
         );
+
+        $converted = [];
         $converted['id'] = $this->mainMapping['entityUuid'];
 
         $mapping = $this->mappingService->getOrCreateMapping(
             $this->connectionId,
-            DefaultEntities::PRODUCT . '_mainProduct',
+            DefaultEntities::PRODUCT_MAIN,
             $data['detail']['articleID'],
             $this->context,
             null,
@@ -306,7 +317,8 @@ public function convert(
     /* ... */
     
     // Important to put the mainMapping['id'] to the ConvertStruct
-    return new ConvertStruct($converted, null, $this->mainMapping['id']);
+    $mainMapping = $this->mainMapping['id'] ?? null;
+    return new ConvertStruct($converted, $returnData, $mainMapping);
     
     /* ... */
 }
@@ -363,7 +375,9 @@ public function convert(
     
     $this->updateMainMapping($this->migrationContext, $this->context);
     
-    return new ConvertStruct($converted, null, $this->mainMapping['id']);
+    $mainMapping = $this->mainMapping['id'] ?? null;
+    
+    return new ConvertStruct($converted, $returnData, $mainMapping);
     
     /* ... */
 }

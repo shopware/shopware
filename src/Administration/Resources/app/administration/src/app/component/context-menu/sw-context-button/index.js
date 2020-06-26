@@ -78,6 +78,12 @@ Component.register('sw-context-button', {
             default() {
                 return {};
             }
+        },
+
+        zIndex: {
+            type: Number,
+            required: false,
+            default: 9000
         }
     },
 

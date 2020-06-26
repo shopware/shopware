@@ -1374,7 +1374,7 @@ Next, once you clicked the `save` button, you want to be redirected to the detai
 Go ahead and create your new component first, hence a `swag-bundle-create` directory inside your `page` directory, and then a new `index.js` file.
 
 You're extending from a component by using the `extend` method of the `Component` class. The first parameter is the name of the new component,
-the second parameter the name of the component to extend from, the third paramter the configuration again.
+the second parameter the name of the component to extend from, the third parameter the configuration again.
 
 ```js
 Shopware.Component.extend('swag-bundle-create', 'swag-bundle-detail', {

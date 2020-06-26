@@ -26,7 +26,7 @@ Component.register('sw-popover', {
             default: false
         },
         popoverClass: {
-            type: String,
+            type: [String, Array, Object],
             required: false,
             default: ''
         },

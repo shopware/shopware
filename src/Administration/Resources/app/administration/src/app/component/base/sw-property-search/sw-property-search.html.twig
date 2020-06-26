@@ -8,7 +8,14 @@
                 <slot name="toolbar">
                     <div class="sw-property-search__search-field-container">
                         <slot name="toolbar-search-field">
-                            <sw-field :placeholder="$tc('sw-property-search.placeholderSearch')"  autocomplete="off" class="sw-property-search__search-field" ref="searchField" @focus="onFocusSearch" @input="onSearchOptions"></sw-field>
+                            <sw-field class="sw-property-search__search-field"
+                                      v-model="searchTerm"
+                                      ref="searchField"
+                                      :placeholder="$tc('sw-property-search.placeholderSearch')"
+                                      autocomplete="off"
+                                      @focus="onFocusSearch"
+                                      @input="onSearchOptions">
+                            </sw-field>
                         </slot>
                     </div>
 
@@ -135,7 +142,14 @@
 
                         <template slot="pagination">
                             {% block sw_property_search_option_search_grid_pagination %}
-                                <sw-pagination :page="optionPage" :limit="10" :total="optionTotal" :total-visible="7" @page-change="onOptionSearchPageChange" :steps="[10]" />
+                                <sw-pagination :page="optionPage"
+                                               :limit="10"
+                                               :total="optionTotal"
+                                               :total-visible="7"
+                                               @page-change="onOptionSearchPageChange"
+                                               :steps="[10]"
+                                               :autoHide="false">
+                                </sw-pagination>
                             {% endblock %}
                         </template>
                     </sw-grid>

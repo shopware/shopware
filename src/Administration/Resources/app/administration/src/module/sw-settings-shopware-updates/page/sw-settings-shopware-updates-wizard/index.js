@@ -180,15 +180,10 @@ Component.register('sw-settings-shopware-updates-wizard', {
     },
     computed: {
         updatePossible() {
-            let requirementsMet = true;
-            this.requirements.forEach(item => {
-                if (item.result === 0) {
-                    requirementsMet = false;
-                }
-            });
-
-            return requirementsMet;
+            // check if result of every requirement is true. If it's the case return true otherwise return false.
+            return this.requirements.every(requirement => requirement.result === true);
         },
+
         updateButtonTooltip() {
             if (this.updatePossible) {
                 return {

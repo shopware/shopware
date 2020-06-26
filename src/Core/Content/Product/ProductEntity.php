@@ -70,7 +70,7 @@ class ProductEntity extends Entity
     protected $active;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $displayGroup;
 
@@ -240,6 +240,11 @@ class ProductEntity extends Entity
     protected $packUnit;
 
     /**
+     * @var string|null
+     */
+    protected $packUnitPlural;
+
+    /**
      * @var array|null
      */
     protected $variantRestrictions;
@@ -248,6 +253,11 @@ class ProductEntity extends Entity
      * @var string[]|null
      */
     protected $configuratorGroupConfig;
+
+    /**
+     * @var bool
+     */
+    protected $grouped = false;
 
     /**
      * @var string|null
@@ -733,6 +743,16 @@ class ProductEntity extends Entity
         $this->packUnit = $packUnit;
     }
 
+    public function getPackUnitPlural(): ?string
+    {
+        return $this->packUnitPlural;
+    }
+
+    public function setPackUnitPlural(?string $packUnitPlural): void
+    {
+        $this->packUnitPlural = $packUnitPlural;
+    }
+
     public function getTax(): ?TaxEntity
     {
         return $this->tax;
@@ -950,6 +970,16 @@ class ProductEntity extends Entity
         $this->configuratorSettings = $configuratorSettings;
     }
 
+    public function setGrouped(bool $grouped): void
+    {
+        $this->grouped = $grouped;
+    }
+
+    public function isGrouped(): bool
+    {
+        return $this->grouped;
+    }
+
     public function getCategoriesRo(): ?CategoryCollection
     {
         return $this->categoriesRo;
@@ -1140,12 +1170,12 @@ class ProductEntity extends Entity
         $this->ratingAverage = $ratingAverage;
     }
 
-    public function getDisplayGroup(): string
+    public function getDisplayGroup(): ?string
     {
         return $this->displayGroup;
     }
 
-    public function setDisplayGroup(string $displayGroup): void
+    public function setDisplayGroup(?string $displayGroup): void
     {
         $this->displayGroup = $displayGroup;
     }

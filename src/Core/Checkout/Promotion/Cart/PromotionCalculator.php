@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -37,6 +38,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
@@ -140,6 +142,10 @@ class PromotionCalculator
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
+        // array that holds all excluded promotion ids.
+        // if a promotion has exclusions they are added on the stack
+        $exclusions = $this->buildExclusions($discountLineItems);
+
         // @todo order $discountLineItems by priority
         /* @var LineItem $discountLineItem */
         foreach ($discountLineItems as $discountItem) {
@@ -157,7 +163,20 @@ class PromotionCalculator
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
-                $this->addDeleteNoticeToCart($original, $calculated, $discountItem);
+                $this->addPromotionNotEligibleError($discountItem->getLabel(), $calculated);
+
+                continue;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            if (!$discountItem->hasPayloadValue('promotionId')) {
+                continue;
+            }
+
+            $promotionId = $discountItem->getPayloadValue('promotionId');
+
+            if (array_key_exists($promotionId, $exclusions)) {
+                $calculated->addErrors(new PromotionNotEligibleError($discountItem->getDescription()));
 
                 continue;
             }
@@ -184,12 +203,51 @@ class PromotionCalculator
             // add our discount item to the cart
             $calculated->addLineItems(new LineItemCollection([$discountItem]));
 
-            $this->addAddedNoticeToCart($original, $calculated, $discountItem);
+            $this->addPromotionAddedNotice($original, $calculated, $discountItem);
 
             // recalculate for every new discount to get the correct
             // prices for any upcoming iterations
             $this->calculateCart($calculated, $context);
         }
+    }
+
+    /**
+     * This function builds a complete list of promotions
+     * that are excluded somehow.
+     * The validation which one to take will be done later.
+     */
+    private function buildExclusions(LineItemCollection $discountLineItems): array
+    {
+        // array that holds all excluded promotion ids.
+        // if a promotion has exclusions they are added on the stack
+        $exclusions = [];
+
+        /* @var LineItem $discountLineItem */
+        foreach ($discountLineItems as $discountItem) {
+            // if we dont have a scope
+            // then skip it, it might not belong to us
+            if (!$discountItem->hasPayloadValue('discountScope')) {
+                continue;
+            }
+
+            // if promotion is on exclusions stack it is ignored
+            if ($discountItem->hasPayloadValue('promotionId')) {
+                $promotionId = $discountItem->getPayloadValue('promotionId');
+
+                // if promotion is on exclusions stack it is ignored
+                // this avoids cycles that both promotions exclude each other
+                if (isset($exclusions[$promotionId])) {
+                    continue;
+                }
+            }
+
+            // add all exclusions to the stack
+            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
+                $exclusions[$id] = true;
+            }
+        }
+
+        return $exclusions;
     }
 
     /**
@@ -216,9 +274,6 @@ class PromotionCalculator
             $lineItem->getPayload(),
             $lineItem->getReferencedId()
         );
-
-        // get the cart total price => discount may never be higher than this value
-        $maxDiscountValue = $calculatedCart->getPrice()->getTotalPrice();
 
         switch ($discount->getScope()) {
             case PromotionDiscountEntity::SCOPE_CART:
@@ -311,6 +366,9 @@ class PromotionCalculator
         $aggregatedCompositionItems = $this->discountCompositionBuilder->aggregateCompositionItems($result->getCompositionItems());
         $result = new DiscountCalculatorResult($result->getPrice(), $aggregatedCompositionItems);
 
+        // get the cart total price => discount may never be higher than this value
+        $maxDiscountValue = $this->getMaxDiscountValue($calculatedCart, $context);
+
         // if our price is larger than the max discount value,
         // then use the max discount value as negative discount
         if (abs($result->getPrice()->getTotalPrice()) > abs($maxDiscountValue)) {
@@ -318,6 +376,20 @@ class PromotionCalculator
         }
 
         return $result;
+    }
+
+    /**
+     * Calculates a max discount value based on current cart and customer group.
+     * If customer is in net customer group, get the cart's net value,
+     * otherwise use the gross value as maximum value.
+     */
+    private function getMaxDiscountValue(Cart $cart, SalesChannelContext $context): float
+    {
+        if ($context->getTaxState() === CartPrice::TAX_STATE_NET) {
+            return $cart->getPrice()->getNetPrice();
+        }
+
+        return $cart->getPrice()->getTotalPrice();
     }
 
     /**

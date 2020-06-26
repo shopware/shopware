@@ -75,7 +75,7 @@
                             {% block page_checkout_confirm_address_shipping_actions %}
                                 <div class="card-actions">
                                     {% set addressEditorOptions = {
-                                        changeBilling: true,
+                                        changeShipping: true,
                                         addressId: shippingAddress.id,
                                         csrfToken: sw_csrf("frontend.account.addressbook", {"mode": "token"})
                                     } %}

@@ -11,7 +11,7 @@
         {% block sw_context_button_menu %}
             <sw-popover class="sw-context-button__menu-position"
                         popoverClass="sw-context-button__menu-popover"
-                        :zIndex="9000"
+                        :zIndex="zIndex"
                         v-if="showMenu">
                 <sw-context-menu
                     :class="contextMenuClass"

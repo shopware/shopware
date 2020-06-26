@@ -866,6 +866,72 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $children);
     }
 
+    public function testDuplicateWrittenEvents(): void
+    {
+        $ids = new TestDataCollection();
+
+        $this->getContainer()->get('property_group.repository')
+            ->create([
+                [
+                    'name' => 'color',
+                    'options' => [
+                        ['id' => $ids->create('prop-1'), 'name' => 'test'],
+                        ['id' => $ids->create('prop-2'), 'name' => 'test'],
+                        ['id' => $ids->create('prop-3'), 'name' => 'test'],
+                    ],
+                ],
+            ], Context::createDefaultContext());
+
+        $this->getContainer()->get('category.repository')
+            ->create([
+                ['id' => $ids->create('cat-1'), 'name' => 'test'],
+                ['id' => $ids->create('cat-2'), 'name' => 'test'],
+                ['id' => $ids->create('cat-3'), 'name' => 'test'],
+            ], Context::createDefaultContext());
+
+        $data = [];
+        for ($i = 0; $i <= 2; ++$i) {
+            $data[] = [
+                'id' => $ids->create('product' . $i),
+                'productNumber' => $ids->get('product' . $i),
+                'name' => 'product',
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'tax' => [
+                    'id' => $ids->create('tax'),
+                    'name' => 'test',
+                    'taxRate' => 15,
+                ],
+                'properties' => [
+                    ['id' => $ids->create('prop-1')],
+                    ['id' => $ids->create('prop-2')],
+                    ['id' => $ids->create('prop-3')],
+                ],
+                'categories' => [
+                    ['id' => $ids->create('cat-1')],
+                    ['id' => $ids->create('cat-2')],
+                    ['id' => $ids->create('cat-3')],
+                ],
+            ];
+        }
+
+        /** @var EntityWrittenContainerEvent $result */
+        $result = $this->getContainer()->get('product.repository')
+            ->create($data, Context::createDefaultContext());
+
+        $products = $result->getEventByEntityName('product');
+        static::assertCount(3, $products->getIds());
+        static::assertCount(3, $products->getWriteResults());
+
+        $properties = $result->getEventByEntityName('property_group_option');
+        static::assertCount(3, $properties->getIds());
+        static::assertCount(3, $properties->getWriteResults());
+
+        $categories = $result->getEventByEntityName('category');
+        static::assertCount(3, $categories->getIds());
+        static::assertCount(3, $categories->getWriteResults());
+    }
+
     public function testReadPaginatedOneToManyChildrenAssociation(): void
     {
         $id = Uuid::randomHex();

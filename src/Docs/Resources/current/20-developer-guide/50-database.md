@@ -32,7 +32,7 @@ done with
 `EntityRepositoryInterface`:
 
 ```php
-// AcmeExamplePlugin/src/Service/DalExampleService.php
+// SwagExamplePlugin/src/Service/DalExampleService.php
 
 public function __construct (EntityRepositoryInterface $productRepository)
 {
@@ -43,9 +43,9 @@ public function __construct (EntityRepositoryInterface $productRepository)
 Then, configure the `product.repository` service to be injected:
 
 ```xml
-<!-- AcmeExamplePlugin/src/Resources/config/service.xml -->
+<!-- SwagExamplePlugin/src/Resources/config/service.xml -->
 
-<service id="Acme\ExamplePlugin\Service\DalExampleService">
+<service id="Swag\ExamplePlugin\Service\DalExampleService">
     <argument type="service" id="product.repository"/>
 </service>
 ```
@@ -63,10 +63,30 @@ $this->productRepository->create(
         [
             'id' => '6dc5ca792e524cd2a4a719e9b804b410',
             'name' => 'Lorem ipsum',
+            'taxId' => '7ba4c94818e4414faca445f039288521',
+            'stock' => 213,
+            'productNumber' => 'swag-5642-0001',
+            'price' => [
+                "currencyId" => "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                "gross"=>317.0,
+                "linked"=>true,
+                "listPrice"=>null,
+                "extensions"=>[]
+            ]
         ],
         [
             'id' => '5fba5662f6f74547a0f75de3e0e6c8d2',
             'name' => 'Dolor sit amet',
+            'taxId' => '7ba4c94818e4414faca445f039288521',
+            'stock' => 49,
+            'productNumber' => 'swag-5642-0002',
+            'price' => [
+                "currencyId" => "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                "gross"=>317.0,
+                "linked"=>true,
+                "listPrice"=>null,
+                "extensions"=>[]
+            ]
         ]
     ],
     $context
@@ -105,7 +125,7 @@ $this->productRepository->search(
 ```
 
 To find out more about filters, have a look at the
-[filters](./../60-references-internals/10-core/130-dal.md)
+[filters](./../60-references-internals/10-core/130-dal.md#filters)
 documentation.
 
 ### Updating entities
@@ -146,7 +166,7 @@ $this->productRepository->delete(
 );
 ```
 
-## Enrich results with associations
+## Enriching results with associations
 
 Associations allow you to select more than the data of just one entity when
 searching using the DAL. Assuming you've already built a `Criteria` object
@@ -156,16 +176,14 @@ for your search, an association can be added using the `addAssociation` method:
 $criteria->addAssociation('lineItems');
 ```
 
-Learn more in the
-[associations](./../60-references-internals/10-core/130-dal.md)
-documentation.
+<!-- TODO: Link to reference documentation about associations (seemingly missing at the moment) -->
 
 ## Going further with extensions and custom entities
 
 The DAL makes it possible to extend existing entities using new relations. This
 can be useful when you need just a bit of additional data. Read more about
 entity extensions
-[here](./../60-references-internals/10-core/130-dal.md)
+[here](./../50-how-to/180-entity-extension.md)
 . Adding your own custom entity is possible as well and covered in-depth in the
 [custom entity HowTo](./../50-how-to/050-custom-entity.md)
 .

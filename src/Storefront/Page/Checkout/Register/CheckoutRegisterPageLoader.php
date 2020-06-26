@@ -82,9 +82,7 @@ class CheckoutRegisterPageLoader
         $page = CheckoutRegisterPage::createFrom($page);
 
         $page->setCountries($this->getCountries($salesChannelContext));
-
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
-
         $page->setSalutations($this->getSalutations($salesChannelContext));
 
         $addressId = $request->attributes->get('addressId');

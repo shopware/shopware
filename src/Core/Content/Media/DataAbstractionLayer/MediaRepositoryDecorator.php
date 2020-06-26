@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -44,18 +47,25 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
      */
     private $messageBus;
 
+    /**
+     * @var EntityForeignKeyResolver
+     */
+    private $foreignKeyResolver;
+
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
         EntityRepositoryInterface $thumbnailRepository,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        EntityForeignKeyResolver $foreignKeyResolver
     ) {
         $this->innerRepo = $innerRepo;
         $this->eventDispatcher = $eventDispatcher;
         $this->urlGenerator = $urlGenerator;
         $this->thumbnailRepository = $thumbnailRepository;
         $this->messageBus = $messageBus;
+        $this->foreignKeyResolver = $foreignKeyResolver;
     }
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
@@ -67,6 +77,16 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
             $this->eventDispatcher->dispatch($event);
 
             return $event;
+        }
+
+        // check delete restrictions before files get removed.
+        $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($this->innerRepo->getDefinition(), $ids, $context);
+        if (!empty($restrictions)) {
+            $restrictions = array_map(function ($restriction) {
+                return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
+            }, $restrictions);
+
+            throw new RestrictDeleteViolationException($this->innerRepo->getDefinition(), $restrictions);
         }
 
         $filesToDelete = [];

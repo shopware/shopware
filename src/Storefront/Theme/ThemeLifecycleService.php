@@ -2,12 +2,15 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -51,6 +54,11 @@ class ThemeLifecycleService
     private $themeFileImporter;
 
     /**
+     * @var FileNameProvider
+     */
+    private $fileNameProvider;
+
+    /**
      * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
      */
     public function __construct(
@@ -60,6 +68,7 @@ class ThemeLifecycleService
         EntityRepositoryInterface $mediaFolderRepository,
         EntityRepositoryInterface $themeMediaRepository,
         FileSaver $fileSaver,
+        FileNameProvider $fileNameProvider,
         ?ThemeFileImporterInterface $themeFileImporter = null
     ) {
         $this->pluginRegistry = $pluginRegistry;
@@ -68,6 +77,7 @@ class ThemeLifecycleService
         $this->mediaFolderRepository = $mediaFolderRepository;
         $this->themeMediaRepository = $themeMediaRepository;
         $this->fileSaver = $fileSaver;
+        $this->fileNameProvider = $fileNameProvider;
         $this->themeFileImporter = $themeFileImporter;
     }
 
@@ -95,38 +105,7 @@ class ThemeLifecycleService
         // check if theme config already exists in the database
         if ($theme) {
             $themeData['id'] = $theme->getId();
-
-            // find all assigned media files
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('media.themeMedia.id', $theme->getId()));
-            $result = $this->mediaRepository->searchIds($criteria, $context);
-            $themeMediaData = [];
-
-            // delete theme media association
-            if ($result->getTotal() !== 0) {
-                foreach ($result->getIds() as $id) {
-                    $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
-                }
-            }
-
-            if ($theme->getPreviewMediaId()) {
-                $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $theme->getPreviewMediaId()];
-            }
-
-            if (count($themeMediaData) > 0) {
-                $this->themeMediaRepository->delete($themeMediaData, $context);
-            }
-
-            $mediaData = [];
-
-            // delete media entities
-            foreach ($themeMediaData as $item) {
-                $mediaData[] = ['id' => $item['mediaId']];
-            }
-
-            if (count($mediaData) > 0) {
-                $this->mediaRepository->delete($mediaData, $context);
-            }
+            $this->removeOldMedia($theme, $context);
         } else {
             $themeData['active'] = true;
         }
@@ -198,7 +177,17 @@ class ThemeLifecycleService
 
         if (!empty($media)) {
             foreach ($media as $item) {
-                $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
+                try {
+                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
+                } catch (DuplicatedMediaFileNameException $e) {
+                    $newFileName = $this->fileNameProvider->provide(
+                        $item['basename'],
+                        $item['mediaFile']->getFileExtension(),
+                        null,
+                        $context
+                    );
+                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $newFileName, $item['media']['id'], $context);
+                }
             }
         }
     }
@@ -312,5 +301,42 @@ class ThemeLifecycleService
         }
 
         return $this->themeFileImporter->fileExists($path);
+    }
+
+    private function removeOldMedia(ThemeEntity $theme, Context $context): void
+    {
+        // find all assigned media files
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('media.themeMedia.id', $theme->getId()));
+        $result = $this->mediaRepository->searchIds($criteria, $context);
+        $themeMediaData = [];
+
+        // delete theme media association
+        if ($result->getTotal() !== 0) {
+            foreach ($result->getIds() as $id) {
+                $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
+            }
+        }
+
+        if ($theme->getPreviewMediaId()) {
+            $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $theme->getPreviewMediaId()];
+        }
+
+        if (empty($themeMediaData)) {
+            return;
+        }
+
+        // remove associations between theme and media first
+        $this->themeMediaRepository->delete($themeMediaData, $context);
+
+        // delete media associated with theme
+        foreach ($themeMediaData as $item) {
+            try {
+                $this->mediaRepository->delete([['id' => $item['mediaId']]], $context);
+            } catch (RestrictDeleteViolationException $e) {
+                // don't delete files that are associated with other entities.
+                // This files will be recreated using the file name strategy for duplicated filenames.
+            }
+        }
     }
 }

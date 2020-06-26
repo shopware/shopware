@@ -26,6 +26,10 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed `\Shopware\Core\System\SalesChannel\Api\StructEncoder` to work correctly with aggregations
     * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
     * Added `AddressListingCriteriaEvent`
+    * Added Sales Channel commands
+        * `sales-channel:list`
+        * `sales-channel:maintenance:enable`
+        * `sales-channel:maintenance:disable`
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

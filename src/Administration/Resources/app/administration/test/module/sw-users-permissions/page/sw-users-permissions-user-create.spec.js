@@ -10,6 +10,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
         wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-create'), {
             provide: {
+                next3722: true,
                 userService: {
                     getUser: () => Promise.resolve()
                 },
@@ -90,6 +91,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
     it('should create a new user', () => {
         expect(wrapper.vm.user).toStrictEqual({
+            admin: true,
             localeId: '',
             username: '',
             firstName: '',

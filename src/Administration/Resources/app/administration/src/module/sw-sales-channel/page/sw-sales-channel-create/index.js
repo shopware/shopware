@@ -14,6 +14,12 @@ Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
         next();
     },
 
+    computed: {
+        allowSaving() {
+            return this.acl.can('sales_channel.creator');
+        }
+    },
+
     methods: {
         createdComponent() {
             if (!this.$route.params.typeId) {

@@ -11,7 +11,7 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_menu_headline_action %}
-                    <button class="sw-admin-menu__headline-action" @click="showModal=true">
+                    <button class="sw-admin-menu__headline-action" @click="showModal=true" v-if="canCreateSalesChannels">
                         <sw-icon class="sw-admin-menu__headline-icon"
                                  name="small-default-plus-circle"
                                  small>

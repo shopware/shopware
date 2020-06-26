@@ -64,6 +64,14 @@ Component.register('sw-users-permissions-role-detail', {
 
         roleId() {
             return this.$route.params.id;
+        },
+
+        requiredPrivileges() {
+            return [
+                'language:read', // for entityInit and languageSwitch
+                'locale:read', // for localeToLanguage service
+                'message_queue_stats:read' // for message queue
+            ];
         }
     },
 
@@ -116,7 +124,10 @@ Component.register('sw-users-permissions-role-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.role.privileges = this.getPrivilegesForSelections();
+            this.role.privileges = [
+                ...this.getPrivilegesForSelections(),
+                ...this.requiredPrivileges
+            ];
 
             return this.roleRepository.save(this.role, Shopware.Context.api)
                 .then(() => {

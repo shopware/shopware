@@ -39,6 +39,11 @@
                                             <sw-context-menu-item
                                                 class="sw-order-line-items-grid__can-create-discounts-button"
                                                 :disabled="!canCreateDiscounts"
+                                                v-tooltip="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: canCreateDiscounts,
+                                                    showOnDisabledElements: true
+                                                }"
                                                 @click="onInsertCreditItem">
                                                 {{ $tc('sw-order.detailBase.buttonAddCredit') }}
                                             </sw-context-menu-item>

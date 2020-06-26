@@ -1,14 +1,15 @@
 {% block sw_admin_menu_item %}
-    <li class="sw-admin-menu__navigation-list-item"
-        :class="getItemName(entry.id || entry.path)"
+    <li v-if="showMenuItem"
+        class="sw-admin-menu__navigation-list-item"
+        :class="getItemName(entry.id || entryPath)"
         @click="$emit('menu-item-click', entry, $event.currentTarget)"
         @mouseover="$emit('menu-item-hover', entry, $event.currentTarget, parentEntries)"
         @mouseleave="$emit('menu-item-leave', entry, $event.currentTarget, parentEntries)">
 
         {% block sw_admin_menu_item_router_link %}
-            <router-link v-if="entry.path"
+            <router-link v-if="entryPath"
                          class="sw-admin-menu__navigation-link"
-                         :class="{'router-link-active': subIsActive(entry.path)}"
+                         :class="{'router-link-active': subIsActive(entryPath)}"
                          :to="getLinkToProp">
 
                 {% block sw_admin_menu_item_icon %}
@@ -75,10 +76,11 @@
         {% endblock %}
 
         {% block sw_sidebar_sub_items_list %}
-            <ul v-if="sidebarExpanded && entry.children.length > 0" class="sw-admin-menu__sub-navigation-list">
-                <sw-admin-menu-item v-for="entry in entry.children"
+            <ul v-if="sidebarExpanded && children.length > 0" class="sw-admin-menu__sub-navigation-list">
+                <sw-admin-menu-item v-for="entry in children"
+                                    :class="entry.id || entryPath"
                                     :entry="entry"
-                                    :key="entry.id || entry.path"
+                                    :key="entry.id || entryPath"
                                     :displayIcon="false">
                 </sw-admin-menu-item>
             </ul>

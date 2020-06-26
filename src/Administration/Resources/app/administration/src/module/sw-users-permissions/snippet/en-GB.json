@@ -36,6 +36,9 @@
         "labelDescription": "Description",
         "permissions": "Permissions"
       },
+      "grid": {
+        "title": "Permissions"
+      },
       "additional-permissions": {
         "title": "Additional permissions"
       }
@@ -141,12 +144,20 @@
             "title": "Success",
             "message": "User \"{name}\" has been saved."
           },
-          "notificationInvalidEmailErrorMessage": "Please enter a valid email address."
+          "notificationInvalidEmailErrorMessage": "Please enter a valid email address.",
+          "duplicateEmailErrorMessage": "This email address has been registered already."
         }
       }
     }
   },
   "sw-privileges": {
+    "roles": {
+      "all": "All",
+      "viewer": "View",
+      "editor": "Edit",
+      "creator": "Create",
+      "deleter": "Delete"
+    },
     "additional_permissions": {
       "system": {
         "label": "System"

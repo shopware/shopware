@@ -870,5 +870,10 @@
     "title": "Währungen pflegen",
     "columnPrice": "Preise (Brutto / Netto)",
     "columnListPriceHeader": "Streichpreise (Brutto / Netto)"
+  },
+  "sw-privileges": {
+    "tooltip": {
+      "warning": "Du hast nicht die erforderlichen Berechtigungen."
+    }
   }
 }

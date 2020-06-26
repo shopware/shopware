@@ -869,5 +869,10 @@
     "title": "Currency dependent pricing",
     "columnPrice": "Prices (gross / net)",
     "columnListPriceHeader": "List prices (gross / net)"
+  },
+  "sw-privileges": {
+    "tooltip": {
+      "warning": "You have insufficient permissions."
+    }
   }
 }

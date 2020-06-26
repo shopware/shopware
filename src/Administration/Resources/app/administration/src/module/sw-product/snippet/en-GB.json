@@ -334,5 +334,12 @@
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
       "assignPlaceholder": "Search products..."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product": {
+        "label": "Products"
+      }
+    }
   }
 }

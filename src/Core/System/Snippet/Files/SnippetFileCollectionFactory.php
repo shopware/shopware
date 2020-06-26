@@ -5,6 +5,8 @@ namespace Shopware\Core\System\Snippet\Files;
 class SnippetFileCollectionFactory
 {
     /**
+     * @deprecated tag:v6.4 not necessary anymore, snippets files will be loaded by snippetFileLoader
+     *
      * @var iterable|SnippetFileInterface[]
      */
     private $snippetFiles;

@@ -140,7 +140,7 @@ If you need more freedom in configuring your snippets read on.
 
 #### SnippetFile
 
-*Attention: since this Shopware 6.2.3 this is not necessary anymore, but can still be used if you need to configure the loading of your snippets more granuarly.*
+*Attention: since Shopware 6.2.3 this is not necessary anymore and it will be removed in Shopware 6.4.*
 
 Injecting snippets to the storefront is not a big deal at all, but unlike the snippets used across the administration,
 storefront snippets additionally require a class that extends the `SnippetFileInterface`. A suitable name would e.g. be

@@ -25,6 +25,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed `\Shopware\Core\System\SalesChannel\Api\StructEncoder` to work correctly with aggregations
     * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
     * Simplified storefront snippet file loading, PHP classes for snippet files aren't necessary anymore.
+    * Deprecated the `\Shopware\Core\System\Snippet\Files\SnippetFileInterface` interface, as it is not necessary anymore
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

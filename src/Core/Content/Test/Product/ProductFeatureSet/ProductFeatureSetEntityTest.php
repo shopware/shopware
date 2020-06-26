@@ -83,6 +83,16 @@ class ProductFeatureSetEntityTest extends TestCase
         static::assertInstanceOf(EntityRepositoryInterface::class, $this->getContainer()->get('product_feature_set.repository'));
     }
 
+    public function testTranslationReferenceFieldIsCorrect(): void
+    {
+        $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);
+
+        static::assertEquals(
+            sprintf('%s_id', ProductFeatureSetDefinition::ENTITY_NAME),
+            $definition->getField('translations')->getReferenceField()
+        );
+    }
+
     public function definitionMethodProvider(): array
     {
         return [

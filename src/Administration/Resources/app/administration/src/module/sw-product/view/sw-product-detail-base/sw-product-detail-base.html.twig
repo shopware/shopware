@@ -247,5 +247,16 @@
                 </sw-empty-state>
             </sw-card>
         {% endblock %}
+
+        {% block sw_product_detail_base_feature_set_card %}
+            <sw-card :title="$tc('sw-product.featureSets.cardTitle')"
+                     :isLoading="loading.product"
+                     v-if="next6997">
+                {% block sw_product_detail_base_feature_set_form %}
+                    <sw-product-feature-set-form></sw-product-feature-set-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
     </div>
 {% endblock %}

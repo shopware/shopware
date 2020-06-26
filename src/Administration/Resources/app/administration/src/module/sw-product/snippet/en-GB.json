@@ -333,6 +333,15 @@
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
       "assignPlaceholder": "Search products..."
+    },
+    "featureSets": {
+      "cardTitle": "Essential Characteristics",
+      "descriptionTitle": "Essential Characteristics",
+      "descriptionBody": "Essential Characteristics help you to define what is important about your products. These characteristics are shown prominently in your customers' shopping carts and during checkout.",
+      "configInformation": "Create {0} templates first and assign them to each of your products by using the dropdown below.",
+      "linkFeatureSetsConfig": "Essential Characteristics",
+      "templateSelectFieldLabel": "Template",
+      "templateSelectFieldPlaceholder": "Choose one or more templates..."
     }
   },
   "sw-privileges": {

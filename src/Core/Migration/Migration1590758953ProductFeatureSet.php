@@ -5,11 +5,14 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1590758953ProductFeatureSet extends MigrationStep
 {
+    use InheritanceUpdaterTrait;
+
     public const TRANSLATIONS = [
         'en-GB' => [
             'name' => 'Default',
@@ -31,6 +34,7 @@ class Migration1590758953ProductFeatureSet extends MigrationStep
         $defaultFeatureSetId = Uuid::randomBytes();
 
         $this->createTables($connection);
+        $this->updateInheritance($connection, 'product', 'featureSets');
 
         $this->insertDefaultFeatureSet($connection, $defaultFeatureSetId);
         $this->insertDefaultFeatureSetTranslations($connection, $defaultFeatureSetId);
@@ -70,11 +74,12 @@ CREATE TABLE IF NOT EXISTS `product_feature_set_translation` (
 CREATE TABLE IF NOT EXISTS `product_feature` (
     `product_feature_set_id` BINARY(16) NOT NULL,
     `product_id`             BINARY(16) NOT NULL,
-    PRIMARY KEY (`product_feature_set_id`, `product_id`),
+    `product_version_id`     BINARY(16) NOT NULL,
+    PRIMARY KEY (`product_feature_set_id`, `product_id`, `product_version_id`),
     CONSTRAINT `fk.product_feature.product_feature_set_id` FOREIGN KEY (`product_feature_set_id`)
         REFERENCES `product_feature_set` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk.product_feature.product_id` FOREIGN KEY (`product_id`)
-        REFERENCES `product` (`id`) ON DELETE CASCADE
+    CONSTRAINT `fk.product_feature.product_id` FOREIGN KEY (`product_id`, `product_version_id`)
+        REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
@@ -128,8 +133,8 @@ SQL;
     private function assignDefaultFeatureSet(Connection $connection, string $featureSetId): void
     {
         $sql = <<<'SQL'
-INSERT INTO `product_feature` (`product_feature_set_id`, `product_id`)
-SELECT :feature_set_id, id
+INSERT INTO `product_feature` (`product_feature_set_id`, `product_id`, `product_version_id`)
+SELECT :feature_set_id, `id`, `version_id`
 FROM `product`;
 SQL;
 
@@ -146,9 +151,11 @@ SQL;
         return [
             'id' => $featureSetId,
             'features' => json_encode([
-                'type' => 'product',
-                'id' => 'referencePrice',
-                'position' => 1,
+                [
+                    'type' => 'product',
+                    'id' => 'referencePrice',
+                    'position' => 1,
+                ],
             ]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];

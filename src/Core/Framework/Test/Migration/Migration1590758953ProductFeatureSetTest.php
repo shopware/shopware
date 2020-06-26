@@ -38,8 +38,13 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
      */
     public function initialise(): void
     {
+        /* @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $migration = new Migration1590758953ProductFeatureSet();
+
+        if ($this->hasFeatureSetsColumn($connection, 'product')) {
+            $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `featureSets`;');
+        }
 
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_feature`;');
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_feature_set_translation`;');
@@ -63,20 +68,25 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
 
     public function testDefaultFeatureSetIsCreated(): void
     {
-        $expected = [
-            'features' => [
-                'type' => 'product',
-                'id' => 'referencePrice',
-                'position' => 1,
-            ],
+        $expectedFeature = [
+            'type' => 'product',
+            'id' => 'referencePrice',
+            'position' => 1,
         ];
+        $expectedFeatures = [$expectedFeature];
+
         $actual = $this->fetchFeatureSet();
         $actualFeatures = json_decode($actual['features'], true);
 
-        static::assertCount(3, $actualFeatures);
-        static::assertEquals($expected['features']['type'], $actualFeatures['type']);
-        static::assertEquals($expected['features']['id'], $actualFeatures['id']);
-        static::assertEquals($expected['features']['position'], $actualFeatures['position']);
+        static::assertCount(count($expectedFeatures), $actualFeatures);
+
+        $actualFeature = array_pop($actualFeatures);
+
+        static::assertCount(count($expectedFeature), $actualFeature);
+
+        static::assertEquals($expectedFeature['type'], $actualFeature['type']);
+        static::assertEquals($expectedFeature['id'], $actualFeature['id']);
+        static::assertEquals($expectedFeature['position'], $actualFeature['position']);
     }
 
     public function tableInformationProvider(): array
@@ -107,6 +117,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
                 [
                     self::getColumn('product_feature_set_id', new BinaryType(), true),
                     self::getColumn('product_id', new BinaryType(), true),
+                    self::getColumn('product_version_id', new BinaryType(), true),
                 ],
             ],
         ];
@@ -156,5 +167,15 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         return $this->connection->fetchAssoc(
             'SELECT * FROM `product_feature_set` ORDER BY `created_at` ASC LIMIT 1;'
         );
+    }
+
+    private function hasFeatureSetsColumn(Connection $connection, string $table): bool
+    {
+        return count(array_filter(
+            $connection->getSchemaManager()->listTableColumns($table),
+            static function (Column $column): bool {
+                return $column->getName() === 'featureSets';
+            }
+        )) > 0;
     }
 }

@@ -75,7 +75,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         if ($context->getCustomer()) {
-            $response->headers->setCookie(Cookie::create(self::CONTEXT_CACHE_COOKIE, $this->buildCacheHash($context)));
+            $cookie = Cookie::create(self::CONTEXT_CACHE_COOKIE, $this->buildCacheHash($context));
+            $cookie->setSecureDefault($request->isSecure());
+
+            $response->headers->setCookie($cookie);
         } else {
             $response->headers->removeCookie(self::CONTEXT_CACHE_COOKIE);
             $response->headers->clearCookie(self::CONTEXT_CACHE_COOKIE);
@@ -141,9 +144,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return [];
         }
 
-        $response->headers->setCookie(
-            Cookie::create(self::SYSTEM_STATE_COOKIE, implode(',', $states))
-        );
+        $cookie = Cookie::create(self::SYSTEM_STATE_COOKIE, implode(',', $states));
+        $cookie->setSecureDefault($request->isSecure());
+
+        $response->headers->setCookie($cookie);
 
         return $states;
     }
@@ -184,6 +188,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $response->headers->setCookie(Cookie::create(self::CURRENCY_COOKIE, $currencyId));
+        $cookie = Cookie::create(self::CURRENCY_COOKIE, $currencyId);
+        $cookie->setSecureDefault($request->isSecure());
+
+        $response->headers->setCookie($cookie);
     }
 }

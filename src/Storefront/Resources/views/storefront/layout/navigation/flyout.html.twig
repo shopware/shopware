@@ -48,7 +48,8 @@
                         {% block layout_navigation_flyout_categories_recoursion %}
                             {% sw_include '@Storefront/storefront/layout/navigation/categories.html.twig' with {
                                 navigationTree: navigationTree.children,
-                                navigationMedia: category.media
+                                navigationMedia: category.media,
+                                page: page
                             } only %}
                         {% endblock %}
                     </div>

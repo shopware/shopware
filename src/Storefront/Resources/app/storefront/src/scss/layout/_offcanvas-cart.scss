@@ -114,4 +114,8 @@ Extends the basic offcanvas component with additional cart styles.
             margin: 0 !important;
         }
     }
+
+    .summary-value, .shipping-value {
+        text-align: right;
+    }
 }

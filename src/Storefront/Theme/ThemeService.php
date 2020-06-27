@@ -364,7 +364,7 @@ class ThemeService
                 throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
             }
 
-            return $pluginConfig;
+            return clone $pluginConfig;
         }
         $pluginConfig = null;
         if ($theme->getTechnicalName() !== null) {
@@ -382,11 +382,13 @@ class ThemeService
                 $parentTheme = false;
                 $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
             }
+
             if (!$pluginConfig) {
                 throw new InvalidThemeException($parentTheme ? $parentTheme->getTechnicalName() : StorefrontPluginRegistry::BASE_THEME_NAME);
             }
         }
 
+        $pluginConfig = clone $pluginConfig;
         $pluginConfig->setThemeConfig($this->getThemeConfiguration($theme->getId(), $translate, $context));
 
         return $pluginConfig;

@@ -408,3 +408,7 @@ Table of contents
 * We fixed a bug where inherited themes were not detected correctly from `ThemeNamespaceHierarchyBuilder`
 * Introduced new SCSS variable `$order-grid-gutter-width` with the value of `20px`.	
 * In the `RouteRequestEvent` classes the criteria object was added to extend route DAL query. Adjustments to the request payload to extend the query are no longer necessary.
+* Fixed filter dropdown are cut off, added `data-boundary="viewport"` into the button `filter-panel-item-toggle`
+    * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-multi-select.html.twig`
+    * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-range.html.twig`
+    * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-rating.html.twig`

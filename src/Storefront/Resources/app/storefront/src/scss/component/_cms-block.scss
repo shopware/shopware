@@ -137,4 +137,15 @@ specific styling for elements dependent on their parent block
 
 .cms-block-sidebar-filter {
     overflow: visible;
+
+    /*
+    The filter's col is set to "initial" because the "boundary" option
+    of the filter panel bootstrap dropdown is not working otherwise.
+    The "boundary" option sets the dropdown container to "static" to
+    be able to "break out" of "overflow: hidden". But this interferes
+    with position "relative" on surrounding columns.
+    */
+    .col-12 {
+        position: initial;
+    }
 }

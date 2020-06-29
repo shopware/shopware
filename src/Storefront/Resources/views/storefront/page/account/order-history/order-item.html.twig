@@ -54,20 +54,20 @@
 
                 <div class="row flex-wrap">
                     {% block page_account_order_item_heading %}
-                        <h2 class="col order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h2>
+                        <h3 class="col order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
                     {% endblock %}
 
                     {% block page_account_order_item_status_col %}
-                        <div class="col">
+                        <div class="col-12 col-sm">
                             {% block page_account_order_item_status %}
-                                <span class="order-table-header-order-status">
+                                <h5 class="order-table-header-order-status">
                                     {{ "account.orderStatus"|trans|sw_sanitize }}
                                     {% if order.transactions.last.stateMachineState.technicalName == 'failed' or order.transactions.last.stateMachineState.technicalName == 'reminded' %}
                                         {{ "account.orderStatusActionRequired"|trans|sw_sanitize }}
                                         {% else %}
                                         {{ order.stateMachineState.translated.name }}
                                     {% endif %}
-                                </span>
+                                </h5>
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -184,10 +184,10 @@
                     {% endblock %}
 
                     {% block page_account_order_item_order_number_col %}
-                        <div class="col-12">
-
+                        <div class="col-12 order-table-header-order-number">
                             {% block page_account_order_item_order_number %}
-                                <span class="order-table-header-order-number">{{ "account.orderNumber"|trans|sw_sanitize }} {{ order.orderNumber|sw_sanitize }}</span>
+                                <strong class="order-table-header-label">{{ "account.orderNumber"|trans|sw_sanitize }}</strong>
+                                <span class="order-table-body-value">{{ order.orderNumber|sw_sanitize }}</span>
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -199,23 +199,23 @@
                             <div class="col-12 row order-table-header-order-table-header">
 
                                 {% block page_account_order_item_order_table_header_cell_shipping_status %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_payment_status %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderPaymentStatus"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderPaymentStatus"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_payment_method %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderPaymentMethod"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderPaymentMethod"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_shipping_method %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_placeholder %}
-                                    <div class="col-3 order-table-header-order-table-header-cell"></div>
+                                    <div class="col-2 order-table-header-order-table-header-cell"></div>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -226,23 +226,43 @@
                             <div class="col-12 row order-table-header-order-table-body">
 
                                 {% block page_account_order_item_order_table_body_cell_shipping_status %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.deliveries|first.stateMachineState.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderShippingStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_payment_status %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.transactions|last.stateMachineState.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderPaymentStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_payment_method %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.transactions|last.paymentMethod.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderPaymentMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_shipping_method %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.deliveries|first.shippingMethod.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderShippingMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_toggle_order_details %}
-                                    <div class="col-3 order-item order-item-actions order-table-header-order-table-body-cell">
+                                    <div class="col-12 col-sm-2 order-item order-item-actions order-table-header-order-table-body-cell">
 
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
                                             <button class="btn btn-light btn-sm order-hide-btn collapsed"

@@ -258,7 +258,8 @@
     "newsletterSettings": "Ja, ich möchte regelmäßig den kostenlosen Newsletter von %shopname% erhalten! Ich weiß, dass ich mich hier jederzeit wieder von dem Newsletter abmelden kann.",
     "passwordResetTitle": "Haben Sie Ihr Passwort vergessen?",
     "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
-    "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern."
+    "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
+    "colonCharacter": ":"
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",

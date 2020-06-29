@@ -13,7 +13,7 @@ Cypress.Commands.add('typeAndCheckSearchField', {
     // Request we want to wait for later
     cy.server();
     cy.route({
-        url: '/api/**/search/**',
+        url: `${Cypress.env('apiPath')}/search/**`,
         method: 'post'
     }).as('searchResultCall');
 
@@ -24,4 +24,23 @@ Cypress.Commands.add('typeAndCheckSearchField', {
 
         cy.url().should('include', encodeURI(value));
     });
+});
+
+/**
+ * Cleans up any previous state by restoring database and clearing caches
+ * @memberOf Cypress.Chainable#
+ * @name openInitialPage
+ * @function
+ */
+Cypress.Commands.add('openInitialPage', (url) => {
+    // Request we want to wait for later
+    cy.server();
+    cy.route(`${Cypress.env('apiPath')}/_info/me`).as('meCall');
+
+
+    cy.visit(url);
+    cy.wait('@meCall').then((xhr) => {
+        expect(xhr).to.have.property('status', 200);
+    });
+    cy.get('.sw-desktop').should('be.visible');
 });

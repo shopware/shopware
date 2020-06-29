@@ -15,7 +15,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to user module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/user',
+            url: `${Cypress.env('apiPath')}/search/user`,
             method: 'post'
         }).as('getData');
 
@@ -34,7 +34,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to shopware account module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/_action/system-config/schema?domain=core.store',
+            url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.store`,
             method: 'get'
         }).as('getData');
 

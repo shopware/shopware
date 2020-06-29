@@ -19,7 +19,7 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/_action/media/**/upload?extension=png&fileName=sw-login-background',
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'post'
         }).as('saveData');
 
@@ -49,7 +49,7 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/media/*',
+            url: `${Cypress.env('apiPath')}/media/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -83,7 +83,7 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/media/*',
+            url: `${Cypress.env('apiPath')}/media/*`,
             method: 'delete'
         }).as('deleteData');
 

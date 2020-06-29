@@ -5,11 +5,6 @@ const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-// const CALCULATION_TYPE_QUANTITY = 1;
-// const CALCULATION_TYPE_PRICE = 2;
-// const CALCULATION_TYPE_WEIGHT = 3;
-// const CALCULATION_TYPE_VOLUME = 4;
-
 Component.register('sw-settings-shipping-price-matrix', {
     template,
 
@@ -251,6 +246,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
             newShippingPrice.calculation = refPrice.calculation;
 
+            // If the calculation type is "quantity" always increase by one, otherwise add decimal places
             if (this.priceGroup.calculation === 1) {
                 newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
             } else {
@@ -267,20 +263,22 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         increaseWithDecimalPlaces(value) {
+            const decimalPrecision = 2;
+
             // Value has no decimal place
             if (value % 1 === 0) {
-                return value + 0.1;
+                return Number((value + 0.1).toFixed(decimalPrecision));
             }
 
             if (this.countDecimalPlaces(value) === 1) {
-                return value + 0.1;
+                return Number((value + 0.1).toFixed(decimalPrecision));
             }
 
             if (this.countDecimalPlaces(value) === 2) {
-                return value + 0.01;
+                return Number((value + 0.01).toFixed(decimalPrecision));
             }
 
-            return value + 1;
+            return Number((value + 1).toFixed(decimalPrecision));
         },
 
         onSaveMainRule(ruleId) {

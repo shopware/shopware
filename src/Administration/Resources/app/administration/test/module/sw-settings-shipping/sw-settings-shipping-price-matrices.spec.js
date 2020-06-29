@@ -309,6 +309,67 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowTwoQuantityEnd.element.value).toEqual('');
     });
 
+    it('should show all rules with weight and decimal places', () => {
+        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+            id: '12345',
+            prices: [
+                {
+                    id: 'a1',
+                    ruleId: '2',
+                    quantityStart: 0,
+                    quantityEnd: 2.5,
+                    shippingMethodId: 123,
+                    calculationRule: 987,
+                    calculation: 3,
+                    currencyPrice: [
+                        {
+                            currencyId: '1',
+                            gross: 50,
+                            net: 25,
+                            linked: false
+                        }
+                    ]
+                },
+                {
+                    id: 'b2',
+                    ruleId: '2',
+                    quantityStart: 2.6,
+                    quantityEnd: null,
+                    shippingMethodId: 345,
+                    calculationRule: 876,
+                    calculation: 3,
+                    currencyPrice: [
+                        {
+                            currencyId: '1',
+                            gross: 40,
+                            net: 20,
+                            linked: false
+                        }
+                    ]
+                }
+            ]
+        });
+
+        const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
+
+        // add remove method to array
+        shippingMethod.prices.remove = (id) => {
+            shippingMethod.prices = shippingMethod.prices.filter(price => price.id !== id);
+        };
+
+        const wrapper = createWrapper();
+
+        const rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
+        const rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
+        const rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
+        const rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
+
+        expect(rowOneQuantityStart.element.value).toEqual('0');
+        expect(rowOneQuantityEnd.element.value).toEqual('2.5');
+        expect(rowTwoQuantityStart.element.value).toEqual('2.6');
+        expect(rowTwoQuantityEnd.element.value).toEqual('');
+    });
+
     it('all rules should have the right min and max values', () => {
         const wrapper = createWrapper();
 
@@ -317,13 +378,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         const rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.attributes().min).toEqual('1');
+        expect(rowOneQuantityStart.attributes().min).toEqual(undefined);
         expect(rowOneQuantityStart.attributes().max).toEqual('20');
 
         expect(rowOneQuantityEnd.attributes().min).toEqual('1');
-        expect(rowOneQuantityEnd.attributes().max).toEqual('20');
+        expect(rowOneQuantityEnd.attributes().max).toEqual(undefined);
 
-        expect(rowTwoQuantityStart.attributes().min).toEqual('21');
+        expect(rowTwoQuantityStart.attributes().min).toEqual(undefined);
         expect(rowTwoQuantityStart.attributes().max).toEqual(undefined);
 
         expect(rowTwoQuantityEnd.attributes().min).toEqual('21');
@@ -389,8 +450,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
-        rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
-        rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
+        rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1');
+        rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1');
 
         expect(rowOneQuantityStart.element.value).toEqual('1');
         expect(rowOneQuantityEnd.element.value).toEqual('');
@@ -500,8 +561,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
         rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
-        rowThreeQuantityStart = wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--quantityStart input');
-        rowThreeQuantityEnd = wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--quantityEnd input');
+        rowThreeQuantityStart = wrapper.find('.sw-data-grid__row--2');
+        rowThreeQuantityEnd = wrapper.find('.sw-data-grid__row--2');
 
         expect(rowOneQuantityStart.element.value).toEqual('1');
         expect(rowOneQuantityEnd.element.value).toEqual('20');

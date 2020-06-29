@@ -13,6 +13,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
 * Administration
     * Fixed active state in the flyout navigation
+    * Fixed `sw-modal` styles for `variant="full"` to stay at fullpage size
     * Custom fields assigned to a category entity can now also be configured in categories of type "link"
 
 * Core

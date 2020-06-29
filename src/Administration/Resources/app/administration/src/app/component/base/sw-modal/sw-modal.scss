@@ -69,9 +69,12 @@ $sw-modal-transition-timing-function: cubic-bezier(.68, -0.55, .26, 1.55);
         }
     }
 
-    &.sw-modal--full .sw-modal__dialog {
-        max-width: 100%;
-        margin: 20px;
+    &.sw-modal--full {
+        .sw-modal__dialog {
+            max-width: 100%;
+            margin: 20px;
+            height: calc(100vh - #{$sw-modal-gap});
+        }
     }
 
     .sw-modal__header {

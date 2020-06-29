@@ -250,7 +250,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             if (this.priceGroup.calculation === 1) {
                 newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
             } else {
-                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd);
+                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd, 3);
             }
 
             newShippingPrice.quantityEnd = null;
@@ -262,9 +262,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             return value.toString().split('.')[1].length;
         },
 
-        increaseWithDecimalPlaces(value) {
-            const decimalPrecision = 2;
-
+        increaseWithDecimalPlaces(value, decimalPrecision) {
             // Value has no decimal place
             if (value % 1 === 0) {
                 return Number((value + 0.1).toFixed(decimalPrecision));
@@ -276,6 +274,10 @@ Component.register('sw-settings-shipping-price-matrix', {
 
             if (this.countDecimalPlaces(value) === 2) {
                 return Number((value + 0.01).toFixed(decimalPrecision));
+            }
+
+            if (this.countDecimalPlaces(value) === 3) {
+                return Number((value + 0.001).toFixed(decimalPrecision));
             }
 
             return Number((value + 1).toFixed(decimalPrecision));

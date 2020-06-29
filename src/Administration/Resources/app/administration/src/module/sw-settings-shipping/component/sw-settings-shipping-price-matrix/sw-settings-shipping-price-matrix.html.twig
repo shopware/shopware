@@ -146,6 +146,7 @@
                             :numberType="numberFieldType"
                             :size="compact ? 'small' : 'default'"
                             :max="item.quantityEnd ? item.quantityEnd : null"
+                            :digits="3"
                             v-model="item.quantityStart">
                         </sw-number-field>
                     </template>
@@ -159,6 +160,7 @@
                             :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
                             :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                             :min="item.quantityStart"
+                            :digits="3"
                             @change="onQuantityEndChange(item)"
                             v-model="item.quantityEnd">
                         </sw-number-field>

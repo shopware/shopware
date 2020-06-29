@@ -64,11 +64,7 @@ class ImportExportLogApiTest extends TestCase
         foreach ($data as $entry) {
             $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
-            static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-            $content = json_decode($response->getContent());
-            $firstError = array_shift($content->errors);
-            static::assertEquals($firstError->code, 'CONTENT__IMPORT_EXPORT_LOG_NOT_WRITABLE');
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
     }
 
@@ -127,11 +123,7 @@ class ImportExportLogApiTest extends TestCase
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-            $content = json_decode($response->getContent());
-            $firstError = array_shift($content->errors);
-            static::assertEquals($firstError->code, 'CONTENT__IMPORT_EXPORT_LOG_NOT_WRITABLE');
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
 
         $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
@@ -233,7 +225,7 @@ class ImportExportLogApiTest extends TestCase
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
         static::assertEquals($num, count($records));
@@ -242,7 +234,7 @@ class ImportExportLogApiTest extends TestCase
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
         static::assertEquals($num, count($records));

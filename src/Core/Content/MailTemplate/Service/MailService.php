@@ -208,10 +208,8 @@ class MailService implements MailServiceInterface
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
-     *
-     * @deprecated tag:v6.3.0 will be private in 6.3.0
      */
-    public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
+    private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [

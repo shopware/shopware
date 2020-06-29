@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -152,7 +154,23 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->uninstallPlugin($migrationPlugin, $this->context);
-        $this->assertMigrationState($migrationCollection, 0);
+        $this->assertMigrationCount($migrationCollection, 4);
+    }
+
+    private function assertMigrationCount(MigrationCollection $migrationCollection, int $expectedCount): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        /** @var MigrationSource $migrationSource */
+        $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
+
+        $dbMigrations = $connection
+            ->fetchAll(
+                'SELECT * FROM `migration` WHERE `class` REGEXP :pattern ORDER BY `creation_timestamp`',
+                ['pattern' => $migrationSource->getNamespacePattern()]
+            );
+
+        TestCase::assertCount($expectedCount, $dbMigrations);
     }
 
     private function createPluginLifecycleService(): PluginLifecycleService

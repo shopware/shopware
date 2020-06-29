@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,7 +25,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ContactFormRoute extends AbstractContactFormRoute
 {
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $contactFormValidationFactory;
 
@@ -50,11 +49,8 @@ class ContactFormRoute extends AbstractContactFormRoute
      */
     private $cmsSlotRepository;
 
-    /**
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $contactFormValidationFactory
-     */
     public function __construct(
-        $contactFormValidationFactory,
+        DataValidationFactoryInterface $contactFormValidationFactory,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
@@ -137,11 +133,7 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     private function validateContactForm(DataBag $data, SalesChannelContext $context): void
     {
-        if ($this->contactFormValidationFactory instanceof DataValidationFactoryInterface) {
-            $definition = $this->contactFormValidationFactory->create($context);
-        } else {
-            $definition = $this->contactFormValidationFactory->buildCreateValidation($context->getContext());
-        }
+        $definition = $this->contactFormValidationFactory->create($context);
         $violations = $this->validator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {

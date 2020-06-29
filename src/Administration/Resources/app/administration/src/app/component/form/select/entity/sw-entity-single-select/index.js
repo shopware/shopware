@@ -61,16 +61,6 @@ Component.register('sw-entity-single-select', {
                 return Shopware.Context.api;
             }
         },
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return { active: false };
-            }
-        },
 
         disableAutoClose: {
             type: Boolean,
@@ -294,8 +284,6 @@ Component.register('sw-entity-single-select', {
             // This is a little against v-model. But so we dont need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-            this.$emit('input', item.id, item);
             this.$emit('change', item.id, item);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);
@@ -303,8 +291,6 @@ Component.register('sw-entity-single-select', {
 
         clearSelection() {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
-            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-            this.$emit('input', null);
             this.$emit('change', null);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), null);

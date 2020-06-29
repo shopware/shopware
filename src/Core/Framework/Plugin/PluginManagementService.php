@@ -73,10 +73,7 @@ class PluginManagementService
         $this->cacheClearer->clearContainerCache();
     }
 
-    /**
-     * @deprecated tag:v6.3.0 - Parameter `$context` will be required
-     */
-    public function uploadPlugin(UploadedFile $file/*, Context $context*/): void
+    public function uploadPlugin(UploadedFile $file, Context $context): void
     {
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
         $tempDirectory = \dirname(realpath($tempFileName));
@@ -85,10 +82,7 @@ class PluginManagementService
 
         $this->extractPluginZip($tempFile->getPathname());
 
-        $context = \func_num_args() > 1 ? func_get_arg(1) : null;
-        if ($context instanceof Context) {
-            $this->pluginService->refreshPlugins($context, new NullIO());
-        }
+        $this->pluginService->refreshPlugins($context, new NullIO());
     }
 
     public function downloadStorePlugin(string $location, Context $context): int
@@ -108,17 +102,11 @@ class PluginManagementService
         return $statusCode;
     }
 
-    /**
-     * @deprecated tag:v6.3.0 - Parameter `$context` will be required
-     */
-    public function deletePlugin(PluginEntity $plugin/*, Context $context*/): void
+    public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
         $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
 
-        $context = \func_num_args() > 1 ? func_get_arg(1) : null;
-        if ($context instanceof Context) {
-            $this->pluginService->refreshPlugins($context, new NullIO());
-        }
+        $this->pluginService->refreshPlugins($context, new NullIO());
     }
 }

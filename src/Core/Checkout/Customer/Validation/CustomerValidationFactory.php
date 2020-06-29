@@ -2,11 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
-use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
@@ -14,53 +11,20 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @ReplaceDecoratedInterface(
- *     deprecatedInterface="ValidationServiceInterface",
- *     replacedBy="DataValidationFactoryInterface"
- * )
  * @Decoratable
  */
-class CustomerValidationFactory implements ValidationServiceInterface, DataValidationFactoryInterface
+class CustomerValidationFactory implements DataValidationFactoryInterface
 {
     /**
      * @todo seems to be the usecase for the shopware api - import or so. maybe rename to CustomerImportValidationService
      *
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $profileValidation;
 
-    /**
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $profileValidation
-     */
-    public function __construct($profileValidation)
+    public function __construct(DataValidationFactoryInterface $profileValidation)
     {
         $this->profileValidation = $profileValidation;
-    }
-
-    public function buildCreateValidation(Context $context): DataValidationDefinition
-    {
-        $definition = new DataValidationDefinition('customer.create');
-
-        $this->addConstraints($definition);
-
-        $profileDefinition = $this->profileValidation->buildCreateValidation($context);
-
-        $this->merge($definition, $profileDefinition);
-
-        return $definition;
-    }
-
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
-    {
-        $definition = new DataValidationDefinition('customer.update');
-
-        $profileDefinition = $this->profileValidation->buildUpdateValidation($context);
-
-        $this->merge($definition, $profileDefinition);
-
-        $this->addConstraints($definition);
-
-        return $definition;
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition

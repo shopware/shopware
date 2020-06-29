@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer as AbstractEntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -158,40 +157,8 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return $this->iterate($offset);
     }
 
-    /**
-     * @deprecated tag:v6.3.0 - Each entity has to handle the update process by itself
-     */
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        if (!$this->helper->allowIndexing()) {
-            return null;
-        }
-
-        /** @var EntityWrittenEvent $written */
-        foreach ($event->getEvents() as $written) {
-            $definition = $this->entityRegistry->getByEntityName($written->getEntityName());
-
-            if (!$this->helper->isSupported($definition)) {
-                continue;
-            }
-
-            $esDefinition = $this->registry->get($written->getEntityName());
-
-            // @deprecated tag:v6.3.0 - Whole if condition will be removed, entities without elastic search definition are not supported
-            if (!$esDefinition) {
-                $this->sendIndexingMessages($definition, $written->getIds());
-
-                continue;
-            }
-
-            // @deprecated tag:v6.3.0 - While if condition will be removed, each entity has to handle the update process by itself
-            if ($esDefinition->hasNewIndexerPattern()) {
-                continue;
-            }
-
-            $this->sendIndexingMessages($definition, $written->getIds());
-        }
-
         return null;
     }
 

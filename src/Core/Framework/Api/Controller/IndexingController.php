@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,11 +15,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class IndexingController extends AbstractController
 {
     /**
-     * @var IndexerRegistryInterface
+     * @var EntityIndexerRegistry
      */
     private $registry;
 
-    public function __construct(IndexerRegistryInterface $registry)
+    public function __construct(EntityIndexerRegistry $registry)
     {
         $this->registry = $registry;
     }
@@ -32,22 +31,8 @@ class IndexingController extends AbstractController
      */
     public function indexing(Request $request): JsonResponse
     {
-        $lastIndexer = $request->get('lastIndexer');
-        $offset = $request->get('offset');
-        $time = $request->get('timestamp');
+        $this->registry->sendIndexingMessage();
 
-        $time = $time ? new \DateTime($time) : new \DateTime();
-
-        $result = $this->registry->partial($lastIndexer, $offset, $time);
-
-        if (!$result) {
-            return new JsonResponse(['done' => true]);
-        }
-
-        return new JsonResponse([
-            'lastIndexer' => $result->getIndexer(),
-            'offset' => $result->getOffset(),
-            'timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        return new JsonResponse();
     }
 }

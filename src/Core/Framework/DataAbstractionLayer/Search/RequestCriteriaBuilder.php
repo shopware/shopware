@@ -86,10 +86,6 @@ class RequestCriteriaBuilder
             $array['includes'] = $criteria->getIncludes();
         }
 
-        if ($criteria->getSource()) {
-            $array['source'] = $criteria->getSource();
-        }
-
         if (count($criteria->getIds())) {
             $array['ids'] = $criteria->getIds();
         }
@@ -176,8 +172,6 @@ class RequestCriteriaBuilder
 
         if (isset($payload['includes'])) {
             $criteria->setIncludes($payload['includes']);
-        } elseif (isset($payload['source'])) {
-            $criteria->setSource($payload['source']);
         }
 
         if (isset($payload['filter'])) {

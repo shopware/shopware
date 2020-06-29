@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Elasticsearch\Exception\NoIndexedDocumentsException;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
+use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
 class ElasticsearchHelper
@@ -195,41 +196,21 @@ class ElasticsearchHelper
         $search->addPostFilter($query, BoolQuery::FILTER);
     }
 
-    public function addTerm(Criteria $criteria, Search $search, Context $context, ?EntityDefinition $definition = null): void
+    public function addTerm(Criteria $criteria, Search $search, Context $context, EntityDefinition $definition): void
     {
         if (!$criteria->getTerm()) {
             return;
         }
 
-        if ($definition && $esDefinition = $this->registry->get($definition->getEntityName())) {
-            $query = $esDefinition->buildTermQuery($context, $criteria);
+        $esDefinition = $this->registry->get($definition->getEntityName());
 
-            $search->addQuery($query);
-
-            return;
+        if (!$esDefinition) {
+            throw new UnsupportedElasticsearchDefinitionException($definition->getEntityName());
         }
 
-        // @deprecated tag:v6.3.0 - definition will be required
-        $bool = new BoolQuery();
+        $query = $esDefinition->buildTermQuery($context, $criteria);
 
-        $bool->add(
-            new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 2]),
-            BoolQuery::SHOULD
-        );
-
-        $bool->add(
-            new MatchQuery('fullTextBoosted', $criteria->getTerm(), ['boost' => 5]),
-            BoolQuery::SHOULD
-        );
-
-        $bool->add(
-            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto']),
-            BoolQuery::SHOULD
-        );
-
-        $bool->addParameter('minimum_should_match', 1);
-
-        $search->addQuery($bool);
+        $search->addQuery($query);
     }
 
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void

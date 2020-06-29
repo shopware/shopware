@@ -104,16 +104,6 @@ class ProductDefinition extends EntityDefinition
         ];
     }
 
-    public function isChildCountAware(): bool
-    {
-        return false;
-    }
-
-    public function hasManyToManyIdFields(): bool
-    {
-        return false;
-    }
-
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([

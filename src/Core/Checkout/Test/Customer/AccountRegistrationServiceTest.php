@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;

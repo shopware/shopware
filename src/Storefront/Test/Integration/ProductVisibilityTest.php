@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
-use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -84,11 +83,6 @@ class ProductVisibilityTest extends TestCase
      */
     private $categoryId;
 
-    /**
-     * @var ProductListingGateway
-     */
-    private $listGateway;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -96,7 +90,6 @@ class ProductVisibilityTest extends TestCase
         $this->searchPageLoader = $this->getContainer()->get(SearchPageLoader::class);
         $this->suggestPageLoader = $this->getContainer()->get(SuggestPageLoader::class);
         $this->productPageLoader = $this->getContainer()->get(ProductPageLoader::class);
-        $this->listGateway = $this->getContainer()->get(ProductListingGateway::class);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -111,14 +104,18 @@ class ProductVisibilityTest extends TestCase
         $request = new Request();
         $request->attributes->set('_route_params', ['navigationId' => $this->categoryId]);
 
-        $data = $this->listGateway->search($request, $salesChannelContext);
+        $data = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $salesChannelContext)->getResult();
 
         static::assertSame(1, $data->getTotal());
         static::assertTrue($data->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
 
-        $data = $this->listGateway->search($request, $salesChannelContext);
+        $data = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $salesChannelContext)->getResult();
 
         static::assertSame(1, $data->getTotal());
         static::assertTrue($data->has($this->productId1));
@@ -132,16 +129,16 @@ class ProductVisibilityTest extends TestCase
 
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getSearchResult());
-        static::assertTrue($page->getSearchResult()->has($this->productId2));
-        static::assertTrue($page->getSearchResult()->has($this->productId3));
+        static::assertCount(2, $page->getListing());
+        static::assertTrue($page->getListing()->has($this->productId2));
+        static::assertTrue($page->getListing()->has($this->productId3));
 
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getSearchResult());
-        static::assertTrue($page->getSearchResult()->has($this->productId1));
-        static::assertTrue($page->getSearchResult()->has($this->productId2));
+        static::assertCount(2, $page->getListing());
+        static::assertTrue($page->getListing()->has($this->productId1));
+        static::assertTrue($page->getListing()->has($this->productId2));
     }
 
     public function testVisibilityOnProductPage(): void
@@ -188,7 +185,6 @@ class ProductVisibilityTest extends TestCase
 
         $request = new Request(['search' => 'test']);
 
-        /** @var SearchPage $page */
         $page = $this->suggestPageLoader->load($request, $salesChannelContext);
 
         static::assertCount(2, $page->getSearchResult());
@@ -198,9 +194,9 @@ class ProductVisibilityTest extends TestCase
         $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $this->salesChannelId2);
         $page = $this->searchPageLoader->load($request, $salesChannelContext);
 
-        static::assertCount(2, $page->getSearchResult());
-        static::assertTrue($page->getSearchResult()->has($this->productId1));
-        static::assertTrue($page->getSearchResult()->has($this->productId2));
+        static::assertCount(2, $page->getListing());
+        static::assertTrue($page->getListing()->has($this->productId1));
+        static::assertTrue($page->getListing()->has($this->productId2));
     }
 
     private function insertData(): void

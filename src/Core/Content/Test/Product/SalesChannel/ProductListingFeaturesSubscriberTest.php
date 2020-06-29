@@ -181,23 +181,23 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ],
             [
                 ['product.name' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'name-asc']),
+                new Request(['order' => 'name-asc']),
             ],
             [
                 ['_score' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'unknown']),
+                new Request(['order' => 'unknown']),
             ],
             [
                 ['product.name' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'name-desc']),
+                new Request(['order' => 'name-desc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'price-asc']),
+                new Request(['order' => 'price-asc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'price-desc']),
+                new Request(['order' => 'price-desc']),
             ],
         ];
     }
@@ -211,23 +211,23 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ],
             [
                 ['product.name' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'name-asc']),
+                new Request(['order' => 'name-asc']),
             ],
             [
                 ['product.name' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'unknown']),
+                new Request(['order' => 'unknown']),
             ],
             [
                 ['product.name' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'name-desc']),
+                new Request(['order' => 'name-desc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'price-asc']),
+                new Request(['order' => 'price-asc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'price-desc']),
+                new Request(['order' => 'price-desc']),
             ],
         ];
     }

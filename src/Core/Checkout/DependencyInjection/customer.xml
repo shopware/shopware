@@ -33,18 +33,9 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="customer_recovery.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
@@ -56,9 +47,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService">
@@ -69,7 +65,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
-            <argument type="service" id="country.repository" />
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
@@ -80,23 +75,14 @@
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
-        <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationService" alias="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
-            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory" instead</deprecated>
-        </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
             <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationService" alias="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
-            <deprecated>tag: v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory" instead</deprecated>
-        </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
-        </service>
-        <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationService" alias="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">
-            <deprecated>tag: v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory" instead</deprecated>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator">

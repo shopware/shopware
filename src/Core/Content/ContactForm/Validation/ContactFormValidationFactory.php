@@ -6,32 +6,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
-use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @ReplaceDecoratedInterface(
- *     deprecatedInterface="ValidationServiceInterface",
- *     replacedBy="DataValidationFactoryInterface"
- * )
  * @Decoratable
  */
-class ContactFormValidationFactory implements ValidationServiceInterface, DataValidationFactoryInterface
+class ContactFormValidationFactory implements DataValidationFactoryInterface
 {
-    public function buildCreateValidation(Context $context): DataValidationDefinition
-    {
-        return $this->createContactFormValidation('contact_form.create', $context);
-    }
-
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
-    {
-        return $this->createContactFormValidation('contact_form.update', $context);
-    }
-
     public function create(SalesChannelContext $context): DataValidationDefinition
     {
         return $this->createContactFormValidation('contact_form.create', $context->getContext());

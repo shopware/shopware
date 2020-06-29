@@ -7,14 +7,12 @@
     <services>
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="product.repository"/>
 
             <tag name="shopware.seo_url.route"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute">
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.seo_url.route"/>
         </service>

@@ -5,20 +5,6 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Content\Seo\DataAbstractionLayer\Indexing\SeoUrlIndexer" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlGenerator"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="messenger.bus.shopware"/>
-
-            <tag name="shopware.dal_indexing.indexer" priority="250"/>
-        </service>
-
         <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition" >
             <tag name="shopware.entity.definition" entity="seo_url" />
         </service>
@@ -67,12 +53,6 @@
             <argument type="service" id="slugify"/>
         </service>
 
-        <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="seo_url_template.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
-        </service>
-
         <service id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry">
             <argument type="tagged" tag="shopware.seo_url.route"/>
         </service>
@@ -100,7 +80,6 @@
         </service>
 
         <service id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory"/>
-        <service id="Shopware\Core\Content\Seo\Validation\SeoUrlValidationService" alias="Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory"/>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\Extension\SeoUrlFunctionExtension">
             <argument type="service" id="twig.extension.routing"/>

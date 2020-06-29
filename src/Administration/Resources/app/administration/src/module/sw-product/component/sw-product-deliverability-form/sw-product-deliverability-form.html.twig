@@ -65,7 +65,7 @@
                     <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
                         <sw-entity-single-select :value="currentValue"
-                                                 @input="updateCurrentValue"
+                                                 @change="updateCurrentValue"
                                                  entity="delivery_time"
                                                  :disabled="isInherited"
                                                  class="product-deliverability-form__delivery-time"

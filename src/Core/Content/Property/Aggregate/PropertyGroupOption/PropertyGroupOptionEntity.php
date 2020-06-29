@@ -228,9 +228,4 @@ class PropertyGroupOptionEntity extends Entity
     {
         $this->combinable = $combinable;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_group_option';
-    }
 }

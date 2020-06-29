@@ -29,13 +29,6 @@ class Criteria extends Struct
     public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
-     * @deprecated tag:v6.3.0 - Use `includes` instead
-     *
-     * @var array|null
-     */
-    protected $source;
-
-    /**
      * @var FieldSorting[]
      */
     protected $sorting = [];
@@ -496,16 +489,6 @@ class Criteria extends Struct
         $this->groupFields = [];
 
         return $this;
-    }
-
-    public function getSource(): ?array
-    {
-        return $this->source;
-    }
-
-    public function setSource(?array $source): void
-    {
-        $this->source = $source;
     }
 
     public function setIncludes(?array $includes): void

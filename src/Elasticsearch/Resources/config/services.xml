@@ -61,15 +61,10 @@
             <argument>%elasticsearch.hosts%</argument>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
-        </service>
-
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
         </service>
-
-        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher"/>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
@@ -136,10 +131,6 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\ProductSearchBuilder.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-        </service>
-
-        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
-            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">

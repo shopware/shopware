@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,7 +42,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     private $validator;
 
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $customerProfileValidationFactory;
 
@@ -51,7 +50,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        $customerProfileValidationFactory
+        DataValidationFactoryInterface $customerProfileValidationFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -101,11 +100,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             throw new CustomerNotLoggedInException();
         }
 
-        if ($this->customerProfileValidationFactory instanceof DataValidationFactoryInterface) {
-            $validation = $this->customerProfileValidationFactory->update($context);
-        } else {
-            $validation = $this->customerProfileValidationFactory->buildUpdateValidation($context->getContext());
-        }
+        $validation = $this->customerProfileValidationFactory->update($context);
 
         $this->dispatchValidationEvent($validation, $context->getContext());
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
@@ -61,7 +62,7 @@ class PluginManagementServiceTest extends TestCase
     public function testUploadPlugin(): void
     {
         $pluginFile = $this->createUploadedFile();
-        $this->getPluginManagementService()->uploadPlugin($pluginFile);
+        $this->getPluginManagementService()->uploadPlugin($pluginFile, Context::createDefaultContext());
 
         static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH);
         static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH . '/SwagFashionTheme.php');

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -15,15 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -35,7 +31,7 @@ abstract class EntityDefinition
     protected $fields;
 
     /**
-     * @var EntityExtensionInterface|EntityExtension[]
+     * @var EntityExtension[]
      */
     protected $extensions = [];
 
@@ -86,10 +82,7 @@ abstract class EntityDefinition
         $this->registry = $registry;
     }
 
-    /**
-     * @param EntityExtensionInterface|EntityExtension $extension
-     */
-    final public function addExtension($extension): void
+    final public function addExtension(EntityExtension $extension): void
     {
         $this->extensions[] = $extension;
         $this->fields = null;
@@ -98,10 +91,8 @@ abstract class EntityDefinition
     /**
      * @internal
      * Use this only for test purposes
-     *
-     * @param EntityExtensionInterface|EntityExtension $toDelete
      */
-    final public function removeExtension($toDelete): void
+    final public function removeExtension(EntityExtension $toDelete): void
     {
         foreach ($this->extensions as $key => $extension) {
             if (\get_class($extension) === \get_class($toDelete)) {
@@ -272,14 +263,6 @@ abstract class EntityDefinition
         return $this->getFields()->getChildrenAssociationField() !== null;
     }
 
-    /**
-     * @deprecated tag:v6.3.0 - Only used in child count indexer to detect indexing requirements. Child count will be indexed by specific entity indexers now
-     */
-    public function isChildCountAware(): bool
-    {
-        return $this->getFields()->get('childCount') instanceof ChildCountField;
-    }
-
     public function isParentAware(): bool
     {
         return $this->getFields()->get('parent') instanceof ParentAssociationField;
@@ -303,24 +286,6 @@ abstract class EntityDefinition
     public function isWhitelistAware(): bool
     {
         return $this->getFields()->has('whitelistIds');
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 - Only used in tree indexer to detect indexing requirements. Tree will be indexed by specific entity indexers now
-     */
-    public function isTreeAware(): bool
-    {
-        return $this->isParentAware()
-            && ($this->getFields()->filterInstance(TreePathField::class)->count() > 0
-                || $this->getFields()->filterInstance(TreeLevelField::class)->count() > 0);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 - Only used to disable old indexing process
-     */
-    public function hasManyToManyIdFields(): bool
-    {
-        return $this->getFields()->filterInstance(ManyToManyIdField::class)->count() > 0;
     }
 
     public function isLockAware(): bool

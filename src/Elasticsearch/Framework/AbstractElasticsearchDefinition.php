@@ -58,14 +58,6 @@ abstract class AbstractElasticsearchDefinition
         return $collection;
     }
 
-    /**
-     * @deprecated tag:v6.3.0 - Removed in 6.3.0, each definition has to handle the update event by itself
-     */
-    public function hasNewIndexerPattern(): bool
-    {
-        return false;
-    }
-
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         $bool = new BoolQuery();

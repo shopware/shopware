@@ -19,24 +19,14 @@
     <services>
         <defaults public="true"/>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler">
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-            <tag name="shopware.payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.sync"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-            <tag name="shopware.payment.method.async"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler">
@@ -120,10 +110,6 @@
             <argument>%test.client.parameters%</argument>
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />
-        </service>
-
-        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\QueueTestIndexer">
-            <tag name="shopware.dal_indexing.indexer"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">

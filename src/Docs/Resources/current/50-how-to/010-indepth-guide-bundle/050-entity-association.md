@@ -278,12 +278,11 @@ class Migration1554708925Bundle extends MigrationStep
 }
 ```
 
-The newly added column will be automatically managed by te DAL through an Indexer. But as there may already be some products in the Database that don't have that column set we have to run the `InheritanceIndexer` during the activation process of the plugin.
-Because running the Indexer may take a longer time it's a bad idea to run the Indexer directly, therefore you can use the  `IndexerMessageSender` to run the Indexer asynchronously in your plugin base class `activate()`-method.
+The newly added column will be automatically managed by te DAL through an Indexer. But as there may already be some products in the Database that don't have that column set we have to run corresponding entity indexer for the entity during the activation process of the plugin.
+Because running the Indexer may take a longer time it's a bad idea to run the Indexer directly, therefore you can use the  `EntityIndexerRegistry` to run the Indexer asynchronously in your plugin base class `activate()`-method.
 
 ```php
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 
@@ -291,8 +290,8 @@ class BundleExample extends Plugin
 {
     public function activate(ActivateContext $activateContext): void
     {
-        $indexerMessageSender = $this->container->get(IndexerMessageSender::class);
-        $indexerMessageSender->partial(new \DateTimeImmutable(), [InheritanceIndexer::getName()]);
+        $registry = $this->container->get(EntityIndexerRegistry::class);
+        $registry->sendIndexingMessage(['product.indexer']);
     }
 }
 ```

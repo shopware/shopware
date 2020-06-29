@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
@@ -32,11 +31,6 @@ class CacheController extends AbstractController
     private $adapter;
 
     /**
-     * @var IndexerMessageSender
-     */
-    private $indexerMessageSender;
-
-    /**
      * @var CacheWarmer|null
      */
     private $cacheWarmer;
@@ -49,13 +43,11 @@ class CacheController extends AbstractController
     public function __construct(
         CacheClearer $cacheClearer,
         AdapterInterface $adapter,
-        IndexerMessageSender $indexerMessageSender,
         ?CacheWarmer $cacheWarmer,
         EntityIndexerRegistry $indexerRegistry
     ) {
         $this->cacheClearer = $cacheClearer;
         $this->adapter = $adapter;
-        $this->indexerMessageSender = $indexerMessageSender;
         $this->cacheWarmer = $cacheWarmer;
         $this->indexerRegistry = $indexerRegistry;
     }
@@ -77,8 +69,6 @@ class CacheController extends AbstractController
      */
     public function index(): Response
     {
-        $this->indexerMessageSender->partial(new \DateTime());
-
         $this->indexerRegistry->sendIndexingMessage();
 
         return new Response('', Response::HTTP_NO_CONTENT);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -81,7 +82,8 @@ class RegisterControllerTest extends TestCase
 
         $response = $registerController->register($request, $data, $this->salesChannelContext);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
+        $customers = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -95,7 +97,8 @@ class RegisterControllerTest extends TestCase
 
         $response = $this->getContainer()->get(RegisterController::class)->register($request, $data, $this->salesChannelContext);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
+        $customers = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);

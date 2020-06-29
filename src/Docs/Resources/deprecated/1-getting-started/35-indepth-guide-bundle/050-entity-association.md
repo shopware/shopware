@@ -282,8 +282,7 @@ The newly added column will be automatically managed by te DAL through an Indexe
 Because running the Indexer may take a longer time it's a bad idea to run the Indexer directly, therefore you can use the  `IndexerMessageSender` to run the Indexer asynchronously in your plugin base class `activate()`-method.
 
 ```php
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 
@@ -291,8 +290,8 @@ class BundleExample extends Plugin
 {
     public function activate(ActivateContext $activateContext): void
     {
-        $indexerMessageSender = $this->container->get(IndexerMessageSender::class);
-        $indexerMessageSender->partial(new \DateTimeImmutable(), [InheritanceIndexer::getName()]);
+        $registry = $this->container->get(EntityIndexerRegistry::class);
+        $registry->sendIndexingMessage(['product.indexer']);
     }
 }
 ```

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
@@ -44,7 +43,7 @@ class CustomFieldServiceTest extends TestCase
                 CustomFieldTypes::BOOL, BoolField::class,
                 CustomFieldTypes::DATETIME, DateTimeField::class,
                 CustomFieldTypes::FLOAT, FloatField::class,
-                CustomFieldTypes::HTML, LongTextWithHtmlField::class,
+                CustomFieldTypes::HTML, LongTextField::class,
                 CustomFieldTypes::INT, IntField::class,
                 CustomFieldTypes::JSON, JsonField::class,
                 CustomFieldTypes::TEXT, LongTextField::class,

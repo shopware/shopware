@@ -638,20 +638,6 @@ class EntityDefinitionQueryHelper
         return $definition->isInheritanceAware() && $field->is(Inherited::class) && $context->considerInheritance();
     }
 
-    private function getTranslationFieldSelectExpr(StorageAware $field, array $chain): string
-    {
-        if (\count($chain) === 1) {
-            return self::escape($chain[0]['alias']) . '.' . self::escape($field->getStorageName());
-        }
-
-        $chainSelect = [];
-        foreach ($chain as $part) {
-            $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($field->getStorageName());
-        }
-
-        return sprintf('COALESCE(%s)', implode(',', $chainSelect));
-    }
-
     private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string
     {
         if (!$field instanceof StorageAware) {

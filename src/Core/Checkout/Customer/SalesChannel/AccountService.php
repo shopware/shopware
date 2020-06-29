@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -19,8 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -39,11 +36,6 @@ class AccountService
     private $customerRepository;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRecoveryRepository;
-
-    /**
      * @var SalesChannelContextPersister
      */
     private $contextPersister;
@@ -58,180 +50,18 @@ class AccountService
      */
     private $legacyPasswordVerifier;
 
-    /**
-     * @var AbstractLogoutRoute
-     */
-    private $logoutRoute;
-
-    /**
-     * @var AbstractLoginRoute
-     */
-    private $loginRoute;
-
-    /**
-     * @var AbstractChangePasswordRoute
-     */
-    private $changePasswordRoute;
-
-    /**
-     * @var AbstractChangePaymentMethodRoute
-     */
-    private $changePaymentMethodRoute;
-
-    /**
-     * @var AbstractChangeEmailRoute
-     */
-    private $changeEmailRoute;
-
-    /**
-     * @var AbstractChangeCustomerProfileRoute
-     */
-    private $changeCustomerProfileRoute;
-
-    /**
-     * @var AbstractResetPasswordRoute
-     */
-    private $resetPasswordRoute;
-
-    /**
-     * @var AbstractSendPasswordRecoveryMailRoute
-     */
-    private $sendPasswordRecoveryMailRoute;
-
     public function __construct(
         EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
-        EntityRepositoryInterface $customerRecoveryRepository,
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
-        LegacyPasswordVerifier $legacyPasswordVerifier,
-        AbstractLogoutRoute $logoutRoute,
-        AbstractLoginRoute $loginRoute,
-        AbstractChangePasswordRoute $changePasswordRoute,
-        AbstractChangePaymentMethodRoute $changePaymentMethodRoute,
-        AbstractChangeEmailRoute $changeEmailRoute,
-        AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
-        AbstractResetPasswordRoute $resetPasswordRoute,
-        AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute
+        LegacyPasswordVerifier $legacyPasswordVerifier
     ) {
         $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
-        $this->logoutRoute = $logoutRoute;
-        $this->loginRoute = $loginRoute;
-        $this->changePasswordRoute = $changePasswordRoute;
-        $this->changePaymentMethodRoute = $changePaymentMethodRoute;
-        $this->changeEmailRoute = $changeEmailRoute;
-        $this->changeCustomerProfileRoute = $changeCustomerProfileRoute;
-        $this->resetPasswordRoute = $resetPasswordRoute;
-        $this->sendPasswordRecoveryMailRoute = $sendPasswordRecoveryMailRoute;
-    }
-
-    /**
-     * @throws CustomerNotFoundException
-     *
-     * @deprecated tag:v6.3.0 use customer repository instead
-     */
-    public function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
-    {
-        $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
-
-        $customerCount = $customers->count();
-        if ($customerCount === 1) {
-            return $customers->first();
-        }
-
-        if ($includeGuest && $customerCount) {
-            $customers->sort(static function (CustomerEntity $a, CustomerEntity $b) {
-                return $a->getCreatedAt() <=> $b->getCreatedAt();
-            });
-
-            return $customers->last();
-        }
-
-        throw new CustomerNotFoundException($email);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use customer repository instead
-     */
-    public function getCustomersByEmail(string $email, SalesChannelContext $context, bool $includeGuests = true): EntitySearchResult
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customer.email', $email));
-        if (!$includeGuests) {
-            $criteria->addFilter(new EqualsFilter('customer.guest', 0));
-        }
-        // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
-        // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
-
-        return $this->customerRepository->search($criteria, $context->getContext());
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute instead
-     */
-    public function saveProfile(DataBag $data, SalesChannelContext $context): void
-    {
-        $this->changeCustomerProfileRoute->change($data->toRequestDataBag(), $context);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute instead
-     */
-    public function savePassword(DataBag $data, SalesChannelContext $context): void
-    {
-        $this->changePasswordRoute->change($data->toRequestDataBag(), $context);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute instead
-     */
-    public function saveEmail(DataBag $data, SalesChannelContext $context): void
-    {
-        $this->changeEmailRoute->change($data->toRequestDataBag(), $context);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute instead
-     */
-    public function generateAccountRecovery(DataBag $data, SalesChannelContext $context): void
-    {
-        if (!$data->has('storefrontUrl')) {
-            $data->set('storefrontUrl', $context->getSalesChannel()->getDomains()->first()->getUrl());
-        }
-
-        $this->sendPasswordRecoveryMailRoute->sendRecoveryMail($data->toRequestDataBag(), $context, false);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute instead
-     */
-    public function resetPassword(DataBag $data, SalesChannelContext $context): bool
-    {
-        $this->resetPasswordRoute->resetPassword($data->toRequestDataBag(), $context);
-
-        return true;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use customer_recovery repository instead
-     */
-    public function checkHash(string $hash, Context $context): bool
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('hash', $hash)
-        );
-
-        $recovery = $this->getCustomerRecovery($criteria, $context);
-
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
-
-        return $recovery && $validDateTime < $recovery->getCreatedAt();
     }
 
     /**
@@ -304,43 +134,6 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute instead
-     */
-    public function loginWithPassword(DataBag $data, SalesChannelContext $context): string
-    {
-        return $this->loginRoute->login($data->toRequestDataBag(), $context)->getToken();
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute instead
-     */
-    public function logout(SalesChannelContext $context): void
-    {
-        $this->logoutRoute->logout($context);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface instead
-     */
-    public function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
-    {
-        $customer->setNewsletter($newsletter);
-
-        $this->customerRepository->update([[
-            'id' => $customer->getId(),
-            'newsletter' => $newsletter,
-        ]], $context->getContext());
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute instead
-     */
-    public function changeDefaultPaymentMethod(string $paymentMethodId, RequestDataBag $requestDataBag, CustomerEntity $customer, SalesChannelContext $context): void
-    {
-        $this->changePaymentMethodRoute->change($paymentMethodId, $requestDataBag, $context);
-    }
-
-    /**
      * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws InactiveCustomerException
@@ -367,11 +160,39 @@ class AccountService
     }
 
     /**
-     * @deprecated tag:v6.3.0 use customer_recovery repository instead
+     * @throws CustomerNotFoundException
      */
-    public function getCustomerRecovery(Criteria $criteria, Context $context): ?CustomerRecoveryEntity
+    private function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
     {
-        return $this->customerRecoveryRepository->search($criteria, $context)->first();
+        $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
+
+        $customerCount = $customers->count();
+        if ($customerCount === 1) {
+            return $customers->first();
+        }
+
+        if ($includeGuest && $customerCount) {
+            $customers->sort(static function (CustomerEntity $a, CustomerEntity $b) {
+                return $a->getCreatedAt() <=> $b->getCreatedAt();
+            });
+
+            return $customers->last();
+        }
+
+        throw new CustomerNotFoundException($email);
+    }
+
+    private function getCustomersByEmail(string $email, SalesChannelContext $context, bool $includeGuests = true): EntitySearchResult
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customer.email', $email));
+        if (!$includeGuests) {
+            $criteria->addFilter(new EqualsFilter('customer.guest', 0));
+        }
+        // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
+        // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
+
+        return $this->customerRepository->search($criteria, $context->getContext());
     }
 
     /**

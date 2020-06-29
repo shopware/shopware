@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -43,7 +42,7 @@ class OrderService
     private $dataValidator;
 
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $orderValidationFactory;
 
@@ -97,12 +96,9 @@ class OrderService
      */
     private $salesChannelRepository;
 
-    /**
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $orderValidationFactory
-     */
     public function __construct(
         DataValidator $dataValidator,
-        $orderValidationFactory,
+        DataValidationFactoryInterface $orderValidationFactory,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
         EntityRepositoryInterface $paymentMethodRepository,
@@ -343,11 +339,7 @@ class OrderService
 
     private function getOrderCreateValidationDefinition(SalesChannelContext $context): DataValidationDefinition
     {
-        if ($this->orderValidationFactory instanceof DataValidationFactoryInterface) {
-            $validation = $this->orderValidationFactory->create($context);
-        } else {
-            $validation = $this->orderValidationFactory->buildCreateValidation($context->getContext());
-        }
+        $validation = $this->orderValidationFactory->create($context);
 
         $validationEvent = new BuildValidationEvent($validation, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

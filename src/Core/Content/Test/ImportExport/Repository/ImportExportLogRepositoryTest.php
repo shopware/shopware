@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\ImportExport\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\LogNotWritableException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ImportExportLogRepositoryTest extends TestCase
 {
@@ -91,8 +91,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
     }
 
@@ -248,8 +247,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
     }
 
@@ -303,8 +301,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
     }
 
@@ -361,8 +358,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');

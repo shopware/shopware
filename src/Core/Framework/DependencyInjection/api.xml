@@ -166,7 +166,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
-            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">

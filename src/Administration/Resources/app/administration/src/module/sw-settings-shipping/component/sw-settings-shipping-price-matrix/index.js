@@ -5,6 +5,11 @@ const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
+// const CALCULATION_TYPE_QUANTITY = 1;
+// const CALCULATION_TYPE_PRICE = 2;
+// const CALCULATION_TYPE_WEIGHT = 3;
+// const CALCULATION_TYPE_VOLUME = 4;
+
 Component.register('sw-settings-shipping-price-matrix', {
     template,
 
@@ -78,6 +83,18 @@ Component.register('sw-settings-shipping-price-matrix', {
 
             return calculationType[this.priceGroup.calculation]
                 || 'sw-settings-shipping.priceMatrix.columnQuantityEnd';
+        },
+
+        numberFieldType() {
+            const calculationType = {
+                1: 'int',
+                2: 'float',
+                3: 'float',
+                4: 'float'
+            };
+
+            return calculationType[this.priceGroup.calculation]
+                || 'float';
         },
 
         confirmDeleteText() {
@@ -230,14 +247,40 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             if (!refPrice.quantityEnd) {
-                console.log('efPrice.quantityStart : ', refPrice.quantityStart);
                 refPrice.quantityEnd = refPrice.quantityStart;
             }
             newShippingPrice.calculation = refPrice.calculation;
-            newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
+
+            if (this.priceGroup.calculation === 1) {
+                newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
+            } else {
+                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd);
+            }
+
             newShippingPrice.quantityEnd = null;
 
             this.shippingMethod.prices.push(newShippingPrice);
+        },
+
+        countDecimalPlaces(value) {
+            return value.toString().split('.')[1].length;
+        },
+
+        increaseWithDecimalPlaces(value) {
+            // Value has no decimal place
+            if (value % 1 === 0) {
+                return value + 0.1;
+            }
+
+            if (this.countDecimalPlaces(value) === 1) {
+                return value + 0.1;
+            }
+
+            if (this.countDecimalPlaces(value) === 2) {
+                return value + 0.01;
+            }
+
+            return value + 1;
         },
 
         onSaveMainRule(ruleId) {

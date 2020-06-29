@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Kernel;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -52,13 +54,19 @@ class InfoController extends AbstractController
      */
     private $enableUrlFeature;
 
+    /**
+     * @var array
+     */
+    private $cspTemplates;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
         Kernel $kernel,
         Packages $packages,
-        bool $enableUrlFeature = true
+        bool $enableUrlFeature = true,
+        array $cspTemplates = []
     ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
@@ -66,6 +74,7 @@ class InfoController extends AbstractController
         $this->packages = $packages;
         $this->kernel = $kernel;
         $this->enableUrlFeature = $enableUrlFeature;
+        $this->cspTemplates = $cspTemplates;
     }
 
     /**
@@ -103,9 +112,26 @@ class InfoController extends AbstractController
     /**
      * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
      */
-    public function infoHtml(int $version): Response
+    public function infoHtml(Request $request, int $version): Response
     {
-        return $this->render('@Framework/swagger.html.twig', ['schemaUrl' => 'api.info.openapi3', 'apiVersion' => $version]);
+        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $response = $this->render(
+            '@Framework/swagger.html.twig',
+            [
+                'schemaUrl' => 'api.info.openapi3',
+                'apiVersion' => $version,
+                'cspNonce' => $nonce,
+            ]
+        );
+
+        $cspTemplate = $this->cspTemplates['administration'] ?? '';
+        $cspTemplate = trim($cspTemplate);
+        if ($cspTemplate !== '') {
+            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
+            $response->headers->set('Content-Security-Policy', $csp);
+        }
+
+        return $response;
     }
 
     /**

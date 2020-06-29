@@ -38,6 +38,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added configuration `media.enable_url_upload_feature` in `shopware.yaml` to disable the "Upload media via URL" feature
     * Added configuration `media.enable_url_validation` in `shopware.yaml` to disable the URL validation when a media is uploaded via URL
     * Added decoratable class `Shopware\Core\Content\Media\File\FileUrlValidator`
+    * Added the following headers to improve security:
+        * `Strict-Transport-Security: max-age=31536000; includeSubDomains` if the request is secure (HTTPS)
+        * `X-Frame-Options: deny`
+        * `X-Content-Type-Options: nosniff`
+        * `Content-Security-Policy: script-src 'none'; object-src 'none'; base-uri 'self';` default for requests with route scope other than `administration` or `storefront`
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

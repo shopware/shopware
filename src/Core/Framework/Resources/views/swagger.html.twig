@@ -35,9 +35,9 @@
 <body>
 <div id="swagger-ui"></div>
 
-<script src="{{ asset('bundles/framework/swagger-ui-bundle.js') }}"> </script>
-<script src="{{ asset('bundles/framework/swagger-ui-standalone-preset.js') }}"> </script>
-<script>
+<script nonce="{{ cspNonce }}" src="{{ asset('bundles/framework/swagger-ui-bundle.js') }}"> </script>
+<script nonce="{{ cspNonce }}" src="{{ asset('bundles/framework/swagger-ui-standalone-preset.js') }}"> </script>
+<script nonce="{{ cspNonce }}" >
     window.onload = function() {
 
         // Build a system

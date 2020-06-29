@@ -3,14 +3,6 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
-    <parameters>
-        <parameter key="admin_csp_template" type="string">
-            object-src 'none';
-            script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
-            base-uri 'self';
-        </parameter>
-    </parameters>
     <services>
         <service id="Shopware\Administration\Command\AdministrationDumpFeaturesCommand">
             <argument type="service" id="kernel"/>
@@ -27,7 +19,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <argument type="string">%admin_csp_template%</argument>
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">

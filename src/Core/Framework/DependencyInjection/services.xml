@@ -17,6 +17,20 @@
         <!-- Migration config -->
         <parameter key="core.migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>
+
+        <parameter key="shopware.security.csp_templates" type="collection">
+            <parameter key="default">
+                object-src 'none';
+                script-src 'none';
+                base-uri 'self';
+            </parameter>
+            <parameter key="administration">
+                object-src 'none';
+                script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
+                base-uri 'self';
+            </parameter>
+            <parameter key="storefront" />
+        </parameter>
     </parameters>
 
     <monolog:config>
@@ -156,6 +170,11 @@
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>
 
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\CoreSubscriber">
+            <argument>%shopware.security.csp_templates%</argument>
             <tag name="kernel.event_subscriber"/>
         </service>
 

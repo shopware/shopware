@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Content\Media\Exception\IllegalUrlException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,6 +10,16 @@ use Symfony\Component\HttpFoundation\Request;
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
+
+    /**
+     * @var FileUrlValidatorInterface
+     */
+    private $fileUrlValidator;
+
+    public function __construct(FileUrlValidatorInterface $fileUrlValidator)
+    {
+        $this->fileUrlValidator = $fileUrlValidator;
+    }
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile
     {
@@ -40,6 +51,11 @@ class FileFetcher
     public function fetchFileFromURL(Request $request, string $fileName): MediaFile
     {
         $url = $this->getUrlFromRequest($request);
+
+        if (!$this->fileUrlValidator->isValid($url)) {
+            throw new IllegalUrlException($url);
+        }
+
         $extension = $this->getExtensionFromRequest($request);
 
         $inputStream = $this->openSourceFromUrl($url);

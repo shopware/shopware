@@ -85,7 +85,7 @@ class DeliveryCalculator
             return;
         }
 
-        if ($this->hasDeliveryShippingFreeItems($delivery)) {
+        if ($this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
             $costs = $this->calculateShippingCosts(
                 new PriceCollection([new Price(Defaults::CURRENCY, 0, 0, false)]),
                 $delivery->getPositions()->getLineItems(),
@@ -134,15 +134,15 @@ class DeliveryCalculator
         $delivery->setShippingCosts($costs);
     }
 
-    private function hasDeliveryShippingFreeItems(Delivery $delivery): bool
+    private function hasDeliveryWithOnlyShippingFreeItems(Delivery $delivery): bool
     {
         foreach ($delivery->getPositions()->getLineItems()->getIterator() as $lineItem) {
-            if ($lineItem->getDeliveryInformation() && $lineItem->getDeliveryInformation()->getFreeDelivery()) {
-                return true;
+            if ($lineItem->getDeliveryInformation() && !$lineItem->getDeliveryInformation()->getFreeDelivery()) {
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool

@@ -80,6 +80,18 @@ Component.register('sw-settings-shipping-price-matrix', {
                 || 'sw-settings-shipping.priceMatrix.columnQuantityEnd';
         },
 
+        numberFieldType() {
+            const calculationType = {
+                1: 'int',
+                2: 'float',
+                3: 'float',
+                4: 'float'
+            };
+
+            return calculationType[this.priceGroup.calculation]
+                || 'float';
+        },
+
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
             return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm',
@@ -230,14 +242,34 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             if (!refPrice.quantityEnd) {
-                console.log('efPrice.quantityStart : ', refPrice.quantityStart);
                 refPrice.quantityEnd = refPrice.quantityStart;
             }
             newShippingPrice.calculation = refPrice.calculation;
-            newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
+
+            // If the calculation type is "quantity" always increase by one, otherwise add decimal places
+            if (this.priceGroup.calculation === 1) {
+                newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
+            } else {
+                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd);
+            }
+
             newShippingPrice.quantityEnd = null;
 
             this.shippingMethod.prices.push(newShippingPrice);
+        },
+
+        countDecimalPlaces(value) {
+            const split = value.toString().split('.');
+
+            return split[1] ? split[1].length : 0;
+        },
+
+        increaseWithDecimalPlaces(value) {
+            let decimalPlaces = this.countDecimalPlaces(value);
+            decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
+
+            const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
+            return Number((value + increase).toFixed(decimalPlaces));
         },
 
         onSaveMainRule(ruleId) {

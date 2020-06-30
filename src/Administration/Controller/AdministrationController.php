@@ -33,23 +33,35 @@ class AdministrationController extends AbstractController
 
     private $supportedApiVersions;
 
-    public function __construct(TemplateFinder $finder, FirstRunWizardClient $firstRunWizardClient, SnippetFinderInterface $snippetFinder, $supportedApiVersions)
-    {
+    /**
+     * @var string|null
+     */
+    private $cspHeaderTemplate;
+
+    public function __construct(
+        TemplateFinder $finder,
+        FirstRunWizardClient $firstRunWizardClient,
+        SnippetFinderInterface $snippetFinder,
+        $supportedApiVersions,
+        ?string $cspHeaderTemplate = null
+    ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
         $this->snippetFinder = $snippetFinder;
         $this->supportedApiVersions = $supportedApiVersions;
+        $this->cspHeaderTemplate = $cspHeaderTemplate;
     }
 
     /**
      * @RouteScope(scopes={"administration"})
      * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
+        $nonce = base64_encode(random_bytes(8));
 
-        return $this->render($template, [
+        $response = $this->render($template, [
             'features' => FeatureConfig::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
@@ -57,7 +69,15 @@ class AdministrationController extends AbstractController
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
+            'cspNonce' => $nonce,
         ]);
+
+        if ($this->cspHeaderTemplate !== null) {
+            $csp = str_replace('%nonce%', $nonce, $this->cspHeaderTemplate);
+            $response->headers->set('Content-Security-Policy', $csp);
+        }
+
+        return $response;
     }
 
     /**

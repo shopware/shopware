@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use Shopware\Core\Content\Media\Exception\DisabledUrlUploadFeatureException;
 use Shopware\Core\Content\Media\Exception\IllegalUrlException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
@@ -12,13 +13,25 @@ class FileFetcher
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
 
     /**
+     * @var bool
+     */
+    public $enableUrlUploadFeature;
+
+    /**
+     * @var bool
+     */
+    public $enableUrlValidation;
+
+    /**
      * @var FileUrlValidatorInterface
      */
     private $fileUrlValidator;
 
-    public function __construct(FileUrlValidatorInterface $fileUrlValidator)
+    public function __construct(FileUrlValidatorInterface $fileUrlValidator, bool $enableUrlUploadFeature = true, bool $enableUrlValidation = true)
     {
         $this->fileUrlValidator = $fileUrlValidator;
+        $this->enableUrlUploadFeature = $enableUrlUploadFeature;
+        $this->enableUrlValidation = $enableUrlValidation;
     }
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile
@@ -50,9 +63,13 @@ class FileFetcher
 
     public function fetchFileFromURL(Request $request, string $fileName): MediaFile
     {
+        if (!$this->enableUrlUploadFeature) {
+            throw new DisabledUrlUploadFeatureException();
+        }
+
         $url = $this->getUrlFromRequest($request);
 
-        if (!$this->fileUrlValidator->isValid($url)) {
+        if ($this->enableUrlValidation && !$this->fileUrlValidator->isValid($url)) {
             throw new IllegalUrlException($url);
         }
 

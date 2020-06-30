@@ -194,8 +194,7 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://invalid/host';
 
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage("Could not open source stream from {$url}");
+        $this->expectException(IllegalUrlException::class);
 
         $request = $this->createMock(Request::class);
         $request->request = new ParameterBag([

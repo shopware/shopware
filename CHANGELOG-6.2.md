@@ -26,6 +26,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
     * Simplified storefront snippet file loading, PHP classes for snippet files aren't necessary anymore.
     * Deprecated the `\Shopware\Core\System\Snippet\Files\SnippetFileInterface` interface, as it is not necessary anymore
+    * Added configuration `media.enable_url_upload_feature` in `shopware.yaml` to disable the "Upload media via URL" feature
+    * Added configuration `media.enable_url_validation` in `shopware.yaml` to disable the URL validation when a media is uploaded via URL
+    * Added decoratable class `Shopware\Core\Content\Media\File\FileUrlValidator`
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

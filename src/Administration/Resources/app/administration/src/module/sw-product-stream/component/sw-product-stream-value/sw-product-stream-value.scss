@@ -6,6 +6,17 @@
     align-items: center;
     flex-grow: var(--product-stream-value-grow);
 
+
+    .sw-entity-single-select__selection {
+        display: block;
+        vertical-align: center;
+        max-width: 300px;
+
+        .sw-product-variant-information {
+            width: 300px;
+        }
+    }
+
     .sw-field.sw-field--medium {
         margin-bottom: 0;
     }

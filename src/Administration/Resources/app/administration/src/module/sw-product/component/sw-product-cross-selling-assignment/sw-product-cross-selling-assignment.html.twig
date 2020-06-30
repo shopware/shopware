@@ -16,14 +16,10 @@
                             <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                     <span class="sw-select-result__result-item-text">
-                                        {{ item.translated.name || item.name }}
+                                        <sw-product-variation :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                        </sw-product-variation>
                                     </span>
-                                    <div v-if="next7399 && item.variation">
-                                        <span v-for="(variation, index) in item.variation" :key="variation.group">
-                                            <strong>{{ variation.group }}</strong>: {{ variation.option }}
-                                            <span v-if="index !== Object.keys(item.variation).length - 1"> | </span>
-                                        </span>
-                                    </div>
                                 {% endblock %}
                             </li>
                         </slot>
@@ -48,18 +44,13 @@
                         </sw-context-menu-item>
                     </template>
 
-                    <template v-if="next7399"
-                              #column-product.translated.name="{ item }">
+                    <template #column-product.translated.name="{ item }">
                         {% block sw_data_grid_columns_render_value %}
-                            <span class="sw-data-grid__cell-value">
-                                {{ item.product.translated.name }}
+                            <span>
+                                <sw-product-variation :variations="item.product.variation">
+                                    {{ item.product.translated.name || item.product.name }}
+                                </sw-product-variation>
                             </span>
-                            <div v-if="item.product.variation">
-                                <span v-for="(variation, index) in item.product.variation" :key="variation.group">
-                                    <strong>{{ variation.group }}</strong>: {{ variation.option }}
-                                    <span v-if="index != Object.keys(item.product.variation).length - 1"> | </span>
-                                </span>
-                            </div>
                         {% endblock %}
                     </template>
 

@@ -1,8 +1,8 @@
 import template from './sw-condition-line-item.html.twig';
 
-const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-const { EntityCollection, Criteria } = Shopware.Data;
+const {Component, Context} = Shopware;
+const {mapPropertyErrors} = Component.getComponentHelper();
+const {EntityCollection, Criteria} = Shopware.Data;
 
 /**
  * @public
@@ -33,7 +33,7 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
             },
             set(identifiers) {
                 this.ensureValueExist();
-                this.condition.value = { ...this.condition.value, identifiers };
+                this.condition.value = {...this.condition.value, identifiers};
             }
         },
 
@@ -41,6 +41,17 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        productContext() {
+            return { ...Shopware.Context.api, inheritance: true };
         }
     },
 
@@ -59,17 +70,20 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
             this.products = new EntityCollection(
                 this.productRepository.route,
                 this.productRepository.entityName,
-                Context.api
+                this.productContext
             );
+
 
             if (this.productIds.length <= 0) {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
+            const context = this.productContext;
+            const criteria = this.productCriteria;
             criteria.setIds(this.productIds);
 
-            return this.productRepository.search(criteria, Context.api).then((products) => {
+            return this.productRepository.search(criteria, context).then((products) => {
+                console.log('products', products);
                 this.products = products;
             });
         },

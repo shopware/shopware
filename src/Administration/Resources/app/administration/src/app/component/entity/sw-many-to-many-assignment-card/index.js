@@ -181,6 +181,8 @@ Component.register('sw-many-to-many-assignment-card', {
 
     created() {
         this.createdComponent();
+        console.log('this.gridData', this.gridData);
+        console.log('this.gridData', this.criteria);
     },
 
     methods: {
@@ -242,6 +244,7 @@ Component.register('sw-many-to-many-assignment-card', {
                     criteria.setIds(result.getIds());
 
                     this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
+                        console.log('this.searchCriteria', this.searchCriteria);
                         data.forEach((id) => {
                             if (!this.isSelected({ id })) {
                                 this.selectedIds.push(id);

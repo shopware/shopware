@@ -9,7 +9,31 @@
                 entity="product"
                 size="medium"
                 :entityCollection="products"
+                :criteria="productCriteria"
+                :context="productContext"
                 @change="setIds">
+                <template #selection-label-property="{ item }">
+                    <slot name="selection-label-property" v-bind="{ item }">
+                        <sw-product-variation
+                            :variations="item.variation">
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variation>
+                    </slot>
+                </template>
+
+                <template #result-item="{ item, index }">
+                    <slot name="result-item" v-bind="{ item, index }">
+                        <li is="sw-select-result" v-bind="{ item, index }">
+                            {% block sw_entity_single_select_base_results_list_result_label %}
+                                <span class="sw-select-result__result-item-text">
+                                    <sw-product-variation :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                    </sw-product-variation>
+                                </span>
+                            {% endblock %}
+                        </li>
+                    </slot>
+                </template>
             </sw-entity-multi-select>
         {% endblock %}
     </div>

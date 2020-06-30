@@ -138,11 +138,15 @@ Component.register('sw-settings-rule-detail', {
         },
 
         loadConditions(conditions = null) {
+            const context = { ...Context.api, inheritance: true };
+
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), Context.api).then((searchResult) => {
+                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
+            console.log('conditions');
+            console.log('conditions', conditions);
 
             if (conditions.total <= conditions.length) {
                 this.conditions = conditions;
@@ -153,6 +157,10 @@ Component.register('sw-settings-rule-detail', {
                 conditions.criteria.page + 1,
                 conditions.criteria.limit
             );
+
+            if (conditions.entity === 'product') {
+                criteria.addAssociation('options.group');
+            }
 
             return this.conditionRepository.search(criteria, conditions.context).then((searchResult) => {
                 conditions.push(...searchResult);

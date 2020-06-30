@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+.sw-product-variant-information {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 600px;
+    display: block;
+    padding-right: 1em;
+
+    .sw-product-variation__specification {
+        color: $color-gray-600;
+    }
+}

@@ -148,7 +148,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('unit')
                 .addAssociation('productReviews')
                 .addAssociation('seoUrls')
-                .addAssociation('mainCategories');
+                .addAssociation('mainCategories')
+                .addAssociation('options.group');
 
             ifNext6997(() => criteria.addAssociation('featureSets'));
 
@@ -334,6 +335,7 @@ Component.register('sw-product-detail', {
                 },
                 this.productCriteria
             ).then((res) => {
+                console.log('res', res);
                 Shopware.State.commit('swProductDetail/setProduct', res);
 
                 if (this.product.parentId) {

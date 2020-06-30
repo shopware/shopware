@@ -241,6 +241,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             if ($data['type'] === 'media') {
                 $variables[$key] = '\'' . $data['value'] . '\'';
+            } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
+                $variables[$key] = (int) ($data['value']);
             } else {
                 $variables[$key] = $data['value'];
             }

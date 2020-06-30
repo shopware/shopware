@@ -269,7 +269,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
 
             const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
-            return value + increase;
+            return Number((value + increase).toFixed(decimalPlaces));
         },
 
         onSaveMainRule(ruleId) {

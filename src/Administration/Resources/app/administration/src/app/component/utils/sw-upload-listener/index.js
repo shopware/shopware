@@ -19,6 +19,12 @@ function isDuplicationException(error) {
     });
 }
 
+function isIllegalUrlException(error) {
+    return error.response.data.errors.some((err) => {
+        return err.code === 'CONTENT__MEDIA_ILLEGAL_URL';
+    });
+}
+
 /**
  * @public
  * @description
@@ -191,6 +197,14 @@ Component.register('sw-upload-listener', {
                         'global.sw-media-upload.notification.illegalFilename.message',
                         0,
                         { fileName: payload.fileName }
+                    )
+                });
+            } else if (isIllegalUrlException(payload.error)) {
+                this.createNotificationError({
+                    title: this.$root.$tc('global.sw-media-upload.notification.illegalFileUrl.title'),
+                    message: this.$root.$tc(
+                        'global.sw-media-upload.notification.illegalFileUrl.message',
+                        0
                     )
                 });
             } else {

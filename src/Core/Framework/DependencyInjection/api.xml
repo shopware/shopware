@@ -193,6 +193,7 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
+            <argument>%shopware.media.enable_url_upload_feature%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

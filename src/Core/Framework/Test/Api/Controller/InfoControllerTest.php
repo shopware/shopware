@@ -21,6 +21,9 @@ class InfoControllerTest extends TestCase
                 'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
             ],
             'bundles' => [],
+            'settings' => [
+                'enableUrlFeature' => true,
+            ],
         ];
 
         $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);

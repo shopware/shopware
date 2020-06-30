@@ -47,18 +47,25 @@ class InfoController extends AbstractController
      */
     private $kernel;
 
+    /**
+     * @var bool
+     */
+    private $enableUrlFeature;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
         Kernel $kernel,
-        Packages $packages
+        Packages $packages,
+        bool $enableUrlFeature = true
     ) {
         $this->definitionService = $definitionService;
         $this->params = $params;
         $this->actionEventRegistry = $actionEventRegistry;
         $this->packages = $packages;
         $this->kernel = $kernel;
+        $this->enableUrlFeature = $enableUrlFeature;
     }
 
     /**
@@ -114,6 +121,9 @@ class InfoController extends AbstractController
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
             'bundles' => $this->getBundles(),
+            'settings' => [
+                'enableUrlFeature' => $this->enableUrlFeature,
+            ],
         ]);
     }
 

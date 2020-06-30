@@ -58,11 +58,11 @@ describe('Media: Test crud operations', () => {
             '.sw-media-upload-v2__button-url-upload',
             '.sw-media-upload-v2__button-context-menu'
         );
-        page.uploadImageUsingUrl(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
-        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
+        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+        cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
             .should('be.visible');
         cy.awaitAndCheckNotification('File has been saved.');
-        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
+        cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
             .first()
             .click();
 

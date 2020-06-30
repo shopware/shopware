@@ -250,7 +250,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             if (this.priceGroup.calculation === 1) {
                 newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
             } else {
-                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd, 3);
+                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd);
             }
 
             newShippingPrice.quantityEnd = null;
@@ -259,28 +259,17 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         countDecimalPlaces(value) {
-            return value.toString().split('.')[1].length;
+            const split = value.toString().split('.');
+
+            return split[1] ? split[1].length : 0;
         },
 
-        increaseWithDecimalPlaces(value, decimalPrecision) {
-            // Value has no decimal place
-            if (value % 1 === 0) {
-                return Number((value + 0.1).toFixed(decimalPrecision));
-            }
+        increaseWithDecimalPlaces(value) {
+            let decimalPlaces = this.countDecimalPlaces(value);
+            decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
 
-            if (this.countDecimalPlaces(value) === 1) {
-                return Number((value + 0.1).toFixed(decimalPrecision));
-            }
-
-            if (this.countDecimalPlaces(value) === 2) {
-                return Number((value + 0.01).toFixed(decimalPrecision));
-            }
-
-            if (this.countDecimalPlaces(value) === 3) {
-                return Number((value + 0.001).toFixed(decimalPrecision));
-            }
-
-            return Number((value + 1).toFixed(decimalPrecision));
+            const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
+            return value + increase;
         },
 
         onSaveMainRule(ruleId) {

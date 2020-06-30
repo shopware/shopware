@@ -309,7 +309,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowTwoQuantityEnd.element.value).toEqual('');
     });
 
-    it('should show all rules with weight and decimal places', () => {
+    it('should show all rules with weight and up to three decimal places', () => {
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: '12345',
             prices: [
@@ -334,6 +334,40 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     id: 'b2',
                     ruleId: '2',
                     quantityStart: 2.6,
+                    quantityEnd: 3.52,
+                    shippingMethodId: 345,
+                    calculationRule: 876,
+                    calculation: 3,
+                    currencyPrice: [
+                        {
+                            currencyId: '1',
+                            gross: 40,
+                            net: 20,
+                            linked: false
+                        }
+                    ]
+                },
+                {
+                    id: 'b3',
+                    ruleId: '2',
+                    quantityStart: 3.53,
+                    quantityEnd: 3.621,
+                    shippingMethodId: 345,
+                    calculationRule: 876,
+                    calculation: 3,
+                    currencyPrice: [
+                        {
+                            currencyId: '1',
+                            gross: 40,
+                            net: 20,
+                            linked: false
+                        }
+                    ]
+                },
+                {
+                    id: 'b4',
+                    ruleId: '2',
+                    quantityStart: 3.621,
                     quantityEnd: null,
                     shippingMethodId: 345,
                     calculationRule: 876,
@@ -363,11 +397,19 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
         const rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         const rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
+        const rowThreeQuantityStart = wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--quantityStart input');
+        const rowThreeQuantityEnd = wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--quantityEnd input');
+        const rowFourQuantityStart = wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--quantityStart input');
+        const rowFourQuantityEnd = wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--quantityEnd input');
 
         expect(rowOneQuantityStart.element.value).toEqual('0');
         expect(rowOneQuantityEnd.element.value).toEqual('2.5');
         expect(rowTwoQuantityStart.element.value).toEqual('2.6');
-        expect(rowTwoQuantityEnd.element.value).toEqual('');
+        expect(rowTwoQuantityEnd.element.value).toEqual('3.52');
+        expect(rowThreeQuantityStart.element.value).toEqual('3.53');
+        expect(rowThreeQuantityEnd.element.value).toEqual('3.621');
+        expect(rowFourQuantityStart.element.value).toEqual('3.621');
+        expect(rowFourQuantityEnd.element.value).toEqual('');
     });
 
     it('all rules should have the right min and max values', () => {
@@ -378,13 +420,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         const rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.attributes().min).toEqual(undefined);
+        expect(rowOneQuantityStart.attributes().min).toEqual('0');
         expect(rowOneQuantityStart.attributes().max).toEqual('20');
 
         expect(rowOneQuantityEnd.attributes().min).toEqual('1');
         expect(rowOneQuantityEnd.attributes().max).toEqual(undefined);
 
-        expect(rowTwoQuantityStart.attributes().min).toEqual(undefined);
+        expect(rowTwoQuantityStart.attributes().min).toEqual('20');
         expect(rowTwoQuantityStart.attributes().max).toEqual(undefined);
 
         expect(rowTwoQuantityEnd.attributes().min).toEqual('21');

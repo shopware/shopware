@@ -145,6 +145,7 @@
                             :name="`sw-field--${item.id}-quantity-start`"
                             :numberType="numberFieldType"
                             :size="compact ? 'small' : 'default'"
+                            :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd : 0"
                             :max="item.quantityEnd ? item.quantityEnd : null"
                             :digits="3"
                             v-model="item.quantityStart">

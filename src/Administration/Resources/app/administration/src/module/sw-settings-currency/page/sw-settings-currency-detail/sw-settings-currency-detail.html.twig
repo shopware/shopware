@@ -20,7 +20,7 @@
                         class="sw-settings-currency-detail__save-action"
                         :isLoading="isLoading"
                         v-model="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('currencies.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"

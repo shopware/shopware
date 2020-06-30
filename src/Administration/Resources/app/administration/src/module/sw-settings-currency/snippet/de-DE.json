@@ -44,5 +44,12 @@
       "notificationErrorTitle": "Fehler",
       "notificationErrorMessage": "Fehler beim Speichern der Währung."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "currencies": {
+        "label": "Currencies"
+      }
+    }
   }
 }

@@ -1,6 +1,8 @@
 import './page/sw-settings-currency-list';
 import './page/sw-settings-currency-detail';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-currency', {
@@ -18,14 +20,16 @@ Module.register('sw-settings-currency', {
             component: 'sw-settings-currency-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'currencies.viewer'
             }
         },
         detail: {
             component: 'sw-settings-currency-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.currency.index'
+                parentPath: 'sw.settings.currency.index',
+                privilege: 'currencies.viewer'
             },
             props: {
                 default(route) {
@@ -39,7 +43,8 @@ Module.register('sw-settings-currency', {
             component: 'sw-settings-currency-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.currency.index'
+                parentPath: 'sw.settings.currency.index',
+                privilege: 'currencies.creator'
             }
         }
     },
@@ -47,6 +52,7 @@ Module.register('sw-settings-currency', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.currency.index',
-        icon: 'default-symbol-euro'
+        icon: 'default-symbol-euro',
+        privilege: 'currencies.viewer'
     }
 });

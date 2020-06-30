@@ -44,5 +44,12 @@
       "notificationErrorTitle": "Error",
       "notificationErrorMessage": "An error occured while saving your currency."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "currencies": {
+        "label": "Currencies"
+      }
+    }
   }
 }

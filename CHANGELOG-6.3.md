@@ -202,6 +202,15 @@ Table of contents
 * Added salesChannel state in `sw-sales-channel` module
 * Added ACL permissions to product module
 * Added ACL permissions to currency module in settings
+* Added `customFieldSetCriteria` computed property to `sw-customer-detail-base`
+* Added `createdComponent` method to `sw-customer-detail-base`
+* Added `page`, `limit`, and `total` as required prop to `sw-custom-field-list`
+* `sw-custom-field-list` emits `custom-field-change` event
+* `sw-custom-field-list` emits `page-change` event
+* Added computed `customFieldRepository` to `sw-custom-field-list`
+* Added computed `customFieldCriteria` to `sw-custom-field-list`
+* Added method `setTotalOfCustomFields` to `sw-custom-field-list`
+* Added method `onPageChange` to `sw-custom-field-list`
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

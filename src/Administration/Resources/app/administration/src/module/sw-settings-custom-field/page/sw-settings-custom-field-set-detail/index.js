@@ -17,12 +17,19 @@ Component.register('sw-settings-custom-field-set-detail', {
         ESCAPE: 'onCancel'
     },
 
+    inject: [
+        'repositoryFactory'
+    ],
+
     data() {
         return {
             set: {},
             setId: '',
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            limit: 10,
+            page: 1,
+            total: 0
         };
     },
 
@@ -40,14 +47,28 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         customFieldSetRepository() {
-            return Shopware.Service('repositoryFactory').create('custom_field_set');
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
+        },
+
+        customFieldCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('customFieldSetId', this.setId));
+
+            return criteria;
         },
 
         customFieldSetCriteria() {
             const criteria = new Criteria();
 
             criteria.addAssociation('relations');
-            criteria.addAssociation('customFields');
+            criteria.getAssociation('customFields')
+                .setLimit(this.limit)
+                .setPage(this.page)
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },
@@ -87,6 +108,14 @@ Component.register('sw-settings-custom-field-set-detail', {
                 Shopware.Context.api,
                 this.customFieldSetCriteria
             );
+
+            this.setTotalOfCustomFields();
+        },
+
+        setTotalOfCustomFields() {
+            this.customFieldRepository.searchIds(this.customFieldCriteria, Shopware.Context.api).then(response => {
+                this.total = response.total;
+            });
         },
 
         saveFinish() {
@@ -147,6 +176,12 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         onChangeLanguage() {
+            this.loadEntityData();
+        },
+
+        onPageChange(event) {
+            this.page = event.page;
+
             this.loadEntityData();
         }
     }

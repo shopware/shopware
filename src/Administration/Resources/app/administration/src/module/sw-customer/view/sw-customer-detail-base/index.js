@@ -36,6 +36,18 @@ Component.register('sw-customer-detail-base', {
     computed: {
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria();
+
+            criteria
+                .addFilter(Criteria.equals('relations.entityName', 'customer'));
+
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition'));
+
+            return criteria;
         }
     },
 
@@ -45,13 +57,10 @@ Component.register('sw-customer-detail-base', {
 
     methods: {
         createdComponent() {
-            const customFieldSetCriteria = new Criteria();
-            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer'))
-                .addAssociation('customFields');
-
-            this.customFieldSetRepository.search(customFieldSetCriteria, Shopware.Context.api).then((customFieldSets) => {
-                this.customerCustomFieldSets = customFieldSets;
-            });
+            this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api)
+                .then((customFieldSets) => {
+                    this.customerCustomFieldSets = customFieldSets;
+                });
         }
     }
 });

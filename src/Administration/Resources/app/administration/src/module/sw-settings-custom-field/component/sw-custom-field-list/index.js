@@ -22,6 +22,23 @@ Component.register('sw-custom-field-list', {
         set: {
             type: Object,
             required: true
+        },
+
+        page: {
+            type: Number,
+            required: true
+        },
+
+        limit: {
+            type: Number,
+            required: true
+        },
+
+        total: {
+            required: true,
+            validator(value) {
+                return typeof value === 'number' || value === null;
+            }
         }
     },
 
@@ -57,6 +74,10 @@ Component.register('sw-custom-field-list', {
     },
 
     methods: {
+        paginationVisible() {
+            return typeof this.total === 'number' || this.total === null;
+        },
+
         selectionChanged() {
             const selection = this.$refs.grid.getSelection();
             this.deleteButtonDisabled = Object.keys(selection).length <= 0;
@@ -92,6 +113,7 @@ Component.register('sw-custom-field-list', {
                 this.set.customFields.push(this.currentCustomField);
             }
 
+            this.$emit('custom-field-change');
             this.currentCustomField = null;
         },
 
@@ -118,6 +140,7 @@ Component.register('sw-custom-field-list', {
                 }
             });
         },
+
         isCustomFieldNameUnique(customField) {
             // Search in local customField list for name
             const isUnique = !this.set.customFields.some((attr) => {
@@ -137,6 +160,10 @@ Component.register('sw-custom-field-list', {
             return this.globalCustomFieldRepository.search(criteria, Shopware.Context.api).then((res) => {
                 return res.length === 0;
             });
+        },
+
+        onPageChange(event) {
+            this.$emit('page-change', event);
         }
     }
 });

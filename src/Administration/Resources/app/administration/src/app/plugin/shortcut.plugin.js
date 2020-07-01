@@ -22,12 +22,24 @@ export default {
                 }
 
                 // add shortcuts
-                Object.entries(shortcuts).forEach((shortcut) => {
-                    activeShortcuts.push({
-                        key: shortcut[0],
-                        functionName: shortcut[1],
-                        instance: this
-                    });
+                Object.entries(shortcuts).forEach(([key, value]) => {
+                    if (typeof value !== 'string') {
+                        const activeFunction = typeof value.active === 'boolean' ? () => value.active : value.active;
+
+                        activeShortcuts.push({
+                            key: key,
+                            functionName: value.method,
+                            instance: this,
+                            active: activeFunction.bind(this)
+                        });
+                    } else {
+                        activeShortcuts.push({
+                            key: key,
+                            functionName: value,
+                            instance: this,
+                            active: () => true
+                        });
+                    }
                 });
 
                 // add event listener when one shortcut is registered
@@ -76,6 +88,10 @@ export default {
                     const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === combinedKey);
 
                     let shouldNotTrigger = false;
+
+                    if (matchedShortcut && !matchedShortcut.active()) {
+                        return false;
+                    }
 
                     // SYSTEMKEY shortcuts combinations should always trigger
                     if (matchedShortcut && /SYSTEMKEY/.test(matchedShortcut.key) === false) {

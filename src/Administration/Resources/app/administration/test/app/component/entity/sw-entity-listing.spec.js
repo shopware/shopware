@@ -73,7 +73,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = createWrapper();
 
         wrapper.setProps({
-            editPrivilege: false
+            allowEdit: false
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -99,7 +99,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = createWrapper();
 
         wrapper.setProps({
-            deletePrivilege: false
+            allowDelete: false
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');

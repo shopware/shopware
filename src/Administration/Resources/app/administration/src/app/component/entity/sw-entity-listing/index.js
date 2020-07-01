@@ -58,13 +58,13 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             default: 25
         },
 
-        editPrivilege: {
+        allowEdit: {
             type: Boolean,
             required: false,
             default: true
         },
 
-        deletePrivilege: {
+        allowDelete: {
             type: Boolean,
             required: false,
             default: true

@@ -201,6 +201,8 @@ Table of contents
         * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
         * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
     * Added salesChannel state in `sw-sales-channel` module
+* Added ACL permissions to product module
+* Added ACL permissions to currency module in settings
 
 * Core
     * Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
@@ -216,7 +218,6 @@ Table of contents
 * Core
 
 * Storefront
-* Added ACL permissions to product module
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

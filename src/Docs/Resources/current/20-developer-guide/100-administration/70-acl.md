@@ -380,3 +380,25 @@ snippet path:
         }"
 ></button>
 ```
+
+## Protect your shortcuts
+
+It is easy to protect your shortcuts. You can replace the String value with an object which
+contains the method and an active property.
+
+The active property can be a boolean or a function which returns a boolean value.
+In our case we need a function to check on each shortcut execution if the privilege exists.
+
+```js
+Module.register('your-plugin-module', {
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('product.editor');
+            },
+            method: 'onSave'
+        },
+        ESCAPE: 'onCancel'
+    },
+});
+```

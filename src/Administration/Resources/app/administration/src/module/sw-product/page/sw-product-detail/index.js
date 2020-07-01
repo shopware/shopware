@@ -21,7 +21,12 @@ Component.register('sw-product-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('product.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -425,10 +430,6 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
-            if (!this.acl.can('product.editor')) {
-                return Promise.reject();
-            }
-
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
                     this.numberRangeService.reserve('product').then((response) => {

@@ -47,6 +47,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added configuration `media.enable_url_validation` in `shopware.yaml` to disable the URL validation when a media is uploaded via URL
     * Added decoratable class `Shopware\Core\Content\Media\File\FileUrlValidator`
 
+    * Added option `cookie_secure : 'auto'` to `framework.yaml` to secure the session cookie for request over secure connection
+    * Enabled `secure` flag for every other used cookies
+    * `\Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler::replaceCsrfToken` requires now the current request as second function parameter.
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
     * Added the `--keep-cache` option to the `http:cache:warm:up` to keep the current cache as warmup target

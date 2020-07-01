@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Csrf;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -48,7 +49,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
             $response->getContent()
         );
 
-        $response = $csrfPlaceholderHandler->replaceCsrfToken($response);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($response, new Request());
 
         $expectedContent = file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestReplaced.html.twig');
         $expectedContent = preg_replace(
@@ -67,7 +68,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
     {
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(false);
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
-        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
         static::assertSame($expectedResponse, $response);
     }
 
@@ -75,7 +76,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
     {
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(true, 'ajax');
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
-        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
         static::assertSame($expectedResponse, $response);
     }
 
@@ -83,7 +84,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
     {
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/javascript']);
-        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
         static::assertSame($expectedResponse, $response);
     }
 
@@ -91,7 +92,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
     {
         $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
         $expectedResponse = new Response($this->getContentWithCsrfPLaceholder(), 404, ['Content-Type' => 'text/html']);
-        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse);
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($expectedResponse, new Request());
         static::assertSame($expectedResponse, $response);
     }
 

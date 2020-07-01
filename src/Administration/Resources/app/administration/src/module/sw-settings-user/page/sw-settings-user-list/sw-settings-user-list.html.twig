@@ -56,13 +56,13 @@
                         {% block sw_settings_user_list_content_grid_actions %}
                             <template #actions="{ item }">
                                 {% block sw_settings_user_list_actions_edit %}
-                                    <sw-context-menu-item :routerLink="{ name: 'sw.settings.user.detail', params: { id: item.id } }">
+                                    <sw-context-menu-item class="sw-settings-user-list__user-view-action" :routerLink="{ name: 'sw.settings.user.detail', params: { id: item.id } }">
                                         {{ $tc('sw-settings-user.user-grid.contextMenuEdit') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_settings_user_list_actions_delete %}
-                                    <sw-context-menu-item variant="danger" @click="onDelete(item)">
+                                    <sw-context-menu-item class="sw-settings-user-list__user-delete-action" variant="danger" @click="onDelete(item)">
                                         {{ $tc('sw-settings-user.user-grid.contextMenuDelete') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -103,6 +103,19 @@
                                         </p>
                                     {% endblock %}
 
+                                    {% block sw_settings_user_list_delete_modal_input__confirm_password %}
+                                        <sw-password-field
+                                            class="sw-settings-user-detail__confirm-password"
+                                            v-model="confirmPassword"
+                                            required
+                                            name="sw-field--confirm-password"
+                                            :passwordToggleAble="true"
+                                            :copyAble="false"
+                                            :label="$tc('sw-settings-user.user-detail.passwordConfirmation.labelConfirmPassword')"
+                                            :placeholder="$tc('sw-settings-user.user-detail.passwordConfirmation.placeholderConfirmPassword')">
+                                        </sw-password-field>
+                                    {% endblock %}
+
                                     {% block sw_settings_user_list_delete_modal_footer %}
                                         <template #modal-footer>
                                             {% block sw_settings_user_list_delete_modal_cancel %}
@@ -112,7 +125,10 @@
                                             {% endblock %}
 
                                             {% block sw_settings_user_list_delete_modal_confirm %}
-                                                <sw-button @click="onConfirmDelete(item)" variant="primary" size="small">
+                                                <sw-button @click="onConfirmDelete(item)"
+                                                           :disabled="!confirmPassword"
+                                                           variant="primary"
+                                                           size="small">
                                                     {{ $tc('sw-settings-user.user-grid.labelButtonDelete') }}
                                                 </sw-button>
                                             {% endblock %}

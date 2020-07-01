@@ -2,15 +2,21 @@ import { email } from 'src/core/service/validation.service';
 import template from './sw-settings-user-detail.html.twig';
 import './sw-settings-user-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
+const types = Shopware.Utils.types;
 
 Component.register('sw-settings-user-detail', {
     template,
 
-    inject: ['userService', 'userValidationService', 'integrationService', 'repositoryFactory'],
+    inject: [
+        'userService',
+        'loginService',
+        'userValidationService',
+        'integrationService',
+        'repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -32,7 +38,10 @@ Component.register('sw-settings-user-detail', {
             integrations: [],
             currentIntegration: null,
             mediaItem: null,
+
+            // @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic
             changePasswordModal: false,
+
             newPassword: '',
             isEmailUsed: false,
             isUsernameUsed: false,
@@ -41,7 +50,9 @@ Component.register('sw-settings-user-detail', {
             isModalLoading: false,
             showSecretAccessKey: false,
             showDeleteModal: null,
-            skeletonItemAmount: 3
+            skeletonItemAmount: 3,
+            confirmPasswordModal: false,
+            confirmPassword: ''
         };
     },
 
@@ -300,6 +311,10 @@ Component.register('sw-settings-user-detail', {
         },
 
         onSave() {
+            this.confirmPasswordModal = true;
+        },
+
+        saveUser(authToken) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
             let promises = [];
@@ -316,7 +331,10 @@ Component.register('sw-settings-user-detail', {
                         'sw-settings-user.user-detail.notification.saveError.message', 0, { name: this.fullName }
                     );
 
-                    return this.userRepository.save(this.user, Shopware.Context.api).then(() => {
+                    const context = { ...Shopware.Context.api };
+                    context.authToken.access = authToken;
+
+                    return this.userRepository.save(this.user, context).then(() => {
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
                     }).catch((exception) => {
@@ -339,15 +357,24 @@ Component.register('sw-settings-user-detail', {
             this.$router.push({ name: 'sw.settings.user.list' });
         },
 
+        /**
+         * @deprecated tag:v6.4.0
+         */
         onChangePassword() {
             this.changePasswordModal = true;
         },
 
+        /**
+         * @deprecated tag:v6.4.0
+         */
         onClosePasswordModal() {
             this.newPassword = '';
             this.changePasswordModal = false;
         },
 
+        /**
+         * @deprecated tag:v6.4.0
+         */
         onSubmit() {
             this.changePasswordModal = false;
             this.user.password = this.newPassword;
@@ -391,6 +418,44 @@ Component.register('sw-settings-user-detail', {
 
             this.onCloseDeleteModal();
             return this.keyRepository.delete(id, Shopware.Context.api).then(this.loadKeys);
+        },
+
+        async onSubmitConfirmPassword() {
+            const verifiedToken = await this.verifyUserToken();
+
+            if (!verifiedToken) {
+                return;
+            }
+
+            this.confirmPasswordModal = false;
+            this.saveUser(verifiedToken);
+        },
+
+        onCloseConfirmPasswordModal() {
+            this.confirmPassword = '';
+            this.confirmPasswordModal = false;
+        },
+
+        verifyUserToken() {
+            const { username } = State.get('session').currentUser;
+
+            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
+                this.confirmPassword = '';
+
+                if (types.isString(access)) {
+                    return access;
+                }
+
+                return false;
+            }).catch(() => {
+                this.confirmPassword = '';
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                });
+
+                return false;
+            });
         }
     }
 });

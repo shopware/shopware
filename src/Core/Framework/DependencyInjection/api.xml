@@ -252,6 +252,10 @@
             <tag name="shopware.oauth.scope"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope">
+            <tag name="shopware.oauth.scope"/>
+        </service>
+
         <!-- API -->
         <service class="League\OAuth2\Server\CryptKey" id="shopware.private_key">
             <argument>file://%kernel.project_dir%/config/jwt/private.pem</argument>

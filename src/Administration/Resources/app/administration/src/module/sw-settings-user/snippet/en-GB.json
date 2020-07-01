@@ -96,6 +96,15 @@
           "message": "User \"{name}\" has been saved."
         },
         "notificationInvalidEmailErrorMessage": "Please enter a valid email address."
+      },
+      "passwordConfirmation": {
+        "titleConfirmPasswordModal": "Enter your current password to confirm",
+        "labelConfirmPassword": "Password",
+        "placeholderConfirmPassword": "Please enter your current password.",
+        "labelButtonCancel": "Cancel",
+        "labelButtonConfirm": "Confirm",
+        "notificationPasswordErrorTitle": "Error",
+        "notificationPasswordErrorMessage": "Please submit your current password correctly."
       }
     }
   }

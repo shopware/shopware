@@ -20,6 +20,14 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
     * Added property `placeholderIsPassword` to `sw-password-field` component
     * Added CSP header to the admin page. Inline scripts are now disallowed by default. You have to add a nonce attribute with the value `cspNonce` to authorize inline scripts. 
+    * Refactored password confirmation in `sw-profile-index`
+        * Deprecated property `oldPassword` use `confirmPassword instead
+        * Deprecated method `validateOldPassword`, as it is not necessary anymore
+        * Deprecated block `sw_profile_index_password_card_old_password_field` in template
+    * Refactored password confirmation in `sw-settings-user-detail`
+        * Deprecated methods `onChangePassword`, `onClosePasswordModal`, `onSubmit`, as it is not necessary anymore
+        * Deprecated blocks `sw_settings_user_detail_grid_change_password` and `sw_settings_user_detail_content_password_modal in template
+    * Added password confirmation to `sw-settings-user-list` for deleting users 
 
 * Core
     * Added `Czech koruna` as currency

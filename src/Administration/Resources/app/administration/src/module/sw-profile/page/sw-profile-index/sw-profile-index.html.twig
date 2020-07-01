@@ -112,13 +112,9 @@
                         <sw-card class="sw-profile__card"
                                  :title="$tc('sw-profile.index.titlePasswordCard')"
                                  :isLoading="isUserLoading || !languageId">
-                            {% block sw_profile_index_password_card_old_password_field %}
-                                <sw-password-field v-model="oldPassword"
-                                                   autocomplete="off"
-                                                   :label="$tc('sw-profile.index.labelOldPassword')"
-                                                   :placeholder="$tc('sw-profile.index.placeholderOldPassword')">
-                                </sw-password-field>
-                            {% endblock %}
+
+                            {# @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic #}
+                            {% block sw_profile_index_password_card_old_password_field %}{% endblock %}
 
                             {% block sw_profile_index_password_card_new_password_field %}
                                 <sw-password-field v-model="newPassword"
@@ -140,6 +136,46 @@
                     {% endblock %}
                 {% endblock %}
             </sw-card-view>
+
+            {% block sw_profile_index_content_confirm_password_modal %}
+                <sw-modal v-if="confirmPasswordModal"
+                      @modal-close="onCloseConfirmPasswordModal"
+                      :title="$tc('sw-profile.index.titleConfirmPasswordModal')"
+                      variant="small">
+                    {% block sw_profile_index_content_confirm_password_modal_input__confirm_password %}
+                        <sw-password-field
+                            class="sw-settings-user-detail__confirm-password"
+                            v-model="confirmPassword"
+                            required
+                            name="sw-field--confirm-password"
+                            :passwordToggleAble="true"
+                            :copyAble="false"
+                            :label="$tc('sw-profile.index.labelConfirmPassword')"
+                            :placeholder="$tc('sw-profile.index.placeholderConfirmPassword')">
+                        </sw-password-field>
+                    {% endblock %}
+
+                    {% block sw_profile_index_content_confirm_password_modal_footer %}
+                        <template #modal-footer>
+                            {% block sw_profile_index_content_confirm_password_modal_actions_cancel %}
+                                <sw-button @click="onCloseConfirmPasswordModal"
+                                           size="small">
+                                    {{ $tc('sw-profile.index.labelButtonCancel') }}
+                                </sw-button>
+                            {% endblock %}
+
+                            {% block sw_profile_index_content_confirm_password_modal_actions_change %}
+                                <sw-button @click="onSubmitConfirmPassword"
+                                           variant="primary"
+                                           :disabled="!confirmPassword"
+                                           size="small">
+                                    {{ $tc('sw-profile.index.labelButtonConfirm') }}
+                                </sw-button>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </sw-modal>
+            {% endblock %}
         </template>
 
         {% block sw_profile_index_sidebar %}

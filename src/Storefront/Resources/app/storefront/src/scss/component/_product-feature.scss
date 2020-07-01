@@ -1,0 +1,17 @@
+.product-feature {
+    &-list {
+        &-list {
+            list-style: none;
+            padding-left: unset;
+        }
+
+    }
+
+    &-feature {
+        font-size: $font-size-sm;
+    }
+
+    &-value {
+        font-weight: $font-weight-bold;
+    }
+}

@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/component/product/feature/base.html.twig' %}
+
+{% block component_product_feature_list_item_base_content_label %}
+    {{ '%s:'|format(label)|sw_sanitize }}
+{% endblock %}
+
+{% block component_product_feature_list_item_base_content_value %}
+    {{ value|column('name')|join(', ')|sw_sanitize }}
+{% endblock %}

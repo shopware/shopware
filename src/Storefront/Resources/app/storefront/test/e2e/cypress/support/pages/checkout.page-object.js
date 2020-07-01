@@ -38,8 +38,14 @@ export default class CheckoutPageObject {
             alert: '.sw-alert',
             alertClose: '.sw-alert__close',
             notification: '.sw-notifications__notification',
+
             // General cart selectors
             cartItem: '.cart-item',
+            cartItemFeatureList: '.component-product-feature-list--list',
+            cartItemFeatureListItem: '.component-product-feature-list--item',
+            cartItemFeatureContainer: '.component-product-feature--feature',
+            cartItemFeatureLabel: '.component-product-feature--label',
+            cartItemFeatureValue: '.component-product-feature--value',
 
             // Cart widget
             cardWidget: '.cart-widget',

@@ -88,18 +88,16 @@
                                     </div>
                                 {% endblock %}
 
-                                {% block component_offcanvas_product_variants %}
-                                    {% if lineItem.payload.options|length >= 1 %}
-                                        <div class="cart-item-variants">
-                                            {% for option in lineItem.payload.options %}
-                                                <div class="cart-item-variants-properties">
-                                                    <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
-                                                    <div class="cart-item-variants-properties-value">{{ option.option }}</div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
+                                {% block component_offcanvas_product_details_features %}
+                                    {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                                        {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
+                                            'features': lineItem.payload.features
+                                        } %}
                                     {% endif %}
                                 {% endblock %}
+
+                                {# @deprecated tag:v6.4.0.0 #}
+                                {% block component_offcanvas_product_variants %}{% endblock %}
 
                                 {% block component_offcanvas_product_quantity_price %}
                                     <div class="cart-quantity-price">

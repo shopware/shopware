@@ -112,27 +112,16 @@
                                                     </div>
                                                 {% endblock %}
 
-                                                {% if lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
-                                                    {% set price = lineItem.price %}
-                                                    {{ "checkout.priceUnitName"|trans|sw_sanitize }}
-                                                    <span class="price-unit-reference">
-                                                        {{ price.referencePrice.purchaseUnit }} {{ price.referencePrice.unitName }}
-                                                        ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                                                    </span>
-                                                {% endif %}
-
-                                                {% block page_checkout_item_info_variants %}
-                                                    {% if lineItem.payload.options|length >= 1 %}
-                                                        <div class="cart-item-variants">
-                                                            {% for option in lineItem.payload.options %}
-                                                                <div class="cart-item-variants-properties">
-                                                                    <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
-                                                                    <div class="cart-item-variants-properties-value">{{ option.option }}</div>
-                                                                </div>
-                                                            {% endfor %}
-                                                        </div>
+                                                {% block page_checkout_item_info_features %}
+                                                    {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                                                        {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
+                                                            'features': lineItem.payload.features
+                                                        } %}
                                                     {% endif %}
                                                 {% endblock %}
+
+                                                {# @deprecated tag:v6.4.0.0 #}
+                                                {% block page_checkout_item_info_variants %}{% endblock %}
 
                                                 {% block page_checkout_item_info_ordernumber %}
                                                     {% if lineItem.payload.productNumber %}

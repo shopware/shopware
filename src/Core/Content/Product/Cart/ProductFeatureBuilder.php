@@ -221,6 +221,10 @@ class ProductFeatureBuilder
             $value = $translated[$name];
         }
 
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        }
+
         return [
             'label' => $name,
             'value' => $value,

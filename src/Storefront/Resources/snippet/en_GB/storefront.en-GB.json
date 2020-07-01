@@ -518,5 +518,26 @@
   "ellipsis": {
     "expandLabel": "show more",
     "shrinkLabel": "show less"
+  },
+  "component": {
+    "product": {
+      "feature": {
+        "label": {
+          "manufacturerNumber": "Supplier number:",
+          "ean": "EAN:",
+          "weight": "Weight:",
+          "width":  "Width:",
+          "height": "Height:",
+          "length":  "Length:",
+          "releaseDate": "Release date:",
+          "description":  "Description:",
+          "referencePrice": "Content:"
+        },
+        "customField": {
+          "true": "Yes",
+          "false": "No"
+        }
+      }
+    }
   }
 }

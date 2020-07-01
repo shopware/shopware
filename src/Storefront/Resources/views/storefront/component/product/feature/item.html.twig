@@ -1,0 +1,31 @@
+{% set TYPE_PRODUCT_ATTRIBUTE = constant('\\Shopware\\Core\\Content\\Product\\Aggregate\\ProductFeatureSet\\ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE') %}
+{% set TYPE_PRODUCT_PROPERTY = constant('\\Shopware\\Core\\Content\\Product\\Aggregate\\ProductFeatureSet\\ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY') %}
+{% set TYPE_PRODUCT_CUSTOM_FIELD = constant('\\Shopware\\Core\\Content\\Product\\Aggregate\\ProductFeatureSet\\ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD') %}
+{% set TYPE_PRODUCT_REFERENCE_PRICE = constant('\\Shopware\\Core\\Content\\Product\\Aggregate\\ProductFeatureSet\\ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE') %}
+
+{% set type = '' %}
+
+{% block component_product_feature_item %}
+    {% if feature.type == TYPE_PRODUCT_ATTRIBUTE %}
+        {% set type = 'feature-attribute' %}
+    {% elseif feature.type == TYPE_PRODUCT_PROPERTY %}
+        {% set type = 'feature-property' %}
+    {% elseif feature.type == TYPE_PRODUCT_CUSTOM_FIELD %}
+        {% set type = 'feature-custom-field' %}
+    {% elseif feature.type == TYPE_PRODUCT_REFERENCE_PRICE and lineItem.price.referencePrice is not null %}
+        {% set type = 'feature-reference-price' %}
+    {% endif %}
+
+    {% if not (type is empty or feature.label is empty or feature.value is empty) %}
+        <li class="product-feature-list-item">
+
+            {% sw_include '@Storefront/storefront/component/product/feature/types/' ~ type ~ '.html.twig' with {
+                'type': type,
+                'label': feature.label,
+                'value': feature.value
+            } %}
+
+        </li>
+    {% endif %}
+
+{% endblock %}

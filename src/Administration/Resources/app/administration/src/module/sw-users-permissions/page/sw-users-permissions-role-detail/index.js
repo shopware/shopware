@@ -67,11 +67,7 @@ Component.register('sw-users-permissions-role-detail', {
         },
 
         requiredPrivileges() {
-            return [
-                'language:read', // for entityInit and languageSwitch
-                'locale:read', // for localeToLanguage service
-                'message_queue_stats:read' // for message queue
-            ];
+            return this.privileges.getRequiredPrivileges();
         }
     },
 

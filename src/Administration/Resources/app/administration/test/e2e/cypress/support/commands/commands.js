@@ -25,3 +25,86 @@ Cypress.Commands.add('typeAndCheckSearchField', {
         cy.url().should('include', encodeURI(value));
     });
 });
+
+/**
+ * Add role with Permissions
+ * @memberOf Cypress.Chainable#
+ * @name loginAsUserWithPermissions
+ * @function
+ * @param {Array} permissions - The permissions for the role
+ */
+Cypress.Commands.add('loginAsUserWithPermissions', {
+    prevSubject: false
+}, (permissions) => {
+    cy.window().then(($w) => {
+        const roleID = 'ef68f039468d4788a9ee87db9b3b94de';
+        const localeId = $w.Shopware.State.get('session').currentUser.localeId;
+        const headers = {
+            Accept: 'application/vnd.api+json',
+            Authorization: `Bearer ${$w.Shopware.Context.api.authToken.access}`,
+            'Content-Type': 'application/json'
+        };
+
+        // save role
+        cy.request({
+            url: `/api/${Cypress.env('apiVersion')}/acl-role`,
+            method: 'POST',
+            headers: headers,
+            body: {
+                id: roleID,
+                name: 'e2eRole',
+                privileges: (() => {
+                    const privilegesService = $w.Shopware.Service('privileges');
+
+                    const requiredPermissions = privilegesService.getRequiredPrivileges();
+                    const selectedPrivileges = permissions.reduce((selectedPrivileges, { key, role }) => {
+                        const identifier = `${key}.${role}`;
+
+                        selectedPrivileges.push(
+                            identifier,
+                            ...privilegesService.getPrivilegeRole(identifier).privileges
+                        );
+
+                        return selectedPrivileges;
+                    }, []);
+
+                    return [
+                        ...selectedPrivileges,
+                        ...requiredPermissions
+                    ]
+                })()
+            }
+        }).then(response => {
+            cy.log(response);
+        });
+
+        // save user
+        cy.request({
+            url: `/api/${Cypress.env('apiVersion')}/user`,
+            method: 'POST',
+            headers: headers,
+            body: {
+                aclRoles: [{ id: roleID }],
+                admin: false,
+                email: "max@muster.com",
+                firstName: "Max",
+                id: "b7fb49e9d86d4e5b9b03c9d6f929e36b",
+                lastName: "Muster",
+                localeId: localeId,
+                password: "Passw0rd!",
+                username: "maxmuster"
+            }
+        });
+
+        // logout
+        cy.get('.sw-admin-menu__user-actions-toggle').click();
+        cy.clearCookies();
+        cy.get('.sw-admin-menu__logout-action').click();
+        cy.get('.sw-login__container').should('be.visible');
+
+        // login
+        cy.get('#sw-field--username').type('maxmuster');
+        cy.get('#sw-field--password').type('Passw0rd!');
+        cy.get('.sw-login__login-action').click();
+    });
+});

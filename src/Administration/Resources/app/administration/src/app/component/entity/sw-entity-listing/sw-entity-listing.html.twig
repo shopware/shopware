@@ -3,7 +3,7 @@
 {% endblock %}
 
 {% block sw_data_grid_bulk_selected_actions_content %}
-    <a class="link link-danger" @click="showBulkDeleteModal = true">
+    <a class="link link-danger" v-if="deletePrivilege" @click="showBulkDeleteModal = true">
         {{ $tc('global.default.delete') }}
     </a>
 {% endblock %}
@@ -35,7 +35,15 @@
 
 {% block sw_data_grid_slot_actions %}
     <slot name="detail-action" v-bind="{ item }">
-        <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action" v-if="detailRoute" :routerLink="{ name: detailRoute, params: { id: item.id } }">
+        <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
+                              v-if="detailRoute"
+                              :disabled="!editPrivilege"
+                              v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: editPrivilege,
+                                    showOnDisabledElements: true
+                               }"
+                              :routerLink="{ name: detailRoute, params: { id: item.id } }">
             {{ $tc('global.default.edit') }}
         </sw-context-menu-item>
     </slot>
@@ -43,7 +51,15 @@
     <slot name="more-actions" v-bind="{ item }"></slot>
 
     <slot name="delete-action" v-bind="{ item, showDelete }">
-        <sw-context-menu-item @click="showDelete(item.id)" variant="danger">
+        <sw-context-menu-item @click="showDelete(item.id)"
+                              :disabled="!deletePrivilege"
+                              class="sw-entity-listing__context-menu-edit-delete"
+                              v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: deletePrivilege,
+                                    showOnDisabledElements: true
+                               }"
+                              variant="danger">
             {{ $tc('global.default.delete') }}
         </sw-context-menu-item>
     </slot>

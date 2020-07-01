@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AclCriteriaValidatorTest extends TestCase
 {
@@ -48,19 +46,15 @@ class AclCriteriaValidatorTest extends TestCase
             [Defaults::LANGUAGE_SYSTEM]
         );
 
-        $exception = null;
-
-        try {
-            $this->validator->validate(ProductDefinition::ENTITY_NAME, $criteria, $context);
-        } catch (MissingPrivilegeException $e) {
-            $exception = $e;
-        }
+        $missing = $this->validator->validate(ProductDefinition::ENTITY_NAME, $criteria, $context);
 
         if ($pass) {
-            static::assertNull($exception);
-        } else {
-            static::assertInstanceOf(AccessDeniedHttpException::class, $exception);
+            static::assertEmpty($missing);
+
+            return;
         }
+
+        static::assertNotEmpty($missing);
     }
 
     public function criteriaProvider()

@@ -1,5 +1,7 @@
 import { next3722 } from 'src/flag/feature_next3722';
 
+const utils = Shopware.Utils;
+
 export default class AclService {
     state;
 
@@ -30,6 +32,27 @@ export default class AclService {
         }
 
         return this.state.getters.userPrivileges.includes(privilegeKey);
+    }
+
+    /**
+     *
+     * @param path {string}
+     * @returns {boolean}
+     */
+    hasAccessToRoute(path) {
+        if (!utils.get(Shopware, 'Application.view.root.$router')) {
+            return true;
+        }
+
+        const route = path.replace(/\./g, '/');
+        const router = Shopware.Application.view.root.$router;
+        const match = router.match(route);
+
+        if (!match.meta) {
+            return true;
+        }
+
+        return this.can(match.meta.privilege);
     }
 
     /**

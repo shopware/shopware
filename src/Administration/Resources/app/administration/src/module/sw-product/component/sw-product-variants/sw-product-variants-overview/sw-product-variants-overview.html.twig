@@ -68,7 +68,15 @@
                         {% endblock %}
 
                         {% block sw_product_variants_overview_option_list_toolbar_buttons %}
-                            <sw-button variant="ghost" class="sw-product-variants__generate-action" @click="$emit('generator-open')">
+                            <sw-button variant="ghost"
+                                       :disabled="!acl.can('product.creator')"
+                                       v-tooltip="{
+                                            message: $tc('sw-privileges.tooltip.warning'),
+                                            disabled: acl.can('product.creator'),
+                                            showOnDisabledElements: true
+                                        }"
+                                       class="sw-product-variants__generate-action"
+                                       @click="$emit('generator-open')">
                                 {{ $tc('sw-product.variations.overview.generateVariants') }}
                             </sw-button>
 
@@ -94,7 +102,7 @@
                 :sortDirection="sortDirection"
                 :isLoading="isLoading"
                 :skeletonItemAmount="limit"
-                :allowInlineEdit="true"
+                :allowInlineEdit="acl.can('product.editor')"
                 identifier="product-variants-overview"
                 @column-sort="onSortColumn"
                 @inline-edit-save="onInlineEditSave"
@@ -245,11 +253,24 @@
                 {% block sw_product_variants_overview_actions %}
                     <template slot="actions" slot-scope="{ item }">
                         {% block sw_product_variants_overview_actions_items %}
-                            <sw-context-menu-item @click="onOptionEdit(item)">
+                            <sw-context-menu-item @click="onOptionEdit(item)"
+                                                  :disabled="!acl.can('product.editor')"
+                                                  v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('product.editor'),
+                                                        showOnDisabledElements: true
+                                                  }">
                                 {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
                             </sw-context-menu-item>
 
-                            <sw-context-menu-item variant="danger" @click="onVariationDelete(item)">
+                            <sw-context-menu-item variant="danger"
+                                                  @click="onVariationDelete(item)"
+                                                  :disabled="!acl.can('product.deleter')"
+                                                  v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('product.deleter'),
+                                                        showOnDisabledElements: true
+                                                  }">
                             {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}
                             </sw-context-menu-item>
                         {% endblock %}

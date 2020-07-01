@@ -23,10 +23,10 @@
                             class="sw-product-detail__save-action"
                             :isLoading="isLoading"
                             :processSuccess="isSaveSuccessful"
-                            :disabled="isLoading"
                             variant="primary"
                             @process-finish="saveFinish"
                             v-tooltip.bottom="tooltipSave"
+                            :disabled="isLoading || !acl.can('product.editor')"
                             @click.prevent="onSave">
                             {{ $tc('sw-product.detail.buttonSave') }}
                         </sw-button-process>
@@ -48,7 +48,12 @@
                             {% block sw_product_detail_actions_duplicate %}
                                 <sw-context-menu-item
                                     class="sw-product-detail__save-duplicate-action"
-                                    :disabled="product.parentId != null"
+                                    :disabled="!acl.can('product.creator') || !acl.can('product.editor') || product.parentId != null"
+                                    v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('product.creator') || acl.can('product.editor'),
+                                        showOnDisabledElements: true
+                                    }"
                                     @click="onDuplicate">
                                     {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
                                 </sw-context-menu-item>

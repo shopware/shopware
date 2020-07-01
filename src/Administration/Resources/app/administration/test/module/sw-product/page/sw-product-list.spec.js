@@ -30,6 +30,7 @@ function mockContext() {
     };
 }
 
+
 function mockCriteria() {
     return {
         limit: 25,
@@ -159,6 +160,9 @@ function createWrapper() {
 
                     return { search: () => Promise.resolve(getCurrencyData()) };
                 }
+            },
+            acl: {
+                can: () => true
             }
         },
         stubs: {

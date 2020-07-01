@@ -70,6 +70,13 @@
                 {% block sw_product_modal_delivery_footer_button_save %}
                     <sw-button
                             @click="saveDeliveryConfiguration"
+                            class="sw-product-modal-delivery__save-button"
+                            :disabled="!acl.can('product.editor')"
+                            v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('product.editor'),
+                                    showOnDisabledElements: true
+                            }"
                             variant="primary"
                             size="small">
                         {{ $tc('sw-product.variations.deliveryModal.save') }}

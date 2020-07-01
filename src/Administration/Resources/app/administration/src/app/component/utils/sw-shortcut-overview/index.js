@@ -24,7 +24,8 @@ Component.register('sw-shortcut-overview', {
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddProduct'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutAddProduct')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutAddProduct'),
+                        privilege: 'product.creator'
                     },
                     {
                         id: utils.createId(),
@@ -71,7 +72,8 @@ Component.register('sw-shortcut-overview', {
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToProducts'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToProducts')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToProducts'),
+                        privilege: 'product.viewer'
                     },
                     {
                         id: utils.createId(),

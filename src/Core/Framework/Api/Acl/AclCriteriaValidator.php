@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Acl;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -29,12 +28,14 @@ class AclCriteriaValidator
      * @throws AccessDeniedHttpException
      * @throws AssociationNotFoundException
      */
-    public function validate(string $entity, Criteria $criteria, Context $context): void
+    public function validate(string $entity, Criteria $criteria, Context $context): array
     {
         $privilege = $entity . ':' . AclRoleDefinition::PRIVILEGE_READ;
 
+        $missing = [];
+
         if (!$context->isAllowed($privilege)) {
-            throw new MissingPrivilegeException($privilege);
+            $missing[] = $privilege;
         }
 
         $definition = $this->registry->getByEntityName($entity);
@@ -51,7 +52,7 @@ class AclCriteriaValidator
                 $reference = $association->getToManyReferenceDefinition()->getEntityName();
             }
 
-            $this->validate($reference, $nested, $context);
+            $missing = array_merge($missing, $this->validate($reference, $nested, $context));
         }
 
         foreach ($criteria->getAllFields() as $accessor) {
@@ -70,9 +71,11 @@ class AclCriteriaValidator
                 $privilege = $reference . ':' . AclRoleDefinition::PRIVILEGE_READ;
 
                 if (!$context->isAllowed($privilege)) {
-                    throw new MissingPrivilegeException($privilege);
+                    $missing[] = $privilege;
                 }
             }
         }
+
+        return array_unique(array_filter($missing));
     }
 }

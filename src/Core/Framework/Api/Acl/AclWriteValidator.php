@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -66,9 +65,7 @@ class AclWriteValidator implements EventSubscriberInterface
     private function tryToThrow(ConstraintViolationList $violations): void
     {
         if ($violations->count() > 0) {
-            $violationException = new WriteConstraintViolationException($violations);
-
-            throw new AccessDeniedHttpException('You don\'t have all necessary permissions.', $violationException);
+            throw new WriteConstraintViolationException($violations);
         }
     }
 
@@ -100,8 +97,8 @@ class AclWriteValidator implements EventSubscriberInterface
     ): void {
         $violationList->add(
             $this->buildViolation(
-                'No permissions to %privilege% "%resource%".',
-                ['%privilege%' => $privilege, '%resource%' => $resource],
+                'No permissions to %privilege%".',
+                ['%privilege%' => $resource . ':' . $privilege],
                 null,
                 '/' . $command->getDefinition()->getEntityName(),
                 null,

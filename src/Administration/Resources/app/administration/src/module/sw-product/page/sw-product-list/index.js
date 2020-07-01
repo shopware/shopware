@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService'],
+    inject: ['repositoryFactory', 'numberRangeService', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),

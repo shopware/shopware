@@ -9,7 +9,7 @@
                 @media-upload-fail="onUploadFailed">
             </sw-upload-listener>
             <sw-media-upload-v2
-                    v-if="!isLoading"
+                    v-if="!isLoading && acl.can('product.editor')"
                     :uploadTag="product.id"
                     variant="regular"
                     :scrollTarget="$parent.$el"

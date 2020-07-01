@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,23 +34,16 @@ class AdministrationController extends AbstractController
 
     private $supportedApiVersions;
 
-    /**
-     * @var string|null
-     */
-    private $cspHeaderTemplate;
-
     public function __construct(
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,
         SnippetFinderInterface $snippetFinder,
-        $supportedApiVersions,
-        ?string $cspHeaderTemplate = null
+        $supportedApiVersions
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
         $this->snippetFinder = $snippetFinder;
         $this->supportedApiVersions = $supportedApiVersions;
-        $this->cspHeaderTemplate = $cspHeaderTemplate;
     }
 
     /**
@@ -59,9 +53,8 @@ class AdministrationController extends AbstractController
     public function index(Request $request): Response
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
-        $nonce = base64_encode(random_bytes(8));
 
-        $response = $this->render($template, [
+        return $this->render($template, [
             'features' => FeatureConfig::getAll(),
             'systemLanguageId' => Defaults::LANGUAGE_SYSTEM,
             'defaultLanguageIds' => [Defaults::LANGUAGE_SYSTEM],
@@ -69,15 +62,8 @@ class AdministrationController extends AbstractController
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
-            'cspNonce' => $nonce,
+            'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
         ]);
-
-        if ($this->cspHeaderTemplate !== null) {
-            $csp = str_replace('%nonce%', $nonce, $this->cspHeaderTemplate);
-            $response->headers->set('Content-Security-Policy', $csp);
-        }
-
-        return $response;
     }
 
     /**

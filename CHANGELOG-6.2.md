@@ -19,7 +19,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
-    * Fixed `DeliveryCalculator` to only set shipping costs to zero if all items in cart have free shipping set
 
 ### 6.2.3
 

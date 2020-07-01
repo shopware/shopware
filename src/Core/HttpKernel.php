@@ -5,7 +5,7 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use PackageVersions\Versions;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
@@ -75,10 +75,10 @@ class HttpKernel
     {
         try {
             return $this->doHandle($request, (int) $type, (bool) $catch);
-        } catch (ConnectionException $e) {
-            $connection = self::getConnection();
+        } catch (DBALException $e) {
+            $connectionParams = self::getConnection()->getParams();
 
-            $message = str_replace([$connection->getParams()['password'], $connection->getParams()['user']], '******', $e->getMessage());
+            $message = str_replace([$connectionParams['url'], $connectionParams['password'], $connectionParams['user']], '******', $e->getMessage());
 
             throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
         }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\Snippet\Files;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -30,7 +31,7 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get('plugin.repository')
+            $this->getContainer()->get(Connection::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -85,7 +86,7 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get('plugin.repository')
+            $this->getContainer()->get(Connection::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -140,7 +141,7 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $pluginRepo
+            $this->getContainer()->get(Connection::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -195,7 +196,7 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $pluginRepo
+            $this->getContainer()->get(Connection::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);

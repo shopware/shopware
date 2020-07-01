@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -24,14 +21,21 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private $kernel;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var Connection
      */
-    private $pluginRepository;
+    private $connection;
 
-    public function __construct(KernelInterface $kernel, EntityRepositoryInterface $pluginRepository)
+    /**
+     * @var array
+     */
+    private $pluginAuthors;
+
+    public function __construct(KernelInterface $kernel, Connection $connection)
     {
         $this->kernel = $kernel;
-        $this->pluginRepository = $pluginRepository;
+        // use Connection directly as this gets executed so early on kernel boot
+        // using the DAL would result in CircularReferences
+        $this->connection = $connection;
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
@@ -110,20 +114,20 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             return 'Shopware';
         }
 
-        $plugin = $this->getPluginEntityFromPluginBundle($bundle);
-
-        if ($plugin) {
-            return $plugin->getAuthor() ?? '';
-        }
-
-        return '';
+        return $this->getPluginAuthors()[get_class($bundle)] ?? '';
     }
 
-    private function getPluginEntityFromPluginBundle(Plugin $plugin): ?PluginEntity
+    private function getPluginAuthors(): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('baseClass', get_class($plugin)));
+        if (!$this->pluginAuthors) {
+            $authors = $this->connection->fetchAll('
+            SELECT `base_class` AS `baseClass`, `author`
+            FROM `plugin`
+        ');
 
-        return $this->pluginRepository->search($criteria, Context::createDefaultContext())->first();
+            $this->pluginAuthors = FetchModeHelper::keyPair($authors);
+        }
+
+        return $this->pluginAuthors;
     }
 }

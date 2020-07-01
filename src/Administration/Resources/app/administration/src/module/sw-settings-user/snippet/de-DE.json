@@ -96,6 +96,16 @@
           "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
         },
         "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein."
+      },
+      "passwordConfirmation": {
+        "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
+        "labelConfirmPassword": "Passwort",
+        "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
+        "labelButtonCancel": "Abbrechen",
+        "labelButtonConfirm": "Bestätigen",
+        "notificationPasswordErrorTitle": "Fehler",
+        "notificationPasswordErrorMessage": "Die  Passwörter stimmen nicht überein.",
+        "notificationPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein."
       }
     }
   }

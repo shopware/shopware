@@ -2,11 +2,15 @@ import template from './sw-settings-user-list.html.twig';
 
 const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
 const { Criteria } = Data;
+const types = Shopware.Utils.types;
 
 Component.register('sw-settings-user-list', {
     template,
 
-    inject: ['userService'],
+    inject: [
+        'userService',
+        'loginService'
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -18,7 +22,8 @@ Component.register('sw-settings-user-list', {
         return {
             user: [],
             isLoading: false,
-            itemToDelete: null
+            itemToDelete: null,
+            confirmPassword: ''
         };
     },
 
@@ -109,7 +114,7 @@ Component.register('sw-settings-user-list', {
             this.itemToDelete = user;
         },
 
-        onConfirmDelete(user) {
+        async onConfirmDelete(user) {
             const username = `${user.firstName} ${user.lastName} `;
             const titleDeleteSuccess = this.$tc('sw-settings-user.user-grid.notification.deleteSuccess.title');
             const messageDeleteSuccess = this.$tc('sw-settings-user.user-grid.notification.deleteSuccess.message',
@@ -127,7 +132,17 @@ Component.register('sw-settings-user-list', {
                 return;
             }
 
-            this.userRepository.delete(user.id, Shopware.Context.api).then(() => {
+            const verifiedToken = await this.verifyUserToken();
+
+            if (!verifiedToken) {
+                return;
+            }
+
+            this.confirmPasswordModal = false;
+            const context = { ...Shopware.Context.api };
+            context.authToken.access = verifiedToken;
+
+            this.userRepository.delete(user.id, context).then(() => {
                 this.createNotificationSuccess({
                     title: titleDeleteSuccess,
                     message: messageDeleteSuccess
@@ -144,6 +159,28 @@ Component.register('sw-settings-user-list', {
 
         onCloseDeleteModal() {
             this.itemToDelete = null;
+        },
+
+        verifyUserToken() {
+            const { username } = State.get('session').currentUser;
+
+            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
+                this.confirmPassword = '';
+
+                if (types.isString(access)) {
+                    return access;
+                }
+
+                return false;
+            }).catch(() => {
+                this.confirmPassword = '';
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                });
+
+                return false;
+            });
         }
     }
 });

@@ -88,7 +88,7 @@ class UserController extends AbstractController
     public function deleteUser(string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
@@ -105,7 +105,7 @@ class UserController extends AbstractController
     public function upsertUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $data = $request->request->all();

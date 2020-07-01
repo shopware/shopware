@@ -209,7 +209,7 @@
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="kernel"/>
-            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">

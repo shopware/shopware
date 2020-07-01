@@ -36,6 +36,8 @@ class InfoControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertSame(array_keys($expected), array_keys($decodedResponse));
+
+        unset($expected['settings']);
         static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
     }
 }

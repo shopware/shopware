@@ -41,6 +41,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sales-channel:list`
         * `sales-channel:maintenance:enable`
         * `sales-channel:maintenance:disable`
+    * Added autoloading of PHP dependency injection definitions from `/Resources/config`
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`

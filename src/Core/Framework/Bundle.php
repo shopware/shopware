@@ -12,6 +12,7 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -132,6 +133,7 @@ abstract class Bundle extends SymfonyBundle
         $loaderResolver = new LoaderResolver([
             new XmlFileLoader($container, $fileLocator),
             new YamlFileLoader($container, $fileLocator),
+            new PhpFileLoader($container, $fileLocator),
         ]);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 

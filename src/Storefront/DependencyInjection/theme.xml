@@ -17,7 +17,6 @@
             <argument type="service" id="shopware.filesystem.public"/>
             <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
-            <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
@@ -149,23 +148,6 @@
         </service>
 
         <!-- Twig -->
-        <service id="Shopware\Storefront\Theme\Twig\ThemeTemplateFinder" public="true"
-                 decorates="Shopware\Core\Framework\Adapter\Twig\TemplateFinder">
-
-            <argument type="service" id="twig"/>
-            <argument type="service" id="twig.loader"/>
-            <argument>%kernel.cache_dir%</argument>
-            <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
-
-            <call method="registerBundles">
-                <argument type="service" id="kernel" />
-            </call>
-
-            <tag name="kernel.event_subscriber" />
-            <deprecated>tag:v6.3.0 the %service_id% service will be removed, use ThemeNamespaceHierarchyBuilder instead</deprecated>
-        </service>
-
         <service id="Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
 

@@ -7,7 +7,7 @@
                               :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
                               :label="$tc('sw-seo-url.labelMainCategory')"
                               :value = "selectedCategory"
-                              @input="onMainCategorySelected"
+                              @change="onMainCategorySelected"
                               :disabled="currentSalesChannelId===null">
             </sw-single-select>
         {% endblock %}

@@ -12,7 +12,7 @@
                 :options="typeOptions"
                 :placeholder="$tc('global.sw-condition.condition.placeholder')"
                 :value="condition.type"
-                @input="changeType"
+                @change="changeType"
                 @search-term-change="typeSearchTerm = $event"
                 required>
         </sw-single-select>

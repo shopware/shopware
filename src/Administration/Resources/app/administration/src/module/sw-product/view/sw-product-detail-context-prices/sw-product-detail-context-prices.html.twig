@@ -202,7 +202,7 @@
                                                      id="rule"
                                                      value=""
                                                      :placeholder="$tc('sw-product.advancedPrices.selectRule')"
-                                                     @input="onAddNewPriceGroup($event)"
+                                                     @change="onAddNewPriceGroup($event)"
                                                      :entity="rules.entity">
                                 <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
                                     <li is="sw-select-result"

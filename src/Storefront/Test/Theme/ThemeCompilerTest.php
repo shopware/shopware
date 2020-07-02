@@ -9,6 +9,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -30,7 +31,6 @@ class ThemeCompilerTest extends TestCase
     {
         $themeFileResolver = $this->getContainer()->get(ThemeFileResolver::class);
         $eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
-        $mockCacheDir = '/app/var/cache/';
 
         // Avoid filesystem operations
         $mockFilesystem = $this->createMock(FileSystem::class);
@@ -41,9 +41,9 @@ class ThemeCompilerTest extends TestCase
             $mockFilesystem,
             $mockFilesystem,
             $themeFileResolver,
-            $mockCacheDir,
             true,
-            $eventDispatcher
+            $eventDispatcher,
+            $this->getContainer()->get(ThemeFileImporter::class)
         );
     }
 

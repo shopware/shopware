@@ -67,12 +67,6 @@ class JsonEntityEncoder
     {
         $decoded = $this->serializer->normalize($entity);
 
-        if ($criteria->getSource()) {
-            $source = $this->buildSource($criteria->getSource());
-
-            $decoded = $this->filterSource($source, $decoded);
-        }
-
         $includes = $criteria->getIncludes() ?? [];
         $decoded = $this->filterIncludes($includes, $decoded, $entity);
 
@@ -125,67 +119,6 @@ class JsonEntityEncoder
         }
 
         return in_array($property, $includes[$alias], true);
-    }
-
-    private function filterSource(array $properties, array $decoded): array
-    {
-        $filtered = [];
-
-        if (empty($decoded)) {
-            return $decoded;
-        }
-
-        foreach ($properties as $property => $nested) {
-            if (!array_key_exists($property, $decoded)) {
-                continue;
-            }
-            $value = $decoded[$property];
-            if ($nested === true) {
-                $filtered[$property] = $value;
-
-                continue;
-            }
-
-            if (!is_array($nested) || !is_array($value)) {
-                continue;
-            }
-
-            if (!isset($value[0])) {
-                $filtered[$property] = $this->filterSource($nested, $value);
-
-                continue;
-            }
-
-            foreach ($value as $loop) {
-                $filtered[$property][] = $this->filterSource($nested, $loop);
-            }
-        }
-
-        return $filtered;
-    }
-
-    private function buildSource(array $source): array
-    {
-        $nested = [];
-        foreach ($source as $property) {
-            $parts = explode('.', $property);
-
-            $cursor = &$nested;
-
-            foreach ($parts as $index => $part) {
-                if ($index === count($parts) - 1) {
-                    $cursor[$part] = true;
-
-                    continue;
-                }
-                if (!isset($cursor[$part])) {
-                    $cursor[$part] = [];
-                }
-                $cursor = &$cursor[$part];
-            }
-        }
-
-        return $nested;
     }
 
     private function removeNotAllowedFields(array $decoded, EntityDefinition $definition, string $baseUrl, int $apiVersion): array

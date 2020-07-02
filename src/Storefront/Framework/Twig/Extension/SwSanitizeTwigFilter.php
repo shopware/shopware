@@ -112,7 +112,7 @@ class SwSanitizeTwigFilter extends AbstractExtension
     private $purifiers = [];
 
     /**
-     * @var string|null
+     * @var string
      */
     private $cacheDir;
 
@@ -121,9 +121,6 @@ class SwSanitizeTwigFilter extends AbstractExtension
      */
     private $cacheEnabled;
 
-    /**
-     * @deprecated tag:v6.3.0 cacheDir will be mandatory from 6.3.0 onwards
-     */
     public function __construct(?string $cacheDir = null, bool $cacheEnabled = true)
     {
         $this->cacheDir = $cacheDir;
@@ -157,7 +154,7 @@ class SwSanitizeTwigFilter extends AbstractExtension
     {
         $config = \HTMLPurifier_Config::createDefault();
 
-        if (is_string($this->cacheDir) && $this->cacheDir !== '') {
+        if ($this->cacheDir !== '') {
             $config->set('Cache.SerializerPath', $this->cacheDir);
         }
 

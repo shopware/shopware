@@ -10,7 +10,10 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,10 +45,28 @@ class AccountServiceEventTest extends TestCase
      */
     private $salesChannelContext;
 
+    /**
+     * @var LoginRoute
+     */
+    private $loginRoute;
+
+    /**
+     * @var LogoutRoute
+     */
+    private $logoutRoute;
+
+    /**
+     * @var ChangePaymentMethodRoute
+     */
+    private $changePaymentMethodRoute;
+
     protected function setUp(): void
     {
         $this->accountService = $this->getContainer()->get(AccountService::class);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->logoutRoute = $this->getContainer()->get(LogoutRoute::class);
+        $this->changePaymentMethodRoute = $this->getContainer()->get(ChangePaymentMethodRoute::class);
+        $this->loginRoute = $this->getContainer()->get(LoginRoute::class);
 
         /** @var SalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
@@ -71,7 +92,7 @@ class AccountServiceEventTest extends TestCase
         ]);
 
         try {
-            $this->accountService->loginWithPassword($dataBag, $this->salesChannelContext);
+            $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
         } catch (BadCredentialsException $e) {
             // nth
         }
@@ -120,7 +141,7 @@ class AccountServiceEventTest extends TestCase
                 'password' => 'shopware',
             ]);
 
-            $this->accountService->loginWithPassword($dataBag, $this->salesChannelContext);
+            $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
             static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
 
             $eventDidRun = false;
@@ -152,7 +173,8 @@ class AccountServiceEventTest extends TestCase
 
         static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
 
-        $this->accountService->logout($this->salesChannelContext);
+        $this->logoutRoute->logout($this->salesChannelContext);
+
         static::assertTrue($eventDidRun, 'Event "' . CustomerLogoutEvent::class . '" did not run');
 
         $dispatcher->removeListener(CustomerLogoutEvent::class, $listenerClosure);
@@ -179,10 +201,9 @@ class AccountServiceEventTest extends TestCase
 
         static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
 
-        $this->accountService->changeDefaultPaymentMethod(
+        $this->changePaymentMethodRoute->change(
             $customer->getDefaultPaymentMethodId(),
             new RequestDataBag(),
-            $customer,
             $this->salesChannelContext
         );
         static::assertTrue($eventDidRun, 'Event "' . CustomerChangedPaymentMethodEvent::class . '" did not run');

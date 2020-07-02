@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -32,8 +31,10 @@ class EntityCompilerPass implements CompilerPassInterface
         $repositoryNameMap = [];
         $services = $container->findTaggedServiceIds('shopware.entity.definition');
 
+        $ids = array_keys($services);
+
         /** @var string $serviceId */
-        foreach ($services as $serviceId => $tag) {
+        foreach ($ids as $serviceId) {
             $service = $container->getDefinition($serviceId);
 
             $service->addMethodCall('compile', [
@@ -48,25 +49,11 @@ class EntityCompilerPass implements CompilerPassInterface
 
             $entityNameMap[$instance->getEntityName()] = $serviceId;
             $entity = $instance->getEntityName();
-            $fallBackEntity = $tag[0]['entity'] ?? null;
 
             $repositoryId = $instance->getEntityName() . '.repository';
-            $fallBackRepositoryId = null;
-
-            /*
-             * @deprecated tag:v6.3.0 use getEntityName instead
-             */
-            if ($fallBackEntity !== null && $entity !== $fallBackEntity) {
-                $entityNameMap[$fallBackEntity] = $serviceId;
-                $fallBackRepositoryId = $fallBackEntity . '.repository';
-            }
 
             try {
                 $container->getDefinition($repositoryId);
-
-                if ($fallBackRepositoryId) {
-                    $container->getDefinition($fallBackRepositoryId);
-                }
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     EntityRepository::class,
@@ -82,16 +69,8 @@ class EntityCompilerPass implements CompilerPassInterface
                 $repository->setPublic(true);
 
                 $container->setDefinition($repositoryId, $repository);
-
-                if ($fallBackRepositoryId) {
-                    $container->setAlias($fallBackRepositoryId, new Alias($repositoryId, true));
-                }
             }
             $repositoryNameMap[$entity] = $repositoryId;
-
-            if ($fallBackRepositoryId) {
-                $repositoryNameMap[$fallBackEntity] = $fallBackRepositoryId;
-            }
         }
 
         $definitionRegistry = $container->getDefinition(DefinitionInstanceRegistry::class);

@@ -58,17 +58,6 @@ Component.register('sw-single-select', {
             }
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return { active: false };
-            }
-        },
-
         // Used to implement a custom search function.
         // Parameters passed: { options, labelProperty, valueProperty, searchTerm }
         searchFunction: {
@@ -102,8 +91,6 @@ Component.register('sw-single-select', {
                 return this.value;
             },
             set(newValue) {
-                /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-                this.$emit('input', newValue);
                 this.$emit('change', newValue);
             }
         },

@@ -66,13 +66,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionRedemptionIndexer">
-        </service>
-
-        <service id="Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionExclusionIndexer">
-        </service>
-
-
         <!-- CART CALCULATORS -->
         <!-- ==================================================================================================================== -->
 

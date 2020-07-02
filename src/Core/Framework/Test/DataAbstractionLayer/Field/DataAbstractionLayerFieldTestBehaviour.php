@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -103,7 +102,7 @@ trait DataAbstractionLayerFieldTestBehaviour
     protected function removeExtension(string ...$extensionsClasses): void
     {
         foreach ($extensionsClasses as $extensionsClass) {
-            /** @var EntityExtensionInterface|EntityExtension $extension */
+            /** @var EntityExtension $extension */
             $extension = new $extensionsClass();
             if ($this->getContainer()->has($extension->getDefinitionClass())) {
                 /** @var EntityDefinition $definition */

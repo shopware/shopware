@@ -23,22 +23,13 @@
             <tag name="messenger.message_handler" />
         </service>
 
-        <service id="Shopware\Core\Content\Newsletter\NewsletterSubscriptionService">
-            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute" />
-            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute" />
-            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute" />
-            <argument type="service" id="newsletter_recipient.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
-            <argument type="service" id="event_dispatcher" />
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
-            <argument type="service" id="sales_channel_domain.repository" />
-        </service>
-
         <service id="Shopware\Core\Content\Newsletter\SalesChannel\SalesChannelNewsletterController" public="true">
-            <argument type="service" id="Shopware\Core\Content\Newsletter\NewsletterSubscriptionService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\NewsletterExceptionHandler">

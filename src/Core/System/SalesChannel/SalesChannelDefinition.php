@@ -77,12 +77,6 @@ class SalesChannelDefinition extends EntityDefinition
         return SalesChannelEntity::class;
     }
 
-    public function hasManyToManyIdFields(): bool
-    {
-        // disable old indexing process
-        return false;
-    }
-
     public function getDefaults(): array
     {
         return [

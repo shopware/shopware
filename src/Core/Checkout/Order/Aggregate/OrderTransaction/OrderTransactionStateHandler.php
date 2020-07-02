@@ -110,28 +110,6 @@ class OrderTransactionStateHandler
      * @throws IllegalTransitionException
      * @throws StateMachineInvalidEntityIdException
      * @throws StateMachineInvalidStateFieldException
-     *
-     * @deprecated tag:v6.3.0 use paid(string $transactionId, Context $context) instead
-     */
-    public function pay(string $transactionId, Context $context): void
-    {
-        $this->stateMachineRegistry->transition(
-            new Transition(
-                OrderTransactionDefinition::ENTITY_NAME,
-                $transactionId,
-                StateMachineTransitionActions::ACTION_PAY,
-                'stateId'
-            ),
-            $context
-        );
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
-     * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function payPartially(string $transactionId, Context $context): void
     {

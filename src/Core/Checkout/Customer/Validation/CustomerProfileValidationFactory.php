@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
-use Shopware\Core\System\Annotation\Concept\DeprecationPattern\ReplaceDecoratedInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationDefinition;
@@ -17,13 +15,9 @@ use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @ReplaceDecoratedInterface(
- *     deprecatedInterface="ValidationServiceInterface",
- *     replacedBy="DataValidationFactoryInterface"
- * )
  * @Decoratable
  */
-class CustomerProfileValidationFactory implements ValidationServiceInterface, DataValidationFactoryInterface
+class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 {
     /**
      * @var SalutationDefinition
@@ -41,24 +35,6 @@ class CustomerProfileValidationFactory implements ValidationServiceInterface, Da
     ) {
         $this->salutationDefinition = $salutationDefinition;
         $this->systemConfigService = $systemConfigService;
-    }
-
-    public function buildCreateValidation(Context $context): DataValidationDefinition
-    {
-        $definition = new DataValidationDefinition('customer.profile.create');
-
-        $this->addConstraints($definition, $context);
-
-        return $definition;
-    }
-
-    public function buildUpdateValidation(Context $context): DataValidationDefinition
-    {
-        $definition = new DataValidationDefinition('customer.profile.update');
-
-        $this->addConstraints($definition, $context);
-
-        return $definition;
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition

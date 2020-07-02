@@ -231,7 +231,7 @@
                             class="sw-settings-shipping-price-matrix__empty--select-property"
                             :options="calculationTypes"
                             :value="priceGroup.calculation"
-                            @input="onCalculationChange"
+                            @change="onCalculationChange"
                             size="small"
                             :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')">
                         </sw-single-select>

@@ -71,6 +71,31 @@ class SalesChannelCustomerController extends AbstractController
      */
     private $addressDefinition;
 
+    /**
+     * @var AbstractChangeCustomerProfileRoute
+     */
+    private $changeCustomerProfileRoute;
+
+    /**
+     * @var AbstractChangePasswordRoute
+     */
+    private $changePasswordRoute;
+
+    /**
+     * @var AbstractChangeEmailRoute
+     */
+    private $changeEmailRoute;
+
+    /**
+     * @var AbstractLoginRoute
+     */
+    private $loginRoute;
+
+    /**
+     * @var AbstractLogoutRoute
+     */
+    private $logoutRoute;
+
     public function __construct(
         Serializer $serializer,
         AccountService $accountService,
@@ -79,7 +104,12 @@ class SalesChannelCustomerController extends AbstractController
         AddressService $addressService,
         CustomerDefinition $customerDefinition,
         CustomerAddressDefinition $addressDefinition,
-        ApiVersionConverter $apiVersionConverter
+        ApiVersionConverter $apiVersionConverter,
+        AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
+        AbstractChangePasswordRoute $changePasswordRoute,
+        AbstractChangeEmailRoute $changeEmailRoute,
+        AbstractLoginRoute $loginRoute,
+        AbstractLogoutRoute $logoutRoute
     ) {
         $this->serializer = $serializer;
         $this->accountService = $accountService;
@@ -89,6 +119,11 @@ class SalesChannelCustomerController extends AbstractController
         $this->customerDefinition = $customerDefinition;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->addressDefinition = $addressDefinition;
+        $this->changeCustomerProfileRoute = $changeCustomerProfileRoute;
+        $this->changePasswordRoute = $changePasswordRoute;
+        $this->changeEmailRoute = $changeEmailRoute;
+        $this->loginRoute = $loginRoute;
+        $this->logoutRoute = $logoutRoute;
     }
 
     /**
@@ -96,7 +131,7 @@ class SalesChannelCustomerController extends AbstractController
      */
     public function login(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $token = $this->accountService->loginWithPassword($requestData, $context);
+        $token = $this->loginRoute->login($requestData, $context)->getToken();
 
         return new JsonResponse([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $token,
@@ -108,7 +143,7 @@ class SalesChannelCustomerController extends AbstractController
      */
     public function logout(SalesChannelContext $context): JsonResponse
     {
-        $this->accountService->logout($context);
+        $this->logoutRoute->logout($context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -153,7 +188,7 @@ class SalesChannelCustomerController extends AbstractController
      */
     public function saveEmail(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $this->accountService->saveEmail($requestData, $context);
+        $this->changeEmailRoute->change($requestData, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -163,7 +198,7 @@ class SalesChannelCustomerController extends AbstractController
      */
     public function savePassword(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $this->accountService->savePassword($requestData, $context);
+        $this->changePasswordRoute->change($requestData, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -173,7 +208,7 @@ class SalesChannelCustomerController extends AbstractController
      */
     public function saveProfile(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $this->accountService->saveProfile($requestData, $context);
+        $this->changeCustomerProfileRoute->change($requestData, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

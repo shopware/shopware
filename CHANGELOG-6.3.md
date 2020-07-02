@@ -218,6 +218,24 @@ Table of contents
 * Core
 
 * Storefront
+* Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal 
+* Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
+    * Added `sw-sales-channel-google-introduction` to handle Google account authentication and connection
+    * Added `sw-sales-channel-google-authentication` to show Google account profile and handle disconnect functionality
+    * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
+    * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
+* Added salesChannel state in `sw-sales-channel` module
+* Removed `input` event in `sw-multi-select`
+* Removed `input` event in `sw-single-select`
+* Removed `input` event in `sw-entity-many-to-many-select`
+* Removed `input` event in `sw-entity-multi-select`
+* Removed `input` event in `sw-entity-single-select`
+* Removed `popoverConfig` property in `sw-select-result-list`
+* Removed `popoverConfig` property in `sw-single-select`
+* Removed `popoverConfig` property in `sw-entity-single-select`
+* Removed `enableInheritance` property in `sw-price-field`
+* Removed `popoverConfigExtension` property in `utils/sw-popover`
+* Removed `onDefaultItemAdd` function in `sw-sales-channel/view/sw-sales-channel-detail-base`
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
@@ -261,6 +279,97 @@ Table of contents
     * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition`
     * `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition`
 * Added `featureSets` association to `\Shopware\Core\Content\Product\ProductEntity`
+* Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
+* Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
+* Removed `Shopware\Core\Checkout\Cart\CartBehavior::$isRecalculation`
+* Removed `Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface`
+* Removed `Shopware\Core\Checkout\Payment\Cart\Token\JWTFactory`
+* Removed `Shopware\Core\Framework\Validation\ValidationServiceInterface`
+* Removed `Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory::buildCreateValidation`
+* Removed `Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory::buildUpdateValidation`
+* Removed `Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory::buildCreateValidation`
+* Removed `Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory::buildUpdateValidation`
+* Removed `Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory::buildCreateValidation`
+* Removed `Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory::buildUpdateValidation`
+* Removed `Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler::pay`
+* Removed `Shopware\Core\Checkout\Order\Validation\OrderValidationFactory::buildCreateValidation`
+* Removed `Shopware\Core\Checkout\Order\Validation\OrderValidationFactory::buildUpdateValidation`
+* Removed `Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface`
+* Removed `Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionExclusionIndexer`
+* Removed `Shopware\Core\Checkout\Promotion\DataAbstractionLayer\Indexing\PromotionRedemptionIndexer`
+* Removed `Shopware\Core\Content\Category\DataAbstractionLayer\Indexing\BreadcrumbIndexer`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::isChildCountAware`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition::isTreeAware`
+* Removed `Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory::buildCreateValidation`
+* Removed `Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory::buildUpdateValidation`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface`
+* Removed `Shopware\Core\Content\ImportExport\DataAbstractionLayer\ImportExportLogValidator`
+* Removed `Shopware\Core\Content\ProductStream\DataAbstractionLayer\Indexing\ProductStreamIndexer`
+* Removed `Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer`
+* `mail_template_media.language_id` is now required
+* Removed `Shopware\Core\Content\MailTemplate\Service\MailerFactory   `
+* `Shopware\Core\Content\MailTemplate\Service\MailService::buildContents` is now private
+* Removed `Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderConfigIndexer`
+* Removed `Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderSizeIndexer`
+* Removed `Shopware\Core\Content\Media\DataAbstractionLayer\Indexing\MediaThumbnailIndexer`
+* Removed `/sales-channel-api/v{version}/newsletter` route
+* Removed `Shopware\Core\Content\Newsletter\NewsletterSubscriptionService`
+* Removed `Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface`
+* Removed `Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductCategoryTreeIndexer`
+* Removed `Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductListingPriceIndexer`
+* Removed `Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductRatingAverageIndexer`
+* Removed `Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ProductStockIndexer`
+* Removed `Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\VariantListingIndexer`
+* Removed `sort` query parameter support in storefront listings
+* Removed `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway`
+* Removed `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface`
+* Removed `Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway`
+* Removed `Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGatewayInterface`
+* Removed `Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGateway`
+* Removed `Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestGatewayInterface`
+* Removed `Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordIndexer`
+* Removed `Shopware\Core\Content\Seo\DataAbstractionLayer\Indexing\SeoUrlIndexer`
+* Removed `Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlExtractIdResult`
+* Removed `Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig::$supportsNewIndexer`
+* Removed `Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface::extractIdsToUpdate`
+* Removed `Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface::getSeoVariables`
+* Removed `Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateLoader`
+* Removed `Shopware\Core\Content\Seo\Validation\SeoUrlValidationService`
+* Removed `Shopware\Core\Content\Seo\SeoUrlGenerator::generateSeoUrls`
+* Removed `Shopware\Core\Content\Seo\SeoUrlGenerator::checkUpdateAffectsTemplate`
+* Removed `Shopware\Core\Content\Sitemap\Service\SitemapNameGenerator`
+* Removed `Shopware\Core\Content\Sitemap\Service\SitemapNameGeneratorInterface`
+* Removed `Shopware\Core\Content\Sitemap\Service\SitemapWriter`
+* Removed `Shopware\Core\Content\Sitemap\Service\SitemapWriterInterface`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextWithHtmlFieldSerializer`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ChildCountIndexer`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ManyToManyIdFieldIndexer`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\TreeIndexer`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerHandler`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessage`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerInterface`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryEndEvent`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryPartialResult`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryStartEvent`
+* Removed `source` parameter in api requests
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`
+* Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface`
+* `Shopware\Core\Framework\Plugin\PluginManagementService::uploadPlugin`, context parameter is now required
+* Removed `Shopware\Core\Framework\Routing\RouteScopeInterface`
+* Removed `Shopware\Core\Framework\Adapter\Twig\TemplateFinder::registerBundles`
+* Removed `Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles`
+* Removed `Shopware\Core\Framework\Validation\ValidationServiceInterface`
+* Removed `Shopware\Core\Framework\Plugin`
+* Removed `Shopware\Elasticsearch\Framework\Indexing\EntityIndexer`
+* Removed `Shopware\Elasticsearch\Framework\Indexing\IndexingMessage`
+* Removed `Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler`
+* Removed `Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher`
+* Removed `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::hasNewIndexerPattern`
 
 #### Storefront
 * Added plugin injection in hot mode
@@ -274,3 +383,10 @@ Table of contents
     * Removed build/webpack.dev.config.js
     * Removed build/webpack.hot.config.js
     * Removed build/webpack.prod.config.js
+* Removed `/widgets/search/{search}` route
+* Removed `Shopware\Storefront\Page\Search\SearchPage::$searchResult`
+* Removed `Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration::getThemeVariableFile`
+* Removed `Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration::setThemeVariableFile`
+* Removed `Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration::createFromBundle`
+* Removed `Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration::createFromConfigFile`
+* Removed `Shopware\Storefront\Theme\Twig\ThemeTemplateFinder`

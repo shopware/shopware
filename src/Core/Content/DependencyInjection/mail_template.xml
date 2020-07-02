@@ -97,8 +97,6 @@
 
         <service id="core_mailer" alias="mailer" />
 
-        <service id="Shopware\Core\Content\MailTemplate\Service\MailerFactory" />
-
         <service id="Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory" />
 
         <service id="core_mailer_transport" class="\Swift_Transport" decorates="swiftmailer.mailer.default.transport">

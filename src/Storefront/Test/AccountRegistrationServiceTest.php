@@ -4,9 +4,13 @@ namespace Shopware\Storefront\Test;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -57,7 +61,7 @@ class AccountRegistrationServiceTest extends TestCase
         $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext);
+        $customer = $this->getCustomerByEmail($data->get('email'), $this->salesChannelContext);
         static::assertEquals($data->get('lastName'), $customer->getLastName());
         static::assertNotEquals($data->get('password'), $customer->getPassword());
         static::assertNotEmpty($customer->getCustomerNumber());
@@ -85,13 +89,13 @@ class AccountRegistrationServiceTest extends TestCase
         $customerId = $this->accountRegistrationService->register($guestData, true, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
+        $customers = $this->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
         static::assertCount(2, $customers);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext, false);
+        $customers = $this->getCustomersByEmail($data->get('email'), $this->salesChannelContext, false);
         static::assertCount(1, $customers);
 
-        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext, true);
+        $customer = $this->getCustomerByEmail($data->get('email'), $this->salesChannelContext, true);
         static::assertTrue($customer->getGuest());
     }
 
@@ -106,7 +110,7 @@ class AccountRegistrationServiceTest extends TestCase
         $customerId = $this->accountRegistrationService->register($data, false, $this->salesChannelContext);
         static::assertNotEmpty($customerId);
 
-        $customer = $this->accountService->getCustomerByEmail($data->get('email'), $this->salesChannelContext);
+        $customer = $this->getCustomerByEmail($data->get('email'), $this->salesChannelContext);
         static::assertEquals($data->get('lastName'), $customer->getLastName());
     }
 
@@ -181,5 +185,38 @@ class AccountRegistrationServiceTest extends TestCase
         }
 
         return new DataBag($data);
+    }
+
+    private function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
+    {
+        $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
+
+        $customerCount = $customers->count();
+        if ($customerCount === 1) {
+            return $customers->first();
+        }
+
+        if ($includeGuest && $customerCount) {
+            $customers->sort(static function (CustomerEntity $a, CustomerEntity $b) {
+                return $a->getCreatedAt() <=> $b->getCreatedAt();
+            });
+
+            return $customers->last();
+        }
+
+        throw new CustomerNotFoundException($email);
+    }
+
+    private function getCustomersByEmail(string $email, SalesChannelContext $context, bool $includeGuests = true): EntitySearchResult
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customer.email', $email));
+        if (!$includeGuests) {
+            $criteria->addFilter(new EqualsFilter('customer.guest', 0));
+        }
+
+        return $this->getContainer()
+            ->get('customer.repository')
+            ->search($criteria, $context->getContext());
     }
 }

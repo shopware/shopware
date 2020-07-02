@@ -325,25 +325,6 @@ Component.register('sw-sales-channel-detail-base', {
             });
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        onDefaultItemAdd(item, ref, property) {
-            if (!this.salesChannel[property].has(item.id)) {
-                this.salesChannel[property].push(item);
-            }
-        },
-
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        onRemoveItem(item, ref, property) {
-            const defaultSelection = this.$refs[ref].singleSelection;
-            if (defaultSelection !== null && item.id === defaultSelection.id) {
-                this.salesChannel[property] = null;
-            }
-        },
-
         onToggleActive() {
             if (this.salesChannel.active !== true || this.isProductComparison) {
                 return;

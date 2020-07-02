@@ -8,7 +8,9 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,9 +27,11 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $mock = $this->createMock(ProductListingGatewayInterface::class);
-        $mock->method('search')->willReturn(
-            new EntitySearchResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+        $mock = $this->createMock(ProductListingRoute::class);
+        $mock->method('load')->willReturn(
+            new ProductListingRouteResponse(
+                new ProductListingResult(0, new EntityCollection(), null, new Criteria(), Context::createDefaultContext())
+            )
         );
 
         $this->listingResolver = new ProductListingCmsElementResolver($mock);

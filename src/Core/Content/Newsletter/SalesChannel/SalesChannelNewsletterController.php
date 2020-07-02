@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,34 +17,39 @@ use Symfony\Component\Routing\Annotation\Route;
 class SalesChannelNewsletterController extends AbstractController
 {
     /**
-     * @var NewsletterSubscriptionServiceInterface
+     * @var AbstractNewsletterSubscribeRoute
      */
-    private $newsletterSubscriptionService;
-
-    public function __construct(
-        NewsletterSubscriptionServiceInterface $newsletterSubscriptionService
-    ) {
-        $this->newsletterSubscriptionService = $newsletterSubscriptionService;
-    }
+    private $newsletterSubscribeRoute;
 
     /**
-     * @deprecated tag:v6.3.0 use subscribe method to update newsletter subscription
-     * @Route("/sales-channel-api/v{version}/newsletter", name="sales-channel-api.newsletter.update", methods={"PATCH"})
+     * @var AbstractNewsletterConfirmRoute
      */
-    public function update(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
-    {
-        $this->newsletterSubscriptionService->update($requestData, $context);
+    private $newsletterConfirmRoute;
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    /**
+     * @var AbstractNewsletterUnsubscribeRoute
+     */
+    private $newsletterUnsubscribeRoute;
+
+    public function __construct(
+        AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
+        AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
+        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute
+    ) {
+        $this->newsletterSubscribeRoute = $newsletterSubscribeRoute;
+        $this->newsletterConfirmRoute = $newsletterConfirmRoute;
+        $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
     }
 
     /**
      * @Route("/sales-channel-api/v{version}/newsletter/subscribe", name="sales-channel-api.newsletter.subscribe", methods={"POST"})
      */
-    public function subscribe(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
+    public function subscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
-        $requestData->set('option', 'subscribe');
-        $this->newsletterSubscriptionService->subscribe($requestData, $context);
+        $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
+        $data->set('option', 'subscribe');
+
+        $this->newsletterSubscribeRoute->subscribe($data, $context, false);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -54,7 +59,7 @@ class SalesChannelNewsletterController extends AbstractController
      */
     public function confirm(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
-        $this->newsletterSubscriptionService->confirm($requestData, $context);
+        $this->newsletterConfirmRoute->confirm($requestData, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -65,7 +70,7 @@ class SalesChannelNewsletterController extends AbstractController
     public function unsubscribe(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
     {
         $requestData->set('option', 'unsubscribe');
-        $this->newsletterSubscriptionService->unsubscribe($requestData, $context);
+        $this->newsletterUnsubscribeRoute->unsubscribe($requestData, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

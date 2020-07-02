@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -357,20 +355,6 @@ class UpdateController extends AbstractController
 
         $classLoad = $kernel->getPluginLoader()->getClassLoader();
         $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
-
-        return $kernel->getContainer();
-    }
-
-    private function rebootWithPlugins(): ContainerInterface
-    {
-        /** @var Kernel $kernel */
-        $kernel = $this->container->get('kernel');
-
-        $classLoad = $kernel->getPluginLoader()->getClassLoader();
-
-        $pluginLoader = new DbalKernelPluginLoader($classLoad, null, $this->container->get(Connection::class));
-
-        $kernel->reboot(null, $pluginLoader);
 
         return $kernel->getContainer();
     }

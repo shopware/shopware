@@ -37,18 +37,7 @@ Component.register('sw-popover', {
             type: Boolean,
             required: false,
             default: true
-        },
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfigExtension: {
-            type: Object,
-            required: false,
-            default() {
-                return {};
-            }
         }
-
     },
 
     computed: {

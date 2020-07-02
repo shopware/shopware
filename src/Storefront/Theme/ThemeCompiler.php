@@ -7,7 +7,6 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -15,7 +14,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Finder\Finder;
 
 class ThemeCompiler implements ThemeCompilerInterface
 {
@@ -23,11 +21,6 @@ class ThemeCompiler implements ThemeCompilerInterface
      * @var FilesystemInterface
      */
     private $publicFilesystem;
-
-    /**
-     * @var string
-     */
-    private $cacheDir;
 
     /**
      * @var Compiler
@@ -40,7 +33,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     private $themeFileResolver;
 
     /**
-     * @var ThemeFileImporterInterface|null
+     * @var ThemeFileImporterInterface
      */
     private $themeFileImporter;
 
@@ -54,22 +47,17 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private $tempFilesystem;
 
-    /**
-     * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
-     */
     public function __construct(
         FilesystemInterface $publicFilesystem,
         FilesystemInterface $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
-        string $cacheDir,
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
-        ?ThemeFileImporterInterface $themeFileImporter = null
+        ThemeFileImporterInterface $themeFileImporter
     ) {
         $this->publicFilesystem = $publicFilesystem;
         $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
-        $this->cacheDir = $cacheDir;
         $this->themeFileImporter = $themeFileImporter;
 
         $this->scssCompiler = new Compiler();
@@ -99,11 +87,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $concatenatedStyles = '';
         foreach ($styleFiles as $file) {
-            if ($this->themeFileImporter) {
-                $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
-            } else {
-                $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
-            }
+            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
@@ -113,11 +97,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
         $concatenatedScripts = '';
         foreach ($scriptFiles as $file) {
-            if ($this->themeFileImporter) {
-                $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
-            } else {
-                $concatenatedScripts .= file_get_contents($file->getFilepath()) . PHP_EOL;
-            }
+            $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
         }
 
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
@@ -156,11 +136,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if ($this->themeFileImporter) {
-                $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
-            } else {
-                $assets = $this->getCopyBatchInputsForAssets($configuration, $outputPath, $asset);
-            }
+            $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
             // method copyBatch is provided by copyBatch filesystem plugin
             $this->publicFilesystem->copyBatch(...$assets);
@@ -268,37 +244,5 @@ class ThemeCompiler implements ThemeCompilerInterface
 #variables#
 
 PHP_EOL;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 can safely be removed once the themeFileImporter prop is required
-     */
-    private function getCopyBatchInputsForAssets(StorefrontPluginConfiguration $configuration, string $outputPath, $asset): array
-    {
-        if (!is_dir($asset)) {
-            throw new ThemeCompileException(
-                $configuration->getTechnicalName(),
-                sprintf('Unable to find asset. Path: "%s"', $asset)
-            );
-        }
-
-        $finder = new Finder();
-        $files = $finder->files()->in($asset);
-        $assets = [];
-
-        foreach ($files as $file) {
-            $relativePathname = $file->getRelativePathname();
-            $assetDir = basename($asset);
-
-            $assets[] = new CopyBatchInput(
-                $asset . DIRECTORY_SEPARATOR . $relativePathname,
-                [
-                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                ]
-            );
-        }
-
-        return $assets;
     }
 }

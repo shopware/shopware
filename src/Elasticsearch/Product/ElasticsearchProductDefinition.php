@@ -29,11 +29,6 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         return $this->definition;
     }
 
-    public function hasNewIndexerPattern(): bool
-    {
-        return true;
-    }
-
     public function getMapping(Context $context): array
     {
         $definition = $this->definition;

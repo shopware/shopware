@@ -253,52 +253,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ChildCountIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-
-            <tag name="shopware.dal_indexing.indexer" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\TreeIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <tag name="shopware.dal_indexing.indexer" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Category\DataAbstractionLayer\Indexing\BreadcrumbIndexer">
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"
-                 class="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistry">
-            <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
-            <argument type="service" id="event_dispatcher"/>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerHandler">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
-            <argument type="service" id="messenger.bus.shopware" />
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender" public="true">
-            <argument type="service" id="messenger.bus.shopware" />
-            <argument type="tagged" tag="shopware.dal_indexing.indexer"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -307,7 +262,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Migration\IndexerQueuer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -317,15 +271,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator"/>
 
             <tag name="console.command"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\InheritanceIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-
-            <tag name="shopware.dal_indexing.indexer" priority="1500"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager">
@@ -463,13 +408,6 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextWithHtmlFieldSerializer">
-            <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-
-            <tag name="shopware.field_serializer"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -585,14 +523,6 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Indexer\ManyToManyIdFieldIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="event_dispatcher"/>
-            <tag name="shopware.dal_indexing.indexer" priority="400"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" public="true">

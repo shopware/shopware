@@ -193,11 +193,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->deactivatePluginNotActivatedThrowsException($this->context);
     }
 
-    public function testRemoveMigrations(): void
-    {
-        $this->removeMigrations($this->context);
-    }
-
     public function testDontRemoveMigrations(): void
     {
         $this->dontRemoveMigrations($this->context);
@@ -272,11 +267,6 @@ class PluginLifecycleServiceTest extends TestCase
     public function testDeactivatePluginNotActivatedThrowsExceptionWithNonStandardLanguage(): void
     {
         $this->deactivatePluginNotActivatedThrowsException($this->createNonStandardLanguageContext());
-    }
-
-    public function testRemoveMigrationsWithNonStandardLanguage(): void
-    {
-        $this->removeMigrations($this->createNonStandardLanguageContext());
     }
 
     public function testDontRemoveMigrationsWithNonStandardLanguage(): void
@@ -560,16 +550,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->expectException(PluginNotActivatedException::class);
         $this->expectExceptionMessage(sprintf('Plugin "%s" is not activated.', self::PLUGIN_NAME));
         $this->pluginLifecycleService->deactivatePlugin($pluginInstalled, $context);
-    }
-
-    private function removeMigrations(Context $context): void
-    {
-        $overAllCount = $this->getMigrationCount('');
-        $swagTestCount = $this->prepareRemoveMigrationTest($context);
-        static::assertSame(0, $swagTestCount);
-
-        $newOverAllCount = $this->getMigrationCount('');
-        static::assertSame($overAllCount, $newOverAllCount);
     }
 
     private function dontRemoveMigrations(Context $context): void

@@ -14,7 +14,7 @@ abstract class AbstractProductSuggestRoute
     abstract public function getDecorated(): AbstractProductSuggestRoute;
 
     /**
-     * @param Criteria $criteria - Will be implemented in tag:v6.4.0, can already be used
+     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
      */
     abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): ProductSuggestRouteResponse;
 }

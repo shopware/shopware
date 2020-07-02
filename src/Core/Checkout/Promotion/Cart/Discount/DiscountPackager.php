@@ -5,8 +5,20 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-abstract class DiscountPackager implements DiscountPackagerInterface
+abstract class DiscountPackager
 {
+    /**
+     * Use this context if your result filter should be based
+     * on the whole found packages of your packager.
+     */
+    public const RESULT_CONTEXT_PACKAGE = 'package';
+
+    /**
+     * Use this context if the result filter should be based
+     * on each line item inside your package.
+     */
+    public const RESULT_CONTEXT_LINEITEM = 'lineitem';
+
     /**
      * This function should return the decorated core service.
      * This ensures that when new functions are implemented in this class, decorations will continue to work

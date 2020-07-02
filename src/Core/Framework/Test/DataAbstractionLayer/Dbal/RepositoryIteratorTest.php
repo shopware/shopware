@@ -26,7 +26,7 @@ class RepositoryIteratorTest extends TestCase
 
         $iterator = new RepositoryIterator($systemConfigRepository, $context, $criteria);
 
-        $expectedCriteriaJson = '{"source":null,"sorting":[],"filters":[{"field":"configurationKey","value":"core","extensions":[]}],"postFilters":[],"aggregations":[],"queries":[],"groupFields":[],"offset":XXOFFSETXX,"limit":1,"totalCountMode":0,"associations":[],"ids":[],"states":[],"inherited":false,"term":null,"includes":null,"extensions":[]}';
+        $expectedCriteriaJson = '{"sorting":[],"filters":[{"field":"configurationKey","value":"core","extensions":[]}],"postFilters":[],"aggregations":[],"queries":[],"groupFields":[],"offset":XXOFFSETXX,"limit":1,"totalCountMode":0,"associations":[],"ids":[],"states":[],"inherited":false,"term":null,"includes":null,"extensions":[]}';
 
         $x = 0;
         while (($result = $iterator->fetch()) !== null) {

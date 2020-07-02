@@ -10,8 +10,8 @@ use Shopware\Storefront\Test\Theme\fixtures\ThemeWithMultiInheritance\ThemeWithM
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontBootstrapScss\ThemeWithStorefrontBootstrapScss;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontSkinScss\ThemeWithStorefrontSkinScss;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 
 class ThemeFileResolverTest extends TestCase
@@ -21,8 +21,9 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $config = StorefrontPluginConfiguration::createFromConfigFile($themePluginBundle);
-        $storefront = StorefrontPluginConfiguration::createFromConfigFile($storefrontBundle);
+        $factory = new StorefrontPluginConfigurationFactory();
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
 
         $configCollection = new StorefrontPluginConfigurationCollection();
         $configCollection->add($config);
@@ -46,8 +47,9 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontBootstrapScss();
         $storefrontBundle = new MockStorefront();
 
-        $config = StorefrontPluginConfiguration::createFromConfigFile($themePluginBundle);
-        $storefront = StorefrontPluginConfiguration::createFromConfigFile($storefrontBundle);
+        $factory = new StorefrontPluginConfigurationFactory();
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
 
         $configCollection = new StorefrontPluginConfigurationCollection();
         $configCollection->add($config);
@@ -72,9 +74,10 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin();
 
-        $config = StorefrontPluginConfiguration::createFromConfigFile($themePluginBundle);
-        $storefront = StorefrontPluginConfiguration::createFromConfigFile($storefrontBundle);
-        $plugin = StorefrontPluginConfiguration::createFromBundle($pluginBundle);
+        $factory = new StorefrontPluginConfigurationFactory();
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+        $plugin = $factory->createFromBundle($pluginBundle);
 
         $configCollection = new StorefrontPluginConfigurationCollection();
         $configCollection->add($config);
@@ -101,9 +104,10 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin();
 
-        $config = StorefrontPluginConfiguration::createFromConfigFile($themePluginBundle);
-        $storefront = StorefrontPluginConfiguration::createFromConfigFile($storefrontBundle);
-        $plugin = StorefrontPluginConfiguration::createFromBundle($pluginBundle);
+        $factory = new StorefrontPluginConfigurationFactory();
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+        $plugin = $factory->createFromBundle($pluginBundle);
 
         $configCollection = new StorefrontPluginConfigurationCollection();
         $configCollection->add($config);

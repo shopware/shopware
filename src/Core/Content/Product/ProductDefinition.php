@@ -112,42 +112,36 @@ class ProductDefinition extends EntityDefinition
 
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
-            new ChildCountField(),
 
-            (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-
-            //not inherited fields
-            new BoolField('active', 'active'),
-            (new IntField('stock', 'stock'))->addFlags(new Required()),
-            (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
-            (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
-
-            (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
-
-            (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
-            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class)),
-
-            //inherited foreign keys with version fields
             (new FkField('product_manufacturer_id', 'manufacturerId', ProductManufacturerDefinition::class))->addFlags(new Inherited()),
             (new ReferenceVersionField(ProductManufacturerDefinition::class))->addFlags(new Inherited(), new Required()),
 
             (new FkField('unit_id', 'unitId', UnitDefinition::class))->addFlags(new Inherited()),
+
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Inherited(), new Required()),
 
             (new FkField('product_media_id', 'coverId', ProductMediaDefinition::class))->addFlags(new Inherited()),
+
             (new ReferenceVersionField(ProductMediaDefinition::class))->addFlags(new Inherited()),
 
-            //inherited data fields
-            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
+            (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 
+            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
+            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
+            (new IntField('stock', 'stock'))->addFlags(new Required()),
+            (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
+            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
+            new BoolField('active', 'active'),
+            (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
+            (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
+            (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
+
+            (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
+            (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
+            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class)),
+            (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited()),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
-            (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),
             (new IntField('min_purchase', 'minPurchase', 1))->addFlags(new Inherited()),
@@ -161,22 +155,16 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('height', 'height'))->addFlags(new Inherited()),
             (new FloatField('length', 'length'))->addFlags(new Inherited()),
             (new DateTimeField('release_date', 'releaseDate'))->addFlags(new Inherited()),
-
-            // ro fields
+            (new FloatField('rating_average', 'ratingAverage'))->addFlags(new WriteProtected(), new Inherited()),
             (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new Inherited(), new WriteProtected()),
-
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
             (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected(), new Inherited()),
-            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            (new FloatField('rating_average', 'ratingAverage'))->addFlags(new WriteProtected(), new Inherited()),
-            (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
-            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
+            new ChildCountField(),
+            (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
-            (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
-
-            //translatable fields
             (new TranslatedField('metaDescription'))->addFlags(new Inherited()),
             (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('keywords'))->addFlags(new Inherited()),
@@ -186,11 +174,13 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('packUnitPlural'))->addFlags(new Inherited()),
             new TranslatedField('customFields'),
 
-            //parent - child inheritance
+            // associations
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
 
-            //inherited associations and associations which are loaded immediately
+            (new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class))
+                ->addFlags(new Inherited()),
+
             (new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id', true))
                 ->addFlags(new Inherited()),
 
@@ -206,44 +196,26 @@ class ProductDefinition extends EntityDefinition
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
-            //inherited associations which are not loaded immediately
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
             (new OneToManyAssociationField('crossSellings', ProductCrossSellingDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
-            (new OneToManyAssociationField('crossSellingAssignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'product_id'))->addFlags(new CascadeDelete()),
-
-            //associations which are not loaded immediately
-            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
-
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
-
-            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
-
-            //not inherited associations
-            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))
-                ->addFlags(new Inherited(), new Required()),
+            (new OneToManyAssociationField('crossSellingAssignedProducts', ProductCrossSellingAssignedProductsDefinition::class, 'product_id'))
+                ->addFlags(new CascadeDelete()),
 
             (new OneToManyAssociationField('configuratorSettings', ProductConfiguratorSettingDefinition::class, 'product_id', 'id'))
                 ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
 
-            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))
-                ->addFlags(new CascadeDelete()),
-
             (new OneToManyAssociationField('visibilities', ProductVisibilityDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
 
-            //association for keyword mapping for search algorithm
             (new OneToManyAssociationField('searchKeywords', ProductSearchKeywordDefinition::class, 'product_id'))
-                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
+                ->addFlags(new CascadeDelete(false), new ReadProtected(SalesChannelApiSource::class)),
 
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))
-                ->addFlags(new CascadeDelete()),
+                ->addFlags(new CascadeDelete(false)),
 
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete()),
@@ -252,6 +224,24 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'product_id'))
                 ->addFlags(new SetNullOnDelete(), new ReadProtected(SalesChannelApiSource::class)),
+
+            (new ManyToManyAssociationField('options', PropertyGroupOptionDefinition::class, ProductOptionDefinition::class, 'product_id', 'property_group_option_id'))
+                ->addFlags(new CascadeDelete()),
+
+            (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
+
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
+
+            (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))
+                ->addFlags(new CascadeDelete(false), new WriteProtected()),
+
+            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
+
+            (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))
+                ->addFlags(new Inherited(), new Required()),
         ]);
 
         if (next7399()) {

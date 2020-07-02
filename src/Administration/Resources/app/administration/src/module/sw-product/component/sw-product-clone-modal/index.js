@@ -56,7 +56,6 @@ Component.register('sw-product-clone-modal', {
                 overwrites: {
                     productNumber: number.number,
                     name: `${this.product.name} ${this.$tc('sw-product.general.copy')}`,
-                    productReviews: null,
                     active: false
                 }
             };
@@ -110,8 +109,7 @@ Component.register('sw-product-clone-modal', {
             const behavior = {
                 overwrites: {
                     parentId: duplicate.id,
-                    productNumber: `${duplicate.productNumber}.${this.cloneProgress}`,
-                    productReviews: null
+                    productNumber: `${duplicate.productNumber}.${this.cloneProgress}`
                 },
                 cloneChildren: false
             };

@@ -193,31 +193,6 @@ Table of contents
 * Added rudimentary permissions for sales channel
 * Added `sw-product-feature-set-form` component
     * Changed `sw-product-detail-base` to include the new component, which enables users to assign essential characteristics templates to products
-* Administration
-    * Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal 
-    * Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
-        * Added `sw-sales-channel-google-introduction` to handle Google account authentication and connection
-        * Added `sw-sales-channel-google-authentication` to show Google account profile and handle disconnect functionality
-        * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
-        * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
-    * Added salesChannel state in `sw-sales-channel` module
-* Added ACL permissions to product module
-* Added ACL permissions to currency module in settings
-
-* Core
-    * Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
-    * Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
-
-* Storefront
-
-    
-**Removals**
-
-* Administration
-
-* Core
-
-* Storefront
 * Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal 
 * Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
     * Added `sw-sales-channel-google-introduction` to handle Google account authentication and connection
@@ -225,17 +200,8 @@ Table of contents
     * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
     * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
 * Added salesChannel state in `sw-sales-channel` module
-* Removed `input` event in `sw-multi-select`
-* Removed `input` event in `sw-single-select`
-* Removed `input` event in `sw-entity-many-to-many-select`
-* Removed `input` event in `sw-entity-multi-select`
-* Removed `input` event in `sw-entity-single-select`
-* Removed `popoverConfig` property in `sw-select-result-list`
-* Removed `popoverConfig` property in `sw-single-select`
-* Removed `popoverConfig` property in `sw-entity-single-select`
-* Removed `enableInheritance` property in `sw-price-field`
-* Removed `popoverConfigExtension` property in `utils/sw-popover`
-* Removed `onDefaultItemAdd` function in `sw-sales-channel/view/sw-sales-channel-detail-base`
+* Added ACL permissions to product module
+* Added ACL permissions to currency module in settings
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
@@ -370,6 +336,9 @@ Table of contents
 * Removed `Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler`
 * Removed `Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher`
 * Removed `Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::hasNewIndexerPattern`
+* Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
+* Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
+* Added `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete::$cloneRelevant` to skip association in clone process.
 
 #### Storefront
 * Added plugin injection in hot mode
@@ -390,3 +359,21 @@ Table of contents
 * Removed `Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration::createFromBundle`
 * Removed `Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration::createFromConfigFile`
 * Removed `Shopware\Storefront\Theme\Twig\ThemeTemplateFinder`
+* Added some children routes in route `sw.sales.channel.detail.base` in `sw-sales-channel` module to handle step navigation of Google programs modal 
+* Added `sw-sales-channel-google-programs-modal` component to handle Google programs setup
+    * Added `sw-sales-channel-google-introduction` to handle Google account authentication and connection
+    * Added `sw-sales-channel-google-authentication` to show Google account profile and handle disconnect functionality
+    * Added `sw-sales-channel-google-merchant` component to show existing merchant accounts list and handle assigning existing merchant account or creating new account
+    * Added `sw-sales-channel-google-shipping-setting` component to handle shipping setting selection
+* Added salesChannel state in `sw-sales-channel` module
+* Removed `input` event in `sw-multi-select`
+* Removed `input` event in `sw-single-select`
+* Removed `input` event in `sw-entity-many-to-many-select`
+* Removed `input` event in `sw-entity-multi-select`
+* Removed `input` event in `sw-entity-single-select`
+* Removed `popoverConfig` property in `sw-select-result-list`
+* Removed `popoverConfig` property in `sw-single-select`
+* Removed `popoverConfig` property in `sw-entity-single-select`
+* Removed `enableInheritance` property in `sw-price-field`
+* Removed `popoverConfigExtension` property in `utils/sw-popover`
+* Removed `onDefaultItemAdd` function in `sw-sales-channel/view/sw-sales-channel-detail-base`

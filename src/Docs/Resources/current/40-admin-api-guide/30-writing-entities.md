@@ -153,7 +153,8 @@ DELETE /api/v1/tax/5840ff0975ac428ebf7838359e47737f
 
 ### Cloning an entity
 To clone an entity the route `POST /api/v1/_action/clone/{entity}/{id}` can be used. The API clones all àssociations which is marked with `CascadeDelete`.
-Some entities have a 'ChildrenAssociationField'. The children are also considered in a clone request. However, since this results in large amounts of data, the parameter `cloneChildren: false` can be sent in the payload so that they are no longer duplicated.
+The `CascadeDelete` flag allows to disable this behavior by providing `false` in the constructor: `new CascadeDelete(false)`.
+Some entities have a `ChildrenAssociationField`. The children are also considered in a clone request. However, since this results in large amounts of data, the parameter `cloneChildren: false` can be sent in the payload so that they are no longer duplicated.
 It is also possible to overwrite fields in the clone using the payload parameter 'overwrites'. This is especially helpful if the entity has an unique constraint in the database.
 As response, the API returns the new id of the entity:
 ```

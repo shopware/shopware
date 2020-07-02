@@ -1832,6 +1832,52 @@ class VersioningTest extends TestCase
         static::assertTrue(Uuid::isValid($versionId));
     }
 
+    public function testCascadeDeleteFlag(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+            'productReviews' => [
+                [
+                    'id' => $id,
+                    'customerId' => $this->createCustomer(),
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'title' => 'Title',
+                    'content' => 'Content',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $version = Uuid::randomHex();
+
+        static::assertEquals(1, $this->getReviewCount($id, Defaults::LIVE_VERSION));
+
+        $this->productRepository->createVersion($id, Context::createDefaultContext(), 'test', $version);
+
+        static::assertEquals(1, $this->getReviewCount($id, Defaults::LIVE_VERSION));
+
+        static::assertEquals(0, $this->getReviewCount($id, $version));
+    }
+
+    private function getReviewCount(string $productId, string $versionId): int
+    {
+        return (int) $this->getContainer()
+            ->get(Connection::class)
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM product_review WHERE product_id = :id AND product_version_id = :version',
+                ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
+            );
+    }
+
     private function createDemoCart(SalesChannelContext $salesChannelContext): Cart
     {
         $cart = new Cart('A', 'a-b-c');

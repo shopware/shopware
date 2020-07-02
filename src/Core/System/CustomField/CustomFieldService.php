@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\CustomField;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -12,35 +12,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CustomFieldService implements EventSubscriberInterface
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $attributeRepository;
-
-    /**
-     * @var CustomFieldEntity[]|null
+     * @var string[]|null
      */
     private $customFields;
 
-    public function __construct(EntityRepositoryInterface $attributeRepository)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
     {
-        $this->attributeRepository = $attributeRepository;
+        $this->connection = $connection;
     }
 
     public function getCustomField(string $attributeName): ?Field
     {
-        $attribute = $this->getCustomFields()[$attributeName] ?? null;
-        if (!$attribute) {
+        $type = $this->getCustomFields()[$attributeName] ?? null;
+        if (!$type) {
             return null;
         }
 
-        switch ($attribute->getType()) {
+        switch ($type) {
             case CustomFieldTypes::INT:
                 return new IntField($attributeName, $attributeName);
 
@@ -82,7 +80,7 @@ class CustomFieldService implements EventSubscriberInterface
     }
 
     /**
-     * @return CustomFieldEntity[]
+     * @return string[]
      */
     private function getCustomFields(): array
     {
@@ -90,17 +88,9 @@ class CustomFieldService implements EventSubscriberInterface
             return $this->customFields;
         }
 
-        $this->customFields = [];
+        $fields = $this->connection->fetchAll('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', true));
-
-        // attributes should not be context dependent
-        $result = $this->attributeRepository->search($criteria, Context::createDefaultContext());
-        /** @var CustomFieldEntity $attribute */
-        foreach ($result as $attribute) {
-            $this->customFields[$attribute->getName()] = $attribute;
-        }
+        $this->customFields = FetchModeHelper::keyPair($fields);
 
         return $this->customFields;
     }

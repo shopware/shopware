@@ -56,7 +56,7 @@ To send a message you simply inject the message bus into your service.
 <!-- services.xml -->
 <services>
     <service id="App\MessageSender\MySender">
-       <argument type="service" name="messenger.bus.shopware" />
+       <argument type="service" id="messenger.bus.shopware" />
    </service>
 </services>
 ```
@@ -122,7 +122,7 @@ The encrypted bus will handle encryption and decryption for you.
 <!-- services.xml -->
 <services>
     <service id="App\MessageSender\MySender">
-       <argument type="service" name="encrypted.messenger.bus.shopware" />
+       <argument type="service" id="encrypted.messenger.bus.shopware" />
    </service>
 </services>
 ```

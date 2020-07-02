@@ -188,6 +188,10 @@ Component.register('sw-profile-index', {
         },
 
         onSave() {
+            if (this.checkEmail() === false) {
+                return;
+            }
+
             const passwordCheck = this.checkPassword();
 
             if (passwordCheck === null || passwordCheck === true) {
@@ -196,7 +200,7 @@ Component.register('sw-profile-index', {
         },
 
         checkEmail() {
-            if (!this.user.email && !email(this.user.email)) {
+            if (!this.user.email || !email(this.user.email)) {
                 this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
 
                 return false;

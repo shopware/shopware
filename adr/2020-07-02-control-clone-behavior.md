@@ -1,7 +1,7 @@
 # 2020-07-02 - Get control of association clone behavior as developer
 
 ## Context
-We need a solution where the developer can define if an association should be skipped or considered if the entity will be cloned.
+The developer should be able to define, if an association has to be considered or skipped during the cloning of an entity.
 
 ## Decision
 The current clone behavior is controlled by the `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete` flag.

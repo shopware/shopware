@@ -19,6 +19,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 * Core
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
     * Added `user:change-password` command to set the password of an administration user
+    * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 
 ### 6.2.3
 

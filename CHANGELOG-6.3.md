@@ -377,3 +377,4 @@ Table of contents
 * Removed `enableInheritance` property in `sw-price-field`
 * Removed `popoverConfigExtension` property in `utils/sw-popover`
 * Removed `onDefaultItemAdd` function in `sw-sales-channel/view/sw-sales-channel-detail-base`
+* We fixed a bug where inherited themes were not detected correctly from `ThemeNamespaceHierarchyBuilder`

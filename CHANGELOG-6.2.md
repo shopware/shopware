@@ -18,6 +18,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 
 * Core
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+    
+* Storefront
+    * Added an additional class to the cart offcanvas called `cart-offcanvas`
 
 ### 6.2.3
 

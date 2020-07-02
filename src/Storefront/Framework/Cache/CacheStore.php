@@ -6,6 +6,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,6 +87,10 @@ class CacheStore implements StoreInterface
     public function write(Request $request, Response $response)
     {
         $key = $this->generateCacheKey($request);
+        if ($response instanceof StorefrontResponse) {
+            $response->setData(null);
+            $response->setContext(null);
+        }
 
         $item = $this->cache->getItem($key);
         $item->set(serialize($response));

@@ -8,11 +8,24 @@ To get the diff for a specific change, go to https://github.com/shopware/platfor
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0..v6.2.0
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
+### 6.2.4
+
+**Addition / Changes**
+    
+* Administration
+    * Fixed active state in the flyout navigation
+    * Fixed `sw-modal` styles for `variant="full"` to stay at fullpage size
+    * Custom fields assigned to a category entity can now also be configured in categories of type "link"
+
+* Core
+    * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+
 ### 6.2.3
 
 **Addition / Changes**
 
 * Administration
+    * Added `resetOption` prop on `sw-entity-single-select` component, to provide a value for resetting the selection
 
 * Core
     * Added `Czech koruna` as currency
@@ -25,6 +38,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `CrossSellingProductStreamCriteriaEvent`
     * Changed `\Shopware\Core\System\SalesChannel\Api\StructEncoder` to work correctly with aggregations
     * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
+    * Added `AddressListingCriteriaEvent`
+    * Added Sales Channel commands
+        * `sales-channel:list`
+        * `sales-channel:maintenance:enable`
+        * `sales-channel:maintenance:disable`
+    * Added autoloading of PHP dependency injection definitions from `/Resources/config`
 
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
@@ -33,6 +52,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
     * Fixed urls in emails for shops with virtual paths like /de
     * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
+    * Added resolving of media ids to `Shopware\Storefront\Theme\ThemeCompiler`
 
 **Removals**
 
@@ -710,7 +730,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
     * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
     * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
-    
     * Added `utilities_thumbnail`, `utilities_thumbnail_logic`, `utilities_thumbnail_image` twig blocks to thumbnail.html.twig
 
 **Removals**

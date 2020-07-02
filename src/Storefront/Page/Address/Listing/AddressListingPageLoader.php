@@ -147,6 +147,10 @@ class AddressListingPageLoader
             ->addAssociation('customer_address.country')
             ->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
 
+        $this->eventDispatcher->dispatch(
+            new AddressListingCriteriaEvent($criteria, $context)
+        );
+
         /** @var CustomerAddressCollection $collection */
         $collection = $this->addressRepository->search($criteria, $context->getContext())->getEntities();
 

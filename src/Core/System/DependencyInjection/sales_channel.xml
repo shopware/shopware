@@ -120,6 +120,24 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelListCommand">
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceEnableCommand">
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceDisableCommand">
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">
             <argument type="string"/>
             <argument type="service" id="service_container" />

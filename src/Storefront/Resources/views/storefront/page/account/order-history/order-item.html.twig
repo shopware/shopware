@@ -156,18 +156,20 @@
                                                     {% block page_account_order_item_context_menu_reorder_form_button %}
                                                         <button class="order-table-header-context-menu-content-link" type="submit">{{ "account.orderContextMenuReorder"|trans|sw_sanitize }}</button>
                                                     {% endblock %}
-                                                     </form>
-                                                {% endblock %}
+                                                 </form>
                                             {% endblock %}
+                                        {% endblock %}
 
-                                        {% if orderState != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
-                                            <button type="button"
-                                                    class="order-table-header-context-menu-content-link"
-                                                    data-toggle="modal"
-                                                    data-target="#order-{{ order.id }}">
-                                                {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
-                                            </button>
-                                        {% endif %}
+                                        {% block page_account_order_item_context_menu_cancel_order %}
+                                            {% if orderState != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+                                                <button type="button"
+                                                        class="order-table-header-context-menu-content-link"
+                                                        data-toggle="modal"
+                                                        data-target="#order-{{ order.id }}">
+                                                    {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                                                </button>
+                                            {% endif %}
+                                        {% endblock %}
                                     {% endblock %}
                                </div>
                             {% endblock %}

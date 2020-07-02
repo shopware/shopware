@@ -60,7 +60,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 |             property            |                                                             description                                                          |
 |---------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | name                            | Name of your package                                                                                                             |
-| description                     | The composer JSON schema requires a short description of your package                                                            |
+| description                     | The composer JSON schema requires a short description of your package. This field does not allow HTML.                                                            |
 | version                         | Current version of your plugin                                                                                                   |
 | type                            | Set the type to `shopware-platform-plugin`. Otherwise Shopware won't be able to recognize your plugin                            |
 | license                         | Provide the license model of your plugin, e.g. `MIT` or `proprietary`                                                            |
@@ -71,7 +71,7 @@ Have a look at the [composer schema](https://getcomposer.org/doc/04-schema.md), 
 | extra - plugin-icon             | The path to the plugin's icon file. This is optional if you don't have any custom plugin icon                                    |
 | extra - copyright               | Set a copyright for your plugin                                                                                                  |
 | extra - label                   | The name of your plugin which is displayed to the Shopware user. [Translatable](./050-plugin-information.md#translations)        |
-| extra - description             | The description of your plugin which is displayed to the Shopware user. [Translatable](./050-plugin-information.md#translations) |
+| extra - description             | The description of your plugin which is displayed to the Shopware user. This field does not allow HTML. [Translatable](./050-plugin-information.md#translations) |
 | extra - manufacturerLink        | Link to your homepage. [Translatable](./050-plugin-information.md#translations)                                                  |
 | extra - supportLink             | A link to your support homepage. [Translatable](./050-plugin-information.md#translations)                                        |
 | autoload                        | Required to have a custom [PSR-4 autoloader](https://getcomposer.org/doc/04-schema.md#psr-4) for your custom plugin directory |

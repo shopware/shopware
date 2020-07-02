@@ -1,7 +1,12 @@
 {% block sw_sales_channel_detail_product_comparison_preview %}
     <div class="sw-sales-channel-detail-product-comparison-preview">
+
         {% block sw_sales_channel_detail_product_comparison_preview_modal %}
-            <sw-modal :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')" v-if="content" @modal-close="onModalClose" variant="full">
+            <sw-modal v-if="content"
+                      variant="large"
+                      :title="$tc('sw-sales-channel.detail.titleProductComparisonPreview')"
+                      @modal-close="onModalClose">
+
                 {% block sw_sales_channel_detail_product_comparison_preview_modal_errors %}
                     <div v-if="displayErrors">
                         <h3>{{ $tc('sw-sales-channel.detail.titleProductComparisonPreviewErrors') }}</h3>
@@ -15,6 +20,7 @@
                         </div>
                     </div>
                 {% endblock %}
+
                 {% block sw_sales_channel_detail_product_comparison_preview_modal_content %}
                     <sw-code-editor
                         ref="previewEditor"

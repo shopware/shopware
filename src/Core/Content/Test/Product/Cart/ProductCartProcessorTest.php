@@ -3,15 +3,18 @@
 namespace Shopware\Core\Content\Test\Product\Cart;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
 class ProductCartProcessorTest extends TestCase
@@ -55,6 +58,77 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals(101, $info->getHeight());
         static::assertEquals(102, $info->getWidth());
         static::assertEquals(103, $info->getLength());
+    }
+
+    public function testOverwriteLabelNoPermission(): void
+    {
+        $this->createProduct();
+        $service = $this->getContainer()->get(CartService::class);
+        $token = $this->ids->create('token');
+        $context = $this->getContainer()->get(SalesChannelContextService::class)
+            ->get(Defaults::SALES_CHANNEL, $token);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+
+        $product->setLabel('My special product');
+
+        /** @var Cart $cart */
+        $cart = $service->getCart($token, $context);
+        $service->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+        static::assertSame('test', $actualProduct->getLabel());
+    }
+
+    public function testOverwriteLabelWithPermission(): void
+    {
+        $this->createProduct();
+        $service = $this->getContainer()->get(CartService::class);
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES => true],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+
+        $product->setLabel('My special product');
+
+        /** @var Cart $cart */
+        $cart = $service->getCart($token, $context);
+        $service->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+        static::assertSame($product->getLabel(), $actualProduct->getLabel());
+    }
+
+    public function testOverwriteLabelWithPermissionNoLabel(): void
+    {
+        $this->createProduct();
+        $service = $this->getContainer()->get(CartService::class);
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES => true],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+
+        $product->setLabel(null);
+
+        /** @var Cart $cart */
+        $cart = $service->getCart($token, $context);
+        $service->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+        static::assertSame('test', $actualProduct->getLabel());
     }
 
     private function createProduct(): void

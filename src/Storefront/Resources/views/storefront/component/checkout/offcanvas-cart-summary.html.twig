@@ -9,7 +9,7 @@
                 {% endblock %}
 
                 {% block component_offcanvas_summary_total_value %}
-                    <dd class="col-5 summary-value summary-total">
+                    <dd class="col-3 summary-value summary-total">
                         {{ page.cart.price.positionPrice|currency }}
                     </dd>
                 {% endblock %}
@@ -30,7 +30,7 @@
                         </small>
                     </span>
 
-                    <span class="col-5 shipping-value shipping-cost">
+                    <span class="col-3 shipping-value shipping-cost">
                         + {{ activeShipping.shippingCosts.totalPrice|currency }}
                     </span>
                 </div>

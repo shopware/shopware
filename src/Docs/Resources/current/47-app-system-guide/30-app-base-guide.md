@@ -39,7 +39,6 @@ For example:
         "operation":"delete",
         "primaryKey":"7b04ebe416db4ebc93de4d791325e1d9",
         "updatedFields":[
-
         ]
       }
     ],
@@ -59,7 +58,13 @@ Where the `source` property contains all necessary information about the Shopwar
 * `appVersion` is the version of the app that is installed
 * `shopId` is the id by which you can identify the Shopware instance
 
-The next property `data` contains the contents of the event formatted as json.
+The next property `data` contains the name of the event so that a single endpoint can handle several different events, should you desire.
+`data` also contains the event data in the `payload` property, due to the asynchronous nature of theses webhooks the `payload` for `$entity.written` events does not contain
+complete entities as these might become outdated. Instead the entity in the payload is characterized by its id, stored under `primaryKey`, so that the 
+app can fetch additional data through the shops API. This also has the advantage of giving the app explicit control over the the associations that
+get fetched instead of relying on the associations determined by the event. Other events in contrast contain the the entity data that defines the event,
+but keep in mind that event might not contain all associations.    
+
 
 You can verify the authenticity of the incoming request by checking the `shopware-shop-signature` every request should have a sha256 hmac of the 
 request body, that is signed with the secret your app assigned the shop during the registration.
@@ -71,7 +76,7 @@ important ones.
 | -------------- |-------------------- |
 | `contact_form.send` | Triggers if a contact form is send | 
 | `mail.sent` | Triggers if a mail is send from Shopware | 
-| `mail.after.create.message` | Triggers if a mail after creating a message is send (?) | 
+| `mail.after.create.message` | Triggers if a mail after creating a message is send | 
 | `mail.before.send` | Triggers before a mail is send | 
 | `checkout.order.placed` | Triggers if an order is placed checkout-wise | 
 | `checkout.customer.register` | Triggers if a new customer was registered yo| 
@@ -86,6 +91,35 @@ important ones.
 | `product.written` | Triggers if a product is written |
 | `product_price.written` | Triggers if product price is written |
 | `category.written` | Triggers if a category is written |
+
+#### App lifecycle events
+
+Apps can also register to lifecycle events of its own lifecycle, namely its installation, updates and deletion.
+For example they maybe used to delete user relevant data from your data stores once somebody removes your app from
+their shop. 
+
+| Event        | Description           | 
+| -------------- |-------------------- |
+| `app_installed` | Triggers once the app is installed | 
+| `app_updated` | Triggers if the app is updated | 
+| `app_deleted` | Triggers once the app is removed |
+
+Example request body:
+```json
+{
+  "data":{
+    "payload":[
+
+    ],
+    "event":"app_deleted"
+  },
+  "source":{
+    "url":"http:\/\/localhost:8000",
+    "appVersion":"0.0.1",
+    "shopId":"wPNrYZgArBTL"
+  }
+}
+``` 
 
 ### Buttons
 

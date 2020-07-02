@@ -6,6 +6,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
  * @Annotation
+ *
+ * @Attributes({
+ *   @Attribute("scopes",  type = "array"),
+ * })
  */
 class RouteScope extends ConfigurationAnnotation
 {

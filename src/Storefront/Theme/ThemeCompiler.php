@@ -7,6 +7,12 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -47,13 +53,19 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private $tempFilesystem;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
     public function __construct(
         FilesystemInterface $publicFilesystem,
         FilesystemInterface $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
-        ThemeFileImporterInterface $themeFileImporter
+        ThemeFileImporterInterface $themeFileImporter,
+        EntityRepositoryInterface $mediaRepository
     ) {
         $this->publicFilesystem = $publicFilesystem;
         $this->tempFilesystem = $tempFilesystem;
@@ -65,6 +77,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
         $this->eventDispatcher = $eventDispatcher;
+        $this->mediaRepository = $mediaRepository;
     }
 
     public function compileTheme(
@@ -200,6 +213,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $variables = [];
+        $mediaIds = [];
         foreach ($config['fields'] as $key => $data) {
             if (!isset($data['value'])) {
                 continue;
@@ -216,9 +230,30 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if ($data['type'] === 'media') {
+                // Add id of media which needs to be resolved
+                if (Uuid::isValid($data['value'])) {
+                    $mediaIds[$key] = $data['value'];
+                }
+
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } else {
                 $variables[$key] = $data['value'];
+            }
+        }
+
+        // Resolve media urls
+        if (count($mediaIds) > 0) {
+            /** @var MediaCollection $medias */
+            $medias = $this->mediaRepository
+            ->search(
+                new Criteria(array_values($mediaIds)),
+                Context::createDefaultContext()
+            )
+            ->getEntities();
+
+            foreach ($mediaIds as $key => $mediaId) {
+                /* @var MediaEntity $media */
+                $variables[$key] = '\'' . $medias->get($mediaId)->getUrl() . '\'';
             }
         }
 

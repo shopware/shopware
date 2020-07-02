@@ -82,7 +82,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v{version}/checkout/cart", name="sales-channel-api.checkout.cart.detail", methods={"GET"})
+     * @Route("/sales-channel-api/v{version}/checkout/cart", defaults={"context_token_required"=true},name="sales-channel-api.checkout.cart.detail", methods={"GET"})
      *
      * @throws CartTokenNotFoundException
      */

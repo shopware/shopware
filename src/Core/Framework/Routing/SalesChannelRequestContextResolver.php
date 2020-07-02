@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -64,7 +65,17 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             return;
         }
 
-        if (!$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+        if (
+            $request->attributes->get('context_token_required') === true &&
+            !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
+        ) {
+            throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        }
+
+        if (
+            $request->attributes->get('context_token_required', false) === false &&
+            !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
+        ) {
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 

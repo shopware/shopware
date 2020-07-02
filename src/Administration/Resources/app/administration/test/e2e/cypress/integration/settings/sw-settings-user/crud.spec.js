@@ -11,7 +11,27 @@ describe('User: Test crud operations', () => {
             });
     });
 
-    it('@settings: user form change email', () => {
+    it('@settings: create and delete user', () => {
+        // Requests we want to wait for later
+        cy.server();
+        cy.route({
+            url: 'api/v*/search/user',
+            method: 'post'
+        }).as('searchCall');
+        cy.route({
+            url: 'api/v*/user',
+            method: 'post'
+        }).as('createCall');
+        cy.route({
+            url: 'api/v*/user/**',
+            method: 'delete'
+        }).as('deleteCall');
+        cy.route({
+            url: '/api/oauth/token',
+            method: 'post'
+        }).as('oauthCall');
+
+
         // create a new user
         cy.get('.sw-settings-user-list__create-user-action')
             .should('be.visible')
@@ -44,6 +64,52 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-modal__title')
             .contains('Enter your current password to confirm');
 
+        cy.get('.sw-modal__footer > .sw-button--primary')
+            .should('be.disabled');
+
+        cy.get('.sw-modal__body input[name="sw-field--confirm-password"]')
+            .should('be.visible')
+            .typeAndCheck('shopware');
+
+        cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
+            .should('not.be.disabled')
+            .click();
+
+        cy.wait('@oauthCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.wait('@createCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.get('.sw-modal')
+            .should('not.be.visible');
+
+        // should be able to delete the user
+        cy.get('a.smart-bar__back-btn').click();
+
+        cy.wait('@searchCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.get('input.sw-search-bar__input').type('abraham');
+
+        cy.wait('@searchCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.clickContextMenuItem(
+            '.sw-settings-user-list__user-delete-action',
+            '.sw-context-button__button',
+            '.sw-data-grid__row--0'
+        );
+
+        // expect modal to be open
+        cy.get('.sw-modal')
+            .should('be.visible');
+        cy.get('.sw-modal__title')
+            .contains('Delete user');
 
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
@@ -54,47 +120,26 @@ describe('User: Test crud operations', () => {
 
         cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
             .should('not.be.disabled')
-            .click()
-            .then(() => {
-                cy.get('.sw-modal')
-                    .should('not.be.visible');
+            .click();
 
-                // should be able to delete the user
-                cy.visit(`${Cypress.env('admin')}#/sw/settings/user/list`);
+        cy.wait('@deleteCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
 
-                cy.clickContextMenuItem(
-                    '.sw-settings-user-list__user-delete-action',
-                    '.sw-context-button__button',
-                    '.sw-data-grid__row--0'
-                );
+        cy.get('.sw-modal')
+            .should('not.be.visible');
 
-                // expect modal to be open
-                cy.get('.sw-modal')
-                    .should('be.visible');
-                cy.get('.sw-modal__title')
-                    .contains('Delete user');
-
-
-                cy.get('.sw-modal__footer > .sw-button--primary')
-                    .should('be.disabled');
-
-                cy.get('.sw-modal__body input[name="sw-field--confirm-password"]')
-                    .should('be.visible')
-                    .typeAndCheck('shopware');
-
-                cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
-                    .should('not.be.disabled')
-                    .click()
-                    .then(() => {
-                        cy.get('.sw-modal')
-                            .should('not.be.visible');
-
-                        cy.awaitAndCheckNotification('User "Abraham Allison " has been deleted.');
-                    });
-            });
+        cy.awaitAndCheckNotification('User "Abraham Allison " has been deleted.');
     });
 
-    it('@settings: user form change email', () => {
+    it('@settings: update existing user', () => {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/oauth/token',
+            method: 'post'
+        }).as('oauthCall');
+
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-view-action',
             '.sw-context-button__button',
@@ -117,7 +162,6 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-modal__title')
             .contains('Enter your current password to confirm');
 
-
         cy.get('.sw-modal__footer > .sw-button--primary')
             .should('be.disabled');
 
@@ -127,14 +171,17 @@ describe('User: Test crud operations', () => {
 
         cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
             .should('not.be.disabled')
-            .click()
-            .then(() => {
-                cy.get('.sw-modal')
-                    .should('not.be.visible');
+            .click();
 
-                cy.get('#sw-field--user-email')
-                    .should('be.visible')
-                    .should('have.value', 'changed@shopware.com');
-            });
+        cy.wait('@oauthCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.get('.sw-modal')
+            .should('not.be.visible');
+
+        cy.get('#sw-field--user-email')
+            .should('be.visible')
+            .should('have.value', 'changed@shopware.com');
     });
 });

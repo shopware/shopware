@@ -4,8 +4,8 @@
 We need a solution where the developer can define if an association should be skipped or considered if the entity will be cloned.
 
 ## Decision
-The current clone behavior is controlled by the `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete` flag. All associations which are marked with this flagged are considered in the 
-clone process.
+The current clone behavior is controlled by the `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete` flag.
+All associations which are marked with this flag are considered in the clone process.
 We will add an optional parameter to the flag constructor to disable this behavior.
 
 I already added this flag to the following associations:

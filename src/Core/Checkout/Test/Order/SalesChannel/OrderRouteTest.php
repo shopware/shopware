@@ -108,6 +108,7 @@ class OrderRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
+        $this->assignSalesChannelContext($this->browser);
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');

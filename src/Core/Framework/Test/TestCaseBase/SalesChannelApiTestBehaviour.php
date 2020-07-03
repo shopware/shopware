@@ -173,4 +173,13 @@ trait SalesChannelApiTestBehaviour
 
         return $salesChannel;
     }
+
+    private function assignSalesChannelContext(?KernelBrowser $customBrowser = null): void
+    {
+        $browser = $customBrowser ?: $this->getSalesChannelBrowser();
+        $browser->request('GET', '/sales-channel-api/v1/context');
+        $response = $browser->getResponse();
+        $content = json_decode($response->getContent(), true);
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
+    }
 }

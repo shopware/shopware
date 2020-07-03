@@ -98,6 +98,7 @@ class SalesChannelCustomerControllerTest extends TestCase
         $rulesProperty->setValue($ruleLoader, null);
 
         $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $this->assignSalesChannelContext($this->browser);
     }
 
     public function testLogin(): void

@@ -144,6 +144,7 @@ class SalesChannelContextControllerTest extends TestCase
          */
         $this->getSalesChannelBrowser()
             ->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $billingId]);
+
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         /*
@@ -222,6 +223,8 @@ class SalesChannelContextControllerTest extends TestCase
     {
         $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
+
+        $this->assignSalesChannelContext();
 
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
             'username' => $email,

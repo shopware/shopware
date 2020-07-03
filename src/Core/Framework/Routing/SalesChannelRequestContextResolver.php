@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
@@ -66,15 +67,15 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         }
 
         if (
-            $request->attributes->get('context_token_required') === true &&
-            !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
+            $this->contextTokenRequired($request) === true
+            && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
         ) {
             throw new MissingRequestParameterException(PlatformRequest::HEADER_CONTEXT_TOKEN);
         }
 
         if (
-            $request->attributes->get('context_token_required', false) === false &&
-            !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
+            $this->contextTokenRequired($request) === false
+            && !$request->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN)
         ) {
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
@@ -117,5 +118,17 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
     protected function getScopeRegistry(): RouteScopeRegistry
     {
         return $this->routeScopeRegistry;
+    }
+
+    private function contextTokenRequired(Request $request): bool
+    {
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED)) {
+            return false;
+        }
+
+        /** @var ContextTokenRequired $contextTokenRequiredAnnotation */
+        $contextTokenRequiredAnnotation = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED);
+
+        return $contextTokenRequiredAnnotation->isRequired();
     }
 }

@@ -162,23 +162,44 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return null;
     }
 
+    public function updateIds(EntityDefinition $definition, array $ids): void
+    {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+        $messages = $this->generateMessages($definition, $ids);
+
+        $indices = [];
+
+        /** @var EntityIndexingMessage $message */
+        foreach ($messages as $message) {
+            $this->handle($message);
+
+            $data = $message->getData();
+            if (!$data instanceof IndexingDto) {
+                continue;
+            }
+
+            $indices[] = $data->getIndex();
+        }
+
+        try {
+            $this->client->indices()->refresh([
+                'index' => implode(',', array_unique($indices)),
+            ]);
+        } catch (\Exception $e) {
+        }
+    }
+
     public function sendIndexingMessages(EntityDefinition $definition, array $ids): void
     {
         if (!$this->helper->allowIndexing()) {
             return;
         }
-        $languages = $this->getLanguages();
 
-        foreach ($languages as $language) {
-            $context = $this->createLanguageContext($language);
+        $messages = $this->generateMessages($definition, $ids);
 
-            $alias = $this->helper->getIndexName($definition, $language->getId());
-
-            $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
-
-            $message = new EntityIndexingMessage($indexing, null, $context);
-            $message->setIndexer($this->getName());
-
+        foreach ($messages as $message) {
             $this->messageBus->dispatch($message);
         }
     }
@@ -251,6 +272,27 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
             throw new ElasticsearchIndexingException($errors);
         }
+    }
+
+    private function generateMessages(EntityDefinition $definition, array $ids): array
+    {
+        $languages = $this->getLanguages();
+
+        $messages = [];
+        foreach ($languages as $language) {
+            $context = $this->createLanguageContext($language);
+
+            $alias = $this->helper->getIndexName($definition, $language->getId());
+
+            $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
+
+            $message = new EntityIndexingMessage($indexing, null, $context);
+            $message->setIndexer($this->getName());
+
+            $messages[] = $message;
+        }
+
+        return $messages;
     }
 
     private function createIndexingMessage(IndexerOffset $offset, Context $context): ?EntityIndexingMessage

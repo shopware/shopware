@@ -145,4 +145,4 @@ This flag does not have any parameters.
 
 In case the referenced association data will be deleted, the related data will be deleted too
 
-This flag does not have any parameters.
+This flag has the parameter `$cloneRelevant`. If this is set to `false`, the association is not cloned when the entity is cloned

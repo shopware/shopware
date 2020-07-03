@@ -472,7 +472,9 @@ class VersionManager
                 continue;
             }
 
-            if (!$field->is(CascadeDelete::class)) {
+            /** @var CascadeDelete|null $flag */
+            $flag = $field->getFlag(CascadeDelete::class);
+            if (!$flag || !$flag->isCloneRelevant()) {
                 continue;
             }
 
@@ -676,7 +678,12 @@ class VersionManager
         int $childCounter = 1
     ): void {
         //add all cascade delete associations
-        $cascades = $definition->getFields()->filterByFlag(CascadeDelete::class);
+        $cascades = $definition->getFields()->filter(function (Field $field) {
+            /** @var CascadeDelete|null $flag */
+            $flag = $field->getFlag(CascadeDelete::class);
+
+            return $flag ? $flag->isCloneRelevant() : false;
+        });
 
         /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {

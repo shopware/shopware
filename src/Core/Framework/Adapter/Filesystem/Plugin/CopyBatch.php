@@ -32,10 +32,14 @@ class CopyBatch implements PluginInterface
             }
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
-                $this->filesystem->putStream($targetFile, $handle);
+                if (is_resource($handle)) {
+                    $this->filesystem->putStream($targetFile, $handle);
+                }
             }
 
-            fclose($handle);
+            if (is_resource($handle)) {
+                fclose($handle);
+            }
         }
     }
 }

@@ -193,6 +193,22 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
+        if (isset($data['recipientsCc'])) {
+            $message->setCc($data['recipientsCc']);
+        }
+
+        if (isset($data['recipientsBcc'])) {
+            $message->setBcc($data['recipientsBcc']);
+        }
+
+        if (isset($data['replyTo'])) {
+            $message->setReplyTo($data['replyTo']);
+        }
+
+        if (isset($data['returnPath'])) {
+            $message->setReturnPath($data['returnPath']);
+        }
+
         $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
         $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 

@@ -20,6 +20,9 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
     * Added `user:change-password` command to set the password of an administration user
     * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
+    
+* Storefront
+    * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
 
 ### 6.2.3
 

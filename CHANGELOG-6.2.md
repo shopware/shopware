@@ -62,6 +62,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
     * Fixed urls in emails for shops with virtual paths like /de
     * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
+    * Removed headers `sw-version-id`, `sw-context-token` and `sw-language-id` from Storefront response.
 
 **Removals**
 

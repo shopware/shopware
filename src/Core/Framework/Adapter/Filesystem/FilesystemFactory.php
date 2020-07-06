@@ -92,7 +92,7 @@ class FilesystemFactory
         $options = new OptionsResolver();
 
         $options->setRequired(['type']);
-        $options->setDefined(['config', 'visibility', 'disable_asserts']);
+        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url']);
 
         $options->setDefault('config', []);
         $options->setDefault('visibility', AdapterInterface::VISIBILITY_PUBLIC);

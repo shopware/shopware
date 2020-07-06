@@ -42,6 +42,12 @@ Core
     }
     ```
 * Changed status code of `\Shopware\Core\System\SalesChannel\NoContentResponse` from `200` to `204`.
+* Added two new arguments `$package` and `$cacheClearer` to constructor of `\Shopware\Storefront\Theme\ThemeCompiler`.
+* Replaced Symfony `asset:install` command with a Flysystem compatible own implementation
+* Added new filesystem adapters `shopware.filesystem.theme`, `shopware.filesystem.asset` and `shopware.filesystem.sitemap`. They can be configured to use external storages for saving of theme contents, bundle assets or sitemap.
+* Added new argument `$package` to constructor of `\Shopware\Core\Content\Sitemap\Service\SitemapLister`.
+* Deprecated config `shopware.cdn.url`. Use `shopware.filesystem.public.url` instead.
+* Added new scss variable `sw-asset-theme-url` which refers to the theme asset url.
 
 Administration
 --------------
@@ -125,3 +131,44 @@ Storefront
 
 Refactorings
 ------------
+
+# Asset System Refactoring
+
+## Flysystem adapters
+With 6.3 we have refactored the url handling of including resources like images, js, css etc. We have also created three new adapters: `asset` (plugin public files), `theme` (theme resources) and `sitemap`.
+For comparability reason they inherit from the `public` filesytem. So after the update all new filesystem are using the config from public filesystem.
+[See the updated documentation to how to configure all filesystems.](https://docs.shopware.com/en/shopware-platform-dev-en/how-to/use-s3-datastorage)
+All file system configuration have now an `url` config option, this url will be used for url generation to the files.
+
+## Usage of the Symfony asset
+
+To unify the URL generation, we create a Symfony asset for each public filesystem adapter. This will build the correct URL with a version cache bustering.
+These assets are prefixed in dependency injection with `shopware.asset.{ADAPTER_NAME}`
+    * `shopware.asset.public`
+    * `shopware.asset.theme`
+    * `shopware.asset.asset`
+
+Example in PHP:
+```php
+// This is an example. Please use dependency injection
+$publicAsset = $container->get('shopware.asset.public');
+
+// Get the full url to the image
+$imageUrl = $publicAsset->getUrl('folder/image.png');
+```
+
+Example in Twig:
+
+```twig
+{{ asset('folder/image.png', 'public') }
+```
+
+Example in SCSS
+
+```scss
+body {
+  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/font/Inter-Regular.woff2");
+}
+```
+
+To access in scss the asset url, you can use the variable `$sw-asset-url`

@@ -152,7 +152,7 @@
         <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <argument type="service" id="request_stack"/>
-            <argument>%shopware.cdn.url%</argument>
+            <argument>%shopware.filesystem.public.url%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory">

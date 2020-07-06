@@ -339,6 +339,10 @@ Table of contents
 * Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
 * Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
 * Added `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete::$cloneRelevant` to skip association in clone process.
+* Added new `asset`, `sitemap` and  `theme` asset package
+* Added new class `\Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy` which adds cache bustering to asset urls with usage of flysystem adapters
+* Added new class `\Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage` which adds a fallback to shop URL if the given URL is empty
+* Added new class `\Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass` which fixes backward compatibility in the filesystem configs
 
 #### Storefront
 * Added plugin injection in hot mode

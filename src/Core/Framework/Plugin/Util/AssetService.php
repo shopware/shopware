@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Finder\Finder;
@@ -26,14 +27,21 @@ class AssetService
      */
     private $pluginCollection;
 
+    /**
+     * @var CacheClearer
+     */
+    private $cacheClearer;
+
     public function __construct(
         FilesystemInterface $filesystem,
         KernelInterface $kernel,
-        KernelPluginCollection $pluginCollection
+        KernelPluginCollection $pluginCollection,
+        CacheClearer $cacheClearer
     ) {
         $this->filesystem = $filesystem;
         $this->kernel = $kernel;
         $this->pluginCollection = $pluginCollection;
+        $this->cacheClearer = $cacheClearer;
     }
 
     /**
@@ -52,6 +60,8 @@ class AssetService
         $this->filesystem->deleteDir($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
+
+        $this->cacheClearer->invalidateTags(['asset-metaData']);
     }
 
     /**

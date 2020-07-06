@@ -13,7 +13,7 @@
     <meta property="og:description"
           content="{{ metaDescription }}"/>
     <meta property="og:image"
-          content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
+          content="{{ page.product.cover.media.url }}"/>
 
     {% if page.product.manufacturer %}
         <meta property="product:brand"
@@ -33,7 +33,7 @@
     <meta name="twitter:description"
           content="{{ metaDescription }}"/>
     <meta name="twitter:image"
-          content="{{ asset(page.product.cover.media.url, '@Storefront') }}"/>
+          content="{{ page.product.cover.media.url }}"/>
 {% endblock %}
 
 {% block layout_head_title_inner %}{{ page.product.translated.name }}{% if page.product.variation %} - {% for variation in page.product.variation %}{{ variation.group }}: {{ variation.option }}{% if page.product.variation|last != variation %}{{ " | " }}{% endif %}{% endfor %}{% endif %}{% endblock %}

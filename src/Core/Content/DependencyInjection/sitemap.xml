@@ -9,12 +9,13 @@
             <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.sitemap"/>
+            <argument type="service" id="shopware.asset.sitemap"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">

@@ -15,6 +15,7 @@ use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -50,7 +51,9 @@ class UserController extends AbstractController
         }
 
         $userId = $context->getSource()->getUserId();
-
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
         /** @var UserEntity|null $user */
         $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
         if (!$user) {
@@ -70,6 +73,9 @@ class UserController extends AbstractController
         }
 
         $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
         if ($result->getTotal() === 0) {

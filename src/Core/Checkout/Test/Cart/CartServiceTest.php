@@ -266,6 +266,18 @@ class CartServiceTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
+    public function testCartCreatedWithGivenToken(): void
+    {
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $token = Uuid::randomHex();
+        $cartService = $this->getContainer()->get(CartService::class);
+        $cart = $cartService->getCart($token, $context);
+
+        static::assertSame($token, $cart->getToken());
+    }
+
     private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
     {
         $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [

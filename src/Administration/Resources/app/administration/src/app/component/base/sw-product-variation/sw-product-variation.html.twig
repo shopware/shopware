@@ -21,8 +21,8 @@
                     <span>{{ variation.group }}</span>: {{ variation.option }}
                 {% endblock %}
 
-                <template v-if="index !== Object.keys(variations).length - 1"> | </template>
                 <template v-if="index === Object.keys(variations).length - 1">) </template>
+                <template v-else> | </template>
             </span>
         {% endblock %}
     </span>

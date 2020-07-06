@@ -50,6 +50,13 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
             return criteria;
         },
 
+        resultCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
         productContext() {
             return { ...Shopware.Context.api, inheritance: true };
         }
@@ -79,11 +86,11 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
             }
 
             const context = this.productContext;
-            const criteria = this.productCriteria;
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
             criteria.setIds(this.productIds);
 
             return this.productRepository.search(criteria, context).then((products) => {
-                console.log('products', products);
                 this.products = products;
             });
         },

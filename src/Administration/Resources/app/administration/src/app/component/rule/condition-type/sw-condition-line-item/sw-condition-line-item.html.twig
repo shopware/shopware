@@ -10,6 +10,7 @@
                 size="medium"
                 :entityCollection="products"
                 :criteria="productCriteria"
+                :resultCriteria="resultCriteria"
                 :context="productContext"
                 @change="setIds">
                 <template #selection-label-property="{ item }">
@@ -20,7 +21,7 @@
                         </sw-product-variation>
                     </slot>
                 </template>
-
+                
                 <template #result-item="{ item, index }">
                     <slot name="result-item" v-bind="{ item, index }">
                         <li is="sw-select-result" v-bind="{ item, index }">

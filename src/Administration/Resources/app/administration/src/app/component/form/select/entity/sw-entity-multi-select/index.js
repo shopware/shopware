@@ -47,6 +47,13 @@ Component.register('sw-entity-multi-select', {
                 return new Criteria(1, this.resultLimit);
             }
         },
+        resultCriteria: {
+            type: Object,
+            required: false,
+            default() {
+                return new Criteria();
+            }
+        },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
@@ -142,7 +149,7 @@ Component.register('sw-entity-multi-select', {
         loadData() {
             this.isLoading = true;
 
-            return this.repository.search(this.criteria, this.context).then((result) => {
+            return this.repository.search(this.resultCriteria, this.context).then((result) => {
                 this.displaySearch(result);
 
                 this.isLoading = false;

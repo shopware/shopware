@@ -191,12 +191,17 @@ Component.register('sw-product-stream-value', {
         },
 
         context() {
-            const context = { ...Shopware.Context.api, inheritance: true };
-
-            return context;
+            return { ...Shopware.Context.api, inheritance: true };
         },
 
         productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        resultCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('options.group');
 

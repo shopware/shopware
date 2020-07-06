@@ -145,8 +145,6 @@ Component.register('sw-settings-rule-detail', {
                     return this.loadConditions(searchResult);
                 });
             }
-            console.log('conditions');
-            console.log('conditions', conditions);
 
             if (conditions.total <= conditions.length) {
                 this.conditions = conditions;

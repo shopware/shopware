@@ -80,6 +80,7 @@
                         size="medium"
                         :repository="repository"
                         :criteria="productCriteria"
+                        :resultCriteria="resultCriteria"
                         :context="productContext"
                         v-model="multiValue">
                         <template #selection-label-property="{ item }">
@@ -92,17 +93,15 @@
                             </slot>
                         </template>
 
-                        <template #result-item="{ item, index }">
-                            <slot name="result-item" v-bind="{ item, index }">
-                                <li is="sw-select-result" v-bind="{ item, index }">
-                                    {% block sw_entity_single_select_base_results_list_result_label %}
-                                        <span class="sw-select-result__result-item-text">
-                                            <sw-product-variation :variations="item.variation">
-                                                {{ item.translated.name || item.name }}
-                                            </sw-product-variation>
-                                        </span>
-                                    {% endblock %}
-                                </li>
+                        <template #result-label-property="{ item, index }">
+                            <slot name="result-label-property" v-bind="{ item, index }">
+                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                    <span class="sw-select-result__result-item-text">
+                                        <sw-product-variation :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                        </sw-product-variation>
+                                    </span>
+                                {% endblock %}
                             </slot>
                         </template>
                     </sw-entity-multi-id-select>

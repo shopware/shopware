@@ -87,13 +87,15 @@
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
                                     <div class="product-variant-characteristics-text">
-                                        {% for variation in product.variation %}
-                                            {{ variation.group }}: {{ variation.option }}
+                                        {% if not product.isGrouped %}
+                                            {% for variation in product.variation %}
+                                                {{ variation.group }}: {{ variation.option }}
 
-                                            {% if product.variation|last != variation %}
-                                                {{ " | " }}
-                                            {% endif %}
-                                        {% endfor %}
+                                                {% if product.variation|last != variation %}
+                                                    {{ " | " }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
                                     </div>
                                 </div>
                             {% endblock %}

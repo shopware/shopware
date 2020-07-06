@@ -130,7 +130,18 @@
                     {% endblock %}
                 </template>
 
-                {% block sw_custom_field_list_grid_pagination %}{% endblock %}
+                {% block sw_custom_field_list_grid_pagination %}
+                    <template slot="pagination">
+                        <sw-pagination
+                            v-if="paginationVisible"
+                            :limit="limit"
+                            :page="page"
+                            :total="total"
+                            :steps="[limit]"
+                            @page-change="onPageChange">
+                        </sw-pagination>
+                    </template>
+                {% endblock %}
             </sw-grid>
         {% endblock %}
 

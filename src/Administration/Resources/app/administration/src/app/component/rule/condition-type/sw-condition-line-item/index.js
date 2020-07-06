@@ -1,8 +1,8 @@
 import template from './sw-condition-line-item.html.twig';
 
-const {Component, Context} = Shopware;
-const {mapPropertyErrors} = Component.getComponentHelper();
-const {EntityCollection, Criteria} = Shopware.Data;
+const { Component } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
+const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -33,7 +33,7 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
             },
             set(identifiers) {
                 this.ensureValueExist();
-                this.condition.value = {...this.condition.value, identifiers};
+                this.condition.value = { ...this.condition.value, identifiers };
             }
         },
 

@@ -55,9 +55,6 @@ Component.register('sw-product-variation', {
 
     methods: {
         createdComponent() {
-            // console.log('created');
-            // console.log('name', `${this.$slots.default[0].text}`);
-            console.log('this.variations', this.variations);
             this.setHelpText();
         },
 
@@ -75,7 +72,6 @@ Component.register('sw-product-variation', {
                 });
                 this.helpText += ' ) ';
             }
-
         }
     }
 });

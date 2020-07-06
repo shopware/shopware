@@ -53,7 +53,11 @@ class SuggestPageLoader
         $criteria = new Criteria();
         $criteria->setLimit(10);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-        $page->setSearchResult($this->productSuggestRoute->load($request, $salesChannelContext, $criteria)->getListingResult());
+        $page->setSearchResult(
+            $this->productSuggestRoute
+                ->load($request, $salesChannelContext, $criteria)
+                ->getListingResult()
+        );
 
         $page->setSearchTerm($request->query->get('search'));
 

@@ -98,15 +98,16 @@ class AccountEditOrderPageLoader
     private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponseStruct
     {
         $criteria = $this->createCriteria($request, $context);
-        $routeRequest = new Request();
-        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-        $routeRequest->query->set('checkPromotion', true);
+        $apiRequest = new Request();
+        $apiRequest->query->set('checkPromotion', true);
 
-        $event = new OrderRouteRequestEvent($request, $routeRequest, $context);
+        $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
+        $responseStruct = $this->orderRoute
+            ->load($event->getStoreApiRequest(), $context, $criteria)
+            ->getObject();
 
         return $responseStruct;
     }

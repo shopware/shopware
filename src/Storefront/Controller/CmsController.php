@@ -8,6 +8,7 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -116,7 +117,9 @@ class CmsController extends StorefrontController
         // Allows to convert all post-filters to filters. This leads to the fact that only aggregation values are returned, which are combinable with the previous applied filters.
         $request->request->set('reduce-aggregations', true);
 
-        $listing = $this->listingRoute->load($navigationId, $request, $context)->getResult();
+        $listing = $this->listingRoute
+            ->load($navigationId, $request, $context, new Criteria())
+            ->getResult();
 
         $mapped = [];
         foreach ($listing->getAggregations() as $aggregation) {

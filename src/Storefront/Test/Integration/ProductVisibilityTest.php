@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -106,7 +107,8 @@ class ProductVisibilityTest extends TestCase
 
         $data = $this->getContainer()
             ->get(ProductListingRoute::class)
-            ->load($this->categoryId, $request, $salesChannelContext)->getResult();
+            ->load($this->categoryId, $request, $salesChannelContext, new Criteria())
+            ->getResult();
 
         static::assertSame(1, $data->getTotal());
         static::assertTrue($data->has($this->productId3));
@@ -115,7 +117,8 @@ class ProductVisibilityTest extends TestCase
 
         $data = $this->getContainer()
             ->get(ProductListingRoute::class)
-            ->load($this->categoryId, $request, $salesChannelContext)->getResult();
+            ->load($this->categoryId, $request, $salesChannelContext, new Criteria())
+            ->getResult();
 
         static::assertSame(1, $data->getTotal());
         static::assertTrue($data->has($this->productId1));

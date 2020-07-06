@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,6 +79,8 @@ class CheckoutConfirmPageLoader
         $request = new Request();
         $request->query->set('onlyAvailable', true);
 
-        return $this->shippingMethodRoute->load($request, $context)->getShippingMethods();
+        return $this->shippingMethodRoute
+            ->load($request, $context, new Criteria())
+            ->getShippingMethods();
     }
 }

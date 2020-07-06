@@ -10,7 +10,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -32,11 +31,6 @@ class CheckoutFinishPageLoader
     private $genericLoader;
 
     /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
-    /**
      * @var AbstractOrderRoute
      */
     private $orderRoute;
@@ -44,12 +38,10 @@ class CheckoutFinishPageLoader
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         GenericPageLoaderInterface $genericLoader,
-        RequestCriteriaBuilder $criteriaBuilder,
         AbstractOrderRoute $orderRoute
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->genericLoader = $genericLoader;
-        $this->criteriaBuilder = $criteriaBuilder;
         $this->orderRoute = $orderRoute;
     }
 
@@ -106,7 +98,9 @@ class CheckoutFinishPageLoader
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         try {
-            $searchResult = $this->orderRoute->load(new Request(), $salesChannelContext, $criteria)->getOrders();
+            $searchResult = $this->orderRoute
+                ->load(new Request(), $salesChannelContext, $criteria)
+                ->getOrders();
         } catch (InvalidUuidException $e) {
             throw new OrderNotFoundException($orderId);
         }

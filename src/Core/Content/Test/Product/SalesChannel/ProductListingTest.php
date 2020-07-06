@@ -12,6 +12,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -62,7 +63,8 @@ class ProductListingTest extends TestCase
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
-            ->load($this->categoryId, $request, $context)->getResult();
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         static::assertSame(10, $listing->getTotal());
         static::assertFalse($listing->has($this->testData->getId('product1')));
@@ -150,7 +152,8 @@ class ProductListingTest extends TestCase
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
-            ->load($this->categoryId, $request, $context)->getResult();
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         /** @var EntityResult $result */
         $result = $listing->getAggregations()->get('properties');

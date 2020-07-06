@@ -120,6 +120,7 @@ class CartService
 
         $request = new Request();
         $request->query->set('name', $name);
+        $request->query->set('token', $token);
 
         $cart = $this->loadRoute->load($request, $context)->getCart();
 

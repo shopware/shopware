@@ -64,7 +64,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
     public function load(Request $request, SalesChannelContext $context): CartResponse
     {
         $name = $request->get('name', CartService::SALES_CHANNEL);
-        $token = $context->getToken();
+        $token = $request->get('token', $context->getToken());
 
         try {
             $cart = $this->persister->load($token, $context);

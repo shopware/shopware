@@ -98,11 +98,19 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
         }
 
         if ($versionAware) {
+            $sourceVersionColumn = $field->getReferenceDefinition()->getEntityName() . '_version_id';
+
+            if ($definition->getFields()->getByStorageName($sourceVersionColumn) === null) {
+                $sourceVersionColumn = 'version_id';
+            }
+
+            $sourceVersion = EntityDefinitionQueryHelper::escape($on) . '.' . EntityDefinitionQueryHelper::escape($sourceVersionColumn);
+
             $parameters = [
                 '#source#' => $source,
-                '#root#' => EntityDefinitionQueryHelper::escape($on),
                 '#alias#' => EntityDefinitionQueryHelper::escape($alias),
                 '#reference_column#' => EntityDefinitionQueryHelper::escape($field->getReferenceField()),
+                '#source_version#' => $sourceVersion,
             ];
 
             $queryBuilder->leftJoin(
@@ -112,7 +120,7 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
                 str_replace(
                     array_keys($parameters),
                     array_values($parameters),
-                    '#source# = #alias#.#reference_column# AND #root#.`version_id` = #alias#.`version_id`'
+                    '#source# = #alias#.#reference_column# AND #source_version# = #alias#.`version_id`'
                 )
             );
 

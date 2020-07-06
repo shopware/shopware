@@ -60,6 +60,7 @@ class DeliveryTransformer
 
         foreach ($delivery->getPositions() as $position) {
             $deliveryData['positions'][] = [
+                'id' => self::getId($position),
                 'price' => $position->getPrice(),
                 'orderLineItemId' => $lineItems[$position->getIdentifier()]['id'],
             ];

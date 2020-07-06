@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -128,20 +131,29 @@ trait SalesChannelApiTestBehaviour
 
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
-        $salesChannelOverride['accessKey'] = AccessKeyHelper::generateAccessKey('sales-channel');
         $salesChannel = $this->createSalesChannel($salesChannelOverride);
 
         $this->salesChannelIds[] = $salesChannel['id'];
 
         $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $salesChannelApiClient->setServerParameter($header, $salesChannelOverride['accessKey']);
+        $salesChannelApiClient->setServerParameter($header, $salesChannel['accessKey']);
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
 
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
+        /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
+        $salesChannelIds = $salesChannelRepository->searchIds($criteria, Context::createDefaultContext());
+
+        if (!isset($salesChannelOverride['domains']) && $salesChannelIds->firstId() !== null) {
+            $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
+            echo $salesChannelIds->firstId();
+        }
 
         $salesChannel = array_merge([
             'id' => Uuid::randomHex(),

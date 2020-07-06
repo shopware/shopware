@@ -2,7 +2,7 @@
 
 ## Context
 Some routes for the sales-channel-api and the store-api depend on a sales-channel-context-token to identify the correct context.
-To ensure these routes cannot be called accidentally or intentionally without a token, a route parameter is in need to distinguish open routes and such that need a token.
+To ensure these routes cannot be called accidentally or intentionally without a token, a route parameter is in need to distinguish open routes and those that need a token.
 
 ## Decision
 Every route that depends on a sales-channel-token will only be callable with such a token provided. 
@@ -14,7 +14,7 @@ To decide whether a route depends on a token or not the following questions shou
 
 
 ## Consequences
-From now on, every sales-channel-api and store-api route need to be checked for above question and set the `context_token_required` parameter to whether true or false. 
+From now on, every sales-channel-api and store-api route need to be checked for above question and set the `ContextTokenRequired` annotation (`Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired`). 
 
 ## Counter decisions
 Another decision could be to just leave the routes open. There is currently no security issue associated with context-less calls.

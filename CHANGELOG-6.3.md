@@ -367,6 +367,9 @@ Table of contents
 * Added new class `\Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass` which fixes backward compatibility in the filesystem configs
 * Changed `\Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver` to consider sales channel entities.
 * Changed `/store-api/v1/handle-payment` to return the redirectUrl in json response.
+* Added `\Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired` to require a context token for sales-channel-api and store-api requests. 
+    * Until v6.4.0 this will log a critical log message. From v6.4.0 on this will throw an exception.
+    * To get a valid context token if you don't have one, call `/sales-channel-api/v{version}/context` first.
 
 #### Storefront
 * Added plugin injection in hot mode

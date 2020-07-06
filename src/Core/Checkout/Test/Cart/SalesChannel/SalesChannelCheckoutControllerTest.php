@@ -695,7 +695,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
     private function createCart(?KernelBrowser $browser = null): KernelBrowser
     {
         $salesChannelClient = $browser ?? $this->getSalesChannelBrowser();
-        $this->assignSalesChannelContext();
+        $this->assignSalesChannelContext($salesChannelClient);
         $salesChannelClient->request('POST', '/sales-channel-api/v1/checkout/cart');
         $response = $salesChannelClient->getResponse();
 

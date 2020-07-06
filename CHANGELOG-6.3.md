@@ -378,3 +378,4 @@ Table of contents
 * Removed `popoverConfigExtension` property in `utils/sw-popover`
 * Removed `onDefaultItemAdd` function in `sw-sales-channel/view/sw-sales-channel-detail-base`
 * We fixed a bug where inherited themes were not detected correctly from `ThemeNamespaceHierarchyBuilder`
+* Introduced new SCSS variable `$order-grid-gutter-width` with the value of `20px`.	

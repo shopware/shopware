@@ -8,8 +8,8 @@
 
 .order-detail-content-header,
 .order-item-detail-footer {
-    padding-left: $grid-gutter-width / 2;
-    padding-right: $grid-gutter-width / 2;
+    padding-left: $order-grid-gutter-width / 2;
+    padding-right: $order-grid-gutter-width / 2;
 }
 
 .order-detail-content-body {
@@ -25,8 +25,8 @@
 
 .order-detail-content-header,
 .order-detail-content-row {
-    margin-right: $grid-gutter-width / 2;
-    margin-left: $grid-gutter-width / 2;
+    margin-right: $order-grid-gutter-width;
+    margin-left: $order-grid-gutter-width;
 }
 
 .order-detail-content-row {
@@ -45,10 +45,9 @@
 }
 
 @include media-breakpoint-down(md) {
-    .order-detail-content-row {
-        .order-item:last-of-type {
-            padding-right: 20px;
-        }
+    .order-item {
+        padding-left: 0;
+        padding-right: 0;
     }
 }
 
@@ -63,8 +62,8 @@
     &.is-child {
         border-left: 3px solid $border-color;
         border-bottom-color: transparent;
-        margin: 0 $grid-gutter-width/-2;
-        padding: 0 $grid-gutter-width/2;
+        margin: 0 $order-grid-gutter-width/-2;
+        padding: 0 $order-grid-gutter-width/2;
     }
 
     &.is-discount {
@@ -104,8 +103,7 @@
 }
 
 .order-item-detail-footer {
-    padding-bottom: $spacer;
-    padding-top: $spacer;
+    padding: $spacer;
 }
 
 .order-item-detail-footer dl {

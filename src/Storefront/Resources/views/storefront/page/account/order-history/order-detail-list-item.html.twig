@@ -135,7 +135,7 @@
                         {% if not isChild %}
                             {% block page_account_order_item_detail_quantity_label %}
                                 <strong class="order-item-label order-item-quantity-label">
-                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
+                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                                 </strong>
                             {% endblock %}
 
@@ -153,7 +153,7 @@
                         {% if not isDiscount and not isNested %}
                             {% block page_account_order_item_detail_price_label %}
                                 <strong class="order-item-label order-item-price-label">
-                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
+                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                                 </strong>
                             {% endblock %}
 
@@ -164,7 +164,7 @@
                                     {% elseif lineItem.type == 'promotion' %}
                                         /
                                     {% else %}
-                                        {{ "account.orderItemInfoFree"|trans|sw_sanitize }}
+                                        {{ "account.orderItemInfoFree"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                                     {% endif %}
                                 </span>
                             {% endblock %}
@@ -176,7 +176,7 @@
                     <div class="col-12 col-md-2 order-item order-item-total">
                         {% block page_account_order_item_detail_total_label %}
                             <strong class="order-item-label order-item-total-label">
-                                {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
+                                {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                             </strong>
                         {% endblock %}
 

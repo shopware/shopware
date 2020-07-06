@@ -257,7 +257,8 @@
     "newsletterSettings": "Yes, I would like to subscribe to the free %shopname% newsletter. I may unsubscribe at any time.",
     "passwordResetTitle": "Did you forget your password?",
     "passwordResetInfo": "If you have forgotten your password, you may enter a new one here. The moment you hit save, your old password will be invalidated.",
-    "passwordOptInInfo": "We will send you a confirmation email. Click on the included link to change your password."
+    "passwordOptInInfo": "We will send you a confirmation email. Click on the included link to change your password.",
+    "colonCharacter": ":"
   },
   "address": {
     "streetLabel": "Street address",

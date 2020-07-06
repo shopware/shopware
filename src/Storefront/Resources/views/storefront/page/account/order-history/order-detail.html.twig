@@ -7,25 +7,25 @@
                     <div class="order-detail-content-header">
                         <div class="row">
                             {% block page_account_order_item_detail_table_header_name %}
-                                <div class="col-6 order-header-name">
+                                <div class="col-6 order-detail-content-header-cell order-header-name">
                                     {{ "account.orderItemColumnName"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_quantity %}
-                                <div class="col-2 order-header-quantity">
+                                <div class="col-2 order-detail-content-header-cell order-header-quantity">
                                     {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_price %}
-                                <div class="col-2 order-header-price">
+                                <div class="col-2 order-detail-content-header-cell order-header-price">
                                     {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_total %}
-                                <div class="col-2 order-header-total">
+                                <div class="col-2 order-detail-content-header-cell order-header-total">
                                     {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -43,14 +44,21 @@ class StoreApiSeoResolver implements EventSubscriberInterface
      */
     private $seoUrlRouteRegistry;
 
+    /**
+     * @var SalesChannelDefinitionInstanceRegistry
+     */
+    private $salesChannelDefinitionInstanceRegistry;
+
     public function __construct(
         SalesChannelRepositoryInterface $salesChannelRepository,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
+        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
         SeoUrlRouteRegistry $seoUrlRouteRegistry
     ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
         $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
+        $this->salesChannelDefinitionInstanceRegistry = $salesChannelDefinitionInstanceRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -104,7 +112,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     private function findStruct(SeoResolverData $data, Struct $struct): void
     {
         if ($struct instanceof Entity) {
-            $definition = $this->definitionInstanceRegistry->getByEntityClass($struct);
+            $definition = $this->definitionInstanceRegistry->getByEntityClass($struct) ?? $this->salesChannelDefinitionInstanceRegistry->getByEntityClass($struct);
             if ($definition && $definition->isSeoAware()) {
                 $data->add($definition->getEntityName(), $struct);
             }

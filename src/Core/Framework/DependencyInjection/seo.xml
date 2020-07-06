@@ -118,6 +118,7 @@
         <service id="Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver">
             <argument type="service" id="sales_channel.seo_url.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -52,6 +52,7 @@ class StoreApiSeoResolverTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertNull($response['seoUrls']);
+        static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
     }
 
     public function testEnabled(): void
@@ -74,6 +75,30 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertSame(NavigationPageSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
         static::assertSame($this->ids->get('category'), $response['seoUrls'][0]['foreignKey']);
         static::assertSame('foo', $response['seoUrls'][0]['pathInfo']);
+    }
+
+    public function testEnabledSalesChannelProducts(): void
+    {
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $this->browser->request(
+            'POST',
+            '/store-api/v1/category/home',
+            [],
+            [],
+            []
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertIsArray($response['extensions']);
+        static::assertArrayHasKey('seoUrls', $response);
+        static::assertCount(1, $response['seoUrls']);
+        static::assertSame(NavigationPageSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
+        static::assertSame($this->ids->get('category'), $response['seoUrls'][0]['foreignKey']);
+        static::assertSame('foo', $response['seoUrls'][0]['pathInfo']);
+
+        static::assertIsArray($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
     }
 
     private function createData(): void

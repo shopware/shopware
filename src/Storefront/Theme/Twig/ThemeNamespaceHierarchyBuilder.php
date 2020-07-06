@@ -51,24 +51,20 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
 
     private function detectedThemes(Request $request): array
     {
-        // detect active themes of request
+        // get name if theme is not inherited
         $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
+
+        if (!$theme) {
+            // get base name because name for inherited themes is null
+            $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
+        }
+
         if (!$theme) {
             return [];
         }
 
-        $themes = [
-            $theme => true,
-        ];
-
-        $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME);
-        if ($theme) {
-            $themes[$theme] = true;
-        }
-
-        if (!isset($themes['Storefront'])) {
-            $themes['Storefront'] = true;
-        }
+        $themes[$theme] = true;
+        $themes['Storefront'] = true;
 
         return $themes;
     }

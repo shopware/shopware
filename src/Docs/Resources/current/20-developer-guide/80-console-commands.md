@@ -85,7 +85,7 @@ Your command's class should extend from the
 ```php
 // SwagExamplePlugin/src/Command/ExampleCommand.php
 
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\ExamplePlugin\Command;
 

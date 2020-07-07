@@ -3,11 +3,19 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -55,6 +63,37 @@ class CachedEntityReader implements EntityReaderInterface
         return $this->loadResultByIds($definition, $criteria, $context);
     }
 
+    /**
+     * See EntityHydrator for binary representation
+     * @param array|string $id
+     */
+    private static function makeIdToUniqueKey(EntityDefinition $definition, $id): string
+    {
+        if (is_array($id)) {
+            $primaryKeyFields = $definition->getPrimaryKeys();
+            $primaryKey = [];
+
+            /** @var Field $field */
+            foreach ($primaryKeyFields as $field) {
+                if ($field instanceof VersionField || $field instanceof ReferenceVersionField || !$field instanceof StorageAware) {
+                    continue;
+                }
+
+                $value = $id[$field->getStorageName()];
+
+                if ($field instanceof IdField || $field instanceof FkField) {
+                    $value = Uuid::fromHexToBytes($value);
+                }
+
+                $primaryKey[$field->getPropertyName()] = $field->getSerializer()->decode($field, $value);
+            }
+
+            $id = implode('-', $primaryKey);
+        }
+
+        return $id;
+    }
+
     private function loadFilterResult(EntityDefinition $definition, Criteria $criteria, Context $context)
     {
         //generate cache key for full read result
@@ -88,7 +127,7 @@ class CachedEntityReader implements EntityReaderInterface
         $keys = [];
         /** @var string $id */
         foreach ($criteria->getIds() as $id) {
-            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
+            $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey(self::makeIdToUniqueKey($definition, $id), $definition, $context, $criteria);
         }
 
         $items = $this->cache->getItems($keys);
@@ -112,8 +151,17 @@ class CachedEntityReader implements EntityReaderInterface
         /* @var EntityCollection $collection */
         $collection = new $collection(array_filter($mapped));
 
+        $fallbackIds = array_combine(
+            array_map(static function ($id) use ($definition): string {
+                return self::makeIdToUniqueKey($definition, $id);
+            }, $criteria->getIds()),
+            $criteria->getIds()
+        );
         //check which ids are not loaded from cache
-        $fallback = array_diff(array_values($criteria->getIds()), array_keys($mapped));
+        $fallbackValues = array_diff(array_keys($fallbackIds), array_keys($mapped));
+        $fallback = array_map(static function (string $key) use ($fallbackIds) {
+            return $fallbackIds[$key];
+        }, $fallbackValues);
 
         if (empty($fallback)) {
             //sort collection by provided id sorting
@@ -138,9 +186,12 @@ class CachedEntityReader implements EntityReaderInterface
         //check if invalid ids provided and cache them with null to prevent further storage access with invalid id calls
         /** @var string $id */
         foreach ($criteria->getIds() as $id) {
+            $id = self::makeIdToUniqueKey($definition, $id);
+
             if ($collection->has($id)) {
                 continue;
             }
+
             $this->cacheNull($definition, $context, $id);
         }
 

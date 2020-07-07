@@ -340,7 +340,7 @@ into services. Earlier in this tutorial you already created a `services.xml` fil
 Sticking to the previous examples, you could just name it `MyService` and place it into a `src/Service` directory.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\PluginQuickStart\Service;
 

@@ -142,7 +142,7 @@ In this example, the directory structure would look like this:
 Since creating an `EntityCollection` was already explained in the [previous HowTo](./050-custom-entity.md), only the differences are going to be explained here.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
@@ -200,7 +200,7 @@ Additional to that you to add your custom translated field(s), `label` in this e
 parent's id, `customEntityId` in this case, as well as a property for the actual `CustomEntity` object.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
@@ -279,7 +279,7 @@ class CustomTranslationEntity extends TranslationEntity
 Your custom translation entity also has to come with a respective collection class, which also extends from `EntityCollection`.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 

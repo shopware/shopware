@@ -34,7 +34,7 @@ Here's an example `services.xml` which registers your custom command:
 
 And the related example command:
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\PluginCommands\Command;
 

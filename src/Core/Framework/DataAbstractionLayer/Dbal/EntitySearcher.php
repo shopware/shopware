@@ -171,9 +171,18 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         if ($query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN)) {
-            $query->addGroupBy(
-                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
-            );
+            if ($definition->getFields()->getByStorageName('id') !== null) {
+                $query->addGroupBy(
+                    EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
+                );
+            } else {
+                /** @var Field&StorageAware $field */
+                foreach ($definition->getPrimaryKeys()->filterInstance(StorageAware::class) as $field) {
+                    $query->addGroupBy(
+                        EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
+                    );
+                }
+            }
         }
     }
 

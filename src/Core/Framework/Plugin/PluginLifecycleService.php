@@ -281,6 +281,13 @@ class PluginLifecycleService
                 try {
                     $this->deactivatePlugin($plugin, $shopwareContext);
                 } catch (\Throwable $deactivateException) {
+                    $this->updatePluginData(
+                        [
+                            'id' => $plugin->getId(),
+                            'active' => false,
+                        ],
+                        $shopwareContext
+                    );
                 }
             }
 
@@ -414,19 +421,7 @@ class PluginLifecycleService
 
         $this->eventDispatcher->dispatch(new PluginPreDeactivateEvent($plugin, $deactivateContext));
 
-        try {
-            $pluginBaseClass->deactivate($deactivateContext);
-        } catch (\Throwable $exception) {
-            $this->updatePluginData(
-                [
-                    'id' => $plugin->getId(),
-                    'active' => false,
-                ],
-                $shopwareContext
-            );
-
-            throw $exception;
-        }
+        $pluginBaseClass->deactivate($deactivateContext);
 
         $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
 

@@ -23,6 +23,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     
 * Storefront
     * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
+    * Fixed property sorting for multi language shops
 
 ### 6.2.3
 

@@ -25,5 +25,6 @@ $spacer-sm: ( $spacer * 0.5 ) !default;
 $spacer-md: $spacer !default;
 $spacer-lg: ( $spacer * 1.5 ) !default;
 $spacer-xl: ( $spacer * 3 ) !default;
+$sw-asset-theme-url: '' !default;
 
 $asset-path: '#{$sw-asset-theme-url}/bundles/storefront/assets' !default;

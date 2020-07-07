@@ -395,3 +395,4 @@ Table of contents
 * Removed `onDefaultItemAdd` function in `sw-sales-channel/view/sw-sales-channel-detail-base`
 * We fixed a bug where inherited themes were not detected correctly from `ThemeNamespaceHierarchyBuilder`
 * Introduced new SCSS variable `$order-grid-gutter-width` with the value of `20px`.	
+* In the `RouteRequestEvent` classes the criteria object was added to extend route DAL query. Adjustments to the request payload to extend the query are no longer necessary.

@@ -76,15 +76,21 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         $event = new CurrencyRouteRequestEvent($request, new Request(), $context);
         $this->eventDispatcher->dispatch($event);
 
+        $navigation = $this->navigationLoader->load(
+            (string) $navigationId,
+            $context,
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getNavigationCategoryDepth()
+        );
+
+        $currencies = $this->currencyRoute
+            ->load($event->getStoreApiRequest(), $context, new Criteria())
+            ->getCurrencies();
+
         $page = new HeaderPagelet(
-            $this->navigationLoader->load(
-                (string) $navigationId,
-                $context,
-                $salesChannel->getNavigationCategoryId(),
-                $salesChannel->getNavigationCategoryDepth()
-            ),
+            $navigation,
             $languages,
-            $this->currencyRoute->load($event->getStoreApiRequest(), $context)->getCurrencies(),
+            $currencies,
             $languages->get($context->getContext()->getLanguageId()),
             $context->getCurrency(),
             $this->getServiceMenu($context)
@@ -118,12 +124,11 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId())
         );
 
-        $routeRequest = new Request();
-        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
+        $apiRequest = new Request();
 
-        $event = new LanguageRouteRequestEvent($request, $routeRequest, $context);
+        $event = new LanguageRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
-        return $this->languageRoute->load($event->getStoreApiRequest(), $context)->getLanguages();
+        return $this->languageRoute->load($event->getStoreApiRequest(), $context, $criteria)->getLanguages();
     }
 }

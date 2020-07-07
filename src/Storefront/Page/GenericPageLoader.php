@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -85,17 +86,23 @@ class GenericPageLoader implements GenericPageLoaderInterface
             $this->footerLoader->load($request, $context)
         );
 
-        $shippingMethodRouteRequestEvent = new ShippingMethodRouteRequestEvent($request, new Request(), $context);
-        $this->eventDispatcher->dispatch($shippingMethodRouteRequestEvent);
-        $page->setSalesChannelShippingMethods(
-            $this->shippingMethodRoute->load($shippingMethodRouteRequestEvent->getStoreApiRequest(), $context)->getShippingMethods()
-        );
+        $event = new ShippingMethodRouteRequestEvent($request, new Request(), $context, new Criteria());
+        $this->eventDispatcher->dispatch($event);
 
-        $paymentMethodRouteRequestEvent = new PaymentMethodRouteRequestEvent($request, new Request(), $context);
-        $this->eventDispatcher->dispatch($paymentMethodRouteRequestEvent);
-        $page->setSalesChannelPaymentMethods(
-            $this->paymentMethodRoute->load($paymentMethodRouteRequestEvent->getStoreApiRequest(), $context)->getPaymentMethods()
-        );
+        $shippingMethods = $this->shippingMethodRoute
+            ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
+            ->getShippingMethods();
+
+        $page->setSalesChannelShippingMethods($shippingMethods);
+
+        $event = new PaymentMethodRouteRequestEvent($request, new Request(), $context, new Criteria());
+        $this->eventDispatcher->dispatch($event);
+
+        $paymentMethods = $this->paymentMethodRoute
+            ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
+            ->getPaymentMethods();
+
+        $page->setSalesChannelPaymentMethods($paymentMethods);
 
         $page->setMetaInformation((new MetaInformation())->assign([
             'revisit' => '15 days',

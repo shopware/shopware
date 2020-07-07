@@ -106,7 +106,9 @@ class CheckoutCartPageLoader
         $request->query->set('onlyAvailable', true);
 
         /* @var ShippingMethodCollection $shippingMethods */
-        return $this->shippingMethodRoute->load($request, $context)->getShippingMethods();
+        return $this->shippingMethodRoute
+            ->load($request, $context, new Criteria())
+            ->getShippingMethods();
     }
 
     private function getCountries(SalesChannelContext $context): CountryCollection

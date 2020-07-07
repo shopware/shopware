@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -74,6 +75,8 @@ class OffcanvasCartPageLoader
         $request = new Request();
         $request->query->set('onlyAvailable', true);
 
-        return $this->shippingMethodRoute->load($request, $salesChannelContext)->getShippingMethods();
+        return $this->shippingMethodRoute
+            ->load($request, $salesChannelContext, new Criteria())
+            ->getShippingMethods();
     }
 }

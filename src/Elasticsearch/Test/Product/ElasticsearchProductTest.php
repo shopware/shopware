@@ -1460,7 +1460,7 @@ class ElasticsearchProductTest extends TestCase
         $request = new Request();
 
         $result = $this->getContainer()->get(ProductListingRoute::class)
-            ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context);
+            ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context, new Criteria());
 
         $listing = $result->getResult();
 

@@ -55,9 +55,7 @@ class AccountOrderControllerTest extends TestCase
 
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $eventDispatcher->addListener(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
-            $assocQuery = $event->getStoreApiRequest()->query->get('associations');
-            $assocQuery['lineItems']['associations']['product'] = [];
-            $event->getStoreApiRequest()->query->set('associations', $assocQuery);
+            $event->getCriteria()->addAssociation('lineItems.product');
         });
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/widgets/account/order/detail/' . $orderId);

@@ -48,6 +48,50 @@ Core
 * Added new argument `$package` to constructor of `\Shopware\Core\Content\Sitemap\Service\SitemapLister`.
 * Deprecated config `shopware.cdn.url`. Use `shopware.filesystem.public.url` instead.
 * Added new scss variable `sw-asset-theme-url` which refers to the theme asset url.
+* If you subscribed to one of the following `\Shopware\Storefront\Event\RouteRequest\RouteRequestEvent` events, you must now extend the provided criteria instead of adding the query to the request:
+    * Before
+    ```php
+    use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
+    use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+    
+    class MySubscriber implements EventSubscriberInterface
+    {
+        public static function getSubscribedEvents()
+        {
+            return [
+                OrderRouteRequestEvent::class => 'listener'
+            ];
+        }
+    
+        public function listener(OrderRouteRequestEvent $event)
+        {
+            $query = $event->getStoreApiRequest()->query->get('associations');
+            $query['lineItems']['associations']['product'] = [];
+            $event->getStoreApiRequest()->query->set('associations', $query);
+        }
+    }
+    ```
+  
+    * After
+    ```php
+    use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
+    use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+    
+    class MySubscriber implements EventSubscriberInterface
+    {
+        public static function getSubscribedEvents()
+        {
+            return [
+                OrderRouteRequestEvent::class => 'listener'
+            ];
+        }
+    
+        public function listener(OrderRouteRequestEvent $event)
+        {
+            $event->getCriteria()->addAssociation('lineItems.product');
+        }
+    }
+    ```
 
 Administration
 --------------

@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -47,11 +46,6 @@ class AccountOrderController extends StorefrontController
     private $orderRoute;
 
     /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
-    /**
      * @var ContextSwitchRoute
      */
     private $contextSwitchRoute;
@@ -84,7 +78,6 @@ class AccountOrderController extends StorefrontController
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
         AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,
         ContextSwitchRoute $contextSwitchRoute,
         AbstractCancelOrderRoute $cancelOrderRoute,
@@ -94,7 +87,6 @@ class AccountOrderController extends StorefrontController
     ) {
         $this->orderPageLoader = $orderPageLoader;
         $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->contextSwitchRoute = $contextSwitchRoute;
         $this->accountEditOrderPageLoader = $accountEditOrderPageLoader;
         $this->cancelOrderRoute = $cancelOrderRoute;
@@ -150,16 +142,19 @@ class AccountOrderController extends StorefrontController
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('lineItems.cover');
 
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $criteria->getAssociation('transactions')
+            ->addSorting(new FieldSorting('createdAt'));
 
-        $orderRequest = new Request();
-        $orderRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
+        $apiRequest = new Request();
 
-        $event = new OrderRouteRequestEvent($request, $orderRequest, $context);
+        $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         /** @var OrderRouteResponseStruct $result */
-        $result = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
+        $result = $this->orderRoute
+            ->load($event->getStoreApiRequest(), $context, $criteria)
+            ->getObject();
+
         $order = $result->getOrders()->first();
 
         if (!$order instanceof OrderEntity) {

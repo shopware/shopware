@@ -231,6 +231,9 @@
           },
           "trackOrders": {
             "label": "Bestellungen tracken"
+          },
+          "anonymizeIp": {
+            "label": "Ip-Anonymisierung"
           }
         }
       },

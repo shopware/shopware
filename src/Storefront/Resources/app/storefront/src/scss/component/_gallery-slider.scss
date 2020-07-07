@@ -161,6 +161,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
 .gallery-slider-thumbnails-item-inner {
     border: 1px solid $border-color;
+    border-radius: $border-radius;
     width: 100%;
     height: 100%;
     padding: $spacer-xs;

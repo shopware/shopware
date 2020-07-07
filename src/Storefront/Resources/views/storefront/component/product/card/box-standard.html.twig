@@ -3,6 +3,7 @@
         {% set name = product.translated.name %}
         {% set id = product.id %}
         {% set cover = product.cover.media %}
+        {% set variation = product.variation %}
 
         <div class="card product-box box-{{ layout }}">
             {% block component_product_box_content %}
@@ -85,13 +86,15 @@
 
                             {% block component_product_box_variant_characteristics %}
                                 <div class="product-variant-characteristics">
-                                    {% for variation in product.variation %}
-                                        {{ variation.group }}: {{ variation.option }}
+                                    <div class="product-variant-characteristics-text">
+                                        {% for variation in product.variation %}
+                                            {{ variation.group }}: {{ variation.option }}
 
-                                        {% if product.variation|last != variation %}
-                                            {{ " | " }}
-                                        {% endif %}
-                                    {% endfor %}
+                                            {% if product.variation|last != variation %}
+                                                {{ " | " }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             {% endblock %}
 

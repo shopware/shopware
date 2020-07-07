@@ -245,20 +245,11 @@ class ElasticsearchProductTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
-        // indexing message is still in queue, search should not match
-        $result = $this->productRepository->searchIds($criteria, $context);
-        static::assertCount(0, $result->getIds());
-
-        // handle indexing message, afterwards the search should match
-        $this->runWorker();
+        // products should be updated immediately
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(1, $result->getIds());
 
         $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
-        $result = $this->productRepository->searchIds($criteria, $context);
-        static::assertCount(1, $result->getIds());
-
-        $this->runWorker();
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(0, $result->getIds());
     }

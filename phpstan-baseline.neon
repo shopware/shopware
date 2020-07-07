@@ -5036,11 +5036,6 @@ parameters:
 			path: src/Core/Framework/Plugin/PluginExtractor.php
 
 		-
-			message: "#^Parameter \\#1 \\$pluginComposerName of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Composer\\\\CommandExecutor\\:\\:require\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Plugin/PluginLifecycleService.php
-
-		-
 			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginManagementService.php

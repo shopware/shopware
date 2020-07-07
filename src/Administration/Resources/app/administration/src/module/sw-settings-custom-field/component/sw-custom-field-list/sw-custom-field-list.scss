@@ -1,14 +1,12 @@
 @import "~scss/variables";
 
-$sw-custom-field-list-color-label-link: $color-shopware-blue;
-$sw-custom-field-list-color-toolbar-background: $color-light-gray;
-$sw-custom-field-list-color-toolbar-bottom: $color-steam-cloud;
-$sw-custom-field-list-color-border: $color-crimson;
-$sw-custom-field-list-color-label-link: $color-shopware-blue;
+$sw-custom-field-list-color-label-link: $color-shopware-brand-500;
+$sw-custom-field-list-color-toolbar-background: $color-gray-100;
+$sw-custom-field-list-color-toolbar-bottom: $color-gray-300;
+$sw-custom-field-list-color-border: $color-crimson-500;
+$sw-custom-field-list-color-label-link: $color-shopware-brand-500;
 
 .sw-custom-field-list {
-    height: 865px;
-
     .sw-empty-state {
         position: static;
     }

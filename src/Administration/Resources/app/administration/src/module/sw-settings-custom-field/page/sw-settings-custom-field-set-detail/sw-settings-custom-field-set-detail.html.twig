@@ -42,12 +42,7 @@
                     <sw-custom-field-list
                             v-if="set.id"
                             ref="customFieldList"
-                            :set="set"
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            @page-change="onPageChange"
-                            @custom-field-change="onSave">
+                            :set="set">
                     </sw-custom-field-list>
                 {% endblock %}
             </sw-card-view>

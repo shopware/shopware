@@ -35,7 +35,8 @@
         "buttonApply": "Speichern",
         "labelEntities": "Verwenden für",
         "placeholderEntities": "Verwendung hinzufügen ...",
-        "messageNameNotUnique": "Der technische Name existiert bereits."
+        "messageNameNotUnique": "Der technische Name existiert bereits.",
+        "emptyStateDescription": "Speichere das Set bevor du Zusatzfelder hinzfügen kannst."
       }
     },
     "customField": {
@@ -80,7 +81,9 @@
         "labelCustomFieldPosition": "Position",
         "contextMenuCustomFieldResetDelete": "Wiederherstellen",
         "contextMenuCustomFieldView": "Editieren",
-        "contextMenuCustomFieldDelete": "Löschen"
+        "contextMenuCustomFieldDelete": "Löschen",
+        "titleDeleteAction": "Zusatzfeld löschen | Zusatzfelder löschen",
+        "textDeleteActionConfirmation": "Bist du sicher, dass du dieses Zusatzfeld löschen möchtest? | Bist du sicher, dass du diese {count} Zusatzfelder löschen möchtest?"
       }
     },
     "types": {

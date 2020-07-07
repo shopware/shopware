@@ -26,10 +26,7 @@ Component.register('sw-settings-custom-field-set-detail', {
             set: {},
             setId: '',
             isLoading: false,
-            isSaveSuccessful: false,
-            limit: 10,
-            page: 1,
-            total: 0
+            isSaveSuccessful: false
         };
     },
 
@@ -41,7 +38,7 @@ Component.register('sw-settings-custom-field-set-detail', {
 
     computed: {
         identifier() {
-            return this.set.config && this.set.config.label
+            return this.set.config && this.getInlineSnippet(this.set.config.label)
                 ? this.getInlineSnippet(this.set.config.label)
                 : this.set.name;
         },
@@ -65,10 +62,6 @@ Component.register('sw-settings-custom-field-set-detail', {
             const criteria = new Criteria();
 
             criteria.addAssociation('relations');
-            criteria.getAssociation('customFields')
-                .setLimit(this.limit)
-                .setPage(this.page)
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },
@@ -108,14 +101,6 @@ Component.register('sw-settings-custom-field-set-detail', {
                 Shopware.Context.api,
                 this.customFieldSetCriteria
             );
-
-            this.setTotalOfCustomFields();
-        },
-
-        setTotalOfCustomFields() {
-            this.customFieldRepository.searchIds(this.customFieldCriteria, Shopware.Context.api).then(response => {
-                this.total = response.total;
-            });
         },
 
         saveFinish() {
@@ -176,12 +161,6 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         onChangeLanguage() {
-            this.loadEntityData();
-        },
-
-        onPageChange(event) {
-            this.page = event.page;
-
             this.loadEntityData();
         }
     }

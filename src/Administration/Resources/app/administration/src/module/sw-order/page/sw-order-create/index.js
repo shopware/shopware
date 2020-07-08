@@ -77,7 +77,7 @@ Component.register('sw-order-create', {
                     })
                     .then((response) => {
                         this.isSaveSuccessful = true;
-                        this.orderId = get(response, 'data.data.id');
+                        this.orderId = get(response, 'data.id');
                     })
                     .catch(() => this.showError())
                     .finally(() => {

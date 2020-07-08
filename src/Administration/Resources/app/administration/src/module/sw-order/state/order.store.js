@@ -99,59 +99,59 @@ export default {
         },
 
         createCart({ commit }, { salesChannelId }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .createCart(salesChannelId)
                 .then(response => {
-                    commit('setCartToken', response.data['sw-context-token']);
+                    commit('setCartToken', response.data.token);
                 });
         },
 
         getCart({ commit }, { salesChannelId, contextToken }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .getCart(salesChannelId, contextToken)
-                .then((response) => commit('setCart', response.data.data));
+                .then((response) => commit('setCart', response.data));
         },
 
         cancelCart(_, { salesChannelId, contextToken }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .cancelCart(salesChannelId, contextToken);
         },
 
         updateCustomerContext(_, { customerId, salesChannelId, contextToken }) {
-            return Service('salesChannelContextService')
+            return Service('contextStoreService')
                 .updateCustomerContext(customerId, salesChannelId, contextToken);
         },
 
         updateOrderContext(_, { context, salesChannelId, contextToken }) {
-            return Service('salesChannelContextService')
+            return Service('contextStoreService')
                 .updateContext(context, salesChannelId, contextToken);
         },
 
         saveOrder(_, { salesChannelId, contextToken }) {
-            return Service('checkOutSalesChannelService')
+            return Service('checkoutStoreService')
                 .checkout(salesChannelId, contextToken);
         },
 
         removeLineItems({ commit }, { salesChannelId, contextToken, lineItemKeys }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .removeLineItems(salesChannelId, contextToken, lineItemKeys)
-                .then(response => commit('setCart', response.data.data));
+                .then(response => commit('setCart', response.data));
         },
 
         saveLineItem({ commit }, { salesChannelId, contextToken, item }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .saveLineItem(salesChannelId, contextToken, item)
-                .then((response) => commit('setCart', response.data.data));
+                .then((response) => commit('setCart', response.data));
         },
 
         addPromotionCode({ commit }, { salesChannelId, contextToken, code }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .addPromotionCode(salesChannelId, contextToken, code)
-                .then(response => commit('setCart', response.data.data));
+                .then(response => commit('setCart', response.data));
         },
 
         modifyShippingCosts({ commit }, { salesChannelId, contextToken, shippingCosts }) {
-            return Service('cartSalesChannelService')
+            return Service('cartStoreService')
                 .modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
                 .then(response => commit('setCart', response.data.data));
         }

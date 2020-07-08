@@ -432,7 +432,7 @@ Component.register('sw-order-create-base', {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            Service('cartSalesChannelService').enableAutomaticPromotions(this.cart.token).then(() => {
+            Service('cartStoreService').enableAutomaticPromotions(this.cart.token).then(() => {
                 this.loadCart();
             });
         },

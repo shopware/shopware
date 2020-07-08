@@ -2,15 +2,14 @@ import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "sales-channel-context"
- * Uses the _proxy endpoint of the admin api to connect to the sales-channel-api endpoint cart
+ * Uses the _proxy endpoint of the admin api to connect to the store-api endpoint cart
  * @class
  * @extends ApiService
- * @deprecated tag:v6.4.0 - Use storeContextService
  */
-class SalesChannelContextService extends ApiService {
+class StoreContextService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sales-channel-context') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'salesChannelContextService';
+        this.name = 'contextStoreService';
     }
 
     updateCustomerContext(
@@ -41,7 +40,7 @@ class SalesChannelContextService extends ApiService {
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/context`;
+        const route = `_proxy/store-api/${salesChannelId}/v1/context`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken
@@ -56,11 +55,11 @@ class SalesChannelContextService extends ApiService {
     }
 
     getContext(salesChannelId, source, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/${source}`;
+        const route = `_proxy/store-api/${salesChannelId}/v1/${source}`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient.post(route, {}, { additionalParams, headers });
     }
 }
 
-export default SalesChannelContextService;
+export default StoreContextService;

@@ -75,6 +75,19 @@
                                     </div>
                                 {% endblock %}
 
+                                {% block cart_item_variant_characteristics %}
+                                    <div class="cart-item-characteristics">
+                                        {% for option in lineItem.payload.options %}
+                                            {{ option.group }}:
+                                            <span class="cart-item-characteristics-option">{{ option.option }}</span>
+
+                                            {% if lineItem.payload.options|last != option %}
+                                                {{ " | " }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endblock %}
+
                                 {% block component_offcanvas_product_variants %}
                                     {% if lineItem.payload.options|length >= 1 %}
                                         <div class="cart-item-variants">

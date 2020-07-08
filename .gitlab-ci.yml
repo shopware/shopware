@@ -15,7 +15,7 @@ stages:
     - Deploy
 
 include:
-    -   local: .gitlab/ci/sync.yml
+    -   local: .gitlab/ci/split.yml
 
 default:
     image: shopware/development:latest

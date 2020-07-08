@@ -1,27 +1,3 @@
-GitHub mirror:
-    stage: Deploy
-    image: alpine:latest
-    only:
-        refs:
-            - master
-    before_script:
-        - apk --no-cache add git openssh-client
-        - mkdir -p ~/.ssh/
-        - echo -e "$SHOPWAREBOT_PRIVATE_KEY" > ~/.ssh/id_rsa
-        - chmod 600 ~/.ssh/id_rsa
-        - eval `ssh-agent -s`
-        - ssh-add ~/.ssh/id_rsa
-        - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    script:
-        # split repositories
-        - git remote add github git@github.com:shopware/platform.git
-        - >
-            for branch in $CI_MIRROR_BRANCHES; do
-              echo "Mirroring ${branch}"
-              git checkout $branch
-              git push github $branch -f
-            done
-
 Repository Split:
     stage: Deploy
     image: debian:buster-slim

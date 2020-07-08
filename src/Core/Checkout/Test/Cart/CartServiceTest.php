@@ -107,20 +107,32 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
-
-        $dispatcher->addListener(LineItemAddedEvent::class, $listener);
+        $isMerged = null;
+        $dispatcher->addListener(LineItemAddedEvent::class, static function (LineItemAddedEvent $addedEvent) use (&$isMerged) {
+            $isMerged = $addedEvent->isMerged();
+        });
 
         $cartService = $this->getContainer()->get(CartService::class);
 
         $context = $this->getSalesChannelContext();
 
+        $cartId = Uuid::randomHex();
         $cartService->add(
-            $cartService->getCart(Uuid::randomHex(), $context),
+            $cartService->getCart($cartId, $context),
             new LineItem('test', 'test'),
             $context
         );
+        
+        static::assertNotNull($isMerged);
+        static::assertFalse($isMerged);
+
+        $cartService->add(
+            $cartService->getCart($cartId, $context),
+            new LineItem('test', 'test'),
+            $context
+        );
+
+        static::assertTrue($isMerged);
     }
 
     public function testLineItemRemovedEventFired(): void

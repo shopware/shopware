@@ -355,6 +355,7 @@ Table of contents
 * Added new class `\Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage` which adds a fallback to shop URL if the given URL is empty
 * Added new class `\Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass` which fixes backward compatibility in the filesystem configs
 * Changed `\Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver` to consider sales channel entities.
+* Changed `/store-api/v1/handle-payment` to return the redirectUrl in json response.
 
 #### Storefront
 * Added plugin injection in hot mode

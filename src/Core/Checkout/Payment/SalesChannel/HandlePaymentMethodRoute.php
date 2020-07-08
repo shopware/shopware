@@ -7,9 +7,13 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -21,10 +25,17 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      */
     private $paymentService;
 
+    /**
+     * @var DataValidator
+     */
+    private $dataValidator;
+
     public function __construct(
-        PaymentService $paymentService
+        PaymentService $paymentService,
+        DataValidator $dataValidator
     ) {
         $this->paymentService = $paymentService;
+        $this->dataValidator = $dataValidator;
     }
 
     public function getDecorated(): AbstractHandlePaymentMethodRoute
@@ -74,6 +85,9 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      */
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
+        $data = array_merge($request->query->all(), $request->request->all());
+        $this->dataValidator->validate($data, $this->createDataValidation());
+
         $response = $this->paymentService->handlePaymentByOrder(
             $request->get('orderId'),
             new RequestDataBag($request->request->all()),
@@ -83,5 +97,13 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         );
 
         return new HandlePaymentMethodRouteResponse($response);
+    }
+
+    private function createDataValidation(): DataValidationDefinition
+    {
+        return (new DataValidationDefinition())
+            ->add('orderId', new NotBlank(), new Type('string'))
+            ->add('finishUrl', new Type('string'))
+            ->add('errorUrl', new Type('string'));
     }
 }

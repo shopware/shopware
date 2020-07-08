@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void               set(string $key, CalculatedTax $entity)
  * @method CalculatedTax[]    getIterator()
  * @method CalculatedTax[]    getElements()
  * @method CalculatedTax|null get(string $key)
@@ -21,6 +20,11 @@ class CalculatedTaxCollection extends Collection
     public function add($calculatedTax): void
     {
         $this->set($this->getKey($calculatedTax), $calculatedTax);
+    }
+
+    public function set($key, $calculatedTax): void
+    {
+        parent::set($this->getKey($calculatedTax), $calculatedTax);
     }
 
     public function removeElement(CalculatedTax $calculatedTax): void

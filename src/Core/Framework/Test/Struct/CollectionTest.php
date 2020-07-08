@@ -128,7 +128,7 @@ class CollectionTest extends TestCase
         $collection->add($categoryStruct);
 
         $filtered = $collection->filterInstance(Struct::class);
-        static::assertEquals([$productStruct, $categoryStruct], $filtered->getElements());
+        static::assertEquals([$productStruct, $categoryStruct], array_values($filtered->getElements()));
     }
 
     public function testFilter(): void
@@ -145,7 +145,7 @@ class CollectionTest extends TestCase
         $filtered = $collection->filter(function ($element) {
             return $element !== 'b';
         });
-        static::assertEquals(['a', 'c'], $filtered->getElements());
+        static::assertEquals(['a', 'c'], array_values($filtered->getElements()));
     }
 
     public function testSlice(): void
@@ -157,8 +157,8 @@ class CollectionTest extends TestCase
         $collection->add('b');
         $collection->add('c');
 
-        static::assertEquals(['b', 'c'], $collection->slice(1)->getElements());
-        static::assertEquals(['b'], $collection->slice(1, 1)->getElements());
+        static::assertEquals(['b', 'c'], array_values($collection->slice(1)->getElements()));
+        static::assertEquals(['b'], array_values($collection->slice(1, 1)->getElements()));
     }
 
     public function testGetElements(): void

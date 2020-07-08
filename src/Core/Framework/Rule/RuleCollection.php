@@ -27,6 +27,13 @@ class RuleCollection extends Collection
         $this->addMeta($rule);
     }
 
+    public function set($key, $rule): void
+    {
+        parent::set(null, $rule);
+
+        $this->addMeta($rule);
+    }
+
     public function clear(): void
     {
         parent::clear();

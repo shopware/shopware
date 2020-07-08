@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                 set(string $key, AnalyzedKeyword $entity)
  * @method AnalyzedKeyword[]    getIterator()
  * @method AnalyzedKeyword[]    getElements()
  * @method AnalyzedKeyword|null get(string $key)
@@ -16,20 +15,19 @@ class AnalyzedKeywordCollection extends Collection
 {
     public function add($element): void
     {
+        $this->validateType($element);
+
         $keyword = $element->getKeyword();
+        $best = $this->getBest($element, $keyword);
 
-        if (!$this->has($keyword)) {
-            $this->elements[$keyword] = $element;
+        $this->elements[$keyword] = $best;
+    }
 
-            return;
-        }
+    public function set($key, $element): void
+    {
+        $this->validateType($element);
 
-        $existing = $this->get($keyword);
-        if ($existing->getRanking() > $element->getRanking()) {
-            return;
-        }
-
-        $this->elements[$keyword] = $element;
+        $this->elements[$element->getKeyword()] = $element;
     }
 
     public function getApiAlias(): string
@@ -40,5 +38,15 @@ class AnalyzedKeywordCollection extends Collection
     protected function getExpectedClass(): ?string
     {
         return AnalyzedKeyword::class;
+    }
+
+    private function getBest(AnalyzedKeyword $new, string $keyword): AnalyzedKeyword
+    {
+        $existing = $this->has($keyword) ? $this->get($keyword) : null;
+        if ($existing === null) {
+            return $new;
+        }
+
+        return $new->getRanking() > $existing->getRanking() ? $new : $existing;
     }
 }

@@ -14,6 +14,8 @@ class UninstallContext extends InstallContext
     private $keepUserData;
 
     /**
+     * @deprecated tag:v6.4.0
+     *
      * @var bool
      */
     private $keepMigrations;
@@ -25,11 +27,15 @@ class UninstallContext extends InstallContext
         string $currentPluginVersion,
         MigrationCollection $migrationCollection,
         bool $keepUserData,
-        bool $keepMigrations = false
+        /* @deprecated tag:v6.4.0 */
+        bool $keepMigrations = true
     ) {
         parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
         $this->keepUserData = $keepUserData;
         $this->keepMigrations = $keepMigrations;
+        if (func_num_args() === 7) {
+            trigger_error('Do not supply $keepMigrations anymore, it will be removed in v6.4.0. See UPGRADE-6.3.md for further information.', E_USER_DEPRECATED);
+        }
     }
 
     public function keepUserData(): bool
@@ -42,7 +48,8 @@ class UninstallContext extends InstallContext
      *
      * Call `enableKeepMigrations` to opt-out from the deletion
      *
-     * The default will change to true in v6.3.0
+     * @deprecated tag:v6.4.0 use keepUserData() instead. Starting with v6.4.0 migrations will always be removed if
+     * keepUserData() returns false.
      */
     public function keepMigrations(): bool
     {
@@ -50,10 +57,11 @@ class UninstallContext extends InstallContext
     }
 
     /**
-     * This will be the default in v6.3.0
+     * @deprecated tag:v6.4.0
      */
     public function enableKeepMigrations(): void
     {
+        trigger_error('Do not use enableKeepMigrations() anymore, it will be removed in v6.4.0. See UPGRADE-6.3.md for further information.', E_USER_DEPRECATED);
         $this->keepMigrations = true;
     }
 }

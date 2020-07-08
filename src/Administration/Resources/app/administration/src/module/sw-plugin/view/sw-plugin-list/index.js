@@ -40,7 +40,9 @@ Component.register('sw-plugin-list', {
             sortBy: 'upgradedAt',
             sortDirection: 'desc',
             sortType: 'upgradedAt:desc',
-            showDeleteModal: false
+            showDeleteModal: false,
+            showUninstallModal: false,
+            removePluginData: false
         };
     },
 
@@ -239,10 +241,21 @@ Component.register('sw-plugin-list', {
             });
         },
 
+        onShowUninstallPluginModal(plugin) {
+            this.showUninstallModal = plugin.id;
+        },
+
+        onCloseUninstallModal() {
+            this.showUninstallModal = false;
+            this.removePluginData = false;
+        },
+
         onUninstallPlugin(plugin) {
             this.isLoading = true;
 
-            pluginService.uninstall(plugin.name).then(() => {
+            pluginService.uninstall(plugin.name, { keepUserData: !this.removePluginData }).then(() => {
+                // Hide the uninstall modal right away before reloading the plugin list
+                this.showUninstallModal = false;
                 this.createNotificationSuccess({
                     title: this.$tc('global.default.success'),
                     message: this.$tc('sw-plugin.list.messageUninstallSuccess')
@@ -254,14 +267,16 @@ Component.register('sw-plugin-list', {
 
                 return this.getList();
             }).catch((e) => {
-                this.isLoading = false;
-
                 const context = { message: e.response.data.errors[0].detail };
 
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('sw-plugin.errors.messagePluginUninstallationFailed', 0, context)
                 });
+            }).finally(() => {
+                this.isLoading = false;
+                this.showUninstallModal = false;
+                this.removePluginData = false;
             });
         },
 

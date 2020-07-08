@@ -19,9 +19,9 @@
                                      size="small">
                 <template #selection-label-property="{ item }">
                     <slot name="selection-label-property" v-bind="{ item }">
-                        <sw-product-variation :variations="item.variation">
+                        <sw-product-variant-info :variations="item.variation">
                             {{ item.translated.name || item.name }}
-                        </sw-product-variation>
+                        </sw-product-variant-info>
                     </slot>
                 </template>
 
@@ -29,9 +29,9 @@
                     <slot name="result-item" v-bind="{ item, index }">
                         <li is="sw-select-result" v-bind="{ item, index }">
                             {% block sw_entity_single_select_base_results_list_result_label %}
-                                <sw-product-variation :variations="item.variation">
+                                <sw-product-variant-info :variations="item.variation">
                                     {{ item.translated.name || item.name }}
-                                </sw-product-variation>
+                                </sw-product-variant-info>
                             {% endblock %}
                         </li>
                     </slot>

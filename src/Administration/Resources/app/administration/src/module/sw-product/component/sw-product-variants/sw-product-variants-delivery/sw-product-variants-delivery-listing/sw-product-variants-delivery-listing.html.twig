@@ -34,10 +34,10 @@
                                                           @change="updateMainVariant">
                                     <template #selection-label-property="{ item }">
                                         <slot name="selection-label-property" v-bind="{ item }">
-                                            <sw-product-variation
+                                            <sw-product-variant-info
                                                 :variations="item.variation">
                                                     {{ item.name || item.translated.name }}
-                                            </sw-product-variation>
+                                            </sw-product-variant-info>
                                         </slot>
                                     </template>
 
@@ -46,10 +46,10 @@
                                             <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
                                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                                 <span class="sw-select-result__result-item-text">
-                                                    <sw-product-variation
+                                                    <sw-product-variant-info
                                                         :variations="item.variation">
                                                         {{ item.translated.name || item.name }}
-                                                    </sw-product-variation>
+                                                    </sw-product-variant-info>
                                                 </span>
 
                                                 {% endblock %}

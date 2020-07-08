@@ -7,9 +7,9 @@
                     <span v-if="product.isNew()" >
                         {{ productTitle }}
                     </span>
-                    <sw-product-variation v-else :variations="product.variation">
+                    <sw-product-variant-info v-else :variations="product.variation">
                         {{ productTitle }}
-                    </sw-product-variation>
+                    </sw-product-variant-info>
                 </h2>
             </template>
         {% endblock %}

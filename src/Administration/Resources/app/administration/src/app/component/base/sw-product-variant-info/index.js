@@ -1,5 +1,5 @@
-import template from './sw-product-variation.html.twig';
-import './sw-product-variation.scss';
+import template from './sw-product-variant-info.html.twig';
+import './sw-product-variant-info.scss';
 
 const { Component } = Shopware;
 
@@ -9,9 +9,9 @@ const { Component } = Shopware;
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-product-variation :variations="variations"></sw-product-variation>
+ * <sw-product-variant-info :variations="variations"></sw-product-variant-info>
  */
-Component.register('sw-product-variation', {
+Component.register('sw-product-variant-info', {
     template,
 
     props: {
@@ -62,7 +62,7 @@ Component.register('sw-product-variation', {
             this.helpText += `${this.$slots.default[0].text}`;
 
             if (this.variations.length > 0) {
-                this.helpText += ' ( ';
+                this.helpText += ' (';
                 this.variations.forEach((variant) => {
                     this.helpText += `${variant.group} : ${variant.option}`;
 
@@ -70,7 +70,7 @@ Component.register('sw-product-variation', {
                         this.helpText += ' | ';
                     }
                 });
-                this.helpText += ' ) ';
+                this.helpText += ') ';
             }
         }
     }

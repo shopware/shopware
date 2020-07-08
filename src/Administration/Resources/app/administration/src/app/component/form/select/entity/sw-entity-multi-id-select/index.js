@@ -40,12 +40,8 @@ Component.register('sw-entity-multi-id-select', {
 
         resultCriteria: {
             type: Object,
-            required: false,
-            default() {
-                return new Criteria();
-            }
+            required: false
         },
-
 
         context: {
             type: Object,

@@ -16,9 +16,9 @@
                             <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                     <span class="sw-select-result__result-item-text">
-                                        <sw-product-variation :variations="item.variation">
+                                        <sw-product-variant-info :variations="item.variation">
                                             {{ item.translated.name || item.name }}
-                                        </sw-product-variation>
+                                        </sw-product-variant-info>
                                     </span>
                                 {% endblock %}
                             </li>
@@ -47,9 +47,9 @@
                     <template #column-product.translated.name="{ item }">
                         {% block sw_data_grid_columns_render_value %}
                             <span>
-                                <sw-product-variation :variations="item.product.variation">
+                                <sw-product-variant-info :variations="item.product.variation">
                                     {{ item.product.translated.name || item.product.name }}
-                                </sw-product-variation>
+                                </sw-product-variant-info>
                             </span>
                         {% endblock %}
                     </template>

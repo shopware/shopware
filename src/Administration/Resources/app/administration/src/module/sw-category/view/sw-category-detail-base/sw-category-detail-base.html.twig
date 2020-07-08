@@ -93,9 +93,9 @@
                     <template v-slot:[nameColumn]="{ item, column }">
                         <router-link
                             :to="{ name: column.routerLink, params: { id: item.id } }">
-                            <sw-product-variation :variations="item.options">
+                            <sw-product-variant-info :variations="item.options">
                                 {{ item.name || item.translated.name }}
-                            </sw-product-variation>
+                            </sw-product-variant-info>
                         </router-link>
                     </template>
 

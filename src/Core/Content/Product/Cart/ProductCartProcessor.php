@@ -45,14 +45,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      */
     private $calculator;
 
+    /**
+     * @var ProductFeatureBuilder
+     */
+    private $featureBuilder;
+
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder
+        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
+        ProductFeatureBuilder $featureBuilder
     ) {
         $this->productGateway = $productGateway;
         $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->calculator = $calculator;
+        $this->featureBuilder = $featureBuilder;
     }
 
     public function collect(
@@ -82,6 +89,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // enrich all products in original cart
             $this->enrich($original, $lineItem, $data, $context, $behavior);
         }
+
+        $this->featureBuilder->prepare($lineItems, $data, $context);
     }
 
     /**
@@ -147,8 +156,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             $lineItem->setPrice($this->calculator->calculate($definition, $context));
+
             $toCalculate->add($lineItem);
         }
+
+        $this->featureBuilder->add($lineItems, $data, $context);
     }
 
     private function enrich(

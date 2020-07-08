@@ -69,13 +69,13 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     public function testDefaultFeatureSetIsCreated(): void
     {
         $expectedFeature = [
-            'type' => 'product',
-            'id' => 'referencePrice',
-            'position' => 1,
+            'type' => 'referencePrice',
+            'id' => null,
+            'position' => 0,
         ];
         $expectedFeatures = [$expectedFeature];
 
-        $actual = $this->fetchFeatureSet();
+        $actual = $this->fetchDefaultFeatureSet();
         $actualFeatures = json_decode($actual['features'], true);
 
         static::assertCount(count($expectedFeatures), $actualFeatures);
@@ -87,6 +87,31 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         static::assertEquals($expectedFeature['type'], $actualFeature['type']);
         static::assertEquals($expectedFeature['id'], $actualFeature['id']);
         static::assertEquals($expectedFeature['position'], $actualFeature['position']);
+    }
+
+    public function testDefaultFeatureSetTranslationIsCreated(): void
+    {
+        $expectedTranslations = array_values(Migration1590758953ProductFeatureSet::TRANSLATIONS);
+        $actual = $this->fetchFeatureSetTranslation();
+
+        foreach ($actual as &$translation) {
+            unset(
+                $translation['product_feature_set_id'],
+                $translation['language_id'],
+                $translation['created_at'],
+                $translation['updated_at']
+            );
+        }
+        unset($translation);
+
+        $compareByName = static function (array $a, array $b) {
+            return $a['name'] <=> $b['name'];
+        };
+
+        usort($expectedTranslations, $compareByName);
+        usort($actual, $compareByName);
+
+        static::assertEquals($expectedTranslations, $actual);
     }
 
     public function tableInformationProvider(): array
@@ -162,10 +187,18 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         }, $columns);
     }
 
-    private function fetchFeatureSet(): array
+    private function fetchDefaultFeatureSet(): array
     {
         return $this->connection->fetchAssoc(
             'SELECT * FROM `product_feature_set` ORDER BY `created_at` ASC LIMIT 1;'
+        );
+    }
+
+    private function fetchFeatureSetTranslation(): array
+    {
+        return $this->connection->fetchAll(
+            'SELECT * FROM `product_feature_set_translation` WHERE `product_feature_set_id` = :id;',
+            $this->fetchDefaultFeatureSet()
         );
     }
 

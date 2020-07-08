@@ -7,7 +7,6 @@ in 6.3 minor versions.
 To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/6.2...master
 
-
 Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
@@ -350,6 +349,18 @@ Table of contents
 * Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
 * Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
 * Added `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete::$cloneRelevant` to skip association in clone process.
+* Added new class `Shopware\Core\System\Snippet\SnippetValidator` and interface `Shopware\Core\System\Snippet\SnippetValidatorInterface`
+* Added new command `snippets:validate` with file `Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand`
+* Added `\Shopware\Core\Content\Product\Cart\ProductFeatureBuilder` which is used to add features to the line item payload in `\Shopware\Core\Content\Product\Cart\ProductCartProcessor`
+* Added new constructor argument `$featureBuilder` to `\Shopware\Core\Content\Product\Cart\ProductCartProcessor`
+* Added new constants in `\Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition`:
+    * `TYPE_PRODUCT_ATTRIBUTE`
+    * `TYPE_PRODUCT_PROPERTY`
+    * `TYPE_PRODUCT_CUSTOM_FIELD`
+    * `TYPE_PRODUCT_REFERENCE_PRICE`
+* Added new associations to the criteria in `\Shopware\Core\Content\Product\Cart\ProductGateway`:
+    * `featureSets`
+    * `properties.group`
 * Added new `asset`, `sitemap` and  `theme` asset package
 * Added new class `\Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy` which adds cache bustering to asset urls with usage of flysystem adapters
 * Added new class `\Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage` which adds a fallback to shop URL if the given URL is empty

@@ -206,10 +206,6 @@ Component.register('sw-product-stream-value', {
             criteria.addAssociation('options.group');
 
             return criteria;
-        },
-
-        productContext() {
-            return { ...Shopware.Context.api, inheritance: true };
         }
     },
 

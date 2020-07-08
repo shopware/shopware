@@ -211,7 +211,7 @@ Table of contents
 * Added method `setTotalOfCustomFields` to `sw-custom-field-list`
 * Added method `onPageChange` to `sw-custom-field-list`
 * Added method `loadCurrentSalesChannelConfig` to `sw-system-config` to loads the current sales channel config without using the cached value 
-
+* `sw-entity-multi-id-select` can now consider criteria in result lists
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

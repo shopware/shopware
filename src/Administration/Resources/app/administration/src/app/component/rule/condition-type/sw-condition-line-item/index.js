@@ -1,4 +1,5 @@
 import template from './sw-condition-line-item.html.twig';
+import './sw-condition-line-item.scss';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -85,12 +86,11 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
                 return Promise.resolve();
             }
 
-            const context = this.productContext;
             const criteria = new Criteria();
             criteria.addAssociation('options.group');
             criteria.setIds(this.productIds);
 
-            return this.productRepository.search(criteria, context).then((products) => {
+            return this.productRepository.search(criteria, this.productContext).then((products) => {
                 this.products = products;
             });
         },

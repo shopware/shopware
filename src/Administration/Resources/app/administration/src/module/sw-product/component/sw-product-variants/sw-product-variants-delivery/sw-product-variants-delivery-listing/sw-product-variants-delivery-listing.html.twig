@@ -44,14 +44,13 @@
                                     <template #result-item="{ item, index }">
                                         <slot name="result-item" v-bind="{ item, index, isSelected }">
                                             <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
-                                                {% block sw_entity_single_select_base_results_list_result_label %}
-                                                <span class="sw-select-result__result-item-text">
-                                                    <sw-product-variant-info
-                                                        :variations="item.variation">
-                                                        {{ item.translated.name || item.name }}
-                                                    </sw-product-variant-info>
-                                                </span>
-
+                                                {% block sw_product_variants_results_list_result_label %}
+                                                    <span class="sw-select-result__result-item-text">
+                                                        <sw-product-variant-info
+                                                            :variations="item.variation">
+                                                            {{ item.translated.name || item.name }}
+                                                        </sw-product-variant-info>
+                                                    </span>
                                                 {% endblock %}
                                             </li>
                                         </slot>

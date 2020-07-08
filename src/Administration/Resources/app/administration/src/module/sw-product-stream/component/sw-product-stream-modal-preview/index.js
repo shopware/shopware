@@ -43,8 +43,7 @@ Component.register('sw-product-stream-modal-preview', {
                     property: 'name',
                     label: this.$tc('sw-product-stream.filter.values.product'),
                     type: 'text',
-                    routerLink: 'sw.product.detail',
-                    multiLine: true
+                    routerLink: 'sw.product.detail'
                 }, {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-product-stream.filter.values.manufacturer')

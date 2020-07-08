@@ -335,7 +335,6 @@ Component.register('sw-product-detail', {
                 },
                 this.productCriteria
             ).then((res) => {
-                console.log('res', res);
                 Shopware.State.commit('swProductDetail/setProduct', res);
 
                 if (this.product.parentId) {

@@ -10,24 +10,28 @@
                 size="medium"
                 :entityCollection="products"
                 :criteria="productCriteria"
-                :resultCriteria="resultCriteria"
                 :context="productContext"
                 @change="setIds">
                 <template #selection-label-property="{ item }">
                     <slot name="selection-label-property" v-bind="{ item }">
-                        <sw-product-variant-info
-                            :variations="item.variation">
-                            {{ item.translated.name || item.name }}
-                        </sw-product-variant-info>
+                        {% block sw_condition_line_item_results_variant_info %}
+                            <sw-product-variant-info
+                                :variations="item.variation">
+                                {{ item.translated.name || item.name }}
+                            </sw-product-variant-info>
+                        {% endblock %}
                     </slot>
                 </template>
 
-                <template #result-item="{ item, index }">
-                    <slot name="result-item" v-bind="{ item, index }">
-                        <li is="sw-select-result" v-bind="{ item, index }">
-                            {% block sw_entity_single_select_base_results_list_result_label %}
+                <template #result-item="{ item, index, searchTerm, highlightSearchTerm }">
+                    <slot name="result-item" v-bind="{ item, index, searchTerm, highlightSearchTerm }">
+                        <li is="sw-select-result" v-bind="{ item, index, searchTerm, highlightSearchTerm }">
+                            {% block sw_condition_line_item_results_list_result_label %}
                                 <span class="sw-select-result__result-item-text">
-                                    <sw-product-variant-info :variations="item.variation">
+                                    <sw-product-variant-info
+                                        :variations="item.variation"
+                                        :highlighted="highlightSearchTerm"
+                                        :searchTerm="searchTerm">
                                             {{ item.translated.name || item.name }}
                                     </sw-product-variant-info>
                                 </span>

@@ -42,17 +42,19 @@
                         v-model="actualCondition.value">
                         <template #selection-label-property="{ item }">
                             <slot name="selection-label-property" v-bind="{ item }">
-                                <sw-product-variant-info
-                                    :variations="item.variation">
-                                    {{ item.translated.name || item.name }}
-                                </sw-product-variant-info>
+                                {% block sw_product_stream_value_results_variant_info %}
+                                    <sw-product-variant-info
+                                        :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                {% endblock %}
                             </slot>
                         </template>
 
                         <template #result-item="{ item, index }">
                             <slot name="result-item" v-bind="{ item, index }">
                                 <li is="sw-select-result" v-bind="{ item, index }">
-                                    {% block sw_entity_single_select_base_results_list_result_label %}
+                                    {% block sw_product_stream_value_results_list_result_label %}
                                         <span class="sw-select-result__result-item-text">
                                             <sw-product-variant-info
                                                 :variations="item.variation">
@@ -80,8 +82,7 @@
                         size="medium"
                         :repository="repository"
                         :criteria="productCriteria"
-                        :resultCriteria="resultCriteria"
-                        :context="productContext"
+                        :context="context"
                         v-model="multiValue">
                         <template #selection-label-property="{ item }">
                             <slot name="selection-label-property" v-bind="{ item }">
@@ -95,7 +96,7 @@
 
                         <template #result-label-property="{ item, index }">
                             <slot name="result-label-property" v-bind="{ item, index }">
-                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                {% block sw_product_stream_value_results_list_result_label %}
                                     <span class="sw-select-result__result-item-text">
                                         <sw-product-variant-info :variations="item.variation">
                                             {{ item.translated.name || item.name }}

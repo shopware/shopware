@@ -17,35 +17,26 @@ Component.register('sw-product-variant-info', {
     props: {
         variations: {
             type: Array,
-            required: false
-        },
-        width: {
-            type: Number,
             required: false,
-            default: 500
+            default: null
         },
-        tooltipPosition: {
+        highlighted: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        searchTerm: {
             type: String,
             required: false,
-            default: 'top',
-            validValues: ['top', 'bottom', 'left', 'right'],
-            validator(value) {
-                return ['top', 'bottom', 'left', 'right'].includes(value);
-            }
-        },
-        showDelay: {
-            type: Number,
-            required: false
-        },
-        hideDelay: {
-            type: Number,
-            required: false
+            default: ''
         }
     },
 
     data() {
         return {
-            helpText: ''
+            helpText: '',
+            tooltipWidth: 200,
+            productName: `${this.$slots.default[0].text}`
         };
     },
 
@@ -59,9 +50,10 @@ Component.register('sw-product-variant-info', {
         },
 
         setHelpText() {
-            this.helpText += `${this.$slots.default[0].text}`;
+            this.helpText += this.productName;
 
             if (this.variations.length > 0) {
+                this.tooltipWidth = 500;
                 this.helpText += ' (';
                 this.variations.forEach((variant) => {
                     this.helpText += `${variant.group} : ${variant.option}`;

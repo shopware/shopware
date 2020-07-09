@@ -18,6 +18,15 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class LineItemCollection extends Collection
 {
+    public function __construct(iterable $elements = [])
+    {
+        parent::__construct([]);
+
+        foreach ($elements as $lineItem) {
+            $this->add($lineItem);
+        }
+    }
+
     /**
      * @param LineItem $lineItem
      *
@@ -40,6 +49,13 @@ class LineItemCollection extends Collection
 
             return;
         }
+
+        $this->elements[$this->getKey($lineItem)] = $lineItem;
+    }
+
+    public function set($key, $lineItem): void
+    {
+        $this->validateType($lineItem);
 
         $this->elements[$this->getKey($lineItem)] = $lineItem;
     }
@@ -99,9 +115,9 @@ class LineItemCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            $this->fmap(function (LineItem $lineItem) {
+            array_filter(array_map(static function (LineItem $lineItem) {
                 return $lineItem->getPrice();
-            })
+            }, array_values($this->getElements())))
         );
     }
 

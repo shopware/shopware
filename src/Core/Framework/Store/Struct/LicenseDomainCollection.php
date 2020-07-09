@@ -26,6 +26,11 @@ class LicenseDomainCollection extends Collection
         $this->elements[$element->getDomain()] = $element;
     }
 
+    public function set($key, $element): void
+    {
+        parent::set($element->getDomain(), $element);
+    }
+
     public function getApiAlias(): string
     {
         return 'store_license_domain_collection';

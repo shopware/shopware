@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                   set(string $key, AggregationResult $entity)
  * @method AggregationResult[]    getIterator()
  * @method AggregationResult[]    getElements()
  * @method AggregationResult|null first()
@@ -19,6 +18,11 @@ class AggregationResultCollection extends Collection
     public function add($result): void
     {
         $this->set($result->getName(), $result);
+    }
+
+    public function set($key, $result): void
+    {
+        parent::set($result->getName(), $result);
     }
 
     public function get($name): ?AggregationResult

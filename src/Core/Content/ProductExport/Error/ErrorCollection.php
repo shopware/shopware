@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\ProductExport\Error;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void       set(string $key, Error $entity)
  * @method Error[]    getIterator()
  * @method Error[]    getElements()
  * @method Error|null get(string $key)
@@ -20,6 +19,11 @@ class ErrorCollection extends Collection
     public function add($error): void
     {
         $this->set($error->getId(), $error);
+    }
+
+    public function set($key, $error): void
+    {
+        parent::set($error->getId(), $error);
     }
 
     public function getApiAlias(): string

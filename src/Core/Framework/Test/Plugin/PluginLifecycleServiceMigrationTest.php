@@ -74,6 +74,8 @@ class PluginLifecycleServiceMigrationTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
+
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 

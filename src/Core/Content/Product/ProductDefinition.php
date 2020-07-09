@@ -67,7 +67,6 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 use function Flag\next6997;
-use function Flag\next7399;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -244,11 +243,9 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited(), new Required()),
         ]);
 
-        if (next7399()) {
-            $collection->add(
-                (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
-            );
-        }
+        $collection->add(
+            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
+        );
 
         if (next6997()) {
             $collection->add(

@@ -55,6 +55,8 @@ Component.register('sw-product-cross-selling-assignment', {
         searchCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
+            criteria.addAssociation('options.group');
+
             return criteria;
         },
 
@@ -116,7 +118,9 @@ Component.register('sw-product-cross-selling-assignment', {
                 newProduct.position = this.assignedProducts.length + 1;
                 this.assignedProducts.add(newProduct);
 
-                this.productRepository.get(productId, Context.api).then((product) => {
+                const context = { ...Context.api, inheritance: true };
+
+                this.productRepository.get(productId, context).then((product) => {
                     newProduct.product = product;
                     this.isLoadingData = false;
                 });

@@ -230,7 +230,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             if (!refPrice.quantityEnd) {
-                console.log('efPrice.quantityStart : ', refPrice.quantityStart);
                 refPrice.quantityEnd = refPrice.quantityStart;
             }
             newShippingPrice.calculation = refPrice.calculation;

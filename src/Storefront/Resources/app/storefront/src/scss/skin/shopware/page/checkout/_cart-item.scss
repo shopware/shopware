@@ -57,3 +57,12 @@
         padding-left: $spacer;
     }
 }
+
+.cart-item-characteristics {
+    margin: $spacer-sm 0;
+    font-size: $font-size-sm;
+
+    .cart-item-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
+}

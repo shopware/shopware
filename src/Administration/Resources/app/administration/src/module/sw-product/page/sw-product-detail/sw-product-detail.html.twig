@@ -3,7 +3,14 @@
 
         {% block sw_product_detail_header %}
             <template slot="smart-bar-header">
-                <h2>{{ productTitle }}</h2>
+                <h2>
+                    <span v-if="product.isNew()" >
+                        {{ productTitle }}
+                    </span>
+                    <sw-product-variant-info v-else :variations="product.variation">
+                        {{ productTitle }}
+                    </sw-product-variant-info>
+                </h2>
             </template>
         {% endblock %}
 

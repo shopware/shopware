@@ -135,7 +135,9 @@ Component.register('sw-product-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .getAssociation('assignedProducts')
                 .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('product');
+                .addAssociation('product')
+                .getAssociation('product')
+                .addAssociation('options.group');
 
             criteria
                 .addAssociation('cover')
@@ -146,7 +148,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('unit')
                 .addAssociation('productReviews')
                 .addAssociation('seoUrls')
-                .addAssociation('mainCategories');
+                .addAssociation('mainCategories')
+                .addAssociation('options.group');
 
             ifNext6997(() => criteria.addAssociation('featureSets'));
 

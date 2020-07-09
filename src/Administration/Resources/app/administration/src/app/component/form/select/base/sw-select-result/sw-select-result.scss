@@ -19,6 +19,7 @@ $sw-select-result-disabled-color-text: darken($color-steam-cloud, 15%);
     .sw-select-result__result-item-text {
         word-break: break-word;
         display: flex;
+        flex-direction: column;
     }
 
     .sw-icon {

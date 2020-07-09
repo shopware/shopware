@@ -40,6 +40,7 @@ Component.register('sw-product-variants-delivery-listing', {
         variantCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('product.parentId', this.product.id));
+            criteria.addAssociation('options.group');
 
             return criteria;
         },
@@ -134,6 +135,10 @@ Component.register('sw-product-variants-delivery-listing', {
 
         isDisabledListingMode(mode) {
             return !this.isActiveListingMode(mode);
+        },
+
+        isSelected(item) {
+            return this.mainVariant === item.id;
         }
     }
 });

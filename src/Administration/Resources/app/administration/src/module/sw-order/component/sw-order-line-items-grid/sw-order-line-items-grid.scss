@@ -26,5 +26,17 @@ $sw-order-line-item-border: $color-steam-cloud;
             }
         }
     }
-}
 
+    .sw-order-line-items-grid__item-payload-options {
+        display: flex;
+        flex-direction: row;
+
+        span {
+            margin-right: 3px;
+        }
+    }
+
+    .sw-order-line-items-grid__item-payload-options--group {
+        font-weight: $font-weight-bold;
+    }
+}

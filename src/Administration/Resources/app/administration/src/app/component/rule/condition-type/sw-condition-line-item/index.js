@@ -1,6 +1,7 @@
 import template from './sw-condition-line-item.html.twig';
+import './sw-condition-line-item.scss';
 
-const { Component, Context } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
@@ -41,6 +42,24 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        resultCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        productContext() {
+            return { ...Shopware.Context.api, inheritance: true };
         }
     },
 
@@ -59,17 +78,19 @@ Component.extend('sw-condition-line-item', 'sw-condition-base', {
             this.products = new EntityCollection(
                 this.productRepository.route,
                 this.productRepository.entityName,
-                Context.api
+                this.productContext
             );
+
 
             if (this.productIds.length <= 0) {
                 return Promise.resolve();
             }
 
             const criteria = new Criteria();
+            criteria.addAssociation('options.group');
             criteria.setIds(this.productIds);
 
-            return this.productRepository.search(criteria, Context.api).then((products) => {
+            return this.productRepository.search(criteria, this.productContext).then((products) => {
                 this.products = products;
             });
         },

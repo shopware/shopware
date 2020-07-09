@@ -373,6 +373,7 @@ Table of contents
 * Added new commands `system:config:set` and `system:config:get` to retrieve and set system config values
 * Fixed `DeliveryCalculator` to only set shipping costs to zero if all items in cart have free shipping set
 * Changed `\Shopware\Storefront\Theme\ThemeCompiler::dumpVariables` to enclose textarea variables in string delimiters
+* Changed `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to remove legacy password.
 
 #### Storefront
 * Added plugin injection in hot mode

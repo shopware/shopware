@@ -147,6 +147,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         $customerData = [
             'id' => $customer->getId(),
             'password' => $data->get('newPassword'),
+            'legacyPassword' => null,
+            'legacyEncoder' => null,
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());

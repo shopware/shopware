@@ -73,7 +73,7 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                     new MultiFilter(
                         'OR',
                         [
-                            new EqualsFilter('salesChannelId', $salesChannelContext->getSalesChannel()->getId()),
+                            new EqualsFilter('storefrontSalesChannelId', $salesChannelContext->getSalesChannel()->getId()),
                             new EqualsFilter('salesChannelDomain.salesChannel.id', $salesChannelContext->getSalesChannel()->getId()),
                         ]
                     )

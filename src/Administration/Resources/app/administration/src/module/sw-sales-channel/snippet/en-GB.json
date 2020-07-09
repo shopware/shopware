@@ -135,8 +135,8 @@
         "includeVariants": "Export variants as discrete products",
         "interval": "Interval",
         "generateByCronjob": "Generate via scheduler",
-        "notificationTitleValidateSuccessful": "Validation successful",
-        "notificationMessageValidateSuccessful": "No errors occurred",
+        "notificationTitleValidateSuccessful": "Success",
+        "notificationMessageValidateSuccessful": "No errors occurred.",
         "notificationTitleValidateError": "Validation failed",
         "notificationTitlePreviewError": "Preview failed",
         "intervalLabels": {

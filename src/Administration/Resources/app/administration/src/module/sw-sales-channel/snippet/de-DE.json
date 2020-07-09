@@ -141,8 +141,8 @@
         "includeVariants": "Varianten als eigene Produkte exportieren",
         "interval": "Generierungsintervall",
         "generateByCronjob": "Per Scheduler generieren",
-        "notificationTitleValidateSuccessful": "Test erfolgreich",
-        "notificationMessageValidateSuccessful": "Keine Fehler gefunden",
+        "notificationTitleValidateSuccessful": "Erfolg",
+        "notificationMessageValidateSuccessful": "Keine Fehler gefunden.",
         "notificationTitleValidateError": "Test fehlerhaft",
         "notificationTitlePreviewError": "Vorschau fehlerhaft",
         "intervalLabels": {

@@ -153,7 +153,7 @@ SQL;
             'features' => json_encode([
                 [
                     'type' => 'referencePrice',
-                    'name' => 'basePrice',
+                    'name' => 'referencePrice',
                     'id' => 'd45b40f6a99c4c2abe66c410369b9d3c',
                     'position' => 1,
                 ],

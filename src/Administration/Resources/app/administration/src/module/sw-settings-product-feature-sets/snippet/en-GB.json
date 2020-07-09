@@ -2,7 +2,7 @@
   "sw-settings-product-feature-sets": {
     "general": {
       "mainMenuItemGeneral": "Essential characteristics",
-      "placeholderSearchBar": "Search settings",
+      "placeholderSearchBar": "Search templates...",
       "searchType": "Essential characteristics"
     },
     "list": {
@@ -14,7 +14,6 @@
       "buttonAddEssentialCharacteristics": "Create new",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "modalTitleDelete": "Delete essential characteristics",
       "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -47,22 +46,24 @@
       "textPropertyLabel": "Property",
       "textCustomFieldLabel": "Custom field",
       "textProductInfoLabel": "Product information",
-      "textBasePriceLabel": "Base price",
+      "textReferencePriceLabel": "Reference price",
       "labelTitlePageOne": "Choose a field type you want to add to your template",
       "labelTitleModal": "Add values",
       "labelName": "Name",
-      "labelProperty": "Property",
-      "labelManufacturer": "Manufacturer",
-      "labelWidth": "Width",
-      "labelHeight": "Height",
-      "labelLength": "Length",
-      "labelWeight": "Weight",
-      "labelReleaseDate": "Release date",
-      "labelDescription": "Description",
-      "labelManufacturerNumber": "Manufacturer product number",
-      "labelEan": "EAN",
       "buttonNext": "Next",
-      "buttonCancel": "Cancel"
+      "buttonCancel": "Cancel",
+      "label": {
+        "property": "Property",
+        "width": "Width",
+        "height": "Height",
+        "length": "Length",
+        "weight": "Weight",
+        "releaseDate": "Release date",
+        "description": "Description",
+        "manufacturerNumber": "Manufacturer product number",
+        "ean": "EAN",
+        "referencePrice": "Reference price"
+      }
     }
   }
 }

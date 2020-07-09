@@ -1,10 +1,11 @@
 {% block sw_settings_list %}
     {% block sw_settings_product_feature_set_index %}
         <sw-page class="sw-settings-product-feature-sets-list">
+
             {% block sw_settings_product_feature_set_list_search_bar %}
                 <template slot="search-bar">
                     <sw-search-bar
-                        initialSearchType="settings"
+                        initialSearchType="feature_set"
                         :placeholder="$tc('sw-settings-product-feature-sets.general.placeholderSearchBar')"
                         :initialSearch="term"
                         @search="onSearch">
@@ -43,33 +44,28 @@
             <template #content>
                 {% block sw_settings_product_feature_set_list_content %}
                     <div class="sw-product-feature-sets-list__content">
-                        <sw-entity-listing
-                            ref="swSettingsProductFeatureSetsGrid"
-                            v-if="productFeatureSets"
-                            class="sw-settings-product-feature-sets-list-grid"
-                            :items="productFeatureSets"
-                            :columns="getProductFeatureSetsColumns()"
-                            :repository="productFeatureSetsRepository"
-                            detailRoute="sw.settings.product.feature.sets.detail"
-                            :isLoading="isLoading">
+
+                        <sw-entity-listing ref="swSettingsProductFeatureSetsGrid"
+                                           v-if="productFeatureSets"
+                                           class="sw-settings-product-feature-sets-list-grid"
+                                           :items="productFeatureSets"
+                                           :columns="getProductFeatureSetsColumns()"
+                                           :repository="productFeatureSetsRepository"
+                                           detailRoute="sw.settings.product.feature.sets.detail"
+                                           :isLoading="isLoading">
 
                             <template #column-features="{ item }">
-                                <div v-if="item.features">
-                                    <span v-for="(feature, index) in item.features" :key="feature.id" v-if="index < 4">
-                                        {{ (index > 0) ? ` , ${feature.name}` : feature.name }}
-                                    </span>
-                                    <span v-if="item.features.length >= 5">
-                                        , ...
-                                    </span>
-                                </div>
+                                <span v-if="item.features">
+                                    {{ renderFeaturePreview(item.features) }}
+                                </span>
                             </template>
 
                             {% block sw_settings_product_feature_set_list_grid_columns_actions %}
                                 <template #actions="{ item }">
+
                                     {% block sw_settings_product_feature_set_list_grid_columns_actions_edit %}
-                                        <sw-context-menu-item
-                                            :routerLink="{ name: 'sw.settings.product.feature.sets.detail', params: { id: item.id, edit: 'edit' }}"
-                                            class="sw-product-feature-sets-list__edit-action">
+                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.product.feature.sets.detail', params: { id: item.id, edit: 'edit' }}"
+                                                              class="sw-product-feature-sets-list__edit-action">
                                             {{ $tc('sw-settings-product-feature-sets.list.contextMenuEdit') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
@@ -79,16 +75,19 @@
                                             {{ $tc('sw-settings-product-feature-sets.list.contextMenuDelete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
+
                                 </template>
                             {% endblock %}
 
                             {% block sw_settings_product_feature_set_list_grid_action_modals %}
                                 <template #action-modals="{ item }">
+
                                     {% block sw_settings_product_feature_set_list_delete_modal %}
                                         <sw-modal v-if="showDeleteModal"
                                                   @modal-close="onCloseDeleteModal"
-                                                  :title="$tc('sw-settings-product-feature-sets.list.modalTitleDelete')"
+                                                  :title="$tc('global.default.warning')"
                                                   variant="small">
+
                                             {% block sw_settings_product_feature_set_list_delete_modal_confirm_delete_text %}
                                                 <p class="sw-settings-product-feature-sets-list__confirm-delete-text">
                                                     {{ $tc('sw-settings-product-feature-sets.list.textDeleteConfirm', 0, { name: item.name }) }}
@@ -97,6 +96,7 @@
 
                                             {% block sw_settings_product_feature_set_list_delete_modal_footer %}
                                                 <template #modal-footer>
+
                                                     {% block sw_settings_product_feature_set_list_delete_modal_cancel %}
                                                         <sw-button @click="onCloseDeleteModal" size="small">
                                                             {{ $tc('sw-settings-product-feature-sets.list.buttonCancel') }}
@@ -108,16 +108,26 @@
                                                             {{ $tc('sw-settings-product-feature-sets.list.buttonDelete') }}
                                                         </sw-button>
                                                     {% endblock %}
+
                                                 </template>
                                             {% endblock %}
                                         </sw-modal>
                                     {% endblock %}
+
                                 </template>
                             {% endblock %}
+
                         </sw-entity-listing>
+
                     </div>
                 {% endblock %}
+
+                <sw-loader v-if="isLoading">
+                    {# TODO: Remove once NEXT-9721 is resolved #}
+                </sw-loader>
+
             </template>
+
         </sw-page>
     {% endblock %}
 {% endblock %}

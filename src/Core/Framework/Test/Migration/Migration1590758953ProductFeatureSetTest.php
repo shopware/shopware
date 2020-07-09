@@ -71,7 +71,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $expectedFeature = [
             'id' => 'd45b40f6a99c4c2abe66c410369b9d3c',
             'type' => 'referencePrice',
-            'name' => 'basePrice',
+            'name' => 'referencePrice',
             'position' => 1,
         ];
         $expectedFeatures = [$expectedFeature];

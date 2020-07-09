@@ -2,7 +2,7 @@
   "sw-settings-product-feature-sets": {
     "general": {
       "mainMenuItemGeneral": "Wesentliche Merkmale",
-      "placeholderSearchBar": "Search settings",
+      "placeholderSearchBar": "Templates durchsuchen...",
       "searchType": "Wesentliche Merkmale"
     },
     "list": {
@@ -14,7 +14,6 @@
       "buttonAddEssentialCharacteristics": "Neu erstellen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "modalTitleDelete": "Lösche wesentliches Merkmal",
       "messageDeleteSuccess": "Das wesentliche Merkmal \"{name}\" wurde gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -47,22 +46,24 @@
       "textPropertyLabel": "Eigenschaft",
       "textCustomFieldLabel": "Zusatzfeld",
       "textProductInfoLabel": "Produkt-Informationen",
-      "textBasePriceLabel": "Grundpreis",
+      "textReferencePriceLabel": "Grundpreis",
       "labelTitlePageOne": "Wähle einen Feldtyp, den Du zu Deinem Template hinzufügen möchtest.",
       "labelTitleModal": "Werte hinzufügen",
       "labelName": "Name",
-      "labelProperty": "Eigenschaft",
-      "labelManufacturer": "Hersteller",
-      "labelWidth": "Breite",
-      "labelHeight": "Höhe",
-      "labelLength": "Länge",
-      "labelWeight": "Gewicht",
-      "labelReleaseDate": "Erscheinungsdatum",
-      "labelDescription": "Beschreibung",
-      "labelManufacturerNumber": "Herstellernummer",
-      "labelEan": "EAN",
       "buttonNext": "Weiter",
-      "buttonCancel": "Abbrechen"
+      "buttonCancel": "Abbrechen",
+      "label": {
+        "property": "Eigenschaft",
+        "width": "Breite",
+        "height": "Höhe",
+        "length": "Länge",
+        "weight": "Gewicht",
+        "releaseDate": "Erscheinungsdatum",
+        "description": "Beschreibung",
+        "manufacturerNumber": "Herstellernummer",
+        "ean": "EAN",
+        "referencePrice": "Grundpreis"
+      }
     }
   }
 }

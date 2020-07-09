@@ -2,32 +2,34 @@
     <sw-modal :title="$tc('sw-settings-product-feature-sets.modal.labelTitleModal')"
               @modal-close="$emit('modal-close')"
               class="sw-settings-product-feature-sets__modal">
+
         {% block sw_settings_product_feature_sets_modal_first_page %}
             <template v-if="showPageOne">
-                <sw-radio-field
-                    :label="$tc('sw-settings-product-feature-sets.modal.labelTitlePageOne')"
-                    block
-                    class="sw-settings-product-feature-sets-modal__options"
-                    identification="fieldType"
-                    v-model="selectedFeatureType"
-                    :options="settingOptions"
-                    @change="onChangeOption">
+                <sw-radio-field :label="$tc('sw-settings-product-feature-sets.modal.labelTitlePageOne')"
+                                block
+                                class="sw-settings-product-feature-sets-modal__options"
+                                identification="fieldType"
+                                v-model="selectedFeatureType"
+                                :options="settingOptions"
+                                @change="onChangeOption">
                 </sw-radio-field>
             </template>
         {% endblock %}
 
         {% block sw_settings_product_feature_sets_modal_custom_field_list %}
             <template v-if="showCustomField">
+
                 {% block sw_settings_product_feature_sets_modal_custom_field_list_toolbar %}
                     <div class="sw-product-feature-set-modal-custom-field-list__toolbar">
+
                         {% block sw_settings_product_feature_sets_modal_custom_field_list_toolbar_search %}
-                            <sw-simple-search-field
-                                size="small"
-                                variant="form"
-                                v-model="term"
-                                @search-term-change="onSearchCustomFields">
+                            <sw-simple-search-field size="small"
+                                                    variant="form"
+                                                    v-model="term"
+                                                    @search-term-change="onSearchCustomFields">
                             </sw-simple-search-field>
                         {% endblock %}
+
                     </div>
                 {% endblock %}
 
@@ -39,9 +41,9 @@
                               identifier="sw-product-feature-set-modal-custom-field-list"
                               @selection-change="setFeatureSelection">
 
-                {% block sw_settings_product_feature_sets_modal_custom_field_list_column_name %}
+                    {% block sw_settings_product_feature_sets_modal_custom_field_list_column_name %}
                         <template #column-name="{ item }">
-                            {{ item.name }}
+                            {{ readCustomFieldLabel(item) }}
                         </template>
                     {% endblock %}
 
@@ -50,22 +52,26 @@
                             {{ item.type }}
                         </template>
                     {% endblock %}
+
                 </sw-data-grid>
+
             </template>
         {% endblock %}
 
         {% block sw_settings_product_feature_sets_modal_property_list %}
             <template v-if="showPropertyGroups">
+
                 {% block sw_settings_product_feature_sets_modal_property_list_toolbar %}
                     <div class="sw-product-feature-set-modal-property-list__toolbar">
+
                         {% block sw_settings_product_feature_sets_modal_property_list_toolbar_search %}
-                            <sw-simple-search-field
-                                size="small"
-                                variant="form"
-                                v-model="term"
-                                @search-term-change="onSearchPropertyGroups">
+                            <sw-simple-search-field size="small"
+                                                    variant="form"
+                                                    v-model="term"
+                                                    @search-term-change="onSearchPropertyGroups">
                             </sw-simple-search-field>
                         {% endblock %}
+
                     </div>
                 {% endblock %}
 
@@ -82,14 +88,18 @@
                             {{ item.name }}
                         </template>
                     {% endblock %}
+
                 </sw-data-grid>
+
             </template>
         {% endblock %}
 
         {% block sw_settings_product_feature_sets_modal_product_information_list %}
             <template v-if="showProductInfo">
+
                 {% block sw_settings_product_feature_sets_modal_product_information_list_toolbar %}{% endblock %}
-                <sw-data-grid :dataSource="productInformations"
+
+                <sw-data-grid :dataSource="productInfo"
                               :columns="productInformationColumns"
                               :showSelection="true"
                               :showActions="false"
@@ -102,12 +112,15 @@
                             {{ item.name }}
                         </template>
                     {% endblock %}
+
                 </sw-data-grid>
+
             </template>
         {% endblock %}
 
         {% block sw_settings_product_feature_sets_modal_footer %}
             <template #modal-footer>
+
                 {% block sw_settings_product_feature_sets_modal_footer_cancel %}
                     <sw-button size="small" @click="$emit('modal-close')">
                         {{ $tc('sw-settings-product-feature-sets.modal.buttonCancel') }}
@@ -115,7 +128,7 @@
                 {% endblock %}
 
                 {% block sw_settings_product_feature_sets_modal_footer_button_add %}
-                    <sw-button v-if="!showPageOne | basePriceSelected" variant="primary"
+                    <sw-button v-if="!showPageOne | referencePriceSelected" variant="primary"
                                size="small"
                                :disabled="addButtonDisabled"
                                @click="onConfirm">
@@ -131,7 +144,9 @@
                         {{ $tc('sw-settings-product-feature-sets.modal.buttonNext') }}
                     </sw-button>
                 {% endblock %}
+
             </template>
         {% endblock %}
+
     </sw-modal>
 {% endblock %}

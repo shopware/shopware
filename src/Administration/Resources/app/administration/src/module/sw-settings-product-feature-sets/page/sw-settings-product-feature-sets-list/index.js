@@ -1,3 +1,4 @@
+import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
 
 const { Component, Mixin } = Shopware;
@@ -27,13 +28,34 @@ Component.register('sw-settings-product-feature-sets-list', {
             isLoading: false,
             sortDirection: 'ASC',
             naturalSorting: true,
-            showDeleteModal: false
+            showDeleteModal: false,
+            translationService: null
         };
     },
 
     computed: {
         productFeatureSetsRepository() {
             return this.repositoryFactory.create('product_feature_set');
+        },
+
+        propertyGroupRepository() {
+            return this.repositoryFactory.create('property_group');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
+        },
+
+        featureGridTranslationService() {
+            if (this.translationService === null) {
+                this.translationService = new FeatureGridTranslationService(
+                    this,
+                    this.propertyGroupRepository,
+                    this.customFieldRepository
+                );
+            }
+
+            return this.translationService;
         }
     },
 
@@ -45,20 +67,29 @@ Component.register('sw-settings-product-feature-sets-list', {
         },
 
         getList() {
-            const criteria = new Criteria(this.page, this.limit);
             this.isLoading = true;
             this.naturalSorting = this.sortBy === 'name';
 
+            const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             this.productFeatureSetsRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.productFeatureSets = items;
-                this.isLoading = false;
 
                 return items;
-            }).catch(() => {
+            }).then((items) => {
+                const allFeatures = items.reduce((features, featureSet) => {
+                    features = [...features, ...(featureSet.features || [])];
+                    return features;
+                }, []);
+
+                return Promise.all([
+                    this.featureGridTranslationService.fetchPropertyGroupEntities(allFeatures),
+                    this.featureGridTranslationService.fetchCustomFieldEntities(allFeatures)
+                ]);
+            }).then(() => {
                 this.isLoading = false;
             });
         },
@@ -119,6 +150,15 @@ Component.register('sw-settings-product-feature-sets-list', {
                 label: 'sw-settings-product-feature-sets.list.columnValues',
                 allowResize: true
             }];
+        },
+
+        renderFeaturePreview(features) {
+            const preview = features
+                .slice(0, 4)
+                .map(feature => this.featureGridTranslationService.getNameTranslation(feature))
+                .join(', ');
+
+            return features.length > 4 ? `${preview}, ...` : preview;
         }
     }
 });

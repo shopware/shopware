@@ -26,6 +26,7 @@ Module.register('sw-settings-product-feature-sets', {
                 parentPath: 'sw.settings.index'
             }
         },
+
         detail: {
             component: 'sw-settings-product-feature-sets-detail',
             path: 'detail/:id',
@@ -40,6 +41,7 @@ Module.register('sw-settings-product-feature-sets', {
                 }
             }
         },
+
         create: {
             component: 'sw-settings-product-feature-sets-detail',
             path: 'create',

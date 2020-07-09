@@ -1,3 +1,4 @@
+import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-values-card.html.twig';
 import './sw-settings-product-feature-sets-values-card.scss';
 
@@ -34,13 +35,22 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             deleteButtonDisabled: true,
             term: '',
             showModal: false,
-            currentValue: null
+            currentValue: null,
+            translationService: null
         };
     },
 
     computed: {
         productFeatureSetRepository() {
             return this.repositoryFactory.create('product_feature_set');
+        },
+
+        propertyGroupRepository() {
+            return this.repositoryFactory.create('property_group');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
         },
 
         valuesEmpty() {
@@ -58,6 +68,18 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             criteria.addFilter(Criteria.equals('product_feature_set.id', this.productFeatureSet.id));
 
             return criteria;
+        },
+
+        featureGridTranslationService() {
+            if (this.translationService === null) {
+                this.translationService = new FeatureGridTranslationService(
+                    this,
+                    this.propertyGroupRepository,
+                    this.customFieldRepository
+                );
+            }
+
+            return this.translationService;
         }
     },
 
@@ -101,7 +123,15 @@ Component.register('sw-settings-product-feature-sets-values-card', {
                 }
             }
 
-            this.valuesLoading = false;
+            // Initially sort the features by position, further sorting will be handled by the grid component
+            this.values.sort((a, b) => a.position - b.position);
+
+            Promise.all([
+                this.featureGridTranslationService.fetchPropertyGroupEntities(this.values),
+                this.featureGridTranslationService.fetchCustomFieldEntities(this.values)
+            ]).then(() => {
+                this.valuesLoading = false;
+            });
         },
 
         onModalClose() {

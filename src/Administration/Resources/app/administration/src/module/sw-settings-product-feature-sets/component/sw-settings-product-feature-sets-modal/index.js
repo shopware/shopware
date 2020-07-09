@@ -21,15 +21,19 @@ Component.register('sw-settings-product-feature-sets-modal', {
         productFeatureSetRepository() {
             return this.repositoryFactory.create('product_feature_set');
         },
+
         customFieldsRepository() {
             return this.repositoryFactory.create('custom_field');
         },
+
         propertyGroupsRepository() {
             return this.repositoryFactory.create('property_group');
         },
+
         productFeatureSetCriteria() {
             return new Criteria();
         },
+
         customFieldCriteria() {
             const criteria = new Criteria();
             criteria.addSorting(Criteria.sort('type', 'DESC'));
@@ -41,6 +45,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
 
             return criteria;
         },
+
         propertyGroupCriteria() {
             const criteria = new Criteria();
 
@@ -51,19 +56,24 @@ Component.register('sw-settings-product-feature-sets-modal', {
 
             return criteria;
         },
-        basePriceSelected() {
-            return this.selectedFeatureType === 'basePrice';
+
+        referencePriceSelected() {
+            return this.selectedFeatureType === 'referencePrice';
         },
+
         propertyGroupColumns() {
             return this.getPropertyGroupColumns();
         },
+
         customFieldColumns() {
             return this.getCustomFieldColumns();
         },
+
         productInformationColumns() {
             return this.getProductInformationColumns();
         },
-        checkIfBasePriceSelected() {
+
+        checkIfReferencePriceSelected() {
             if (!this.productFeatureSet.features) {
                 return false;
             }
@@ -72,6 +82,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
                 return (item.type === 'referencePrice');
             }).length === 1;
         },
+
         settingOptions() {
             return [
                 {
@@ -85,14 +96,14 @@ Component.register('sw-settings-product-feature-sets-modal', {
                     name: this.$tc('sw-settings-product-feature-sets.modal.textCustomFieldLabel')
                 },
                 {
-                    value: 'productInformation',
-                    disabled: this.productInformations.length < 1,
+                    value: 'product',
+                    disabled: this.productInfo.length < 1,
                     name: this.$tc('sw-settings-product-feature-sets.modal.textProductInfoLabel')
                 },
                 {
-                    value: 'basePrice',
-                    disabled: this.checkIfBasePriceSelected,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textBasePriceLabel')
+                    value: 'referencePrice',
+                    disabled: this.checkIfReferencePriceSelected,
+                    name: this.$tc('sw-settings-product-feature-sets.modal.textReferencePriceLabel')
                 }
             ];
         }
@@ -116,59 +127,53 @@ Component.register('sw-settings-product-feature-sets-modal', {
             valuesLoading: false,
             customFields: [],
             propertyGroups: [],
-            productInformations: [
-                {
-                    id: 'fd32132e205b4145af0ddfbb451ce64d',
-                    type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelManufacturer'),
-                    name: 'manufacturer'
-                },
+            productInfo: [
                 {
                     id: 'fc472b0728ce4000969214a0fa61f2df',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelDescription'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.description'),
                     name: 'description'
                 },
                 {
                     id: 'f64801aad24a4de7bfea4d312f957258',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelReleaseDate'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.releaseDate'),
                     name: 'releaseDate'
                 },
                 {
                     id: 'f4a361187eac4f6ea4507ebf20c2e9d7',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelManufacturerNumber'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.manufacturerNumber'),
                     name: 'manufacturerNumber'
                 },
                 {
                     id: 'eb6c8ec9b6e24811a176be5a5c9871cf',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelEan'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.ean'),
                     name: 'ean'
                 },
                 {
                     id: '09110f8260804f009ab4536a1ffbc938',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelWidth'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.width'),
                     name: 'width'
                 },
                 {
                     id: 'e8a48d5fce2f402e8696477b03d7e8e7',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelHeight'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.height'),
                     name: 'height'
                 },
                 {
                     id: 'e4cf3f607a704f569c3912fb85ada9ad',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelLength'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.length'),
                     name: 'length'
                 },
                 {
                     id: 'e06c53dc014a4130a8850fe64e395046',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.labelWeight'),
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.weight'),
                     name: 'weight'
                 }
             ]
@@ -212,7 +217,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
                 case 'property':
                     this.showPropertyGroups = true;
                     break;
-                case 'productInformation':
+                case 'product':
                     this.showProductInfo = true;
                     break;
                 default:
@@ -227,7 +232,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
 
             const featureNames = this.productFeatureSet.features.map(a => a.name);
 
-            this.productInformations = this.productInformations.filter((item) => {
+            this.productInfo = this.productInfo.filter((item) => {
                 return !(item.type === 'product' && featureNames.includes(item.name));
             });
         },
@@ -266,24 +271,24 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         onChangeOption() {
-            this.checkIfBasePriceIsSelected();
+            this.checkIfReferencePriceIsSelected();
 
-            this.addButtonDisabled = !this.basePriceSelected;
+            this.addButtonDisabled = !this.referencePriceSelected;
 
             if (this.nextButtonDisabled) {
                 this.nextButtonDisabled = false;
             }
         },
 
-        checkIfBasePriceIsSelected() {
-            this.showNextButton = !this.basePriceSelected;
+        checkIfReferencePriceIsSelected() {
+            this.showNextButton = !this.referencePriceSelected;
         },
 
         onConfirm() {
-            if (this.basePriceSelected) {
+            if (this.referencePriceSelected) {
                 this.features.push({
                     id: 'd45b40f6a99c4c2abe66c410369b9d3c',
-                    name: 'basePrice',
+                    name: 'referencePrice',
                     type: 'referencePrice',
                     position: this.features.length + 1
                 });
@@ -333,7 +338,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
         getPropertyGroupColumns() {
             return [{
                 property: 'name',
-                label: 'sw-settings-product-feature-sets.modal.labelProperty',
+                label: 'sw-settings-product-feature-sets.modal.textPropertyLabel',
                 primary: true
             }];
         },
@@ -355,6 +360,13 @@ Component.register('sw-settings-product-feature-sets-modal', {
                 label: 'sw-settings-product-feature-sets.modal.labelName',
                 primary: true
             }];
+        },
+
+        readCustomFieldLabel(field) {
+            const language = Shopware.State.get('session').currentLocale;
+            const fallback = Shopware.Context.app.fallbackLocale;
+
+            return field.config.label[language] || field.config.label[fallback];
         }
     }
 });

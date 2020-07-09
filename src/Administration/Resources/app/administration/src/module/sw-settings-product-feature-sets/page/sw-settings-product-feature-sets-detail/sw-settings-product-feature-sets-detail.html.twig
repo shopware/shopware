@@ -15,19 +15,20 @@
 
         {% block sw_settings_product_feature_set_detail_actions %}
             <template slot="smart-bar-actions">
+
                 {% block sw_settings_product_feature_set_detail_actions_save %}
-                <sw-button-process
-                        class="sw-settings-currency-detail__save-action"
-                        :isLoading="isLoading"
-                        :disabled="isLoading"
-                        v-model="isSaveSuccessful"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        @click.prevent="onSave"
-                        v-tooltip.bottom="tooltipSave">
-                    {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
-                </sw-button-process>
+                    <sw-button-process class="sw-settings-currency-detail__save-action"
+                                       :isLoading="isLoading"
+                                       :disabled="isLoading"
+                                       v-model="isSaveSuccessful"
+                                       variant="primary"
+                                       @process-finish="saveFinish"
+                                       @click.prevent="onSave"
+                                       v-tooltip.bottom="tooltipSave">
+                        {{ $tc('sw-settings-product-feature-sets.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
+
             </template>
         {% endblock %}
 
@@ -60,20 +61,22 @@
                                       v-model="productFeatureSet.description">
                             </sw-field>
                         {% endblock %}
+
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_settings_product_feature_set_detail_content_values_card %}
-                    <sw-settings-product-feature-sets-values-card
-                        v-if="productFeatureSet.id"
-                        :disabled="!productFeatureSetId"
-                        class="sw-settings-product-feature-sets-detail__tax-rule-grid"
-                        :productFeatureSet="productFeatureSet"
-                        @product-feature-set-rule-save="onSave"
-                        :isLoading="isLoading">
+                    <sw-settings-product-feature-sets-values-card v-if="productFeatureSet.id"
+                                                                  :disabled="!productFeatureSetId"
+                                                                  class="sw-settings-product-feature-sets-detail__tax-rule-grid"
+                                                                  :productFeatureSet="productFeatureSet"
+                                                                  @product-feature-set-rule-save="onSave"
+                                                                  :isLoading="isLoading">
                     </sw-settings-product-feature-sets-values-card>
                 {% endblock %}
+
             </sw-card-view>
         {% endblock %}
+
     </sw-page>
 {% endblock %}

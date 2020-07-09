@@ -45,7 +45,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         lineItemTypes() {
-            return Service('cartSalesChannelService').getLineItemTypes();
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         isCartTokenAvailable() {

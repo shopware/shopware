@@ -37,11 +37,11 @@ Component.register('sw-order-product-select', {
         },
 
         lineItemTypes() {
-            return Service('cartSalesChannelService').getLineItemTypes();
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         lineItemPriceTypes() {
-            return Service('cartSalesChannelService').getLineItemPriceTypes();
+            return Service('cartStoreService').getLineItemPriceTypes();
         },
 
         isShownProductSelect() {

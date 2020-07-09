@@ -43,7 +43,7 @@ Component.register('sw-order-line-items-grid', {
         },
 
         lineItemTypes() {
-            return Service('cartSalesChannelService').getLineItemTypes();
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         getLineItemColumns() {

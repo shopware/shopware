@@ -169,7 +169,10 @@ Administration
 * Replace the component 'sw-settings-user-create' with 'sw-users-permissions-user-create'
 * Replace the component 'sw-settings-user-list' with 'sw-users-permissions-user-listing'
 * When using `sw-custom-field-list` make sure you have set the `page`, `limit` and `total` prop
-
+* Deprecated api services 
+    * `cartSalesChannelService`: use `cartStoreApiService`
+    * `checkOutSalesChannelService`: use `checkoutStoreService`
+    * `salesChannelContextService`: use `storeContextService`
 
 Storefront
 --------------

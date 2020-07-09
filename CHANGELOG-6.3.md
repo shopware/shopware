@@ -412,3 +412,4 @@ Table of contents
     * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-multi-select.html.twig`
     * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-range.html.twig`
     * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-rating.html.twig`
+* Added a namespace variable to sw_icon to allow adding storefront icons

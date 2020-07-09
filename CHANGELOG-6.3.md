@@ -370,6 +370,7 @@ Table of contents
 * Added `\Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired` to require a context token for sales-channel-api and store-api requests. 
     * Until v6.4.0 this will log a critical log message. From v6.4.0 on this will throw an exception.
     * To get a valid context token if you don't have one, call `/sales-channel-api/v{version}/context` first.
+* Added new commands `system:config:set` and `system:config:get` to retrieve and set system config values
 
 #### Storefront
 * Added plugin injection in hot mode

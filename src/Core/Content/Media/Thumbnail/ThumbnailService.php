@@ -284,17 +284,33 @@ class ThumbnailService
         if ($imageSize['width'] >= $imageSize['height']) {
             $aspectRatio = $imageSize['height'] / $imageSize['width'];
 
-            return [
-                'width' => $preferredThumbnailSize->getWidth(),
-                'height' => (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio),
+            $calculatedWidth = $preferredThumbnailSize->getWidth();
+            $calculatedHeight = (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio);
+
+            $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
+
+            return $useOriginalSizeInThumbnails ? [
+                'width' => $imageSize['width'],
+                'height' => $imageSize['height'],
+            ] : [
+                'width' => $calculatedWidth,
+                'height' => $calculatedHeight,
             ];
         }
 
         $aspectRatio = $imageSize['width'] / $imageSize['height'];
 
-        return [
-            'width' => (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio),
-            'height' => $preferredThumbnailSize->getHeight(),
+        $calculatedWidth = (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio);
+        $calculatedHeight = $preferredThumbnailSize->getHeight();
+
+        $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
+
+        return $useOriginalSizeInThumbnails ? [
+            'width' => $imageSize['width'],
+            'height' => $imageSize['height'],
+        ] : [
+            'width' => $calculatedWidth,
+            'height' => $calculatedHeight,
         ];
     }
 

@@ -20,27 +20,12 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
     {
         parent::setUp();
         $this->connection = $this->getContainer()->get(Connection::class);
-
-        $this->connection->executeUpdate(
-            "DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'chargeback')"
-        );
-        $this->connection->executeUpdate(
-            "DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'chargeback')"
-        );
-
-        $this->connection->executeUpdate(
-            "DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'authorized')"
-        );
-        $this->connection->executeUpdate(
-            "DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'authorized')"
-        );
-
-        $this->connection->executeUpdate("DELETE FROM state_machine_state WHERE technical_name = 'chargeback'");
-        $this->connection->executeUpdate("DELETE FROM state_machine_state WHERE technical_name = 'authorized'");
     }
 
     public function testMigration(): void
     {
+        $this->rollbackMigrationChanges();
+
         $transitions = $this->fetchTransitions();
         static::assertEmpty($transitions);
 
@@ -65,6 +50,51 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
         ];
 
         static::assertEquals($expected, $transitions);
+    }
+
+    public function testMigrationWithExistingStates(): void
+    {
+        $migration = new Migration1591361320ChargebackAndAuthorized();
+        $migration->update($this->connection);
+
+        $transitions = $this->fetchTransitions();
+
+        $expected = [
+            ['action_name' => 'authorize',      'from_state' => 'in_progress',      'to_state' => 'authorized'],
+            ['action_name' => 'authorize',      'from_state' => 'open',             'to_state' => 'authorized'],
+            ['action_name' => 'authorize',      'from_state' => 'reminded',         'to_state' => 'authorized'],
+            ['action_name' => 'cancel',         'from_state' => 'authorized',       'to_state' => 'cancelled'],
+            ['action_name' => 'cancel',         'from_state' => 'chargeback',       'to_state' => 'cancelled'],
+            ['action_name' => 'chargeback',     'from_state' => 'paid',             'to_state' => 'chargeback'],
+            ['action_name' => 'chargeback',     'from_state' => 'paid_partially',   'to_state' => 'chargeback'],
+            ['action_name' => 'fail',           'from_state' => 'authorized',       'to_state' => 'failed'],
+            ['action_name' => 'paid',           'from_state' => 'authorized',       'to_state' => 'paid'],
+            ['action_name' => 'paid',           'from_state' => 'chargeback',       'to_state' => 'paid'],
+            ['action_name' => 'paid_partially', 'from_state' => 'authorized',       'to_state' => 'paid_partially'],
+            ['action_name' => 'paid_partially', 'from_state' => 'chargeback',       'to_state' => 'paid_partially'],
+        ];
+
+        static::assertEquals($expected, $transitions);
+    }
+
+    protected function rollbackMigrationChanges(): void
+    {
+        $this->connection->executeUpdate(
+            "DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'chargeback')"
+        );
+        $this->connection->executeUpdate(
+            "DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'chargeback')"
+        );
+
+        $this->connection->executeUpdate(
+            "DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'authorized')"
+        );
+        $this->connection->executeUpdate(
+            "DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'authorized')"
+        );
+
+        $this->connection->executeUpdate("DELETE FROM state_machine_state WHERE technical_name = 'chargeback'");
+        $this->connection->executeUpdate("DELETE FROM state_machine_state WHERE technical_name = 'authorized'");
     }
 
     private function fetchTransitions()

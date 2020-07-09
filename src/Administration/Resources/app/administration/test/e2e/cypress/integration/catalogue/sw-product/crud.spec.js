@@ -22,11 +22,11 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product',
+            url: `${Cypress.env('apiPath')}/product`,
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/_action/calculate-price',
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculatePrice');
 
@@ -99,7 +99,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -129,7 +129,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'delete'
         }).as('deleteData');
 

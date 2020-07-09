@@ -21,7 +21,6 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import DeviceDetection from 'src/helper/device-detection.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
@@ -33,7 +32,7 @@ export default class CookieConfiguration extends Plugin {
 
     static options = {
         offCanvasPosition: 'left',
-        submitEvent: (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click',
+        submitEvent: 'click',
         cookiePreference: 'cookie-preference',
         cookieSelector: '[data-cookie]',
         buttonOpenSelector: '.js-cookie-configuration-button button',

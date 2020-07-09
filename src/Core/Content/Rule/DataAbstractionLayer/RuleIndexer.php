@@ -3,13 +3,16 @@
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -52,12 +55,18 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var CartRuleLoader
+     */
+    private $cartRuleLoader;
+
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         CacheClearer $cacheClearer,
         RulePayloadUpdater $payloadUpdater,
+        CartRuleLoader $cartRuleLoader,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
@@ -66,6 +75,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->cacheClearer = $cacheClearer;
         $this->payloadUpdater = $payloadUpdater;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function getName(): string
@@ -81,6 +91,7 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
             PluginPostUpdateEvent::class => 'refreshPlugin',
             PluginPostDeactivateEvent::class => 'refreshPlugin',
             PluginPostUninstallEvent::class => 'refreshPlugin',
+            RuleEvents::RULE_WRITTEN_EVENT => 'onRuleWritten',
         ];
     }
 
@@ -136,5 +147,10 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext()));
 
         $this->cacheClearer->invalidateIds($ids, RuleDefinition::ENTITY_NAME);
+    }
+
+    public function onRuleWritten(EntityWrittenEvent $event): void
+    {
+        $this->cartRuleLoader->reset();
     }
 }

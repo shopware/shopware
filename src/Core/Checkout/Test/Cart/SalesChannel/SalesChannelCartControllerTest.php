@@ -639,6 +639,7 @@ class SalesChannelCartControllerTest extends TestCase
 
     private function createCart(): KernelBrowser
     {
+        $this->assignSalesChannelContext();
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/checkout/cart');
         $response = $this->getSalesChannelBrowser()->getResponse();
 

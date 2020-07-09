@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -39,6 +40,7 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @RouteScope(scopes={"sales-channel-api"})
+ * @ContextTokenRequired()
  */
 class SalesChannelCartController extends AbstractController
 {

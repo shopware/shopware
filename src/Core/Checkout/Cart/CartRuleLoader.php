@@ -29,9 +29,9 @@ class CartRuleLoader
     private $repository;
 
     /**
-     * @var RuleCollection
+     * @var null|RuleCollection
      */
-    private $rules;
+    private $rules = null;
 
     /**
      * @var Processor
@@ -76,6 +76,12 @@ class CartRuleLoader
     public function loadByCart(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
         return $this->load($context, $cart, $behaviorContext);
+    }
+
+    public function reset(): void
+    {
+        $this->rules = null;
+        $this->cache->deleteItem(self::CHECKOUT_RULE_LOADER_CACHE_KEY);
     }
 
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult

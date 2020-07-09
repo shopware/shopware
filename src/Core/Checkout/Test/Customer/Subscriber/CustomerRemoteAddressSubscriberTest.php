@@ -28,6 +28,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function setUp(): void
     {
         $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $this->assignSalesChannelContext($this->browser);
     }
 
     public function testUpdateRemoteAddressByLogin(): void

@@ -318,6 +318,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Administration\Service\AdminOrderCartService">

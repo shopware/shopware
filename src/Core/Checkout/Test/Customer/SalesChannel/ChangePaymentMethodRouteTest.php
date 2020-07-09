@@ -46,7 +46,7 @@ class ChangePaymentMethodRouteTest extends TestCase
                 ['id' => $this->ids->get('payment2')],
             ],
         ]);
-
+        $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';

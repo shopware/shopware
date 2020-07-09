@@ -15,6 +15,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed active state in the flyout navigation
     * Fixed `sw-modal` styles for `variant="full"` to stay at fullpage size
     * Custom fields assigned to a category entity can now also be configured in categories of type "link"
+    * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
+    * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
 
 * Core
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`

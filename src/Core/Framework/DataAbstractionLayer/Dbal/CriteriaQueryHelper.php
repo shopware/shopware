@@ -50,15 +50,10 @@ trait CriteriaQueryHelper
             $criteria->addQuery(...$queries);
         }
 
+        $filters = array_merge($criteria->getFilters(), $criteria->getPostFilters());
         $filter = $this->antiJoinTransform(
             $definition,
-            new MultiFilter(
-                'AND',
-                array_merge(
-                    $criteria->getFilters(),
-                    $criteria->getPostFilters()
-                )
-            )
+            count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
         );
 
         $criteria->resetFilters();

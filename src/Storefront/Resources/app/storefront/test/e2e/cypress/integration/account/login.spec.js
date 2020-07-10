@@ -19,7 +19,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('@package @login: Login with valid credentials', () => {
+    it('@base @login: Login with valid credentials', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 

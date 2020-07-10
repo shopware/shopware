@@ -42,7 +42,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 })
             });
 
-            it('@package @checkout: Run checkout', () => {
+            it('@base @checkout: Run checkout', () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
                 let productName = product.name;

@@ -137,19 +137,7 @@ class MailService implements MailServiceInterface
             $salesChannel = $templateData['salesChannel'];
         }
 
-        if (isset($data['senderEmail'])) {
-            $senderEmail = $data['senderEmail'];
-        }
-
-        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
-
-        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.mailerSettings.senderAddress');
-
-        if ($senderEmail === null) {
-            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
-
-            return null;
-        }
+        $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
@@ -193,6 +181,57 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
+        if ($message === null) {
+            $this->logger->error(
+                "message is null:\n"
+                . 'Data:'
+                . json_encode($data) . "\n"
+                . "Template data: \n"
+                . json_encode($templateData) . "\n"
+            );
+
+            return null;
+        }
+
+        $this->enrichMessage($message, $data);
+        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
+        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
+
+        if ($mailBeforeSentEvent->isPropagationStopped()) {
+            return null;
+        }
+
+        $this->mailSender->send($message);
+
+        $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
+        $this->eventDispatcher->dispatch($mailSentEvent);
+
+        return $message;
+    }
+
+    private function getSender($data, ?string $salesChannelId): ?string
+    {
+        $senderEmail = $data['senderEmail'] ?? null;
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        }
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
+        }
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+
+            return null;
+        }
+
+        return $senderEmail;
+    }
+
+    private function enrichMessage(\Swift_Message $message, $data): void
+    {
         if (isset($data['recipientsCc'])) {
             $message->setCc($data['recipientsCc']);
         }
@@ -208,20 +247,6 @@ class MailService implements MailServiceInterface
         if (isset($data['returnPath'])) {
             $message->setReturnPath($data['returnPath']);
         }
-
-        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
-        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
-
-        if ($mailBeforeSentEvent->isPropagationStopped()) {
-            return null;
-        }
-
-        $this->mailSender->send($message);
-
-        $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent);
-
-        return $message;
     }
 
     /**

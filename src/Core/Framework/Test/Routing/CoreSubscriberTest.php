@@ -73,6 +73,8 @@ class CoreSubscriberTest extends TestCase
             $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );
+        static::assertStringNotContainsString("\n", $response->headers->get('Content-Security-Policy'));
+        static::assertStringNotContainsString("\r", $response->headers->get('Content-Security-Policy'));
     }
 
     public function testSwaggerHasCsp(): void

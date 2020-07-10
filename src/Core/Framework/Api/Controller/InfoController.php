@@ -128,6 +128,7 @@ class InfoController extends AbstractController
         $cspTemplate = trim($cspTemplate);
         if ($cspTemplate !== '') {
             $csp = str_replace('%nonce%', $nonce, $cspTemplate);
+            $csp = str_replace(["\n", "\r"], ' ', $csp);
             $response->headers->set('Content-Security-Policy', $csp);
         }
 

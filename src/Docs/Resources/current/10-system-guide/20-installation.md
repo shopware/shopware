@@ -13,7 +13,7 @@ Shopware 6 is split into two repositories the [development template](https://git
 Let's start by cloning the development template:
 
 ```bash
-> git clone git@github.com:shopware/development.git
+> git clone https://github.com/shopware/development.git
 ```
 
 You now have the application template for Shopware 6 in the directory `development`, we now change into it:
@@ -32,7 +32,7 @@ Before doing so, remove the existing platform directory.
 
 ```bash
 > rm -rf platform
-> git clone git@github.com:shopware/platform.git
+> git clone https://github.com/shopware/platform.git
 ```
 
 Otherwise, the Shopware platform code would be placed into a `vendor/shopware/platform` directory, where you don't want to change any code.

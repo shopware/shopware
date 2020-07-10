@@ -329,7 +329,7 @@ Shopware.Service('cmsService').registerCmsBlock({
 });
 ```
 
-Now go ahead, install your plugin via `./psh.phar plugin:install --activate CustomCMSBlock` and re-build the administration via
+Now go ahead, install your plugin via `bin/console plugin:install --activate CustomCMSBlock` and re-build the administration via
 `./psh.phar administration:build`.
 
 You should now be able to use your new block in the "Shopping Experiences" module.

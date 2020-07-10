@@ -371,7 +371,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $groups = array_column($groups, 'id');
 
         // expanded group count matches option count? All variants are displayed
-        if (count($groups) === count($product->getOptionIds())) {
+        if (is_array($product->getOptionIds()) && count($groups) === count($product->getOptionIds())) {
             return false;
         }
 

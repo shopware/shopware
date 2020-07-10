@@ -107,7 +107,7 @@ Here's what it should look like after having set all of those options:
 ```js
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-text-reversed',
-    label: 'sw-cms.blocks.textImage.imageTextReversed.label',
+    label: 'sw-cms.blocks.imageText.imageTextReversed.label',
     category: 'text-image',
     component: 'sw-cms-block-image-text-reversed',
     previewComponent: 'sw-cms-preview-image-text-reversed',

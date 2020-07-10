@@ -60,6 +60,7 @@ class CoreSubscriber implements EventSubscriberInterface
         if ($cspTemplate !== '' && !$response->headers->has('Content-Security-Policy')) {
             $nonce = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
             $csp = str_replace('%nonce%', $nonce, $cspTemplate);
+            $csp = str_replace(["\n", "\r"], ' ', $csp);
             $response->headers->set('Content-Security-Policy', $csp);
         }
     }

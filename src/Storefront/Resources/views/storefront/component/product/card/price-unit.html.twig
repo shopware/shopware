@@ -2,7 +2,7 @@
     {% set purchaseUnit = product.purchaseUnit %}
     {% set listingPrice = product.calculatedListingPrice %}
     {% set fromPrice = listingPrice.from %}
-    {% set referncePrice = product.calculatedPrice.referencePrice %}
+    {% set referencePrice = product.calculatedPrice.referencePrice %}
 
     <div class="product-price-info">
         {% block component_product_box_price_unit %}
@@ -21,12 +21,12 @@
 
                 {# Unit price is based on a reference unit #}
                 {% block component_product_box_price_reference_unit %}
-                    {% if referncePrice is not null %}
+                    {% if referencePrice is not null %}
                         <span class="price-unit-reference">
                             {% if product.priceRange %}
                                 ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ fromPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ fromPrice.referencePrice.referenceUnit }}&nbsp;{{ fromPrice.referencePrice.unitName }})
                             {% else %}
-                                ({{ referncePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referncePrice.referenceUnit }} {{ referncePrice.unitName }})
+                                ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
                             {% endif %}
                         </span>
                     {% endif %}

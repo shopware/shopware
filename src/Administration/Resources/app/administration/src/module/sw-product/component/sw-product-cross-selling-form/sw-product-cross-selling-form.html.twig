@@ -1,9 +1,9 @@
 {% block sw_product_cross_selling_form %}
     <div class="product-detail-cross-selling-form">
-        {% block sw_prduct_cross_selling_form_card %}
+        {% block sw_product_cross_selling_form_card %}
             <sw-card :title="crossSelling.name">
                 <div v-if="!isLoading && crossSelling" class="product-detail-cross-selling-form__card-container">
-                    {% block sw_prduct_cross_selling_form_context_menu %}
+                    {% block sw_product_cross_selling_form_context_menu %}
                         <div class="sw-product-detail-cross-selling__context-button">
                             <sw-context-button>
                                 {% block sw_product_cross_selling_form_context_button_delete %}
@@ -18,7 +18,7 @@
                     {% endblock %}
 
                     <sw-container columns="2fr 1fr" gap="0px 30px">
-                        {% block sw_prduct_cross_selling_form_title_field %}
+                        {% block sw_product_cross_selling_form_title_field %}
                             <sw-text-field
                                 :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                                 required
@@ -26,7 +26,7 @@
                                 v-model="crossSelling.name">
                             </sw-text-field>
                         {% endblock %}
-                        {% block sw_prduct_cross_selling_form_active_field %}
+                        {% block sw_product_cross_selling_form_active_field %}
                             <sw-field
                                 type="switch"
                                 class="sw-product-detail-cross-selling__active-switch"
@@ -37,7 +37,7 @@
                     </sw-container>
 
                     <sw-container columns="2fr 1fr" gap="0px 30px">
-                        {% block sw_prduct_cross_selling_form_type %}
+                        {% block sw_product_cross_selling_form_type %}
                             <sw-select-field
                                 :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                                 @change="onTypeChanged"
@@ -51,7 +51,7 @@
                                 </option>
                             </sw-select-field>
                         {% endblock %}
-                        {% block sw_prduct_cross_selling_form_position_field %}
+                        {% block sw_product_cross_selling_form_position_field %}
                             <sw-number-field
                                 numberType="int"
                                 :min="1"
@@ -64,7 +64,7 @@
                     </sw-container>
 
                     <div v-if="!useManualAssignment">
-                        {% block sw_prduct_cross_selling_form_product_stream_field %}
+                        {% block sw_product_cross_selling_form_product_stream_field %}
                             <sw-entity-single-select
                                 entity="product_stream"
                                 class="sw-select-cross-selling__select-product-stream"
@@ -76,7 +76,7 @@
                         {% endblock %}
 
                         <sw-container columns="1fr 1fr" gap="0px 30px">
-                            {% block sw_prduct_cross_selling_form_sort_field %}
+                            {% block sw_product_cross_selling_form_sort_field %}
                                 <sw-select-field
                                     :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
                                     :value="sortingConCat"
@@ -89,7 +89,7 @@
                                 </sw-select-field>
                             {% endblock %}
 
-                            {% block sw_prduct_cross_selling_form_limit_field %}
+                            {% block sw_product_cross_selling_form_limit_field %}
                                 <sw-number-field
                                     numberType="int"
                                     :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
@@ -98,7 +98,7 @@
                             {% endblock %}
                         </sw-container>
 
-                        {% block sw_prduct_cross_selling_form_preview_link %}
+                        {% block sw_product_cross_selling_form_preview_link %}
                             <sw-container columns="1fr" justify="end" class="sw-product-cross-selling-form__links">
                                 <a class="sw-card__quick-link"
                                    :class="{ 'is--disabled': previewDisabled }"

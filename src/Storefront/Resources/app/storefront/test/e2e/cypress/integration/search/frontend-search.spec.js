@@ -18,7 +18,7 @@ describe('Searches for products', () => {
         });
     });
 
-    it('@does some simple testing of the search', () => {
+    it('@search does some simple testing of the search', () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 

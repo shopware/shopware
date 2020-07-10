@@ -14,7 +14,7 @@ describe(`Checkout as Guest`, () => {
         });
     });
 
-    it('@package @checkout: Run checkout', () => {
+    it('@base @checkout: Run checkout', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 

@@ -372,6 +372,7 @@ Table of contents
     * To get a valid context token if you don't have one, call `/sales-channel-api/v{version}/context` first.
 * Added new commands `system:config:set` and `system:config:get` to retrieve and set system config values
 * Fixed `DeliveryCalculator` to only set shipping costs to zero if all items in cart have free shipping set
+* Changed `\Shopware\Storefront\Theme\ThemeCompiler::dumpVariables` to enclose textarea variables in string delimiters
 
 #### Storefront
 * Added plugin injection in hot mode

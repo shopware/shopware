@@ -44,9 +44,6 @@ Component.register('sw-product-variant-info', {
         };
     },
 
-    created() {
-    },
-
     watch: {
         titleTerm() {
             this.setHelpText();

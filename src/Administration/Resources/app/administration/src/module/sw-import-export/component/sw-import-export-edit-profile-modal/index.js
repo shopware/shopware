@@ -84,6 +84,15 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 'enclosure'
             ]),
 
+        isNew() {
+            if (!this.profile || !this.profile.isNew) {
+                return false;
+            }
+
+            return this.profile.isNew();
+        },
+
+
         mappingLength() {
             if (!this.profile.mapping) {
                 return 0;

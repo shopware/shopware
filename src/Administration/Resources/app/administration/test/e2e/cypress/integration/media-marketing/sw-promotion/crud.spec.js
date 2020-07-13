@@ -105,7 +105,7 @@ describe('Promotion: Test crud operations', () => {
         cy.contains('Login').click();
 
         // Finish order
-        cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();

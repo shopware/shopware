@@ -36,12 +36,12 @@ describe('Account: Edit order', () => {
         cy.get('.order-table-header-context-menu').click();
         cy.get('.order-table-header-context-menu-content-form button').click();
         cy.get('.btn.btn-block.btn-primary').click();
-        cy.get('.custom-control.custom-checkbox').click();
+        cy.get('.custom-control.custom-checkbox input').click({force: true});
         cy.get('#confirmFormSubmit').click();
 
         // Verify order
         cy.get('.finish-header').contains('Thank you for your order with Demostore!');
-        cy.get('.finish-ordernumber').contains('Your order number #10001');
+        cy.get('.finish-ordernumber').contains('Your order number: #10001');
     });
 
     it('@package @customer: cancel order', () => {

@@ -8,6 +8,10 @@
     {% set filterRatingActiveLabelStart = 'listing.filterRatingActiveLabelStart'|trans|sw_sanitize %}
 {% endif %}
 
+{% if filterRatingActiveLabelEndSingular is not defined %}
+    {% set filterRatingActiveLabelEndSingular = 'listing.filterRatingActiveLabelEndSingular'|trans|sw_sanitize %}
+{% endif %}
+
 {% if filterRatingActiveLabelEnd is not defined %}
     {% set filterRatingActiveLabelEnd = 'listing.filterRatingActiveLabelEnd'|trans|sw_sanitize %}
 {% endif %}
@@ -17,6 +21,7 @@
     maxPoints: maxPoints,
     snippets: {
         filterRatingActiveLabelStart: filterRatingActiveLabelStart,
+        filterRatingActiveLabelEndSingular: filterRatingActiveLabelEndSingular,
         filterRatingActiveLabelEnd: filterRatingActiveLabelEnd,
     }
 } %}
@@ -31,13 +36,13 @@
                 <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
                         aria-expanded="false"
                         {% if sidebar %}
-                        data-toggle="collapse"
-                        data-target="#{{ filterItemId }}"
+                            data-toggle="collapse"
+                            data-target="#{{ filterItemId }}"
                         {% else %}
-                        data-toggle="dropdown"
-                        data-boundary="viewport"
-                        data-offset="0,8"
-                        aria-haspopup="true"
+                            data-toggle="dropdown"
+                            data-boundary="viewport"
+                            data-offset="0,8"
+                            aria-haspopup="true"
                         {% endif %}>
 
                     {% block component_filter_rating_display_name %}

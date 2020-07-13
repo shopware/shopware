@@ -93,8 +93,8 @@ class NavigationRoute extends AbstractNavigationRoute
         SalesChannelContext $context,
         ?Criteria $criteria = null
     ): NavigationRouteResponse {
-        $buildTree = $request->query->getBoolean('buildTree', true);
-        $depth = $request->query->getInt('depth', 2);
+        $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
+        $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
         $activeId = $this->resolveAliasId($requestActiveId, $context->getSalesChannel());
         $rootId = $this->resolveAliasId($requestRootId, $context->getSalesChannel());
 

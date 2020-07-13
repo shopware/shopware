@@ -83,6 +83,33 @@ class NavigationRouteTest extends TestCase
         static::assertContains('Kids', $names);
     }
 
+    public function testLoadFlatPOST(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v1/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category'),
+                [
+                    'buildTree' => false,
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertCount(3, $response);
+        static::assertArrayHasKey('name', $response[0]);
+        $ids = array_column($response, 'id');
+        $names = array_column($response, 'name');
+
+        static::assertContains($this->ids->get('category'), $ids);
+        static::assertContains($this->ids->get('category2'), $ids);
+        static::assertContains($this->ids->get('category3'), $ids);
+
+        static::assertContains('Root', $names);
+        static::assertContains('Toys', $names);
+        static::assertContains('Kids', $names);
+    }
+
     public function testInvalidId(): void
     {
         $this->browser

@@ -374,6 +374,7 @@ Table of contents
 * Fixed `DeliveryCalculator` to only set shipping costs to zero if all items in cart have free shipping set
 * Changed `\Shopware\Storefront\Theme\ThemeCompiler::dumpVariables` to enclose textarea variables in string delimiters
 * Changed `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to remove legacy password.
+* Changed `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute` to allow sending `buildTree` and `depth` as POST parameter
 
 #### Storefront
 * Added plugin injection in hot mode

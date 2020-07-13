@@ -71,7 +71,8 @@ trait AdminApiTestBehaviour
     public function createClient(
         ?KernelInterface $kernel = null,
         bool $enableReboot = false,
-        bool $authorized = true
+        bool $authorized = true,
+        array $scopes = []
     ): KernelBrowser {
         if (!$kernel) {
             $kernel = $this->getKernel();
@@ -86,7 +87,7 @@ trait AdminApiTestBehaviour
         ]);
 
         if ($authorized) {
-            $this->authorizeBrowser($apiBrowser);
+            $this->authorizeBrowser($apiBrowser, $scopes);
         }
 
         return $this->kernelBrowser = $apiBrowser;
@@ -123,7 +124,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowser(KernelBrowser $browser): void
+    public function authorizeBrowser(KernelBrowser $browser, array $scopes = []): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
@@ -153,6 +154,10 @@ trait AdminApiTestBehaviour
             'username' => $username,
             'password' => $password,
         ];
+
+        if (!empty($scopes)) {
+            $authPayload['scope'] = $scopes;
+        }
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
@@ -219,7 +224,7 @@ trait AdminApiTestBehaviour
 
     abstract protected function getKernel(): KernelInterface;
 
-    protected function getBrowser(bool $authorized = true): KernelBrowser
+    protected function getBrowser(bool $authorized = true, array $scopes = []): KernelBrowser
     {
         if ($this->kernelBrowser) {
             return $this->kernelBrowser;
@@ -228,7 +233,8 @@ trait AdminApiTestBehaviour
         return $this->kernelBrowser = $this->createClient(
             null,
             false,
-            $authorized
+            $authorized,
+            $scopes
         );
     }
 

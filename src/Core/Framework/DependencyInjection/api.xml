@@ -166,7 +166,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
-            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="router"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator">
@@ -193,6 +193,8 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
+            <argument>%shopware.media.enable_url_upload_feature%</argument>
+            <argument>%shopware.security.csp_templates%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -248,6 +250,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\OAuth\Scope\AdminScope">
+            <tag name="shopware.oauth.scope"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope">
             <tag name="shopware.oauth.scope"/>
         </service>
 

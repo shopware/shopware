@@ -21,6 +21,9 @@ class InfoControllerTest extends TestCase
                 'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
             ],
             'bundles' => [],
+            'settings' => [
+                'enableUrlFeature' => true,
+            ],
         ];
 
         $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);
@@ -33,6 +36,8 @@ class InfoControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertSame(array_keys($expected), array_keys($decodedResponse));
+
+        unset($expected['settings']);
         static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
     }
 }

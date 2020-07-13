@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAutoUpdateSection())
                 ->append($this->createSitemapSection())
                 ->append($this->createDeploymentSection())
+                ->append($this->createMediaSection())
             ->end();
 
         return $treeBuilder;
@@ -195,6 +196,19 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('blue_green')->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createMediaSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('media'))->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('enable_url_upload_feature')->end()
+                ->booleanNode('enable_url_validation')->end()
             ->end();
 
         return $rootNode;

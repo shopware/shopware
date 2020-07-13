@@ -212,13 +212,17 @@ describe('Product: Edit product media', () => {
                     }
                 );
             });
+
+            cy.get('.sw-product-image__image img')
+                .should('have.attr', 'src')
+                .and('match', /sw-login-background/);
         });
         runOn('firefox', () => {
             // Upload medium
             cy.get('.sw-media-upload-v2__content .sw-context-button__button').click();
             cy.contains('Upload file from URL').click();
             cy.get('input[name=sw-field--url]').should('be.visible')
-                .type(`${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png`);
+                .type('http://assets.shopware.com/sw_logo_white.png');
             cy.get('.sw-media-url-form__submit-button').click();
 
             cy.awaitAndCheckNotification('File has been saved.');
@@ -228,7 +232,7 @@ describe('Product: Edit product media', () => {
         });
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
-            .and('match', /sw-login-background/);
+            .and('match', /sw_logo_white|sw-login-background/);
 
         // Save product
         cy.get(page.elements.productSaveAction).click();

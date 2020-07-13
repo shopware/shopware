@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -118,18 +119,7 @@ class PluginService
                 'managedByComposer' => $pluginFromFileSystem->getManagedByComposer(),
             ];
 
-            $translatableExtraKeys = ['label', 'description', 'manufacturerLink', 'supportLink'];
-            foreach ($extra as $extraKey => $extraItem) {
-                if (\in_array($extraKey, $translatableExtraKeys, true)) {
-                    foreach ($extraItem as $locale => $translation) {
-                        $languageId = $this->getLanguageIdForLocale($locale, $shopwareContext);
-                        if ($languageId === '') {
-                            continue;
-                        }
-                        $pluginData['translations'][$languageId][$extraKey] = $translation;
-                    }
-                }
-            }
+            $pluginData['translations'] = $this->getTranslations($shopwareContext, $extra);
 
             if ($changelogFiles = $this->changelogService->getChangelogFiles($pluginPath)) {
                 foreach ($changelogFiles as $file) {
@@ -164,15 +154,6 @@ class PluginService
                 }
 
                 $installedPlugins->remove($currentPluginId);
-            }
-
-            //get the english translation if the plugin has no translation for the current language
-            if (!isset($pluginData['translations'][\Shopware\Core\Defaults::LANGUAGE_SYSTEM])) {
-                $enLanguageId = $this->getLanguageIdForLocale('en-GB', $shopwareContext);
-
-                if (isset($pluginData['translations'][$enLanguageId])) {
-                    $pluginData['translations'][\Shopware\Core\Defaults::LANGUAGE_SYSTEM] = $pluginData['translations'][$enLanguageId];
-                }
             }
 
             $plugins[] = $pluginData;
@@ -275,5 +256,64 @@ class PluginService
         }
 
         return $authors;
+    }
+
+    private function getTranslations(Context $context, array $extra): array
+    {
+        $properties = ['label', 'description', 'manufacturerLink', 'supportLink'];
+
+        $localeMapping = [];
+        $translations = [];
+
+        /*
+         * @example payload
+         * {
+         *     "shopware-plugin-class":"Swag\\MyDemoData\\MyDemoData",
+         *     "label":{
+         *         "de-DE":"Label für das Plugin MyDemoData",
+         *         "en-GB":"Label for the plugin MyDemoData"
+         *     },
+         *     "description":{
+         *         "de-DE":"Beschreibung für das Plugin MyDemoData",
+         *         "en-GB":"Description for the plugin MyDemoData"
+         *     }
+         * }
+         */
+        foreach ($extra as $property => $propertyTranslations) {
+            if (!\in_array($property, $properties, true)) {
+                continue;
+            }
+
+            foreach ($propertyTranslations as $locale => $translation) {
+                $languageId = $this->getLanguageIdForLocale($locale, $context);
+
+                // build a mapping based on locales, which is used for translation fallback later
+                $localeMapping[$locale][$property] = $translation;
+
+                if ($languageId === '') {
+                    continue;
+                }
+                $translations[$languageId][$property] = $translation;
+            }
+        }
+
+        // validate that the plugin is translated for the system language
+        if (isset($translations[Defaults::LANGUAGE_SYSTEM])) {
+            return $translations;
+        }
+
+        // if the plugin has no system translation, check if en-GB can be used as fallback
+        if (isset($localeMapping['en-GB'])) {
+            $translations[Defaults::LANGUAGE_SYSTEM] = $localeMapping['en-GB'];
+
+            return $translations;
+        }
+
+        // if the plugin has no translation for en-gb, use the first translation of the plugin as default translation
+        if (!isset($translations[Defaults::LANGUAGE_SYSTEM])) {
+            $translations[Defaults::LANGUAGE_SYSTEM] = array_values($localeMapping)[0];
+        }
+
+        return $translations;
     }
 }

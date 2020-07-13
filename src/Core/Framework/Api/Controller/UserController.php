@@ -5,16 +5,19 @@ namespace Shopware\Core\Framework\Api\Controller;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -77,5 +80,53 @@ class UserController extends AbstractController
         }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/api/v{version}/user/{userId}", name="api.user.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     */
+    public function deleteUser(string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
+            $this->userRepository->delete([['id' => $userId]], $context);
+        });
+
+        return $factory->createRedirectResponse($this->userRepository->getDefinition(), $userId, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/user", name="api.user.create", defaults={"auth_required"=true}, methods={"POST"})
+     * @Route("/api/v{version}/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
+     */
+    public function upsertUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $data = $request->request->all();
+        $data['id'] = $userId ?? null;
+
+        $events = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
+            return $this->userRepository->upsert([$data], $context);
+        });
+
+        $event = $events->getEventByEntityName(UserDefinition::ENTITY_NAME);
+
+        $eventIds = $event->getIds();
+        $entityId = array_pop($eventIds);
+
+        return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
+    }
+
+    private function hasScope(Request $request, string $scopeIdentifier): bool
+    {
+        $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
+
+        return isset($scopes[$scopeIdentifier]);
     }
 }

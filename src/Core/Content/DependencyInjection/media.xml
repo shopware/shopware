@@ -91,6 +91,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" decorates="media_thumbnail.repository">
@@ -107,6 +108,12 @@
 
         <!--File Services-->
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface" />
+            <argument>%shopware.media.enable_url_upload_feature%</argument>
+            <argument>%shopware.media.enable_url_validation%</argument>
+        </service>
+
+        <service class="Shopware\Core\Content\Media\File\FileUrlValidator" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface">
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileSaver" public="true">

@@ -17,6 +17,20 @@
         <!-- Migration config -->
         <parameter key="core.migration.directories" type="collection" />
         <parameter key="migration.active" type="collection"/>
+
+        <parameter key="shopware.security.csp_templates" type="collection">
+            <parameter key="default">
+object-src 'none';
+script-src 'none';
+base-uri 'self';
+            </parameter>
+            <parameter key="administration">
+object-src 'none';
+script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
+base-uri 'self';
+            </parameter>
+            <parameter key="storefront" />
+        </parameter>
     </parameters>
 
     <monolog:config>
@@ -159,6 +173,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\CoreSubscriber">
+            <argument>%shopware.security.csp_templates%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
@@ -207,8 +226,18 @@
             <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">
+            <factory service="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory" method="createSnippetFileCollection"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory">
             <argument type="tagged" tag="shopware.snippet.file"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileLoader"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory" public="true">
@@ -416,15 +445,6 @@
         <!-- Util -->
         <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
-        </service>
-
-        <!--SnippetFiles-->
-        <service id="Shopware\Core\Framework\Resources\snippet\de_DE\SnippetFile_de_DE" public="true">
-            <tag name="shopware.snippet.file" priority="1000"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
-            <tag name="shopware.snippet.file" priority="1000"/>
         </service>
     </services>
 </container>

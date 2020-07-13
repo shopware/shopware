@@ -350,6 +350,10 @@
         "illegalFilename": {
           "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "illegalFileUrl": {
+          "title": "Ungültige URL",
+          "message": "Hochladen über lokale URLs nicht erlaubt."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

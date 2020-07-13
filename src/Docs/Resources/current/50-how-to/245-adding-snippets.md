@@ -124,7 +124,23 @@ Shopware.Locale.extend('en-GB', enGB);
 
 ## Extending Storefront snippets
 
+### Autoloading of Storefront snippets
+
+*Attention: This only works since Shopware 6.2.3 onwards.*
+
+Shopware is able to automatically load your snippet files if you stick to some convention regarding file structure and naming.
+For this to work you have to store your snippet files in the `src/Resources/snippet` directory of your plugin, but you can use subdirectories if you want to.
+Additionally you have to name your snippet way the same way as it should be displayed in the administration. Therefore use the naming pattern `<name>.<locale>`, where you can freely define the name part. 
+The locale part must map to the ISO string of the supported locale in this snippet file.
+If you provide base translations, meaning that you ship translations for a whole new language, you indicate it with a `.base` suffix in your file name.
+Keep in mind that in this case also have to use the `messages` name, so your complete filename may look like this: `messages.<locale>.base.json`.
+Lastly if your snippets are autoloaded the author information provided in your composer file will be used as the author of the snippets.
+
+If you need more freedom in configuring your snippets read on.
+
 #### SnippetFile
+
+*Attention: since Shopware 6.2.3 this is not necessary anymore and it will be removed in Shopware 6.4.*
 
 Injecting snippets to the storefront is not a big deal at all, but unlike the snippets used across the administration,
 storefront snippets additionally require a class that extends the `SnippetFileInterface`. A suitable name would e.g. be
@@ -223,6 +239,9 @@ Shopware.Locale.register('de-AT', deAT);
 ```
 
 ### Storefront
+
+If you use the autoloading for your snippets you only have to indicate that you are providing a new language by adding an `.base` suffix to your snippet filename and make sure that you use the `messages` name.
+So your filename looks something like this: `messages.<locale>.base.json`.
 
 You won't find huge differences compared to extending storefront snippets. As mentioned in the SnippetFile paragraph, you
 have to careful with two settings. With these:

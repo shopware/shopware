@@ -69,12 +69,6 @@ class EntityProtectionValidatorTest extends TestCase
             ['POST', 'search-ids/plugin'], // search ids
 
             // nested routes
-
-            ['GET', 'user/' . Uuid::randomHex() . '/access-keys/' . Uuid::randomHex()], // detail
-            ['GET', 'user/' . Uuid::randomHex() . '/access-keys'], // list
-            ['POST', 'user/' . Uuid::randomHex() . '/access-keys'], // create
-            ['PATCH', 'user/' . Uuid::randomHex() . '/access-keys/' . Uuid::randomHex()], // update
-            ['DELETE', 'user/' . Uuid::randomHex() . '/access-keys/' . Uuid::randomHex()], // delete
             ['POST', 'search/user/' . Uuid::randomHex() . '/access-keys'], // search
             ['POST', 'search-ids/user/' . Uuid::randomHex() . '/access-keys'], // search ids
         ];
@@ -185,70 +179,6 @@ class EntityProtectionValidatorTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertNotEquals(403, $response->getStatusCode(), $response->getContent());
-    }
-
-    public function testItBlocksForbiddenNestedWrites(): void
-    {
-        $userId = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $userRepository */
-        $userRepository = $this->getContainer()->get('user.repository');
-
-        $this->getBrowser()
-            ->request(
-                'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/user',
-                [
-                    'id' => $userId,
-                    'username' => 'adminUser',
-                    'password' => 'test',
-                    'active' => true,
-                    'firstName' => 'admin',
-                    'lastName' => 'user',
-                    'email' => 'test@test.com',
-                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                    'accessKeys' => [
-                        [
-                            'accessKey' => 'access',
-                            'secretAccessKey' => 'notASecret',
-                        ],
-                    ],
-                ]
-            );
-
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-
-        $result = $userRepository->searchIds(new Criteria([$userId]), Context::createDefaultContext());
-        static::assertEquals(0, $result->getTotal());
-
-        $this->getBrowser()
-            ->request(
-                'POST',
-                '/api/v' . PlatformRequest::API_VERSION . '/user',
-                [
-                    'id' => $userId,
-                    'username' => 'adminUser',
-                    'password' => 'test',
-                    'active' => true,
-                    'firstName' => 'admin',
-                    'lastName' => 'user',
-                    'email' => 'test@test.com',
-                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                    'media' => [
-                        [
-                            'title' => 'test',
-                        ],
-                    ],
-                ]
-            );
-
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertEquals(204, $response->getStatusCode(), $response->getContent());
-
-        $result = $userRepository->searchIds(new Criteria([$userId]), Context::createDefaultContext());
-        static::assertEquals(1, $result->getTotal());
     }
 
     public function testItDoesNotValidateCascadeDeletes(): void

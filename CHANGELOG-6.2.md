@@ -27,6 +27,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
     * Fixed property sorting for multi language shops
     * Added an additional class to the cart offcanvas called `cart-offcanvas`
+    * Added all language flags according to language packs
 
 ### 6.2.3
 

@@ -29,19 +29,38 @@ Component.register('sw-product-variant-info', {
             type: String,
             required: false,
             default: ''
+        },
+        titleTerm: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
     data() {
         return {
             helpText: '',
-            tooltipWidth: 200,
-            productName: `${this.$slots.default[0].text}`
+            tooltipWidth: 200
         };
     },
 
     created() {
+    },
+
+    watch: {
+        titleTerm() {
+            this.setHelpText();
+        }
+    },
+
+    mounted() {
         this.createdComponent();
+    },
+
+    computed: {
+        productName() {
+            return this.$slots.default[0].text;
+        }
     },
 
     methods: {
@@ -49,10 +68,15 @@ Component.register('sw-product-variant-info', {
             this.setHelpText();
         },
 
-        setHelpText() {
-            this.helpText += this.productName;
+        getFirstSlot() {
+            return this.$slots.default[0].text;
+        },
 
-            if (this.variations.length > 0) {
+        setHelpText() {
+            this.helpText = '';
+            this.helpText += this.titleTerm ? this.titleTerm : this.getFirstSlot();
+
+            if (this.variations && this.variations.length > 0) {
                 this.tooltipWidth = 500;
                 this.helpText += ' (';
                 this.variations.forEach((variant) => {

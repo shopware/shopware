@@ -34,6 +34,10 @@ NEXT
     * The proxy's assets port is now configurable.
         * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
     * The default port is still port 9999.
+* Fixed to show the listing loader for `cms-element-product-listing`
+    * Added `cmsProductListingWrapperSelector` property in `listing.plugin.js`
+    * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
+    * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
 
 6.3.0.0
 ----------------

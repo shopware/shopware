@@ -14,6 +14,7 @@ export default class ListingPlugin extends Plugin {
         params: {},
         filterPanelSelector: '.filter-panel',
         cmsProductListingSelector: '.cms-element-product-listing',
+        cmsProductListingWrapperSelector: '.cms-element-product-listing-wrapper',
         activeFilterContainerSelector: '.filter-panel-active-container',
         activeFilterLabelClass: 'filter-active',
         activeFilterLabelRemoveClass: 'filter-active-remove',
@@ -21,6 +22,7 @@ export default class ListingPlugin extends Plugin {
         resetAllFilterButtonClasses: 'filter-reset-all btn btn-sm btn-outline-danger',
         resetAllFilterButtonSelector: '.filter-reset-all',
         loadingIndicatorClass: 'is-loading',
+        loadingElementLoaderClass: 'has-element-loader',
         snippets: {
             resetAllButtonText: 'Reset all'
         }
@@ -44,6 +46,9 @@ export default class ListingPlugin extends Plugin {
                 this.options.activeFilterContainerSelector
             );
         }
+
+        this._cmsProductListingWrapper = DomAccess.querySelector(document, this.options.cmsProductListingWrapperSelector, false);
+        this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
     }
 
     /**
@@ -309,6 +314,20 @@ export default class ListingPlugin extends Plugin {
     }
 
     /**
+     * Add classes to add loading styling for product listing
+     */
+    addLoadingElementLoaderClass() {
+        this._cmsProductListingWrapper.classList.add(this.options.loadingElementLoaderClass);
+    }
+
+    /**
+     * Remove loading styling classes for product listing
+     */
+    removeLoadingElementLoaderClass() {
+        this._cmsProductListingWrapper.classList.remove(this.options.loadingElementLoaderClass);
+    }
+
+    /**
      * Send request to get filtered product data.
      *
      * @param {String} filterParams - active filters as querystring
@@ -318,12 +337,20 @@ export default class ListingPlugin extends Plugin {
             this.addLoadingIndicatorClass();
         }
 
+        if (this._cmsProductListingWrapperActive) {
+            this.addLoadingElementLoaderClass();
+        }
+
         this.httpClient.abort();
         this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
             this.renderResponse(response);
 
             if (this._filterPanelActive) {
                 this.removeLoadingIndicatorClass();
+            }
+
+            if (this._cmsProductListingWrapperActive) {
+                this.removeLoadingElementLoaderClass();
             }
         });
     }

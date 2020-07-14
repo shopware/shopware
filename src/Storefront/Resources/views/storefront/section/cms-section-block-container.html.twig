@@ -6,7 +6,7 @@
     {% set left = block.marginLeft ? block.marginLeft : 0 %}
 
     {% if top or right or bottom or left %}
-        {% set padding = top ~ " " ~ right ~ " " ~ bottom ~ " " ~ left %}
+        {% set margin = top ~ " " ~ right ~ " " ~ bottom ~ " " ~ left %}
     {% endif %}
 
     {% set blockBgColor = block.backgroundColor %}
@@ -35,7 +35,7 @@
 
         {% block section_content_block_container %}
             <div class="cms-block-container"
-                 style="{% if padding %}padding: {{ padding }};{% endif %}">
+                 style="{% if margin %}margin: {{ margin }};{% endif %}">
 
                 {% block section_content_block_row %}
                     <div class="cms-block-container-row row cms-row {{ sidebarClasses }}">

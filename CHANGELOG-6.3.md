@@ -1002,3 +1002,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     * `component_offcanvas_product_variants` in `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-item.html.twig`
     * `page_checkout_item_info_variants` in `src/Storefront/Resources/views/storefront/page/checkout/checkout-item.html.twig`
 * Fix sw_sanitize filter throwing when the parameter options is null
+* We extended setup of the `storefront:hot-proxy`
+      * The proxy's assets port is now configurable.
+        * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
+      * The default port is still port 9999.

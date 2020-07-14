@@ -1,0 +1,29 @@
+{% sw_extends '@Storefront/storefront/component/product/feature/base.html.twig' %}
+
+{% set product = page.cart.data.elements["product-%s"|format(lineItem.referencedId)] %}
+{% set supportedFieldTypes = [
+    constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::BOOL'),
+    constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::DATETIME'),
+    constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::FLOAT'),
+    constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::HTML'),
+    constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::INT'),
+    constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::TEXT')
+] %}
+
+{% block component_product_feature_list_item_base_content_label %}
+    {% if value.type in supportedFieldTypes %}
+        {{ '%s:'|format(label)|sw_sanitize }}
+    {% endif %}
+{% endblock %}
+
+{% block component_product_feature_list_item_base_content_value %}
+    {% if value.type in supportedFieldTypes %}
+        {% if value.type is constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::BOOL') %}
+            {{ (value.content > 0) ? 'component.product.feature.customField.true'|trans : 'component.product.feature.customField.false'|trans }}
+        {% elseif value.type is constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::DATETIME') %}
+            {{ value.content|sw_sanitize|date }}
+        {% else %}
+            {{ value.content|sw_sanitize }}
+        {% endif %}
+    {% endif %}
+{% endblock %}

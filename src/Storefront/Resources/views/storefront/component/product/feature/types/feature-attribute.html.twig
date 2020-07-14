@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/component/product/feature/base.html.twig' %}
+
+{% block component_product_feature_list_item_base_content_label %}
+    {{ 'component.product.feature.label.%s'|format(label)|sw_sanitize|trans }}
+{% endblock %}
+
+{% block component_product_feature_list_item_base_content_value %}
+    {% if label == 'releaseDate' %}
+        {{ value|sw_sanitize|date }}
+    {% else %}
+        {{ value|sw_sanitize }}
+    {% endif %}
+{% endblock %}

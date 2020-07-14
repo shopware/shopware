@@ -420,3 +420,6 @@ Table of contents
     * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-range.html.twig`
     * `platform/src/Storefront/Resources/views/storefront/component/listing/filter/filter-rating.html.twig`
 * Added a namespace variable to sw_icon to allow adding storefront icons
+* Deprecated the following blocks, since they've been replaced by the new variant characteristics display:
+    * `component_offcanvas_product_variants` in `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-item.html.twig`
+    * `page_checkout_item_info_variants` in `src/Storefront/Resources/views/storefront/page/checkout/checkout-item.html.twig`

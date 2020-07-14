@@ -63,6 +63,14 @@
                         </div>
                     {% endblock %}
 
+                    {% block page_checkout_aside_item_info_features %}
+                        {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                            {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
+                                'features': lineItem.payload.features
+                            } %}
+                        {% endif %}
+                    {% endblock %}
+
                     {% block page_checkout_aside_item_quantity %}
                         <div class="checkout-aside-item-link-quantity">
                             {% if lineItem.quantity %}

@@ -44,7 +44,7 @@ function getProjectRootPath() {
  * @return {String}
  */
 function getPublicPath() {
-    return `${getHostname()}${(isHotModuleReplacementMode()) ? ':9999' : ''}/`;
+    return `${getHostname()}${(isHotModuleReplacementMode()) ? ':' + (process.env.STOREFRONT_ASSETS_PORT || 9999) : ''}/`;
 }
 
 /**

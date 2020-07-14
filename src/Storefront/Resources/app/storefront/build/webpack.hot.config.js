@@ -102,7 +102,7 @@ const devServer = {
     hot: true,
     compress: false,
     disableHostCheck: true,
-    port: 9999,
+    port: process.env.STOREFRONT_ASSETS_PORT || 9999,
     host: '0.0.0.0',
     clientLogLevel: 'warning',
     headers: {

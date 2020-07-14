@@ -22,6 +22,7 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
                 ...client_req.headers,
                 host: originalUrl,
                 'hot-reload-mode': true,
+                'hot-reload-port': process.env.STOREFRONT_ASSETS_PORT || 9999,
                 'accept-encoding': 'identity',
             },
         };

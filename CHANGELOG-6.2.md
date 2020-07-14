@@ -28,6 +28,11 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fixed property sorting for multi language shops
     * Added an additional class to the cart offcanvas called `cart-offcanvas`
     * Added all language flags according to language packs
+    * We extended setup of the `storefront:hot-proxy`
+          * The proxy's assets port is now configurable.
+            * Using psh: just override the `STOREFRONT_ASSETS_PORT` constant (this will also map the port for docker setup)
+            * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
+          * The default port is still port 9999.
 
 ### 6.2.3
 

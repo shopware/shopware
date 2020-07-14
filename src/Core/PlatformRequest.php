@@ -36,6 +36,11 @@ final class PlatformRequest
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
 
     /**
+     * CSP
+     */
+    public const ATTRIBUTE_CSP_NONCE = '_cspNonce';
+
+    /**
      * OAuth attributes
      */
     public const ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID = 'oauth_access_token_id';

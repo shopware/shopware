@@ -98,9 +98,10 @@ class StoreLoginCommand extends Command
         $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
         $this->configService->set('core.store.shopwareId', $shopwareId);
 
-        $this->userRepository->update([
-            ['id' => $userId, 'storeToken' => $accessTokenStruct->getShopUserToken()->getToken()],
-        ], $context);
+        $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
+        });
 
         return 0;
     }

@@ -34,7 +34,22 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 **Addition / Changes**
 
 * Administration
-    * Added `resetOption` prop on `sw-entity-single-select` component, to provide a value for resetting the selection
+    * Added `v-model` attribute to input field in `sw-property-search`
+    * Implemented blocks for the different options in the `sw-cms-el-config-product-box` modules `sw-select-field`s.
+    This allows appending additional options to the `sw-select-field`s.
+        * Added `{% block sw_cms_element_product_box_config_layout_select_options %}`
+        * Added `{% block sw_cms_element_product_box_config_displaymode_select_options %}`
+        * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
+    * Added property `placeholderIsPassword` to `sw-password-field` component
+    * Added CSP header to the admin page. Inline scripts are now disallowed by default. You have to add a nonce attribute with the value `cspNonce` to authorize inline scripts. 
+    * Refactored password confirmation in `sw-profile-index`
+        * Deprecated property `oldPassword` use `confirmPassword instead
+        * Deprecated method `validateOldPassword`, as it is not necessary anymore
+        * Deprecated block `sw_profile_index_password_card_old_password_field` in template
+    * Refactored password confirmation in `sw-settings-user-detail`
+        * Deprecated methods `onChangePassword`, `onClosePasswordModal`, `onSubmit`, as it is not necessary anymore
+        * Deprecated blocks `sw_settings_user_detail_grid_change_password` and `sw_settings_user_detail_content_password_modal in template
+    * Added password confirmation to `sw-settings-user-list` for deleting users 
 
 * Core
     * Added `Czech koruna` as currency
@@ -47,13 +62,21 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * Added `CrossSellingProductStreamCriteriaEvent`
     * Changed `\Shopware\Core\System\SalesChannel\Api\StructEncoder` to work correctly with aggregations
     * Changed `product.listing_prices` data structure. The new structure will be reindexed by `\Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer` but may take same time to complete
-    * Added `AddressListingCriteriaEvent`
-    * Added Sales Channel commands
-        * `sales-channel:list`
-        * `sales-channel:maintenance:enable`
-        * `sales-channel:maintenance:disable`
-    * Added autoloading of PHP dependency injection definitions from `/Resources/config`
+    * Simplified storefront snippet file loading, PHP classes for snippet files aren't necessary anymore.
+    * Deprecated the `\Shopware\Core\System\Snippet\Files\SnippetFileInterface` interface, as it is not necessary anymore
+    * Fixed `/api/v2/_info/swagger.html`
+    * Added configuration `media.enable_url_upload_feature` in `shopware.yaml` to disable the "Upload media via URL" feature
+    * Added configuration `media.enable_url_validation` in `shopware.yaml` to disable the URL validation when a media is uploaded via URL
+    * Added decoratable class `Shopware\Core\Content\Media\File\FileUrlValidator`
+    * Added the following headers to improve security:
+        * `Strict-Transport-Security: max-age=31536000; includeSubDomains` if the request is secure (HTTPS)
+        * `X-Frame-Options: deny`
+        * `X-Content-Type-Options: nosniff`
+        * `Content-Security-Policy: script-src 'none'; object-src 'none'; base-uri 'self';` default for requests with route scope other than `administration` or `storefront`
 
+    * Added option `cookie_secure : 'auto'` to `framework.yaml` to secure the session cookie for request over secure connection
+    * Enabled `secure` flag for every other used cookies
+    * `\Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler::replaceCsrfToken` requires now the current request as second function parameter.
 * Storefront
     * Added block `component_offcanvas_cart_header_item_counter` to `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-cart.html.twig`
     * Added the `--keep-cache` option to the `http:cache:warm:up` to keep the current cache as warmup target
@@ -61,18 +84,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added request attribute with key `\Shopware\Storefront\Framework\Routing\RequestTransformer::STOREFRONT_URL` for the base url of the storefront. It contains scheme, host, port, sub directory of the web root and the virtual path. Example: http://localhost:8000/subdir/de
     * Fixed urls in emails for shops with virtual paths like /de
     * Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`
-    * Added resolving of media ids to `Shopware\Storefront\Theme\ThemeCompiler`
+    * Removed headers `sw-version-id`, `sw-context-token` and `sw-language-id` from Storefront response.
 
 **Removals**
 
 * Administration
-    * Added `v-model` attribute to input field in `sw-property-search`
-    * Implemented blocks for the different options in the `sw-cms-el-config-product-box` modules `sw-select-field`s. 
-    This allows to append additional options to the `sw-select-field`s.
-        * Added `{% block sw_cms_element_product_box_config_layout_select_options %}`
-        * Added `{% block sw_cms_element_product_box_config_displaymode_select_options %}`
-        * Added `{% block sw_cms_element_product_box_config_settings_vertical_align_options %}`
-    * Added property `placeholderIsPassword` to `sw-password-field` component
+    * Disallow adding script with `document.write` due to new CSP header. Use `document.createElement('script')` and `element.appendChild` instead.
 
 * Core
 
@@ -737,7 +754,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Changed type of `GenericPageLoader` to `GenericPageLoaderInterface` in `AccountEditOrderPageLoader`
     * Deprecated block `page_product_detail_price_unit_refrence_content` in `buy-widget-price.html.twig`, use `page_product_detail_price_unit_reference_content` instead
     * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
-    * Added `utilities_thumbnail`, `utilities_thumbnail_logic`, `utilities_thumbnail_image` twig blocks to thumbnail.html.twig
 
 **Removals**
 

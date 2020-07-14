@@ -260,6 +260,8 @@ class ThemeCompiler implements ThemeCompilerInterface
                 }
 
                 $variables[$key] = '\'' . $data['value'] . '\'';
+            } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
+                $variables[$key] = (int) ($data['value']);
             } else {
                 $variables[$key] = $data['value'];
             }

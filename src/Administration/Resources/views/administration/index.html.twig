@@ -29,12 +29,12 @@
 
 {% block administration_templates %}{% endblock %}
 
-<script src="{{ baseUrl }}{{ asset('static/js/runtime.js', '@Administration') }}"></script>
-<script src="{{ baseUrl }}{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
-<script src="{{ baseUrl }}{{ asset('static/js/commons.js', '@Administration') }}"></script>
-<script src="{{ baseUrl }}{{ asset('static/js/app.js', '@Administration') }}"></script>
+<script nonce="{{ cspNonce }}" src="{{ baseUrl }}{{ asset('static/js/runtime.js', '@Administration') }}"></script>
+<script nonce="{{ cspNonce }}" src="{{ baseUrl }}{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
+<script nonce="{{ cspNonce }}" src="{{ baseUrl }}{{ asset('static/js/commons.js', '@Administration') }}"></script>
+<script nonce="{{ cspNonce }}" src="{{ baseUrl }}{{ asset('static/js/app.js', '@Administration') }}"></script>
 
-<script>
+<script nonce="{{ cspNonce }}">
     /*
         root-level domain configuration
 

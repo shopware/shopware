@@ -370,15 +370,6 @@
             <argument type="service" id="session"/>
         </service>
 
-        <!--SnippetFiles-->
-        <service id="Shopware\Storefront\Resources\snippet\de_DE\SnippetFile_de_DE" public="true">
-            <tag name="shopware.snippet.file" priority="100"/>
-        </service>
-
-        <service id="Shopware\Storefront\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
-            <tag name="shopware.snippet.file" priority="100"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
@@ -462,6 +453,10 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheDecorator" decorates="cache.object">
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheDecorator.inner"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
+            <tag name="kernel.event_listener" priority="-10"/>
         </service>
     </services>
 </container>

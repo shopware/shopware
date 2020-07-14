@@ -3,9 +3,11 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Exception\IllegalUrlException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +23,7 @@ class FileFetcherTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fileFetcher = new FileFetcher();
+        $this->fileFetcher = new FileFetcher(new FileUrlValidator());
     }
 
     public function testFetchRequestData(): void
@@ -124,12 +126,12 @@ class FileFetcherTest extends TestCase
 
     public function testFetchFileFromUrl(): void
     {
-        $url = ($_SERVER['APP_URL'] ?? '') . '/favicon.ico';
+        $url = 'http://assets.shopware.com/sw_logo_white.png';
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $request = $this->createMock(Request::class);
         $request->query = new ParameterBag([
-            'extension' => 'ico',
+            'extension' => 'png',
         ]);
 
         $request->request = new ParameterBag([
@@ -143,11 +145,8 @@ class FileFetcherTest extends TestCase
             );
             $mimeType = mime_content_type($tempFile);
 
-            // Favicons can be of both types, @see https://stackoverflow.com/a/13828914/10064036
-            // Prior to php 7.4 it was classified as image/x-icon and since php 7.4 as image/vnd.microsoft.icon
             $correctMimes = [
-                'image/x-icon',
-                'image/vnd.microsoft.icon',
+                'image/png',
             ];
             static::assertContains($mimeType, $correctMimes);
             static::assertGreaterThan(0, $mediaFile->getFileSize());
@@ -195,8 +194,67 @@ class FileFetcherTest extends TestCase
     {
         $url = 'http://invalid/host';
 
-        $this->expectException(UploadException::class);
-        $this->expectExceptionMessage("Could not open source stream from {$url}");
+        $this->expectException(IllegalUrlException::class);
+
+        $request = $this->createMock(Request::class);
+        $request->request = new ParameterBag([
+            'url' => $url,
+        ]);
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
+        $this->fileFetcher->fetchFileFromURL(
+            $request,
+            'not used in this test'
+        );
+    }
+
+    public function testFetchFileFromUrlWithForbiddenUrl(): void
+    {
+        $url = 'http://localhost/myForbiddenImage.png';
+
+        $this->expectException(IllegalUrlException::class);
+
+        $request = $this->createMock(Request::class);
+        $request->request = new ParameterBag([
+            'url' => $url,
+        ]);
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
+        $this->fileFetcher->fetchFileFromURL(
+            $request,
+            'not used in this test'
+        );
+    }
+
+    public function testFetchFileFromUrlWithForbiddenIp4(): void
+    {
+        $url = 'http://127.0.0.1/myForbiddenImage.png';
+
+        $this->expectException(IllegalUrlException::class);
+
+        $request = $this->createMock(Request::class);
+        $request->request = new ParameterBag([
+            'url' => $url,
+        ]);
+        $request->query = new ParameterBag([
+            'extension' => 'png',
+        ]);
+
+        $this->fileFetcher->fetchFileFromURL(
+            $request,
+            'not used in this test'
+        );
+    }
+
+    public function testFetchFileFromUrlWithForbiddenIp6(): void
+    {
+        $url = 'http://[::1]/myForbiddenImage.png';
+
+        $this->expectException(IllegalUrlException::class);
 
         $request = $this->createMock(Request::class);
         $request->request = new ParameterBag([

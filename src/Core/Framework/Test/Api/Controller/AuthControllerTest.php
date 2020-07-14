@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Parser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -336,6 +337,42 @@ class AuthControllerTest extends TestCase
         $scopes = $jwtTokenParser->parse($data['access_token'])->getClaim('scopes');
 
         static::assertEquals(['admin'], $scopes);
+    }
+
+    public function testSuperAdminScopeRemovedOnRefreshToken(): void
+    {
+        $client = $this->getBrowser(false);
+        $jwtTokenParser = new Parser();
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scope' => ['admin', 'write', UserVerifiedScope::IDENTIFIER],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
+        $oldAccessTokenScopes = $parsedOldAccessToken->getClaim('scopes');
+
+        static::assertContains(UserVerifiedScope::IDENTIFIER, $oldAccessTokenScopes);
+
+        $refreshPayload = [
+            'grant_type' => 'refresh_token',
+            'client_id' => 'administration',
+            'refresh_token' => $data['refresh_token'],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $refreshPayload);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
+        $newAccessTokenScopes = $parsedNewAccessToken->getClaim('scopes');
+
+        static::assertContains(UserVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
     }
 
     public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void

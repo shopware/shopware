@@ -421,7 +421,7 @@ class ApiController extends AbstractController
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
 
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
@@ -430,7 +430,7 @@ class ApiController extends AbstractController
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
 
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
@@ -439,7 +439,7 @@ class ApiController extends AbstractController
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException('You don\'t have write access using this access key.');
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
 
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context, [WriteProtection::class]);

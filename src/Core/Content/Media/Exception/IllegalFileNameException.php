@@ -9,7 +9,7 @@ class IllegalFileNameException extends ShopwareHttpException
     public function __construct(string $filename, string $cause)
     {
         parent::__construct(
-            'Provided filename "{{ fileName }}" ist not permitted: {{ cause }}',
+            'Provided filename "{{ fileName }}" is not permitted: {{ cause }}',
             ['fileName' => $filename, 'cause' => $cause]
         );
     }

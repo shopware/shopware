@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -66,16 +67,22 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
     private function insertState(Connection $connection, array $state, string $machineId): void
     {
         $stateId = Uuid::randomHex();
-        $connection->executeUpdate(
-            'REPLACE INTO state_machine_state (id, technical_name, state_machine_id, created_at)
+
+        try {
+            $connection->executeUpdate(
+                'INSERT INTO state_machine_state (id, technical_name, state_machine_id, created_at)
              VALUES (:id, :technical_name, :state_machine_id, :created_at)',
-            [
-                'id' => Uuid::fromHexToBytes($stateId),
-                'technical_name' => $state['technical_name'],
-                'state_machine_id' => Uuid::fromHexToBytes($machineId),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
+                [
+                    'id' => Uuid::fromHexToBytes($stateId),
+                    'technical_name' => $state['technical_name'],
+                    'state_machine_id' => Uuid::fromHexToBytes($machineId),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        } catch (UniqueConstraintViolationException $e) {
+            // don't add states if they already exist
+            return;
+        }
 
         // import translations for current machine_state
         $languages = array_unique(array_filter([

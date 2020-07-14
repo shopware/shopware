@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -10,14 +9,13 @@ class ListingPriceCollection extends Collection
 {
     public function getContextPrice(Context $context): ?ListingPrice
     {
-        $ruleIds = $context->getRuleIds();
-        $ruleIds[] = null;
+        foreach ($context->getRuleIds() as $ruleId) {
+            $prices = $this->filterByRuleId($this->elements, $ruleId);
 
-        foreach ($ruleIds as $ruleId) {
-            $price = $this->getRulePrice($ruleId, $context);
+            if (\count($prices) > 0) {
+                $prices = $this->filterByCurrencyId($prices, $context->getCurrencyId());
 
-            if ($price) {
-                return $price;
+                return array_shift($prices);
             }
         }
 
@@ -34,26 +32,6 @@ class ListingPriceCollection extends Collection
         return ListingPrice::class;
     }
 
-    private function getRulePrice(?string $ruleId, Context $context): ?ListingPrice
-    {
-        $prices = $this->filterByRuleId($this->elements, $ruleId);
-
-        $price = $this->getCurrencyPrice($prices, $context->getCurrencyId());
-
-        if (!$price) {
-            $price = $this->getCurrencyPrice($prices, Defaults::CURRENCY);
-        }
-
-        return $price;
-    }
-
-    private function getCurrencyPrice(array $prices, string $currencyId): ?ListingPrice
-    {
-        $prices = $this->filterByCurrencyId($prices, $currencyId);
-
-        return array_shift($prices);
-    }
-
     private function filterByCurrencyId(iterable $prices, string $currencyId): array
     {
         $filtered = [];
@@ -67,7 +45,7 @@ class ListingPriceCollection extends Collection
         return $filtered;
     }
 
-    private function filterByRuleId(iterable $prices, ?string $ruleId): array
+    private function filterByRuleId(iterable $prices, string $ruleId): array
     {
         $filtered = [];
         /** @var ListingPrice $price */

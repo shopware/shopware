@@ -163,7 +163,10 @@ class PromotionCalculator
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
-                $this->addPromotionNotEligibleError($discountItem->getLabel(), $calculated);
+                // hide the notEligibleErrors on automatic discounts
+                if (!$this->isAutomaticDisount($discountItem)) {
+                    $this->addPromotionNotEligibleError($discountItem->getLabel(), $calculated);
+                }
 
                 continue;
             }
@@ -474,5 +477,10 @@ class PromotionCalculator
         }
 
         return $result;
+    }
+
+    private function isAutomaticDisount(LineItem $discountItem): bool
+    {
+        return empty($discountItem->getPayloadValue('code'));
     }
 }

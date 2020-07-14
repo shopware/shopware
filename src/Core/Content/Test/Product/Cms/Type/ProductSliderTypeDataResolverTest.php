@@ -10,13 +10,21 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -29,9 +37,34 @@ class ProductSliderTypeDataResolverTest extends TestCase
      */
     private $sliderResolver;
 
+    /**
+     * @var string
+     */
+    private $productStreamId;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $productIdWidth100;
+
+    /**
+     * @var string
+     */
+    private $productIdWidth150;
+
+
     protected function setUp(): void
     {
-        $this->sliderResolver = new ProductSliderCmsElementResolver();
+        $this->context = Context::createDefaultContext();
+
+        $this->sliderResolver = new ProductSliderCmsElementResolver($this->getContainer()->get(ProductStreamBuilder::class));
+
+        $this->productStreamId = Uuid::randomHex();
     }
 
     public function testGetType(): void
@@ -156,6 +189,37 @@ class ProductSliderTypeDataResolverTest extends TestCase
         static::assertNull($collection);
     }
 
+    public function testCollectWithMappedConfigProductStream(): void
+    {
+        $this->createTestProductStreamEntity();
+
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $resolverContext = new ResolverContext(
+            $salesChannelContext,
+            new Request()
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, $this->productStreamId));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->sliderResolver->collect($slot, $resolverContext);
+
+        $products = $this->getContainer()->get('product.repository')->search(
+            $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'],
+            $salesChannelContext->getContext()
+        );
+
+        static::assertNull($collection);
+    }
+
     public function testCollectWithMappedConfigButEmptyManyToManyRelation(): void
     {
         $category = new CategoryEntity();
@@ -204,5 +268,85 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
+    }
+
+    private function createTestProductStreamEntity(): ProductStreamEntity
+    {
+        $randomProductIds = implode('|', array_column($this->createProducts(), 'id'));
+
+        $stream = [
+            'id' => $this->productStreamId,
+            'name' => 'testStream',
+            'filters' => [
+                [
+                    'type' => 'multi',
+                    'queries' => [
+                        [
+                            'type' => 'equalsAny',
+                            'field' => 'product.id',
+                            'value' => $randomProductIds,
+                        ],
+                        [
+                            'type' => 'range',
+                            'field' => 'product.width',
+                            'parameters' => [
+                                'gte' => 120,
+                                'lte' => 180,
+                            ],
+                        ],
+                    ],
+                    'operator' => 'AND',
+                ],
+            ],
+        ];
+        $productRepository = $this->getContainer()->get('product_stream.repository');
+        $productRepository->create([$stream], $this->context);
+
+        return $productRepository->search(new Criteria([$this->productStreamId]), $this->context)->first();
+    }
+
+    private function createProducts(): array
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+        $salesChannelId = Defaults::SALES_CHANNEL;
+        $products = [];
+
+        $widths = [
+            '100',
+            '110',
+            '120',
+            '130',
+            '140',
+            '150',
+            '160',
+            '170',
+            '180',
+            '190',
+        ];
+
+        for ($i = 0; $i < 10; ++$i) {
+            $products[] = [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'width' => $widths[$i],
+                'stock' => 1,
+                'name' => 'Test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
+                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+        }
+
+        $this->productIdWidth100 = $products[0]['id'];
+        $this->productIdWidth150 = $products[5]['id'];
+
+        $productRepository->create($products, $this->context);
+
+        return $products;
     }
 }

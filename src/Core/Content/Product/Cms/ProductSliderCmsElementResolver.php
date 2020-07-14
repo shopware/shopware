@@ -12,12 +12,22 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
     private const STATIC_SEARCH_KEY = 'product-slider';
+    /**
+     * @var ProductStreamBuilder
+     */
+    private $productStreamBuilder;
+
+    public function __construct(ProductStreamBuilder $productStreamBuilder)
+    {
+        $this->productStreamBuilder = $productStreamBuilder;
+    }
 
     public function getType(): string
     {
@@ -41,6 +51,12 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         if ($products->isMapped() && $products->getValue() && $resolverContext instanceof EntityResolverContext) {
             if ($criteria = $this->collectByEntity($resolverContext, $products)) {
+                $collection->add(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
+            }
+        }
+
+        if ($products->isProductStream() && $products->getValue()) {
+            if ($criteria = $this->collectByProductStream($resolverContext, $products)) {
                 $collection->add(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
             }
         }
@@ -70,6 +86,10 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
                 $slider->setProducts($products);
             }
         }
+
+        if ($productConfig->isProductStream() && $productConfig->getValue()) {
+            $slider->setProducts($result->get(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier())->getEntities());
+        }
     }
 
     private function enrichFromSearch(ProductSliderStruct $slider, ElementDataCollection $result, string $searchKey): void
@@ -97,6 +117,19 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
         $criteria = $this->resolveCriteriaForLazyLoadedRelations($resolverContext, $config);
         $criteria->addAssociation('cover');
+
+        return $criteria;
+    }
+
+    private function collectByProductStream(ResolverContext $resolverContext, FieldConfig $config): ?Criteria
+    {
+        $filters = $this->productStreamBuilder->buildFilters(
+            $config->getValue(),
+            $resolverContext->getSalesChannelContext()->getContext()
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(...$filters);
 
         return $criteria;
     }

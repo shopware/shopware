@@ -116,6 +116,7 @@ NEXT
 * Added new constant `DISPLAY_TYPE_MEDIA` in `Shopware\Core\Content\Property\PropertyGroupDefinition`
 * Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
 * Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
+* Fixed company name field on profile page and prefill it with billingAddress company
 
 #### Storefront
 

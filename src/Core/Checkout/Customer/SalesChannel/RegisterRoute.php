@@ -158,6 +158,10 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['addresses'][] = $shippingAddress;
         }
 
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
+            $customer['company'] = $billingAddress['company'];
+        }
+
         $customer = $this->setDoubleOptInData($customer, $context);
 
         $this->customerRepository->create([$customer], $context->getContext());

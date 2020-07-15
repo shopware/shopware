@@ -35,6 +35,15 @@
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
                                     {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                                 </option>
+                            {% elseif prefix is null and activeRoute == 'frontend.account.profile.page' %}
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
+                                        {% if data.company is empty%} selected="selected"{% endif %}>
+                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                                </option>
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
+                                        {% if data.company is not empty%} selected="selected"{% endif %}>
+                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                                </option>
                             {% else %}
                                 <option disabled="disabled"
                                         selected="selected"
@@ -196,6 +205,53 @@
                 </div>
             {% endblock %}
         </div>
+    {% endblock %}
+
+    {% block component_address_form_company %}
+        {% if shopware.config.core.loginRegistration.showAccountTypeSelection %}
+            {% set accounTypeRequired = true %}
+        {% endif %}
+        {% if shopware.config.core.loginRegistration.showAccountTypeSelection and activeRoute == 'frontend.account.profile.page' %}
+            {% if data.company is not empty %}
+                {% set showCompany = true %}
+            {% endif %}
+            <div class="js-field-toggle-contact-type-company {% if showCompany %}d-block{% else %}d-none{% endif %}">
+                {% block component_address_form_company_fields %}
+                    <div class="form-row">
+                        {% block component_address_form_company_name %}
+                            <div class="form-group col-12">
+                                {% if formViolations.getViolations("/company") is not empty %}
+                                    {% set violationPath = "/company" %}
+                                {% endif %}
+
+                                {% block component_address_form_company_name_label %}
+                                    <label class="form-label"
+                                           for="company">
+                                        {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if accounTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
+                                    </label>
+                                {% endblock %}
+
+                                {% block component_address_form_company_name_input %}
+                                    <input type="text"
+                                           class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                           id="company"
+                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
+                                           name="company"
+                                           value="{{ data.get('company') }}"
+                                           {% if accounTypeRequired %}required="required"{% endif %}>
+                                {% endblock %}
+
+                                {% block component_address_form_company_name_input_error %}
+                                    {% if violationPath %}
+                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endif %}
     {% endblock %}
 
     {% block component_address_personal_fields_birthday %}

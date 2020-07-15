@@ -56,7 +56,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $scoring = $this->score($tokens, $matches);
 
-        $scoring = \array_slice($scoring, 0, 8);
+        $scoring = \array_slice($scoring, 0, 8, true);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);

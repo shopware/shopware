@@ -63,7 +63,7 @@ class SyncService implements SyncServiceInterface
     /**
      * @param SyncOperation[] $operations
      */
-    public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
+    public function sync(iterable $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
         if ($behavior->getIndexingBehavior() !== null) {
             $context->addExtension($behavior->getIndexingBehavior(), new ArrayEntity());

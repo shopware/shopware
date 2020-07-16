@@ -375,6 +375,8 @@ Table of contents
 * Changed `\Shopware\Storefront\Theme\ThemeCompiler::dumpVariables` to enclose textarea variables in string delimiters
 * Changed `\Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute` to remove legacy password.
 * Changed `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute` to allow sending `buildTree` and `depth` as POST parameter
+* Added ManyToManyIdField `tagIds` to `CustomerDefinition.php`
+* Added new `Shopware\Core\Checkout\Cusomer\Rule\CustomerTagRule` to check for tags assigned to customer
 
 #### Storefront
 * Added plugin injection in hot mode

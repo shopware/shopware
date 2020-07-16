@@ -32,7 +32,7 @@ Component.register('sw-product-price-form', {
             'currencies'
         ]),
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrice'])
+        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices'])
     },
 
     methods: {

@@ -40,7 +40,8 @@
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
-      "labelPurchasePriceGross": "Einkaufspreis (Brutto)",
+      "labelPurchasePriceGross": "Einkaufspreis (brutto)",
+      "labelPurchasePriceNet": "Einkaufspreis (netto)",
       "labelUnit": "Maßeinheit",
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",

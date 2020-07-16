@@ -40,7 +40,8 @@
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
-      "labelPurchasePriceGross": "Purchasing price (gross)",
+      "labelPurchasePriceGross": "Purchase price (gross)",
+      "labelPurchasePriceNet": "Purchase price (net)",
       "labelUnit": "Unit of measurement",
       "labelPurchaseUnit": "Selling unit",
       "labelReferenceUnit": "Basic unit",

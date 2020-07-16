@@ -785,6 +785,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    referenceUnit float
    shippingFree bool
    purchasePrice float
+   purchasePrices json
    markAsTopseller bool
    weight float
    width float

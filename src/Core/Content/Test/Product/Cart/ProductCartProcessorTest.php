@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Test\Product\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -132,6 +134,38 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
         static::assertSame('test', $actualProduct->getLabel());
+    }
+
+    public function testLineItemPropertiesPurchasePrice(): void
+    {
+        $this->createProduct();
+
+        $token = $this->ids->create('token');
+        /** @var SalesChannelContextService $salesChannelContextService */
+        $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
+        $context = $salesChannelContextService->get(Defaults::SALES_CHANNEL, $token);
+        /** @var CartService $cartService */
+        $cartService = $this->getContainer()->get(CartService::class);
+        $cart = $cartService->getCart($token, $context);
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
+        $cartService->add($cart, $product, $context);
+
+        /** @var ProductCartProcessor $productCartProcessor */
+        $productCartProcessor = $this->getContainer()->get(ProductCartProcessor::class);
+        $productCartProcessor->collect(
+            new CartDataCollection(),
+            $cart,
+            $context,
+            new CartBehavior()
+        );
+
+        $payload = $cart->get($product->getId())->getPayload();
+        static::assertEquals(7.5, $payload['purchasePrice']);
+        $purchasePrices = json_decode($payload['purchasePrices']);
+        static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
+        static::assertSame(7.5, $purchasePrices->gross);
+        static::assertSame(5, $purchasePrices->net);
+        static::assertFalse($purchasePrices->linked);
     }
 
     public function testPayloadContainsFeatures(): void
@@ -405,6 +439,11 @@ class ProductCartProcessorTest extends TestCase
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'purchasePrice' => 7.5,
+            'purchasePrices' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
+                ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],
             ],
             'active' => true,
             'tax' => ['name' => 'test', 'taxRate' => 15],

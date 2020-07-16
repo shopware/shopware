@@ -1,0 +1,14 @@
+{% block sw_purchase_price_field %}
+    <sw-price-field name="sw-purchase-price-field"
+                    :price="purchasePrice"
+                    :taxRate="taxRate"
+                    :disabled="disabled"
+                    :grossLabel="$tc('sw-product.priceForm.labelPurchasePriceGross')"
+                    :netLabel="$tc('sw-product.priceForm.labelPurchasePriceNet')"
+                    :compact="compact"
+                    :label="label"
+                    :error="error"
+                    :currency="currency"
+                    @change="purchasePriceChanged">
+    </sw-price-field>
+{% endblock %}

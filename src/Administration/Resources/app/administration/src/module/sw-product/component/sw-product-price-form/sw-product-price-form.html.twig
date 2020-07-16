@@ -1,6 +1,6 @@
 {% block sw_product_price_form %}
     <div class="sw-product-price-form">
-        <sw-container columns="1fr 2fr" gap="0px 30px" class="sw-product-price-form__prices">
+        <sw-container columns="1fr 1fr" gap="0px 30px" class="sw-product-price-form__prices">
             <div>
                 {% block sw_product_price_form_tax_field %}
                     <sw-inherit-wrapper v-model="product.taxId"
@@ -32,25 +32,18 @@
                 {% endblock %}
 
                 {% block sw_product_price_form_purchase_price_field %}
-                    <sw-inherit-wrapper v-model="product.purchasePrice"
+                    <sw-inherit-wrapper v-if="!isLoading"
+                                        v-model="product.purchasePrices"
+                                        label=" "
                                         :hasParent="!!parentProduct.id"
-                                        :inheritedValue="parentProduct.purchasePrice"
-                                        :label="$tc('sw-product.priceForm.labelPurchasePriceGross')">
+                                        :inheritedValue="parentProduct.purchasePrices">
                         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-
-                            <sw-field type="number"
-                                      :error="productPurchasePriceError"
-                                      :min="0"
-                                      :disabled="isInherited"
-                                      :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
-                                      :value="currentValue"
-                                      @change="updateCurrentValue"
-                                      @keyup="keymonitor">
-                                <template #suffix>
-                                    <span class="sw-product-price-form__currency" v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
-                                </template>
-                            </sw-field>
-
+                            <sw-purchase-price-field :price="currentValue"
+                                            :taxRate="productTaxRate"
+                                            :disabled="isInherited"
+                                            :error="productPurchasePricesError ? productPurchasePricesError[0] : null"
+                                            :currency="defaultCurrency">
+                            </sw-purchase-price-field>
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}

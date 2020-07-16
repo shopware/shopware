@@ -244,6 +244,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
+        $purchasePrices = null;
+        if ($product->getPurchasePrices()) {
+            $purchasePrices = $product->getPurchasePrices()->getCurrencyPrice(Defaults::CURRENCY);
+        }
+
         $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
@@ -251,7 +256,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            'purchasePrice' => $product->getPurchasePrice(),
+            'purchasePrice' => $purchasePrices ? $purchasePrices->getGross() : null,
+            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),

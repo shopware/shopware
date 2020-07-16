@@ -36,8 +36,6 @@ describe('Product: Test crud operations', () => {
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
-        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
-        cy.get('#sw-price-field-gross').type('10');
 
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
@@ -59,8 +57,15 @@ describe('Product: Test crud operations', () => {
         }
 
         // Check net price calculation
+        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
+        cy.get('#sw-price-field-gross').type('10');
         cy.wait('@calculatePrice').then(() => {
             cy.get('#sw-price-field-net').should('have.value', '8.4');
+        });
+
+        cy.get('#sw-purchase-price-field-gross').type('1');
+        cy.wait('@calculatePrice').then(() => {
+            cy.get('#sw-purchase-price-field-net').should('have.value', '0.84');
         });
 
         cy.get('input[name=sw-field--product-stock]').type('100');

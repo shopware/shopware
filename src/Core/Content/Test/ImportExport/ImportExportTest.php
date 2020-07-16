@@ -22,6 +22,7 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -78,8 +79,8 @@ class ImportExportTest extends TestCase
         static::assertEquals(
             1,
             $connection->getTransactionNestingLevel(),
-            'Too many Nesting Levels. 
-            Probably one transaction was not closed properly. 
+            'Too many Nesting Levels.
+            Probably one transaction was not closed properly.
             This may affect following Tests in an unpredictable manner!
             Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
         );
@@ -581,6 +582,98 @@ class ImportExportTest extends TestCase
         $logEntity->setState(Progress::STATE_FAILED);
         $importExport->import(Context::createDefaultContext());
         $importExport->export(Context::createDefaultContext(), new Criteria());
+    }
+
+    public function testSalesChannelAssignment(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeUpdate('DELETE FROM `product`');
+        $connection->executeUpdate('DELETE FROM `product_visibility`');
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $productAId = 'a5c8b8f701034e8dbea72ac0fc32521e';
+        $productABId = 'abc8b8f701034e8dbea72ac0fc32521e';
+        $productCId = 'c5c8b8f701034e8dbea72ac0fc32521e';
+
+        $salesChannelAId = 'a8432def39fc4624b33213a56b8c944d';
+        $this->createSalesChannel([
+            'id' => $salesChannelAId,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://localhost.test/a',
+            ]],
+        ]);
+
+        $salesChannelBId = 'b8432def39fc4624b33213a56b8c944d';
+        $this->createSalesChannel([
+            'id' => $salesChannelBId,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://localhost.test/b',
+            ]],
+        ]);
+
+        /** @var ImportExportService $importExportService */
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $uploadedFile = new UploadedFile(__DIR__ . '/fixtures/products_with_visibilities.csv', 'products_with_visibilities.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            Context::createDefaultContext(),
+            $profileId,
+            $expireDate,
+            $uploadedFile
+        );
+        $progress = $importExportService->getProgress($logEntity->getId(), 0);
+        do {
+            // simulate multiple requests
+            $progress = $importExportService->getProgress($logEntity->getId(), $progress->getOffset());
+            $importExport = $factory->create($logEntity->getId(), 2, 2);
+            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $criteria = new Criteria([$productAId]);
+        $criteria->addAssociation('visibilities');
+
+        /** @var ProductEntity $productA */
+        $productA = $productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($productA);
+
+        static::assertCount(1, $productA->getVisibilities());
+        static::assertNotNull($productA->getVisibilities()->filterBySalesChannelId($salesChannelAId)->first());
+
+        $criteria = new Criteria([$productABId]);
+        $criteria->addAssociation('visibilities');
+
+        $productAB = $productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($productAB);
+
+        static::assertCount(2, $productAB->getVisibilities());
+        static::assertNotNull($productAB->getVisibilities()->filterBySalesChannelId($salesChannelAId)->first());
+        static::assertNotNull($productAB->getVisibilities()->filterBySalesChannelId($salesChannelBId)->first());
+
+        $criteria = new Criteria([$productCId]);
+        $criteria->addAssociation('visibilities');
+
+        $productC = $productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertNotNull($productC);
+
+        static::assertCount(0, $productC->getVisibilities());
+        static::assertNull($productC->getVisibilities()->filterBySalesChannelId($salesChannelAId)->first());
+        static::assertNull($productC->getVisibilities()->filterBySalesChannelId($salesChannelBId)->first());
     }
 
     private function getDefaultProfileId(string $entity): string

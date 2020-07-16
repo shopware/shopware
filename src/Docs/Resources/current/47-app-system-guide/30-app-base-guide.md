@@ -294,6 +294,8 @@ Below you can take a look on an extended example on how a full manifest file can
         <copyright>(c) by shopware AG</copyright>
         <version>1.0.1</version>
         <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
     </meta>
     <setup>
         <registrationUrl>https://example/</registrationUrl>

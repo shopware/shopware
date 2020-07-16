@@ -21,7 +21,6 @@ class Migration1572264837AddCacheId extends MigrationStep
         } catch (DBALException $e) {
             // PK already exists
         }
-        
         $connection->executeUpdate(
             '
             INSERT IGNORE INTO app_config (`key`, `value`)

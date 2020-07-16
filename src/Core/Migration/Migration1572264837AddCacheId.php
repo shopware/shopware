@@ -16,8 +16,11 @@ class Migration1572264837AddCacheId extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('DELETE FROM app_config');
-        $connection->exec('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
-
+        try {
+            $connection->exec('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
+        } catch (DBALException $e) {
+            // PK already exists
+        }
         $connection->executeUpdate(
             '
             INSERT IGNORE INTO app_config (`key`, `value`)

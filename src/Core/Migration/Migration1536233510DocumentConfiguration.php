@@ -44,6 +44,7 @@ SQL;
       `sales_channel_id` BINARY(16) NULL,
       `created_at` DATETIME(3) NOT NULL,
       `updated_at` DATETIME(3) NULL,
+      PRIMARY KEY (`id`),
       UNIQUE `uniq.document_base_configuration_id__sales_channel_id` (`document_type_id`, `sales_channel_id`),
       CONSTRAINT `fk.document_base_config_sales_channel.document_base_config_id`
       FOREIGN KEY (document_base_config_id) REFERENCES `document_base_config` (id) ON DELETE CASCADE ON UPDATE CASCADE,

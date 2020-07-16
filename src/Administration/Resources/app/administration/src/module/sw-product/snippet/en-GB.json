@@ -209,14 +209,23 @@
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
-      "selectRule": "Select a conditional rule..."
+      "selectRule": "Select a conditional rule...",
+      "advancedPricesInherited": "This product has inherited prices from it`s parent.",
+      "linkAdvancedPricesOfParent": "Show prices of parent product",
+      "inheritSwitchLabel": "Use advanced prices from parent product",
+      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant."
     },
     "properties": {
       "cardTitleProperties": "Available properties",
       "emptyStateNoOptionsTitle": "No values available",
       "emptyStateNoOptionsDescription": "Create properties and property values first, then return here to assign them.",
       "emptyStateNoSelectedOptionsTitle": "No values selected",
-      "emptyStateNoSelectedOptionsDescription": "Please select values from the search above."
+      "emptyStateNoSelectedOptionsDescription": "Please select values from the search above.",
+      "selectRule": "Select a conditional rule...",
+      "propertiesInherited": "This product has inherited properties from it`s parent.",
+      "linkPropertiesOfParent": "Show properties of parent product",
+      "inheritSwitchLabel": "Use properties from parent product",
+      "propertiesNotInherited": "You can now use custom properties for this variant."
     },
     "variations": {
       "emptyStateDescription": "This product has no variants yet.",

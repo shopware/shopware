@@ -90,7 +90,7 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         customFieldSetSelectionAvailable() {
-            return this.showCustomFieldSetSelection && !!this.entity.customFieldSets;
+            return this.showCustomFieldSetSelection && this.entity.hasOwnProperty('customFieldSets');
         },
 
         visibleCustomFieldSets() {
@@ -100,6 +100,11 @@ Component.register('sw-custom-field-set-renderer', {
             }
 
             return this.sets.filter(set => {
+                // Return custom field sets of parent if current state is inherited
+                if (this.hasParent && this.entity.customFieldSets.length < 1) {
+                    return this.parentEntity.customFieldSets.has(set.id) || set.global;
+                }
+
                 return this.entity.customFieldSets.has(set.id) || set.global;
             });
         },
@@ -161,7 +166,18 @@ Component.register('sw-custom-field-set-renderer', {
             const parentEntity = this.parentEntity;
 
             if (parentEntity && parentEntity[firstKey]) {
-                return parentEntity[firstKey].hasOwnProperty(secondKey) ? parentEntity[firstKey][secondKey] : parentEntity[firstKey];
+                return parentEntity[firstKey].hasOwnProperty(secondKey) ?
+                    parentEntity[firstKey][secondKey] : parentEntity[firstKey];
+            }
+
+            return null;
+        },
+
+        getParentCustomFieldSetSelectionSwitchState() {
+            const parentEntity = this.parentEntity;
+
+            if (parentEntity && hasOwnProperty('customFieldSets')) {
+                return parentEntity.customFieldSets.length > 0;
             }
 
             return null;
@@ -182,10 +198,14 @@ Component.register('sw-custom-field-set-renderer', {
             this.onChangeCustomFieldSets();
         },
 
-        onChangeCustomFieldSets() {
+        onChangeCustomFieldSets(value, updateFn) {
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 this.$refs.tabComponent.active = this.visibleCustomFieldSets[0].name;
                 this.$refs.tabComponent.updateActiveItem();
+            }
+
+            if (typeof updateFn === 'function') {
+                updateFn(value);
             }
         },
 

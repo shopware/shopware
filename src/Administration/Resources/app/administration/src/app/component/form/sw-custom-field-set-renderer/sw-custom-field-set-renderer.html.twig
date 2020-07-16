@@ -1,34 +1,48 @@
 {% block sw_custom_field_set_renderer %}
     <div class="sw-custom-field-set-renderer">
-
         <template v-if="customFieldSetSelectionAvailable">
-            <sw-field
-                type="switch"
-                class="sw-custom-field-set-renderer__selection-switch"
-                :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelectSwitch')"
-                @change="onChangeFieldSetSelectionSwitch"
-                v-model="customFieldSetSelectionActive">
-            </sw-field>
+            <sw-inherit-wrapper
+                v-model="customFieldSetSelectionActive"
+                :inheritedValue="getParentCustomFieldSetSelectionSwitchState"
+                :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelectSwitch')">
+                <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                    <sw-field
+                        type="switch"
+                        class="sw-custom-field-set-renderer__selection-switch"
+
+                        @change="onChangeFieldSetSelectionSwitch"
+                        v-model="customFieldSetSelectionActive">
+                    </sw-field>
+                </template>
+            </sw-inherit-wrapper>
 
             <template v-if="customFieldSetSelectionActive">
-                <sw-entity-multi-select
-                    :criteria="customFieldSetCriteria"
-                    @change="onChangeCustomFieldSets"
-                    :placeholder="$tc('sw-custom-field-set-renderer.placeholderCustomFieldSetSelect')"
-                    v-model="entity.customFieldSets"
-                    :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelect')">
-                    <template #selection-label-property="{ item, index, labelProperty, valueProperty, getKey}">
-                        {{ getInlineSnippet(item.config.label) || item.name }}
-                    </template>
+                <sw-inherit-wrapper
+                                    v-model="entity.customFieldSets"
+                                    :inheritedValue="getInheritValue('customFieldSets')"
+                                    isAssociation
+                                    :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelect')">
+                    <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                        <sw-entity-multi-select
+                            :criteria="customFieldSetCriteria"
+                            :disabled="isInherited"
+                            @change="(value) => onChangeCustomFieldSets(value, updateCurrentValue)"
+                            :placeholder="$tc('sw-custom-field-set-renderer.placeholderCustomFieldSetSelect')"
+                            :entityCollection="currentValue">
+                            <template #selection-label-property="{ item, index, labelProperty, valueProperty, getKey}">
+                                {{ getInlineSnippet(item.config.label) || item.name }}
+                            </template>
 
-                    <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
-                        <sw-highlight-text
-                            :text="getInlineSnippet(item.config.label) || item.name"
-                            :searchTerm="searchTerm">
-                        </sw-highlight-text>
-                    </template>
+                            <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
+                                <sw-highlight-text
+                                    :text="getInlineSnippet(item.config.label) || item.name"
+                                    :searchTerm="searchTerm">
+                                </sw-highlight-text>
+                            </template>
 
-                </sw-entity-multi-select>
+                        </sw-entity-multi-select>
+                    </template>
+                </sw-inherit-wrapper>
 
                 <template v-if="globalCustomFieldSets.length > 0">
                     <h3>{{ $tc('sw-custom-field-set-renderer.messagePluginSets') }}</h3>

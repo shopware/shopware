@@ -275,9 +275,17 @@ class ThumbnailService
         MediaFolderConfigurationEntity $config
     ): array {
         if (!$config->getKeepAspectRatio() || $preferredThumbnailSize->getWidth() !== $preferredThumbnailSize->getHeight()) {
-            return [
-                'width' => $preferredThumbnailSize->getWidth(),
-                'height' => $preferredThumbnailSize->getHeight(),
+            $calculatedWidth = $preferredThumbnailSize->getWidth();
+            $calculatedHeight = $preferredThumbnailSize->getHeight();
+
+            $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
+
+            return $useOriginalSizeInThumbnails ? [
+                'width' => $imageSize['width'],
+                'height' => $imageSize['height'],
+            ] : [
+                'width' => $calculatedWidth,
+                'height' => $calculatedHeight,
             ];
         }
 

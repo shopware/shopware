@@ -23,6 +23,7 @@ class Migration1570622696CustomerPasswordRecovery extends MigrationStep
                 `hash` VARCHAR(255) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`),
                 CONSTRAINT `uniq.customer_recovery.customer_id` UNIQUE (`customer_id`),
                 CONSTRAINT `fk.customer_recovery.customer_id` FOREIGN KEY (`customer_id`)
                     REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

@@ -89,7 +89,10 @@
                                     <div class="product-variant-characteristics-text">
                                         {% if not product.isGrouped %}
                                             {% for variation in product.variation %}
-                                                {{ variation.group }}: {{ variation.option }}
+                                                {{ variation.group }}:
+                                                <span class="product-variant-characteristics-option">
+                                                    {{ variation.option }}
+                                                </span>
 
                                                 {% if product.variation|last != variation %}
                                                     {{ " | " }}

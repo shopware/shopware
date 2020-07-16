@@ -124,7 +124,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
             ProductEvents::PRODUCT_SEARCH_RESULT
         );
 
-        $result->addCurrentFilter('search', $request->query->get('search'));
+        $result->addCurrentFilter('search', $request->get('search'));
 
         return new ProductSearchRouteResponse($result);
     }

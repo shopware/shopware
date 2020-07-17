@@ -15,7 +15,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to category module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/category',
+            url: `${Cypress.env('apiPath')}/search/category`,
             method: 'post'
         }).as('getData');
 
@@ -33,7 +33,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to product module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/product',
+            url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('getData');
 
@@ -51,7 +51,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to review module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/product-review',
+            url: `${Cypress.env('apiPath')}/search/product-review`,
             method: 'post'
         }).as('getData');
 
@@ -69,7 +69,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to manufacturer module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/product-manufacturer',
+            url: `${Cypress.env('apiPath')}/search/product-manufacturer`,
             method: 'post'
         }).as('getData');
 
@@ -87,7 +87,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to property module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/property-group',
+            url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('getData');
 
@@ -105,7 +105,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to customer module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/customer',
+            url: `${Cypress.env('apiPath')}/search/customer`,
             method: 'post'
         }).as('getData');
 
@@ -122,7 +122,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to order module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/order',
+            url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('getData');
 
@@ -139,7 +139,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to media module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/media',
+            url: `${Cypress.env('apiPath')}/search/media`,
             method: 'post'
         }).as('getData');
 
@@ -157,7 +157,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to cms module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/cms-page',
+            url: `${Cypress.env('apiPath')}/search/cms-page`,
             method: 'post'
         }).as('getData');
 
@@ -175,7 +175,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to theme module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/theme',
+            url: `${Cypress.env('apiPath')}/search/theme`,
             method: 'post'
         }).as('getData');
 
@@ -193,7 +193,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to promotion module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/promotion',
+            url: `${Cypress.env('apiPath')}/search/promotion`,
             method: 'post'
         }).as('getData');
 
@@ -211,7 +211,7 @@ describe('Administration: Check module navigation', () => {
     it('@navigation: navigate to newsletter recipients module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/newsletter-recipient',
+            url: `${Cypress.env('apiPath')}/search/newsletter-recipient`,
             method: 'post'
         }).as('getData');
 

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
 class SalutationSerializer extends EntitySerializer
@@ -48,6 +49,11 @@ class SalutationSerializer extends EntitySerializer
         }
 
         yield from $deserialized;
+    }
+
+    public function supports(string $entity): bool
+    {
+        return $entity === SalutationDefinition::ENTITY_NAME;
     }
 
     private function getSalutationId(string $salutationKey): ?string

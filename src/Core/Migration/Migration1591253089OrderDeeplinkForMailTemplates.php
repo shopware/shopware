@@ -234,8 +234,8 @@ class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
     private function updateMailTemplate(
         string $mailTemplateType,
         Connection $connection,
-        string $enLangId,
-        string $deLangId,
+        ?string $enLangId,
+        ?string $deLangId,
         $getHtmlTemplateEn,
         $getPlainTemplateEn,
         $getHtmlTemplateDe,

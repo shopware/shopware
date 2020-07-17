@@ -143,9 +143,11 @@
                     <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
                         <sw-number-field
                             :name="`sw-field--${item.id}-quantity-start`"
+                            :numberType="numberFieldType"
                             :size="compact ? 'small' : 'default'"
-                            :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
+                            :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd : 0"
                             :max="item.quantityEnd ? item.quantityEnd : null"
+                            :digits="3"
                             v-model="item.quantityStart">
                         </sw-number-field>
                     </template>
@@ -154,11 +156,12 @@
                     <template slot="column-quantityEnd" slot-scope="{ item, itemIndex, compact }">
                         <sw-number-field
                             :name="`sw-field--${item.id}-quantity-end`"
+                            :numberType="numberFieldType"
                             :size="compact ? 'small' : 'default'"
                             :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
                             :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                             :min="item.quantityStart"
-                            :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
+                            :digits="3"
                             @change="onQuantityEndChange(item)"
                             v-model="item.quantityEnd">
                         </sw-number-field>

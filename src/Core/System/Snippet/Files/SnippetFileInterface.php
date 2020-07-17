@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+/**
+ * @deprecated tag:v6.4 use the automatic snippet loading by providing your snippets in the right dir with the right name
+ */
 interface SnippetFileInterface
 {
     /**

@@ -116,4 +116,40 @@ export default class MediaPageObject {
         cy.get(this.elements.folderNameInput).type('{enter}');
         cy.get('.sw-media-base-item__loader').should('not.exist');
     }
+
+    deleteFile(fileName) {
+        cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).should('be.visible');
+        cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).click();
+        cy.get('li.quickaction--delete').click();
+        cy.get(`${this.elements.modal}__body`).contains(`Are you sure you want to delete "${fileName}"?`);
+        cy.get('.sw-media-modal-delete__confirm').click();
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+        cy.get(`input[placeholder="${fileName}"]`).should('not.exist');
+    }
+
+    dissolve(fileName) {
+        cy.get(`.sw-media-base-item__name[title="${fileName}"]`).should('be.visible');
+
+        // Navigate back
+        cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').click();
+        cy.get(this.elements.loader).should('not.exist');
+        cy.get('.icon--multicolor-folder-breadcrumbs-back-to-root').should('not.exist');
+
+        // dissolve folder
+        cy.get(this.elements.loader).should('not.exist');
+        cy.clickContextMenuItem(
+            '.sw-media-context-item__dissolve-folder-action',
+            this.elements.contextMenuButton,
+            `${this.elements.gridItem}--0`
+        );
+        cy.get(`${this.elements.modal}__body`)
+            .contains('Are you sure you want to dissolve "A thing to fold about" ?');
+        cy.get('.sw-media-modal-folder-dissolve__confirm').click();
+
+        // Verify dissolved folder and existing image
+        cy.get(this.elements.mediaNameLabel).contains(fileName);
+        cy.get('.sw-media-base-item__name[title="A thing to fold about"]').should('not.exist');
+    }
 }

@@ -44,6 +44,11 @@ final class PlatformRequest
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
 
     /**
+     * CSP
+     */
+    public const ATTRIBUTE_CSP_NONCE = '_cspNonce';
+
+    /**
      * OAuth attributes
      */
     public const ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID = 'oauth_access_token_id';

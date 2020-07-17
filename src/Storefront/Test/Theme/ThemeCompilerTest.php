@@ -119,6 +119,26 @@ class ThemeCompilerTest extends TestCase
                     'type' => 'color',
                     'value' => '#bcc1c7',
                 ],
+                'sw-custom-header' => [
+                    'name' => 'sw-custom-header',
+                    'type' => 'checkbox',
+                    'value' => false,
+                ],
+                'sw-custom-footer' => [
+                    'name' => 'sw-custom-header',
+                    'type' => 'checkbox',
+                    'value' => true,
+                ],
+                'sw-custom-cart' => [
+                    'name' => 'sw-custom-header',
+                    'type' => 'switch',
+                    'value' => false,
+                ],
+                'sw-custom-product-box' => [
+                    'name' => 'sw-custom-header',
+                    'type' => 'switch',
+                    'value' => true,
+                ],
             ],
         ];
 
@@ -131,6 +151,10 @@ class ThemeCompilerTest extends TestCase
 \$sw-color-brand-secondary: #526e7f;
 \$sw-border-color: #bcc1c7;
 \$sw-asset-theme-url: 'http://localhost';
+\$sw-custom-header: 0;
+\$sw-custom-footer: 1;
+\$sw-custom-cart: 0;
+\$sw-custom-product-box: 1;
 
 PHP_EOL;
 

@@ -24,9 +24,17 @@ export default class PurchaseEvent extends AnalyticsEvent
         }
 
         gtag('event', 'purchase', {
-            // @deprecated tag:v6.3.0 - context token will be removed
-            'transaction_id': window.contextToken,
+            'transaction_id': this.generateUuid(),
             'items':  LineItemHelper.getLineItems()
+        });
+    }
+
+    generateUuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(replace) {
+            const random = Math.random() * 16 | 0;
+            const value = replace === 'x' ? random : (random & 0x3 | 0x8);
+
+            return value.toString(16);
         });
     }
 }

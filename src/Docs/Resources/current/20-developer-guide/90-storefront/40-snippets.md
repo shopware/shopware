@@ -62,7 +62,23 @@ In this guide, we will give you an overview on how to extend Storefront snippets
 we got you covered. In our HowTo section, we provide a detailed tutorial on 
 [extending Storefront snippets](./../../50-how-to/245-adding-snippets.md).
 
+## Autoloading of Storefront snippets
+
+*Attention: This only works since Shopware 6.2.3 onwards.*
+
+Shopware is able to automatically load your snippet files if you stick to some convention regarding file structure and naming.
+For this to work you have to store your snippet files in the `src/Resources/snippet` directory of your plugin, but you can use subdirectories if you want to.
+Additionally you have to name your snippet way the same way as it should be displayed in the administration. Therefore use the naming pattern `<name>.<locale>`, where you can freely define the name part. 
+The locale part must map to the ISO string of the supported locale in this snippet file.
+If you provide base translations, meaning that you ship translations for a whole new language, you indicate it with a `.base` suffix in your file name.
+Keep in mind that in this case also have to use the `messages` name, so your complete filename may look like this: `messages.<isoCode>.base.json`.
+Lastly if your snippets are autoloaded the author information provided in your composer file will be used as the author of the snippets.
+
+If you need more freedom in configuring your snippets read on.
+
 ### SnippetFile
+
+*Attention: since Shopware 6.2.3 this is not necessary anymore and it will be removed in Shopware 6.4.*
 
 Unlike the snippets used across the administration, Storefront snippets require a class that extends the 
 `SnippetFileInterface`. A suitable name would e.g. be `SnippetFile_en_GB.php`. Having created that file, 

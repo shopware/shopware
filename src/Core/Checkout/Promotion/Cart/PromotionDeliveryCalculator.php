@@ -95,7 +95,10 @@ class PromotionDeliveryCalculator
             }
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                $this->addPromotionNotEligibleError($discountItem->getLabel(), $toCalculate);
+                // hide the notEligibleErrors on automatic discounts
+                if (!$this->isAutomaticDisount($discountItem)) {
+                    $this->addPromotionNotEligibleError($discountItem->getLabel(), $toCalculate);
+                }
 
                 continue;
             }
@@ -503,5 +506,10 @@ class PromotionDeliveryCalculator
         $promotionItem = $this->builder->buildDeliveryPlaceholderLineItem($discount, $priceDefinition, $price);
 
         $toCalculate->addLineItems(new LineItemCollection([$promotionItem]));
+    }
+
+    private function isAutomaticDisount(LineItem $discountItem): bool
+    {
+        return empty($discountItem->getPayloadValue('code'));
     }
 }

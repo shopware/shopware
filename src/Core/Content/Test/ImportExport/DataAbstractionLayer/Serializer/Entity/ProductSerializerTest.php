@@ -72,6 +72,25 @@ class ProductSerializerTest extends TestCase
         static::assertSame($product->getActive(), $deserialized['active']);
     }
 
+    public function testSupportsOnlyProduct(): void
+    {
+        $serializer = new ProductSerializer($this->getContainer()->get('product_visibility.repository'));
+
+        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        foreach ($definitionRegistry->getDefinitions() as $definition) {
+            $entity = $definition->getEntityName();
+
+            if ($entity === ProductDefinition::ENTITY_NAME) {
+                static::assertTrue($serializer->supports($entity));
+            } else {
+                static::assertFalse(
+                    $serializer->supports($entity),
+                    ProductDefinition::class . ' should not support ' . $entity
+                );
+            }
+        }
+    }
+
     private function getProduct(): ProductEntity
     {
         $productId = Uuid::randomHex();

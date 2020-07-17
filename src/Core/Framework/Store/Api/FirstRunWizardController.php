@@ -173,10 +173,11 @@ class FirstRunWizardController extends AbstractController
             throw new StoreApiException($exception);
         }
 
-        $userId = $context->getSource()->getUserId();
-        $this->userRepository->update([
-            ['id' => $userId, 'storeToken' => $accessTokenStruct->getShopUserToken()->getToken()],
-        ], $context);
+        $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
+
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($newStoreToken): void {
+            $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => $newStoreToken]], $context);
+        });
 
         return new JsonResponse();
     }
@@ -241,7 +242,9 @@ class FirstRunWizardController extends AbstractController
         }
 
         if ($userId) {
-            $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
+            $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
+                $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
+            });
         }
 
         return new JsonResponse();

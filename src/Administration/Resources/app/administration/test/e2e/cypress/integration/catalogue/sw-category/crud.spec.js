@@ -20,15 +20,15 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/category',
+            url: `${Cypress.env('apiPath')}/category`,
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: 'api/v*/search/category',
+            url: `${Cypress.env('apiPath')}/search/category`,
             method: 'post'
         }).as('loadCategory');
         cy.route({
-            url: 'api/v*/category/**',
+            url: `${Cypress.env('apiPath')}/category/**`,
             method: 'patch'
         }).as('editCategory');
 

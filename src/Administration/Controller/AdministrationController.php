@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +34,12 @@ class AdministrationController extends AbstractController
 
     private $supportedApiVersions;
 
-    public function __construct(TemplateFinder $finder, FirstRunWizardClient $firstRunWizardClient, SnippetFinderInterface $snippetFinder, $supportedApiVersions)
-    {
+    public function __construct(
+        TemplateFinder $finder,
+        FirstRunWizardClient $firstRunWizardClient,
+        SnippetFinderInterface $snippetFinder,
+        $supportedApiVersions
+    ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
         $this->snippetFinder = $snippetFinder;
@@ -45,7 +50,7 @@ class AdministrationController extends AbstractController
      * @RouteScope(scopes={"administration"})
      * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
 
@@ -57,6 +62,7 @@ class AdministrationController extends AbstractController
             'liveVersionId' => Defaults::LIVE_VERSION,
             'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
+            'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
         ]);
     }
 

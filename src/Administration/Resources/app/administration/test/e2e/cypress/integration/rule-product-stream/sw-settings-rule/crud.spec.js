@@ -23,7 +23,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.server();
 
         cy.route({
-            url: '/api/v*/rule',
+            url: `${Cypress.env('apiPath')}/rule`,
             method: 'post'
         }).as('saveData');
 
@@ -84,7 +84,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/rule/*',
+            url: `${Cypress.env('apiPath')}/rule/*`,
             method: 'delete'
         }).as('deleteData');
 

@@ -16,7 +16,7 @@
                     {% endblock %}
 
                     {% block sw_media_upload_v2_compact_button_context_menu %}
-                        <sw-context-button>
+                        <sw-context-button v-if="uploadUrlFeatureEnabled">
                             <template slot="button">
                                 <sw-button square variant="primary" class="sw-media-upload-v2__button-context-menu">
                                     <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>

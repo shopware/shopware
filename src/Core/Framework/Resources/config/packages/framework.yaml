@@ -5,6 +5,7 @@ framework:
     assets: ~
     session:
         handler_id: ~
+        cookie_secure: 'auto'
     serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
     validation:

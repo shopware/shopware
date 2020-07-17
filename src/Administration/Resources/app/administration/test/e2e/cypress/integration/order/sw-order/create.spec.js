@@ -23,12 +23,12 @@ describe('Order: Create order', () => {
 
         // network requests
         cy.route({
-            url: '/api/v*/_proxy/sales-channel-api/**/v*/checkout/cart/product/*',
+            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/product/*`,
             method: 'post'
         }).as('addProductCall');
 
         cy.route({
-            url: '/api/v*/_proxy/sales-channel-api/**/v*/checkout/order',
+            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/order`,
             method: 'post'
         }).as('saveOrderCall');
 
@@ -113,27 +113,27 @@ describe('Order: Create order', () => {
 
         // network requests
         cy.route({
-            url: '/api/v*/customer',
+            url: `${Cypress.env('apiPath')}/customer`,
             method: 'post'
         }).as('createCustomerCall');
 
         cy.route({
-            url: '/api/v*/_proxy/sales-channel-api/**/v*/checkout/cart/product/*',
+            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/product/*`,
             method: 'post'
         }).as('addProductCall');
 
         cy.route({
-            url: '/api/v*/_proxy/sales-channel-api/**/v*/checkout/cart/line-item/*',
+            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/line-item/*`,
             method: 'patch'
         }).as('updateProductCall');
 
         cy.route({
-            url: '/api/v*/_proxy/modify-shipping-costs',
+            url: `${Cypress.env('apiPath')}/_proxy/modify-shipping-costs`,
             method: 'patch'
         }).as('modifyShippingCostsCall');
 
         cy.route({
-            url: '/api/v*/_proxy/sales-channel-api/**/v*/checkout/order',
+            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/order`,
             method: 'post'
         }).as('saveOrderCall');
 

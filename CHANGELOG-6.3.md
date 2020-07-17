@@ -394,6 +394,7 @@ Table of contents
         * `Shopware/Core/Migration/Migration1594886773LogEntryPK`
         * `Shopware/Core/Migration/Migration1594886895CustomerRecoveryPK`
         * `Shopware/Core/Migration/Migration1594887027AppConfigPK`
+* Added new property `merged` and method `isMerged` to `LineItemAddedEvent`
 
 #### Storefront
 * Added plugin injection in hot mode

@@ -108,7 +108,7 @@ class CartServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $isMerged = null;
-        $dispatcher->addListener(LineItemAddedEvent::class, static function (LineItemAddedEvent $addedEvent) use (&$isMerged) {
+        $dispatcher->addListener(LineItemAddedEvent::class, static function (LineItemAddedEvent $addedEvent) use (&$isMerged): void {
             $isMerged = $addedEvent->isMerged();
         });
 
@@ -117,17 +117,18 @@ class CartServiceTest extends TestCase
         $context = $this->getSalesChannelContext();
 
         $cartId = Uuid::randomHex();
+        $cart = $cartService->getCart($cartId, $context);
         $cartService->add(
-            $cartService->getCart($cartId, $context),
-            new LineItem('test', 'test'),
+            $cart,
+            (new LineItem('test', 'test'))->setStackable(true),
             $context
         );
-        
+
         static::assertNotNull($isMerged);
         static::assertFalse($isMerged);
 
         $cartService->add(
-            $cartService->getCart($cartId, $context),
+            $cart,
             new LineItem('test', 'test'),
             $context
         );

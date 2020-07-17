@@ -84,6 +84,7 @@ class Migration1536233330MailTemplate extends MigrationStep
               `sales_channel_id` BINARY(16) NULL,
               `created_at` DATETIME(3) NOT NULL,
               `updated_at` DATETIME(3) NULL,
+              PRIMARY KEY (`id`),
               UNIQUE `uniq.mail_template_id__sales_channel_id` (`mail_template_id`, `sales_channel_id`),
               CONSTRAINT `fk.mail_template_sales_channel.mail_template_id`
               FOREIGN KEY (mail_template_id) REFERENCES `mail_template` (id) ON DELETE CASCADE ON UPDATE CASCADE,

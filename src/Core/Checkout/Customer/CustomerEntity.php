@@ -85,7 +85,7 @@ class CustomerEntity extends Entity
     protected $company;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $password;
 
@@ -260,6 +260,11 @@ class CustomerEntity extends Entity
     protected $tags;
 
     /**
+     * @var array|null
+     */
+    protected $tagIds;
+
+    /**
      * @var PromotionCollection|null
      */
     protected $promotions;
@@ -409,12 +414,12 @@ class CustomerEntity extends Entity
         $this->company = $company;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(?string $password): void
     {
         $this->password = $password;
     }
@@ -740,6 +745,16 @@ class CustomerEntity extends Entity
     public function setTags(TagCollection $tags): void
     {
         $this->tags = $tags;
+    }
+
+    public function getTagIds(): ?array
+    {
+        return $this->tagIds;
+    }
+
+    public function setTagIds(array $tagIds): void
+    {
+        $this->tagIds = $tagIds;
     }
 
     /**

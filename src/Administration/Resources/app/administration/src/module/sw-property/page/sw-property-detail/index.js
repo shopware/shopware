@@ -80,8 +80,9 @@ Component.register('sw-property-detail', {
 
         defaultCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-
+            criteria.addAssociation('options');
             criteria.setTerm(this.term);
+
             return criteria;
         },
 

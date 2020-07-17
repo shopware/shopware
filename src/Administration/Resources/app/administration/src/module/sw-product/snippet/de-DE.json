@@ -17,7 +17,11 @@
       "descriptionTextModule": "Verwaltung von Produkten.",
       "placeholderSearchBar": "Durchsuche alle Produkte ...",
       "inheritanceModuleName": "Dieses Produkt",
-      "backToParent": "zurück zur Variantenübersicht"
+      "backToParent": "zurück zur Variantenübersicht",
+      "copy": "Kopie",
+      "cloneSuffix": "Varianten",
+      "cloneNotice": "Die Produktvarianten werden dupliziert. Sollte dieser Prozess unterbrochen werden, kann es sein, dass nicht alle Varianten vollständig dupliziert werden. In diesem Fall kannst Du die Varianten im neuen Produkt erneut generieren.",
+      "cloneTitle": "Varianten duplizieren"
     },
     "basicForm": {
       "labelTitle": "Titel",
@@ -41,11 +45,15 @@
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
       "labelPackUnit": "Verpackungseinheit",
+      "labelPackUnitPlural": "Verpackungseinheit Mehrzahl",
       "placeholderTaxRate": "Wähle einen Steuersatz aus ...",
-      "placeholderPurchasePriceGross": "Gib den Einkaufspreis (Brutto) ein ...",
-      "placeholderPurchaseUnit": "Gib die Verkaufseinheit an ...",
-      "placeholderReferenceUnit": "Gib die Grundeinheit an ...",
-      "placeholderPackUnit": "Gib die Verpackungseinheit an ...",
+      "placeholderPurchasePriceGross": "Einkaufspreis eingeben ...",
+      "placeholderPriceGross": "Bruttopreis eingeben ...",
+      "placeholderPriceNet": "Nettopreis eingeben ...",
+      "placeholderPurchaseUnit": "Verkaufseinheit eingeben ...",
+      "placeholderReferenceUnit": "Grundeinheit eingeben ...",
+      "placeholderPackUnit": "Verpackungseinheit eingeben ...",
+      "placeholderPackUnitPlural": "Verpackungseinheit Mehrzahl eingeben ...",
       "optionLitre": "Liter",
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter"
@@ -56,7 +64,7 @@
       "labelKeywords": "Schlüsselwörter",
       "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
       "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
-      "placeholderKeywords": "Gib Schlüsselwörter ein ..."
+      "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
@@ -84,7 +92,7 @@
       "placeholderHeight": "z.B. 200 ...",
       "placeholderLength": "z.B.100 ...",
       "placeholderWeight": "z.B. 0,4 ...",
-      "placeholderStock": "Gib einen Lagerbestand ein ...",
+      "placeholderStock": "Gib den Lagerbestand ein ...",
       "placeholderMinPurchase": "Mindestabnahme ...",
       "placeholderMaxPurchase": "Maximalabnahme ...",
       "placeholderPurchaseSteps": "Verkaufsintervall (Stückzahl) ...",
@@ -99,7 +107,8 @@
       "placeholderUnit": "Wähle aus ...",
       "referenceUnitHelpText": "Der Wert, mit dem der Grundpreis eines Produkts berechnet wird. Abhängig von der verwendeten Maßeinheit trägst du hier wahrscheinlich eine '1' ein. Wenn z.B. die Verkaufseinheit in Litern gemessen wird, dann berechnest Du mit der '1' den Grundreis für 1 Liter. Soll der Grundpreis für 100 Milliliter berechnet werden, füge '0,1' ein.",
       "packUnitHelpText": "Art der Verpackung: z.B. Flasche, Kiste, Tiegel ...",
-      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,33 l = 2 l), füge hier z.B. '2' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen."
+      "packUnitPluralHelpText": "Art der Verpackung Mehrzahl: z.B. Flaschen, Kisten ...",
+      "purchaseUnitHelpText": "Gib die Gesamtmenge des Produktes in einer Verkaufseinheit an. Für einen Sechserpack Getränkedosen (6 x 0,5 l = 3 l), füge hier z.B. '3' ein. Nicht vergessen: 'Sechserpack' bei Verpackungseinheit eintragen und die passende Maßeinheit 'Liter' in 'Einstellungen > Shop' anlegen."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
@@ -154,13 +163,14 @@
       "textTotalProducts": "Keine Produkte | Ein Produkt | {count} Produkte",
       "buttonAddProduct": "Produkt anlegen",
       "buttonCancel": "Abbrechen",
+      "buttonDuplicate": "Duplizieren",
       "buttonDelete": "Löschen",
       "columnName": "Name",
       "columnProductNumber": "Produktnummer",
       "columnManufacturer": "Hersteller",
       "columnActive": "Aktiv",
       "columnPrice": "Preis",
-      "columnInStock": "Lager",
+      "columnInStock": "Lagerbestand",
       "columnAvailableStock": "Noch verfügbar",
       "columnActions": "Aktion(en)",
       "contextMenuEdit": "Bearbeiten",
@@ -177,10 +187,12 @@
       "textHeadline": "Neues Produkt",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
+      "buttonSaveDuplicate": "Speichern und duplizieren",
+      "buttonSaveAndNew": "Speichern und neues erstellen",
       "tabGeneral": "Allgemein",
       "tabAdvancedPrices": "Erweiterte Preise",
       "tabProperties": "Eigenschaften zuweisen",
-      "tabVariation": "Varianten generieren",
+      "tabVariation": "Varianten",
       "tabCrossSelling": "Cross Selling",
       "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
@@ -201,19 +213,19 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Menge von ...",
       "columnTo": "bis ...",
-      "selectRule": "Bedingungs-Regel auswählen ..."
+      "selectRule": "Bedingungsregel auswählen ..."
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
-      "emptyStateNoOptionsTitle": "Keine Eigenschafts-Ausprägungen vorhanden.",
+      "emptyStateNoOptionsTitle": "Keine Eigenschaftsausprägungen vorhanden.",
       "emptyStateNoOptionsDescription": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
-      "emptyStateNoSelectedOptionsTitle": "Keine Eigenschafts-Ausprägungen ausgewählt",
+      "emptyStateNoSelectedOptionsTitle": "Keine Eigenschaftsausprägungen ausgewählt",
       "emptyStateNoSelectedOptionsDescription": "Bitte wähle Ausprägungen aus der Suche aus."
     },
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",
       "emptyStateButton": "Varianten-Generator starten",
-      "generateVariationsButton": "Varianten generieren",
+      "generateVariationsButton": "Varianten generieren!",
       "deleteVariationsButton": "Alle Produktvarianten löschen",
       "cancelVariationsButton": "Abbrechen",
       "configuratorCardTitle": "Varianten generieren",
@@ -256,12 +268,12 @@
       "configuratorModal": {
         "title": "Varianten generieren",
         "selectOptions": "Ausprägungen auswählen",
-        "selectOptionsExplanation": "Beginne mit der Auswahl der Eigenschafts-Ausprägungen, aus denen die Varianten generiert werden sollen.",
+        "selectOptionsExplanation": "Beginne mit der Auswahl der Eigenschaftsausprägungen, aus denen die Varianten generiert werden sollen.",
         "priceSurcharges": "Preis Auf-/Abschläge",
         "resetSurcharges": "Auf- /Abschläge löschen",
         "defineRestrictions": "Ausschlüsse definieren",
         "priceOptions": "Ausprägungen",
-        "restrictedCombinations": "Ausgeschlossene Eigenschafts-Ausprägungen",
+        "restrictedCombinations": "Ausgeschlossene Eigenschaftsausprägungen",
         "searchRestrictions": "Durchsuche Eigenschaften ...",
         "addNewRestriction": "Ausschluss hinzufügen",
         "editRestriction": "Ausschluss bearbeiten",
@@ -280,18 +292,17 @@
         "order": "Anzeige-Reihenfolge",
         "orderExplanation": "Ändere die Anzeigereihenfolge der Varianten-Eigenschaften per Drag & Drop",
         "media": "Medien",
-        "mediaExplanation": "Hier kannst Du ausschließlich Medien für die Eigenschafts-Auswahl im Shop hinterlegen. (Medien für einzelne Varianten müssen am Varianten-Produkt gepflegt werden.)",
+        "mediaExplanation": "Hier kannst Du alternative Medien für die Eigenschaftsauswahl im Shop hinterlegen. Diese Medien haben in der Storefront Vorrang gegenüber Medien, die der Eigenschaft zugewiesen sind.",
         "mediaOptions": "Ausprägungen",
-        "listing": "Liste",
-        "listingExplanation": "Wähle zwischen zwei Anzeigemodi. Zeige entweder nur eine einzelne Hauptvariante an, oder erweitere die Anzeige - abhängig von den zugehörigen Eigenschafts-Ausprägungen - auf mehrere Einzelvarianten.",
+        "listing": "Produktliste",
+        "listingExplanation": "Wähle zwischen zwei Anzeigemodi. Zeige entweder nur eine einzelne Hauptvariante an, oder erweitere die Anzeige - abhängig von den zugehörigen Eigenschaftsausprägungen - auf mehrere Einzelvarianten.",
         "listingLabelModeSingle": "Einzelne Hauptvariante",
         "listingLabelMainVariant": "Hauptvariante",
         "listingExplanationModeSingle": "Die Hauptvariante wird auf der Detailseite des Produkts vorausgewählt und in Auflistungen repräsentativ angezeigt.",
-        "listingLabelModeExpanded": "Auffächern der Eigenschaften in Listen",
-        "listingPlaceholderSelectMainVariant": "Wähle eine Hauptvariante",
+        "listingLabelModeExpanded": "Auffächern der Eigenschaften in Produktliste",
+        "listingPlaceholderSelectMainVariant": "Wähle eine Hauptvariante ...",
         "cancel": "Abbrechen",
-        "save": "Speichern",
-        "useForListing": "Varianten im Listing auffächern"
+        "save": "Speichern"
       }
     },
     "crossselling": {
@@ -326,6 +337,22 @@
       "emptyStateDescription": "Für dieses Produkt existiert noch keine Cross Selling-Konfiguration.",
       "assignEmptyStateDescription": "Das Cross Selling muss zunächst gespeichert werden, bevor Du Produkte hinzufügen kannst.",
       "assignPlaceholder": "Durchsuche Produkte ..."
+    },
+    "featureSets": {
+      "cardTitle": "Wesentliche Merkmale",
+      "descriptionTitle": "Wesentliche Merkmale",
+      "descriptionBody": "Wesentliche Merkmale helfen Dir relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden deutlich im Warenkorb und Checkout dargestellt.",
+      "configInformation": "Lege zuerst Vorlagen für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "linkFeatureSetsConfig": "Wesentliche Merkmale",
+      "templateSelectFieldLabel": "Vorlagen",
+      "templateSelectFieldPlaceholder": "Wähle eine oder mehrere Vorlagen aus..."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product": {
+        "label": "Produkte"
+      }
     }
   }
 }

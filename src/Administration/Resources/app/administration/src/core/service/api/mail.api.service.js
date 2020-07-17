@@ -11,13 +11,7 @@ class MailApiService extends ApiService {
         this.name = 'mailService';
     }
 
-    testMailTemplateById(recipient, mailTemplate, salesChannelId) {
-        const mediaIds = [];
-
-        mailTemplate.media.forEach((mediaLink) => {
-            mediaIds.push(mediaLink.mediaId);
-        });
-
+    testMailTemplate(recipient, mailTemplate, mailTemplateMedia, salesChannelId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
         return this.httpClient.post(
@@ -27,7 +21,7 @@ class MailApiService extends ApiService {
                 contentPlain: mailTemplate.contentPlain,
                 recipients: { [recipient]: recipient },
                 salesChannelId: salesChannelId,
-                mediaIds: mediaIds,
+                mediaIds: mailTemplateMedia.getIds(),
                 subject: mailTemplate.subject,
                 senderMail: mailTemplate.senderMail,
                 senderName: mailTemplate.senderName,

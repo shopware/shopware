@@ -47,7 +47,7 @@ export default class ListingSortingPlugin extends FilterBasePlugin {
         }
 
         return {
-            sort: this.options.sorting
+            order: this.options.sorting
         };
     }
 

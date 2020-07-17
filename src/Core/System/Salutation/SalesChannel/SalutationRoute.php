@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,10 +29,19 @@ class SalutationRoute extends AbstractSalutationRoute
      */
     private $requestCriteriaBuilder;
 
-    public function __construct(SalesChannelRepositoryInterface $salesChannelRepository, RequestCriteriaBuilder $requestCriteriaBuilder)
-    {
+    /**
+     * @var EntityDefinition
+     */
+    private $definition;
+
+    public function __construct(
+        SalesChannelRepositoryInterface $salesChannelRepository,
+        RequestCriteriaBuilder $requestCriteriaBuilder,
+        EntityDefinition $definition
+    ) {
         $this->salesChannelRepository = $salesChannelRepository;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+        $this->definition = $definition;
     }
 
     public function getDecorated(): AbstractSalutationRoute
@@ -39,6 +50,7 @@ class SalutationRoute extends AbstractSalutationRoute
     }
 
     /**
+     * @Entity("salutation")
      * @OA\Post(
      *      path="/salutation",
      *      description="Salutations",
@@ -53,16 +65,12 @@ class SalutationRoute extends AbstractSalutationRoute
      * )
      * @Route(path="/store-api/v{version}/salutation", name="store-api.salutation", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): SalutationRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): SalutationRouteResponse
     {
-        $criteria = new Criteria();
-
-        $criteria = $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            new SalesChannelSalutationDefinition(),
-            $context->getContext()
-        );
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->definition, $context->getContext());
+        }
 
         return new SalutationRouteResponse($this->salesChannelRepository->search($criteria, $context)->getEntities());
     }

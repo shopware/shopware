@@ -21,7 +21,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/customer-group',
+            url: '/api/v*/customer-group',
             method: 'post'
         }).as('saveData');
 
@@ -67,7 +67,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/customer-group/*',
+            url: '/api/v*/customer-group/*',
             method: 'patch'
         }).as('saveData');
 
@@ -99,7 +99,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/customer-group/*',
+            url: '/api/v*/customer-group/*',
             method: 'delete'
         }).as('deleteData');
 
@@ -129,7 +129,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/customer-group/*',
+            url: '/api/v*/customer-group/*',
             method: 'delete'
         }).as('deleteData');
 

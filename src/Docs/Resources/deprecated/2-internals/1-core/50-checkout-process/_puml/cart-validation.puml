@@ -1,0 +1,17 @@
+@startuml
+
+state "Cart" as empty: Empty
+
+state "Enrichment" as validation {
+    state "Cart" as car: line items\n* Car
+    state "Cart" as glass :  line items\n* Car\n*Sunglasses
+    state "Cart" as discount : line items\n* Car\n* Sunglasses\n* 2% discount
+}
+
+[*] -right-> empty : checkout started
+empty -right-> car : User orders as car
+car --> glass : Iteration 1\nCart automatically\nadds sunglasses
+glass --> discount : Iteration 2\nCart automatically\nadds discount
+
+discount --> [*]: valid
+@enduml

@@ -14,9 +14,6 @@ class MigrationExecuteQueryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testExecuteQueryDoesNotPerformWriteOperations(): void
     {
         $nullConnection = new NullConnection([], new Driver(), new Configuration());
@@ -40,5 +37,6 @@ class MigrationExecuteQueryTest extends TestCase
 
             throw $e;
         }
+        static::assertTrue(true, 'Annotation @doesNotPerformAssertions is bad because the error is not exposed');
     }
 }

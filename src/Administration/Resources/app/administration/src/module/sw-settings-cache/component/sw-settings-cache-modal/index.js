@@ -14,7 +14,8 @@ Component.register('sw-settings-cache-modal', {
     ],
 
     inject: [
-        'cacheApiService'
+        'cacheApiService',
+        'acl'
     ],
 
     created() {
@@ -37,6 +38,10 @@ Component.register('sw-settings-cache-modal', {
         },
 
         openModal() {
+            if (!this.acl.can('system.clear_cache')) {
+                return;
+            }
+
             this.open = true;
         },
 
@@ -46,18 +51,18 @@ Component.register('sw-settings-cache-modal', {
 
         clearCache() {
             this.createNotificationInfo({
-                title: this.$tc('sw-settings-cache.notifications.clearCache.title'),
+                title: this.$tc('global.default.info'),
                 message: this.$tc('sw-settings-cache.notifications.clearCache.started')
             });
 
             this.cacheApiService.clear().then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-cache.notifications.clearCache.title'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-cache.notifications.clearCache.success')
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-cache.notifications.clearCache.title'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-cache.notifications.clearCache.error')
                 });
             });

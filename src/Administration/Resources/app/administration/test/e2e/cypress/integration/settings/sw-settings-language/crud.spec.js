@@ -27,7 +27,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/language',
+            url: '/api/v*/language',
             method: 'post'
         }).as('saveData');
 
@@ -63,7 +63,7 @@ describe('Language: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        productPage.changeTranslation('Japanese', 3);
+        productPage.changeTranslation('Japanese', 2);
 
         cy.get('.sw-language-info').contains('"Product name" displayed in the content language "Japanese".');
     });
@@ -74,7 +74,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/language/*',
+            url: '/api/v*/language/*',
             method: 'patch'
         }).as('saveData');
 
@@ -103,7 +103,7 @@ describe('Language: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/language/*',
+            url: '/api/v*/language/*',
             method: 'delete'
         }).as('deleteData');
 

@@ -3,18 +3,10 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
 
 class SearchPage extends Page
 {
-    /**
-     * @deprecated tag:v6.3.0 use self::listing instead
-     *
-     * @var StorefrontSearchResult
-     */
-    protected $searchResult;
-
     /**
      * @var string
      */
@@ -24,22 +16,6 @@ class SearchPage extends Page
      * @var ProductListingResult
      */
     protected $listing;
-
-    /**
-     * @deprecated tag:v6.3.0 use self::getListing instead
-     */
-    public function getSearchResult(): StorefrontSearchResult
-    {
-        return $this->searchResult;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use self::setListing instead
-     */
-    public function setSearchResult(StorefrontSearchResult $searchResult): void
-    {
-        $this->searchResult = $searchResult;
-    }
 
     public function getSearchTerm(): string
     {

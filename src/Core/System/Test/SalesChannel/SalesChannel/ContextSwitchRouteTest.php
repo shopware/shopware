@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -219,6 +219,8 @@ class ContextSwitchRouteTest extends TestCase
     {
         $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
+
+        $this->assignSalesChannelContext();
 
         $this->getSalesChannelBrowser()->request('POST', '/store-api/v1/account/login', [
             'username' => $email,

@@ -5,15 +5,7 @@
     text-align: left;
     margin-right: 8px;
 
-    .sw-select__inner {
-        min-height: 40px;
-
-        .sw-select__indicators {
-            top: 10px;
-        }
-
-        .sw-select__single-selection {
-            line-height: 22px;
-        }
+    .sw-language-switch__select {
+        margin-bottom: 0;
     }
 }

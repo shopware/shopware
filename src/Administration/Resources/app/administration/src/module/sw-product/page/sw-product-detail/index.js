@@ -1,8 +1,11 @@
+import { ifNext6997, next6997 } from 'src/flag/feature_next6997';
+
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
+import './sw-product-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
@@ -10,7 +13,7 @@ const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentH
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService'],
+    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -18,7 +21,12 @@ Component.register('sw-product-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('product.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -33,7 +41,8 @@ Component.register('sw-product-detail', {
     data() {
         return {
             productNumberPreview: '',
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            cloning: false
         };
     },
 
@@ -54,7 +63,8 @@ Component.register('sw-product-detail', {
             'productRepository',
             'isLoading',
             'isChild',
-            'defaultCurrency'
+            'defaultCurrency',
+            'defaultFeatureSet'
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -73,12 +83,8 @@ Component.register('sw-product-detail', {
             return this.placeholder(this.product, 'name', this.$tc('sw-product.detail.textHeadline'));
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         productRepository() {
-            return this.repositoryFactory.create('product', null, { compatibility: false });
+            return this.repositoryFactory.create('product');
         },
 
         currencyRepository() {
@@ -103,6 +109,10 @@ Component.register('sw-product-detail', {
             return null;
         },
 
+        featureSetRepository() {
+            return this.repositoryFactory.create('product_feature_set');
+        },
+
         productCriteria() {
             const criteria = new Criteria();
 
@@ -125,9 +135,12 @@ Component.register('sw-product-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .getAssociation('assignedProducts')
                 .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('product');
+                .addAssociation('product')
+                .getAssociation('product')
+                .addAssociation('options.group');
 
             criteria
+                .addAssociation('cover')
                 .addAssociation('categories')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')
@@ -135,7 +148,10 @@ Component.register('sw-product-detail', {
                 .addAssociation('unit')
                 .addAssociation('productReviews')
                 .addAssociation('seoUrls')
-                .addAssociation('mainCategories');
+                .addAssociation('mainCategories')
+                .addAssociation('options.group');
+
+            ifNext6997(() => criteria.addAssociation('featureSets'));
 
             return criteria;
         },
@@ -151,7 +167,25 @@ Component.register('sw-product-detail', {
             return criteria;
         },
 
+        defaultFeatureSetCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria
+                .addSorting(Criteria.sort('createdAt', 'ASC'))
+                .addFilter(Criteria.equalsAny('name', ['Default', 'Standard']));
+
+            return criteria;
+        },
+
         tooltipSave() {
+            if (!this.acl.can('product.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('product.creator'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -196,8 +230,8 @@ Component.register('sw-product-detail', {
             // when create
             if (!this.productId) {
                 // set language to system language
-                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                    Shopware.State.commit('context/resetLanguageToDefault');
                 }
             }
 
@@ -273,7 +307,8 @@ Component.register('sw-product-detail', {
             return Promise.all([
                 this.loadCurrencies(),
                 this.loadTaxes(),
-                this.loadAttributeSet()
+                this.loadAttributeSet(),
+                this.loadDefaultFeatureSet()
             ]).then(() => {
                 // set default product price
                 this.product.price = [{
@@ -282,6 +317,8 @@ Component.register('sw-product-detail', {
                     linked: true,
                     gross: null
                 }];
+
+                this.product.featureSets = this.defaultFeatureSet;
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
@@ -292,7 +329,11 @@ Component.register('sw-product-detail', {
 
             this.productRepository.get(
                 this.productId || this.product.id,
-                Shopware.Context.api, this.productCriteria
+                {
+                    ...Shopware.Context.api,
+                    inheritance: true
+                },
+                this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
 
@@ -347,6 +388,20 @@ Component.register('sw-product-detail', {
             });
         },
 
+        loadDefaultFeatureSet() {
+            if (!next6997()) {
+                return Promise.resolve();
+            }
+
+            Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', true]);
+
+            return this.featureSetRepository.search(this.defaultFeatureSetCriteria, Shopware.Context.api).then((res) => {
+                Shopware.State.commit('swProductDetail/setDefaultFeatureSet', res);
+            }).then(() => {
+                Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', false]);
+            });
+        },
+
         abortOnLanguageChange() {
             return Shopware.State.getters['swProductDetail/hasChanges'];
         },
@@ -356,7 +411,7 @@ Component.register('sw-product-detail', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.initState();
         },
 
@@ -434,10 +489,9 @@ Component.register('sw-product-detail', {
                     }
 
                     default: {
-                        const productName = this.product.translated ? this.product.translated.name : this.product.name;
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
-                            'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                            'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         );
 
                         this.createNotificationError({
@@ -576,6 +630,14 @@ Component.register('sw-product-detail', {
                 return pProduct.translated.hasOwnProperty('name') ? pProduct.translated.name : pProduct.name;
             }
             return '';
+        },
+
+        onDuplicate() {
+            this.cloning = true;
+        },
+
+        onDuplicateFinish(duplicate) {
+            this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
         }
     }
 });

@@ -40,7 +40,7 @@
       "delivery-address": "Delivery address",
       "delivery-address-placeholder": "Fill in an email address for testing purposes...",
       "delivery-address-helptext": "All outgoing email will be sent to the targeted recipient address and also to this address. For testing purposes only.",
-      "disable-delivery": "Disable email delivery (temporarily)"
+      "disable-delivery": "Disable email delivery"
     },
     "encryption": {
       "no-encryption": "No encryption",

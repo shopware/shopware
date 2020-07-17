@@ -8,9 +8,8 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,6 +18,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
@@ -26,6 +26,7 @@ use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -136,6 +137,18 @@ class CheckoutController extends StorefrontController
 
         $page = $this->finishPageLoader->load($request, $context);
 
+        if ($page->isPaymentFailed() === true) {
+            $this->addFlash(
+                'danger',
+                $this->trans(
+                    'checkout.finishPaymentFailed',
+                    [
+                        '%editOrderUrl%' => $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $request->get('orderId')]),
+                    ]
+                )
+            );
+        }
+
         return $this->renderStorefront('@Storefront/storefront/page/checkout/finish/index.html.twig', ['page' => $page]);
     }
 
@@ -150,25 +163,25 @@ class CheckoutController extends StorefrontController
 
         $formViolations = null;
 
+        $orderId = null;
+
         try {
+            $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
-            $this->addAffiliateTracking($orderId, $request, $context);
-            $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [
+            $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
+            $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
                 'orderId' => $orderId,
+                'changedPayment' => false,
+                'paymentFailed' => true,
             ]);
 
-            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl);
+            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 
-            if ($response !== null) {
-                return $response;
-            }
-
-            return new RedirectResponse($finishUrl);
+            return $response ?? new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
         } catch (Error $blockedError) {
-        } catch (AsyncPaymentProcessException | InvalidOrderException | SyncPaymentProcessException | UnknownPaymentMethodException $e) {
-            // TODO: Handle errors which might occur during payment process
-            throw $e;
+        } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {
+            return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
 
         return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
@@ -198,14 +211,13 @@ class CheckoutController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }
 
-    private function addAffiliateTracking(string $orderId, Request $request, SalesChannelContext $context): void
+    private function addAffiliateTracking(RequestDataBag $dataBag, SessionInterface $session): void
     {
-        if ($request->getSession()->get('affiliateCode') && $request->getSession()->get('campaignCode')) {
-            $this->orderRepository->update([[
-                'id' => $orderId,
-                'affiliateCode' => $request->getSession()->get('affiliateCode'),
-                'campaignCode' => $request->getSession()->get('campaignCode'),
-            ]], $context->getContext());
+        $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
+        $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
+        if ($affiliateCode !== null && $campaignCode !== null) {
+            $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
+            $dataBag->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
         }
     }
 }

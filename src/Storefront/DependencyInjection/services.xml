@@ -73,7 +73,9 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\SwSanitizeTwigFilter" public="false">
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%storefront.htmlPurifier.cacheDir%</argument>
+            <argument>%storefront.htmlPurifier.cacheEnabled%</argument>
+
             <tag name="twig.extension"/>
         </service>
 
@@ -129,8 +131,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">
-            <argument type="service" id="session"/>
-
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -193,6 +193,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Search\SearchPageLoader" public="true">
@@ -244,31 +245,31 @@
 
         <service id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
-            <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="sales_channel.shipping_method.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="sales_channel.shipping_method.repository"/>
-            <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
+            <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="sales_channel.shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader">
@@ -286,14 +287,22 @@
         <service id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
@@ -367,7 +376,7 @@
             <tag name="shopware.snippet.file" priority="100"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder">
+        <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
@@ -376,9 +385,9 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">
             <argument>%kernel.cache.hash%</argument>
             <argument type="service" id="cache.http"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStateValidator" />
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStateValidator"/>
@@ -398,7 +407,7 @@
             <argument type="service" id="router" />
             <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface" />
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" />
-
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection" />
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -444,5 +453,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheDecorator" decorates="cache.object">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheDecorator.inner"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheTagCollection"/>
+        </service>
     </services>
 </container>

@@ -19,38 +19,40 @@
 
         {% block sw_order_detail_actions %}
             <template #smart-bar-actions>
-                {% block sw_order_detail_actions_abort %}
-                    <sw-button class="sw-order-detail__smart-bar-cancel-button"
-                               v-if="isEditing"
-                               :disabled="isLoading"
-                               @click="onCancelEditing">
-                        {{ $tc('sw-product.detail.buttonCancel') }}
-                    </sw-button>
-                {% endblock %}
+                {% block sw_order_detail_actions_slot_smart_bar_actions %}
+                    {% block sw_order_detail_actions_abort %}
+                        <sw-button class="sw-order-detail__smart-bar-cancel-button"
+                                   v-if="isEditing"
+                                   :disabled="isLoading"
+                                   @click="onCancelEditing">
+                            {{ $tc('sw-product.detail.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
 
 
-                {% block sw_order_detail_actions_edit %}
-                    <sw-button class="sw-order-detail__smart-bar-edit-button"
-                               v-if="!isEditing"
-                               :disabled="isLoading"
-                               variant="primary"
-                               @click="onStartEditing">
-                        {{ $tc('sw-order.detail.buttonEdit') }}
-                    </sw-button>
-                {% endblock %}
+                    {% block sw_order_detail_actions_edit %}
+                        <sw-button class="sw-order-detail__smart-bar-edit-button"
+                                   v-if="!isEditing"
+                                   :disabled="isLoading"
+                                   variant="primary"
+                                   @click="onStartEditing">
+                            {{ $tc('sw-order.detail.buttonEdit') }}
+                        </sw-button>
+                    {% endblock %}
 
-                {% block sw_order_detail_actions_save %}
-                    <sw-button-process
-                        v-if="isEditing"
-                        class="sw-order-detail__smart-bar-save-button"
-                        :disabled="isLoading"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        variant="primary"
-                        @process-finish="saveEditsFinish"
-                        @click.prevent="onSaveEdits">
-                        {{ $tc('sw-order.detail.buttonSave') }}
-                    </sw-button-process>
+                    {% block sw_order_detail_actions_save %}
+                        <sw-button-process
+                            v-if="isEditing"
+                            class="sw-order-detail__smart-bar-save-button"
+                            :disabled="isLoading"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            variant="primary"
+                            @process-finish="saveEditsFinish"
+                            @click.prevent="onSaveEdits">
+                            {{ $tc('sw-order.detail.buttonSave') }}
+                        </sw-button-process>
+                    {% endblock %}
                 {% endblock %}
             </template>
         {% endblock %}

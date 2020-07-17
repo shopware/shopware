@@ -53,7 +53,7 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
         ', ['type' => $mailTemplateType])->fetchColumn();
 
         $templateId = $connection->executeQuery('
-        SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1
+        SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
         ', ['typeId' => $templateTypeId])->fetchColumn();
 
         if ($templateId === false || !is_string($templateId)) {
@@ -112,7 +112,7 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
             $sqlParams['senderName'] = $senderName;
         }
 
-        $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :enLangId';
+        $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :enLangId AND `updated_at` IS NULL';
 
         $connection->executeUpdate($sqlString, $sqlParams);
     }

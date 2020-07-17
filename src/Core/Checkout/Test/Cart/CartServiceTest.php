@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartServiceTest extends TestCase
@@ -238,6 +240,12 @@ class CartServiceTest extends TestCase
         $cart = $cartService->add($cart, $lineItem, $context);
 
         $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->setDomainForSalesChannel('http://shopware.local', Defaults::LANGUAGE_SYSTEM, $context->getContext());
+
+        /** @var SystemConfigService $systemConfigService */
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfigService->set('core.basicInformation.email', 'test@example.org');
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -256,6 +264,18 @@ class CartServiceTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+    }
+
+    public function testCartCreatedWithGivenToken(): void
+    {
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $token = Uuid::randomHex();
+        $cartService = $this->getContainer()->get(CartService::class);
+        $cart = $cartService->getCart($token, $context);
+
+        static::assertSame($token, $cart->getToken());
     }
 
     private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
@@ -294,5 +314,29 @@ class CartServiceTest extends TestCase
     {
         return $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+    }
+
+    private function setDomainForSalesChannel(string $domain, string $languageId, Context $context): void
+    {
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        try {
+            $data = [
+                'id' => Defaults::SALES_CHANNEL,
+                'domains' => [
+                    [
+                        'languageId' => $languageId,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                        'url' => $domain,
+                    ],
+                ],
+            ];
+
+            $salesChannelRepository->update([$data], $context);
+        } catch (\Exception $e) {
+            //ignore if domain already exists
+        }
     }
 }

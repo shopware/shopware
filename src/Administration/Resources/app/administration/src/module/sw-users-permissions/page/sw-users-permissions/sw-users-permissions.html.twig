@@ -1,0 +1,27 @@
+{% block sw_users_permissions %}
+    <sw-page class="sw-users-permissions">
+        {% block sw_users_permissions_smart_bar_header %}
+            <template #smart-bar-header>
+                <h2>
+                    {% block sw_users_permissions_smart_bar_header_title_text %}
+                        {{ $tc('sw-settings.index.title') }}
+                            <sw-icon name="small-arrow-medium-right" small></sw-icon>
+                        {{ $tc('sw-users-permissions.general.label') }}
+                    {% endblock %}
+                </h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_users_permissions_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_users_permissions_content_user_list %}
+                        {# @deprecated tag:v6.4.0 - use 'sw-users-permissions-user-listing' instead#}
+                        <sw-settings-user-list />
+                        <sw-users-permissions-role-listing v-if="next3722"/>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

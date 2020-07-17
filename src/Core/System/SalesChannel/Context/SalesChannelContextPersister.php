@@ -32,6 +32,16 @@ class SalesChannelContextPersister
         );
     }
 
+    public function delete(string $token): void
+    {
+        $this->connection->executeUpdate(
+            'DELETE FROM sales_channel_api_context WHERE token = :token',
+            [
+                'token' => $token,
+            ]
+        );
+    }
+
     public function replace(string $oldToken): string
     {
         $newToken = Random::getAlphanumericString(32);

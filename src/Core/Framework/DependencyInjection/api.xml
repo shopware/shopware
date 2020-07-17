@@ -44,6 +44,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -64,7 +65,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -97,10 +98,12 @@
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder">
@@ -114,10 +117,12 @@
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
         <!-- Converter -->
@@ -205,8 +210,7 @@
         <service id="Shopware\Core\Framework\Api\Controller\CacheController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

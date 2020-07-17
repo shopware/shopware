@@ -14,7 +14,8 @@ $sw-field-transition: border-color 0.3s ease-out;
     .sw-field__addition {
         display: flex;
         flex-shrink: 0;
-        justify-items: center;
+        justify-content: center;
+        align-items: center;
         min-width: 50px;
         background: $color-iron;
         border-left: 1px solid $color-steam-cloud;
@@ -33,7 +34,7 @@ $sw-field-transition: border-color 0.3s ease-out;
 
         &.is--prefix {
             border-right: 1px solid $color-steam-cloud;
-            border-left: none
+            border-left: none;
         }
     }
 

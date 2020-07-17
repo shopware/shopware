@@ -10,14 +10,25 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 trait DatabaseTransactionBehaviour
 {
+    public static $lastTestCase;
+
     /**
      * @before
      */
     public function startTransactionBefore(): void
     {
+        self::assertNull(
+            static::$lastTestCase,
+            'The previous test case\'s transaction was not closed properly.
+            This may affect following Tests in an unpredictable manner!
+            Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase
+        );
+
         $this->getContainer()
             ->get(Connection::class)
             ->beginTransaction();
+
+        static::$lastTestCase = $this->getName();
     }
 
     /**
@@ -32,13 +43,17 @@ trait DatabaseTransactionBehaviour
         self::assertEquals(
             1,
             $connection->getTransactionNestingLevel(),
-            'Too many Nesting Levels. 
-            Probably one transaction was not closed properly. 
+            'Too many Nesting Levels.
+            Probably one transaction was not closed properly.
             This may affect following Tests in an unpredictable manner!
             Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
         );
 
         $connection->rollBack();
+
+        if (static::$lastTestCase === $this->getName()) {
+            static::$lastTestCase = null;
+        }
     }
 
     abstract protected function getContainer(): ContainerInterface;

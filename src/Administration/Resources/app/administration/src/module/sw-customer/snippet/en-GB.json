@@ -18,13 +18,16 @@
       "placeholderLastName": "Last name",
       "placeholderCompany": "Company",
       "placeholderEmail": "Email address",
+      "placeholderNewPassword": "Enter new password...",
+      "placeholderNewPasswordConfirm": "Re-enter new password...",
       "labelSalutation": "Salutation",
       "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
       "labelCompany": "Company",
       "labelEmail": "Email",
-      "labelTags": "Tags"
+      "labelTags": "Tags",
+      "labelGuest": "Guest account"
     },
     "list": {
       "textCustomers": "Customers",
@@ -32,6 +35,7 @@
       "buttonAddCustomer": "Add customer",
       "columnCustomerNumber": "Customer number",
       "columnName": "Name",
+      "columnNameGuestLabel": "Guest account",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
       "columnStreet": "Street",
@@ -61,7 +65,7 @@
       "labelTitle": "Title",
       "labelFirstName": "First name",
       "labelLastName": "Last name",
-      "labelEmail": "Email",
+      "labelEmail": "Email address",
       "labelPhoneNumber": "Phone number",
       "labelCompany": "Company",
       "labelCustomerGroup": "Customer group",
@@ -76,10 +80,10 @@
       "placeholderTitle": "Enter title...",
       "placeholderFirstName": "Enter first name...",
       "placeholderLastName": "Enter last name...",
-      "placeholderEmail": "Enter email...",
+      "placeholderEmail": "Enter email address...",
       "placeholderCustomerNumber": "Enter customer number...",
       "placeholderCustomerGroup": "Please select a customer group...",
-      "placeholderSalesChannel": "Please select a sales channel...",
+      "placeholderSalesChannel": "Please select a Sales Channel...",
       "placeholderPaymentMethod": "Please select a payment method...",
       "labelTags": "Tags",
       "placeholderTags": "Select tags..."
@@ -177,7 +181,7 @@
       "placeholderTitle": "Enter title...",
       "placeholderFirstName": "Enter first name...",
       "placeholderLastName": "Enter last name...",
-      "placeholderZipcode": "Enter zip code...",
+      "placeholderZipcode": "Enter postal code...",
       "placeholderStreet": "Enter street...",
       "placeholderCity": "Enter city...",
       "placeholderCountry": "Select country...",
@@ -196,7 +200,9 @@
       "titleSaveError": "Error",
       "titleSaveSuccess": "Success",
       "messageSaveError": "Customer could not be saved.",
-      "messageSaveSuccess": "Customer \"{name}\" has been saved."
+      "messageSaveSuccess": "Customer \"{name}\" has been saved.",
+      "notificationPasswordErrorMessage": "The submitted passwords do not match.",
+      "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of 8."
     }
   }
 }

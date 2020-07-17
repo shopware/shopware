@@ -112,15 +112,16 @@ export default class Repository {
      *
      * @param {String} entityId
      * @param {Object} context
+     * @param {Object} behavior
      * @returns {Promise<T>}
      */
-    clone(entityId, context) {
+    clone(entityId, context, behavior) {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
 
         return this.httpClient
-            .post(`/_action/clone${this.route}/${entityId}`, null, {
+            .post(`/_action/clone${this.route}/${entityId}`, behavior, {
                 headers: this.buildHeaders(context),
                 version: this.options.version
             })
@@ -304,7 +305,9 @@ export default class Repository {
                     return { error, id, entityName: this.entityName };
                 });
 
-                return this.errorResolver.handleDeleteError(errors);
+                this.errorResolver.handleDeleteError(errors);
+
+                throw errorResponse;
             });
     }
 

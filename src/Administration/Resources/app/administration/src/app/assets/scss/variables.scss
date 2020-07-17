@@ -237,12 +237,18 @@ $font-size-large: 18px;
 $font-size-small: 14px;
 $font-size-extra-small: 12px;
 
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-semi-bold: 600;
+$font-weight-bold: 700;
+
 /* ------------------------------------
  * 7. Miscellaneous
  * ------------------------------------ */
 
 $border-radius-default: 4px;
 $transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
+$asset-base-url: '/administration/static/';
 
 /* ------------------------------------
  * 8. z-index

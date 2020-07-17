@@ -63,6 +63,21 @@ class Cart extends Struct
     protected $modified = false;
 
     /**
+     * @var string|null
+     */
+    protected $customerComment;
+
+    /**
+     * @var string|null
+     */
+    protected $affiliateCode;
+
+    /**
+     * @var string|null
+     */
+    protected $campaignCode;
+
+    /**
      * @var CartDataCollection|null
      */
     private $data;
@@ -247,6 +262,36 @@ class Cart extends Struct
     public function markUnmodified(): void
     {
         $this->modified = false;
+    }
+
+    public function getCustomerComment(): ?string
+    {
+        return $this->customerComment;
+    }
+
+    public function setCustomerComment(?string $customerComment): void
+    {
+        $this->customerComment = $customerComment;
+    }
+
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    public function setAffiliateCode(?string $affiliateCode): void
+    {
+        $this->affiliateCode = $affiliateCode;
+    }
+
+    public function getCampaignCode(): ?string
+    {
+        return $this->campaignCode;
+    }
+
+    public function setCampaignCode(?string $campaignCode): void
+    {
+        $this->campaignCode = $campaignCode;
     }
 
     public function getApiAlias(): string

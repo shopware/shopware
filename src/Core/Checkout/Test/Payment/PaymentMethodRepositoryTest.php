@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryD
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -60,6 +60,28 @@ class PaymentMethodRepositoryTest extends TestCase
             'handler_shopware_asynctestpaymenthandler',
             $resultSet->first()->getFormattedHandlerIdentifier()
         );
+        static::assertFalse($resultSet->first()->getAfterOrderEnabled());
+    }
+
+    public function testPaymentMethodSetAfterOrder(): void
+    {
+        $defaultContext = Context::createDefaultContext();
+
+        $paymentMethod = $this->createPaymentMethodDummyArray();
+
+        $paymentMethod[0]['afterOrderEnabled'] = true;
+
+        $this->paymentRepository->create($paymentMethod, $defaultContext);
+
+        $criteria = new Criteria([$this->paymentMethodId]);
+        $criteria->addAssociation('availabilityRule');
+
+        /** @var PaymentMethodCollection $resultSet */
+        $resultSet = $this->paymentRepository->search($criteria, $defaultContext);
+
+        static::assertSame($this->paymentMethodId, $resultSet->first()->getId());
+
+        static::assertTrue($resultSet->first()->getAfterOrderEnabled());
     }
 
     public function testCreatePaymentMethodNoNamespace(): void
@@ -85,6 +107,7 @@ class PaymentMethodRepositoryTest extends TestCase
             'Object',
             $resultSet->first()->getFormattedHandlerIdentifier()
         );
+        static::assertFalse($resultSet->first()->getAfterOrderEnabled());
     }
 
     public function testUpdatePaymentMethod(): void

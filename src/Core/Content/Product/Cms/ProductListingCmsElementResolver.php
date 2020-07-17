@@ -8,18 +8,21 @@ use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface;
+use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
     /**
-     * @var ProductListingGatewayInterface
+     * @var AbstractProductListingRoute
      */
-    private $listingGateway;
+    private $listingRoute;
 
-    public function __construct(ProductListingGatewayInterface $listingGateway)
+    public function __construct(AbstractProductListingRoute $listingRoute)
     {
-        $this->listingGateway = $listingGateway;
+        $this->listingRoute = $listingRoute;
     }
 
     public function getType(): string
@@ -37,8 +40,30 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $data = new ProductListingStruct();
         $slot->setData($data);
 
-        $listing = $this->listingGateway->search($resolverContext->getRequest(), $resolverContext->getSalesChannelContext());
+        $request = $resolverContext->getRequest();
+        $context = $resolverContext->getSalesChannelContext();
+
+        $navigationId = $this->getNavigationId($request, $context);
+
+        $listing = $this->listingRoute
+            ->load($navigationId, $request, $context, new Criteria())
+            ->getResult();
 
         $data->setListing($listing);
+    }
+
+    private function getNavigationId(Request $request, SalesChannelContext $salesChannelContext): string
+    {
+        if ($navigationId = $request->get('navigationId')) {
+            return $navigationId;
+        }
+
+        $params = $request->attributes->get('_route_params');
+
+        if ($params && isset($params['navigationId'])) {
+            return $params['navigationId'];
+        }
+
+        return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
     }
 }

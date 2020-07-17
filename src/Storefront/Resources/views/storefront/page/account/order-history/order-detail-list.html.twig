@@ -1,73 +1,38 @@
 {% block page_account_order_item_detail_body %}
-    <div class="order-detail-content-body js-order-detail-container-{{ orderId }}">
+    <div class="order-detail-content-body">
         {% block page_account_order_item_detail_line_items %}
-            {% for lineItem in orderDetails %}
+            {% for lineItem in order.lineItems %}
                 {% block page_account_order_item_detail_line_item %}
                     {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list-item.html.twig' %}
                 {% endblock %}
             {% endfor %}
         {% endblock %}
 
+        {# @deprecated tag:v6.4.0 #}
         {% block page_account_order_item_detail_action %}
-            <div class="row order-detail-content-row">
-                <div class="col-12 order-item-reorder">
-                    {% block page_account_order_item_detail_reorder %}
-                        {% set action %}
-                            {% block page_account_order_item_detail_reorder_form_action %}
-                                {{ path('frontend.checkout.line-item.add') }}
-                            {% endblock %}
-                        {% endset %}
 
-                        <form action="{{ action }}"
-                              method="post"
-                              class="buy-widget order-item-reorder-value"
-                              data-add-to-cart="true">
+            {# @deprecated tag:v6.4.0 #}
+            {% block page_account_order_item_detail_reorder %}
 
-                            {% block page_account_order_item_detail_reorder_csrf %}
-                                {{ sw_csrf('frontend.checkout.line-item.add') }}
-                            {% endblock %}
+                {# @deprecated tag:v6.4.0 #}
+                {% block page_account_order_item_detail_reorder_form_action %}{% endblock %}
 
-                            {% block page_account_order_item_detail_reorder_redirect_input %}
-                                <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
-                            {% endblock %}
+                {# @deprecated tag:v6.4.0 #}
+                {% block page_account_order_item_detail_reorder_csrf %}{% endblock %}
 
-                            {% block page_account_order_item_detail_reorder_lineitems_input %}
-                                {% for lineItem in orderDetails %}
-                                    {% block page_account_order_item_detail_reorder_lineitem_input %}
-                                        {% if lineItem.type == 'product' %}
-                                            <input type="hidden"
-                                                   name="lineItems[{{ lineItem.identifier }}][id]"
-                                                   value="{{ lineItem.identifier }}">
-                                            <input type="hidden"
-                                                   name="lineItems[{{ lineItem.identifier }}][referencedId]"
-                                                   value="{{ lineItem.identifier }}">
-                                            <input type="hidden"
-                                                   name="lineItems[{{ lineItem.identifier }}][type]"
-                                                   value="{{ lineItem.type }}">
-                                            <input type="hidden"
-                                                   name="lineItems[{{ lineItem.identifier }}][stackable]"
-                                                   value="1">
-                                            <input type="hidden"
-                                                   name="lineItems[{{ lineItem.identifier }}][removable]"
-                                                   value="1">
-                                            <input type="hidden"
-                                                   name="lineItems[{{ lineItem.identifier }}][quantity]"
-                                                   value="{{ lineItem.quantity }}">
-                                        {% endif %}
-                                    {% endblock %}
-                                {% endfor %}
-                            {% endblock %}
+                {# @deprecated tag:v6.4.0 #}
+                {% block page_account_order_item_detail_reorder_redirect_input %}{% endblock %}
 
-                            {% block page_account_order_item_detail_reorder_button %}
-                                <button class="btn btn-buy order-item-detail-reorder-btn"
-                                        title="{{ "account.orderLinkRepeat"|trans|striptags }}">
-                                    {{ "account.orderLinkRepeat"|trans|sw_sanitize }}
-                                </button>
-                            {% endblock %}
-                        </form>
-                    {% endblock %}
-                </div>
-            </div>
+                {# @deprecated tag:v6.4.0 #}
+                {% block page_account_order_item_detail_reorder_lineitems_input %}
+
+                    {# @deprecated tag:v6.4.0 #}
+                    {% block page_account_order_item_detail_reorder_lineitem_input %}{% endblock %}
+                {% endblock %}
+
+                {# @deprecated tag:v6.4.0 #}
+                {% block page_account_order_item_detail_reorder_button %}{% endblock %}
+            {% endblock %}
         {% endblock %}
     </div>
 {% endblock %}

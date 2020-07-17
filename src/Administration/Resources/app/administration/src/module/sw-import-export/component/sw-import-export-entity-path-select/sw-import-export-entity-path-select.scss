@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+.sw-import-export-entity-path-select {
+    .sw-import-export-entity-path-select__selection-input {
+        padding: 12px 22px 12px 0;
+        width: 0;
+        display: inline-block;
+
+        &.is--expanded {
+            width: 100%;
+            display: block;
+            padding: 12px 22px 12px 8px;
+        }
+    }
+
+    .sw-import-export-entity-path-select__selection-text {
+        display: inline-block;
+        padding-left: 8px;
+
+        &.is--placeholder {
+            color: lighten($color-gutenberg, 25%);
+        }
+    }
+
+    &.sw-field--medium {
+        .sw-select__selection {
+            padding: 0 6px 0;
+        }
+
+        .sw-import-export-entity-path-select__selection-input {
+            padding: 8px 8px;
+        }
+    }
+
+    &.sw-field--small {
+        .sw-select__selection {
+            padding: 0 6px 0;
+        }
+
+        .sw-import-export-entity-path-select__selection-input {
+            padding: 4px 8px;
+        }
+    }
+}

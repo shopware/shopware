@@ -51,6 +51,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.customerGroupRule',
         scopes: ['checkout']
     });
+    ruleConditionService.addCondition('customerTag', {
+        component: 'sw-condition-customer-tag',
+        label: 'global.sw-condition.condition.customerTagRule',
+        scopes: ['checkout']
+    });
     ruleConditionService.addCondition('customerCustomerNumber', {
         component: 'sw-condition-customer-number',
         label: 'global.sw-condition.condition.customerNumberRule',
@@ -201,9 +206,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemClearanceSale',
         scopes: ['lineItem']
     });
-    ruleConditionService.addCondition('cartLineItemTopseller', {
-        component: 'sw-condition-line-item-topseller',
-        label: 'global.sw-condition.condition.lineItemTopsellerRule',
+    ruleConditionService.addCondition('cartLineItemPromoted', {
+        component: 'sw-condition-line-item-promoted',
+        label: 'global.sw-condition.condition.lineItemPromotedRule',
         scopes: ['lineItem']
     });
     ruleConditionService.addCondition('cartLineItemInCategory', {
@@ -254,6 +259,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartLineItemListPrice', {
         component: 'sw-condition-line-item-list-price',
         label: 'global.sw-condition.condition.lineItemListPriceRule',
+        scopes: ['lineItem']
+    });
+    ruleConditionService.addCondition('cartLineItemCustomField', {
+        component: 'sw-condition-line-item-custom-field',
+        label: 'global.sw-condition.condition.lineItemCustomFieldRule',
         scopes: ['lineItem']
     });
 

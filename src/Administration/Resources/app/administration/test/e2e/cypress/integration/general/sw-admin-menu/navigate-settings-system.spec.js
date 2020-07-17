@@ -15,8 +15,8 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to user module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/user?page=1&limit=25',
-            method: 'get'
+            url: '/api/v*/search/user',
+            method: 'post'
         }).as('getData');
 
         cy.clickMainMenuItem({
@@ -24,7 +24,11 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
-        cy.get('a[href="#/sw/settings/user/list"]').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.contains('Users & permissions').should('be.visible');
+        cy.contains('Users & permissions').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -34,7 +38,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to shopware account module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.store',
+            url: '/api/v*/_action/system-config/schema?domain=core.store',
             method: 'get'
         }).as('getData');
 
@@ -43,6 +47,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/settings/store/index"]').should('be.visible');
         cy.get('a[href="#/sw/settings/store/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -53,7 +61,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/log-entry',
+            url: '/api/v*/search/log-entry',
             method: 'post'
         }).as('getData');
 
@@ -62,9 +70,12 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
 
-        cy.get('.sw-settings__tab-system').should('be.visible');
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
 
+        cy.get('#sw-settings-logging').should('be.visible');
         cy.get('#sw-settings-logging').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -75,7 +86,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to shopware update module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/schema?domain=core.update',
+            url: '/api/v*/_action/system-config/schema?domain=core.update',
             method: 'get'
         }).as('getData');
 
@@ -84,6 +95,11 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/settings/shopware/updates/index"]').should('be.visible');
         cy.get('a[href="#/sw/settings/shopware/updates/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -94,7 +110,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to custom field module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/custom-field-set',
+            url: '/api/v*/search/custom-field-set',
             method: 'post'
         }).as('getData');
 
@@ -103,6 +119,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/settings/custom/field/index"]').should('be.visible');
         cy.get('a[href="#/sw/settings/custom/field/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -113,11 +133,11 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to plugin module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/_action/plugin/refresh',
+            url: '/api/v*/_action/plugin/refresh',
             method: 'post'
         }).as('refresh');
         cy.route({
-            url: '/api/v1/search/plugin',
+            url: '/api/v*/search/plugin',
             method: 'post'
         }).as('getData');
 
@@ -125,10 +145,14 @@ describe('Administration: Check module navigation in settings', () => {
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
         });
-        cy.get('.sw-tabs-item[title="System"]').click();
+        cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/plugin/index"]').should('be.visible');
         cy.get('a[href="#/sw/plugin/index"]').click();
         cy.wait('@refresh').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -139,7 +163,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to integrations module', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/search/integration',
+            url: '/api/v*/search/integration',
             method: 'post'
         }).as('getData');
 
@@ -148,6 +172,10 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('.sw-settings__tab-system').click();
+        cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');
+        cy.get('#sw-settings__content-grid-system').should('be.visible');
+
+        cy.get('a[href="#/sw/integration/index"]').should('be.visible');
         cy.get('a[href="#/sw/integration/index"]').click();
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

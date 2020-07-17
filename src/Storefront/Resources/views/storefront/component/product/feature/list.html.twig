@@ -1,0 +1,15 @@
+{% block component_product_feature_list_container %}
+    <div class="product-feature-list">
+
+        {% block component_product_feature_list %}
+            <ul class="product-feature-list-list">
+
+                {% for feature in features %}
+                    {% sw_include '@Storefront/storefront/component/product/feature/item.html.twig' %}
+                {% endfor %}
+
+            </ul>
+        {% endblock %}
+
+    </div>
+{% endblock %}

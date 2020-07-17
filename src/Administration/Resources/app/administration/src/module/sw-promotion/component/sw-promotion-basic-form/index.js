@@ -77,6 +77,10 @@ Component.register('sw-promotion-basic-form', {
             promotions.forEach((promotion) => {
                 this.promotion.exclusionIds.push(promotion.id);
             });
+
+            // reload the assigned entities
+            // to show it in the admin
+            this.loadExclusions();
         },
 
         createPromotionCollection() {

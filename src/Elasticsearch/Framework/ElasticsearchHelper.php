@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Elasticsearch\Exception\NoIndexedDocumentsException;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
+use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
 class ElasticsearchHelper
@@ -83,15 +84,19 @@ class ElasticsearchHelper
 
     public function logOrThrowException(\Throwable $exception): bool
     {
-        if ($this->environment !== 'prod') {
-            throw new \RuntimeException($exception->getMessage());
+        if ($this->environment === 'test') {
+            throw $exception;
         }
-
-        $this->logger->error($exception->getMessage());
+        if ($this->environment === 'dev') {
+            $this->logger->critical($exception->getMessage());
+        }
 
         return false;
     }
 
+    /**
+     * Created the index alias
+     */
     public function getIndexName(EntityDefinition $definition, string $languageId): string
     {
         return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
@@ -191,37 +196,21 @@ class ElasticsearchHelper
         $search->addPostFilter($query, BoolQuery::FILTER);
     }
 
-    public function addTerm(Criteria $criteria, Search $search, Context $context): void
+    public function addTerm(Criteria $criteria, Search $search, Context $context, EntityDefinition $definition): void
     {
         if (!$criteria->getTerm()) {
             return;
         }
 
-        $bool = new BoolQuery();
+        $esDefinition = $this->registry->get($definition->getEntityName());
 
-        $bool->add(
-            new MatchQuery('fullText', $criteria->getTerm(), ['boost' => 2]),
-            BoolQuery::SHOULD
-        );
+        if (!$esDefinition) {
+            throw new UnsupportedElasticsearchDefinitionException($definition->getEntityName());
+        }
 
-        $bool->add(
-            new MatchQuery('fullTextBoosted', $criteria->getTerm(), ['boost' => 5]),
-            BoolQuery::SHOULD
-        );
+        $query = $esDefinition->buildTermQuery($context, $criteria);
 
-        $bool->add(
-            new MatchQuery('fullText', $criteria->getTerm(), ['fuzziness' => 'auto']),
-            BoolQuery::SHOULD
-        );
-
-        $bool->add(
-            new MatchQuery('description', $criteria->getTerm()),
-            BoolQuery::SHOULD
-        );
-
-        $bool->addParameter('minimum_should_match', 1);
-
-        $search->addQuery($bool);
+        $search->addQuery($query);
     }
 
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
@@ -293,13 +282,9 @@ class ElasticsearchHelper
 
     public function isSupported(EntityDefinition $definition): bool
     {
-        foreach ($this->registry->getDefinitions() as $def) {
-            if ($def->getEntityDefinition()->getEntityName() === $definition->getEntityName()) {
-                return true;
-            }
-        }
+        $entityName = $definition->getEntityName();
 
-        return false;
+        return $this->registry->has($entityName);
     }
 
     private function hasIndexDocuments(EntityDefinition $definition, Context $context): bool

@@ -1,14 +1,19 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
 Component.register('sw-settings-snippet-detail', {
     template,
 
-    inject: ['snippetService', 'snippetSetService', 'userService'],
+    inject: [
+        'snippetService',
+        'snippetSetService',
+        'userService',
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('notification')
@@ -45,8 +50,16 @@ Component.register('sw-settings-snippet-detail', {
             return this.translationKey;
         },
 
-        snippetSetStore() {
-            return StateDeprecated.getStore('snippet_set');
+        snippetSetRepository() {
+            return this.repositoryFactory.create('snippet_set');
+        },
+
+        snippetSetCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
         },
 
         backPath() {
@@ -91,15 +104,11 @@ Component.register('sw-settings-snippet-detail', {
                 this.onNewKeyRedirect();
             }
             this.translationKey = this.$route.params.key || '';
-            this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC' }).then((response) => {
-                const sets = [];
 
-                response.items.forEach((set) => {
-                    sets[set.id] = set;
-                });
+            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api).then((sets) => {
                 this.sets = sets;
-            }).then(() => {
                 this.initializeSnippet();
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -131,7 +140,7 @@ Component.register('sw-settings-snippet-detail', {
 
         createSnippetDummy() {
             const snippets = [];
-            Object.values(this.sets).forEach((set) => {
+            this.sets.forEach((set) => {
                 snippets.push({
                     author: this.currentAuthor,
                     id: null,

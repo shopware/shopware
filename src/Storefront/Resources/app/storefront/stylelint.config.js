@@ -1,5 +1,6 @@
 module.exports = {
     extends: 'stylelint-config-sass-guidelines',
+    plugins: ['./build/stylelint/shopware-object-fit-polyfill.js'],
     rules: {
         indentation: 4,
         'max-nesting-depth': 3,
@@ -16,6 +17,7 @@ module.exports = {
             true, {
                 ignore: ['attribute', 'class']
             }
-        ]
+        ],
+        'shopware/object-fit-polyfill': true
     }
 };

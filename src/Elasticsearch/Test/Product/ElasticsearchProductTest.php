@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -37,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -52,11 +53,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class ElasticsearchProductTest extends TestCase
 {
@@ -109,6 +113,11 @@ class ElasticsearchProductTest extends TestCase
      */
     private $salesChannelRepository;
 
+    /**
+     * @var string
+     */
+    private $navigationId;
+
     protected function setUp(): void
     {
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
@@ -117,6 +126,11 @@ class ElasticsearchProductTest extends TestCase
         $this->languageRepository = $this->getContainer()->get('language.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->navigationId = $this->connection->fetchColumn(
+            'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+        );
 
         $this->registerDefinition(ExtendedProductDefinition::class);
         $this->registerDefinitionWithExtensions(ProductDefinition::class, ProductExtension::class);
@@ -231,20 +245,11 @@ class ElasticsearchProductTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
-        // indexing message is still in queue, search should not match
-        $result = $this->productRepository->searchIds($criteria, $context);
-        static::assertCount(0, $result->getIds());
-
-        // handle indexing message, afterwards the search should match
-        $this->runWorker();
+        // products should be updated immediately
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(1, $result->getIds());
 
         $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
-        $result = $this->productRepository->searchIds($criteria, $context);
-        static::assertCount(1, $result->getIds());
-
-        $this->runWorker();
         $result = $this->productRepository->searchIds($criteria, $context);
         static::assertCount(0, $result->getIds());
     }
@@ -327,33 +332,39 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testQueries(TestDataCollection $data): void
+    public function testContainsFilter(TestDataCollection $data): void
     {
         $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Silk'), 1000));
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'tilk'));
+
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
         static::assertContains($data->get('p3'), $products->getIds());
 
-        $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Slik'), 1000));
-        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(2, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
-        static::assertContains($data->get('p3'), $products->getIds());
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'subber'));
 
-        $searcher = $this->createEntitySearcher();
-        $criteria = new Criteria($data->prefixed('p'));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Skill'), 1000));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('product.name', 'Rubar'), 1000));
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-        static::assertCount(3, $products->getIds());
-        static::assertContains($data->get('p1'), $products->getIds());
+        static::assertCount(0, $products->getIds());
+        static::assertSame(0, $products->getTotal());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'Rubb'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
         static::assertContains($data->get('p2'), $products->getIds());
-        static::assertContains($data->get('p3'), $products->getIds());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('product.name', 'bber'));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(1, $products->getIds());
+        static::assertSame(1, $products->getTotal());
+        static::assertContains($data->get('p2'), $products->getIds());
     }
 
     /**
@@ -1060,6 +1071,36 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testTermAlgorithm(TestDataCollection $data): void
+    {
+        $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+
+        $searcher = $this->createEntitySearcher();
+
+        foreach ($terms as $term) {
+            $criteria = new Criteria();
+            $criteria->setTerm($term);
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+
+            $term = strtolower($term);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+
+            $term = strtoupper($term);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+            static::assertTrue($products->has($data->get('p6')));
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testFilterAggregation(TestDataCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -1376,9 +1417,9 @@ class ElasticsearchProductTest extends TestCase
         $expected = [
             $data->get('p4'),
             $data->get('p5'),
-            $data->get('p6'),
             $data->get('p2'),
             $data->get('p1'),
+            $data->get('p6'),
             $data->get('p3'),
         ];
 
@@ -1389,6 +1430,47 @@ class ElasticsearchProductTest extends TestCase
         $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
         static::assertEquals($expected, $ids->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testMaxLimit(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        // check simple equals filter
+        $criteria = new Criteria($data->getList(['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'n7', 'n8', 'n9', 'n10', 'n11']));
+
+        $ids = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+        static::assertCount(11, $ids->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testStorefrontListing(TestDataCollection $data): void
+    {
+        $this->helper->setEnabled(true);
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $request = new Request();
+
+        $result = $this->getContainer()->get(ProductListingRoute::class)
+            ->load($context->getSalesChannel()->getNavigationCategoryId(), $request, $context, new Criteria());
+
+        $listing = $result->getResult();
+
+        static::assertTrue($listing->getTotal() > 0);
+        static::assertTrue($listing->getAggregations()->has('shipping-free'));
+        static::assertTrue($listing->getAggregations()->has('rating'));
+        static::assertTrue($listing->getAggregations()->has('price'));
+        static::assertTrue($listing->getAggregations()->has('options'));
+        static::assertTrue($listing->getAggregations()->has('properties'));
+        static::assertTrue($listing->getAggregations()->has('manufacturer'));
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -1427,11 +1509,13 @@ class ElasticsearchProductTest extends TestCase
             'customFields' => [
                 'testField' => $name,
             ],
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
         ];
 
-        if (!empty($categories)) {
-            $data['categories'] = $categories;
-        }
+        $categories[] = ['id' => $this->navigationId];
+        $data['categories'] = $categories;
 
         foreach ($extensions as $extensionKey => $extension) {
             $data[$extensionKey] = $extension;
@@ -1453,7 +1537,12 @@ class ElasticsearchProductTest extends TestCase
             $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
             $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
-            $this->createProduct('p6', 'Grouped 3', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n7', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n8', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n9', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n10', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n11', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
         ], Context::createDefaultContext());
     }
 }

@@ -1,6 +1,6 @@
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -54,10 +54,6 @@ Component.register('sw-settings-salutation-detail', {
 
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         entityDescription() {
@@ -117,7 +113,7 @@ Component.register('sw-settings-salutation-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.salutation = this.salutationRepository.create(Shopware.Context.api);
             this.isLoading = false;
         },

@@ -15,8 +15,8 @@
       "columnDeliveryState": "Delivery status",
       "columnOrderNumber": "Order number",
       "columnSalesChannel": "Sales channel",
-      "columnAffiliateCode": "Affiliate-Code",
-      "columnCampaignCode": "Campaign-Code",
+      "columnAffiliateCode": "Affiliate code",
+      "columnCampaignCode": "Campaign code",
       "orderDate": "Order date",
       "buttonAddOrder": "Add order",
       "textOrders": "Orders",
@@ -27,8 +27,12 @@
       "messageEmpty": "No orders yet",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
-      "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
-      "titleSidebarItemFilterCampaignCode": "Campaign-Code"
+      "titleSidebarItemFilterAffiliateCode": "Affiliate code",
+      "titleSidebarItemFilterCampaignCode": "Campaign code",
+      "buttonDelete": "Delete",
+      "buttonCancel": "Cancel",
+      "modalTitleDelete": "Delete order",
+      "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?"
     },
     "detail": {
       "buttonCancel": "Discard changes",
@@ -46,7 +50,7 @@
       "notification": {
         "shippingNotAvailable": {
           "title": "Error",
-          "message": "Delivery to the selected country not possible"
+          "message": "Delivery to the selected country not possible."
         }
       }
     },
@@ -213,6 +217,9 @@
       "buttonMerge": "Merge order",
       "buttonDelete": "Delete"
     },
+    "detailCustomerComment": {
+      "title": "Additional information"
+    },
     "addressSelection": {
       "modalTitleEditAddress": "Addresses",
       "modalTitleSelectAddress": "Change address",
@@ -243,10 +250,10 @@
       "labelSelectStatePlaceholder": "Select a status...",
       "labelSelectStateButton": "Update status and send email",
       "headlineErrorStateChange": "Error",
-      "labelErrorStateChange": "An error occured while updating the status. Additional information:",
-      "labelErrorNoAction": "Current status invalid.",
-      "labelNoTransactionState": "No transaction yet",
-      "labelNoDeliveryState": "No Delivery yet"
+      "labelErrorStateChange": "An error occured while updating the status:",
+      "labelErrorNoAction": "Status unchanged.",
+      "labelNoTransactionState": "No transactions yet",
+      "labelNoDeliveryState": "No deliveries yet"
     },
     "assignMailTemplateCard": {
       "cardTitle": "Assign email template",
@@ -269,7 +276,7 @@
       "labelSent": "Sent",
       "labelAttach": "Attach",
       "labelAmount": "Order value",
-      "labelDownloadPdf": "Download as PDF",
+      "labelDownloadPdf": "Download PDF",
       "labelCreateNew": "Create new",
       "messageEmptyTitle": "No documents yet",
       "messageEmptySubline": "Manage documents here."
@@ -291,7 +298,7 @@
       "labelPreview": "Preview",
       "labelHighlightedItemsHeader": "Name",
       "labelHighlightedItemsEntry": "Total",
-      "labelNoItems": "No credit",
+      "labelNoItems": "No credit shown",
       "fileInputLabel": "Upload custom document"
     },
     "stateModal": {
@@ -302,15 +309,22 @@
       "labelGuest": "Guest account"
     },
     "invalidPromotionModal": {
-      "modalTitle": "Invalid promotion codes will be removed",
-      "modalDescription": "The following invalid promotion codes will be removed",
+      "modalTitle": "Removing invalid promotion codes",
+      "modalDescription": "The following invalid promotion codes will be removed:",
       "buttonConfirm": "OK"
     },
     "promotionModal": {
       "labelTitle": "Disable automatic promotions",
       "message": "The following automatic promotions will be disabled",
-      "messageNoItems": "No automatic promotions yet",
+      "messageNoItems": "No automatic promotions active.",
       "buttonDisable": "Disable"
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "orders": {
+        "create_discounts": "Create discounts"
+      }
     }
   }
 }

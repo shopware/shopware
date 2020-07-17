@@ -41,6 +41,8 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
+
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/SwagTest.php';
         $this->pluginRepo = $this->getContainer()->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
@@ -142,7 +144,7 @@ class PluginServiceTest extends TestCase
         static::assertNotNull($changeLogError);
         static::assertInstanceOf(PluginChangelogInvalidException::class, $changeLogError);
         static::assertStringContainsString(
-            'platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestErrors/CHANGELOG.md" is invalid.',
+            'Framework/Test/Plugin/_fixture/plugins/SwagTestErrors/CHANGELOG.md" is invalid.',
             $changeLogError->getMessage()
         );
 

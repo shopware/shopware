@@ -15,6 +15,7 @@ return [
     'start' => 'Starten',
     'select_language' => 'Taal wijzigen',
     'select_language_choose' => 'Maak een keuze…',
+
     'select_language_de' => 'Duits',
     'select_language_en' => 'Engels',
     'select_language_nl' => 'Nederlands',
@@ -23,8 +24,9 @@ return [
     'select_language_es' => 'Spaans',
     'select_language_pt' => 'Portugees',
     'select_language_pl' => 'Pools',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_cs' => 'Tsjechisch',
+    'select_language_sv' => 'Zweeds',
+
     'noaccess_title' => 'Toegang geweigerd',
     'noaccess_info' => 'Voeg je IP-adres "<strong>%s</strong>" toe aan het bestand <strong>%s</strong>.',
     'step2_header_files' => 'Bestanden en mappen',

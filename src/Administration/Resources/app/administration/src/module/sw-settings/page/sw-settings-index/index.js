@@ -7,6 +7,8 @@ const { hasOwnProperty } = Shopware.Utils.object;
 Component.register('sw-settings-index', {
     template,
 
+    inject: ['acl'],
+
     metaInfo() {
         return {
             title: this.$createTitle()
@@ -31,10 +33,13 @@ Component.register('sw-settings-index', {
            see ./sw-settings-index.html.twig
         */
         defaultSettingsGroups() {
-            const settingsGroups = this.settingsGroups;
             return {
-                shop: settingsGroups.shop,
-                system: settingsGroups.system
+                shop: this.settingsGroups.shop
+                    ? this.settingsGroups.shop.filter(setting => this.acl.can(setting.privilege))
+                    : [],
+                system: this.settingsGroups.system
+                    ? this.settingsGroups.system.filter(setting => this.acl.can(setting.privilege))
+                    : []
             };
         },
 

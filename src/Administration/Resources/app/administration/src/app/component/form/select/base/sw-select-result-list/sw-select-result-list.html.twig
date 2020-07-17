@@ -1,8 +1,7 @@
 {% block sw_select_result_list %}
     <div class="sw-select-result-list" @scroll="onScroll">
         <sw-popover class="sw-select-result-list-popover"
-                    popoverClass="sw-select-result-list-popover-wrapper"
-                    :popoverConfigExtension="popoverConfig" {# @deprecated tag:v6.3.0 #}
+                    :popoverClass="popoverClass"
                     :zIndex="1100"
                     :resizeWidth="true">
             <div class="sw-select-result-list__content"

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\IndexerRegistryInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,20 +17,14 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     protected static $defaultName = 'dal:refresh:index';
 
     /**
-     * @var IndexerRegistryInterface
-     */
-    private $indexer;
-
-    /**
      * @var EntityIndexerRegistry
      */
-    private $entityIndexerRegistry;
+    private $registry;
 
-    public function __construct(IndexerRegistryInterface $indexer, EntityIndexerRegistry $entityIndexerRegistry)
+    public function __construct(EntityIndexerRegistry $registry)
     {
         parent::__construct();
-        $this->indexer = $indexer;
-        $this->entityIndexerRegistry = $entityIndexerRegistry;
+        $this->registry = $registry;
     }
 
     /**
@@ -49,9 +42,7 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $this->indexer->index(new \DateTime());
-
-        $this->entityIndexerRegistry->index(
+        $this->registry->index(
             (bool) $input->getOption('use-queue')
         );
 

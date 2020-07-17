@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\ImportExport\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\LogNotWritableException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ImportExportLogRepositoryTest extends TestCase
 {
@@ -91,8 +91,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
     }
 
@@ -248,8 +247,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
     }
 
@@ -303,8 +301,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
     }
 
@@ -361,8 +358,7 @@ class ImportExportLogRepositoryTest extends TestCase
             });
             static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));
         } catch (\Exception $e) {
-            static::assertInstanceOf(WriteException::class, $e);
-            static::assertInstanceOf(LogNotWritableException::class, $e->getExceptions()[0]);
+            static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
@@ -390,6 +386,9 @@ class ImportExportLogRepositoryTest extends TestCase
 
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
+
+            $profile = $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])];
+
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => $activities[($i % 2)] . $add,
@@ -398,8 +397,9 @@ class ImportExportLogRepositoryTest extends TestCase
                 'profileId' => $profileIds[($i % 2)],
                 'fileId' => $fileIds[($i % 2)],
                 'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'] . $add,
-                'profileName' => $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])]['name'] . $add,
+                'profileName' => $profile['label'] . $add,
                 'records' => 10 * $i,
+                'config' => ['profile' => $profile],
             ];
         }
 
@@ -455,6 +455,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'name' => sprintf('Test name %d', $i),
+                'label' => sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
                 'sourceEntity' => sprintf('Test entity %d', $i),
                 'fileType' => sprintf('Test file type %d', $i),

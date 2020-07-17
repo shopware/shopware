@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void         set(string $key, TaxRule $entity)
  * @method TaxRule[]    getIterator()
  * @method TaxRule[]    getElements()
  * @method TaxRule|null first()
@@ -16,6 +15,11 @@ class TaxRuleCollection extends Collection
     public function add($taxRule): void
     {
         $this->set($this->getKey($taxRule), $taxRule);
+    }
+
+    public function set($key, $taxRule): void
+    {
+        parent::set($this->getKey($taxRule), $taxRule);
     }
 
     public function removeElement(TaxRule $taxRule): void

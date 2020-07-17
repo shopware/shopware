@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -65,6 +67,12 @@ class StructEncoder
             return $data;
         }
 
+        if ($struct instanceof ErrorCollection) {
+            return array_map(static function (Error $error) {
+                return $error->jsonSerialize();
+            }, $struct->getElements());
+        }
+
         if ($struct instanceof Collection) {
             foreach ($struct as $item) {
                 $data[] = $this->encodeStruct($item, $apiVersion, $fields);
@@ -103,10 +111,25 @@ class StructEncoder
                 continue;
             }
 
-            $object = $struct->getVars()[$property];
+            $object = $value;
+            if (array_key_exists($property, $struct->getVars())) {
+                $object = $struct->getVars()[$property];
+            }
 
             if ($object instanceof Struct) {
                 $data[$property] = $this->encode($object, $apiVersion, $fields);
+
+                continue;
+            }
+
+            // simple array of structs case
+            if ($this->isStructArray($object)) {
+                $array = [];
+                foreach ($object as $key => $item) {
+                    $array[$key] = $this->encodeStruct($item, $apiVersion, $fields);
+                }
+
+                $data[$property] = $array;
 
                 continue;
             }
@@ -192,5 +215,19 @@ class StructEncoder
         }
 
         return $value;
+    }
+
+    private function isStructArray($object): bool
+    {
+        if (!is_array($object)) {
+            return false;
+        }
+
+        $values = array_values($object);
+        if (!isset($values[0])) {
+            return false;
+        }
+
+        return $values[0] instanceof Struct;
     }
 }

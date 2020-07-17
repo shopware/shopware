@@ -18,8 +18,8 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enabled')->end()
                 ->booleanNode('indexing_enabled')->end()
-                ->scalarNode('hosts')->defaultValue('')->end()
-                ->scalarNode('index_prefix')->defaultValue('sw')->end()
+                ->scalarNode('hosts')->end()
+                ->scalarNode('index_prefix')->end()
             ->end();
 
         return $treeBuilder;

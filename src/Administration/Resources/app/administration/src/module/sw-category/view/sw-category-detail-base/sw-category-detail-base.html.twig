@@ -43,6 +43,7 @@
                         v-if="category && !isLoading"
                         class="sw-category-detail-base__tags"
                         :label="$tc('sw-category.base.general.labelCategoryTags')"
+                        :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
                         v-model="category.tags">
                     </sw-entity-tag-select>
                 {% endblock %}
@@ -87,8 +88,16 @@
                     :isLoading="isLoading"
                     :localMode="category.isNew()"
                     :criteria="productCriteria"
-                    :placeholder="$t('sw-category.base.products.productAssignmentPlaceholder')"
-                    :searchableFields="['product.name', 'product.productNumber', 'product.manufacturer.name']">
+                    :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')">
+
+                    <template v-slot:[nameColumn]="{ item, column }">
+                        <router-link
+                            :to="{ name: column.routerLink, params: { id: item.id } }">
+                            <sw-product-variant-info :variations="item.options">
+                                {{ item.name || item.translated.name }}
+                            </sw-product-variant-info>
+                        </router-link>
+                    </template>
 
                     <template v-slot:[manufacturerColumn]="{ item, column }">
                         <router-link
@@ -121,17 +130,17 @@
                             :urls="category.seoUrls">
                 </sw-seo-url>
             {% endblock %}
-
-            {% block sw_category_detail_attribute_sets %}
-                <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                         v-if="customFieldSetsArray.length > 0"
-                         :isLoading="isLoading">
-                    <sw-custom-field-set-renderer
-                            :entity="category"
-                            :sets="customFieldSetsArray">
-                    </sw-custom-field-set-renderer>
-                </sw-card>
-            {% endblock %}
         </template>
+
+        {% block sw_category_detail_attribute_sets %}
+            <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                     v-if="customFieldSetsArray.length > 0"
+                     :isLoading="isLoading">
+                <sw-custom-field-set-renderer
+                        :entity="category"
+                        :sets="customFieldSetsArray">
+                </sw-custom-field-set-renderer>
+            </sw-card>
+        {% endblock %}
     </div>
 {% endblock %}

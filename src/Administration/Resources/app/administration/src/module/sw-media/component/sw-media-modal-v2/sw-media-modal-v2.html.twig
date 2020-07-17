@@ -1,10 +1,16 @@
 {% block sw_media_modal_v2 %}
-    <sw-modal class="sw-media-modal-v2" variant="full" :title="$tc('sw-media.sw-media-modal-v2.titleModal')" @modal-close="onEmitModalClosed">
+    <sw-modal class="sw-media-modal-v2"
+              variant="full"
+              :title="$tc('sw-media.sw-media-modal-v2.titleModal')"
+              @modal-close="onEmitModalClosed">
+
         {% block sw_media_modal_v2_content %}
             <div class="sw-media-modal-v2__content">
+
                 {% block sw_media_modal_v2_tabs %}
                     <sw-tabs variant="minimal" :defaultItem="defaultTab" class="sw-media-modal-v2__tabs">
-                        <template slot-scope="{ active }">
+                        <template #default="{ active }">
+
                             {% block sw_media_modal_v2_tab_items %}
                                 {% block sw_media_modal_v2_tab_item_library %}
                                     <sw-tabs-item
@@ -26,13 +32,18 @@
                             {% endblock %}
                         </template>
 
-                        <template slot="content" slot-scope="{ active }">
+                        <template #content="{ active }">
+
                             {% block sw_media_modal_v2_tab_content %}
-                                <div  class="sw-media-modal-v2__tab-content">
+                                <div class="sw-media-modal-v2__tab-content">
+
                                     {% block sw_media_modal_v2_tab_content_library %}
                                         <template v-if="active === tabNameLibrary">
+
                                             {% block sw_media_modal_v2_navigation_and_search %}
-                                                <div class="sw-media-modal-v2__breadcrumbs-and-search" :class="{'sw-media-modal-v2__breadcrumbs-and-search--compact': compact}">
+                                                <div class="sw-media-modal-v2__breadcrumbs-and-search"
+                                                     :class="{'sw-media-modal-v2__breadcrumbs-and-search--compact': compact}">
+
                                                     {% block sw_media_modal_v2_folder_breadcrumbs %}
                                                         <sw-media-breadcrumbs v-model="folderId" :small="compact"></sw-media-breadcrumbs>
                                                     {% endblock %}
@@ -45,21 +56,23 @@
 
                                             {% block sw_media_modal_v2_media_library %}
                                                 <sw-media-library
+                                                    ref="mediaLibrary"
                                                     :selection="selection"
                                                     :folderId="folderId"
                                                     :term="term"
                                                     :compact="compact"
                                                     :allowMultiSelect="allowMultiSelect"
                                                     @media-selection-change="selection = $event"
-                                                    @media-folder-change="folderId = $event"
-                                                    ref="mediaLibrary">
+                                                    @media-folder-change="folderId = $event">
                                                 </sw-media-library>
                                             {% endblock %}
                                         </template>
                                     {% endblock %}
 
                                     {% block sw_media_modal_v2_tab_content_upload %}
-                                        <template v-if="active === tabNameUpload" class="sw-media-modal-v2__uploads-content">
+                                        <template v-if="active === tabNameUpload"
+                                                  class="sw-media-modal-v2__uploads-content">
+
                                             {% block sw_media_modal_v2_upload_component %}
                                                 <sw-upload-listener
                                                     :uploadTag="uploadTag"
@@ -67,9 +80,11 @@
                                                     @media-upload-finish="onUploadFinished"
                                                     @media-upload-fail="onUploadFailed">
                                                 </sw-upload-listener>
+
                                                 <sw-media-upload-v2
                                                     class="sw-media-modal-v2__upload-container"
                                                     variant="regular"
+                                                    :fileAccept="fileAccept"
                                                     :uploadTag="uploadTag"
                                                     :defaultFolder="entityContext"
                                                     :targetFolder="folderId"
@@ -118,13 +133,17 @@
         {% endblock %}
 
         {% block sw_media_modal_v2_modal_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
                 {% block sw_media_modal_v2_button_cancel %}
-                    <sw-button @click="onEmitModalClosed">{{ $tc('sw-media.sw-media-modal-v2.labelButtonCancel') }}</sw-button>
+                    <sw-button @click="onEmitModalClosed">
+                        {{ $tc('sw-media.sw-media-modal-v2.labelButtonCancel') }}
+                    </sw-button>
                 {% endblock %}
 
                 {% block sw_media_modal_v2_button_confirm_selection %}
-                    <sw-button variant="primary" @click="onEmitSelection">{{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}</sw-button>
+                    <sw-button variant="primary" @click="onEmitSelection">
+                        {{ $tc('sw-media.sw-media-modal-v2.labelButtonSaveSelection') }}
+                    </sw-button>
                 {% endblock %}
             </template>
         {% endblock %}

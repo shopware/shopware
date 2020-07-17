@@ -5,7 +5,7 @@ Shopware is available under MIT license. If you want to contribute code (feature
 If you want more details about available licensing or the contribution agreements we offer, you can contact us at <contact@shopware.com>.
 
 ## Contributing to the Shopware code base
-If you want to learn how to contribute code to Shopware, please refer to [Contribution Code](https://docs.shopware.com/en/shopware-platform-dev-en/community/contributing-code?category=shopware-platform-dev-en/community).  
+If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code?category=shopware-platform-dev-en/contribution).  
 
 ## Documentation
 

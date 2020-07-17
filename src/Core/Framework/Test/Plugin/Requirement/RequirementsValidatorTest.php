@@ -113,6 +113,36 @@ class RequirementsValidatorTest extends TestCase
         );
     }
 
+    public function testResolveActiveDependants(): void
+    {
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+
+        $basePluginPath = __DIR__ . '/_fixture/SwagRequirementValidTest';
+        $dependentPluginPath = __DIR__ . '/_fixture/SwagRequirementValidTestExtension';
+
+        $basePlugin = $this->createPlugin(str_replace($projectDir, '', $basePluginPath));
+        $dependentPlugin = $this->createPlugin(str_replace($projectDir, '', $dependentPluginPath));
+
+        $basePlugin->setActive(true);
+        $dependentPlugin->setActive(true);
+        $basePlugin->setComposerName('swag/requirement-valid-test');
+        $dependentPlugin->setComposerName('swag/requirement-valid-test-extension');
+
+        $dependants = $this->createValidator()->resolveActiveDependants($dependentPlugin, [$basePlugin, $dependentPlugin]);
+
+        static::assertEmpty($dependants);
+
+        $dependants = $this->createValidator()->resolveActiveDependants($basePlugin, [$basePlugin, $dependentPlugin]);
+
+        static::assertCount(1, $dependants);
+
+        $dependentPlugin->setActive(false);
+
+        $dependants = $this->createValidator()->resolveActiveDependants($basePlugin, [$basePlugin, $dependentPlugin]);
+
+        static::assertEmpty($dependants);
+    }
+
     private function createValidator(): RequirementsValidator
     {
         return new RequirementsValidator(

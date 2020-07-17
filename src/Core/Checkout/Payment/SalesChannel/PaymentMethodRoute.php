@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -51,6 +52,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     }
 
     /**
+     * @Entity("payment_method")
      * @OA\Get(
      *      path="/payment-method",
      *      description="Loads all available payment methods",
@@ -72,21 +74,18 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * )
      * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): PaymentMethodRouteResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): PaymentMethodRouteResponse
     {
-        $paymentMethodsCriteria = (new Criteria())
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->paymentMethodDefinition, $context->getContext());
+        }
+        $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        $paymentMethodsCriteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            $paymentMethodsCriteria,
-            $this->paymentMethodDefinition,
-            $context->getContext()
-        );
-
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodsRepository->search($paymentMethodsCriteria, $context)->getEntities();
+        $paymentMethods = $this->paymentMethodsRepository->search($criteria, $context)->getEntities();
         $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
             return $a->getPosition() <=> $b->getPosition();
         });

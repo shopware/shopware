@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer as AbstractEntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -117,24 +117,25 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         return 'elasticsearch.indexer';
     }
 
+    /**
+     * @param null|IndexerOffset $offset
+     */
     public function iterate($offset): ?EntityIndexingMessage
     {
         if (!$this->helper->allowIndexing()) {
             return null;
         }
 
-        $languages = $this->getLanguages();
-
-        /** @var IndexerOffset|null $offset */
         if ($offset === null) {
-            $offset = $this->init($languages);
+            $offset = $this->init();
         }
 
-        $language = $languages->get($offset->getLanguageId());
+        $language = $this->getLanguageForId($offset->getLanguageId());
 
         if (!$language) {
             return null;
         }
+
         $context = $this->createLanguageContext($language);
 
         // current language has next message?
@@ -153,40 +154,54 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
         $offset->resetDefinitions();
         $offset->setLastId(null);
 
-        return $this->createIndexingMessage($offset, $context);
+        return $this->iterate($offset);
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
+        return null;
+    }
+
+    public function updateIds(EntityDefinition $definition, array $ids): void
+    {
         if (!$this->helper->allowIndexing()) {
-            return null;
+            return;
         }
+        $messages = $this->generateMessages($definition, $ids);
 
-        $languages = $this->getLanguages();
+        $indices = [];
 
-        /** @var EntityWrittenEvent $written */
-        foreach ($event->getEvents() as $written) {
-            $definition = $this->entityRegistry->getByEntityName($written->getEntityName());
+        /** @var EntityIndexingMessage $message */
+        foreach ($messages as $message) {
+            $this->handle($message);
 
-            if (!$this->helper->isSupported($definition)) {
+            $data = $message->getData();
+            if (!$data instanceof IndexingDto) {
                 continue;
             }
 
-            foreach ($languages as $language) {
-                $context = $this->createLanguageContext($language);
-
-                $index = $this->helper->getIndexName($definition, $language->getId());
-
-                $indexing = new IndexingDto($written->getIds(), $index, $definition->getEntityName());
-
-                $message = new EntityIndexingMessage($indexing, null, $context);
-                $message->setIndexer($this->getName());
-
-                $this->messageBus->dispatch($message);
-            }
+            $indices[] = $data->getIndex();
         }
 
-        return null;
+        try {
+            $this->client->indices()->refresh([
+                'index' => implode(',', array_unique($indices)),
+            ]);
+        } catch (\Exception $e) {
+        }
+    }
+
+    public function sendIndexingMessages(EntityDefinition $definition, array $ids): void
+    {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        $messages = $this->generateMessages($definition, $ids);
+
+        foreach ($messages as $message) {
+            $this->messageBus->dispatch($message);
+        }
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -233,6 +248,8 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             return !$entities->has($id);
         });
 
+        $entities = $definition->extendEntities($entities);
+
         $documents = $this->createDocuments($definition, $entities);
 
         $documents = $this->mapExtensionsToRoot($documents);
@@ -255,6 +272,27 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
             throw new ElasticsearchIndexingException($errors);
         }
+    }
+
+    private function generateMessages(EntityDefinition $definition, array $ids): array
+    {
+        $languages = $this->getLanguages();
+
+        $messages = [];
+        foreach ($languages as $language) {
+            $context = $this->createLanguageContext($language);
+
+            $alias = $this->helper->getIndexName($definition, $language->getId());
+
+            $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
+
+            $message = new EntityIndexingMessage($indexing, null, $context);
+            $message->setIndexer($this->getName());
+
+            $messages[] = $message;
+        }
+
+        return $messages;
     }
 
     private function createIndexingMessage(IndexerOffset $offset, Context $context): ?EntityIndexingMessage
@@ -284,25 +322,26 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
             return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, $context);
         }
 
-        if ($offset->hasNextDefinition()) {
-            // increment definition offset
-            $offset->setNextDefinition();
-
-            // reset last id to start iterator at the beginning
-            $offset->setLastId(null);
-
-            return $this->createIndexingMessage($offset, $context);
+        if (!$offset->hasNextDefinition()) {
+            return null;
         }
 
-        return null;
+        // increment definition offset
+        $offset->setNextDefinition();
+
+        // reset last id to start iterator at the beginning
+        $offset->setLastId(null);
+
+        return $this->createIndexingMessage($offset, $context);
     }
 
-    private function init(LanguageCollection $languages): IndexerOffset
+    private function init(): IndexerOffset
     {
         // reset all other indexing processes
         $this->clearIndexingTasks();
 
         $definitions = $this->registry->getDefinitions();
+        $languages = $this->getLanguages();
 
         $timestamp = new \DateTime();
 
@@ -330,7 +369,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         return new IndexerOffset(
             $languages,
-            $this->registry->getDefinitions(),
+            $definitions,
             $timestamp->getTimestamp()
         );
     }
@@ -434,5 +473,17 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
     private function clearIndexingTasks(): void
     {
         $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
+    }
+
+    private function getLanguageForId(string $languageId): ?LanguageEntity
+    {
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria([$languageId]);
+
+        /** @var LanguageCollection $languages */
+        $languages = $this->languageRepository
+            ->search($criteria, $context);
+
+        return $languages->get($languageId);
     }
 }

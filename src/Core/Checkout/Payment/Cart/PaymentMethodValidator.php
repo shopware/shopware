@@ -12,6 +12,12 @@ class PaymentMethodValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
+        if (!$context->getPaymentMethod()->getActive()) {
+            $errors->add(
+                new PaymentMethodBlockedError((string) $context->getPaymentMethod()->getTranslation('name'))
+            );
+        }
+
         $ruleId = $context->getPaymentMethod()->getAvailabilityRuleId();
 
         if ($ruleId && !in_array($ruleId, $context->getRuleIds(), true)) {

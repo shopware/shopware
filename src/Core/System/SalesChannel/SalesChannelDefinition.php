@@ -59,6 +59,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 class SalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel';
+    public const CALCULATION_TYPE_VERTICAL = 'vertical';
+    public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
 
     public function getEntityName(): string
     {
@@ -75,10 +77,11 @@ class SalesChannelDefinition extends EntityDefinition
         return SalesChannelEntity::class;
     }
 
-    public function hasManyToManyIdFields(): bool
+    public function getDefaults(): array
     {
-        // disable old indexing process
-        return false;
+        return [
+            'taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL,
+        ];
     }
 
     protected function defineFields(): FieldCollection
@@ -110,6 +113,7 @@ class SalesChannelDefinition extends EntityDefinition
 
             new TranslatedField('name'),
             new StringField('short_name', 'shortName'),
+            new StringField('tax_calculation_type', 'taxCalculationType'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
@@ -160,7 +164,6 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, true))->addFlags(new CascadeDelete()),
         ]);
     }

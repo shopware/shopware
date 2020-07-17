@@ -350,7 +350,10 @@ Component.register('sw-data-grid', {
         getCellClasses(column) {
             return [
                 `sw-data-grid__cell--${column.property.replace(/\./g, '-')}`,
-                `sw-data-grid__cell--align-${column.align}`
+                `sw-data-grid__cell--align-${column.align}`,
+                {
+                    'sw-data-grid__cell--multi-line': column.multiLine
+                }
             ];
         },
 
@@ -404,14 +407,20 @@ Component.register('sw-data-grid', {
         },
 
         renderColumn(item, column) {
-            const accessor = column.property.split('.');
-            accessor.splice(accessor.length - 1, 0, 'translated');
+            let accessor = column.property.split('.');
+            let workingProperty = column.property;
 
+            if (accessor.lastIndexOf('last()') !== -1) {
+                item = utils.get(item, accessor.splice(0, accessor.lastIndexOf('last()'))).last();
+                accessor = accessor.splice(accessor.lastIndexOf('last()') + 1, accessor.length - 1);
+                workingProperty = accessor.join('.');
+            }
+            accessor.splice(accessor.length - 1, 0, 'translated');
             const translated = utils.get(item, accessor);
             if (translated) {
                 return translated;
             }
-            return utils.get(item, column.property);
+            return utils.get(item, workingProperty);
         },
 
         selectAll(selected) {
@@ -458,7 +467,6 @@ Component.register('sw-data-grid', {
         },
 
         onClickCancelInlineEdit(item) {
-            this.$emit('inline-edit-assign');
             this.revert(item);
 
             this.disableInlineEdit();

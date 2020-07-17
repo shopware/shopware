@@ -1,8 +1,42 @@
+// -----------------------------------------------------------------------------
+// This file contains all application-wide Sass mixins.
+// -----------------------------------------------------------------------------
+
+/// @type Display Model
+@mixin flex-centering() {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin flex-centering-vertical() {
+    display: flex;
+    align-items: center;
+}
+
+@mixin flex-centering-horizontal() {
+    display: flex;
+    justify-content: center;
+}
+
+/// @type Box
+@mixin square($dimension) {
+    width: $dimension;
+    height: $dimension;
+}
+
+@mixin circle($dimension) {
+    width: $dimension;
+    height: $dimension;
+    border-radius: 50%;
+}
+
 @mixin size($size) {
     width: $size;
     height: $size;
 }
 
+/// @type Text
 @mixin truncate() {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -15,6 +49,7 @@
     overflow: visible;
 }
 
+/// @type Other
 @mixin transition($what: all, $time: 0.3s, $how: ease) {
     transition: $what $time $how;
 }

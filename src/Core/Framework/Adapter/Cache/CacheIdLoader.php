@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
+use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 class CacheIdLoader
 {
@@ -12,9 +14,15 @@ class CacheIdLoader
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var CacheItemPoolInterface|null
+     */
+    private $restartSignalCachePool;
+
+    public function __construct(Connection $connection, ?CacheItemPoolInterface $restartSignalCachePool = null)
     {
         $this->connection = $connection;
+        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     public function load(): string
@@ -49,5 +57,11 @@ class CacheIdLoader
             'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
             ['cacheId' => $cacheId, 'key' => 'cache-id']
         );
+
+        if ($this->restartSignalCachePool) {
+            $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
+            $cacheItem->set(microtime(true));
+            $this->restartSignalCachePool->save($cacheItem);
+        }
     }
 }

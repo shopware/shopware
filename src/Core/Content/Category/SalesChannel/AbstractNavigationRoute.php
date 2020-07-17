@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,10 +16,14 @@ abstract class AbstractNavigationRoute
 {
     abstract public function getDecorated(): AbstractNavigationRoute;
 
+    /**
+     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
+     */
     abstract public function load(
         string $requestActiveId,
         string $requestRootId,
         Request $request,
         SalesChannelContext $context
+        /*, Criteria $criteria*/
     ): NavigationRouteResponse;
 }

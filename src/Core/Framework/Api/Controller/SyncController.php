@@ -7,9 +7,8 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,17 +50,11 @@ class SyncController extends AbstractController
      */
     public function sync(Request $request, Context $context, int $version): JsonResponse
     {
-        // depending on the request header setting, we either
-        // fail immediately or add any unexpected errors to our exception list
-        /** @var bool $failOnError */
-        $failOnError = filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN);
-
-        $useMessageQueue = $request->headers->has('message-queue-indexing');
-        if ($useMessageQueue) {
-            $context->addExtension(EntityIndexerRegistry::USE_INDEXING_QUEUE, new ArrayEntity());
-        }
-
-        $behavior = new SyncBehavior($failOnError);
+        $behavior = new SyncBehavior(
+            filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), FILTER_VALIDATE_BOOLEAN),
+            filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), FILTER_VALIDATE_BOOLEAN),
+            $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
+        );
 
         $payload = $this->serializer->decode($request->getContent(), 'json');
 
@@ -74,7 +67,7 @@ class SyncController extends AbstractController
             return $this->syncService->sync($operations, $context, $behavior);
         });
 
-        if ($failOnError === true && !$result->isSuccess()) {
+        if ($behavior->failOnError() && !$result->isSuccess()) {
             return new JsonResponse($result, 400);
         }
 

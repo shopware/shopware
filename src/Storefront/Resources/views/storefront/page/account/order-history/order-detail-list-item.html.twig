@@ -23,7 +23,8 @@
                                         } %}
                                     </div>
                                 {% else %}
-                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
+                                    {% set url = lineItem.referencedId ? seoUrl('frontend.detail.page', {'productId': lineItem.referencedId }) : '#not-found' %}
+                                    <a href="{{ url }}"
                                        class="product-image-link"
                                        title="{{ lineItem.label }}">
                                         {% block page_checkout_item_info_image_element %}
@@ -57,11 +58,18 @@
                 {% block page_account_order_item_detail_name %}
                     <div class="col-12 col-md-4 order-item order-item-name">
                         {% block page_account_order_item_detail_name_value %}
-                            <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
-                               class="order-item-product-name"
-                               title="{{ lineItem.label }}"> <strong class="name-value">
-                                    {{ lineItem.label }}
-                                </strong> </a>
+                            {% if isDiscount %}
+                                <strong class="name-value">
+                                        {{ lineItem.label }}
+                                    </strong>
+                            {% else %}
+                                {% set url = lineItem.referencedId ? seoUrl('frontend.detail.page', {'productId': lineItem.referencedId }) : '#not-found' %}
+                                <a href="{{ url }}"
+                                   class="order-item-product-name"
+                                   title="{{ lineItem.label }}"> <strong class="name-value">
+                                        {{ lineItem.label }}
+                                    </strong> </a>
+                            {% endif %}
                         {% endblock %}
 
                         {% block page_account_order_item_detail_variants %}
@@ -127,7 +135,7 @@
                         {% if not isChild %}
                             {% block page_account_order_item_detail_quantity_label %}
                                 <strong class="order-item-label order-item-quantity-label">
-                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
+                                    {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                                 </strong>
                             {% endblock %}
 
@@ -145,7 +153,7 @@
                         {% if not isDiscount and not isNested %}
                             {% block page_account_order_item_detail_price_label %}
                                 <strong class="order-item-label order-item-price-label">
-                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
+                                    {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                                 </strong>
                             {% endblock %}
 
@@ -156,7 +164,7 @@
                                     {% elseif lineItem.type == 'promotion' %}
                                         /
                                     {% else %}
-                                        {{ "account.orderItemInfoFree"|trans|sw_sanitize }}
+                                        {{ "account.orderItemInfoFree"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                                     {% endif %}
                                 </span>
                             {% endblock %}
@@ -168,7 +176,7 @@
                     <div class="col-12 col-md-2 order-item order-item-total">
                         {% block page_account_order_item_detail_total_label %}
                             <strong class="order-item-label order-item-total-label">
-                                {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
+                                {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
                             </strong>
                         {% endblock %}
 

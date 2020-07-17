@@ -166,6 +166,15 @@ class PluginService
                 $installedPlugins->remove($currentPluginId);
             }
 
+            //get the english translation if the plugin has no translation for the current language
+            if (!isset($pluginData['translations'][\Shopware\Core\Defaults::LANGUAGE_SYSTEM])) {
+                $enLanguageId = $this->getLanguageIdForLocale('en-GB', $shopwareContext);
+
+                if (isset($pluginData['translations'][$enLanguageId])) {
+                    $pluginData['translations'][\Shopware\Core\Defaults::LANGUAGE_SYSTEM] = $pluginData['translations'][$enLanguageId];
+                }
+            }
+
             $plugins[] = $pluginData;
         }
 

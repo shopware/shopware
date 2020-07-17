@@ -10,7 +10,6 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
@@ -20,7 +19,6 @@ use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyRela
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithSelfReference;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestEncodeWithSourceFields;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -123,57 +121,5 @@ class JsonEntityEncoderTest extends TestCase
 
         unset($actual['apiAlias']);
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
-    }
-
-    public function testEncodeWithSourceField(): void
-    {
-        $case = new TestEncodeWithSourceFields();
-
-        $entity = $case->getEntity();
-
-        $criteria = $case->getCriteria();
-
-        $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-
-        $definition = $this->getContainer()->get(ProductDefinition::class);
-        $actual = $encoder->encode(
-            $criteria,
-            $definition,
-            new EntityCollection([$entity]),
-            SerializationFixture::API_BASE_URL,
-            SerializationFixture::API_VERSION
-        );
-
-        static::assertCount(1, $actual);
-        $actual = $actual[0];
-
-        static::assertArrayHasKey('id', $actual);
-        static::assertArrayHasKey('name', $actual);
-        static::assertArrayNotHasKey('description', $actual);
-        static::assertArrayNotHasKey('extensions', $actual);
-
-        static::assertArrayHasKey('tax', $actual);
-        static::assertArrayHasKey('id', $actual['tax']);
-        static::assertArrayHasKey('name', $actual['tax']);
-        static::assertArrayHasKey('taxRate', $actual['tax']);
-
-        static::assertArrayHasKey('manufacturer', $actual);
-        static::assertArrayHasKey('name', $actual['manufacturer']);
-        static::assertArrayNotHasKey('id', $actual['manufacturer']);
-        static::assertArrayNotHasKey('extensions', $actual['manufacturer']);
-        static::assertArrayNotHasKey('customField', $actual['manufacturer']);
-
-        static::assertArrayHasKey('prices', $actual);
-        static::assertArrayHasKey('price', $actual['prices'][0]);
-        static::assertArrayHasKey('quantityStart', $actual['prices'][0]);
-        static::assertArrayNotHasKey('ruleId', $actual['prices'][0]);
-        static::assertArrayNotHasKey('productId', $actual['prices'][0]);
-        static::assertArrayNotHasKey('extensions', $actual['prices'][0]);
-
-        static::assertArrayHasKey('price', $actual['prices'][1]);
-        static::assertArrayHasKey('quantityStart', $actual['prices'][1]);
-        static::assertArrayNotHasKey('ruleId', $actual['prices'][1]);
-        static::assertArrayNotHasKey('productId', $actual['prices'][1]);
-        static::assertArrayNotHasKey('extensions', $actual['prices'][1]);
     }
 }

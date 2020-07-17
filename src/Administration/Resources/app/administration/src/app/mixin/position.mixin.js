@@ -18,7 +18,8 @@ Mixin.register('position', {
          * @returns {Promise}
          */
         getNewPosition(repository, criteria, context, field = 'position') {
-            criteria.addAggregation(Criteria.max('maxPosition', field));
+            criteria.addAggregation(Criteria.max('maxPosition', field))
+                .addSorting(Criteria.sort(field, 'DESC'));
 
             return repository.search(criteria, context).then((result) => {
                 const position = parseInt(result.aggregations.maxPosition.max, 10);

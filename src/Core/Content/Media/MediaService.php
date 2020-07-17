@@ -127,6 +127,21 @@ class MediaService
         return $this->fileFetcher->fetchRequestData($request, $tempFile);
     }
 
+    public function getAttachment(MediaEntity $media, Context $context): array
+    {
+        $fileBlob = '';
+        $mediaService = $this;
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($mediaService, $media, &$fileBlob): void {
+            $fileBlob = $mediaService->loadFile($media->getId(), $context);
+        });
+
+        return [
+            'content' => $fileBlob,
+            'fileName' => $media->getFilename() . '.' . $media->getFileExtension(),
+            'mimeType' => $media->getMimeType(),
+        ];
+    }
+
     private function getMediaDefaultFolderId(string $folder, Context $context): ?string
     {
         $criteria = new Criteria();

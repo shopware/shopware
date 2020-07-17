@@ -18,6 +18,7 @@ return [
     'forward' => 'Verder',
     'start' => 'Starten',
     'start_installation' => 'Installatie starten',
+
     'select_language_de' => 'Duits',
     'select_language_en' => 'Engels',
     'select_language_nl' => 'Nederlands',
@@ -26,8 +27,9 @@ return [
     'select_language_es' => 'Spaans',
     'select_language_pt' => 'Portugees',
     'select_language_pl' => 'Pools',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_cs' => 'Tsjechisch',
+    'select_language_sv' => 'Zweeds',
+
     'language-selection_welcome_title' => 'Welkom bij Shopware 6',
     'language-selection_select_language' => 'Taal van de installatie-assistent',
     'language-selection_header' => 'Je Shopware-installatie',
@@ -117,6 +119,19 @@ return [
     'finish_first_steps' => 'Handleiding \'Eerste stappen\'',
     'finish_frontend' => 'Ga naar storefront',
     'finish_backend' => 'Ga naar beheer',
+    'configuration_admin_currency_headline' => 'Beschikbare valuta\'s',
+    'configuration_admin_currency_text' => 'Voeg meer valuta toe aan uw Shopware shop. Als u achteraf valuta\'s wilt toevoegen, kunt u dit op elk gewenst moment in de administratie doen.',
+
+    'configuration_admin_language_de' => 'Deutsch',
+    'configuration_admin_language_en' => 'English',
+    'configuration_admin_password' => 'Beheerderswachtwoord:',
+
+    'finish_header' => 'Installatie afgesloten',
+    'finish_info' => 'Shopware is geïnstalleerd!',
+    'finish_info_heading' => 'Jippie!',
+    'finish_first_steps' => '"Eerste stappen" - gids',
+    'finish_frontend' => 'Naar Shop-frontend',
+    'finish_backend' => 'Naar Shop-backend (beheer)',
     'finish_message' => '
 <p>
     <strong>Hartelijk welkom bij Shopware,</strong>

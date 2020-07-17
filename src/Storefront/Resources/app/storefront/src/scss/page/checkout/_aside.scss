@@ -17,6 +17,23 @@
 
 .checkout-aside-item {
     margin-bottom: $spacer;
+
+    .checkout-aside-item-title {
+        font-weight: $font-weight-bold;
+        margin-bottom: $spacer-xs;
+    }
+
+    .checkout-aside-item-characteristics {
+        margin-bottom: $spacer-xs;
+
+        .checkout-aside-item-characteristics-option {
+            font-weight: $font-weight-bold;
+        }
+    }
+
+    .checkout-aside-item-link-quantity {
+        margin-bottom: $spacer-xs;
+    }
 }
 
 .checkout-aside-item-price {

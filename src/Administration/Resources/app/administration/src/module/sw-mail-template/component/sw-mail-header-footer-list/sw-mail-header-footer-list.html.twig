@@ -22,7 +22,7 @@
 
                     <template #more-actions="{ item }">
                         {% block sw_mail_header_footer_list_grid_columns_actions_duplicate %}
-                            <sw-context-menu-item @click="onDuplicateMailHeaderFooter(item.id)">
+                            <sw-context-menu-item @click="onDuplicate(item.id)">
                                 {{ $tc('sw-mail-header-footer.list.contextMenuDuplicate') }}
                             </sw-context-menu-item>
                         {% endblock %}

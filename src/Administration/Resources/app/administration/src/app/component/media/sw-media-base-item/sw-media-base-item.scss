@@ -122,7 +122,6 @@ $sw-media-base-item-preview-background:      $color-white;
 
             border: 1px solid transparent;
             line-height: 27px;
-            direction: rtl;
         }
 
         .sw-media-base-item__name-field {
@@ -223,11 +222,17 @@ $sw-media-base-item-preview-background:      $color-white;
             width: 20px;
             height: 30px;
             grid-row: 1 / span 2;
+            display: flex;
+            align-items: center;
             visibility: visible;
         }
 
         .sw-context-button__button {
-            border: 0;
+            border-color: transparent;
+
+            &:hover {
+                border-color: $color-steam-cloud;
+            }
         }
 
         .sw-media-base-item__loader {

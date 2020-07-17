@@ -22,7 +22,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         addModuleRoutes,
         createRouterInstance,
         getViewComponent,
-        getRouterInstance
+        getRouterInstance,
+        _setModuleFavicon: setModuleFavicon
     };
 
     /**
@@ -127,6 +128,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                         });
                     });
                 }
+            }
+
+            // User tries to access a route which needs a special privilege
+            if (to.meta.privilege && !Shopware.Service('acl').can(to.meta.privilege)) {
+                return next({ name: 'sw.privilege.error.index' });
             }
 
             return resolveRoute(to, from, next);
@@ -369,8 +375,9 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
         favRef.rel = 'shortcut icon';
 
+        const faviconSrc = moduleInfo.manifest.faviconSrc || 'administration';
         if (assetsPath.length !== 0) {
-            assetsPath = `${assetsPath}administration/`;
+            assetsPath = `${assetsPath}${faviconSrc}/`;
         }
 
         favRef.href = favicon

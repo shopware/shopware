@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 
@@ -20,8 +20,8 @@ class DeleteCommand extends WriteCommand implements ChangeSetAware
         return (bool) \count($this->primaryKey);
     }
 
-    public function getPrivilege(): string
+    public function getPrivilege(): ?string
     {
-        return AclResourceDefinition::PRIVILEGE_DELETE;
+        return AclRoleDefinition::PRIVILEGE_DELETE;
     }
 }

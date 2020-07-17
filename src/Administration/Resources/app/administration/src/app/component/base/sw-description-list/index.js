@@ -25,7 +25,7 @@ Component.register('sw-description-list', {
         grid: {
             type: String,
             required: false,
-            default: '1fr 1fr'
+            default: '1fr'
         }
     },
 

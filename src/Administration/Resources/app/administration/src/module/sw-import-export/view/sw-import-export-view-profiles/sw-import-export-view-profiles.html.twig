@@ -1,0 +1,101 @@
+{% block sw_import_export_view_profile %}
+    <div class="sw-import-export-view-profiles">
+        {% block sw_import_export_view_profile_profiles %}
+            <sw-card title="Profiles" class="sw-import-export-view-profiles__grid-card">
+
+                {% block sw_import_export_view_profile_profiles_toolbar %}
+                    <div class="sw-import-export-view-profiles__toolbar">
+                        {% block sw_import_export_view_profile_profiles_toolbar_search_field %}
+                            <sw-simple-search-field
+                                class="sw-import-export-view-profiles__search"
+                                size="small"
+                                variant="form"
+                                v-model="searchTerm"
+                                @search-term-change="onSearch">
+                            </sw-simple-search-field>
+                        {% endblock %}
+
+                        {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
+                            <sw-button
+                                class="sw-import-export-view-profiles__create-action"
+                                variant="ghost"
+                                :disabled="isLoading"
+                                @click="onAddNewProfile"
+                                size="small">
+                                {{ $tc('sw-import-export.profile.addNewProfileLabel') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block sw_import_export_view_profile_profiles_listing %}
+                    <sw-entity-listing
+                        class="sw-import-export-view-profiles__listing"
+                        ref="listing"
+                        slot="grid"
+                        :repository="profileRepository"
+                        :items="profiles"
+                        :isLoading="isLoading"
+                        :columns="profilesColumns"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection"
+                        :showSettings="false"
+                        :showSelection="false"
+                        :allowColumnEdit="false">
+
+                        {% block sw_import_export_view_profile_profiles_listing_column_label %}
+                            <template #column-label="{ item }">
+                                <a href="#" @click.prevent="onEditProfile(item.id)">
+                                    {{ item.translated.label }}
+                                </a>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
+                            <template #column-systemDefault="{ item }">
+                                {{ getTypeLabel(item.systemDefault) }}
+                            </template>
+                        {% endblock %}
+
+                        <template #actions="{ item }">
+                            {% block sw_import_export_view_profile_profiles_listing_edit %}
+                                <sw-context-menu-item
+                                    class="sw-import-export-view-profiles__listing-open-action"
+                                    @click="onEditProfile(item.id)">
+                                    {{ $tc('sw-import-export.profile.openLabel') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_import_export_view_profile_profiles_listing_duplicate %}
+                                <sw-context-menu-item
+                                    class="sw-import-export-view-profiles__listing-duplicate-action"
+                                    @click="onDuplicateProfile(item)">
+                                    {{ $tc('sw-import-export.profile.duplicateLabel') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_import_export_view_profile_profiles_listing_delete %}
+                                <sw-context-menu-item
+                                    class="sw-import-export-view-profiles__listing-delete-action"
+                                    variant="danger"
+                                    @click="onDeleteProfile(item.id)"
+                                    :disabled="item.systemDefault">
+                                    {{ $tc('sw-import-export.profile.deleteLabel') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
+
+                    </sw-entity-listing>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
+        {% block sw_import_export_view_profile_modal %}
+            <sw-import-export-edit-profile-modal
+                :profile="selectedProfile"
+                @profile-save="saveSelectedProfile"
+                @profile-close="closeSelectedProfile">
+            </sw-import-export-edit-profile-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

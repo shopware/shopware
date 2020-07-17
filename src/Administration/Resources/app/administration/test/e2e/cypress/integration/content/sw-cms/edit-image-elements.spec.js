@@ -22,12 +22,12 @@ runOn('chrome', () => {
             const page = new MediaPageObject();
             cy.server();
             cy.route({
-                url: '/api/v1/cms-page/*',
+                url: '/api/v*/cms-page/*',
                 method: 'patch'
             }).as('saveData');
 
             cy.route({
-                url: 'api/v1/category/*',
+                url: 'api/v*/category/*',
                 method: 'patch'
             }).as('saveCategory');
 
@@ -100,12 +100,12 @@ runOn('chrome', () => {
 
             cy.server();
             cy.route({
-                url: '/api/v1/cms-page/*',
+                url: '/api/v*/cms-page/*',
                 method: 'patch'
             }).as('saveData');
 
             cy.route({
-                url: 'api/v1/category/*',
+                url: 'api/v*/category/*',
                 method: 'patch'
             }).as('saveCategory');
 

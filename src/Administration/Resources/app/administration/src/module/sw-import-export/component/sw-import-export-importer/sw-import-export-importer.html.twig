@@ -1,0 +1,109 @@
+{% block sw_import_export_importer %}
+    <div class="sw-import-export-importer">
+        {% block sw_import_export_importer_upload_csv_label %}
+            <h2>{{  $tc('sw-import-export.importer.uploadCsvLabel')  }}</h2>
+        {% endblock %}
+
+        {% block sw_import_export_importer_warning_block %}
+            <p><span v-html="$tc('sw-import-export.importer.warningBlock')"></span></p>
+        {% endblock %}
+
+        {% block sw_import_export_importer_file_input %}
+            <sw-file-input v-model="importFile">
+                <template #caption-label>
+                    {{ $tc('sw-import-export.importer.labelUploadCaption') }}
+                </template>
+            </sw-file-input>
+        {% endblock %}
+
+        {% block sw_import_export_importer_select_profile_label %}
+            <h2>{{  $tc('sw-import-export.importer.selectProfileLabel')  }}</h2>
+        {% endblock %}
+
+        {% block sw_import_export_importer_profile_select %}
+            <sw-entity-single-select
+                class="sw-import-export-importer__profile-select"
+                :disabled="isLoading"
+                :label="$tc('sw-import-export.importer.profileLabel')"
+                entity="import_export_profile"
+                labelProperty="label"
+                :criteria="profileCriteria"
+                @change="onProfileSelect"
+                :value="selectedProfileId"
+                required>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
+            {% block sw_import_export_importer_profile_select_product_variants_switch %}
+                <sw-field
+                    type="switch"
+                    class="sw-import-export-importer__variants-switch-field"
+                    v-model="config.includeVariants"
+                    :label="$tc('sw-import-export.importer.importVariants')">
+                </sw-field>
+            {% endblock %}
+        </template>
+
+        <template v-if="showProductVariantsInfo">
+            {% block sw_import_export_importer_product_variants_warning %}
+                <sw-alert variant="warning" class="sw-import-export-importer__variants-warning">
+                    {% block sw_import_export_importer_product_variants_warning_text %}
+                        <p>
+                            <span v-html="$tc('sw-import-export.importer.variantsWarning')"></span>
+                        </p>
+                        <p>
+                            <a href="#"
+                               class="sw-import-export-importer__link"
+                               @click.prevent="setImportModalProfile('product_configurator_setting')">
+                                {{ $tc('sw-import-export.importer.directImportVariantsLabel') }}
+                            </a>
+                            <br>
+                            <a href="#"
+                               class="sw-import-export-importer__link"
+                               @click.prevent="setImportModalProfile('property_group_option')">
+                                {{ $tc('sw-import-export.importer.directImportPropertiesLabel') }}
+                            </a>
+                        </p>
+                    {% endblock %}
+                </sw-alert>
+            {% endblock %}
+        </template>
+
+        {% block sw_import_export_importer_modal %}
+            <sw-modal v-if="importModalProfile"
+                      @modal-close="setImportModalProfile(null)"
+                      :title="$tc('sw-import-export.importer.importLabel')">
+                {% block sw_import_export_importer_modal_exporter %}
+                    <sw-import-export-importer
+                        @import-finish="$emit('import-finish')"
+                        :sourceEntity="importModalProfile">
+                    </sw-import-export-importer>
+                {% endblock %}
+
+                <template slot="modal-footer">
+                    {% block sw_import_export_importer_modal_footer %}
+                        <sw-button
+                            size="small"
+                            @click="setImportModalProfile(null)">
+                            {{ $tc('sw-import-export.importer.close') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
+
+        {% block sw_import_export_importer_progress %}
+            <sw-import-export-progress
+                activityType="import"
+                :offset="progressOffset"
+                :total="progressTotal"
+                :logEntry="progressLogEntry"
+                :state="progressState"
+                :isLoading="isLoading"
+                :disableButton="disableImporting"
+                @process-start="onStartProcess">
+            </sw-import-export-progress>
+        {% endblock %}
+    </div>
+{% endblock %}

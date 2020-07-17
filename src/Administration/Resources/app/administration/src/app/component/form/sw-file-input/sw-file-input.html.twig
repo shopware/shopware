@@ -18,7 +18,9 @@
                     {% block sw_file_input_caption %}
                         <div v-if="selectedFile === null" class="sw-file-input__upload-caption">
                             <sw-icon name="default-action-cloud-upload"></sw-icon>
-                            {{ $tc('global.sw-file-input.caption') }}
+                            <slot name="caption-label">
+                                {{ $tc('global.sw-file-input.caption') }}
+                            </slot>
                         </div>
                     {% endblock %}
 

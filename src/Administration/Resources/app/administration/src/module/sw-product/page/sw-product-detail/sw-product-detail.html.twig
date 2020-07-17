@@ -3,7 +3,13 @@
 
         {% block sw_product_detail_header %}
             <template slot="smart-bar-header">
-                <h2>{{ productTitle }}</h2>
+                <h2>
+                    <sw-product-variant-info
+                        :variations="product.variation"
+                        :titleTerm="productTitle">
+                        {{ productTitle }}
+                    </sw-product-variant-info>
+                </h2>
             </template>
         {% endblock %}
 
@@ -15,19 +21,53 @@
                     </sw-button>
                 {% endblock %}
 
-                {% block sw_product_detail_actions_save %}
-                    <sw-button-process
-                        class="sw-product-detail__save-action"
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        v-tooltip.bottom="tooltipSave"
-                        @click.prevent="onSave">
-                        {{ $tc('sw-product.detail.buttonSave') }}
-                    </sw-button-process>
-                {% endblock %}
+                <sw-button-group
+                    class="sw-product-detail__save-button-group"
+                    :splitButton="true">
+                    {% block sw_product_detail_actions_save %}
+                        <sw-button-process
+                            class="sw-product-detail__save-action"
+                            :isLoading="isLoading"
+                            :processSuccess="isSaveSuccessful"
+                            variant="primary"
+                            @process-finish="saveFinish"
+                            v-tooltip.bottom="tooltipSave"
+                            :disabled="isLoading || !acl.can('product.editor')"
+                            @click.prevent="onSave">
+                            {{ $tc('sw-product.detail.buttonSave') }}
+                        </sw-button-process>
+                    {% endblock %}
+
+                    {% block sw_product_detail_actions_save_context_menu %}
+                        <sw-context-button>
+                            <template slot="button">
+                                <sw-button
+                                    class="sw-product-detail__button-context-menu"
+                                    square
+                                    variant="primary"
+                                    :disabled="isLoading">
+                                    <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
+                                </sw-button>
+                            </template>
+
+                        {% block sw_product_detail_actions_save_context_menu_actions %}
+                            {% block sw_product_detail_actions_duplicate %}
+                                <sw-context-menu-item
+                                    class="sw-product-detail__save-duplicate-action"
+                                    :disabled="!acl.can('product.creator') || !acl.can('product.editor') || product.parentId != null"
+                                    v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('product.creator') || acl.can('product.editor'),
+                                        showOnDisabledElements: true
+                                    }"
+                                    @click="onDuplicate">
+                                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                                </sw-context-menu-item>
+                            {% endblock %}
+                        {% endblock %}
+                    </sw-context-button>
+                    {% endblock %}
+                </sw-button-group>
             </template>
         {% endblock %}
 
@@ -107,6 +147,7 @@
                                 v-if="!isChild"
                                 class="sw-product-detail__tab-cross-selling"
                                 :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
+                                :hasError="swProductDetailCrossSellingError"
                                 :title="$tc('sw-product.detail.tabCrossSelling')">
                                 {{ $tc('sw-product.detail.tabCrossSelling') }}
                             </sw-tabs-item>
@@ -117,20 +158,28 @@
                 {% block sw_product_detail_content_view %}
                     <router-view @media-drop="onAddItemToProduct" @cover-change="onCoverChange"></router-view>
                 {% endblock %}
+
+                {% block sw_product_detail_content_clone_modal %}
+                    <sw-product-clone-modal :product="product" v-if="cloning" @clone-finish="onDuplicateFinish"></sw-product-clone-modal>
+                {% endblock %}
             </sw-card-view>
         {% endblock %}
 
         <template slot="sidebar">
-            <sw-sidebar :propagateWidth="true">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
-                    <template slot="context-menu-items" slot-scope="media">
-                        <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
-                            {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
-                        </sw-context-menu-item>
-                    </template>
-                </sw-sidebar-media-item>
-            </sw-sidebar>
-        </template>
+            {% block sw_product_detail_sidebar %}
+                <sw-sidebar :propagateWidth="true">
+                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                        <template slot="context-menu-items" slot-scope="media">
+                            <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
+                                {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-sidebar-media-item>
 
+                    {% block sw_product_detail_sidebar_additional_items %}
+                    {% endblock %}
+                </sw-sidebar>
+            {% endblock %}
+        </template>
     </sw-page>
 {% endblock %}

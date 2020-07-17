@@ -47,6 +47,7 @@
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
             <argument type="service" id="assets.packages"/>
+            <argument type="service" id="shopware.asset.asset"/>
         </service>
 
         <!-- Database / Doctrine -->
@@ -180,6 +181,7 @@
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
+            <argument>%kernel.environment%</argument>
 
             <tag name="monolog.logger"/>
         </service>
@@ -249,9 +251,6 @@
             <argument type="service" id="twig.loader"/>
             <argument>%kernel.cache_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
-            <call method="registerBundles">
-                <argument type="service" id="kernel" />
-            </call>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
@@ -290,6 +289,11 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Cocur\Slugify\Bridge\Twig\SlugifyExtension">
+            <argument type="service" id="slugify"/>
+            <tag name="twig.extension"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter">
             <tag name="twig.extension"/>
         </service>
@@ -314,6 +318,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Administration\Service\AdminOrderCartService">
@@ -382,6 +387,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.messenger.restart_workers_signal" />
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
@@ -394,6 +400,16 @@
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
+            <argument type="service" id="messenger.bus.shopware" />
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
+            <argument type="service" id="media.repository"/>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <!-- Util -->
@@ -409,5 +425,12 @@
         <service id="Shopware\Core\Framework\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
             <tag name="shopware.snippet.file" priority="1000"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <tag name="controller.argument_value_resolver"/>
+        </service>
+
     </services>
 </container>

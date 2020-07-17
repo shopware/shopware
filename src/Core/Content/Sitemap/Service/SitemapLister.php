@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Sitemap\Service;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Sitemap\Struct\Sitemap;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Asset\Package;
 
 class SitemapLister implements SitemapListerInterface
 {
@@ -13,9 +14,15 @@ class SitemapLister implements SitemapListerInterface
      */
     private $filesystem;
 
-    public function __construct(FilesystemInterface $filesystem)
+    /**
+     * @var Package
+     */
+    private $package;
+
+    public function __construct(FilesystemInterface $filesystem, Package $package)
     {
         $this->filesystem = $filesystem;
+        $this->package = $package;
     }
 
     /**
@@ -32,7 +39,7 @@ class SitemapLister implements SitemapListerInterface
                 continue;
             }
 
-            $sitemaps[] = new Sitemap($file['path'], 0, new \DateTime('@' . $file['timestamp']));
+            $sitemaps[] = new Sitemap($this->package->getUrl($file['path']), 0, new \DateTime('@' . $file['timestamp']));
         }
 
         return $sitemaps;

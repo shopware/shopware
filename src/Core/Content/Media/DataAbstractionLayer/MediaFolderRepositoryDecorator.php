@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
 class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 {
@@ -68,15 +69,16 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
         return $this->innerRepo->searchIds($criteria, $context);
     }
 
-    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
     {
-        return $this->innerRepo->clone($id, $context, $newId);
+        return $this->innerRepo->clone($id, $context, $newId, $behavior);
     }
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $clonedCriteria = clone $criteria;
         if ($context->getScope() !== Context::SYSTEM_SCOPE) {
-            $criteria->addFilter(
+            $clonedCriteria->addFilter(
                 new MultiFilter('OR', [
                     new EqualsFilter('media_folder.configuration.private', false),
                     new EqualsFilter('media_folder.configuration.private', null),
@@ -84,7 +86,7 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
             );
         }
 
-        return $this->innerRepo->search($criteria, $context);
+        return $this->innerRepo->search($clonedCriteria, $context);
     }
 
     public function update(array $data, Context $context): EntityWrittenContainerEvent

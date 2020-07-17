@@ -44,6 +44,7 @@ Custom styling for navigation flyout which opens on hover over the main navigati
 
 .navigation-flyout-teaser-image {
     object-fit: cover;
+    font-family: 'object-fit: cover;'; // IE polyfill
     display: block;
     max-width: 100%;
     width: 100%;

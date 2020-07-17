@@ -1,0 +1,35 @@
+@startuml
+
+package Cart <<Node>> {
+    object Cart {
+       Central in memory representation of a single carts state
+    }
+    object LineItem1
+    object LineItem2
+    object LineItem3
+    object Delivery
+    object Transaction
+    object Price
+    object Error
+    object Promotion
+}
+
+package Content <<Node>> {
+    object Product1
+    object Product2
+}
+
+
+Cart .. LineItem1
+Cart .. LineItem2
+Cart .. LineItem3
+Cart .right. Delivery
+Cart .right. Transaction
+Cart .left. Price
+Cart .left. Error
+
+LineItem1 .. Product1
+LineItem2 .. Product2
+LineItem3 .. Promotion
+
+@enduml

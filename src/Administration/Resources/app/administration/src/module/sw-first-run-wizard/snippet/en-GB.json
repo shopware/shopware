@@ -19,7 +19,16 @@
       "switchLanguageModalTitle": "Select your interface language",
       "confirmLanguageSwitch": "Change language",
       "cancelLanguageSwitch": "Cancel",
-      "switchLanguageMessage": "Your language plugin \"{pluginName}\" was installed successfully. Would you like to change your interface language?"
+      "switchLanguageMessage": "Your language plugin \"{pluginName}\" was installed successfully. Would you like to change your interface language?",
+      "pluginsInstalled": "Plugin installed | Plugins installed",
+      "pluginsInstalledMessage": "Language Plugin has been installed: | These language Plugins have been installed: ",
+      "pluginNotFoundMessage": "The language Plugin for {languageName} could not be found.",
+      "pluginInstallationFailedMessage": "Plugin could not be installed: ",
+      "pluginActivationFailedMessage": "Plugin could not be activated: ",
+      "tryAgainLater": "Please try again later.",
+      "success": "success",
+      "error": "error",
+      "noConnectionMessage": "Connection Issue, the language could not be installed right now."
     },
     "dataImport": {
       "modalTitle": "Getting started with Shopware 6",

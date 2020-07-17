@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 
-abstract class EntityExtension implements EntityExtensionInterface
+abstract class EntityExtension
 {
     /**
      * Allows to add fields to an entity.

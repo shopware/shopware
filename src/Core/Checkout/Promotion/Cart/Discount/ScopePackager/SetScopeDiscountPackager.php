@@ -15,10 +15,11 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SetScopeDiscountPackager implements DiscountPackagerInterface
+class SetScopeDiscountPackager extends DiscountPackager
 {
     /**
      * @var LineItemGroupBuilder
@@ -32,7 +33,12 @@ class SetScopeDiscountPackager implements DiscountPackagerInterface
 
     public function getResultContext(): string
     {
-        return DiscountPackagerInterface::RESULT_CONTEXT_PACKAGE;
+        return self::RESULT_CONTEXT_PACKAGE;
+    }
+
+    public function getDecorated(): DiscountPackager
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

@@ -10,6 +10,7 @@
         <template v-else-if="fieldType === 'boolean'">
             {% block sw_product_stream_value_boolean_value %}
                 <sw-single-select
+                    class="sw-product-stream-value__select"
                     size="medium"
                     :options="booleanOptions"
                     :value="condition.value"
@@ -20,7 +21,7 @@
 
         <template v-else>
             {% block sw_product_stream_value_operator_select %}
-                <sw-arrow-field>
+                <sw-arrow-field class="sw-product-stream-value__operator-select">
                     <sw-single-select
                         size="medium"
                         :options="operators"
@@ -33,7 +34,41 @@
             <template v-if="fieldType === 'uuid'">
                 {% block sw_product_stream_value_entity_single_value %}
                     <sw-entity-single-select
-                        v-if="actualCondition.type === 'equals'"
+                        v-if="definition.entity === 'product' && actualCondition.type === 'equals'"
+                        size="medium"
+                        :entity="definition.entity"
+                        :criteria="productCriteria"
+                        :context="context"
+                        v-model="actualCondition.value">
+                        <template #selection-label-property="{ item }">
+                            <slot name="selection-label-property" v-bind="{ item }">
+                                {% block sw_product_stream_value_results_variant_info %}
+                                    <sw-product-variant-info
+                                        :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                {% endblock %}
+                            </slot>
+                        </template>
+
+                        <template #result-item="{ item, index }">
+                            <slot name="result-item" v-bind="{ item, index }">
+                                <li is="sw-select-result" v-bind="{ item, index }">
+                                    {% block sw_product_stream_value_results_list_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            <sw-product-variant-info
+                                                :variations="item.variation">
+                                                {{ item.translated.name || item.name }}
+                                            </sw-product-variant-info>
+                                        </span>
+                                    {% endblock %}
+                                </li>
+                            </slot>
+                        </template>
+                    </sw-entity-single-select>
+
+                    <sw-entity-single-select
+                        v-else-if="actualCondition.type === 'equals'"
                         size="medium"
                         :entity="definition.entity"
                         :context="context"
@@ -46,8 +81,30 @@
                         v-else-if="actualCondition.type === 'equalsAny'"
                         size="medium"
                         :repository="repository"
+                        :criteria="productCriteria"
                         :context="context"
                         v-model="multiValue">
+                        <template #selection-label-property="{ item }">
+                            <slot name="selection-label-property" v-bind="{ item }">
+                                <sw-product-variant-info
+                                    class="product-view"
+                                    :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </slot>
+                        </template>
+
+                        <template #result-label-property="{ item, index }">
+                            <slot name="result-label-property" v-bind="{ item, index }">
+                                {% block sw_product_stream_value_results_list_result_label %}
+                                    <span class="sw-select-result__result-item-text">
+                                        <sw-product-variant-info :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                        </sw-product-variant-info>
+                                    </span>
+                                {% endblock %}
+                            </slot>
+                        </template>
                     </sw-entity-multi-id-select>
                 {% endblock %}
 

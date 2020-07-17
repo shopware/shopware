@@ -23,7 +23,7 @@ describe('Product: Edit product media', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v1/product/*',
+                url: '/api/v*/product/*',
                 method: 'patch'
             }).as('saveProduct');
 
@@ -99,7 +99,7 @@ describe('Product: Edit product media', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v1/product/*',
+                url: '/api/v*/product/*',
                 method: 'patch'
             }).as('saveProduct');
 
@@ -148,7 +148,7 @@ describe('Product: Edit product media', () => {
 
             // Change cover image
             cy.get(`.sw-product-image:nth-of-type(2) ${page.elements.contextMenuButton}`)
-                .click({force: true});
+                .click({ force: true });
             cy.contains('Use as cover').click();
             cy.get('.sw-product-image:nth-of-type(2) .sw-label--primary').should('be.visible');
             cy.get('.sw-product-media-form__cover-image img')
@@ -182,11 +182,11 @@ describe('Product: Edit product media', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product/*',
+            url: '/api/v*/product/*',
             method: 'patch'
         }).as('saveProduct');
         cy.route({
-            url: '/api/v1/product/**/media/*',
+            url: '/api/v*/product/**/media/*',
             method: 'delete'
         }).as('removeProductMedia');
 
@@ -238,7 +238,7 @@ describe('Product: Edit product media', () => {
 
         // Remove image
         cy.get(`.sw-product-image:nth-of-type(1) ${page.elements.contextMenuButton}`)
-            .click({force: true});
+            .click({ force: true });
         cy.contains('Remove').click();
         cy.get('.sw-product-media-form__cover-image.is--placeholder').should('be.visible');
 

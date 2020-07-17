@@ -59,6 +59,7 @@ class ProductExportDefinition extends EntityDefinition
             (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml()),
             (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml()),
             (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml()),
+            (new BoolField('paused_schedule', 'pausedSchedule')),
 
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),

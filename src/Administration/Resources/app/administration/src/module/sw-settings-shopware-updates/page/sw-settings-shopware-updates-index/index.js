@@ -36,9 +36,9 @@ Component.register('sw-settings-shopware-updates-index', {
                     this.updateInfo = response;
                     this.updateModalShown = true;
                 } else {
-                    this.createNotificationSuccess({
-                        title: this.$t('sw-settings-shopware-updates.notifications.title'),
-                        message: this.$t('sw-settings-shopware-updates.notifications.alreadyUpToDate')
+                    this.createNotificationInfo({
+                        title: this.$tc('sw-settings-shopware-updates.notifications.titleInfo'),
+                        message: this.$tc('sw-settings-shopware-updates.notifications.alreadyUpToDate')
                     });
                 }
             });

@@ -231,6 +231,14 @@ Component.register('sw-media-library', {
                 criteria
                     .addFilter(Criteria.equals('mediaFolderId', this.folderId))
                     .addAssociation('tags')
+                    .addAssociation('productMedia.product')
+                    .addAssociation('categories')
+                    .addAssociation('productManufacturers.products')
+                    .addAssociation('mailTemplateMedia.mailTemplate')
+                    .addAssociation('documentBaseConfigs')
+                    .addAssociation('avatarUser')
+                    .addAssociation('paymentMethods')
+                    .addAssociation('shippingMethods')
                     .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
                     .setTerm(this.term);
 

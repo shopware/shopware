@@ -10,9 +10,10 @@ describe('Delivery times group: Test crud operations', () => {
             return cy.createProductFixture();
         }).then(() => {
             return cy.createDefaultFixture('delivery-time');
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
-        });
+        })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/delivery/time/index`);
+            });
     });
 
     it('@settings: Create and read delivery time', () => {
@@ -20,7 +21,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/delivery-time',
+            url: '/api/v*/delivery-time',
             method: 'post'
         }).as('saveData');
 
@@ -74,7 +75,7 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Try to create delivery time with empty required fields', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/delivery-time',
+            url: '/api/v*/delivery-time',
             method: 'post'
         }).as('saveEmptyData');
 
@@ -103,7 +104,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/delivery-time/*',
+            url: '/api/v*/delivery-time/*',
             method: 'patch'
         }).as('updateData');
 
@@ -144,7 +145,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/delivery-time/*',
+            url: '/api/v*/delivery-time/*',
             method: 'delete'
         }).as('deleteData');
 

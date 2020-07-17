@@ -7,7 +7,7 @@
                     type="text"
                     :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
                     :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
-                    :disabled="!set.isLocal"
+                    :disabled="!set._isNew"
                     v-model="set.name">
             </sw-field>
         {% endblock %}
@@ -16,32 +16,43 @@
             <sw-field
                     type="switch"
                     :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
+                    v-if="set.config"
                     v-model="set.config.translated">
             </sw-field>
         {% endblock %}
 
         {% block sw_settings_custom_field_set_detail_base_labels %}
             <sw-custom-field-translated-labels
+                    v-if="set.config"
                     v-model="set.config"
                     :propertyNames="propertyNames"
                     :locales="locales">
             </sw-custom-field-translated-labels>
         {% endblock %}
 
-        <sw-select
-                multi
-                :associationStore="customFieldSetRelationStore"
-                :store="entityNameStore"
-                itemValueKey="entityName"
-                displayName="entityName"
+        {% block sw_settings_custom_field_set_detail_base_multi_select %}
+            <sw-multi-select
                 :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
-                :placeholder="$tc('sw-settings-custom-field.set.detail.placeholderEntities')"
+                :options="relationEntityNames"
                 id="entities"
-                v-model="set.relations">
-            <template slot="displayName" slot-scope="{ item }">
-                {{ $tc(`global.entities.${item.entityName}`, 2) }}
-            </template>
-        </sw-select>
+                valueProperty="entityName"
+                labelProperty="entityName"
+                :value="selectedRelationEntityNames"
+                :searchFunction="searchRelationEntityNames"
+                @item-add="onAddRelation"
+                @item-remove="onRemoveRelation">
+
+                <template #result-label-property="{ item }">
+                    {{ $tc(`global.entities.${item.entityName}`, 2) }}
+                </template>
+
+                <template #selection-label-property="{ item }">
+                    {{ $tc(`global.entities.${item.entityName}`, 2) }}
+                </template>
+
+            </sw-multi-select>
+        {% endblock %}
+
         {% block sw_settings_custom_field_set_detail_base_entities %}
         {% endblock %}
     </sw-card>

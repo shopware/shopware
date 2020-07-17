@@ -14,7 +14,7 @@
             </sw-order-state-change-modal>
         {% endblock %}
         {% block sw_order_state_history_card_container %}
-            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr)" gap="30px 30px">
+            <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="30px 30px">
                 {% block sw_order_state_history_card_transaction %}
                     <sw-order-state-card-entry v-if="transaction"
                                                class="sw-order-state-history-card__payment-state"

@@ -63,28 +63,26 @@ class DeleteExpiredFilesCommandTest extends TestCase
     public function testExecuteWithAllFilesExpired(): void
     {
         $num = 5;
-        $inputs = ['yes', 'Yes', 'YES', 'Y', 'y'];
-        foreach ($inputs as $input) {
-            $data = $this->prepareImportExportFileTestData($num);
-            $filePathes = [];
-            foreach (array_keys($data) as $key) {
-                $filePathes[] = $data[$key]['path'];
-                $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
-            }
+        $data = $this->prepareImportExportFileTestData($num);
 
-            $this->fileRepository->create(array_values($data), $this->context);
-
-            $commandTester = new CommandTester($this->deleteExpiredFilesCommand);
-            $commandTester->setInputs([$input]);
-            $commandTester->execute([]);
-
-            $message = $commandTester->getDisplay();
-            static::assertRegExp(
-                sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
-                $message
-            );
-            static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
+        $filePathes = [];
+        foreach (array_keys($data) as $key) {
+            $filePathes[] = $data[$key]['path'];
+            $data[$key]['expireDate'] = date('Y-m-d H:i:s', strtotime('-1 second'));
         }
+
+        $this->fileRepository->create(array_values($data), $this->context);
+
+        $commandTester = new CommandTester($this->deleteExpiredFilesCommand);
+        $commandTester->setInputs(['y']);
+        $commandTester->execute([]);
+
+        $message = $commandTester->getDisplay();
+        static::assertRegExp(
+            sprintf('/Are you sure that you want to delete %d expired files\? \(yes\/no\) \[no\]:/', $num),
+            $message
+        );
+        static::assertRegExp(sprintf('/\[OK\] Successfully deleted %d expired files./', $num), $message);
 
         $this->runWorker();
 

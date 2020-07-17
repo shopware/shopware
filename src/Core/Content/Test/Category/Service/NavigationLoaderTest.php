@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Category\Service;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -10,6 +9,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\Context;
@@ -31,7 +31,7 @@ class NavigationLoaderTest extends TestCase
     private $repository;
 
     /**
-     * @var NavigationLoader
+     * @var NavigationLoaderInterface
      */
     private $navigationLoader;
 
@@ -77,7 +77,6 @@ class NavigationLoaderTest extends TestCase
     public function testTreeBuilderWithSimpleTree(): void
     {
         $loader = new NavigationLoader(
-            $this->createMock(Connection::class),
             $this->createMock(SalesChannelRepository::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(NavigationRoute::class)

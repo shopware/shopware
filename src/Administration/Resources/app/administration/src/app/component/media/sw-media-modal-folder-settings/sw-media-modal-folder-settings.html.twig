@@ -37,6 +37,7 @@
                                 <sw-entity-single-select
                                     id="defaultFolder"
                                     entity="media_default_folder"
+                                    :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
                                     :value="folder.defaultFolderId ? folder.defaultFolderId : ''"
                                     :label="$tc('global.sw-media-modal-folder-settings.labelDefaultFolder')"
                                     @change="onInputDefaultFolder">

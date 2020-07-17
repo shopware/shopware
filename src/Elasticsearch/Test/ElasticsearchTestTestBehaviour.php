@@ -5,8 +5,9 @@ namespace Shopware\Elasticsearch\Test;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -75,7 +76,8 @@ trait ElasticsearchTestTestBehaviour
             $this->getDiContainer()->get(ElasticsearchHelper::class),
             $this->getDiContainer()->get(Client::class),
             $decorated,
-            $this->getDiContainer()->get(DefinitionInstanceRegistry::class)
+            $this->getDiContainer()->get(AbstractElasticsearchAggregationHydrator::class),
+            $this->getDiContainer()->get('event_dispatcher')
         );
     }
 
@@ -91,7 +93,9 @@ trait ElasticsearchTestTestBehaviour
             $this->getDiContainer()->get(Client::class),
             $decorated,
             $this->getDiContainer()->get(ElasticsearchHelper::class),
-            $this->getDiContainer()->get(CriteriaParser::class)
+            $this->getDiContainer()->get(CriteriaParser::class),
+            $this->getDiContainer()->get(AbstractElasticsearchSearchHydrator::class),
+            $this->getDiContainer()->get('event_dispatcher')
         );
     }
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Newsletter;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -60,7 +59,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var newsletterRecipientCollection $subscriptions */
         $subscriptions = $newsletterRecipientRepository->search($criteria, $this->context);
 
-        static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_NOT_SET, $subscriptions->first()->getStatus());
+        static::assertEquals('notSet', $subscriptions->first()->getStatus());
     }
 
     public function testConfirm(): void
@@ -98,7 +97,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var newsletterRecipientCollection $subscriptions */
         $subscriptions = $newsletterRecipientRepository->search($criteria, $this->context);
 
-        static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_OPT_IN, $subscriptions->first()->getStatus());
+        static::assertEquals('optIn', $subscriptions->first()->getStatus());
     }
 
     public function testUnsubscribeBeforeConfirm(): void
@@ -128,7 +127,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var newsletterRecipientCollection $subscriptions */
         $subscriptions = $newsletterRecipientRepository->search($criteria, $this->context);
 
-        static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_OPT_OUT, $subscriptions->first()->getStatus());
+        static::assertEquals('optOut', $subscriptions->first()->getStatus());
     }
 
     public function testUnsubscribeAfterConfirm(): void
@@ -166,7 +165,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var newsletterRecipientCollection $subscriptions */
         $subscriptions = $newsletterRecipientRepository->search($criteria, $this->context);
 
-        static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_OPT_IN, $subscriptions->first()->getStatus());
+        static::assertEquals('optIn', $subscriptions->first()->getStatus());
 
         $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
             'email' => $email,
@@ -182,7 +181,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var newsletterRecipientCollection $subscriptions */
         $subscriptions = $newsletterRecipientRepository->search($criteria, $this->context);
 
-        static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_OPT_OUT, $subscriptions->first()->getStatus());
+        static::assertEquals('optOut', $subscriptions->first()->getStatus());
     }
 
     public function testUpdate(): void
@@ -204,12 +203,13 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var newsletterRecipientCollection $subscriptions */
         $subscriptions = $newsletterRecipientRepository->search($criteria, $this->context);
 
-        static::assertEquals(NewsletterSubscriptionServiceInterface::STATUS_NOT_SET, $subscriptions->first()->getStatus());
+        static::assertEquals('notSet', $subscriptions->first()->getStatus());
         static::assertEmpty($subscriptions->first()->getFirstName());
 
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/newsletter', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
             'id' => $subscriptions->first()->getId(),
             'firstName' => $firstName,
+            'email' => $email,
         ]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();

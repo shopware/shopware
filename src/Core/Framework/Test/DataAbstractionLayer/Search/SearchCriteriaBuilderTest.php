@@ -391,39 +391,13 @@ class SearchCriteriaBuilderTest extends TestCase
         $gotError = false;
 
         try {
-            $this->fakeHandleRequest($maxLimit, [], $params);
+            $this->fakeHandleRequest($maxLimit, $params);
         } catch (SearchRequestException $e) {
             $errors = $e->getErrors();
             $current = $errors->current();
 
             static::assertEquals('The limit must be lower than or equal to MAX_LIMIT(=' . $maxLimit . '). Given: ' . $limit, $current['detail']);
             static::assertEquals('/limit', $current['source']['pointer']);
-            $gotError = true;
-        }
-        static::assertTrue($gotError);
-    }
-
-    public function testDisallowedLimit(): void
-    {
-        $allowedLimits = [1, 10];
-        $limit = 13;
-
-        $params = [
-            'limit' => $limit,
-        ];
-
-        $gotError = false;
-
-        try {
-            $this->fakeHandleRequest(0, $allowedLimits, $params);
-        } catch (SearchRequestException $e) {
-            $errors = $e->getErrors();
-            $current = $errors->current();
-
-            $message = sprintf('The limit must be one of the `allowed_limits` [%s]. Given: %s', implode(', ', $allowedLimits), $limit);
-            static::assertEquals($message, $current['detail']);
-            static::assertEquals('/limit', $current['source']['pointer']);
-
             $gotError = true;
         }
         static::assertTrue($gotError);
@@ -457,11 +431,11 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function fakeHandleRequest(int $maxLimit = 0, array $allowedLimits = [], array $params = []): Criteria
+    private function fakeHandleRequest(int $maxLimit = 0, array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
         $apiVersionConverter = $this->getContainer()->get(ApiVersionConverter::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit, $allowedLimits);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit);
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

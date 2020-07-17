@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -32,15 +31,10 @@ class AddressService
     /**
      * @var EntityRepositoryInterface
      */
-    private $countryRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $customerAddressRepository;
 
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $addressValidationFactory;
 
@@ -59,18 +53,13 @@ class AddressService
      */
     private $systemConfigService;
 
-    /**
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $addressValidationFactory
-     */
     public function __construct(
-        EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $customerAddressRepository,
-        $addressValidationFactory,
+        DataValidationFactoryInterface $addressValidationFactory,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService
     ) {
-        $this->countryRepository = $countryRepository;
         $this->customerAddressRepository = $customerAddressRepository;
         $this->addressValidationFactory = $addressValidationFactory;
         $this->validator = $validator;
@@ -217,18 +206,10 @@ class AddressService
 
     private function getValidationDefinition(string $accountType, bool $isCreate, SalesChannelContext $context): DataValidationDefinition
     {
-        if ($this->addressValidationFactory instanceof DataValidationFactoryInterface) {
-            if ($isCreate) {
-                $validation = $this->addressValidationFactory->create($context);
-            } else {
-                $validation = $this->addressValidationFactory->update($context);
-            }
+        if ($isCreate) {
+            $validation = $this->addressValidationFactory->create($context);
         } else {
-            if ($isCreate) {
-                $validation = $this->addressValidationFactory->buildCreateValidation($context->getContext());
-            } else {
-                $validation = $this->addressValidationFactory->buildUpdateValidation($context->getContext());
-            }
+            $validation = $this->addressValidationFactory->update($context);
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')) {

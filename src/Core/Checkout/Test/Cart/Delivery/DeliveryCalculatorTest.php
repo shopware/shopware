@@ -21,13 +21,18 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -209,12 +214,23 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setId(Uuid::randomHex());
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
-        $price->setPrice(12);
+        $price->setCurrencyPrice(new PriceCollection([
+            new Price(
+                Defaults::CURRENCY,
+                12,
+                12,
+                false
+            ),
+        ]));
         $price->setCalculationRuleId($validRuleId);
 
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
@@ -248,7 +264,14 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setName(Uuid::randomHex());
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
-        $price->setPrice(12);
+        $price->setCurrencyPrice(new PriceCollection([
+            new Price(
+                Defaults::CURRENCY,
+                12,
+                12,
+                false
+            ),
+        ]));
         $price->setCalculationRuleId(Uuid::randomHex());
 
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
@@ -290,13 +313,24 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculationRuleId($validRuleId);
             $prices->add($priceEntity);
         }
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
@@ -326,6 +360,149 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
+    public function testCalculateWithMultipleMatchingCalculationPricesSelectsLowestWithOneFreeShippingItem(): void
+    {
+        $validRuleId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $prices = new ShippingMethodPriceCollection();
+
+        foreach ([42, 23, 8, 10, 14] as $price) {
+            $priceEntity = new ShippingMethodPriceEntity();
+            $priceEntity->setUniqueIdentifier(Uuid::randomHex());
+            $priceEntity->setCurrencyPrice(
+                new PriceCollection(
+                    [
+                        new Price(
+                            Defaults::CURRENCY,
+                            $price,
+                            $price,
+                            false
+                        ),
+                    ]
+                )
+            );
+            $priceEntity->setCalculationRuleId($validRuleId);
+            $prices->add($priceEntity);
+        }
+        $shippingMethod->setPrices($prices);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $freeDeliveryItem = new LineItem(Uuid::randomHex(), 'product');
+        $freeDeliveryItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                true,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $freeDeliveryItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem, $freeDeliveryItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($shippingMethod->getId()),
+            $shippingMethod
+        );
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithMultipleMatchingCalculationPricesSetsShippingToZeroWhenOnlyFreeShippingItemsInCart(): void
+    {
+        $validRuleId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $price->setCurrencyPrice(
+            new PriceCollection(
+                [
+                    new Price(
+                        Defaults::CURRENCY,
+                        12,
+                        12,
+                        false
+                    ),
+                ]
+            )
+        );
+        $price->setCalculationRuleId($validRuleId);
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                true,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $freeDeliveryItem = new LineItem(Uuid::randomHex(), 'product');
+        $freeDeliveryItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                true,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $freeDeliveryItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem, $freeDeliveryItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(
+            DeliveryProcessor::buildKey($shippingMethod->getId()),
+            $shippingMethod
+        );
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(0.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
     public function testCalculateWithMultiplePricesCalculationLineItemCount(): void
     {
         $shippingMethod = new ShippingMethodEntity();
@@ -336,7 +513,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
             $priceEntity->setQuantityStart($quantityStart);
             $priceEntity->setQuantityEnd($quantityStart + 5);
@@ -347,6 +531,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -379,7 +567,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
             $priceEntity->setQuantityStart(0);
             $prices->add($priceEntity);
@@ -387,6 +582,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -416,10 +615,17 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
-        foreach ([42, 23, 8, 10, 14] as $price) {
+        foreach ([42, 23, 8, 10, 14, 17, 25, 33, 52, 78] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_WEIGHT);
             $priceEntity->setQuantityStart($quantityStart);
             $priceEntity->setQuantityEnd($quantityStart + 5);
@@ -430,6 +636,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 2);
         $lineItem->setDeliveryInformation(
@@ -448,7 +658,7 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        static::assertSame(52.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithMultipleMatchingPricesCalculationWeight(): void
@@ -461,7 +671,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_WEIGHT);
             $priceEntity->setQuantityStart(0);
             $prices->add($priceEntity);
@@ -469,6 +686,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -500,7 +721,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
             $priceEntity->setQuantityStart($quantityStart);
             $priceEntity->setQuantityEnd($quantityStart + 5);
@@ -511,6 +739,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 2);
         $lineItem->setDeliveryInformation(
@@ -530,7 +762,7 @@ class DeliveryCalculatorTest extends TestCase
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
-        static::assertSame(10.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+        static::assertSame(8.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateExclusiveEndPrice(): void
@@ -543,7 +775,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
             $priceEntity->setQuantityStart($quantityStart);
             $priceEntity->setQuantityEnd($quantityStart + 5);
@@ -555,6 +794,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 5);
         $lineItem->setDeliveryInformation(
@@ -587,7 +830,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $index => $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
             $priceEntity->setQuantityStart($quantityStart);
             if ($index < 4) {
@@ -601,6 +851,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 50);
         $lineItem->setDeliveryInformation(
@@ -633,7 +887,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
             $priceEntity->setQuantityStart(0);
             $prices->add($priceEntity);
@@ -641,6 +902,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
         $lineItem->setDeliveryInformation(
@@ -674,7 +939,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
             $priceEntity->setQuantityStart(0);
             $prices->add($priceEntity);
@@ -683,13 +955,24 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([37, 25, 7, 12, 51] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculationRuleId($validRuleId);
             $prices->add($priceEntity);
         }
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
         $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 18);
@@ -724,7 +1007,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setRuleId(Uuid::randomHex());
             $prices->add($priceEntity);
         }
@@ -769,7 +1059,14 @@ class DeliveryCalculatorTest extends TestCase
         foreach ([42, 23, 8, 10, 14] as $index => $price) {
             $priceEntity = new ShippingMethodPriceEntity();
             $priceEntity->setUniqueIdentifier(Uuid::randomHex());
-            $priceEntity->setPrice($price);
+            $priceEntity->setCurrencyPrice(new PriceCollection([
+                new Price(
+                    Defaults::CURRENCY,
+                    $price,
+                    $price,
+                    false
+                ),
+            ]));
             $priceEntity->setCalculation(DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT);
             $priceEntity->setQuantityStart($quantityStart);
             if ($index < 4) {
@@ -786,6 +1083,10 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices($prices);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
         $context->method('getRuleIds')->willReturn([$ruleId]);
 
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
@@ -808,6 +1109,362 @@ class DeliveryCalculatorTest extends TestCase
         $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         static::assertSame(14.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithDifferentCurrency(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    12,
+                    12,
+                    false
+                ),
+                new Price(
+                    $currency->getId(),
+                    20,
+                    20,
+                    false
+                ),
+            ]
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCurrency')->willReturn($currency);
+
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(20.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithNotExistendCurrencyShouldUseDefaultCurrency(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    12,
+                    12,
+                    false
+                ),
+                new Price(
+                    Uuid::randomHex(),
+                    20,
+                    20,
+                    false
+                ),
+            ]
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->method('getCurrency')->willReturn($currency);
+
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(12.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithCustomerGroupGross(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    5,
+                    10,
+                    false
+                ),
+            ]
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $customerGroup = new CustomerGroupEntity();
+        $customerGroup->setDisplayGross(true);
+
+        $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(10.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithCustomerGroupNet(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    5,
+                    10,
+                    false
+                ),
+            ]
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $customerGroup = new CustomerGroupEntity();
+        $customerGroup->setDisplayGross(false);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(5.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithDifferentRulesUseMatchedRule(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+
+        $priceWithoutRule = new ShippingMethodPriceEntity();
+        $priceWithoutRule->setUniqueIdentifier(Uuid::randomHex());
+        $priceWithoutRule->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    5,
+                    10,
+                    false
+                ),
+            ]
+        ));
+
+        $priceWithRule = new ShippingMethodPriceEntity();
+        $priceWithRule->setUniqueIdentifier(Uuid::randomHex());
+        $priceWithRule->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    20,
+                    30,
+                    false
+                ),
+            ]
+        ));
+        $priceWithRule->setRuleId(Uuid::randomHex());
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$priceWithoutRule, $priceWithRule]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$priceWithRule->getRuleId()]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame((float) 20, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculateWithDifferentRulesUseNullIfNoRuleMatches(): void
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setId(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+
+        $priceWithoutRule = new ShippingMethodPriceEntity();
+        $priceWithoutRule->setUniqueIdentifier(Uuid::randomHex());
+        $priceWithoutRule->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    5,
+                    10,
+                    false
+                ),
+            ]
+        ));
+
+        $priceWithRule = new ShippingMethodPriceEntity();
+        $priceWithRule->setUniqueIdentifier(Uuid::randomHex());
+        $priceWithRule->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    20,
+                    30,
+                    false
+                ),
+            ]
+        ));
+        $priceWithRule->setRuleId(Uuid::randomHex());
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$priceWithoutRule, $priceWithRule]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame((float) 5, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection

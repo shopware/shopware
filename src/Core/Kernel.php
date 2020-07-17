@@ -90,15 +90,19 @@ class Kernel extends HttpKernel
     {
         /** @var array $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
+        $instanciatedBundleNames = [];
 
-        /** @var string $class */
+        /** @var class-string<\Symfony\Component\HttpKernel\Bundle\Bundle> $class */
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                yield new $class();
+                $bundle = new $class();
+                $instanciatedBundleNames[] = $bundle->getName();
+
+                yield $bundle;
             }
         }
 
-        yield from $this->pluginLoader->getBundles($this->getKernelParameters());
+        yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
     }
 
     public function getProjectDir()
@@ -266,7 +270,9 @@ class Kernel extends HttpKernel
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
                 'kernel.plugin_infos' => $this->pluginLoader->getPluginInfos(),
-                'kernel.supported_api_versions' => [1],
+                'kernel.supported_api_versions' => [1, 2],
+                'defaults_bool_true' => true,
+                'defaults_bool_false' => false,
             ]
         );
     }

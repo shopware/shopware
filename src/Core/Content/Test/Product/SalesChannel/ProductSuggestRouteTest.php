@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -45,6 +46,8 @@ class ProductSuggestRouteTest extends TestCase
             'POST',
             '/store-api/v1/search-suggest?search=Product-Test',
             [
+                'total-count-mode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+                'limit' => 10,
             ]
         );
 

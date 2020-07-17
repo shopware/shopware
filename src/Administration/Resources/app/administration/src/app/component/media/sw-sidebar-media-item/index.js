@@ -176,7 +176,7 @@ Component.register('sw-sidebar-media-item', {
             }
 
             if (this.additionalSearchCriteria) {
-                criteria.addFilter(this.additionalSearchCriteria);
+                criteria.addFilter(this.additionalSearchCriteria.getQuery());
             }
 
             if (this.term) {

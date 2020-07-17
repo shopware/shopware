@@ -5,7 +5,7 @@ namespace Shopware\Core;
 final class PlatformRequest
 {
     // should be increased with every major version
-    public const API_VERSION = 1;
+    public const API_VERSION = 2;
 
     /**
      * Response Headers
@@ -23,6 +23,13 @@ final class PlatformRequest
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
 
     /**
+     * Sync controller headers
+     */
+    public const HEADER_FAIL_ON_ERROR = 'fail-on-error';
+    public const HEADER_SINGLE_OPERATION = 'single-operation';
+    public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
+
+    /**
      * This header is used in the administration to get all fields
      */
     public const HEADER_IGNORE_DEPRECATIONS = 'sw-api-compatibility';
@@ -34,6 +41,7 @@ final class PlatformRequest
     public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
+    public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
 
     /**
      * OAuth attributes

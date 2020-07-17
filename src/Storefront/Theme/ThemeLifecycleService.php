@@ -45,13 +45,22 @@ class ThemeLifecycleService
      */
     private $fileSaver;
 
+    /**
+     * @var ThemeFileImporterInterface|null
+     */
+    private $themeFileImporter;
+
+    /**
+     * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
+     */
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $mediaFolderRepository,
         EntityRepositoryInterface $themeMediaRepository,
-        FileSaver $fileSaver
+        FileSaver $fileSaver,
+        ?ThemeFileImporterInterface $themeFileImporter = null
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;
@@ -59,6 +68,7 @@ class ThemeLifecycleService
         $this->mediaFolderRepository = $mediaFolderRepository;
         $this->themeMediaRepository = $themeMediaRepository;
         $this->fileSaver = $fileSaver;
+        $this->themeFileImporter = $themeFileImporter;
     }
 
     public function refreshThemes(
@@ -195,8 +205,12 @@ class ThemeLifecycleService
 
     private function createMediaStruct(string $path, string $mediaId, string $themeFolderId): ?array
     {
-        if (!file_exists($path) || is_dir($path)) {
+        if (!$this->fileExists($path)) {
             return null;
+        }
+
+        if ($this->themeFileImporter) {
+            $path = $this->themeFileImporter->getRealPath($path);
         }
 
         $pathinfo = pathinfo($path);
@@ -289,5 +303,14 @@ class ThemeLifecycleService
         }
 
         return $helpTexts;
+    }
+
+    private function fileExists(string $path): bool
+    {
+        if (!$this->themeFileImporter) {
+            return file_exists($path) && !is_dir($path);
+        }
+
+        return $this->themeFileImporter->fileExists($path);
     }
 }

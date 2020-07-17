@@ -2,8 +2,7 @@
 
 namespace Shopware\Recovery\Common\Steps;
 
-use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Recovery\Common\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationCollection;
 
 class MigrationStep
 {
@@ -11,25 +10,13 @@ class MigrationStep
     public const UPDATE_DESTRUCTIVE = 'update_destructive';
 
     /**
-     * @var MigrationRuntime
+     * @var MigrationCollection
      */
-    private $migrationManager;
+    private $collection;
 
-    /**
-     * @var MigrationCollectionLoader
-     */
-    private $migrationCollectionLoader;
-
-    /**
-     * @var array
-     */
-    private $identifiers;
-
-    public function __construct(MigrationRuntime $migrationManager, MigrationCollectionLoader $migrationCollectionLoader, array $identifiers)
+    public function __construct(MigrationCollection $collection)
     {
-        $this->migrationManager = $migrationManager;
-        $this->migrationCollectionLoader = $migrationCollectionLoader;
-        $this->identifiers = $identifiers;
+        $this->collection = $collection;
     }
 
     /**
@@ -38,24 +25,22 @@ class MigrationStep
     public function run(string $modus, int $offset, ?int $totalCount = null)
     {
         if ($offset === 0) {
-            foreach ($this->identifiers as $identifier) {
-                $this->migrationCollectionLoader->syncMigrationCollection($identifier);
-            }
+            $this->collection->sync();
         }
 
         if (!$totalCount) {
             if ($modus === self::UPDATE) {
-                $totalCount = \count($this->migrationManager->getExecutableMigrations(null, null, $this->identifiers));
+                $totalCount = \count($this->collection->getExecutableMigrations());
             } else {
-                $totalCount = \count($this->migrationManager->getExecutableDestructiveMigrations(null, null, $this->identifiers));
+                $totalCount = \count($this->collection->getExecutableDestructiveMigrations());
             }
         }
 
         try {
             if ($modus === self::UPDATE) {
-                $result = $this->migrationManager->migrate(null, 1, $this->identifiers);
+                $result = $this->collection->migrateInSteps(null, 1);
             } else {
-                $result = $this->migrationManager->migrateDestructive(null, 1, $this->identifiers);
+                $result = $this->collection->migrateDestructiveInSteps(null, 1);
             }
 
             $executedMigration = iterator_count($result) === 1;

@@ -33,6 +33,11 @@ Component.register('sw-entity-single-select', {
             required: false,
             default: ''
         },
+        resetOption: {
+            type: String,
+            required: false,
+            default: ''
+        },
         labelProperty: {
             type: String,
             required: false,
@@ -59,16 +64,6 @@ Component.register('sw-entity-single-select', {
             required: false,
             default() {
                 return Shopware.Context.api;
-            }
-        },
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return { active: false };
             }
         },
 
@@ -160,6 +155,13 @@ Component.register('sw-entity-single-select', {
          */
         loadSelected() {
             if (this.value === '' || this.value === null) {
+                if (this.resetOption) {
+                    this.singleSelection = {
+                        id: null,
+                        name: this.resetOption
+                    };
+                }
+
                 return Promise.resolve();
             }
 
@@ -237,6 +239,15 @@ Component.register('sw-entity-single-select', {
                     }
                 });
             }
+
+            if (this.resetOption) {
+                if (!this.resultCollection.has(null)) {
+                    this.resultCollection.unshift({
+                        id: null,
+                        name: this.resetOption
+                    });
+                }
+            }
         },
 
         onSelectExpanded() {
@@ -294,8 +305,6 @@ Component.register('sw-entity-single-select', {
             // This is a little against v-model. But so we dont need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
-            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-            this.$emit('input', item.id, item);
             this.$emit('change', item.id, item);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);
@@ -303,8 +312,6 @@ Component.register('sw-entity-single-select', {
 
         clearSelection() {
             this.$emit('before-selection-clear', this.singleSelection, this.value);
-            /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-            this.$emit('input', null);
             this.$emit('change', null);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), null);

@@ -13,7 +13,7 @@
       "messageSaveSuccess": "Die Kategorie \"{name}\" wurde erfolgreich gespeichert.",
       "useAsLogo": "Als Anzeigebild verwenden",
       "treeHeadline": "Kategoriestruktur",
-      "treeHeadSelected": "{count} selektiert",
+      "treeHeadSelected": "{count} ausgewählt",
       "emptyStateHeadline": "Keine Kategorie ausgewählt",
       "actions": {
         "actionsDisabledInLanguage": "Kategorien können nur in der Standardsprache erstellt werden.",
@@ -33,6 +33,7 @@
         "isCategoryActiveLabel": "Kategorie ist aktiv",
         "useAsLink": "Als Link verwenden",
         "labelCategoryTags": "Tags",
+        "labelCategoryTagsPlaceholder": "Gib einzelne Tags ein ...",
         "types": {
           "title": "Kategorietyp",
           "page": "Kategorie",
@@ -44,23 +45,23 @@
       "entry-point": {
         "title": "Einstiegspunkt",
         "navigation": {
-          "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
+          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Hauptnavigation zugewiesen:"
         },
         "serviceSales": {
-          "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
+          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Servicenavigation zugewiesen:"
         },
         "footerSales": {
-          "descriptionGeneral": "Du hast diesen Knoten in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
+          "descriptionGeneral": "Du hast diese Kategorie in folgenden Verkaufskanälen als Einstiegspunkt für die Footernavigation zugewiesen:"
         }
       },
       "seo": {
         "title": "SEO",
-        "labelMetaTitle": "Meta-Title",
-        "labelMetaDescription": "Meta-Description",
-        "labelKeywords": "Keywords",
-        "placeholderMetaTitle": "Gib einen Meta-Title ein ...",
-        "placeholderMetaDescription": "Gib eine Meta-Description ein ...",
-        "placeholderKeywords": "Gib Keywords ein ..."
+        "labelMetaTitle": "Meta-Titel",
+        "labelMetaDescription": "Beschreibung",
+        "labelKeywords": "Schlüsselwörter",
+        "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+        "placeholderMetaDescription": "Gib eine Beschreibung ein ...",
+        "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
       },
       "menu": {
         "title": "Menü-Einstellungen",

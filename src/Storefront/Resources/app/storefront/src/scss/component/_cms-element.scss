@@ -14,15 +14,18 @@ General styling for cms elements
     }
 
     .cms-image-container {
-        display: grid;
+        display: block;
         max-width: 100%;
         position: relative;
 
         &.is-cover {
+            object-fit: contain;
+            font-family: 'object-fit: contain;'; // IE polyfill
             height: 100%;
 
             .cms-image {
                 object-fit: cover;
+                font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;
                 top: 0;
@@ -119,7 +122,7 @@ General styling for cms elements
 .cms-element-product-slider {
     .cms-element-title {
         font-size: $font-size-lg;
-        font-weight: bold;
+        font-weight: $font-weight-bold;
         color: $headings-color;
     }
 

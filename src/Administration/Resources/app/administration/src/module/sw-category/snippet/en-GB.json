@@ -33,6 +33,7 @@
         "isCategoryActiveLabel": "Category active",
         "useAsLink": "Use as link",
         "labelCategoryTags": "Tags",
+        "labelCategoryTagsPlaceholder": "Enter tags individually...",
         "types": {
           "title": "Category type",
           "page": "Category",
@@ -44,23 +45,23 @@
       "entry-point": {
         "title": "Entry point",
         "navigation": {
-          "descriptionGeneral": "You have assigned this node as an entry point for the main navigation in these Sales Channels:"
+          "descriptionGeneral": "You have assigned this category as an entry point for the main navigation in these Sales Channels:"
         },
         "serviceSales": {
-          "descriptionGeneral": "You have assigned this node as an entry point for the service navigation in these Sales Channels:"
+          "descriptionGeneral": "You have assigned this category as an entry point for the service navigation in these Sales Channels:"
         },
         "footerSales": {
-          "descriptionGeneral": "You have assigned this node as an entry point for the footer navigation in these Sales Channels:"
+          "descriptionGeneral": "You have assigned this category as an entry point for the footer navigation in these Sales Channels:"
         }
       },
       "seo": {
         "title": "SEO",
         "labelMetaTitle": "Meta title",
-        "labelMetaDescription": "Meta description",
-        "labelKeywords": "SEO keywords",
+        "labelMetaDescription": "Description",
+        "labelKeywords": "Keywords",
         "placeholderMetaTitle": "Enter meta title...",
-        "placeholderMetaDescription": "Enter meta description...",
-        "placeholderKeywords": "Enter keywords..."
+        "placeholderMetaDescription": "Enter a description...",
+        "placeholderKeywords": "Enter one or more keywords..."
       },
       "menu": {
         "title": "Menu settings",

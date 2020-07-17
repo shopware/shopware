@@ -12,8 +12,8 @@
         <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="platform/src/Recovery" />
-            <file name="vendor/shopware/platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php" />
+            <directory name="platform/src/Recovery"/>
+            <directory name="platform/src/Docs/Resources"/>
         </ignoreFiles>
     </projectFiles>
 
@@ -24,21 +24,11 @@
                 <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
             </errorLevel>
         </UnusedMethodCall>
-        <UnusedVariable>
-            <errorLevel type="info">
-                <file name="platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
-            </errorLevel>
-        </UnusedVariable>
         <UnusedFunctionCall>
             <errorLevel type="info">
                 <referencedFunction name="iterator_to_array"/>
             </errorLevel>
         </UnusedFunctionCall>
-        <UndefinedDocblockClass>
-            <errorLevel type="suppress">
-                <referencedClass name="Symfony\Component\DependencyInjection\ContainerAwareTrait"/> <!-- Issue with loading traits in Docblocks -->
-            </errorLevel>
-        </UndefinedDocblockClass>
         <InvalidCast>
             <errorLevel type="info">
                 <file name="platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
@@ -51,8 +41,6 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
-                <file name="platform/src/Core/Migration/Test/BasicDataUntouchedTest.php"/>
-                <file name="platform/src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
             </errorLevel>
         </UndefinedConstant>
         <InvalidScope>
@@ -66,13 +54,28 @@
                 <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
             </errorLevel>
         </MissingFile>
+        <UnusedParam>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+            </errorLevel>
+        </UnusedParam>
+        <InvalidCatch>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+            </errorLevel>
+        </InvalidCatch>
+        <InaccessibleMethod>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
+            </errorLevel>
+        </InaccessibleMethod>
 
-        <LessSpecificReturnType errorLevel="info"/>
+        <LessSpecificImplementedReturnType errorLevel="info"/>
 
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>
             <errorLevel type="info">
-                <file name="vendor/shopware/platform/src/Core/Framework/Api/Controller/CacheController.php"/>
+                <file name="platform/src/Core/Framework/Api/Controller/CacheController.php"/>
             </errorLevel>
         </InaccessibleProperty>
 

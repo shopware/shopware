@@ -71,13 +71,25 @@
                                                                    for="{{ optionIdentifier }}">
 
                                                                 {% if displayType == 'media' and media %}
-                                                                    <img src="{{ media|sw_encode_media_url }}"
-                                                                         class="product-detail-configurator-option-image"
-                                                                         alt="{{ option.translated.name }}"/>
+                                                                    {% block page_product_detail_configurator_option_radio_label_media %}
+                                                                        {% sw_thumbnails 'configurator-option-img-thumbnails' with {
+                                                                            media: media,
+                                                                            sizes: {
+                                                                                'default': '52px'
+                                                                            },
+                                                                            attributes: {
+                                                                                'class': 'product-detail-configurator-option-image',
+                                                                                'alt': option.translated.name,
+                                                                                'title': option.translated.name
+                                                                            }
+                                                                        } %}
+                                                                    {% endblock %}
                                                                 {% elseif displayType == 'text' or
                                                                           (displayType == 'media' and not media) or
                                                                           (displayType == 'color' and not option.colorHexCode) %}
-                                                                    {{ option.translated.name }}
+                                                                    {% block page_product_detail_configurator_option_radio_label_text %}
+                                                                        {{ option.translated.name }}
+                                                                    {% endblock %}
                                                                 {% endif %}
                                                             </label>
                                                         {% endblock %}

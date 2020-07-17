@@ -19,7 +19,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/batch',
+            url: '/api/v*/_action/system-config/batch',
             method: 'post'
         }).as('saveData');
 
@@ -63,12 +63,12 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/batch',
+            url: '/api/v*/_action/system-config/batch',
             method: 'post'
         }).as('saveSettings');
 
         cy.route({
-            url: '/api/v1/sales-channel/*',
+            url: '/api/v*/sales-channel/*',
             method: 'patch'
         }).as('saveSalesChannel');
 
@@ -114,7 +114,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/sales-channel/*',
+            url: '/api/v*/sales-channel/*',
             method: 'patch'
         }).as('saveSalesChannel');
 

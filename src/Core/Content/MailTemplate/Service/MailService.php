@@ -8,10 +8,12 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -73,6 +75,11 @@ class MailService implements MailServiceInterface
      */
     private $logger;
 
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
+
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,
@@ -83,7 +90,8 @@ class MailService implements MailServiceInterface
         EntityRepositoryInterface $salesChannelRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        UrlGeneratorInterface $urlGenerator
     ) {
         $this->dataValidator = $dataValidator;
         $this->templateRenderer = $templateRenderer;
@@ -95,12 +103,13 @@ class MailService implements MailServiceInterface
         $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function send(array $data, Context $context, array $templateData = []): ?\Swift_Message
     {
-        $mailSentEvent = new MailBeforeValidateEvent($data, $context, $templateData);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
@@ -110,8 +119,8 @@ class MailService implements MailServiceInterface
         $salesChannel = null;
 
         if ($salesChannelId !== null && !isset($templateData['salesChannel'])) {
-            $criteria = new Criteria([$salesChannelId]);
-            $criteria->addAssociation('mailHeaderFooter');
+            $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
+
             /** @var SalesChannelEntity|null $salesChannel */
             $salesChannel = $this->salesChannelRepository->search($criteria, $context)->get($salesChannelId);
 
@@ -120,6 +129,8 @@ class MailService implements MailServiceInterface
             }
 
             $templateData['salesChannel'] = $salesChannel;
+        } elseif (isset($templateData['salesChannel'])) {
+            $salesChannel = $templateData['salesChannel'];
         }
 
         $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
@@ -174,10 +185,10 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
-        $mailSentEvent = new MailBeforeSentEvent($data, $message, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
+        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 
-        if ($mailSentEvent->isPropagationStopped()) {
+        if ($mailBeforeSentEvent->isPropagationStopped()) {
             return null;
         }
 
@@ -197,10 +208,8 @@ class MailService implements MailServiceInterface
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
-     *
-     * @deprecated tag:v6.3.0 will be private in 6.3.0
      */
-    public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
+    private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [
@@ -245,8 +254,21 @@ class MailService implements MailServiceInterface
         $urls = [];
         foreach ($media as $mediaItem) {
             $urls[] = $mediaItem->getUrl();
+            $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
         }
 
         return $urls;
+    }
+
+    private function getSalesChannelDomainCriteria(string $salesChannelId, Context $context): Criteria
+    {
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('mailHeaderFooter');
+        $criteria->getAssociation('domains')
+            ->addFilter(
+                new EqualsFilter('languageId', $context->getLanguageId())
+            );
+
+        return $criteria;
     }
 }

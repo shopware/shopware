@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "shopware/platform": "6.2.*@dev"
+        "shopware/platform": "6.3.*@dev"
     },
     "extra": {
         "shopware-plugin-class": "Works\\Works"

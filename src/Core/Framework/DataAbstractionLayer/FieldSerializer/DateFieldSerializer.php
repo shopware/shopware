@@ -43,6 +43,8 @@ class DateFieldSerializer extends AbstractFieldSerializer
             return;
         }
 
+        $value = $value->setTimezone(new \DateTimeZone('UTC'));
+
         yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_FORMAT);
     }
 

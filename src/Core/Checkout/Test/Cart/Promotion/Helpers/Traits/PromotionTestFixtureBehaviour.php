@@ -108,7 +108,7 @@ trait PromotionTestFixtureBehaviour
      *
      * @return string
      */
-    private function createTestFixturePercentagePromotion(string $promotionId, string $code, float $percentage, ?float $maxValue, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART)
+    private function createTestFixturePercentagePromotion(string $promotionId, ?string $code, float $percentage, ?float $maxValue, ContainerInterface $container, string $scope = PromotionDiscountEntity::SCOPE_CART)
     {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $container->get('promotion.repository');
@@ -194,7 +194,7 @@ trait PromotionTestFixtureBehaviour
             'useCodes' => false,
             'useSetGroups' => false,
             'salesChannels' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                ['salesChannelId' => $context->getSalesChannel()->getId(), 'priority' => 1],
             ],
         ];
 

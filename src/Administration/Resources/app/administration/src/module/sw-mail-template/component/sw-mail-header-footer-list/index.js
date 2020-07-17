@@ -94,11 +94,11 @@ Component.register('sw-mail-header-footer-list', {
         },
 
         onDuplicate(id) {
-            this.mailHeaderFooterStore.apiService.clone(id).then((mailHeaderFooter) => {
+            this.mailHeaderFooterRepository.clone(id, Shopware.Context.api).then(({ newId }) => {
                 this.$router.push(
                     {
                         name: 'sw.mail.template.detail_head_foot',
-                        params: { id: mailHeaderFooter.id }
+                        params: { id: newId }
                     }
                 );
             });

@@ -18,12 +18,15 @@ use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuild
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use function Flag\next7399;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
     public const CUSTOM_PRICE = 'customPrice';
 
     public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+
+    public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
 
     public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
@@ -42,14 +45,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      */
     private $calculator;
 
+    /**
+     * @var ProductFeatureBuilder
+     */
+    private $featureBuilder;
+
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder
+        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
+        ProductFeatureBuilder $featureBuilder
     ) {
         $this->productGateway = $productGateway;
         $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->calculator = $calculator;
+        $this->featureBuilder = $featureBuilder;
     }
 
     public function collect(
@@ -79,6 +89,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // enrich all products in original cart
             $this->enrich($original, $lineItem, $data, $context, $behavior);
         }
+
+        $this->featureBuilder->prepare($lineItems, $data, $context);
     }
 
     /**
@@ -144,8 +156,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             $lineItem->setPrice($this->calculator->calculate($definition, $context));
+
             $toCalculate->add($lineItem);
         }
+
+        $this->featureBuilder->add($lineItems, $data, $context);
     }
 
     private function enrich(
@@ -173,7 +188,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             return;
         }
 
-        $lineItem->setLabel($product->getTranslation('name'));
+        $label = trim($lineItem->getLabel() ?? '');
+        // set the label if its empty or the context does not have the permission to overwrite it
+        if ($label === '' || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
+            $lineItem->setLabel($product->getTranslation('name'));
+        }
 
         if ($product->getCover()) {
             $lineItem->setCover($product->getCover()->getMedia());
@@ -221,7 +240,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        $lineItem->replacePayload([
+        $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
             'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -237,7 +256,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $this->getOptions($product),
-        ]);
+        ];
+
+        if (next7399()) {
+            $payload['options'] = $product->getVariation();
+        }
+
+        $lineItem->replacePayload($payload);
     }
 
     private function getNotCompleted(CartDataCollection $data, array $lineItems): array

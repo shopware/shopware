@@ -1,12 +1,12 @@
 import template from './sw-settings-currency-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-currency-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -22,7 +22,12 @@ Component.register('sw-settings-currency-detail', {
     },
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('currencies.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -45,15 +50,19 @@ Component.register('sw-settings-currency-detail', {
             return this.placeholder(this.currency, 'name');
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         currencyRepository() {
             return this.repositoryFactory.create('currency');
         },
 
         tooltipSave() {
+            if (!this.acl.can('currencies.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('currencies.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -99,7 +108,7 @@ Component.register('sw-settings-currency-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.currency = this.currencyRepository.create(Shopware.Context.api);
             this.isLoading = false;
         },

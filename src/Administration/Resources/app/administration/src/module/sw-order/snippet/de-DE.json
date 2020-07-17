@@ -28,7 +28,11 @@
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
-      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code"
+      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
+      "buttonDelete": "Löschen",
+      "buttonCancel": "Abbrechen",
+      "modalTitleDelete": "Bestellung löschen",
+      "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",
@@ -46,7 +50,7 @@
       "notification": {
         "shippingNotAvailable": {
           "title": "Fehler",
-          "message": "Lieferung in das Land nicht möglich"
+          "message": "Lieferung in das Zielland nicht möglich."
         }
       }
     },
@@ -233,6 +237,9 @@
       "buttonMerge": "Lieferung zusammenfügen",
       "buttonDelete": "Löschen"
     },
+    "detailCustomerComment": {
+      "title": "Zusätzliche Informationen"
+    },
     "stateCard": {
       "cardTitle": "Statusverlauf",
       "headlineOrderState": "Bestellstatus",
@@ -243,20 +250,20 @@
       "labelSelectStatePlaceholder": "Bitte wählen ...",
       "labelSelectStateButton": "Status ändern und E-Mail versenden",
       "headlineErrorStateChange": "Fehler",
-      "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten. Zusätzliche Informationen:",
+      "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
-      "labelNoTransactionState": "Keine Transaktion vorhanden",
-      "labelNoDeliveryState": "Keine Lieferung vorhanden"
+      "labelNoTransactionState": "Keine Transaktionen vorhanden",
+      "labelNoDeliveryState": "Keine Lieferungen vorhanden"
     },
     "assignMailTemplateCard": {
-      "cardTitle": "E-Mail-Vorlage zuweisen",
-      "headline": "Diesem Bestellstatus ist noch keine E-Mail-Vorlage zugewiesen!",
-      "placeholderAssignMailTemplate": "Weise ein E-Mail-Vorlage zu ...",
+      "cardTitle": "E-Mail-Template zuweisen",
+      "headline": "Diesem Bestellstatus ist noch kein E-Mail-Template zugewiesen!",
+      "placeholderAssignMailTemplate": "Weise ein E-Mail-Template zu ...",
       "alertHeadline": "Hinweis",
       "alertMessage": "Eine Zuweisung wirkt sich auf alle nachfolgenden Bestellungen dieses Verkaufskanals aus.",
-      "buttonCreateMailTemplate": "E-Mail-Vorlage erstellen",
-      "buttonAssignMailTemplate": "E-Mail-Vorlage zuweisen",
-      "buttonNotAssignMailTemplate": "Keine E-Mail-Vorlage zuweisen",
+      "buttonCreateMailTemplate": "E-Mail-Template erstellen",
+      "buttonAssignMailTemplate": "E-Mail-Template zuweisen",
+      "buttonNotAssignMailTemplate": "Kein E-Mail-Template zuweisen",
       "gridColumnType": "Typ",
       "gridColumnDescription": "Beschreibung"
     },
@@ -269,7 +276,7 @@
       "labelSent": "Gesendet",
       "labelAttach": "Anhängen",
       "labelAmount": "Bestellwert",
-      "labelDownloadPdf": "Als PDF herunterladen",
+      "labelDownloadPdf": "PDF herunterladen",
       "labelCreateNew": "Neu erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageEmptySubline": "Verwaltung von Dokumenten."
@@ -284,7 +291,7 @@
       "selectInvoiceNumber": "Rechnungsnummer wählen",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
-      "labelCreateDownloadPdf": "Erstellen und als PDF herunterladen",
+      "labelCreateDownloadPdf": "Erstellen und PDF herunterladen",
       "labelCreateSend": "Beleg erstellen und senden",
       "labelCreate": "Beleg erstellen",
       "labelCancel": "Schließen",
@@ -302,15 +309,22 @@
       "labelGuest": "Gastbesteller"
     },
     "invalidPromotionModal": {
-      "modalTitle": "Ungültige Aktionscodes werden entfernt",
-      "modalDescription": "Die folgenden, ungültigen Aktionscodes werden entfernt",
+      "modalTitle": "Ungültige Aktionscodes entfernen",
+      "modalDescription": "Die folgenden, ungültigen Aktionscodes werden entfernt:",
       "buttonConfirm": "OK"
     },
     "promotionModal": {
-      "labelTitle": "Deaktivieren Sie automatische Werbeaktionen",
-      "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert",
-      "messageNoItems": "Noch keine automatischen Werbeaktionen",
+      "labelTitle": "Automatische Werbeaktionen deaktivieren",
+      "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert:",
+      "messageNoItems": "Noch keine automatischen Werbeaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "orders": {
+        "create_discounts": "Rabatte erstellen"
+      }
     }
   }
 }

@@ -65,11 +65,11 @@ class SearchController extends StorefrontController
      * Route to load the listing filters
      *
      * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/search/{search}", name="widgets.search.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/search", name="widgets.search.pagelet.v2", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws MissingRequestParameterException
      */
-    public function pagelet(Request $request, SalesChannelContext $context): Response
+    public function ajax(Request $request, SalesChannelContext $context): Response
     {
         $request->request->set('no-aggregations', true);
 

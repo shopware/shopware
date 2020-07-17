@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\User\UserCollection;
@@ -17,9 +16,14 @@ class AclRoleEntity extends Entity
     protected $name;
 
     /**
-     * @var AclResourceCollection|null
+     * @var string|null
      */
-    protected $aclResources;
+    protected $description;
+
+    /**
+     * @var array
+     */
+    protected $privileges = [];
 
     /**
      * @var UserCollection|null
@@ -36,16 +40,6 @@ class AclRoleEntity extends Entity
         $this->name = $name;
     }
 
-    public function getAclResources(): ?AclResourceCollection
-    {
-        return $this->aclResources;
-    }
-
-    public function setAclResources(AclResourceCollection $aclResources): void
-    {
-        $this->aclResources = $aclResources;
-    }
-
     public function getUsers(): ?UserCollection
     {
         return $this->users;
@@ -56,8 +50,23 @@ class AclRoleEntity extends Entity
         $this->users = $users;
     }
 
-    public function getApiAlias(): string
+    public function getPrivileges(): array
     {
-        return 'dal_acl_rote';
+        return $this->privileges;
+    }
+
+    public function setPrivileges(array $privileges): void
+    {
+        $this->privileges = $privileges;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 }

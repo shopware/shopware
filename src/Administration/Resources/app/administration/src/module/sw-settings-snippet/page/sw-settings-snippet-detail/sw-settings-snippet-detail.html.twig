@@ -76,7 +76,7 @@
                                                   :class="`sw-settings-snippet-detail__translation-field--${index}`"
                                                   :key="snippet.setId"
                                                   @input="onChange"
-                                                  :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets[snippet.setId].name })"
+                                                  :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
                                                   :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
                                         </sw-field>
                                     {% endblock %}

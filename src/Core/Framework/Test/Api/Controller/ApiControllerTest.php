@@ -197,7 +197,7 @@ EOF;
         $data = ['id' => $id, 'name' => $id];
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country' => ['create', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:detail']);
         $admin = TestUser::getAdmin();
 
         $user->authorizeBrowser($browser);
@@ -241,7 +241,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country' => ['update', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['country:update', 'country:detail']);
 
         $user->authorizeBrowser($browser);
 
@@ -263,6 +263,34 @@ EOF;
         $this->assertEntityExists($browser, 'country', $id);
     }
 
+    public function testCreateAndDeleteWithPermissions(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $user = TestUser::createNewTestUser($connection, ['product:create', 'product:delete', 'tax:create']);
+
+        $browser = $this->getBrowser();
+        $user->authorizeBrowser($browser);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+        ];
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+
+        $browser->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+    }
+
     public function testTranslatedPropertiesNotWritableWithoutParentDefinitionPermissions(): void
     {
         skipTestNext3722($this);
@@ -279,7 +307,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country' => ['create', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:detail']);
 
         $user->authorizeBrowser($browser);
 
@@ -360,7 +388,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['product' => ['create', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['product:create', 'product:detail']);
         $admin = TestUser::getAdmin();
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -423,7 +451,7 @@ EOF;
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
         static::assertNotEmpty($response->headers->get('Location'));
-        static::assertEquals('http://localhost/api/v1/category/' . $id, $response->headers->get('Location'));
+        static::assertEquals('http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id, $response->headers->get('Location'));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/');
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
@@ -458,14 +486,7 @@ EOF;
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
         $user = TestUser::createNewTestUser(
             $connection,
-            [
-                'product' => ['create', 'detail'],
-                'tax' => ['create', 'detail'],
-                'product_manufacturer' => ['create', 'detail'],
-                'product_price' => ['create', 'detail'],
-                'version_commit_data' => ['create'],
-                'version_commit' => ['create'],
-            ]
+            ['product:create', 'product:detail', 'tax:create', 'tax:detail', 'product_manufacturer:create', 'product_manufacturer:detail', 'product_price:create', 'product_price:detail', 'version_commit_data:create', ':version_commitcreate']
         );
         $admin = TestUser::getAdmin();
 
@@ -625,9 +646,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'tax' => ['detail', 'create'],
-            ]
+            ['tax:detail', 'tax:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
@@ -689,10 +708,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'country_state' => ['detail', 'create'],
-                'country' => ['create', 'detail'],
-            ]
+            ['country_state:create', 'country_state:detail', 'country:create', 'country:detail']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
@@ -814,10 +830,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'product' => ['detail'],
-                'category' => ['detail'],
-            ]
+            ['product:detail', 'category:detail']
         )->authorizeBrowser($browser);
 
         $browser->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/' . $category);
@@ -997,14 +1010,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'product' => ['create'],
-                'tax' => ['create'],
-                'product_manufacturer' => ['create'],
-                'price' => ['create'],
-                'version_commit_data' => ['create'],
-                'version_commit' => ['create'],
-            ]
+            ['product:create', 'tax:create', 'product_manufacturer:create', 'price:create', 'version_commit_data:create', 'version_commit:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -1197,9 +1203,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'country_state' => ['list'],
-            ]
+            ['country_state:list']
         )->authorizeBrowser($browser);
 
         $filter = [
@@ -1248,9 +1252,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'country' => ['list'],
-            ]
+            ['country:list']
         )->authorizeBrowser($browser);
 
         $filter = [
@@ -1429,9 +1431,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'categories' => ['list'],
-            ]
+            ['category:list']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', $path, $filter);
@@ -1476,9 +1476,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'product' => ['list'],
-            ]
+            ['product:list']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', $path, $filter);
@@ -1939,9 +1937,7 @@ EOF;
         $connection = $browser->getContainer()->get(Connection::class);
         TestUser::createNewTestUser(
             $connection,
-            [
-                'tax' => ['detail'],
-            ]
+            ['tax:detail']
         )->authorizeBrowser($browser);
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id);
@@ -1970,9 +1966,7 @@ EOF;
         $browser = $this->getBrowser();
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'tax' => ['detail', 'create'],
-            ]
+            ['tax:detail', 'tax:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
@@ -1990,6 +1984,45 @@ EOF;
         $tax = json_decode($response->getContent(), true);
         static::assertArrayHasKey('data', $tax);
         static::assertEquals('test tax', $tax['data']['attributes']['name']);
+    }
+
+    public function testAggregationWorksForAdminStartPage(): void
+    {
+        $data = [
+            'page' => 1,
+            'limit' => 10,
+            'filter' => [
+                [
+                    'type' => 'range',
+                    'field' => 'orderDate',
+                    'parameters' => [
+                        'gte' => '2020-05-16',
+                    ],
+                ],
+            ],
+            'aggregations' => [
+                [
+                    'type' => 'histogram',
+                    'name' => 'order_count_month',
+                    'field' => 'orderDateTime',
+                    'interval' => 'day',
+                    'format' => null,
+                    'aggregation' => [
+                        'type' => 'sum',
+                        'name' => 'totalAmount',
+                        'field' => 'amountTotal',
+                    ],
+                ],
+            ],
+            'total-count-mode' => 1,
+        ];
+
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/search/order', [], [], [], json_encode($data));
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertArrayHasKey('aggregations', $response);
+        static::assertArrayHasKey('order_count_month', $response['aggregations']);
     }
 
     private function createSalesChannel(string $id): void

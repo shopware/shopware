@@ -40,6 +40,8 @@ abstract class MigrationStep
     /**
      * BACKWARD triggers are executed when the new application works with the new Database
      * and has to keep it rollback-safe
+     *
+     * @deprecated tag:v6.4.0 use createTrigger instead
      */
     protected function addBackwardTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements): void
     {
@@ -53,10 +55,10 @@ abstract class MigrationStep
             %s %s ON `%s` FOR EACH ROW
             thisTrigger: BEGIN
                 IF (%s %s)
-                THEN 
+                THEN
                     LEAVE thisTrigger;
                 END IF;
-                
+
                 %s;
             END;
             ',
@@ -69,6 +71,21 @@ abstract class MigrationStep
             $statements
         );
         $connection->exec($query);
+    }
+
+    /**
+     * @param mixed[] $params
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    protected function createTrigger(Connection $connection, string $query, array $params = []): void
+    {
+        $blueGreenDeployment = (int) getenv('BLUE_GREEN_DEPLOYMENT');
+        if ($blueGreenDeployment === 0) {
+            return;
+        }
+
+        $connection->executeUpdate($query, $params);
     }
 
     protected function registerIndexer(Connection $connection, string $name): void

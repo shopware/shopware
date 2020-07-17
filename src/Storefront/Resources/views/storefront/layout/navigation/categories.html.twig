@@ -34,7 +34,8 @@
                         {% if level < navigationMaxDepth %}
                             {% sw_include '@Storefront/storefront/layout/navigation/categories.html.twig' with {
                                 navigationTree: treeItem.children,
-                                level: level + 1
+                                level: level + 1,
+                                page: page
                             } only %}
                         {% endif %}
                     {% endblock %}

@@ -106,7 +106,7 @@
             {% else %}
                 {% for file in shopware.theme.assets.css %}
                     <link rel="stylesheet"
-                      href="{{ asset(file) }}">
+                      href="{{ asset(file, 'theme') }}">
                 {% endfor %}
             {% endif %}
         {% endblock %}

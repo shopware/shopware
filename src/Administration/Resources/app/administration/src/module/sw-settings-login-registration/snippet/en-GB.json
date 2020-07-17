@@ -5,7 +5,7 @@
       "description": "Change basic information here.",
       "textHeadline": "Login / Registration",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Configuration saved",
+      "titleSaveSuccess": "Configuration saved.",
       "messageSaveSuccess": "The configuration has been saved successful.",
       "titleSaveError": "The configuration could not be saved"
     }

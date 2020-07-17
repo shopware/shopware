@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMet
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -308,6 +310,16 @@ class LanguageEntity extends Entity
      * @var ProductCrossSellingTranslationCollection|null
      */
     protected $productCrossSellingTranslations;
+
+    /**
+     * @var ImportExportProfileTranslationCollection|null
+     */
+    protected $importExportProfileTranslations;
+
+    /**
+     * @var ProductFeatureSetTranslationCollection|null
+     */
+    protected $productFeatureSetTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -827,6 +839,26 @@ class LanguageEntity extends Entity
     public function setProductCrossSellingTranslations(ProductCrossSellingTranslationCollection $productCrossSellingTranslations): void
     {
         $this->productCrossSellingTranslations = $productCrossSellingTranslations;
+    }
+
+    public function getImportExportProfileTranslations(): ?ImportExportProfileTranslationCollection
+    {
+        return $this->importExportProfileTranslations;
+    }
+
+    public function setImportExportProfileTranslations(ImportExportProfileTranslationCollection $importExportProfileTranslations): void
+    {
+        $this->importExportProfileTranslations = $importExportProfileTranslations;
+    }
+
+    public function getProductFeatureSetTranslations(): ?ProductFeatureSetTranslationCollection
+    {
+        return $this->productFeatureSetTranslations;
+    }
+
+    public function setProductFeatureSetTranslations(ProductFeatureSetTranslationCollection $productFeatureSetTranslations): void
+    {
+        $this->productFeatureSetTranslations = $productFeatureSetTranslations;
     }
 
     public function getApiAlias(): string

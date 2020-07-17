@@ -18,6 +18,7 @@ return [
     'forward' => 'Dalej',
     'start' => 'Start',
     'start_installation' => 'Rozpocznij instalację',
+
     'select_language_de' => 'Język niemiecki',
     'select_language_en' => 'Język angielski',
     'select_language_nl' => 'Język niderlandzki',
@@ -26,8 +27,9 @@ return [
     'select_language_es' => 'Język hiszpański',
     'select_language_pt' => 'Język portugalski',
     'select_language_pl' => 'Język polski',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_cs' => 'Język czech',
+    'select_language_sv' => 'Język szwedzki',
+
     'language-selection_welcome_title' => 'Witaj w Shopware 6',
     'language-selection_select_language' => 'Język asystenta instalacji',
     'language-selection_header' => 'Twoja instalacja Shopware',
@@ -110,6 +112,11 @@ return [
     'configuration_email_help_text' => 'Ten adres e-mail jest wykorzystywany do wysyłania wiadomości e-mail od sklepu.',
     'configuration_admin_language_de' => 'Język niemiecki',
     'configuration_admin_language_en' => 'Język angielski',
+    'configuration_admin_currency_headline' => 'Dostępne waluty',
+    'configuration_admin_currency_text' => 'Dodaj więcej walut do swojego sklepu Shopware. Jeśli chcesz później dodać walutę, możesz to zrobić w dowolnym momencie w administracji.',
+
+    'configuration_admin_language_de' => 'Niemiecki',
+    'configuration_admin_language_en' => 'Angielski',
     'configuration_admin_password' => 'Hasło administratora:',
     'finish_header' => 'Zakończono instalację',
     'finish_info' => 'Udało Ci się zainstalować Shopware!',

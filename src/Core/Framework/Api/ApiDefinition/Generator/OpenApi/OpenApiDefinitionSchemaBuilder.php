@@ -492,18 +492,4 @@ class OpenApiDefinitionSchemaBuilder
 
         return $entity;
     }
-
-    private function convertToOperationId(string $name): string
-    {
-        $name = ucfirst($this->convertToHumanReadable($name));
-
-        return str_replace(' ', '', $name);
-    }
-
-    private function convertToHumanReadable(string $name): string
-    {
-        $nameParts = array_map('ucfirst', explode('_', $name));
-
-        return implode(' ', $nameParts);
-    }
 }

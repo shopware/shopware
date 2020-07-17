@@ -1,5 +1,6 @@
 import './page/sw-settings-cache-index';
 import './component/sw-settings-cache-modal';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -19,12 +20,14 @@ Module.register('sw-settings-cache', {
             component: 'sw-settings-cache-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.clear_cache'
             }
         }
     },
 
     settingsItem: {
+        privilege: 'system.clear_cache',
         group: 'system',
         to: 'sw.settings.cache.index',
         icon: 'default-action-replace'

@@ -1,0 +1,13 @@
+{
+    "test": {
+        "uniqueNamespaceCore": {
+            "someLabel": "core en",
+            "anotherLabel": "core en"
+        },
+        "someSharedNamespace": {
+            "uniqueKeyCore": "core en",
+            "shouldBeOverwritten": "nobody should ever see this",
+            "shouldAlsoBeOverwritten": "nobody should ever see this either"
+        }
+    }
+}

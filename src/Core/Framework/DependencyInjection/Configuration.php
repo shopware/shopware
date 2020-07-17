@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
                 ->append($this->createSitemapSection())
+                ->append($this->createDeploymentSection())
             ->end();
 
         return $treeBuilder;
@@ -45,6 +46,7 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
@@ -52,6 +54,30 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
+                        ->variableNode('config')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('theme')
+                    ->performNoDeepMerging()
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
+                        ->variableNode('config')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('asset')
+                    ->performNoDeepMerging()
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
+                        ->variableNode('config')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('sitemap')
+                    ->performNoDeepMerging()
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
@@ -83,7 +109,8 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('allowed_limits')
-                ->prototype('scalar')->end()
+                /* @deprecated tag:v6.4.0 - The `shopware.api.allowed_limits` config will be fully removed */
+                ->setDeprecated('The "%node%" is deprecated and will be fully removed with v6.4.0')
             ->end()
             ->integerNode('max_limit')->end()
             ->arrayNode('api_browser')
@@ -182,6 +209,18 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(100)
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createDeploymentSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('deployment'))->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('blue_green')->end()
             ->end();
 
         return $rootNode;

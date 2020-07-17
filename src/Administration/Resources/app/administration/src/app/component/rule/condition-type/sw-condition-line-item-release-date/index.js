@@ -1,5 +1,4 @@
 import template from './sw-condition-line-item-release-date.html.twig';
-import './sw-condition-line-item-release-date.scss';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -8,6 +7,10 @@ Component.extend('sw-condition-line-item-release-date', 'sw-condition-base', {
     template,
 
     computed: {
+        operators() {
+            return this.conditionDataProviderService.getOperatorSet('date');
+        },
+
         lineItemReleaseDate: {
             get() {
                 this.ensureValueExist();

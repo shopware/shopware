@@ -17,7 +17,11 @@
       "descriptionTextModule": "Manage products here.",
       "placeholderSearchBar": "Search products...",
       "inheritanceModuleName": "This product",
-      "backToParent": "Go back to variant overview"
+      "backToParent": "Go back to variant overview",
+      "copy": "Copy",
+      "cloneSuffix": "variants",
+      "cloneNotice": "The product variants are duplicated. If this process is interrupted, it is possible that not all variants are duplicated completely. In this case you can generate the variants in the new product again.",
+      "cloneTitle": "Duplicate variants"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -41,11 +45,15 @@
       "labelPurchaseUnit": "Selling unit",
       "labelReferenceUnit": "Basic unit",
       "labelPackUnit": "Packaging unit",
+      "labelPackUnitPlural": "Packaging unit plural",
       "placeholderTaxRate": "Select tax rate...",
-      "placeholderPurchasePriceGross": "Enter purchasing price (gross)...",
+      "placeholderPurchasePriceGross": "Enter purchasing price...",
+      "placeholderPriceGross": "Enter gross price...",
+      "placeholderPriceNet": "Enter net price...",
       "placeholderPurchaseUnit": "Enter selling unit...",
       "placeholderReferenceUnit": "Enter basic unit...",
       "placeholderPackUnit": "Enter packaging unit...",
+      "placeholderPackUnitPlural": "Enter packaging unit in plural...",
       "optionLitre": "Litre",
       "optionKilogram": "Kilogram",
       "optionMetre": "Metre"
@@ -56,7 +64,7 @@
       "labelKeywords": "SEO keywords",
       "placeholderMetaTitle": "Enter meta title...",
       "placeholderMetaDescription": "Enter meta description...",
-      "placeholderKeywords": "Enter keywords..."
+      "placeholderKeywords": "Enter one or more keywords ..."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",
@@ -99,7 +107,8 @@
       "labelUnit": "Scale unit",
       "referenceUnitHelpText": "Value used to calculate a base price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the base price for 1 liter of product. '0.1' would calculate the base price for 100 milliliters and so on.",
       "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
-      "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.33 l = 2 l), put '2'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
+      "packUnitPluralHelpText": "Type of packing in plural: e.g. bottles, crates ...",
+      "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.5 l = 3 l), put '3'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Deliverability",
@@ -154,6 +163,7 @@
       "textTotalProducts": "No products | One product | {count} products",
       "buttonAddProduct": "Add product",
       "buttonCancel": "Cancel",
+      "buttonDuplicate": "Duplicate",
       "buttonDelete": "Delete",
       "columnName": "Name",
       "columnProductNumber": "Product number",
@@ -177,9 +187,11 @@
       "textHeadline": "New product",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
+      "buttonSaveDuplicate": "Save and duplicate",
+      "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
       "tabAdvancedPrices": "Advanced pricing",
-      "tabVariation": "Variant generator",
+      "tabVariation": "Variants",
       "tabCrossSelling": "Cross Selling",
       "tabProperties": "Property assignment",
       "titleSaveSuccess": "Success",
@@ -280,18 +292,17 @@
         "order": "Display sequence",
         "orderExplanation": "Use drag & drop to alter the display sequence of property values",
         "media": "Assigned media",
-        "mediaExplanation": "Upload and assign media to property values.",
+        "mediaExplanation": "Upload and assign alternative media to individual variants. This overrides media files that might already be assigned to the respective properties.",
         "mediaOptions": "Property value",
-        "listing": "Listing",
+        "listing": "Product listings",
         "listingExplanation": "Choose between two modes of display. Either display one single main variant, or expand several individual variants, determined by their associated property values.",
         "listingLabelModeSingle": "Single main variant",
         "listingLabelMainVariant": "Main variant",
         "listingExplanationModeSingle": "The main variant will be preselected on the product's detail page and displayed in listings representatively.",
-        "listingLabelModeExpanded": "Expand property values in listings",
-        "listingPlaceholderSelectMainVariant": "Please select a main variant",
+        "listingLabelModeExpanded": "Expand property values in product listings",
+        "listingPlaceholderSelectMainVariant": "Please select a main variant...",
         "cancel": "Cancel",
-        "save": "Save",
-        "useForListing": "Fan out variants in listings"
+        "save": "Save"
       }
     },
     "crossselling": {
@@ -325,6 +336,22 @@
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
       "assignPlaceholder": "Search products..."
+    },
+    "featureSets": {
+      "cardTitle": "Essential Characteristics",
+      "descriptionTitle": "Essential Characteristics",
+      "descriptionBody": "Essential Characteristics help you to define what is important about your products. These characteristics are shown prominently in your customers' shopping carts and during checkout.",
+      "configInformation": "Create {0} templates first and assign them to each of your products by using the dropdown below.",
+      "linkFeatureSetsConfig": "Essential Characteristics",
+      "templateSelectFieldLabel": "Template",
+      "templateSelectFieldPlaceholder": "Choose one or more templates..."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product": {
+        "label": "Products"
+      }
     }
   }
 }

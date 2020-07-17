@@ -30,12 +30,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -219,7 +219,7 @@ class VersionManager
             $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
         });
 
-        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false, false);
+        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, new CloneBehavior(), false);
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -256,7 +256,6 @@ class VersionManager
         $writtenEvents = [];
         $deletedEvents = [];
 
-        /** @var VersionCommitCollection $commits */
         // merge all commits into a single write operation
         foreach ($commits as $commit) {
             foreach ($commit->getData() as $data) {
@@ -362,9 +361,15 @@ class VersionManager
         }
     }
 
-    public function clone(EntityDefinition $definition, string $id, string $newId, string $versionId, WriteContext $context, bool $cloneChildren = true): array
-    {
-        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $cloneChildren, true);
+    public function clone(
+        EntityDefinition $definition,
+        string $id,
+        string $newId,
+        string $versionId,
+        WriteContext $context,
+        CloneBehavior $behavior
+    ): array {
+        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $behavior, true);
     }
 
     private function cloneEntity(
@@ -373,11 +378,11 @@ class VersionManager
         string $newId,
         string $versionId,
         WriteContext $context,
-        bool $cloneChildren = true,
+        CloneBehavior $behavior,
         bool $writeAuditLog = false
     ): array {
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria, $cloneChildren);
+        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren());
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -391,6 +396,8 @@ class VersionManager
 
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
+
+        $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -465,7 +472,9 @@ class VersionManager
                 continue;
             }
 
-            if (!$field->is(CascadeDelete::class)) {
+            /** @var CascadeDelete|null $flag */
+            $flag = $field->getFlag(CascadeDelete::class);
+            if (!$flag || !$flag->isCloneRelevant()) {
                 continue;
             }
 
@@ -669,7 +678,12 @@ class VersionManager
         int $childCounter = 1
     ): void {
         //add all cascade delete associations
-        $cascades = $definition->getFields()->filterByFlag(CascadeDelete::class);
+        $cascades = $definition->getFields()->filter(function (Field $field) {
+            /** @var CascadeDelete|null $flag */
+            $flag = $field->getFlag(CascadeDelete::class);
+
+            return $flag ? $flag->isCloneRelevant() : false;
+        });
 
         /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
@@ -697,6 +711,8 @@ class VersionManager
             if ($cascade instanceof ChildrenAssociationField) {
                 //break endless loop
                 if ($childCounter >= 30 || !$cloneChildren) {
+                    $criteria->removeAssociation($cascade->getPropertyName());
+
                     continue;
                 }
 
@@ -713,16 +729,39 @@ class VersionManager
     private function addParentResults(array $writeResults, array $parents): array
     {
         foreach ($parents as $entity => $primaryKeys) {
+            $primaryKeys = array_unique($primaryKeys);
             if (!isset($writeResults[$entity])) {
                 $writeResults[$entity] = [];
             }
 
             foreach ($primaryKeys as $primaryKey) {
+                if ($this->hasResult($entity, $primaryKey, $writeResults)) {
+                    continue;
+                }
                 $writeResults[$entity][] = new EntityWriteResult($primaryKey, [], $entity, EntityWriteResult::OPERATION_UPDATE);
             }
         }
 
         return $writeResults;
+    }
+
+    /**
+     * @param string|array          $primaryKey
+     * @param EntityWriteResult[][] $results
+     */
+    private function hasResult(string $entity, $primaryKey, array $results): bool
+    {
+        if (!isset($results[$entity])) {
+            return false;
+        }
+
+        foreach ($results[$entity] as $result) {
+            if ($result->getPrimaryKey() === $primaryKey) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function resolveParents(EntityDefinition $definition, array $rawData): array

@@ -4,7 +4,8 @@
       "description": "Zusatzfelder hier verwalten.",
       "mainMenuItemGeneral": "Zusatzfelder",
       "placeholderSearchBar": "Durchsuche alle Zusatzfelder ...",
-      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden."
+      "tooltipTechnicalName": "Der technische Name muss eindeutig sein und kann später nicht mehr verändert werden.",
+      "tooltipType": "Der Typ kann später nicht mehr verändert werden."
     },
     "set": {
       "list": {

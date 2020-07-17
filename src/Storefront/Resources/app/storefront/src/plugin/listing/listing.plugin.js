@@ -29,7 +29,7 @@ export default class ListingPlugin extends Plugin {
     init() {
         this._registry = [];
 
-        this.httpClient = new HttpClient(window.accessKey, window.contextToken);
+        this.httpClient = new HttpClient();
 
         this._urlFilterParams = querystring.parse(HistoryUtil.getSearch());
 
@@ -150,9 +150,15 @@ export default class ListingPlugin extends Plugin {
             });
         }
 
-        const query = querystring.stringify(mapped);
-
+        let query = querystring.stringify(mapped);
         this.sendDataRequest(query);
+
+        delete mapped['slots'];
+        delete mapped['no-aggregations'];
+        delete mapped['reduce-aggregations'];
+        delete mapped['only-aggregations'];
+        query = querystring.stringify(mapped);
+
         this._updateHistory(query);
     }
 

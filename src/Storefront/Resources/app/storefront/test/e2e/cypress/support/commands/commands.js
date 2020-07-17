@@ -179,7 +179,14 @@ Cypress.Commands.add('createRuleFixture', (userData, shippingMethodName = 'Stand
     })
 });
 
-Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
+/**
+ * Sets the analytics tracking to the desired state in Storefront sales channel
+ * @memberOf Cypress.Chainable#
+ * @name setAnalyticsFixtureToSalesChannel
+ * @function
+ * @param {Boolean} state - true: tracking is activated, false: tracking is deactivated
+ */
+Cypress.Commands.add('setAnalyticsFixtureToSalesChannel', (state) => {
     return cy.searchViaAdminApi({
         endpoint: 'sales-channel',
         data: {
@@ -191,8 +198,8 @@ Cypress.Commands.add('addAnalyticsFixtureToSalesChannel', () => {
             data: {
                 analytics: {
                     trackingId: 'UA-000000000-0',
-                    active: true,
-                    trackOrders: true
+                    active: state,
+                    trackOrders: state
                 }
             }
         })

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
@@ -26,13 +27,6 @@ class Criteria extends Struct
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
     public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
-
-    /**
-     * @deprecated tag:v6.3.0 - Use `includes` instead
-     *
-     * @var array|null
-     */
-    protected $source;
 
     /**
      * @var FieldSorting[]
@@ -168,6 +162,14 @@ class Criteria extends Struct
     public function getFilters(): array
     {
         return $this->filters;
+    }
+
+    public function hasEqualsFilter($field): bool
+    {
+        return count(array_filter($this->filters, static function (Filter $filter) use ($field) {
+            /* EqualsFilter $filter */
+            return $filter instanceof EqualsFilter && $filter->getField() === $field;
+        })) > 0;
     }
 
     /**
@@ -401,6 +403,14 @@ class Criteria extends Struct
         ]);
     }
 
+    public function getFilterFields(): array
+    {
+        return $this->collectFields([
+            $this->filters,
+            $this->postFilters,
+        ]);
+    }
+
     public function getAllFields(): array
     {
         return $this->collectFields([
@@ -481,16 +491,6 @@ class Criteria extends Struct
         return $this;
     }
 
-    public function getSource(): ?array
-    {
-        return $this->source;
-    }
-
-    public function setSource(?array $source): void
-    {
-        $this->source = $source;
-    }
-
     public function setIncludes(?array $includes): void
     {
         $this->includes = $includes;
@@ -528,6 +528,11 @@ class Criteria extends Struct
         }
 
         return true;
+    }
+
+    public function removeAssociation(string $association): void
+    {
+        unset($this->associations[$association]);
     }
 
     private function collectFields(array $parts): array

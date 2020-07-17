@@ -321,7 +321,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(0, $product->getAvailableStock());
     }
 
-    public function testDeleteOrderedProduct(): void
+    public function testDeleteLineItemUpdatesStock(): void
     {
         $id = $this->createProduct();
 
@@ -513,6 +513,21 @@ class ProductStockIndexerTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
         static::assertSame(5, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
+    }
+
+    public function testDeleteOrderedProduct(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+
+        $this->orderProduct($productId, 1);
+
+        $this->productRepository->delete([
+            ['id' => $productId],
+        ], $context);
     }
 
     private function createCustomer(): string

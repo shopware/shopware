@@ -12,6 +12,10 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
  */
 interface ThemeFileImporterInterface
 {
+    public function fileExists(string $filePath): bool;
+
+    public function getRealPath(string $filePath): string;
+
     public function getConcatenableStylePath(File $file, StorefrontPluginConfiguration $configuration): string;
 
     public function getConcatenableScriptPath(File $file, StorefrontPluginConfiguration $configuration): string;

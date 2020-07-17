@@ -32,6 +32,7 @@
       "notificationErrorMessage": "An error occurred while saving the tax rate."
     },
     "taxRuleCard": {
+      "tooltipCountries": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
       "labelTaxRate": "Rate",
       "labelAppliesOn": "Applies to",
       "labelCountryName": "Country",

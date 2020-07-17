@@ -12,10 +12,23 @@
             "composer install -d Common --no-interaction --optimize-autoloader --no-suggest"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\Recovery\\Test\\": "Test"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.3.x-dev"
+        }
+    },
     "config": {
         "autoloader-suffix": "ShopwareRecovery",
         "platform": {
-            "php": "7.2.0"
+            "php": "7.2.9"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
     }
 }

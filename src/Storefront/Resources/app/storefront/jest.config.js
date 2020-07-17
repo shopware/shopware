@@ -27,7 +27,6 @@ module.exports = {
         '!src/main.js',
         '!src/scss/**',
         '!src/vendor/**',
-        '!src/plugin/**',
     ],
 
     // Fail testsuite if coverage is below given percentage

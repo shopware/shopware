@@ -35,7 +35,11 @@ Mixin.register('sw-settings-list', {
             return criteria;
         },
         titleSaveSuccess() {
-            return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
+            if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`)) {
+                return this.$tc((`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`));
+            }
+
+            return this.$tc('global.default.success');
         },
         messageSaveSuccess() {
             if (this.deleteEntity) {
@@ -44,8 +48,16 @@ Mixin.register('sw-settings-list', {
                     name = this.deleteEntity.translated.name;
                 }
 
+                if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess)`)) {
+                    return this.$tc(
+                        `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
+                        0,
+                        { name: name }
+                    );
+                }
+
                 return this.$tc(
-                    `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
+                    'global.notification.messageDeleteSuccess',
                     0,
                     { name: name }
                 );

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -28,48 +27,25 @@ class TemplateFinder implements TemplateFinderInterface
     protected $namespaceHierarchy;
 
     /**
-     * @deprecated tag:v6.3.0 use NamespaceHierarchyBuilder instead
-     *
-     * @var array
-     */
-    protected $bundles = [];
-
-    /**
      * @var string
      */
     protected $cacheDir;
 
     /**
-     * @var NamespaceHierarchyBuilder|null
+     * @var NamespaceHierarchyBuilder
      */
     private $namespaceHierarchyBuilder;
 
-    /**
-     * @param NamespaceHierarchyBuilder $namespaceHierarchyBuilder will be required in v6.3.0
-     */
     public function __construct(
         Environment $twig,
         LoaderInterface $loader,
         string $cacheDir,
-        ?NamespaceHierarchyBuilder $namespaceHierarchyBuilder = null
+        NamespaceHierarchyBuilder $namespaceHierarchyBuilder
     ) {
         $this->twig = $twig;
         $this->loader = $loader;
         $this->cacheDir = $cacheDir . '/twig';
         $this->namespaceHierarchyBuilder = $namespaceHierarchyBuilder;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 use NamespaceHierarchyBuilder instead
-     */
-    public function registerBundles(KernelInterface $kernel): void
-    {
-        foreach ($kernel->getBundles() as $bundle) {
-            if ($bundle instanceof Bundle) {
-                $this->addBundle($bundle);
-            }
-        }
-        $this->defineCache($this->bundles);
     }
 
     public function getTemplateName(string $template): string
@@ -133,33 +109,13 @@ class TemplateFinder implements TemplateFinderInterface
         throw new LoaderError(sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($queue))));
     }
 
-    private function addBundle(Bundle $bundle): void
-    {
-        $bundlePath = $bundle->getPath();
-        $bundles = $this->bundles;
-
-        $directory = $bundlePath . '/Resources/views';
-
-        if (!file_exists($directory)) {
-            return;
-        }
-
-        array_unshift($bundles, $bundle->getName());
-
-        $this->bundles = array_values(array_unique($bundles));
-    }
-
     private function getNamespaceHierarchy(): array
     {
         if ($this->namespaceHierarchy) {
             return $this->namespaceHierarchy;
         }
 
-        if (!$this->namespaceHierarchyBuilder) {
-            return $this->bundles;
-        }
-
-        $namespaceHierarchy = array_unique(array_merge($this->bundles, $this->namespaceHierarchyBuilder->buildHierarchy()));
+        $namespaceHierarchy = array_unique($this->namespaceHierarchyBuilder->buildHierarchy());
         $this->defineCache($namespaceHierarchy);
 
         return $this->namespaceHierarchy = $namespaceHierarchy;

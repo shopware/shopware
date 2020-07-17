@@ -25,22 +25,22 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page',
+            url: '/api/v*/cms-page',
             method: 'post'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('updateData');
 
         cy.route({
-            url: '/api/v1/search/cms-page',
+            url: '/api/v*/search/cms-page',
             method: 'post'
         }).as('reloadPage');
 
         cy.route({
-            url: '/api/v1/search/language',
+            url: '/api/v*/search/language',
             method: 'post'
         }).as('changeLang');
 
@@ -81,8 +81,8 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select.is--disabled').should('not.exist');
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select__results .sw-select-option--0').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -110,17 +110,17 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/search/language',
+            url: '/api/v*/search/language',
             method: 'post'
         }).as('changeLang');
 
         cy.route({
-            url: '/api/v1/category/*',
+            url: '/api/v*/category/*',
             method: 'patch'
         }).as('saveCategory');
 
@@ -143,8 +143,8 @@ describe('CMS: Test crud operations of layouts', () => {
         });
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select__results .sw-select-option--0').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -165,8 +165,8 @@ describe('CMS: Test crud operations of layouts', () => {
         });
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
-        cy.get('.sw-select__results').should('be.visible');
-        cy.get('.sw-select__results .sw-select-option--1').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
         cy.get('.sw-text-editor__content-editor h2').contains('Lorem Ipsum dolor sit amet');
 

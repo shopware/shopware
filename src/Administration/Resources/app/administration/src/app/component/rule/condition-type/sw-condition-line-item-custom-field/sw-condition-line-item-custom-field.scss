@@ -1,0 +1,11 @@
+.sw-condition-line-item-custom-field {
+    display: grid;
+    grid-template-columns: auto auto auto 1fr !important;
+
+    .sw-form-field-renderer {
+        label,
+        .sw-field__label {
+            display: none;
+        }
+    }
+}

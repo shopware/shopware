@@ -1,0 +1,18 @@
+@startuml
+
+title Calculation
+
+state enrich : process line items\n*add images and descriptions\n* determine prices
+state process : update price,\nshipping and payment
+state validate : validate through the rule system and\ncheck plausibility change cart accordingly
+state persist : update storage
+
+
+[*] --> enrich
+enrich --> process
+process --> validate
+validate --> validate : repeat until no\nchanges occur
+validate --> persist
+persist --> [*]
+
+@enduml

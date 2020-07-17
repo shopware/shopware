@@ -21,6 +21,7 @@ const lineItemConstants = Object.freeze({
  * Uses the _proxy endpoint of the admin api to connect to the sales-channel-api endpoint cart
  * @class
  * @extends ApiService
+ * @deprecated tag:v6.4.0 - Use CartStoreApiService
  */
 class CartSalesChannelService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'cart') {

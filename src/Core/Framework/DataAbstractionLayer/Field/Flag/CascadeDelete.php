@@ -7,8 +7,23 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class CascadeDelete extends Flag
 {
+    /**
+     * @var bool
+     */
+    protected $cloneRelevant;
+
+    public function __construct(bool $cloneRelevant = true)
+    {
+        $this->cloneRelevant = $cloneRelevant;
+    }
+
     public function parse(): \Generator
     {
         yield 'cascade_delete' => true;
+    }
+
+    public function isCloneRelevant(): bool
+    {
+        return $this->cloneRelevant;
     }
 }

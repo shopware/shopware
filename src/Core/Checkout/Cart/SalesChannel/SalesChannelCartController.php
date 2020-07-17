@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -39,6 +40,7 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @RouteScope(scopes={"sales-channel-api"})
+ * @ContextTokenRequired()
  */
 class SalesChannelCartController extends AbstractController
 {
@@ -225,7 +227,7 @@ class SalesChannelCartController extends AbstractController
         }
 
         $lineItem = new LineItem($id, $type, null, $quantity);
-        $this->updateLineItemByRequest($lineItem, $requestDataBag, $context->getContext());
+        $this->updateLineItemByRequest($lineItem, $requestDataBag, $context);
 
         $cart = $this->cartService->add($this->cartService->getCart($token, $context), $lineItem, $context);
 
@@ -274,7 +276,7 @@ class SalesChannelCartController extends AbstractController
 
         $lineItem = $this->cartService->getCart($token, $context)->getLineItems()->get($id);
 
-        $this->updateLineItemByRequest($lineItem, $requestDataBag, $context->getContext());
+        $this->updateLineItemByRequest($lineItem, $requestDataBag, $context);
 
         $cart = $this->cartService->recalculate($cart, $context);
 
@@ -330,7 +332,7 @@ class SalesChannelCartController extends AbstractController
      * @throws LineItemNotStackableException
      * @throws InvalidPayloadException
      */
-    private function updateLineItemByRequest(LineItem $lineItem, RequestDataBag $requestDataBag, Context $context): void
+    private function updateLineItemByRequest(LineItem $lineItem, RequestDataBag $requestDataBag, SalesChannelContext $context): void
     {
         $payload = $requestDataBag->get('payload', []);
         $stackable = $requestDataBag->get('stackable');
@@ -363,7 +365,7 @@ class SalesChannelCartController extends AbstractController
         }
 
         if ($coverId !== null) {
-            $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context)->get($coverId);
+            $cover = $this->mediaRepository->search(new Criteria([$coverId]), $context->getContext())->get($coverId);
 
             if (!$cover) {
                 throw new LineItemCoverNotFoundException($coverId, $lineItem->getId());
@@ -372,9 +374,9 @@ class SalesChannelCartController extends AbstractController
             $lineItem->setCover($cover);
         }
 
-        if ($requestDataBag->get('priceDefinition') !== null) {
+        if ($requestDataBag->get('priceDefinition') !== null && $context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             $priceDefinition = $requestDataBag->get('priceDefinition')->all();
-            $priceDefinitionType = $this->initPriceDefinition($context, $priceDefinition, $lineItem->getType());
+            $priceDefinitionType = $this->initPriceDefinition($context->getContext(), $priceDefinition, $lineItem->getType());
             $lineItem->setPriceDefinition($priceDefinitionType);
 
             if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {

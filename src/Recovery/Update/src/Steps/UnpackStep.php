@@ -81,6 +81,10 @@ class UnpackStep
 
         /** @var \SplFileInfo $path */
         foreach ($iterator as $path) {
+            if (strpos($path->getPathname(), 'vendor/shopware/recovery/') !== false) {
+                continue;
+            }
+
             $targetFile = $inflector->createTargetPath($path);
             $backupFile = $inflector->createBackupPath($path);
             $sourceFile = $inflector->createSourcePath($path);

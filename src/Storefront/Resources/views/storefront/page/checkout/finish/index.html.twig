@@ -7,6 +7,15 @@
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_main_content %}
+
+    {% block base_flashbags_checkout %}
+        <div class="flashbags">
+            {% for type, messages in app.flashes %}
+                {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: type, list: messages } %}
+            {% endfor %}
+        </div>
+    {% endblock %}
+
     {% block page_checkout_finish %}
         {% block page_checkout_finish_details %}
             {% sw_include '@Storefront/storefront/page/checkout/finish/finish-details.html.twig' %}
@@ -30,6 +39,28 @@
             </div>
         {% endblock %}
     {% endblock %}
+{% endblock %}
+
+{% block page_checkout_additional %}
+    {% if page.order.customerComment %}
+        <div class="checkout-additional">
+            {% block page_checkout_finish_customer_comment %}
+                <div class="card checkout-card">
+                    <div class="card-body">
+                        {% block page_checkout_finish_customer_comment_header %}
+                            <div class="card-title">
+                                {{ "checkout.customerCommentHeader"|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_checkout_finish_customer_comment_content %}
+                            <div class="checkout-customer-comment-control">{{ page.order.customerComment|sw_sanitize|nl2br }}</div>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block base_footer %}

@@ -459,7 +459,7 @@ export default class Criteria {
      * Sql representation: `{field} = {value}`
      *
      * @param {string} field
-     * @param {string|number|boolean} value
+     * @param {string|number|boolean|null} value
      *
      * @returns {Object}}
      */

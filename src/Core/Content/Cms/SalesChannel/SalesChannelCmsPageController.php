@@ -37,7 +37,7 @@ class SalesChannelCmsPageController extends AbstractController
     }
 
     /**
-     * @Route("/sales-channel-api/v1/cms-page/{pageId}", name="sales-channel-api.cms.page", methods={"GET"})
+     * @Route("/sales-channel-api/v{version}/cms-page/{pageId}", name="sales-channel-api.cms.page", methods={"GET"})
      */
     public function getPage(string $pageId, Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {

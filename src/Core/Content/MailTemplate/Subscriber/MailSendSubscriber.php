@@ -7,6 +7,7 @@ use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,12 +32,19 @@ class MailSendSubscriber implements EventSubscriberInterface
      */
     private $mailTemplateRepository;
 
+    /**
+     * @var MediaService
+     */
+    private $mediaService;
+
     public function __construct(
         MailServiceInterface $mailService,
-        EntityRepositoryInterface $mailTemplateRepository
+        EntityRepositoryInterface $mailTemplateRepository,
+        MediaService $mediaService
     ) {
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
+        $this->mediaService = $mediaService;
     }
 
     public static function getSubscribedEvents(): array
@@ -67,6 +75,7 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+        $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
         if ($mailEvent->getSalesChannelId()) {
@@ -79,6 +88,7 @@ class MailSendSubscriber implements EventSubscriberInterface
             if ($mailTemplate === null) {
                 $criteria = new Criteria();
                 $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
+                $criteria->addAssociation('media.media');
                 $criteria->setLimit(1);
 
                 /** @var MailTemplateEntity|null $mailTemplate */
@@ -104,6 +114,27 @@ class MailSendSubscriber implements EventSubscriberInterface
         $data->set('contentPlain', $mailTemplate->getTranslation('contentPlain'));
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
+
+        $attachments = [];
+        if ($mailTemplate->getMedia() !== null) {
+            foreach ($mailTemplate->getMedia() as $mailTemplateMedia) {
+                if ($mailTemplateMedia->getMedia() === null) {
+                    continue;
+                }
+                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $event->getContext()
+                        ->getLanguageId()) {
+                    continue;
+                }
+
+                $attachments[] = $this->mediaService->getAttachment(
+                    $mailTemplateMedia->getMedia(),
+                    $event->getContext()
+                );
+            }
+        }
+        if (!empty($attachments)) {
+            $data->set('binAttachments', $attachments);
+        }
 
         $this->mailService->send(
             $data->all(),

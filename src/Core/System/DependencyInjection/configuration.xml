@@ -30,5 +30,17 @@
             <argument type="service" id="system_config.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader" />
         </service>
+
+        <service id="Shopware\Core\System\SystemConfig\Command\ConfigGet">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\SystemConfig\Command\ConfigSet">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

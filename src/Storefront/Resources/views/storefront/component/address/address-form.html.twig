@@ -311,7 +311,7 @@
                                 <option disabled="disabled"
                                         value=""
                                         selected="selected">
-                                    {{ "address.countryPlaceholder"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                    {{ "address.countryPlaceholder"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
                             {% for country in page.countries %}
@@ -375,7 +375,7 @@
                         {% block component_address_form_phone_number_label %}
                             <label class="form-label"
                                    for="{{ prefix }}AddressPhoneNumber">
-                                {{ "address.phoneNumberLabel"|trans|sw_sanitize }}
+                                {{ "address.phoneNumberLabel"|trans|sw_sanitize }}{{ shopware.config.core.loginRegistration.phoneNumberFieldRequired ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 

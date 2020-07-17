@@ -22,11 +22,11 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product',
+            url: '/api/v*/product',
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: '/api/v1/_action/calculate-price',
+            url: '/api/v*/_action/calculate-price',
             method: 'post'
         }).as('calculatePrice');
 
@@ -36,7 +36,7 @@ describe('Product: Test crud operations', () => {
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
-        cy.get('select[name=sw-field--product-taxId]').select('19%');
+        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
         cy.get('#sw-price-field-gross').type('10');
 
 
@@ -99,7 +99,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product/*',
+            url: '/api/v*/product/*',
             method: 'patch'
         }).as('saveData');
 
@@ -129,7 +129,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product/*',
+            url: '/api/v*/product/*',
             method: 'delete'
         }).as('deleteData');
 

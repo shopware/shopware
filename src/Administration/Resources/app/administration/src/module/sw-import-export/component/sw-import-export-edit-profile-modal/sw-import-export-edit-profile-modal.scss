@@ -1,0 +1,28 @@
+@import "~scss/variables";
+
+.sw-import-export-edit-profile-modal {
+    .sw-import-export-edit-profile-modal-mapping {
+        margin-left: -30px;
+        margin-right: -30px;
+    }
+
+    &__text {
+        font-size: $font-size-small;
+        margin-bottom: 20px;
+    }
+
+    .sw-modal__body {
+        height: 700px;
+    }
+
+    .sw-modal__footer {
+        border-top: 1px solid $color-gray-300;
+    }
+}
+
+.sw-import-export-edit-profile-modal__violation-modal {
+    ul {
+        margin-left: 31px;
+        margin-top: 18px;
+    }
+}

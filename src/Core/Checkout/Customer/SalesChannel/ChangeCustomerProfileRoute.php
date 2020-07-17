@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,6 +24,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
+ * @ContextTokenRequired()
  */
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
@@ -43,7 +44,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     private $validator;
 
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $customerProfileValidationFactory;
 
@@ -51,7 +52,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        $customerProfileValidationFactory
+        DataValidationFactoryInterface $customerProfileValidationFactory
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
@@ -101,11 +102,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             throw new CustomerNotLoggedInException();
         }
 
-        if ($this->customerProfileValidationFactory instanceof DataValidationFactoryInterface) {
-            $validation = $this->customerProfileValidationFactory->update($context);
-        } else {
-            $validation = $this->customerProfileValidationFactory->buildUpdateValidation($context->getContext());
-        }
+        $validation = $this->customerProfileValidationFactory->update($context);
 
         $this->dispatchValidationEvent($validation, $context->getContext());
 

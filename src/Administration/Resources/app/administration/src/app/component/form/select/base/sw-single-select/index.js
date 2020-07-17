@@ -50,14 +50,11 @@ Component.register('sw-single-select', {
             default: 'value'
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
+        popoverClasses: {
+            type: Array,
             required: false,
             default() {
-                return { active: false };
+                return [];
             }
         },
 
@@ -94,8 +91,6 @@ Component.register('sw-single-select', {
                 return this.value;
             },
             set(newValue) {
-                /** @deprecated tag:v6.3.0 Html select don't have an onInput event */
-                this.$emit('input', newValue);
                 this.$emit('change', newValue);
             }
         },

@@ -5,7 +5,8 @@ import ApiService from '../api.service';
 const UploadEvents = {
     UPLOAD_ADDED: 'media-upload-add',
     UPLOAD_FINISHED: 'media-upload-finish',
-    UPLOAD_FAILED: 'media-upload-fail'
+    UPLOAD_FAILED: 'media-upload-fail',
+    UPLOAD_CANCELED: 'media-upload-cancel'
 };
 
 /**
@@ -88,6 +89,17 @@ class MediaApiService extends ApiService {
         this.getListenerForTag(uploadTag).forEach((listener) => {
             listener(this._createUploadEvent(
                 UploadEvents.UPLOAD_ADDED,
+                uploadTag,
+                { data: tasks }
+            ));
+        });
+    }
+
+    cancelUpload(uploadTag, uploadData) {
+        const tasks = new UploadTask({ uploadTag, ...uploadData });
+        this.getListenerForTag(uploadTag).forEach((listener) => {
+            listener(this._createUploadEvent(
+                UploadEvents.UPLOAD_CANCELED,
                 uploadTag,
                 { data: tasks }
             ));

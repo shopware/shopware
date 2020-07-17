@@ -116,11 +116,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $hasAdminScope = in_array('admin', $request->attributes->get('oauth_scopes'), true);
-            $adminApiSource = $this->getAdminApiSource($userId);
-            $adminApiSource->setIsAdmin($hasAdminScope || $adminApiSource->isAdmin());
-
-            return $adminApiSource;
+            return $this->getAdminApiSource($userId);
         }
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
@@ -225,38 +221,51 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function getAdminApiSource(?string $userId, ?string $integrationId = null): AdminApiSource
     {
-        $adminApiSource = new AdminApiSource($userId, $integrationId);
+        $source = new AdminApiSource($userId, $integrationId);
         if (!next3722()) {
-            $adminApiSource->setIsAdmin(true);
+            $source->setIsAdmin(true);
 
-            return $adminApiSource;
+            return $source;
         }
+
         if ($userId !== null) {
-            $this->enrichAdminApiSourceWithAclPermissions($adminApiSource);
+            $source->setPermissions(
+                $this->fetchPermissions($userId)
+            );
+
+            $source->setIsAdmin(
+                $this->isAdmin($userId)
+            );
         }
-
-        return $adminApiSource;
-    }
-
-    private function enrichAdminApiSourceWithAclPermissions(AdminApiSource $source): AdminApiSource
-    {
-        $source->addPermissions($this->fetchPermissions($source->getUserId()));
 
         return $source;
+    }
+
+    private function isAdmin(string $userId): bool
+    {
+        return (bool) $this->connection->fetchColumn(
+            'SELECT admin FROM `user` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($userId)]
+        );
     }
 
     private function fetchPermissions(string $userId): array
     {
         $permissions = $this->connection->createQueryBuilder()
-            ->select(['resource', 'privilege'])
+            ->select(['role.privileges'])
             ->from('acl_user_role', 'mapping')
             ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
-            ->innerJoin('role', 'acl_resource', 'res', 'res.acl_role_id = role.id')
             ->where('mapping.user_id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
             ->execute()
-            ->fetchAll(FetchMode::ASSOCIATIVE);
+            ->fetchAll(FetchMode::COLUMN);
 
-        return $permissions;
+        $list = [];
+        foreach ($permissions as $privileges) {
+            $privileges = json_decode((string) $privileges, true);
+            $list = array_merge($list, $privileges);
+        }
+
+        return array_unique(array_filter($list));
     }
 }

@@ -59,7 +59,10 @@
       "labelOptionMedia": "Firmenlogo",
       "placeholderName": "Namen eingeben ...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Sales Channel.",
+      "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
+      "disabledTypeSelect": "Der Dokumententyp von globalen Dokumenten kann nicht geändert werden."
     }
   }
 }

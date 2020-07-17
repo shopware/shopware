@@ -74,12 +74,29 @@ Component.register('sw-pagination', {
             const left = Math.floor(maxLength / 2);
             const right = (this.maxPage - left) + 1 + even;
 
+            if (currentPage === left) {
+                return [
+                    ...this.range(1, left + 1),
+                    '...',
+                    ...this.range((this.maxPage - left) + 1 + even, this.maxPage)
+                ];
+            }
+
+            if (currentPage === right) {
+                return [
+                    ...this.range(1, left),
+                    '...',
+                    ...this.range((this.maxPage - left) + even, this.maxPage)
+                ];
+            }
+
             if (currentPage > left && currentPage < right) {
                 const start = (currentPage - left) + 2;
                 const end = (currentPage + left) - 2 - even;
 
                 return [1, '...', ...this.range(start, end), '...', this.maxPage];
             }
+
             return [
                 ...this.range(1, left),
                 '...',

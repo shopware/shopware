@@ -207,7 +207,8 @@ export default function conditionService() {
             'categoriesRo',
             'canonicalUrl',
             'purchaseSteps',
-            'options'
+            'options',
+            'customFields'
         ]
     };
 

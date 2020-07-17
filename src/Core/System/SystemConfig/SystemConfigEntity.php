@@ -15,9 +15,6 @@ class SystemConfigEntity extends Entity
      */
     protected $configurationKey;
 
-    /**
-     * @var mixed
-     */
     protected $configurationValue;
 
     /**

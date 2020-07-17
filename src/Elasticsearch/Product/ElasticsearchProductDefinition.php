@@ -2,6 +2,8 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -59,5 +61,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ->addAssociation('options')
             ->addAssociation('visibilities')
         ;
+    }
+
+    public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
+    {
+        $query = parent::buildTermQuery($context, $criteria);
+
+        $query->add(
+            new MatchQuery('description', $criteria->getTerm()),
+            BoolQuery::SHOULD
+        );
+
+        return $query;
     }
 }

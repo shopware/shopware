@@ -1,0 +1,27 @@
+@import "~scss/variables";
+
+.sw-import-export-view-profiles {
+    .sw-card.sw-import-export-view-profiles__grid-card {
+        .sw-card__content {
+            height: 600px;
+        }
+
+        .sw-data-grid.sw-data-grid--full-page {
+            padding-top: 83px;
+        }
+    }
+
+    .sw-import-export-view-profiles__toolbar {
+        z-index: 10;
+        height: 83px;
+        display: flex;
+        padding: 25px 35px;
+        background-color: $color-light-gray;
+        border-bottom: 1px solid $color-steam-cloud;
+    }
+
+    .sw-simple-search-field {
+        flex-grow: 1;
+        margin-right: 16px;
+    }
+}

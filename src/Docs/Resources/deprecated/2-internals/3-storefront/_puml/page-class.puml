@@ -1,0 +1,10 @@
+@startuml
+hide empty members
+
+class AddressPageLoader << PageLoaderInterface >>
+class AddressPage << GenericPage >>
+class AddressPageLoadedEvent << NestedEvent >>
+
+AddressPageLoader .left.. AddressPage : creates
+AddressPageLoader .right.. AddressPageLoadedEvent : dispatches
+@enduml

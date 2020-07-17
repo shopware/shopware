@@ -23,10 +23,12 @@ export default class ProductPageObject {
     }
 
     changeTranslation(language, position) {
+        cy.get('.sw-language-switch .sw-loader').should('not.exist');
         cy.get('.sw-language-switch').click();
-        cy.get('.sw-field__select-load-placeholder').should('not.exist');
-        cy.get(`.sw-select-option:nth-of-type(${position})`).contains(language).click();
-        cy.get('.sw-field__select-load-placeholder').should('not.exist');
+        cy.get(`.sw-select-result-list__item-list .sw-select-option--${position}`)
+            .contains(language)
+            .click();
+        cy.get('.sw-language-switch .sw-loader').should('not.exist');
     }
 
 
@@ -37,11 +39,11 @@ export default class ProductPageObject {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: 'api/v1/product/*',
+            url: 'api/v*/product/*',
             method: 'patch'
         }).as('productCall');
         cy.route({
-            url: 'api/v1/search/product',
+            url: 'api/v*/search/product',
             method: 'post'
         }).as('searchCall');
 

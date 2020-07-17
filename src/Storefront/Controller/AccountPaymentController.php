@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -26,16 +26,16 @@ class AccountPaymentController extends StorefrontController
     private $paymentMethodPageLoader;
 
     /**
-     * @var AccountService
+     * @var AbstractChangePaymentMethodRoute
      */
-    private $accountService;
+    private $changePaymentMethodRoute;
 
     public function __construct(
         AccountPaymentMethodPageLoader $paymentMethodPageLoader,
-        AccountService $accountService
+        AbstractChangePaymentMethodRoute $changePaymentMethodRoute
     ) {
         $this->paymentMethodPageLoader = $paymentMethodPageLoader;
-        $this->accountService = $accountService;
+        $this->changePaymentMethodRoute = $changePaymentMethodRoute;
     }
 
     /**
@@ -64,10 +64,9 @@ class AccountPaymentController extends StorefrontController
         try {
             $paymentMethodId = $requestDataBag->getAlnum('paymentMethodId');
 
-            $this->accountService->changeDefaultPaymentMethod(
+            $this->changePaymentMethodRoute->change(
                 $paymentMethodId,
                 $requestDataBag,
-                $context->getCustomer(),
                 $context
             );
         } catch (UnknownPaymentMethodException | InvalidUuidException $exception) {

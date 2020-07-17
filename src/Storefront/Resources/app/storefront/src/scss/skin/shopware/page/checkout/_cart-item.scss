@@ -28,7 +28,7 @@
 }
 
 .cart-item-variants-properties-name {
-    font-weight: bold;
+    font-weight: $font-weight-bold;
 }
 
 .cart-item-label {
@@ -55,5 +55,14 @@
 
     .cart-item-details-container {
         padding-left: $spacer;
+    }
+}
+
+.cart-item-characteristics {
+    margin: $spacer-sm 0;
+    font-size: $font-size-sm;
+
+    .cart-item-characteristics-option {
+        font-weight: $font-weight-bold;
     }
 }

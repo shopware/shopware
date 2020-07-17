@@ -1,0 +1,32 @@
+@startuml
+
+hide empty description
+
+title "Delivery"
+
+state "Open" as delivery_open
+state "Shipped Partially" as delivery_shipped_partially
+state "Shipped" as delivery_shipped
+state "Returned" as delivery_returned
+state "Returned Partially" as delivery_returned_partially
+state "Cancelled" as delivery_cancelled
+
+[*] --> delivery_open
+delivery_open --> delivery_shipped : ship
+delivery_open --> delivery_shipped_partially : ship partially
+delivery_open --> delivery_cancelled : cancelled
+
+delivery_shipped --> delivery_cancelled : cancel
+delivery_shipped --> delivery_returned : retour
+delivery_shipped --> delivery_returned_partially : retour partially
+
+delivery_shipped_partially --> delivery_cancelled : cancel
+delivery_shipped_partially --> delivery_shipped : ship
+delivery_shipped_partially --> delivery_returned : retour
+delivery_shipped_partially --> delivery_returned_partially : retour partially
+
+delivery_cancelled --> [*]
+delivery_returned --> [*]
+delivery_returned_partially --> [*]
+
+@enduml

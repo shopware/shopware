@@ -1,0 +1,19 @@
+@startuml
+
+title Cart State
+
+state "Empty" as empty : an empty cart\n*default shipping\n*default payment
+state "Dirty" as dirty : a modified cart, but \n* inavlid prices\n*raw line items\n* unknown delivery validity\n\n **calculation required**
+state "Calculated" as calculated : this cart can either be orderd or \n has errors that must be resolved
+
+[*] --> empty
+empty --> dirty : add line item
+dirty --> calculated : calculate
+calculated --> dirty : modify\nline item
+calculated --> dirty : modify\nshipping
+calculated --> dirty : modify\npayment
+calculated --> [*] : order
+calculated --> calculated : order invalid
+
+
+@enduml

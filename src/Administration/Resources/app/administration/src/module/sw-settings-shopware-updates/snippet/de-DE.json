@@ -17,6 +17,7 @@
     "notifications": {
       "title": "Shopware-Updater",
       "updateStarted": "Update gestartet.",
+      "updateStopped": "Update gestoppt.",
       "downloadFailed": "Download fehlgeschlagen.",
       "unpackFailed": "Entpacken fehlgeschlagen.",
       "deactivationFailed": "Deaktivieren der Plugins fehlgeschlagen",
@@ -28,7 +29,7 @@
       "requirementsNotMet": "Nicht alle Systemanforderungen für dieses Update sind erfüllt.",
       "progress": {
         "download": "Update-Datei wird heruntergeladen.",
-        "deactivate": "Plugins wurden deaktiviert.",
+        "deactivate": "Plugins werden deaktiviert.",
         "unpack": "Update-Datei wird entpackt."
       }
     },
@@ -38,8 +39,8 @@
         "message": "Voraussetzung"
       },
       "message": {
-        "phpVersion": "Erforderliche PHP Version: {minVersion}. Installierte PHP Version: {currentVersion}.",
-        "mysqlVersion": "Erforderliche MySQL Version: {minVersion}. Installierte MySQL Version: {currentVersion}.",
+        "phpVersion": "Erforderliche PHP-Version: {minVersion}. Installierte PHP-Version: {currentVersion}.",
+        "mysqlVersion": "Erforderliche MySQL-Version: {minVersion}. Installierte MySQL-Version: {currentVersion}.",
         "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
         "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind nicht beschreibbar:<br>{failedDirectories}",
         "validShopwareLicense": "Deine Shopware-Version ist veraltet. Du solltest ein Update in Betracht ziehen.",
@@ -74,6 +75,14 @@
       "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du ein aktuelles Backup erstellt hast.",
       "messageUpdateCheck": "Die zurzeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
       "backupLabel": "Ja, ich habe ein Backup erstellt."
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "core_update": "Update starten",
+        "plugin_maintain": "Plugins verwalten"
+      }
     }
   }
 }

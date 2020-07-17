@@ -66,6 +66,10 @@ export default class EntityHydrator {
      * @returns {*}
      */
     hydrateEntity(entityName, row, response, context, criteria) {
+        if (!row) {
+            return null;
+        }
+
         const id = row.id;
         const cacheKey = `${entityName}-${id}`;
 

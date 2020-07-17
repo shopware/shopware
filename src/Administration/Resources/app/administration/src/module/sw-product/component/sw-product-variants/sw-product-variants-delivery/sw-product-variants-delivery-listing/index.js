@@ -34,12 +34,13 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         mainVariant() {
-            return this.product.mainVariant;
+            return this.product.mainVariantId;
         },
 
         variantCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('product.parentId', this.product.id));
+            criteria.addAssociation('options.group');
 
             return criteria;
         },
@@ -85,7 +86,7 @@ Component.register('sw-product-variants-delivery-listing', {
 
     methods: {
         createdComponent() {
-            const listingMode = this.product.mainVariant ? 'single' : 'expanded';
+            const listingMode = this.mainVariant ? 'single' : 'expanded';
 
             this.updateListingMode(listingMode);
         },
@@ -95,7 +96,7 @@ Component.register('sw-product-variants-delivery-listing', {
         },
 
         updateMainVariant(value) {
-            this.product.mainVariant = value;
+            this.product.mainVariantId = value;
         },
 
         isActiveGroupInListing(groupId) {
@@ -116,15 +117,16 @@ Component.register('sw-product-variants-delivery-listing', {
 
             if (existingGroup) {
                 existingGroup.expressionForListings = value;
-
                 return;
             }
 
-            this.product.configuratorGroupConfig.push({
+            configuratorGroupConfig.push({
                 id: groupId,
                 expressionForListings: value,
                 representation: 'box'
             });
+
+            this.product.configuratorGroupConfig = configuratorGroupConfig;
         },
 
         isActiveListingMode(mode) {
@@ -133,6 +135,10 @@ Component.register('sw-product-variants-delivery-listing', {
 
         isDisabledListingMode(mode) {
             return !this.isActiveListingMode(mode);
+        },
+
+        isSelected(item) {
+            return this.mainVariant === item.id;
         }
     }
 });

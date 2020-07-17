@@ -156,22 +156,16 @@ class EntityCacheKeyGenerator
      */
     public function getAssociatedTags(EntityDefinition $definition, Entity $entity, Context $context): array
     {
-        $associations = $definition->getFields()->filterInstance(AssociationField::class);
-
         $keys = [$this->getEntityTag($entity->getUniqueIdentifier(), $definition->getEntityName())];
 
-        foreach ($context->getLanguageIdChain() as $languageId) {
-            $keys[] = $this->getEntityTag($languageId, LanguageDefinition::ENTITY_NAME);
-        }
+        foreach ($definition->getFields() as $association) {
+            if (!$association instanceof AssociationField) {
+                continue;
+            }
+            if ($association->getReferenceDefinition()->getClass() === LanguageDefinition::class) {
+                continue;
+            }
 
-        $translationDefinition = $definition->getTranslationDefinition();
-
-        if ($translationDefinition) {
-            /* @var EntityDefinition $translationDefinition */
-            $keys[] = $translationDefinition->getEntityName() . '.language_id';
-        }
-
-        foreach ($associations as $association) {
             if ($association->is(Extension::class)) {
                 $value = $entity->getExtension($association->getPropertyName());
             } else {
@@ -208,6 +202,9 @@ class EntityCacheKeyGenerator
             }
 
             if ($association instanceof ManyToManyAssociationField) {
+                if ($association->getToManyReferenceDefinition()->getClass() === LanguageDefinition::class) {
+                    continue;
+                }
                 foreach ($value as $item) {
                     $nested = $this->getAssociatedTags($association->getToManyReferenceDefinition(), $item, $context);
                     foreach ($nested as $key) {
@@ -246,7 +243,9 @@ class EntityCacheKeyGenerator
         $fields = $definition->getFields();
 
         $associations = [];
-        array_shift($parts);
+        if ($parts[0] === $definition->getEntityName()) {
+            array_shift($parts);
+        }
 
         $source = $definition;
 

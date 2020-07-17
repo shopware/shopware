@@ -1,0 +1,100 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
+
+{% block base_header %}
+    {% sw_include '@Storefront/storefront/page/account/order/header.html.twig' %}
+{% endblock %}
+
+{% set orderState = page.order.stateMachineState.technicalName %}
+
+{% block page_checkout_confirm_header %}
+    <h1 class="confirm-main-header">
+        {{ "account.editOrder"|trans|sw_sanitize }}
+    </h1>
+{% endblock %}
+
+{% block page_checkout_confirm_address %}
+    <div class="confirm-address">
+        {% sw_include '@Storefront/storefront/page/account/order/address.html.twig' %}
+    </div>
+{% endblock %}
+
+{% block page_checkout_confirm_payment %}
+    <div class="col-sm-6 confirm-payment">
+        {% sw_include '@Storefront/storefront/page/account/order/payment.html.twig' %}
+    </div>
+{% endblock %}
+
+{% block page_checkout_confirm_shipping %}
+    <div class="col-sm-6 confirm-shipping">
+        {% sw_include '@Storefront/storefront/page/account/order/shipping.html.twig' %}
+    </div>
+{% endblock %}
+
+{% block page_checkout_confirm_table_header %}
+    {% sw_include '@Storefront/storefront/page/account/order/line-item-header.html.twig' %}
+{% endblock %}
+
+{% block page_checkout_confirm_table_items %}
+    {% for lineItem in page.order.lineItems %}
+        {% block page_checkout_confirm_table_item %}
+            {% sw_include '@Storefront/storefront/page/account/order/line-item.html.twig' %}
+        {% endblock %}
+    {% endfor %}
+{% endblock %}
+
+{% block page_checkout_aside_actions %}
+    <div class="checkout-aside-action">
+        <form id="confirmOrderForm"
+              action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
+              data-form-csrf-handler="true"
+              data-form-preserver="true"
+              method="post">
+
+            {% block page_checkout_aside_actions_csrf %}
+                {{ sw_csrf('frontend.account.edit-order.update-order') }}
+            {% endblock %}
+
+            {% block page_checkout_aside_actions_payment_method_id %}
+                <input type="hidden" name="paymentMethodId" value="{{ context.getPaymentMethod.getId }}">
+            {% endblock %}
+
+            {% set paymentMethodInvalid = true %}
+
+            {% for payment in page.paymentMethods %}
+                {% if payment.id is same as(context.paymentMethod.id) %}
+                    {% set paymentMethodInvalid = false %}
+                {% endif %}
+            {% endfor %}
+
+            {% block page_checkout_confirm_form_submit %}
+                <button
+                    class="btn btn-primary btn-block"
+                    {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
+                        disabled="disabled"
+                    {% endif %}
+                    type="submit">
+                    {{ "account.editOrderUpdateButton"|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
+        </form>
+
+        {% block page_checkout_aside_cancel_order_modal_toggle %}
+            {% if page.order.stateMachineState.technicalName != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+                <button type="button"
+                        class="btn btn-light btn-block edit-order-cancel-order-modal-toggle-btn"
+                        data-toggle="modal"
+                        data-target="#cancelOrderModal">
+                    {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                </button>
+            {% endif %}
+        {% endblock %}
+
+        {% if orderState != 'cancelled' %}
+            {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block base_footer %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer-minimal.html.twig' %}
+{% endblock %}

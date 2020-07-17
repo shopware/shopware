@@ -22,7 +22,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-manufacturer',
+            url: '/api/v*/product-manufacturer',
             method: 'post'
         }).as('saveData');
 
@@ -47,7 +47,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-manufacturer/**',
+            url: '/api/v*/product-manufacturer/**',
             method: 'patch'
         }).as('saveData');
 
@@ -62,7 +62,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
-            cy.get(page.elements.successIcon).should('be.visible');
+        cy.get(page.elements.successIcon).should('be.visible');
     });
 
     it('@catalogue: delete manufacturer', () => {
@@ -71,7 +71,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-manufacturer/**',
+            url: '/api/v*/product-manufacturer/**',
             method: 'delete'
         }).as('saveData');
 

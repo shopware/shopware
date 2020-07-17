@@ -9,7 +9,7 @@
         }
     },
     "require": {
-        "shopware/core": "~6.2"
+        "shopware/core": "~6.3"
     },
     "extra": {
         "shopware-plugin-class": "Swag\\Test\\SwagTestErrors",

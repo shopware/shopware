@@ -1,7 +1,7 @@
-const { join } = require('path');
+const path = require('path');
 
 function resolve(directory) {
-    return join(__dirname, directory);
+    return path.join(__dirname, directory);
 }
 
 module.exports = {
@@ -13,7 +13,9 @@ module.exports = {
 
     globals: {
         Shopware: true,
-        VueJS: true
+        VueJS: true,
+        Cypress: true,
+        cy: true,
     },
 
     plugins: ['jest'],
@@ -21,7 +23,19 @@ module.exports = {
     settings: {
         'import/resolver': {
             webpack: {
-                config: resolve('./build/webpack.base.conf.js')
+                config: {
+                    // Sync with webpack.config.js
+                    resolve: {
+                        extensions: ['.js', '.vue', '.json', '.less', '.twig'],
+                        alias: {
+                            vue$: 'vue/dist/vue.esm.js',
+                            src: path.join(__dirname, 'src'),
+                            module: path.join(__dirname, 'src/module'),
+                            scss: path.join(__dirname, 'src/app/assets/scss'),
+                            assets: path.join(__dirname, 'static')
+                        }
+                    }
+                }
             }
         }
     },

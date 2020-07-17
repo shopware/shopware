@@ -29,6 +29,7 @@
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Aktiv",
+      "labelAfterOrderEnabled": "Zahlartwechsel nach Bestellabschluss erlauben",
       "labelDescription": "Beschreibung",
       "labelLogoUpload": "Logo",
       "sidebar": {

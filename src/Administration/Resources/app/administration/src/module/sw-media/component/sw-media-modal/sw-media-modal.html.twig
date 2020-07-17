@@ -1,10 +1,16 @@
 {% block sw_media_modal %}
-    <sw-modal class="sw-media-modal" variant="full" :title="$tc('sw-media.sw-media-modal.titleModal')" @modal-close="onEmitModalClosed">
+    <sw-modal class="sw-media-modal"
+              variant="full"
+              :title="$tc('sw-media.sw-media-modal.titleModal')"
+              @modal-close="onEmitModalClosed">
+
         {% block sw_media_modal_content %}
             <div class="sw-media-modal__content">
+
                 {% block sw_media_modal_tabs %}
                     <sw-tabs variant="minimal" :defaultItem="defaultTab" class="sw-media-modal__tabs">
-                        <template slot-scope="{ active }">
+                        <template #default="{ active }">
+
                             {% block sw_media_modal_tab_items %}
                                 {% block sw_media_modal_tab_item_library %}
                                     <sw-tabs-item
@@ -26,13 +32,18 @@
                             {% endblock %}
                         </template>
 
-                        <template slot="content" slot-scope="{ active }">
+                        <template #content="{ active }">
+
                             {% block sw_media_modal_tab_content %}
                                 <div  class="sw-media-modal__tab-content">
+
                                     {% block sw_media_modal_tab_content_library %}
                                         <template v-if="active === tabNameLibrary">
+
                                             {% block sw_media_modal_navigation_and_search %}
-                                                <div class="sw-media-modal__breadcrumbs-and-search" :class="{'sw-media-modal__breadcrumbs-and-search--compact': compact}">
+                                                <div class="sw-media-modal__breadcrumbs-and-search"
+                                                     :class="{'sw-media-modal__breadcrumbs-and-search--compact': compact}">
+
                                                     {% block sw_media_modal_folder_breadcrumbs %}
                                                         <sw-media-breadcrumbs v-model="folderId" :small="compact"></sw-media-breadcrumbs>
                                                     {% endblock %}
@@ -45,21 +56,23 @@
 
                                             {% block sw_media_modal_media_library %}
                                                 <sw-media-library
+                                                    ref="mediaLibrary"
                                                     :selection="selection"
                                                     :folderId="folderId"
                                                     :term="term"
                                                     :compact="compact"
                                                     :allowMultiSelect="allowMultiSelect"
                                                     @media-selection-change="selection = $event"
-                                                    @media-folder-change="folderId = $event"
-                                                    ref="mediaLibrary">
+                                                    @media-folder-change="folderId = $event">
                                                 </sw-media-library>
                                             {% endblock %}
                                         </template>
                                     {% endblock %}
 
                                     {% block sw_media_modal_tab_content_upload %}
-                                        <template v-if="active === tabNameUpload" class="sw-media-modal__uploads-content">
+                                        <template v-if="active === tabNameUpload"
+                                                  class="sw-media-modal__uploads-content">
+
                                             {% block sw_media_modal_upload_component %}
                                                 <sw-upload-listener
                                                     :uploadTag="uploadTag"
@@ -67,6 +80,7 @@
                                                     @media-upload-finish="onUploadFinished"
                                                     @media-upload-fail="onUploadFailed">
                                                 </sw-upload-listener>
+
                                                 <sw-media-upload-v2
                                                     class="sw-media-modal__upload-container"
                                                     variant="regular"
@@ -118,13 +132,19 @@
         {% endblock %}
 
         {% block sw_media_modal_modal_footer %}
-            <template slot="modal-footer">
+            <template #modal-footer>
+
                 {% block sw_media_modal_button_cancel %}
-                    <sw-button @click="onEmitModalClosed">{{ $tc('sw-media.sw-media-modal.labelButtonCancel') }}</sw-button>
+                    <sw-button @click="onEmitModalClosed">
+                        {{ $tc('sw-media.sw-media-modal.labelButtonCancel') }}
+                    </sw-button>
                 {% endblock %}
 
                 {% block sw_media_modal_button_confirm_selection %}
-                    <sw-button variant="primary" @click="onEmitSelection">{{ $tc('sw-media.sw-media-modal.labelButtonSaveSelection') }}</sw-button>
+                    <sw-button variant="primary"
+                               @click="onEmitSelection">
+                        {{ $tc('sw-media.sw-media-modal.labelButtonSaveSelection') }}
+                    </sw-button>
                 {% endblock %}
             </template>
         {% endblock %}

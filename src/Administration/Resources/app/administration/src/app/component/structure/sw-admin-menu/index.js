@@ -45,6 +45,14 @@ Component.register('sw-admin-menu', {
             return StateDeprecated.getStore('user');
         },
 
+        userTitle() {
+            if (this.currentUser.admin) {
+                return this.$tc('global.sw-admin-menu.administrator');
+            }
+
+            return this.currentUser.title;
+        },
+
         currentLocale() {
             return Shopware.State.get('session').currentLocale;
         },
@@ -103,6 +111,11 @@ Component.register('sw-admin-menu', {
 
     mounted() {
         this.mountedComponent();
+        document.addEventListener('mouseleave', this.closeFlyout);
+    },
+
+    beforeDestroy() {
+        document.removeEventListener('mouseleave', this.closeFlyout);
     },
 
     methods: {
@@ -222,8 +235,13 @@ Component.register('sw-admin-menu', {
 
             return true;
         },
-
-        closeFlyout() {
+        closeFlyout(event) {
+            if (event.toElement && event.toElement.closest('.sw-admin-menu__navigation-list-item')) {
+                if (event.toElement.closest('.sw-admin-menu__navigation-list-item')
+                    .classList.contains(this.flyoutEntries[0].parent)) {
+                    return;
+                }
+            }
             this.lastFlyoutEntries = this.flyoutEntries;
             this.flyoutEntries = [];
         },

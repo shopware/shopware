@@ -15,6 +15,7 @@ return [
     'start' => 'Start',
     'select_language' => 'Wybierz język',
     'select_language_choose' => 'Wybierz',
+
     'select_language_de' => 'Język niemiecki',
     'select_language_en' => 'Język angielski',
     'select_language_nl' => 'Język niderlandzki',
@@ -23,8 +24,9 @@ return [
     'select_language_es' => 'Język hiszpański',
     'select_language_pt' => 'Język portugalski',
     'select_language_pl' => 'Język polski',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_cs' => 'Język czech',
+    'select_language_sv' => 'Język szwedzki',
+
     'noaccess_title' => 'Odmowa dostępu',
     'noaccess_info' => 'Dodaj swój adres IP „<strong>%s</strong>” pliku <strong>%s</strong>.',
     'step2_header_files' => 'Pliki i katalogi',

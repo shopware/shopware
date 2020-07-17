@@ -19,10 +19,16 @@ class TestUser
      */
     private $name;
 
-    private function __construct(string $password, string $name)
+    /**
+     * @var string|null
+     */
+    private $userId;
+
+    private function __construct(string $password, string $name, ?string $userId = null)
     {
         $this->password = $password;
         $this->name = $name;
+        $this->userId = $userId;
     }
 
     public static function getAdmin(): TestUser
@@ -73,7 +79,7 @@ class TestUser
             );
         }
 
-        return new TestUser($password, $username);
+        return new TestUser($password, $username, Uuid::fromBytesToHex($userId));
     }
 
     public function authorizeBrowser(KernelBrowser $browser): void
@@ -114,6 +120,11 @@ class TestUser
         return $this->name;
     }
 
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
     private static function getLocaleOfSystemLanguage(Connection $connection): string
     {
         $builder = $connection->createQueryBuilder();
@@ -135,20 +146,12 @@ class TestUser
         $roleId = Uuid::randomBytes();
         $roleName = Uuid::randomHex();
 
-        $connection->insert('acl_role', ['id' => $roleId, 'name' => $roleName, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT)]);
-        foreach ($permissions as $resource => $privileges) {
-            foreach ($privileges as $privilege) {
-                $connection->insert(
-                    'acl_resource',
-                    [
-                        'resource' => $resource,
-                        'privilege' => $privilege,
-                        'acl_role_id' => $roleId,
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                    ]
-                );
-            }
-        }
+        $connection->insert('acl_role', [
+            'id' => $roleId,
+            'name' => $roleName,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'privileges' => json_encode($permissions),
+        ]);
 
         return $roleId;
     }

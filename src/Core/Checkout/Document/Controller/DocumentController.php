@@ -114,7 +114,9 @@ class DocumentController extends AbstractController
 
         $disposition = HeaderUtils::makeDisposition(
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
-            $filename
+            $filename,
+            // only printable ascii
+            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename)
         );
 
         $response->headers->set('Content-Type', $contentType);

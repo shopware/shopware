@@ -15,7 +15,7 @@ stages:
     - Deploy
 
 include:
-    -   local: .gitlab/ci/sync.yml
+    -   local: .gitlab/ci/split.yml
 
 default:
     image: shopware/development:latest
@@ -54,7 +54,7 @@ Javascript analysis:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -79,7 +79,7 @@ PHP analysis:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     services:
         -   name: mysql:5.7
@@ -147,7 +147,7 @@ PHP 7.2:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
@@ -164,7 +164,7 @@ PHP 7.3:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -197,7 +197,7 @@ PHP 7.4:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -230,7 +230,7 @@ MySQL 5.7:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -261,7 +261,7 @@ MySQL 8.0:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -269,7 +269,7 @@ MySQL 8.0:
     when: manual
     timeout: 1h 00m
     services:
-        -   name: mysql:8.0
+        -   name: mysql:8.0.19
             alias: mysql
             command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
         -   name: elastic/elasticsearch:7.1.1
@@ -282,7 +282,7 @@ MySQL 8.0 (Schedule):
     extends: .phpunit_base
     stage: unit
     services:
-        -   name: mysql:8.0
+        -   name: mysql:8.0.19
             alias: mysql
             command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
         -   name: elastic/elasticsearch:7.1.1
@@ -294,7 +294,7 @@ MariaDB 10.4:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     except:
         - schedules
     extends: .phpunit_base
@@ -327,7 +327,7 @@ Administration (Jest):
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     timeout: 1h 00m
     services:
@@ -347,7 +347,7 @@ Storefront (Jest):
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
     stage: unit
     timeout: 1h 00m
     variables:
@@ -388,10 +388,10 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.2.0-beta.7 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.2.7 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.0.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --spec $TEST_DIRECTORY"
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
 
 .scheduled_script:
     script: &scheduled_definition
@@ -400,14 +400,14 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.2.0-beta.7 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.2.7 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.0.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
+        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition
-        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
         - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
         - docker rm -f cypress
 
@@ -415,7 +415,7 @@ General (Storefront):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -432,7 +432,7 @@ Content (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -449,7 +449,7 @@ Catalogues (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -466,7 +466,7 @@ Customers (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -483,7 +483,7 @@ Media and Marketing (Mixed):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -500,7 +500,7 @@ General (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -517,7 +517,7 @@ Orders (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -534,7 +534,7 @@ Rules and Product Groups (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -551,7 +551,7 @@ Settings (Administration):
     only:
         - merge_requests
         - master
-        - "6.1"
+        - /^6\..*$/
     except:
         - schedules
     <<: *e2e_definition
@@ -615,7 +615,7 @@ Component Library:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*
@@ -646,7 +646,7 @@ Generating docs:
         refs:
             - merge_requests
             - master
-            - "6.1"
+            - /^6\..*$/
         changes:
             - src/Docs/**/*
     stage: Generate docs
@@ -669,13 +669,40 @@ RIPS security:
     allow_failure: true
     only:
         - master
-        - "6.1"
+        - schedules
     script:
         - apk add --no-cache libzip-dev && docker-php-ext-configure zip --with-libzip=/usr/include && docker-php-ext-install zip
         - wget https://github.com/rips/rips-cli/releases/download/3.2.0/rips-cli.phar -O /usr/bin/rips-cli
         - chmod 755 /usr/bin/rips-cli
         - rips-cli rips:scan:start -p . -t critical:0 -a ${RIPS_APP_ID} --progress
     interruptible: false
+
+Symfony security check:
+    stage: Security
+    image: shopware/development:latest
+    before_script: []
+    allow_failure: true
+    script:
+        - wget https://get.sensiolabs.org/security-checker.phar
+        - composer install
+        - php security-checker.phar security:check composer.lock
+        - composer install -d src/Recovery/Common/
+        - php security-checker.phar security:check src/Recovery/Common/composer.lock
+
+NPM security check:
+    stage: Security
+    image: shopware/development:latest
+    before_script: []
+    allow_failure: true
+    script:
+        - cd src/Administration/Resources/app/administration
+        - npm i
+        - npm install --save-dev audit-ci
+        - node node_modules/.bin/audit-ci --moderate
+        - cd ../../../../../src/Storefront/Resources/app/storefront
+        - npm i
+        - npm install --save-dev audit-ci
+        - node node_modules/.bin/audit-ci --moderate
 
 # Stage: deploy
 
@@ -686,7 +713,7 @@ RIPS security:
     before_script: []
     only:
         - master
-        - "6.1"
+        - /^6\..*$/
     dependencies:
         - PHPUnit (MySQL)
     script:
@@ -705,7 +732,7 @@ Upload Component Library:
     only:
         refs:
             - master
-            - "6.1"
+            - /^6\..*$/
         changes:
             - src/Administration/**/*
             - src/Storefront/**/*

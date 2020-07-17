@@ -45,17 +45,13 @@ Component.register('sw-select-result-list', {
             default: false
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
+        popoverClasses: {
+            type: Array,
             required: false,
             default() {
-                return {};
+                return [];
             }
         }
-
     },
 
     data() {
@@ -67,6 +63,10 @@ Component.register('sw-select-result-list', {
     computed: {
         emptyMessageText() {
             return this.emptyMessage || this.$tc('global.sw-select-result-list.messageNoResults');
+        },
+
+        popoverClass() {
+            return [...this.popoverClasses, 'sw-select-result-list-popover-wrapper'];
         }
     },
 

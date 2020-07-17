@@ -2,7 +2,7 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
@@ -104,10 +104,6 @@ Component.register('sw-category-detail', {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         pageClasses() {
@@ -364,13 +360,10 @@ Component.register('sw-category-detail', {
             }).catch(() => {
                 this.isLoading = false;
 
-                const categoryName = this.category.name || this.category.translated.name;
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage',
-                        0,
-                        { entityName: categoryName }
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
             });

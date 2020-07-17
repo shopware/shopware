@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @group rules
@@ -32,11 +33,22 @@ class LineItemIsNewRuleTest extends TestCase
         static::assertEquals('cartLineItemIsNew', $this->rule->getName());
     }
 
-    public function testGetConstraints(): void
+    /**
+     * This test verifies that we have the correct constraint
+     * and that no NotBlank is existing - only 1 BOOL constraint.
+     * Otherwise a FALSE value would not work when saving in the administration.
+     *
+     * @group rules
+     */
+    public function testIsNewConstraint(): void
     {
         $ruleConstraints = $this->rule->getConstraints();
 
+        $boolType = new Type(['type' => 'bool']);
+
         static::assertArrayHasKey('isNew', $ruleConstraints, 'Rule Constraint isNew is not defined');
+        static::assertCount(1, $ruleConstraints['isNew']);
+        static::assertEquals($boolType, $ruleConstraints['isNew'][0]);
     }
 
     /**

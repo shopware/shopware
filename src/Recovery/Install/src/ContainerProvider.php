@@ -5,17 +5,18 @@ namespace Shopware\Recovery\Install;
 use Doctrine\DBAL\DriverManager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Shopware\Core\Framework\Migration\MigrationCollection;
-use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
 use Shopware\Recovery\Common\DumpIterator;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
-use Shopware\Recovery\Common\MigrationRuntime;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\Notification;
 use Shopware\Recovery\Common\Service\UniqueIdGenerator;
 use Shopware\Recovery\Common\SystemLocker;
-use Shopware\Recovery\Install\Service\ConfigWriter;
 use Shopware\Recovery\Install\Service\DatabaseService;
+use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\TranslationService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
 use Slim\App;
@@ -117,7 +118,7 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['config.writer'] = static function ($c) {
-            return new ConfigWriter(
+            return new EnvConfigWriter(
                 SW_PATH . '/.env',
                 $c['uniqueid.generator']->getUniqueId()
             );
@@ -166,50 +167,29 @@ class ContainerProvider implements ServiceProviderInterface
             return DriverManager::getConnection($options);
         };
 
-        $container['migration.paths'] = static function () {
+        //& removed migration.paths
+        $container['migration.source'] = static function () {
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $bundles = [
-                    'Core' => SW_PATH . '/platform/src/Core/Migration',
-                    'Storefront' => SW_PATH . '/platform/src/Storefront/Migration',
-                    'Elasticsearch' => SW_PATH . '/platform/src/Elasticsearch/Migration',
-                    'Administartion' => SW_PATH . '/platform/src/Administration/Migration',
+                $coreBundleMigrations = [
+                    SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
+                    SW_PATH . '/platform/src/Storefront/Migration' => 'Shopware\\Storefront\\Migration',
                 ];
             } else {
-                $bundles = [
-                    'Core' => SW_PATH . '/vendor/shopware/core/Migration',
-                    'Storefront' => SW_PATH . '/vendor/shopware/storefront/Migration',
-                    'Elasticsearch' => SW_PATH . '/vendor/shopware/elasticsearch/Migration',
-                    'Administartion' => SW_PATH . '/vendor/shopware/administration/Migration',
+                $coreBundleMigrations = [
+                    SW_PATH . '/vendor/shopware/core/Migration' => 'Shopware\\Core\\Migration',
+                    SW_PATH . '/vendor/shopware/storefront/Migration' => 'Shopware\\Storefront\\Migration',
                 ];
             }
 
-            $paths = [];
-
-            foreach ($bundles as $name => $path) {
-                if (is_dir($path)) {
-                    $paths[] = ['name' => $name, 'path' => $path];
-                }
-            }
-
-            return $paths;
+            return new CoreMigrationSource('core', $coreBundleMigrations);
         };
 
-        $container['migration.manager'] = static function ($c) {
-            return new MigrationRuntime($c['dbal']);
-        };
-
-        $container['migration.collection'] = function ($c) {
-            $paths = [];
-
-            foreach ($c['migration.paths'] as $path) {
-                $paths[sprintf('Shopware\\%s\\Migration', $path['name'])] = $path['path'];
-            }
-
-            return new MigrationCollection($paths);
+        $container['migration.runtime'] = static function ($c) {
+            return new CoreMigrationRuntime($c['dbal'], new NullLogger());
         };
 
         $container['migration.collection.loader'] = static function ($c) {
-            return new MigrationCollectionLoader($c['dbal'], $c['migration.collection']);
+            return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], [$c['migration.source']]);
         };
     }
 }

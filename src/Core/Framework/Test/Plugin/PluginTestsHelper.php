@@ -38,7 +38,7 @@ trait PluginTestsHelper
         string $version = SwagTest::PLUGIN_VERSION,
         ?string $installedAt = null
     ): void {
-        $pluginRepo->create(
+        $pluginRepo->insert(
             [
                 [
                     'baseClass' => SwagTest::class,
@@ -59,7 +59,7 @@ trait PluginTestsHelper
     private function addTestPluginToKernel($pluginName): void
     {
         $testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . $pluginName;
-        $class = $pluginName . '\\' . $pluginName;
+        $class = '\\' . $pluginName . '\\' . $pluginName;
 
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 

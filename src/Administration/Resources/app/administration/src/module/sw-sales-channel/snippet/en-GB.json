@@ -18,6 +18,7 @@
       "messageSaveSuccess": "Sales Channel \"{name}\" has been saved.",
       "titleSaveError": "Error",
       "titleActivateError": "Activation error",
+      "titleFetchError": "Error",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
@@ -40,6 +41,7 @@
       "labelInputShippingMethods": "Shipping methods",
       "labelInputPaymentMethods": "Payment methods",
       "labelInputCountries": "Countries",
+      "countryMultiSelectHelpText": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",
       "labelInputTaxCalculation": "Tax calculation",
       "labelOptionTaxVertical": "Vertical",
       "labelOptionTaxHorizontal": "Horizontal",
@@ -88,13 +90,13 @@
       "titleAccount": "Account",
       "titleDeleteSalesChannel": "Delete Sales Channel",
       "titleProductSync": "Product Sync",
-      "titleProducts": "Products",
+      "titleSyncedProducts": "Synced Products",
       "titleCategoryMapping": "Category Mapping",
       "titleTemplate": "Template",
       "titleDomainHeadline": "Create domain URLs",
       "buttonEditDomain": "Edit domain",
       "titleCreateDomain": "Create domain",
-      "titleEditDomain": "Edit \"{name}\" domain",
+      "titleEditDomain": "Edit domain \"{name}\"",
       "textDomainDescription": "Each selected language must have its own domain, in order to work in your online Sales Channel. You can also add custom domains here.",
       "textApiAccessDescription": "In order to get API access, you need the API key shown below. Generating the key anew will overwrite the old key and by that terminate all existing access routes that were set up with it. <strong>This action cannot be undone.</strong>",
       "textActiveDescription": "Switching off a Sales Channel will make it inaccessible to visitors as well as API connections.",
@@ -207,34 +209,41 @@
       },
       "analytics": {
         "cardTitle": "Google Analytics",
-        "headline": "Google Analytics Integration",
-        "description": "Mit Google Analytics können Sie Daten aus Ihrem Shop sammeln und messen. Um diese Funktion nutzen zu können, benötigen Sie ein Google Analytics-Konto. Wenn Sie noch kein Analytics-Konto haben, können Sie sich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhalten Sie eine Tracking ID, die Sie hier eingeben müssen, um die Integration zu aktivieren.",
+        "headline": "Google Analytics integration",
+        "description": "With the help of Google Analytics you can collect and analyse your shop's data. In order to make use of this function, a Google Account is necessary. If you don't yet own a Google Analytics account, you may want to sign up here: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. After successfully signing-up you will receive a tracking ID, which is to be filled in below to activate the intergration.",
         "fields": {
           "trackingId": {
             "label": "Tracking ID",
-            "placeHolder": "Tracking ID eingeben...",
-            "helpText": "Nach der Anmeldung in Ihrem Google Analytics-Konto erhalten Sie eine Tracking ID. Eine Tracking ID kann wie folgt aussehen: UA-12345678-1"
+            "placeHolder": "Enter tracking ID...",
+            "helpText": "When logged in to your Google Analytics account, you will be given access to a tracking ID, which should look like this: UA-12345678-1"
           },
           "active": {
-            "label": "Google Analytics aktivieren"
+            "label": "Activate Google Analytics"
           },
           "trackOrders": {
-            "label": "Bestellungen tracken"
+            "label": "Track orders"
           }
         }
       },
-      "googleShoppingGeneral": {
-        "title": "Select a Storefront for the Checkout Proccess",
-        "description": "Sales channels that don’t have a storefront require a linked storefront that will be used to complete the checkout procces."
-      },
-      "googleShoppingAccount": {
-        "title": "Connect your Google Account to use Google Programs",
-        "description": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
-        "textConnectionButton": "Connect"
+      "titleShippingPayment": "Payment and shipping",
+      "labelTaxCalculation": "Tax calculation",
+      "descriptionTaxCalculation": "Changing this setting could lead to acounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
+      "taxCalculation": {
+        "verticalName": "Column by column (vertical) calculation",
+        "verticalDescription": "VAT is calculated from the order total. No individual VAT values are displayed during checkout.",
+        "horizontalName": "Line by line (horizontal) calculation",
+        "horizontalDescription": "VAT is calculated for each shopping cart position. During checkout each position's individual VAT is displayed. The total VAT amount is calculated by adding up all individual VAT values."
       }
     },
-    "sw-sales-channel-defaults-select": {
+     "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"%{url}\"."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "sales_channel": {
+        "label": "Sales Channels"
+      }
     }
   }
 }

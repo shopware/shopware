@@ -56,12 +56,9 @@ Component.register('sw-select-rule-create', {
         },
 
         onSelectRule(event) {
-            if (event.item.index !== -1) {
-                this.onSaveRule(event.item);
-                return;
+            if (event !== this.ruleId) {
+                this.onSaveRule(event);
             }
-
-            this.openCreateRuleModal();
         },
 
         openCreateRuleModal() {

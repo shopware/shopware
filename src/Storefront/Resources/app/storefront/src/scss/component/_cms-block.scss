@@ -12,7 +12,7 @@ specific styling for elements dependent on their parent block
         background-repeat: no-repeat;
         background-position: 50%;
     }
-    
+
     .cms-block-container {
         .cms-block-container-row {
             flex-direction: row;
@@ -101,7 +101,7 @@ specific styling for elements dependent on their parent block
             flex-direction: column;
 
             > div {
-                flex-basis: 0;
+                flex-basis: auto;
                 flex-grow: 1;
                 max-width: 100%;
             }
@@ -137,4 +137,15 @@ specific styling for elements dependent on their parent block
 
 .cms-block-sidebar-filter {
     overflow: visible;
+
+    /*
+    The filter's col is set to "initial" because the "boundary" option
+    of the filter panel bootstrap dropdown is not working otherwise.
+    The "boundary" option sets the dropdown container to "static" to
+    be able to "break out" of "overflow: hidden". But this interferes
+    with position "relative" on surrounding columns.
+    */
+    .col-12 {
+        position: initial;
+    }
 }

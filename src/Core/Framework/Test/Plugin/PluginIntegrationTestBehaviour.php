@@ -27,6 +27,8 @@ trait PluginIntegrationTestBehaviour
      */
     public function pluginIntegrationSetUp(): void
     {
+        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
+
         $this->connection = Kernel::getConnection();
         $this->connection->beginTransaction();
         $this->connection->exec('DELETE FROM plugin');
@@ -97,5 +99,26 @@ trait PluginIntegrationTestBehaviour
         $active->setActive(true);
 
         return $active;
+    }
+
+    protected function getActivePluginWithBundle(): PluginEntity
+    {
+        $plugin = new PluginEntity();
+        $plugin->assign([
+            'id' => Uuid::randomHex(),
+            'name' => 'SwagTestWithBundle',
+            'baseClass' => 'SwagTestWithBundle\\SwagTestWithBundle',
+            'version' => '1.0.0',
+            'active' => false,
+            'path' => __DIR__ . '/_fixture/plugins/SwagTestWithBundle',
+            'autoload' => ['psr-4' => ['SwagTestWithBundle\\' => 'src/']],
+            'createdAt' => new \DateTimeImmutable('2019-01-01'),
+            'managedByComposer' => false,
+        ]);
+
+        $plugin->setInstalledAt(new \DateTimeImmutable());
+        $plugin->setActive(true);
+
+        return $plugin;
     }
 }

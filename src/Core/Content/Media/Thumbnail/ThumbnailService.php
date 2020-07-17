@@ -239,6 +239,22 @@ class ThumbnailService
             throw new FileTypeNotSupportedException($media->getId());
         }
 
+        if (function_exists('exif_read_data')) {
+            try {
+                $exif = exif_read_data($filePath);
+
+                if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
+                    $image = imagerotate($image, 90, 0);
+                } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 3) {
+                    $image = imagerotate($image, 180, 0);
+                } elseif (!empty($exif['Orientation']) && $exif['Orientation'] === 6) {
+                    $image = imagerotate($image, -90, 0);
+                }
+            } catch (\Exception $e) {
+                // Ignore.
+            }
+        }
+
         return $image;
     }
 
@@ -362,7 +378,8 @@ class ThumbnailService
     {
         return $media->getMediaType() instanceof ImageType
             && !$media->getMediaType()->is(ImageType::VECTOR_GRAPHIC)
-            && !$media->getMediaType()->is(ImageType::ANIMATED);
+            && !$media->getMediaType()->is(ImageType::ANIMATED)
+            && !$media->getMediaType()->is(ImageType::ICON);
     }
 
     private function deleteAssociatedThumbnails(MediaEntity $media, Context $context): void

@@ -18,6 +18,13 @@ export default function createHTTPClient(context) {
 }
 
 /**
+ * Provides CancelToken so a request's promise from Http Client could be canceled.
+ *
+ * @returns { CancelToken, isCancel, Cancel}
+ */
+export const { CancelToken, isCancel, Cancel } = Axios;
+
+/**
  * Creates the HTTP client with the provided context.
  *
  * @param {Context} context Information about the environment

@@ -5,6 +5,26 @@
               :title="snippets.modalTitle">
 
         {% block sw_media_modal_body %}
+            <div v-if="mediaQuickInfo">
+                <p>{{ $tc('global.sw-media-modal-delete.mediaQuickInfoMessage') }}</p>
+                <sw-media-quickinfo-usage
+                        :item="mediaQuickInfo"
+                        routerLinkTarget="_blank">
+                </sw-media-quickinfo-usage>
+            </div>
+            <div v-if="mediaInUsages && mediaInUsages.length > 0">
+                <p>{{ $tc('global.sw-media-modal-delete.mediaInUsagesMessage') }}</p>
+                <sw-media-media-item class="sw-media-modal-delete__media-list-item"
+                        v-for="mediaInUsage in mediaInUsages"
+                        :item="mediaInUsage"
+                        :key="`sw-media-modal-delete-${mediaInUsage.id}`"
+                        :isList="true"
+                        :editable="false"
+                        :selected="false"
+                        :showSelectionIndicator="false"
+                        :showContextMenuButton="false">
+                </sw-media-media-item>
+            </div>
             <p v-html="$sanitize(snippets.deleteMessage)"></p>
         {% endblock %}
 

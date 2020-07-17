@@ -7,7 +7,7 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 Component.register('sw-sales-channel-menu', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -20,6 +20,10 @@ Component.register('sw-sales-channel-menu', {
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        canCreateSalesChannels() {
+            return this.acl.can('sales_channel.creator');
         }
     },
 

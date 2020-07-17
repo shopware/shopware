@@ -23,7 +23,7 @@ runOn('chrome', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v1/_action/media/**/upload?extension=png&fileName=sw-login-background',
+                url: '/api/v*/_action/media/**/upload?extension=png&fileName=sw-login-background',
                 method: 'post'
             }).as('uploadMedia');
 
@@ -83,7 +83,7 @@ runOn('chrome', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v1/_action/media/**/upload?extension=png&fileName=sw-login-background',
+                url: '/api/v*/_action/media/**/upload?extension=png&fileName=sw-login-background',
                 method: 'post'
             }).as('uploadMedia');
 

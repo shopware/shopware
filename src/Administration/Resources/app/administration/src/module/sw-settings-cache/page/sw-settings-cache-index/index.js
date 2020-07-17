@@ -130,6 +130,10 @@ Component.register('sw-settings-cache-index', {
             this.processes.clearAndWarmUpCache = true;
             this.cacheApiService.clearAndWarmup().then(() => {
                 this.decreaseWorkerPoll();
+                setTimeout(() => {
+                    this.cacheApiService.cleanupOldCaches();
+                }, 30000);
+
                 this.createNotificationInfo({
                     title: this.$tc('global.default.info'),
                     message: this.$tc('sw-settings-cache.notifications.clearCacheAndWarmup.started')

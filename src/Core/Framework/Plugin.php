@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework;
 
-use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -76,16 +75,6 @@ abstract class Plugin extends Bundle
         }
 
         parent::configureRoutes($routes, $environment);
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 Use self::getAdditionalBundles instead
-     *
-     * @return Bundle[]
-     */
-    public function getExtraBundles(ClassLoader $classLoader): array
-    {
-        return [];
     }
 
     /**

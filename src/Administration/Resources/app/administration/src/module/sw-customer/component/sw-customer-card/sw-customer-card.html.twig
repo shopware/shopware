@@ -22,6 +22,12 @@
                                                     <template v-if="!editMode">
                                                         <div v-if="customer && customer.salutation" class="sw-customer-card__metadata-customer-name">
                                                             {{ fullName }}
+                                                            <sw-label v-if="customer.guest"
+                                                                      appearance="pill"
+                                                                      size="small"
+                                                                      class="sw-customer-card__metadata-customer-guest-label">
+                                                                {{ $tc('sw-customer.card.labelGuest') }}
+                                                            </sw-label>
                                                         </div>
                                                     </template>
                                                 {% endblock %}
@@ -104,6 +110,24 @@
                                                                       :size="editMode ? 'default' : 'medium'"
                                                                       v-model="customer.tags">
                                                 </sw-entity-tag-select>
+                                            {% endblock %}
+
+                                            {% block sw_customer_card_password %}
+                                                <sw-password-field v-if="editMode"
+                                                                   v-model="customer.passwordNew"
+                                                                   autocomplete="off"
+                                                                   :label="$tc('sw-profile.index.labelNewPassword')"
+                                                                   :placeholder="$tc('sw-customer.card.placeholderNewPassword')">
+                                                </sw-password-field>
+                                            {% endblock %}
+
+                                            {% block sw_customer_card_password_confirm %}
+                                                <sw-password-field v-if="editMode"
+                                                                   v-model="customer.passwordConfirm"
+                                                                   autocomplete="off"
+                                                                   :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
+                                                                   :placeholder="$tc('sw-customer.card.placeholderNewPasswordConfirm')">
+                                                </sw-password-field>
                                             {% endblock %}
 
                                             {% block sw_customer_card_metadata_additional %}

@@ -64,6 +64,11 @@ Component.register('sw-settings-payment-list', {
             });
         },
 
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+            this.getList();
+        },
+
         onInlineEditSave(promise, payment) {
             promise.then(() => {
                 this.createNotificationSuccess({

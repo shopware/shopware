@@ -9,8 +9,8 @@ $sw-shipping-list-color-error: $color-crimson;
 
     .sw-settings-shipping-price-matrix__top-container {
         padding: 32px 24px;
-        background-color: #F9FAFB;
-        border-bottom: 1px solid #D1D9E0;
+        background-color: #f9fafb;
+        border-bottom: 1px solid #d1d9e0;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
 
@@ -21,7 +21,7 @@ $sw-shipping-list-color-error: $color-crimson;
 
     .sw-settings-shipping-price-matrix__price-group-context {
         width: 35px;
-        border: 1px solid #D6DDE5;
+        border: 1px solid #d6dde5;
         border-radius: 3px;
         padding: 0;
         cursor: pointer;
@@ -40,20 +40,39 @@ $sw-shipping-list-color-error: $color-crimson;
     }
 
     .sw-settings-shipping-price-matrix__empty {
-        max-width: 400px;
+        max-width: 500px;
         margin: 47px auto 50px;
     }
 
     .sw-settings-shipping-price-matrix__empty-text {
-        max-width: 400px;
+        max-width: 500px;
         font-size: 14px;
         text-align: center;
         margin-bottom: 17px;
     }
 
-    .sw-settings-shipping-price-matrix__use-rules {
-        line-height: 35px;
-        cursor: pointer;
-        color: $color-shopware-blue;
+    .sw-settings-shipping-price-matrix__price {
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-settings-shipping-price-matrix__price-inherit-icon {
+        margin-right: 5px;
+    }
+
+    .sw-settings-shipping-price-matrix__top-container-rule-select .sw-field {
+        margin-bottom: 0;
+    }
+
+    .sw-settings-shipping-price-matrix__column-calculation-rule-select {
+        width: 100%;
+    }
+
+    .sw-settings-shipping-price-matrix__empty-text-or {
+        padding-top: 8px;
+    }
+
+    .sw-settings-shipping-price-matrix__new-matrix-alert {
+        margin-bottom: 0;
     }
 }

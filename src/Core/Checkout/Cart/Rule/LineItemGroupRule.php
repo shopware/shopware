@@ -58,8 +58,12 @@ class LineItemGroupRule extends FilterRule
             $this->rules
         );
 
-        /** @var LineItemGroupBuilder $builder */
+        /** @var LineItemGroupBuilder|null $builder */
         $builder = $scope->getCart()->getData()->get(LineItemGroupBuilder::class);
+
+        if (!$builder instanceof LineItemGroupBuilder) {
+            return false;
+        }
 
         $results = $builder->findGroupPackages(
             [$groupDefinition],

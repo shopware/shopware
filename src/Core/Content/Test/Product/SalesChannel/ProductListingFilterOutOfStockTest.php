@@ -5,13 +5,14 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -21,11 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductListingFilterOutOfStockTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    /**
-     * @var ProductListingGateway
-     */
-    private $listingGateway;
 
     /**
      * @var string
@@ -40,8 +36,6 @@ class ProductListingFilterOutOfStockTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->listingGateway = $this->getContainer()->get(ProductListingGateway::class);
 
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
@@ -71,11 +65,10 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $request->attributes->set('_route_params', [
-            'navigationId' => $this->categoryId,
-        ]);
-
-        $listing = $this->listingGateway->search($request, $context);
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         static::assertSame(5, $listing->getTotal());
         static::assertFalse($listing->has($this->testData->getId('product1')));
@@ -114,11 +107,10 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $request->attributes->set('_route_params', [
-            'navigationId' => $this->categoryId,
-        ]);
-
-        $listing = $this->listingGateway->search($request, $context);
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         static::assertSame(2, $listing->getTotal());
         static::assertFalse($listing->has($this->testData->getId('product1')));

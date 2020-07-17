@@ -38,7 +38,21 @@ Component.register('sw-theme-manager-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.themeName)
+        };
+    },
+
     computed: {
+        themeName() {
+            if (this.theme) {
+                return this.theme.name;
+            }
+
+            return '';
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },

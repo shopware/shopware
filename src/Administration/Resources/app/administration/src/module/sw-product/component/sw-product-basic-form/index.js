@@ -11,12 +11,6 @@ Component.register('sw-product-basic-form', {
         Mixin.getByName('placeholder')
     ],
 
-    data() {
-        return {
-            isTitleRequired: true
-        };
-    },
-
     computed: {
         ...mapState('swProductDetail', [
             'product',
@@ -24,20 +18,21 @@ Component.register('sw-product-basic-form', {
             'loading'
         ]),
 
-        ...mapPropertyErrors('product', ['name', 'description', 'productNumber', 'manufacturerId', 'active', 'markAsTopseller']),
+        ...mapPropertyErrors('product', [
+            'name',
+            'description',
+            'productNumber',
+            'manufacturerId',
+            'active',
+            'markAsTopseller'
+        ]),
 
         languageStore() {
             return StateDeprecated.getStore('language');
-        }
-    },
+        },
 
-    watch: {
-        product: {
-            handler() {
-                this.updateIsTitleRequired();
-            },
-            immediate: true,
-            deep: true
+        isTitleRequired() {
+            return Shopware.State.getters['context/isSystemDefaultLanguage'];
         }
     },
 

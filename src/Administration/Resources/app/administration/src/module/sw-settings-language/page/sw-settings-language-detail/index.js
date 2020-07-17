@@ -1,7 +1,7 @@
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-language-detail', {
@@ -50,10 +50,6 @@ Component.register('sw-settings-language-detail', {
 
         languageRepository() {
             return this.repositoryFactory.create('language');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         isIsoCodeRequired() {
@@ -125,7 +121,7 @@ Component.register('sw-settings-language-detail', {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                Shopware.State.commit('context/resetLanguageToDefault');
                 this.language = this.languageRepository.create(Shopware.Context.api);
             } else {
                 this.loadEntityData();

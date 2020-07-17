@@ -15,6 +15,7 @@ return [
     'start' => 'Start',
     'select_language' => 'Välj språk',
     'select_language_choose' => 'Vänligen välj',
+
     'select_language_de' => 'Tyska',
     'select_language_en' => 'Engelska',
     'select_language_nl' => 'Nederländska',
@@ -22,9 +23,10 @@ return [
     'select_language_fr' => 'Franska',
     'select_language_es' => 'Spanska',
     'select_language_pt' => 'Portugisiska',
-    'select_language_pl' => 'Polska',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_pl' => 'Putsa',
+    'select_language_cs' => 'Tjeck',
+    'select_language_sv' => 'Svenska',
+
     'noaccess_title' => 'Åtkomst nekad',
     'noaccess_info' => 'Lägg till din IP-adress ”<strong>%s</strong>” till filen <strong>%s</strong>.',
     'step2_header_files' => 'Filer och kataloger',

@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void               set(string $key, CalculatedTax $entity)
  * @method CalculatedTax[]    getIterator()
  * @method CalculatedTax[]    getElements()
  * @method CalculatedTax|null get(string $key)
@@ -20,6 +20,11 @@ class CalculatedTaxCollection extends Collection
     public function add($calculatedTax): void
     {
         $this->set($this->getKey($calculatedTax), $calculatedTax);
+    }
+
+    public function set($key, $calculatedTax): void
+    {
+        parent::set($this->getKey($calculatedTax), $calculatedTax);
     }
 
     public function removeElement(CalculatedTax $calculatedTax): void
@@ -60,16 +65,26 @@ class CalculatedTaxCollection extends Collection
         $new = new self($this->elements);
 
         foreach ($taxCollection as $calculatedTax) {
-            if (!$new->exists($calculatedTax)) {
+            $exists = $new->get($this->getKey($calculatedTax));
+            if (!$exists) {
                 $new->add(clone $calculatedTax);
 
                 continue;
             }
 
-            $new->get($this->getKey($calculatedTax))->increment($calculatedTax);
+            $exists->increment($calculatedTax);
         }
 
         return $new;
+    }
+
+    public function round(PriceRoundingInterface $priceRounding, int $precision): void
+    {
+        foreach ($this->elements as $tax) {
+            $tax->setTax(
+                $priceRounding->round($tax->getTax(), $precision)
+            );
+        }
     }
 
     public function getApiAlias(): string

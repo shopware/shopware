@@ -1,0 +1,17 @@
+@startuml
+object "root: OrRule" as root
+root : rules=[lineItemCount, cartPrice]
+
+
+object "lineItemCount: LineItemsInCartCountRule" as lineItemCount
+lineItemCount : operator=">="
+lineItemCount : count="40"
+
+object "cartPrice: GoodsPriceRule" as cartPrice
+cartPrice : operator=">="
+cartPrice : amount="500
+
+root .. lineItemCount
+root .. cartPrice
+
+@enduml

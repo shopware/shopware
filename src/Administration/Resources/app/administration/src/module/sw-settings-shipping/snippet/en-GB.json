@@ -21,6 +21,7 @@
       "textDeleteConfirm": "Are you sure you really want to delete the shipping method \"{name}\"?",
       "titleSidebarItemRefresh": "Refresh",
       "titleSaveSuccess": "Success",
+      "titleDeleteSuccess": "Success",
       "messageSaveSuccess": "Shipping method \"{name}\" has been saved.",
       "messageSaveError": "Shipping method \"{name}\" could not be saved.",
       "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
@@ -52,22 +53,22 @@
     "constants": {
       "weight": "Weight",
       "price": "Price",
-      "lineItemCount": "Line item count"
+      "lineItemCount": "Product quantity"
     },
     "priceMatrix": {
       "titleCard": "Price matrix",
       "noRestriction": "Unrestricted",
       "addNewRule": "Add new rule",
-      "addNewPriceRule": "Add pricing level",
+      "addNewShippingPrice": "Add pricing level",
       "duplicateMatrixContextLabel": "Duplicate price matrix",
       "deleteMatrixContextLabel": "Delete price matrix",
       "contextMenuDuplicatePrice": "Duplicate pricing level",
       "contextMenuDeletePrice": "Delete pricing level",
-      "contextMenuModifyPrice": "Modify price rule",
       "selectProperty": "Select cart property...",
       "useRules": "Build a rule",
       "emptyText": "Create a price matrix based on predefined cart properties and/or custom built rules. Please choose:",
-      "calculationLineItemCount": "Line item count",
+      "chooseCustomRule": "Choose a custom rule",
+      "calculationLineItemCount": "Product quantity",
       "calculationPrice": "Cart price",
       "calculationWeight": "Weight",
       "calculationVolume": "Volume",
@@ -79,23 +80,32 @@
       "columnPriceEnd": "to...",
       "columnVolumeStart": "Volume from...",
       "columnVolumeEnd": "to...",
-      "columnPrice": "Price (gross)",
+      "columnPrice": "Price",
       "columnCalculationRule": "Rule",
       "buttonAddAdditionalPriceMatrix": "Add price matrix",
       "any": "∞",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "modalTitleDelete": "Delete price matrix",
-      "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?"
+      "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
+      "deletionNotPossibleTitle": "Error",
+      "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
+      "labelGrossNet": "(gross / net)",
+      "ruleAlreadyUsed": "This rule is already used for a price matrix",
+      "ruleAlreadyUsedInMatrix": "This rule is already used in this price matrix",
+      "textOr": "or",
+      "chooseOrCreateRule": "Choose or create a rule",
+      "unrestrictedRuleAlreadyExistsTitle": "Assignment cannot be removed",
+      "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
+      "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
+      "newMatrixAlertTitle": "Attention",
+      "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix."
     },
     "sidebar": {
       "labelUseAsLogo": "Use as logo"
     },
-    "priceRuleModal": {
-      "modalTitleNew": "Add pricing rule",
-      "modalTitleModify": "Modify pricing rule",
-      "labelPrice": "Price",
-      "placeholderPrice": "Enter price..."
+    "shippingPriceModal": {
+      "modalTitle": "Add shipping price rule"
     }
   }
 }

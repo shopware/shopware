@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
 class DatabaseTransactionBehaviourTest extends TestCase
@@ -48,5 +49,19 @@ class DatabaseTransactionBehaviourTest extends TestCase
     public function testSetUpIsAlsoInTransaction(): void
     {
         static::assertTrue($this->setUpIsInTransaction);
+    }
+
+    public function testLastTestCaseIsSet(): void
+    {
+        static::assertEquals($this->getName(), static::$lastTestCase);
+    }
+
+    public function testTransactionOpenWithoutClose(): void
+    {
+        static::expectException(ExpectationFailedException::class);
+        static::expectExceptionMessage("The previous test case's transaction was not closed properly");
+        static::expectExceptionMessage('Previous Test case: ' . (new \ReflectionClass($this))->getName() . '::' . static::$lastTestCase);
+        static::startTransactionBefore();
+        static::assertTrue(true);
     }
 }

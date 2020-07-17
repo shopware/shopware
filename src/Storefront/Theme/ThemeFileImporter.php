@@ -14,6 +14,16 @@ use Symfony\Component\Finder\Finder;
  */
 class ThemeFileImporter implements ThemeFileImporterInterface
 {
+    public function fileExists(string $filePath): bool
+    {
+        return file_exists($filePath) && !is_dir($filePath);
+    }
+
+    public function getRealPath(string $filePath): string
+    {
+        return $filePath;
+    }
+
     public function getConcatenableStylePath(File $file, StorefrontPluginConfiguration $configuration): string
     {
         return '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;

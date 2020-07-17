@@ -1,0 +1,10 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
+
+{% block page_checkout_confirm_payment_modal_body %}
+    <div class="modal-body">
+        {% sw_include '@Storefront/storefront/page/account/order/change-payment-modal.html.twig' with {
+            'redirect': 'frontend.home.page',
+            'action':  'frontend.home.page'
+        } %}
+    </div>
+{% endblock %}

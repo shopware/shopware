@@ -16,6 +16,11 @@ class ImportExportProfileEntity extends Entity
     protected $name;
 
     /**
+     * @var string
+     */
+    protected $label;
+
+    /**
      * @var bool
      */
     protected $systemDefault;
@@ -51,6 +56,16 @@ class ImportExportProfileEntity extends Entity
     protected $importExportLogs;
 
     /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var ImportExportProfileTranslationCollection|null
+     */
+    protected $translations;
+
+    /**
      * @var \DateTimeInterface
      */
     protected $createdAt;
@@ -68,6 +83,16 @@ class ImportExportProfileEntity extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
     }
 
     public function getSystemDefault(): bool
@@ -138,6 +163,26 @@ class ImportExportProfileEntity extends Entity
     public function setImportExportLogs(ImportExportLogCollection $importExportLogs): void
     {
         $this->importExportLogs = $importExportLogs;
+    }
+
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(array $config): void
+    {
+        $this->config = $config;
+    }
+
+    public function getTranslations(): ?ImportExportProfileTranslationCollection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(ImportExportProfileTranslationCollection $translations): void
+    {
+        $this->translations = $translations;
     }
 
     public function getApiAlias(): string

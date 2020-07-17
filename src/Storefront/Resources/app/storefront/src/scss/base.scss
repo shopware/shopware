@@ -11,6 +11,7 @@ https://sass-guidelin.es/#the-7-1-pattern
  * Variables, Mixins, Functions
  * ---------------------------- */
 @import 'variables';
+@import 'abstract/mixins/truncate-multiline';
 
 /*
  * Skin variables
@@ -34,6 +35,7 @@ https://sass-guidelin.es/#the-7-1-pattern
  * Components
  * ---------- */
 @import 'component/alert';
+@import 'component/box';
 @import 'component/card';
 @import 'component/category-navigation';
 @import 'component/backdrop';
@@ -67,6 +69,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/filter-range';
 @import 'component/filter-rating';
 @import 'component/ellipsis';
+@import 'component/product-feature';
 
 /*
  * Layout-related sections
@@ -102,6 +105,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/account/address';
 @import 'page/account/profile';
 @import 'page/account/order';
+@import 'page/account/edit-order';
 @import 'page/account/order-detail';
 
 @import 'page/checkout/checkout';

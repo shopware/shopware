@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -69,7 +70,7 @@ class ProductEntity extends Entity
     protected $active;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $displayGroup;
 
@@ -239,6 +240,11 @@ class ProductEntity extends Entity
     protected $packUnit;
 
     /**
+     * @var string|null
+     */
+    protected $packUnitPlural;
+
+    /**
      * @var array|null
      */
     protected $variantRestrictions;
@@ -247,6 +253,21 @@ class ProductEntity extends Entity
      * @var string[]|null
      */
     protected $configuratorGroupConfig;
+
+    /**
+     * @var bool
+     */
+    protected $grouped = false;
+
+    /**
+     * @var string|null
+     */
+    protected $mainVariantId;
+
+    /**
+     * @var array
+     */
+    protected $variation = [];
 
     /**
      * @var TaxEntity|null
@@ -397,6 +418,11 @@ class ProductEntity extends Entity
      * @var ProductCrossSellingAssignedProductsCollection|null
      */
     protected $crossSellingAssignedProducts;
+
+    /**
+     * @var ProductFeatureSetCollection|null
+     */
+    protected $featureSets;
 
     public function __construct()
     {
@@ -717,6 +743,16 @@ class ProductEntity extends Entity
         $this->packUnit = $packUnit;
     }
 
+    public function getPackUnitPlural(): ?string
+    {
+        return $this->packUnitPlural;
+    }
+
+    public function setPackUnitPlural(?string $packUnitPlural): void
+    {
+        $this->packUnitPlural = $packUnitPlural;
+    }
+
     public function getTax(): ?TaxEntity
     {
         return $this->tax;
@@ -934,6 +970,16 @@ class ProductEntity extends Entity
         $this->configuratorSettings = $configuratorSettings;
     }
 
+    public function setGrouped(bool $grouped): void
+    {
+        $this->grouped = $grouped;
+    }
+
+    public function isGrouped(): bool
+    {
+        return $this->grouped;
+    }
+
     public function getCategoriesRo(): ?CategoryCollection
     {
         return $this->categoriesRo;
@@ -1044,6 +1090,26 @@ class ProductEntity extends Entity
         $this->configuratorGroupConfig = $configuratorGroupConfig;
     }
 
+    public function getMainVariantId(): ?string
+    {
+        return $this->mainVariantId;
+    }
+
+    public function setMainVariantId(?string $mainVariantId): void
+    {
+        $this->mainVariantId = $mainVariantId;
+    }
+
+    public function getVariation(): array
+    {
+        return $this->variation;
+    }
+
+    public function setVariation(array $variation): void
+    {
+        $this->variation = $variation;
+    }
+
     public function getAvailableStock(): ?int
     {
         return $this->availableStock;
@@ -1104,12 +1170,12 @@ class ProductEntity extends Entity
         $this->ratingAverage = $ratingAverage;
     }
 
-    public function getDisplayGroup(): string
+    public function getDisplayGroup(): ?string
     {
         return $this->displayGroup;
     }
 
-    public function setDisplayGroup(string $displayGroup): void
+    public function setDisplayGroup(?string $displayGroup): void
     {
         $this->displayGroup = $displayGroup;
     }
@@ -1172,6 +1238,16 @@ class ProductEntity extends Entity
     public function setCrossSellingAssignedProducts(ProductCrossSellingAssignedProductsCollection $crossSellingAssignedProducts): void
     {
         $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
+    }
+
+    public function getFeatureSets(): ?ProductFeatureSetCollection
+    {
+        return $this->featureSets;
+    }
+
+    public function setFeatureSets(ProductFeatureSetCollection $featureSets): void
+    {
+        $this->featureSets = $featureSets;
     }
 
     public function getApiAlias(): string

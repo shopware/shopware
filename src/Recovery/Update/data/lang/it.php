@@ -15,6 +15,7 @@ return [
     'start' => 'Avvia',
     'select_language' => 'Seleziona lingua',
     'select_language_choose' => 'Si prega di selezionare',
+
     'select_language_de' => 'Tedesco',
     'select_language_en' => 'Inglese',
     'select_language_nl' => 'Olandese',
@@ -23,8 +24,9 @@ return [
     'select_language_es' => 'Spagnolo',
     'select_language_pt' => 'Portoghese',
     'select_language_pl' => 'Polacco',
-    'select_language_cz' => 'Czech',
-    'select_language_sv' => 'Swedish',
+    'select_language_cs' => 'Ceco',
+    'select_language_sv' => 'Svedese',
+
     'noaccess_title' => 'Accesso negato',
     'noaccess_info' => 'Inserire l’indirizzo IP "<strong>%s</strong>" del file <strong>%s</strong>.',
     'step2_header_files' => 'File e directory',

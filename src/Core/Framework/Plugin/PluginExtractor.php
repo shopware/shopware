@@ -26,7 +26,7 @@ class PluginExtractor
     /**
      * Extracts the provided zip file to the plugin directory
      */
-    public function extract(\ZipArchive $archive): void
+    public function extract(\ZipArchive $archive, bool $delete = true): void
     {
         $destination = $this->pluginDir;
 
@@ -47,7 +47,9 @@ class PluginExtractor
                 $this->filesystem->remove($backupFile);
             }
 
-            unlink($archive->filename);
+            if ($delete) {
+                unlink($archive->filename);
+            }
         } catch (\Exception $e) {
             if ($backupFile !== '') {
                 $this->filesystem->rename($backupFile, $oldFile);

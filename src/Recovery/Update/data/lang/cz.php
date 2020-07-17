@@ -15,6 +15,7 @@ return [
     'start' => 'Spustit',
     'select_language' => 'Vyberte jazyk',
     'select_language_choose' => 'Vyberte...',
+
     'select_language_de' => 'Německy',
     'select_language_en' => 'Anglicky',
     'select_language_nl' => 'Holandsky',
@@ -23,8 +24,9 @@ return [
     'select_language_es' => 'Španělsky',
     'select_language_pt' => 'Portugalsky',
     'select_language_pl' => 'Polsky',
-    'select_language_cz' => 'český',
+    'select_language_cs' => 'český',
     'select_language_sv' => 'švédský',
+
     'noaccess_title' => 'Přístup odmítnut',
     'noaccess_info' => 'Přidejte svou IP adresu "<strong>%s</strong>" k souboru <strong>%s</strong>.',
     'step2_header_files' => 'Soubory a adresáře',

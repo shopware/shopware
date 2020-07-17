@@ -28,11 +28,11 @@ describe('Promotion: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/promotion',
+            url: '/api/v*/promotion',
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: '/api/v1/search/promotion/**/discounts',
+            url: '/api/v*/search/promotion/**/discounts',
             method: 'post'
         }).as('saveDiscount');
 
@@ -126,7 +126,7 @@ describe('Promotion: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/promotion/*',
+            url: '/api/v*/promotion/*',
             method: 'delete'
         }).as('deleteData');
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use Lcobucci\JWT\Parser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -261,6 +262,114 @@ class AuthControllerTest extends TestCase
         );
         $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertArrayNotHasKey('errors', $response);
+    }
+
+    public function testDefaultAccessTokenScopes(): void
+    {
+        $client = $this->getBrowser(false);
+        $jwtTokenParser = new Parser();
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scope' => [],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
+        $accessTokenScopes = $parsedAccessToken->getClaim('scopes');
+
+        static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
+    }
+
+    public function testUniqueAccessTokenScopes(): void
+    {
+        $client = $this->getBrowser(false);
+        $jwtTokenParser = new Parser();
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scope' => ['admin', 'write', 'admin', 'admin', 'write', 'write', 'admin'],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $parsedAccessToken = $jwtTokenParser->parse($data['access_token']);
+        $accessTokenScopes = $parsedAccessToken->getClaim('scopes');
+
+        static::assertEqualsCanonicalizing(['admin', 'write'], $accessTokenScopes);
+    }
+
+    public function testAccessTokenScopesChangedAfterRefreshGrant(): void
+    {
+        $client = $this->getBrowser(false);
+        $jwtTokenParser = new Parser();
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scope' => ['admin', 'write'],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $refreshPayload = [
+            'grant_type' => 'refresh_token',
+            'client_id' => 'administration',
+            'refresh_token' => $data['refresh_token'],
+            'scope' => ['admin'], // change the scope to something different
+        ];
+
+        $client->request('POST', '/api/oauth/token', $refreshPayload);
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $scopes = $jwtTokenParser->parse($data['access_token'])->getClaim('scopes');
+
+        static::assertEquals(['admin'], $scopes);
+    }
+
+    public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void
+    {
+        $client = $this->getBrowser(false);
+        $jwtTokenParser = new Parser();
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scope' => ['admin', 'write'],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
+        $oldAccessTokenScopes = $parsedOldAccessToken->getClaim('scopes');
+
+        $refreshPayload = [
+            'grant_type' => 'refresh_token',
+            'client_id' => 'administration',
+            'refresh_token' => $data['refresh_token'],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $refreshPayload);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
+        $newAccessTokenScopes = $parsedNewAccessToken->getClaim('scopes');
+
+        static::assertEqualsCanonicalizing($oldAccessTokenScopes, $newAccessTokenScopes);
     }
 
     public function testIntegrationAuth(): void

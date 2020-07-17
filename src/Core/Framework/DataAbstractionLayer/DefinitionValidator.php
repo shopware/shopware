@@ -169,6 +169,8 @@ class DefinitionValidator
                 continue;
             }
 
+            $notices = array_merge_recursive($notices, $this->validateColumn($definition));
+
             $struct = $definition->getEntityClass();
 
             if ($struct !== ArrayEntity::class) {
@@ -177,6 +179,7 @@ class DefinitionValidator
                     $this->findEntityNotices($struct, $definition)
                 );
             }
+
             $notices[$definition->getClass()] = array_merge_recursive(
                 $notices[$definition->getClass()],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)
@@ -746,11 +749,6 @@ class DefinitionValidator
 
                 continue;
             }
-
-            $violations[] = sprintf(
-                'Column %s has no configured field',
-                $column->getName()
-            );
         }
 
         foreach (array_diff($definition->getFields()->getKeys(), $mappedFieldNames) as $notMapped) {
@@ -771,6 +769,36 @@ class DefinitionValidator
         }
 
         return [$definition->getClass() => $violations];
+    }
+
+    private function validateColumn(EntityDefinition $definition): array
+    {
+        $manager = $this->connection->getSchemaManager();
+        $columns = $manager->listTableColumns($definition->getEntityName());
+
+        $notices = [];
+
+        foreach ($columns as $column) {
+            $field = $definition->getFields()->getByStorageName($column->getName());
+
+            if ($field) {
+                continue;
+            }
+
+            /** @var Field $association */
+            $association = $definition->getFields()->get($column->getName());
+
+            if ($association instanceof AssociationField && $association->is(Inherited::class)) {
+                continue;
+            }
+
+            $notices[] = sprintf(
+                'Column %s has no configured field',
+                $column->getName()
+            );
+        }
+
+        return [$definition->getClass() => $notices];
     }
 
     private function validateIsPlural(EntityDefinition $definition, AssociationField $association): array

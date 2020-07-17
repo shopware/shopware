@@ -275,7 +275,17 @@ class StateMachineRegistry
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         foreach ($stateMachine->getTransitions() as $transition) {
-            if ($transition->getActionName() === $transitionName && $transition->getFromStateMachineState()->getId() === $fromStateId) {
+            //always allow to cancel a payment
+            if (
+                (
+                    $transition->getActionName() === 'cancel'
+                    && $transitionName === 'cancel'
+                )
+                || (
+                    $transition->getActionName() === $transitionName
+                    && $transition->getFromStateMachineState()->getId() === $fromStateId
+                )
+            ) {
                 return $transition->getToStateMachineState();
             }
         }

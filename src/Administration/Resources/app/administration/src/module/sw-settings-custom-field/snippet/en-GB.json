@@ -4,7 +4,8 @@
       "description": "Manage custom fields here.",
       "mainMenuItemGeneral": "Custom fields",
       "placeholderSearchBar": "Search all custom fields...",
-      "tooltipTechnicalName": "A technical name has to be unique and cannot be changed later."
+      "tooltipTechnicalName": "A technical name has to be unique and cannot be changed later.",
+      "tooltipType": "The type cannot be changed later."
     },
     "set": {
       "list": {

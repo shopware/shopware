@@ -4,6 +4,7 @@
             <sw-entity-multi-select
                 :class="multiSelectClass"
                 :label="propertyLabel"
+                :helpText="helpText"
                 :entityCollection="propertyCollection"
                 @change="updateCollection">
             </sw-entity-multi-select>
@@ -11,6 +12,7 @@
             <sw-entity-single-select
                 :class="singleSelectClass"
                 :label="defaultPropertyLabel"
+                :helpText="helpText"
                 required
                 :entity="propertyEntityName"
                 :value="defaultId"

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,5 +16,8 @@ abstract class AbstractPaymentMethodRoute
 {
     abstract public function getDecorated(): AbstractPaymentMethodRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): PaymentMethodRouteResponse;
+    /**
+     * @param null|Criteria $criteria - Will be implemented in 6.4, can already by used
+     */
+    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): PaymentMethodRouteResponse;
 }

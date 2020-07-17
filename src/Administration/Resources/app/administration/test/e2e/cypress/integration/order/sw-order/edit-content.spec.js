@@ -4,27 +4,27 @@ import OrderPageObject from '../../../support/pages/module/sw-order.page-object'
 
 function navigateToOrder(page) {
     cy.route({
-        url: '/api/v1/_action/version/order/**',
+        url: '/api/v*/_action/version/order/**',
         method: 'post'
     }).as('orderEditCall');
 
     cy.route({
-        url: 'api/v1/_action/version/merge/order/**',
+        url: 'api/v*/_action/version/merge/order/**',
         method: 'post'
     }).as('orderSaveCall');
 
     cy.route({
-        url: '/api/v1/_action/order/**/product/**',
+        url: '/api/v*/_action/order/**/product/**',
         method: 'post'
     }).as('orderAddProductCall');
 
     cy.route({
-        url: '/api/v1/_action/order/**/recalculate',
+        url: '/api/v*/_action/order/**/recalculate',
         method: 'post'
     }).as('orderRecalculateCall');
 
     cy.route({
-        url: '/api/v1/order-line-item/**',
+        url: '/api/v*/order-line-item/**',
         method: 'delete'
     }).as('deleteLineItemCall');
 
@@ -50,15 +50,14 @@ function navigateToOrder(page) {
 function assertPriceBreakdownContains(title, content = null) {
     const table = cy.get('.sw-order-detail__summary-data');
     const titleElem = table.children('dt').contains(title);
-    if(content !== null) {
+    if (content !== null) {
         titleElem.then(($elem) => {
-            if($elem.prop('tagName') === 'STRONG') {
+            if ($elem.prop('tagName') === 'STRONG') {
                 titleElem.parent().next().children('strong').contains(content);
-            }
-            else{
+            } else {
                 titleElem.next().contains(content);
             }
-        })
+        });
     }
 }
 
@@ -76,12 +75,12 @@ describe('Order: Read order', () => {
                     name: 'Awesome product',
                     productNumber: 'RS-1337',
                     description: 'l33t',
-                    "price": [
+                    price: [
                         {
-                            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                            "net": 24,
-                            "linked": false,
-                            "gross": 128
+                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                            net: 24,
+                            linked: false,
+                            gross: 128
                         }
                     ]
                 });
@@ -131,7 +130,6 @@ describe('Order: Read order', () => {
 
         // assert save successful
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('2');
-
     });
 
     it('@base @order: can add new products', () => {
@@ -164,9 +162,16 @@ describe('Order: Read order', () => {
 
         // assert save successful
         // cy.get('.sw-data-grid__row').assertRowWithLabelContains('1','.sw-data-grid__cell--quantity','Product name','.sw-data-grid__cell--label');
-        cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Product name').parent().parent().parent().within(($row) => {cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('1')});
-        cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Awesome product').parent().parent().parent().within(($row) => {cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('10')});
-
+        cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Product name')
+            .parent()
+            .parent()
+            .parent()
+            .within(($row) => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('1'); });
+        cy.get('.sw-data-grid__row').children().get('.sw-data-grid__cell--label').contains('Awesome product')
+            .parent()
+            .parent()
+            .parent()
+            .within(($row) => { cy.get('.sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('10'); });
     });
 
     it('@base @order: can add custom products', () => {
@@ -211,8 +216,8 @@ describe('Order: Read order', () => {
         });
 
         // Assert the price breakdown contains both VATs. This also implies that a recalculation has taken place.
-        assertPriceBreakdownContains(/^plus 19\% VAT$/,/^[0-9]+,[0-9]{2}.€$/);
-        assertPriceBreakdownContains(/^plus 10\% VAT$/,/^133,70.€$/);
+        assertPriceBreakdownContains(/^plus 19\% VAT$/, /^[0-9]+,[0-9]{2}.€$/);
+        assertPriceBreakdownContains(/^plus 10\% VAT$/, /^133,70.€$/);
     });
 
     it('@base @order: can add custom credit items', () => {
@@ -252,7 +257,7 @@ describe('Order: Read order', () => {
         });
 
         // Assert that the total is negative
-        assertPriceBreakdownContains(/^Total including VAT$/,/^-[0-9.]+,[0-9]{2}.€$/);
+        assertPriceBreakdownContains(/^Total including VAT$/, /^-[0-9.]+,[0-9]{2}.€$/);
     });
 
     it('@base @order: can delete items', () => {
@@ -262,7 +267,6 @@ describe('Order: Read order', () => {
 
         cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
         cy.get('.sw-order-detail-base__line-item-grid-card').within(($card) => {
-
             // assert that one row exists
             cy.get('.sw-data-grid__body').children().should('have.length', 1);
 
@@ -291,7 +295,6 @@ describe('Order: Read order', () => {
     });
 
     it.skip('@base @order: can edit existing line items', () => {
-
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -326,6 +329,6 @@ describe('Order: Read order', () => {
         cy.get('.sw-data-grid__cell--quantity').contains('10');
         cy.get('.sw-data-grid__cell--price-taxRules\\[0\\]').contains(/10.%/);
 
-        assertPriceBreakdownContains(/^plus 10% VAT$/,/121,55.€/);
+        assertPriceBreakdownContains(/^plus 10% VAT$/, /121,55.€/);
     });
 });

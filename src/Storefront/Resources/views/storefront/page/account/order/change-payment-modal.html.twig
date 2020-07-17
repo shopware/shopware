@@ -1,0 +1,37 @@
+{% sw_extends '@Storefront/storefront/page/checkout/change-payment-modal.html.twig' %}
+
+{% block page_checkout_change_payment_form %}
+    <form id="confirmPaymentForm"
+          name="confirmPaymentForm"
+          action="{{ path('frontend.account.edit-order.change-payment-method', { 'orderId': page.order.id }) }}"
+          data-form-csrf-handler="true"
+          method="post">
+
+        {% block page_checkout_change_payment_form_csrf %}
+            {{ sw_csrf('frontend.account.edit-order.change-payment-method') }}
+        {% endblock %}
+
+        {% block page_checkout_change_payment_form_redirect %}{% endblock %}
+
+        {% block page_checkout_change_payment_form_fields %}
+            {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
+                'defaultPaymentMethodId': context.paymentMethod.id,
+            } %}
+        {% endblock %}
+
+        {% block page_checkout_change_payment_form_submit %}
+            <button class="btn btn-primary" type="submit">
+                {{ "checkout.confirmChangePaymentShippingSave"|trans|sw_sanitize }}
+            </button>
+        {% endblock %}
+
+        {% block page_checkout_change_payment_cancel %}
+            <button class="btn btn-light"
+                    type="button"
+                    data-dismiss="modal"
+                    aria-label="Close">
+                {{ "checkout.confirmChangePaymentShippingCancel"|trans|sw_sanitize }}
+            </button>
+        {% endblock %}
+    </form>
+{% endblock %}

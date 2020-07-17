@@ -77,12 +77,14 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
         </service>
 
         <!-- Commands -->
@@ -95,11 +97,9 @@
 
         <service id="core_mailer" alias="mailer" />
 
-        <service id="Shopware\Core\Content\MailTemplate\Service\MailerFactory" />
-
         <service id="Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory" />
 
-        <service id="core_mailer_transport" class="\Swift_Transport" decorates="swiftmailer.transport">
+        <service id="core_mailer_transport" class="\Swift_Transport" decorates="swiftmailer.mailer.default.transport">
             <factory service="Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory" method="create"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="core_mailer_transport.inner"/>

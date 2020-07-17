@@ -44,6 +44,10 @@ Component.register('sw-settings-units', {
 
         isEmpty() {
             return this.unitList.length <= 0;
+        },
+
+        isAddingUnitsDisabled() {
+            return Shopware.Context.api.languageId !== Shopware.Context.api.systemLanguageId;
         }
     },
 
@@ -143,6 +147,10 @@ Component.register('sw-settings-units', {
                 label: 'sw-settings-units.grid.columnShortCode',
                 inlineEdit: 'string'
             }];
+        },
+
+        onChangeLanguage() {
+            this.loadUnits();
         }
     }
 });

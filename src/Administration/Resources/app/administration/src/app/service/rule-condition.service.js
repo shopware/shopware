@@ -75,6 +75,14 @@ export default function createConditionService() {
             operators.lowerThan,
             operators.lowerThanEquals,
             operators.notEquals
+        ],
+        date: [
+            operators.equals,
+            operators.greaterThan,
+            operators.greaterThanEquals,
+            operators.lowerThan,
+            operators.lowerThanEquals,
+            operators.notEquals
         ]
     };
 
@@ -100,6 +108,7 @@ export default function createConditionService() {
         addModuleType,
         getModuleTypes,
         getOperatorSet,
+        getOperatorSetByComponent,
         getAndContainerData,
         isAndContainer,
         getOrContainerData,
@@ -123,6 +132,29 @@ export default function createConditionService() {
 
     function getOperatorSet(operatorSetName) {
         return operatorSets[operatorSetName];
+    }
+
+    function getOperatorSetByComponent(component) {
+        const componentName = component.config.componentName;
+        const type = component.type;
+
+        if (componentName === 'sw-single-select') {
+            return operatorSets.singleStore;
+        }
+        if (componentName === 'sw-multi-select') {
+            return operatorSets.multiStore;
+        }
+        if (type === 'bool') {
+            return operatorSets.bool;
+        }
+        if (type === 'text') {
+            return operatorSets.string;
+        }
+        if (type === 'int') {
+            return operatorSets.number;
+        }
+
+        return operatorSets.defaultSet;
     }
 
     function addModuleType(type) {

@@ -1,0 +1,94 @@
+{% block sw_import_export_exporter %}
+    <div class="sw-import-export-exporter">
+        {% block sw_import_export_exporter_header %}
+            <h2>{{  $tc('sw-import-export.importer.selectProfileLabel')  }}</h2>
+        {% endblock %}
+
+        {% block sw_import_export_exporter_profile_select %}
+            <sw-entity-single-select
+                class="sw-import-export-exporter__profile-select"
+                :disabled="isLoading"
+                :label="$tc('sw-import-export.importer.profileLabel')"
+                :criteria="profileCriteria"
+                entity="import_export_profile"
+                labelProperty="label"
+                @change="onProfileSelect"
+                :value="selectedProfileId"
+                required>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
+            {% block sw_import_export_exporter_profile_select_product_variants_switch %}
+            <sw-field
+                type="switch"
+                class="sw-import-export-exporter__variants-switch-field"
+                v-model="config.parameters.includeVariants"
+                :label="$tc('sw-import-export.exporter.exportVariants')">
+            </sw-field>
+            {% endblock %}
+        </template>
+
+        <template v-if="showProductVariantsInfo">
+            {% block sw_import_export_exporter_product_variants_warning %}
+                <sw-alert variant="warning" class="sw-import-export-exporter__variants-warning">
+                    {% block sw_import_export_exporter_product_variants_warning_text %}
+                        <p>
+                            <span v-html="$tc('sw-import-export.exporter.variantsWarning')"></span>
+                        </p>
+                        <p>
+                            <a href="#"
+                               class="sw-import-export-exporter__link"
+                               @click.prevent="setExportModalProfile('product_configurator_setting')">
+                                {{ $tc('sw-import-export.exporter.directExportVariantsLabel') }}
+                            </a>
+                            <br>
+                            <a href="#"
+                               class="sw-import-export-exporter__link"
+                               @click.prevent="setExportModalProfile('property_group_option')">
+                                {{ $tc('sw-import-export.exporter.directExportPropertiesLabel') }}
+                            </a>
+                        </p>
+                    {% endblock %}
+                </sw-alert>
+            {% endblock %}
+        </template>
+
+        {% block sw_import_export_exporter_modal %}
+            <sw-modal v-if="exportModalProfile"
+                      @modal-close="setExportModalProfile(null)"
+                      :title="$tc('sw-import-export.exporter.exportLabel')">
+                {% block sw_import_export_exporter_modal_exporter %}
+                <sw-import-export-exporter
+                    @export-finish="$emit('export-finish')"
+                    :sourceEntity="exportModalProfile">
+                </sw-import-export-exporter>
+                {% endblock %}
+
+                <template slot="modal-footer">
+                    {% block sw_import_export_exporter_modal_footer %}
+                    <sw-button
+                        size="small"
+                        @click="setExportModalProfile(null)">
+                        {{ $tc('sw-import-export.exporter.close') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
+
+        {% block sw_import_export_exporter_progress %}
+            <sw-import-export-progress
+                activityType="export"
+                :offset="progressOffset"
+                :total="progressTotal"
+                :logEntry="progressLogEntry"
+                :state="progressState"
+                :isLoading="isLoading"
+                :disableButton="disableExporting"
+                @process-start="onStartProcess">
+            </sw-import-export-progress>
+        {% endblock %}
+
+    </div>
+{% endblock %}

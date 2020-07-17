@@ -27,6 +27,7 @@ function isDuplicationException(error) {
  * @event media-upload-add { UploadTask[]: data }
  * @event media-upload-finish { string: targetId }
  * @event media-upload-fail UploadTask UploadTask
+ * @event media-upload-cancel UploadTask UploadTask
  * @example code-only
  * @component-example
  * <sw-upload-listener @sw-uploads-added="..."></sw-upload-listener>
@@ -126,6 +127,10 @@ Component.register('sw-upload-listener', {
                 this.handleError(payload).then(() => {
                     this.$emit(UploadEvents.UPLOAD_FAILED, payload);
                 });
+            }
+
+            if (action === UploadEvents.UPLOAD_CANCELED) {
+                this.$emit(UploadEvents.UPLOAD_CANCELED, payload);
             }
         },
 

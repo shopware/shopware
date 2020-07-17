@@ -5,8 +5,12 @@
         {% set pack = 'default' %}
     {% endif %}
 
+    {% if namespace is not defined %}
+        {% set namespace = 'Storefront' %}
+    {% endif %}
+
     <span
         class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
-            {{ source('@Storefront/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) }}
+            {{ source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) }}
     </span>
 {% endblock %}

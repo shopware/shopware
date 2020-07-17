@@ -1,0 +1,15 @@
+@startuml LAYOUT_TOP_DOWN
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN
+
+title Admin structure
+
+Container(app, "App", "Application", "Routing, rendering, state management, common components ")
+Container(core,  "Core", "Backend bridge", "Data handling, plugin management, authentication")
+Container(modules, "Modules", "Functional components", "Navigation, page and ui component structure")
+
+Rel_U(modules, core, "uses")
+Rel_U(modules, app, "uses")
+Rel_L(core, app, "sets up")
+@enduml

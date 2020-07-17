@@ -68,6 +68,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerTagRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -148,7 +152,7 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTopsellerRule">
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -189,6 +193,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

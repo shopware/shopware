@@ -47,12 +47,17 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="mail_template.repository"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
-        <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationService" alias="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory">
-            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Order\Validation\OrderValidationFactory" instead</deprecated>
-        </service>
 
         <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument type="service" id="order.repository"/>
@@ -75,12 +80,7 @@
 
         <!-- controller -->
         <service id="Shopware\Core\Checkout\Order\Api\OrderActionController" public="true">
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="mail_template.repository"/>
-            <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService" />
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineDefinition"/>
             <call method="setContainer">
@@ -88,10 +88,22 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Checkout\Order\SalesChannel\AccountOrderRoute" public="true">
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute" public="true">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
+            <argument type="service" id="promotion.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <!-- events -->

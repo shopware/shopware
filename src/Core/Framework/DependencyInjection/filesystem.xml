@@ -26,6 +26,21 @@
             <argument>%shopware.filesystem.temp%</argument>
         </service>
 
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.theme">
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
+            <argument>%shopware.filesystem.theme%</argument>
+        </service>
+
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.sitemap">
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
+            <argument>%shopware.filesystem.sitemap%</argument>
+        </service>
+
+        <service class="League\Flysystem\FilesystemInterface" id="shopware.filesystem.asset">
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
+            <argument>%shopware.filesystem.asset%</argument>
+        </service>
+
         <service class="Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory" id="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory.local">
             <tag name="shopware.filesystem.factory"/>
         </service>
@@ -45,6 +60,57 @@
 
         <service id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch">
             <tag name="shopware.filesystem.plugin" />
+        </service>
+
+        <service id="console.command.assets_install" class="Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand">
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
+            <tag name="console.command"/>
+        </service>
+
+        <!-- Assets -->
+        <service id="shopware.asset.public" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="collection">
+                <argument>%shopware.filesystem.public.url%</argument>
+            </argument>
+            <argument type="service" id="assets.empty_version_strategy"/>
+            <tag name="shopware.asset" asset="public"/>
+        </service>
+
+        <service id="shopware.asset.theme.version_strategy" class="Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy">
+            <argument>theme-metaData</argument>
+            <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <service id="shopware.asset.theme" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="collection">
+                <argument>%shopware.filesystem.theme.url%</argument>
+            </argument>
+            <argument type="service" id="shopware.asset.theme.version_strategy"/>
+            <tag name="shopware.asset" asset="theme"/>
+        </service>
+
+        <service id="shopware.asset.asset.version_strategy" class="Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy">
+            <argument>asset-metaData</argument>
+            <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="collection">
+                <argument>%shopware.filesystem.asset.url%</argument>
+            </argument>
+            <argument type="service" id="assets.empty_version_strategy"/>
+            <tag name="shopware.asset" asset="asset"/>
+        </service>
+
+        <service id="shopware.asset.sitemap" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="collection">
+                <argument>%shopware.filesystem.sitemap.url%</argument>
+            </argument>
+            <argument type="service" id="assets.empty_version_strategy"/>
+            <tag name="shopware.asset" asset="sitemap"/>
         </service>
     </services>
 </container>

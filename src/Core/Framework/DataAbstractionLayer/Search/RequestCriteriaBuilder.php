@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DisallowedLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
@@ -33,11 +32,6 @@ class RequestCriteriaBuilder
     private $maxLimit;
 
     /**
-     * @var int[]
-     */
-    private $allowedLimits;
-
-    /**
      * @var AggregationParser
      */
     private $aggregationParser;
@@ -47,10 +41,9 @@ class RequestCriteriaBuilder
      */
     private $apiVersionConverter;
 
-    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit, array $availableLimits = [])
+    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit)
     {
         $this->maxLimit = $maxLimit;
-        $this->allowedLimits = $availableLimits;
         $this->aggregationParser = $aggregationParser;
         $this->apiVersionConverter = $apiVersionConverter;
     }
@@ -69,11 +62,6 @@ class RequestCriteriaBuilder
     public function getMaxLimit(): int
     {
         return $this->maxLimit;
-    }
-
-    public function getAllowedLimits(): array
-    {
-        return $this->allowedLimits;
     }
 
     public function toArray(Criteria $criteria): array
@@ -96,10 +84,6 @@ class RequestCriteriaBuilder
 
         if ($criteria->getIncludes()) {
             $array['includes'] = $criteria->getIncludes();
-        }
-
-        if ($criteria->getSource()) {
-            $array['source'] = $criteria->getSource();
         }
 
         if (count($criteria->getIds())) {
@@ -152,6 +136,10 @@ class RequestCriteriaBuilder
             }
         }
 
+        if (count($criteria->getAggregations())) {
+            $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
+        }
+
         return $array;
     }
 
@@ -184,8 +172,6 @@ class RequestCriteriaBuilder
 
         if (isset($payload['includes'])) {
             $criteria->setIncludes($payload['includes']);
-        } elseif (isset($payload['source'])) {
-            $criteria->setSource($payload['source']);
         }
 
         if (isset($payload['filter'])) {
@@ -372,14 +358,8 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if (empty($this->allowedLimits) && $this->maxLimit > 0 && $limit > $this->maxLimit) {
+        if ($this->maxLimit > 0 && $limit > $this->maxLimit) {
             $searchRequestException->add(new QueryLimitExceededException($this->maxLimit, $limit), '/limit');
-
-            return;
-        }
-
-        if (!empty($this->allowedLimits) && !\in_array($limit, $this->allowedLimits, true)) {
-            $searchRequestException->add(new DisallowedLimitQueryException($this->allowedLimits, $limit), '/limit');
 
             return;
         }

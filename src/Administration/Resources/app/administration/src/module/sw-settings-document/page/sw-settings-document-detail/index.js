@@ -1,10 +1,8 @@
-import LocalStore from 'src/core/data/LocalStore';
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Mixin } = Shopware;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 Component.register('sw-settings-document-detail', {
     template,
@@ -21,48 +19,53 @@ Component.register('sw-settings-document-detail', {
         ESCAPE: 'onCancel'
     },
 
+    props: {
+        documentConfigId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
+
+
     data() {
         return {
             documentConfig: {},
-            documentConfigSalesChannelsStore: {},
+            documentConfigSalesChannelOptionsCollection: [],
             documentConfigSalesChannels: [],
-            documentConfigSalesChannelsAssoc: {},
             isLoading: false,
             isSaveSuccessful: false,
             salesChannels: {},
-            salesChannelsTypeCriteria: {},
             selectedType: {},
             generalFormFields: [
                 {
                     name: 'pageOrientation',
                     type: 'radio',
                     config: {
-                        componentName: 'sw-select',
+                        componentName: 'sw-single-select',
+                        labelProperty: 'name',
+                        valueProperty: 'id',
                         options: [
                             { id: 'portrait', name: 'Portrait' },
                             { id: 'landscape', name: 'Landscape' }
                         ],
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelPageOrientation', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelPageOrientation', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelPageOrientation')
                     }
                 },
                 {
                     name: 'pageSize',
                     type: 'radio',
                     config: {
-                        componentName: 'sw-select',
+                        componentName: 'sw-single-select',
+                        labelProperty: 'name',
+                        valueProperty: 'id',
                         options: [
                             { id: 'a4', name: 'A4' },
                             { id: 'a5', name: 'A5' },
                             { id: 'legal', name: 'Legal' },
                             { id: 'letter', name: 'Letter' }
                         ],
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelPageSize', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelPageSize', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelPageSize')
                     }
                 },
                 {
@@ -70,10 +73,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayHeader', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayHeader', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayHeader')
                     }
                 },
                 {
@@ -81,10 +81,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayFooter', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayFooter', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayFooter')
                     }
                 },
                 {
@@ -92,10 +89,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayPageCount', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayPageCount', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayPageCount')
                     }
                 },
                 {
@@ -103,10 +97,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayLineItems', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayLineItems', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayLineItems')
                     }
                 },
                 {
@@ -114,10 +105,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayLineItemPosition', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayLineItemPosition', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayLineItemPosition')
                     }
                 },
                 {
@@ -125,10 +113,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayPrices', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayPrices', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayPrices')
                     }
                 },
 
@@ -138,10 +123,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelItemsPerPage', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelItemsPerPage', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelItemsPerPage')
                     }
                 }
             ],
@@ -151,10 +133,8 @@ Component.register('sw-settings-document-detail', {
                     type: 'bool',
                     config: {
                         type: 'checkbox',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelDisplayCompanyAddress', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelDisplayCompanyAddress', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelDisplayCompanyAddress'),
+                        class: 'sw-settings-document-detail__company-address-checkbox'
                     }
                 },
                 {
@@ -162,10 +142,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyAddress', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyAddress', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyAddress')
                     }
                 },
                 {
@@ -173,10 +150,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyName', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyName', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyName')
                     }
                 },
                 {
@@ -184,10 +158,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyEmail', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyEmail', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyEmail')
                     }
                 },
                 {
@@ -195,10 +166,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelCompanyUrl', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelCompanyUrl', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelCompanyUrl')
                     }
                 },
                 {
@@ -206,10 +174,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelTaxNumber', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelTaxNumber', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelTaxNumber')
                     }
                 },
                 {
@@ -217,10 +182,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelTaxOffice', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelTaxOffice', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelTaxOffice')
                     }
                 },
                 {
@@ -228,10 +190,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelVatId', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelVatId', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelVatId')
                     }
                 },
                 {
@@ -239,10 +198,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelBankName', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelBankName', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelBankName')
                     }
                 },
                 {
@@ -250,10 +206,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelBankIban', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelBankIban', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelBankIban')
                     }
                 },
                 {
@@ -261,10 +214,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelBankBic', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelBankBic', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelBankBic')
                     }
                 },
                 {
@@ -272,10 +222,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelPlaceOfJurisdiction', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelPlaceOfJurisdiction', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelPlaceOfJurisdiction')
                     }
                 },
                 {
@@ -283,10 +230,7 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelPlaceOfFulfillment', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelPlaceOfFulfillment', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelPlaceOfFulfillment')
                     }
                 },
                 {
@@ -294,13 +238,12 @@ Component.register('sw-settings-document-detail', {
                     type: 'text',
                     config: {
                         type: 'text',
-                        label: {
-                            'en-GB': this.$t('sw-settings-document.detail.labelExecutiveDirector', 'en-GB'),
-                            'de-DE': this.$t('sw-settings-document.detail.labelExecutiveDirector', 'de-DE')
-                        }
+                        label: this.$tc('sw-settings-document.detail.labelExecutiveDirector')
                     }
                 }
-            ]
+            ],
+            alreadyAssignedSalesChannelIdsToType: [],
+            typeIsLoading: false
         };
     },
 
@@ -315,20 +258,31 @@ Component.register('sw-settings-document-detail', {
             return this.documentConfig.name;
         },
 
-        documentBaseConfigStore() {
-            return StateDeprecated.getStore('document_base_config');
+        documentBaseConfigCriteria() {
+            const criteria = new Criteria();
+
+            criteria
+                .addAssociation('documentType')
+                .getAssociation('salesChannels')
+                .addAssociation('salesChannel');
+
+            return criteria;
         },
 
-        documentTypeStore() {
-            return StateDeprecated.getStore('document_type');
+        documentBaseConfigRepository() {
+            return this.repositoryFactory.create('document_base_config');
         },
 
-        salesChannelStore() {
-            return StateDeprecated.getStore('sales_channel');
+        documentTypeRepository() {
+            return this.repositoryFactory.create('document_type');
         },
 
-        documentBaseConfigSalesChannelAssociationStore() {
-            return this.documentConfig.getAssociation('salesChannels');
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        documentBaseConfigSalesChannelRepository() {
+            return this.repositoryFactory.create('document_base_config_sales_channel');
         },
 
         tooltipSave() {
@@ -353,162 +307,89 @@ Component.register('sw-settings-document-detail', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.isLoading = true;
-            if (this.$route.params.id && this.documentConfig.isLoading !== true) {
-                this.documentConfigId = this.$route.params.id;
-                this.loadEntityData();
+            await this.loadAvailableSalesChannel();
+            if (this.documentConfigId) {
+                await this.loadEntityData();
+            } else {
+                this.documentConfig = this.documentBaseConfigRepository.create(Shopware.Context.api);
+                this.documentConfig.global = false;
+                this.documentConfig.config = {};
             }
-            this.documentConfigSalesChannelsStore = new LocalStore();
+
             this.isLoading = false;
         },
 
-        loadEntityData() {
-            this.salesChannelStore.getList({}).then((response) => {
-                this.salesChannels = response;
+        async loadEntityData() {
+            this.documentConfig = await this.documentBaseConfigRepository.get(
+                this.documentConfigId,
+                Shopware.Context.api,
+                this.documentBaseConfigCriteria
+            );
+
+            if (this.documentConfig.config === null) {
+                this.documentConfig.config = [];
+            }
+            await this.onChangeType(this.documentConfig.documentType);
+
+            this.documentConfig.salesChannels.forEach(salesChannelAssoc => {
+                this.documentConfigSalesChannels.push(salesChannelAssoc.id);
             });
-            this.documentBaseConfigStore.getByIdAsync(this.documentConfigId).then((response) => {
-                this.documentConfig = response;
-                if (this.documentConfig.config === null) {
-                    this.documentConfig.config = [];
-                }
-                this.onChangeType(this.documentConfig.documentTypeId);
-                if (this.documentConfig.global === false) {
-                    this.documentBaseConfigSalesChannelAssociationStore.getList({
-                        associations: { salesChannel: {} }
-                    }).then((responseAssoc) => {
-                        this.documentConfigSalesChannelsAssoc = responseAssoc;
-                        this.documentConfigSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
-                            if (salesChannelAssoc.salesChannelId !== null) {
-                                this.documentConfigSalesChannelsStore.add(salesChannelAssoc.salesChannel);
-                            }
-                        });
-                        this.$refs.documentSalesChannel.loadSelected(true);
-                        this.$refs.documentSalesChannel.updateValue();
-                    });
-                }
-            });
+        },
+
+        async loadAvailableSalesChannel() {
+            this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500), Shopware.Context.api);
         },
 
         showOption(item) {
             return item.id !== this.documentConfig.id;
         },
 
-        onChangeType(id) {
-            if (!id) {
-                this.selectedType = {};
+        async onChangeType(documentType) {
+            if (!documentType) {
                 return;
             }
-            this.selectedType = this.documentTypeStore.getById(id);
-            const documentSalesChannels = this.repositoryFactory.create('document_base_config_sales_channel');
+
+            this.typeIsLoading = true;
+
+            this.documentConfig.documentType = documentType;
+            this.documentConfigSalesChannels = [];
+
+            this.createSalesChannelSelectOptions();
             const documentSalesChannelCriteria = new Criteria();
             documentSalesChannelCriteria.addFilter(
-                Criteria.equals('documentTypeId', id)
+                Criteria.equals('documentTypeId', documentType.id)
             );
-            documentSalesChannels.search(documentSalesChannelCriteria, Shopware.Context.api)
+
+            this.documentBaseConfigSalesChannelRepository.search(documentSalesChannelCriteria, Shopware.Context.api)
                 .then((responseSalesChannels) => {
-                    const assignedSalesChannelIds = [];
+                    this.alreadyAssignedSalesChannelIdsToType = [];
                     responseSalesChannels.forEach((salesChannel) => {
-                        if (salesChannel.salesChannelId !== null) {
-                            assignedSalesChannelIds.push(salesChannel.salesChannelId);
+                        if (salesChannel.salesChannelId !== null
+                            && salesChannel.documentBaseConfigId !== this.documentConfig.id) {
+                            this.alreadyAssignedSalesChannelIdsToType.push(salesChannel.salesChannelId);
                         }
                     });
-                    this.getPossibleSalesChannels(assignedSalesChannelIds);
+                    this.typeIsLoading = false;
                 });
         },
-        getPossibleSalesChannels(assignedSalesChannelIds) {
-            this.setSalesChannelCriteria(assignedSalesChannelIds);
-            if (this.documentConfig.global === false) {
-                this.documentBaseConfigSalesChannelAssociationStore.getList({
-                    associations: { salesChannel: {} }
-                }).then((responseAssoc) => {
-                    this.enrichAssocStores(responseAssoc);
-                });
-            }
-        },
-        setSalesChannelCriteria(assignedSalesChannelIds) {
-            this.salesChannelsTypeCriteria = null;
-            if (assignedSalesChannelIds.length > 0) {
-                // get all salesChannels which are not assigned to this documentType
-                // and all SalesChannels already assigned to the current DocumentConfig if type not changed
-                if (this.documentConfig.documentTypeId === this.selectedType.id) {
-                    this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
-                        CriteriaFactory.equals('documentBaseConfigSalesChannels.id', null),
-                        CriteriaFactory.not(
-                            'AND',
-                            CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
-                        ),
-                        CriteriaFactory.equals(
-                            'documentBaseConfigSalesChannels.documentBaseConfig.id', this.documentConfig.id
-                        ));
-                } else { // type changed so only get free saleschannels
-                    this.salesChannelsTypeCriteria = CriteriaFactory.multi('OR',
-                        CriteriaFactory.equals('documentBaseConfigSalesChannels.id', null),
-                        CriteriaFactory.not(
-                            'AND',
-                            CriteriaFactory.equalsAny('id', assignedSalesChannelIds)
-                        ));
-                }
-            }
-        },
-        enrichAssocStores(responseAssoc) {
-            this.documentConfigSalesChannels = [];
-            this.documentConfigSalesChannelsAssoc = responseAssoc;
-            this.documentConfigSalesChannelsAssoc.items.forEach((salesChannelAssoc) => {
-                if (salesChannelAssoc.salesChannelId !== null) {
-                    this.documentConfigSalesChannelsStore.add(salesChannelAssoc.salesChannel);
-                    this.documentConfigSalesChannels.push(salesChannelAssoc.salesChannel.id);
-                }
-            });
-            if (this.$refs.documentSalesChannel) {
-                this.$refs.documentSalesChannel.loadSelected(true);
-            }
-        },
+
         onChangeSalesChannel() {
-            if (this.$refs.documentSalesChannel) {
-                this.$refs.documentSalesChannel.updateValue();
-            }
-            if (Object.keys(this.documentConfig).length === 0) {
-                return;
-            }
-            // check selected saleschannels and associate to config
+            // check selected sales channels and associate to config
             if (this.documentConfigSalesChannels && this.documentConfigSalesChannels.length > 0) {
-                this.documentConfigSalesChannels.forEach((salesChannel) => {
-                    if (!this.configHasSaleschannel(salesChannel)) {
-                        const assocConfig = this.documentBaseConfigSalesChannelAssociationStore.create();
-                        assocConfig.documentBaseConfigId = this.documentConfig.id;
-                        assocConfig.documentTypeId = this.selectedType.id;
-                        assocConfig.salesChannelId = salesChannel;
-                    } else {
-                        this.undeleteSaleschannel(salesChannel);
+                this.documentConfigSalesChannels.forEach((salesChannelId) => {
+                    if (!this.documentConfig.salesChannels.has(salesChannelId)) {
+                        this.documentConfig.salesChannels.push(
+                            this.documentConfigSalesChannelOptionsCollection.get(salesChannelId)
+                        );
                     }
                 });
             }
-            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
-                if (!this.selectHasSaleschannel(salesChannelAssoc.salesChannelId)) {
-                    salesChannelAssoc.delete();
-                }
-            });
-        },
 
-        configHasSaleschannel(salesChannelId) {
-            let found = false;
-            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
-                if (salesChannelAssoc.salesChannelId === salesChannelId) {
-                    found = true;
-                }
-            });
-            return found;
-        },
-
-        selectHasSaleschannel(salesChannelId) {
-            return (this.documentConfigSalesChannels && this.documentConfigSalesChannels.indexOf(salesChannelId) !== -1);
-        },
-
-        undeleteSaleschannel(salesChannelId) {
-            this.documentBaseConfigSalesChannelAssociationStore.forEach((salesChannelAssoc) => {
-                if (salesChannelAssoc.salesChannelId === salesChannelId && salesChannelAssoc.isDeleted === true) {
-                    salesChannelAssoc.isDeleted = false;
+            this.documentConfig.salesChannels.forEach((salesChannelAssoc) => {
+                if (!this.documentConfigSalesChannels.includes(salesChannelAssoc.id)) {
+                    this.documentConfig.salesChannels.remove(salesChannelAssoc.id);
                 }
             });
         },
@@ -522,16 +403,49 @@ Component.register('sw-settings-document-detail', {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
-            return this.documentConfig.save().then(() => {
+            this.documentBaseConfigRepository.save(this.documentConfig, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {
                 this.isLoading = false;
+            }).then(() => {
+                this.loadEntityData();
             });
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.document.index' });
+        },
+
+        createSalesChannelSelectOptions() {
+            this.documentConfigSalesChannelOptionsCollection = new EntityCollection(
+                this.documentConfig.salesChannels.source,
+                this.documentConfig.salesChannels.entity,
+                Shopware.Context.api
+            );
+
+            // Abort if no type is assigned yet
+            if (!this.documentConfig.documentType) {
+                return;
+            }
+
+            this.salesChannels.forEach(salesChannel => {
+                let salesChannelAlreadyAssigned = false;
+                this.documentConfig.salesChannels.forEach(documentConfigSalesChannel => {
+                    if (documentConfigSalesChannel.salesChannelId === salesChannel.id) {
+                        salesChannelAlreadyAssigned = true;
+                        this.documentConfigSalesChannelOptionsCollection.push(documentConfigSalesChannel);
+                    }
+                });
+                if (!salesChannelAlreadyAssigned) {
+                    const option = this.documentBaseConfigSalesChannelRepository.create();
+                    option.documentBaseConfigId = this.documentConfig.id;
+                    option.documentTypeId = this.documentConfig.documentType.id;
+                    option.salesChannelId = salesChannel.id;
+                    option.salesChannel = salesChannel;
+                    this.documentConfigSalesChannelOptionsCollection.push(option);
+                }
+            });
         }
     }
 });

@@ -20,15 +20,15 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/category',
+            url: '/api/v*/category',
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: 'api/v1/search/category',
+            url: 'api/v*/search/category',
             method: 'post'
         }).as('loadCategory');
         cy.route({
-            url: 'api/v1/category/**',
+            url: 'api/v*/category/**',
             method: 'patch'
         }).as('editCategory');
 

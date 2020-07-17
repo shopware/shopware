@@ -19,19 +19,14 @@
     <services>
         <defaults public="true"/>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\AsyncTestPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-            <tag name="shopware.payment.method.async"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-            <tag name="shopware.payment.method.sync"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <tag name="shopware.payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler">
@@ -61,6 +56,10 @@
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDefinition">
             <tag name="shopware.entity.definition" entity="root_sub" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubCascadeDefinition">
+            <tag name="shopware.entity.definition" entity="root_sub_cascade" />
         </service>
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubManyDefinition">
@@ -113,10 +112,6 @@
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal\Indexing\QueueTestIndexer">
-            <tag name="shopware.dal_indexing.indexer"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
         </service>
 
@@ -126,6 +121,15 @@
 
         <service id="Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher" decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">
             <argument type="service" id="Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Test\TestCacheClearer">
+            <argument type="collection">
+                <argument type="service" id="cache.object" />
+                <argument type="service" id="cache.http" />
+            </argument>
+            <argument type="service" id="cache_clearer"/>
+            <argument>%kernel.cache_dir%</argument>
         </service>
     </services>
 

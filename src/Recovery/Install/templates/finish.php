@@ -6,7 +6,7 @@
     let loginTokenData = JSON.parse(document.getElementById('loginTokenData').value);
     if (loginTokenData) {
         loginTokenData.expiry = Math.round(+new Date() / 1000) + loginTokenData.expiry;
-        document.cookie = 'bearerAuth=' + encodeURIComponent(JSON.stringify(loginTokenData)) + ';path=<?=$basePath . '/admin'; ?>;domain=<?=$host; ?>;SameSite=Strict';
+        document.cookie = 'bearerAuth=' + encodeURIComponent(JSON.stringify(loginTokenData)) + ';path=<?=$basePath . '/admin'; ?>;SameSite=Strict';
         document.location = document.getElementById('adminUrl').value;
     }
 </script>

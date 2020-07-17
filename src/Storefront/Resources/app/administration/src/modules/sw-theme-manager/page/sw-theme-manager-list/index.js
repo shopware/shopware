@@ -28,6 +28,12 @@ Component.register('sw-theme-manager-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
     computed: {
         languageRepository() {
             return this.repositoryFactory.create('language');

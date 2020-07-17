@@ -5,13 +5,14 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,11 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductListingTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    /**
-     * @var ProductListingGateway
-     */
-    private $listingGateway;
 
     /**
      * @var string
@@ -40,8 +36,6 @@ class ProductListingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->listingGateway = $this->getContainer()->get(ProductListingGateway::class);
 
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
@@ -67,11 +61,10 @@ class ProductListingTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
-        $request->attributes->set('_route_params', [
-            'navigationId' => $this->categoryId,
-        ]);
-
-        $listing = $this->listingGateway->search($request, $context);
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
 
         static::assertSame(10, $listing->getTotal());
         static::assertFalse($listing->has($this->testData->getId('product1')));
@@ -119,12 +112,21 @@ class ProductListingTest extends TestCase
             $this->testData->getId('product5-green'),
         ]);
 
+        self::assertVariantGroup($listing, [
+            'product1',
+            'product4',
+            'product5',
+        ]);
+
+        self::assertVariantNotGroup($listing, [
+            'product2',
+        ]);
+
         /** @var EntityResult $result */
         $result = $listing->getAggregations()->get('properties');
 
         /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
-
         $ids = array_keys($options->getOptionIdMap());
 
         static::assertContains($this->testData->getId('green'), $ids);
@@ -135,6 +137,38 @@ class ProductListingTest extends TestCase
         static::assertContains($this->testData->getId('steel'), $ids);
         static::assertFalse($options->has($this->testData->getId('yellow')));
         static::assertFalse($options->has($this->testData->getId('cotton')));
+    }
+
+    public function testNotFilterableProperty(): void
+    {
+        $request = new Request();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $request->attributes->set('_route_params', [
+            'navigationId' => $this->categoryId,
+        ]);
+
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryId, $request, $context, new Criteria())
+            ->getResult();
+
+        /** @var EntityResult $result */
+        $result = $listing->getAggregations()->get('properties');
+
+        $propertyGroups = $result->getEntities();
+        $propertyGroupIds = [];
+
+        foreach ($propertyGroups as $propertyGroup) {
+            $propertyGroupIds[] = $propertyGroup->getId();
+        }
+
+        static::assertContains($this->testData->getId('color'), $propertyGroupIds);
+        static::assertContains($this->testData->getId('size'), $propertyGroupIds);
+        static::assertContains($this->testData->getId('material'), $propertyGroupIds);
+        static::assertNotContains($this->testData->getId('class'), $propertyGroupIds);
     }
 
     /**
@@ -158,6 +192,41 @@ class ProductListingTest extends TestCase
         // after one id found, assert that all other ids are not inside the result set
         foreach ($pool as $id) {
             static::assertFalse($result->has($id));
+        }
+    }
+
+    /**
+     * Small helper function which asserts that all products beginning with the given numbers
+     * in $pool are groups of products, i.e. the product is not unique
+     */
+    private static function assertVariantGroup(EntitySearchResult $result, array $pool): void
+    {
+        foreach ($result->getEntities() as $product) {
+            $productNumber = $product->getProductNumber();
+            $productShouldBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
+                return strpos($productNumber, $item) === 0;
+            });
+            if ($productShouldBeGroup) {
+                static::assertTrue($product->isGrouped());
+            }
+        }
+    }
+
+    /**
+     * Small helper function which asserts that all products beginning with the given numbers
+     * in $pool are not groups of products, i.e. the product is unique
+     */
+    private static function assertVariantNotGroup(EntitySearchResult $result, array $pool): void
+    {
+        foreach ($result->getEntities() as $product) {
+            $productNumber = $product->getProductNumber();
+            $productShouldNotBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
+                return strpos($productNumber, $item) === 0;
+            });
+
+            if ($productShouldNotBeGroup) {
+                static::assertFalse($product->isGrouped());
+            }
         }
     }
 
@@ -314,6 +383,15 @@ class ProductListingTest extends TestCase
                     ['id' => $this->testData->createId('iron'), 'name' => 'iron'],
                     ['id' => $this->testData->createId('steel'), 'name' => 'steel'],
                     ['id' => $this->testData->createId('cotton'), 'name' => 'steel'],
+                ],
+            ],
+            [
+                'id' => $this->testData->createId('class'),
+                'name' => 'class',
+                'options' => [
+                    ['id' => $this->testData->createId('first'), 'name' => 'first'],
+                    ['id' => $this->testData->createId('business'), 'name' => 'business'],
+                    ['id' => $this->testData->createId('coach'), 'name' => 'coach'],
                 ],
             ],
         ];

@@ -43,21 +43,13 @@ class BatchController
         $total = (int) $queryParameters['total'];
         $modus = $queryParameters['modus'];
 
-        /** @var MigrationRuntime $migrationManger */
-        $migrationManger = $this->container->get('migration.manager');
-
         /** @var MigrationCollectionLoader $migrationCollectionLoader */
         $migrationCollectionLoader = $this->container->get('migration.collection.loader');
 
-        /** @var array $identifiers */
-        $identifiers = array_column($this->container->get('migration.paths'), 'name');
+        $coreMigrations = $migrationCollectionLoader->collect('core');
 
-        foreach ($identifiers as &$identifier) {
-            $identifier = sprintf('Shopware\\%s\\Migration', $identifier);
-        }
-        unset($identifier);
-
-        $result = (new MigrationStep($migrationManger, $migrationCollectionLoader, $identifiers))->run($modus, $offset, $total);
+        $result = (new MigrationStep($coreMigrations))
+            ->run($modus, $offset, $total);
 
         return $this->toJson($response, 200, $this->resultMapper->toExtJs($result));
     }

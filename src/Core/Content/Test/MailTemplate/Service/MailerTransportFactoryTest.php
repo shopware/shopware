@@ -37,8 +37,7 @@ class MailerTransportFactoryTest extends TestCase
             $original
         );
 
-        static::assertInstanceOf(\Swift_NullTransport::class, $mailer);
-        static::assertSame($mailer, $original);
+        static::assertInstanceOf(\Swift_SendmailTransport::class, $mailer);
     }
 
     public function testFactoryWithConfig(): void

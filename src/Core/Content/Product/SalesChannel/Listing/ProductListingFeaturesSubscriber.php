@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -22,12 +23,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -51,21 +48,14 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
      */
     private $connection;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $optionRepository,
-        ProductListingSortingRegistry $sortingRegistry,
-        SystemConfigService $systemConfigService
+        ProductListingSortingRegistry $sortingRegistry
     ) {
         $this->optionRepository = $optionRepository;
         $this->connection = $connection;
         $this->sortingRegistry = $sortingRegistry;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public static function getSubscribedEvents()
@@ -122,18 +112,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $criteria = $event->getCriteria();
 
-        $this->handleAvailableStock($criteria, $event->getSalesChannelContext());
-
         // suggestion request supports no aggregations or filters
         $criteria->addAssociation('cover.media');
-
-        $criteria->addGroupField(new FieldGrouping('displayGroup'));
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
     }
 
     public function handleListingRequest(ProductListingCriteriaEvent $event): void
@@ -142,11 +122,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = $event->getCriteria();
 
         $criteria->addAssociation('cover.media');
+        $criteria->addAssociation('options');
 
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
         $this->handleSorting($request, $criteria, self::DEFAULT_SORT);
-        $this->handleAvailableStock($criteria, $event->getSalesChannelContext());
     }
 
     public function handleSearchRequest(ProductSearchCriteriaEvent $event): void
@@ -159,11 +139,12 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
         $this->handleSorting($request, $criteria, self::DEFAULT_SEARCH_SORT);
-        $this->handleAvailableStock($criteria, $event->getSalesChannelContext());
     }
 
     public function handleResult(ProductListingResultEvent $event): void
     {
+        $this->setGroupedFlag($event);
+
         $this->groupOptionAggregations($event);
 
         $this->addCurrentFilters($event);
@@ -190,37 +171,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $event->getResult()->setLimit($this->getLimit($event->getRequest()));
     }
 
-    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): void
-    {
-        $salesChannelId = $context->getSalesChannel()->getId();
-
-        $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-        if (!$hide) {
-            return;
-        }
-
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('product.isCloseout', true),
-                    new EqualsFilter('product.available', false),
-                ]
-            )
-        );
-    }
-
     private function handleFilters(Request $request, Criteria $criteria): void
     {
-        $criteria->addGroupField(new FieldGrouping('displayGroup'));
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
-
         $this->handleManufacturerFilter($request, $criteria);
 
         $this->handlePropertyFilter($request, $criteria);
@@ -259,12 +211,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function handlePropertyFilter(Request $request, Criteria $criteria): void
     {
-        $criteria->addAggregation(
-            new TermsAggregation('properties', 'product.properties.id')
-        );
-        $criteria->addAggregation(
-            new TermsAggregation('options', 'product.options.id')
-        );
+        $criteria->addAggregation(new TermsAggregation('properties', 'product.properties.id'));
+        $criteria->addAggregation(new TermsAggregation('options', 'product.options.id'));
 
         $ids = $this->getPropertyIds($request);
 
@@ -298,7 +246,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function handlePriceFilter(Request $request, Criteria $criteria): void
     {
         $criteria->addAggregation(
-            new StatsAggregation('price', 'product.listingPrices')
+            new StatsAggregation('price', 'product.listingPrices', true, true, false, false)
         );
 
         $min = $request->get('min-price');
@@ -395,6 +343,66 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return array_unique(array_filter(array_merge($options, $properties)));
     }
 
+    private function setGroupedFlag(ProductListingResultEvent $event): void
+    {
+        /** @var ProductEntity $product */
+        foreach ($event->getResult()->getEntities() as $product) {
+            if ($product->getParentId() === null) {
+                continue;
+            }
+
+            $product->setGrouped(
+                $this->isGrouped($event->getRequest(), $product)
+            );
+        }
+    }
+
+    private function isGrouped(Request $request, ProductEntity $product): bool
+    {
+        // get all configured expanded groups
+        $groups = array_filter(
+            (array) $product->getConfiguratorGroupConfig(),
+            function (array $config) {
+                return $config['expressionForListings'] ?? false;
+            }
+        );
+
+        // get ids of groups for later usage
+        $groups = array_column($groups, 'id');
+
+        // expanded group count matches option count? All variants are displayed
+        if (count($groups) === count($product->getOptionIds())) {
+            return false;
+        }
+
+        if (!$product->getOptions()) {
+            return true;
+        }
+
+        // get property ids which are applied as filter
+        $properties = $this->getPropertyIds($request);
+
+        // now count the configured groups and filtered options
+        $count = 0;
+        foreach ($product->getOptions() as $option) {
+            // check if this option is filtered
+            if (in_array($option->getId(), $properties, true)) {
+                ++$count;
+
+                continue;
+            }
+
+            // check if the option contained in the expanded groups
+            if (in_array($option->getGroupId(), $groups, true)) {
+                ++$count;
+
+                continue;
+            }
+        }
+
+        return $count !== count($product->getOptionIds());
+    }
+
     private function groupOptionAggregations(ProductListingResultEvent $event): void
     {
         $ids = $this->collectOptionIds($event);
@@ -406,6 +414,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria = new Criteria($ids);
         $criteria->addAssociation('group');
         $criteria->addAssociation('media');
+        $criteria->addFilter(new EqualsFilter('group.filterable', true));
 
         $result = $this->optionRepository->search($criteria, $event->getContext());
 
@@ -415,6 +424,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         // group options by their property-group
         $grouped = $options->groupByPropertyGroups();
         $grouped->sortByPositions();
+        $grouped->sortByConfig();
 
         // remove id results to prevent wrong usages
         $event->getResult()->getAggregations()->remove('properties');
@@ -441,7 +451,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function getCurrentSorting(Request $request, string $default): ?string
     {
-        $key = $request->get('sort', $default);
+        $key = $request->get('order', $default);
 
         if (!$key) {
             return null;
@@ -461,7 +471,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = $request->request->get('manufacturer', '');
         }
 
-        $ids = explode('|', $ids);
+        if (is_string($ids)) {
+            $ids = explode('|', $ids);
+        }
 
         return array_filter($ids);
     }
@@ -473,7 +485,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = $request->request->get('properties', '');
         }
 
-        $ids = explode('|', $ids);
+        if (is_string($ids)) {
+            $ids = explode('|', $ids);
+        }
 
         return array_filter($ids);
     }

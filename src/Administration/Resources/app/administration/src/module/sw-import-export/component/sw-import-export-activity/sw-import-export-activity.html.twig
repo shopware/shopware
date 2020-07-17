@@ -1,0 +1,108 @@
+{% block sw_import_export_activity %}
+    <div class="sw-import-export-activity">
+        {% block sw_import_export_activity_listing %}
+            <sw-entity-listing
+                    :repository="logRepository"
+                    :items="logs"
+                    :isLoading="isLoading"
+                    :columns="exportActivityColumns"
+                    sortBy="createdAt"
+                    sortDirection="DESC"
+                    :showSettings="false"
+                    :showSelection="false"
+                    :allowColumnEdit="false"
+                    :fullPage="true">
+                {% block sw_import_export_activity_listing_size %}
+                    <template #column-file.size="{ item }">
+                        {{ calculateFileSize(item.file.size) }}
+                    </template>
+                {% endblock %}
+                {% block sw_import_export_activity_listing_records %}
+                    <template #column-records="{ item }">
+                            {{ item.records }}
+                    </template>
+                 {% endblock %}
+                <template #column-label-invalidRecords="{ column }">
+                    {{ $te(column.label) ? $tc(column.label) : column.label }}
+                    <sw-help-text class="sw-import-export-activity__invalid-records-help-text"
+                                  :text="$tc('sw-import-export.activity.invalidHelpText')">
+                    </sw-help-text>
+                </template>
+                {% block sw_import_export_activity_listing_invalid_records %}
+                    <template #column-invalidRecords="{ item }">
+                        <template v-if="item.invalidRecordsLog">
+                            {{ item.invalidRecordsLog.records }}
+                        </template>
+                        <template v-else>0</template>
+                    </template>
+                {% endblock %}
+                {% block sw_import_export_activity_listing_createdAt %}
+                    <template #column-createdAt="{ item }">
+                        <a href="#" @click.prevent="onShowLog(item)">
+                            {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
+                        </a>
+                    </template>
+                {% endblock %}
+
+                {% block sw_import_export_activity_listing_state %}
+                    <template #column-state="{ item }">
+                        <sw-color-badge v-if="item.state === 'failed'" variant="error" rounded></sw-color-badge>
+                        <sw-color-badge v-else-if="item.state === 'succeeded'" variant="success" rounded></sw-color-badge>
+                        <sw-color-badge v-else rounded></sw-color-badge>
+                        {{ getStateLabel(item.state) }}
+                    </template>
+                {% endblock %}
+
+                {% block sw_import_export_activity_listing_actions %}
+                    <template #actions="{ item }">
+                        {% block sw_import_export_activity_listing_actions_show_log %}
+                            <sw-context-menu-item @click="onShowLog(item)">
+                                {{ $tc('sw-import-export.activity.contextMenu.showLog') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                        {% block sw_import_export_activity_listing_actions_download_file %}
+                            <a class="sw-import-export-activity__download-action "
+                               :href="getDownloadUrl(item.fileId, item.file.accessToken)"
+                               target="_blank">
+                                <sw-context-menu-item>
+                                    {{ $tc('sw-import-export.activity.contextMenu.downloadFile') }}
+                                </sw-context-menu-item>
+                            </a>
+                        {% endblock %}
+                        {% block sw_import_export_activity_listing_actions_open_profile %}
+                            <sw-context-menu-item @click="onOpenProfile(item.profileId)">
+                                {{ $tc('sw-import-export.activity.contextMenu.showProfile') }}
+                            </sw-context-menu-item>
+                        {% endblock %}
+                        {% block sw_import_export_activity_listing_actions_download_invalid %}
+                            <template v-if="item.invalidRecordsLog">
+                                <a class="sw-import-export-activity__download-action"
+                                   :href="getDownloadUrl(item.invalidRecordsLog.fileId, item.invalidRecordsLog.file.accessToken)"
+                                   target="_blank">
+                                    <sw-context-menu-item>
+                                        {{ $tc('sw-import-export.activity.contextMenu.downloadInvalidFile') }}
+                                    </sw-context-menu-item>
+                                </a>
+                            </template>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-entity-listing>
+        {% endblock %}
+
+        {% block sw_import_export_activity_detail_modal %}
+            <sw-import-export-activity-detail-modal
+                :logEntity="selectedLog"
+                @log-close="closeSelectedLog">
+            </sw-import-export-activity-detail-modal>
+        {% endblock %}
+
+        {% block sw_import_export_activity_modal %}
+            <sw-import-export-edit-profile-modal
+                :profile="selectedProfile"
+                @profile-save="saveSelectedProfile"
+                @profile-close="closeSelectedProfile">
+            </sw-import-export-edit-profile-modal>
+        {% endblock %}
+    </div>
+{% endblock %}

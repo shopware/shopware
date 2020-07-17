@@ -36,12 +36,17 @@ class EntityHydrator
      */
     private $objects = [];
 
+    /**
+     * @var Entity[] internal constructor cache
+     */
+    private $instances = [];
+
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
     {
         $this->objects = [];
 
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity(new $entityClass(), $definition, $row, $root, $context));
+            $collection->add($this->hydrateEntity($this->createClass($entityClass), $definition, $row, $root, $context));
         }
 
         return $collection;
@@ -95,6 +100,15 @@ class EntityHydrator
         return $mapped;
     }
 
+    private function createClass(string $class)
+    {
+        if (!isset($this->instances[$class])) {
+            $this->instances[$class] = new $class();
+        }
+
+        return clone $this->instances[$class];
+    }
+
     private function hydrateEntity(Entity $entity, EntityDefinition $definition, array $row, string $root, Context $context): Entity
     {
         $fields = $definition->getFields();
@@ -110,10 +124,12 @@ class EntityHydrator
             return $this->objects[$cacheKey];
         }
 
-        $mappingStorage = new ArrayStruct([]);
+        /** @var ArrayStruct $mappingStorage */
+        $mappingStorage = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, $mappingStorage);
 
-        $foreignKeys = new ArrayStruct([]);
+        /** @var ArrayStruct $foreignKeys */
+        $foreignKeys = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::FOREIGN_KEYS, $foreignKeys);
 
         /** @var Field $field */
@@ -182,8 +198,12 @@ class EntityHydrator
                 $decoded = $typedField->getSerializer()->decode($typedField, $value);
                 $entity->addTranslated($propertyName, $decoded);
 
+                $inherited = $definition->isInheritanceAware() && $context->considerInheritance();
+                $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
                 // assign translated value of the first language
-                $key = $root . '.translation.' . $propertyName;
+                $key = array_shift($chain) . '.' . $propertyName;
+
                 $decoded = $typedField->getSerializer()->decode($typedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
 
@@ -261,10 +281,8 @@ class EntityHydrator
             return null;
         }
 
-        $structClass = $reference->getEntityClass();
-
         return $this->hydrateEntity(
-            new $structClass(),
+            $this->createClass($reference->getEntityClass()),
             $reference,
             $row,
             $root . '.' . $field->getPropertyName(),
@@ -282,16 +300,16 @@ class EntityHydrator
 
         $value = $row[$key];
 
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
+
         if ($field instanceof TranslatedField) {
-            $key = $root . '.translation.' . $propertyName;
+            $key = $chain[0] . '.' . $propertyName;
             $decoded = $customField->getSerializer()->decode($customField, $row[$key]);
             $entity->assign([$propertyName => $decoded]);
 
-            $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
-
             $values = [];
-            foreach ($chain as $part) {
-                $key = $part['alias'] . '.' . $propertyName;
+            foreach ($chain as $accessor) {
+                $key = $accessor . '.' . $propertyName;
                 $values[] = $row[$key] ?? null;
             }
 

@@ -12,8 +12,6 @@ import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-detail-analytics';
-import './view/sw-sales-channel-detail-products';
-import './view/sw-sales-channel-detail-template';
 import './view/sw-sales-channel-create-base';
 import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
@@ -37,29 +35,33 @@ Module.register('sw-sales-channel', {
         detail: {
             component: 'sw-sales-channel-detail',
             path: 'detail/:id',
+            meta: {
+                privilege: 'sales_channel.viewer'
+            },
             redirect: {
                 name: 'sw.sales.channel.detail.base'
             },
             children: {
                 base: {
                     component: 'sw-sales-channel-detail-base',
-                    path: 'base'
+                    path: 'base',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',
-                    path: 'product-comparison'
+                    path: 'product-comparison',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 },
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
-                    path: 'analytics'
-                },
-                products: {
-                    component: 'sw-sales-channel-detail-products',
-                    path: 'products'
-                },
-                template: {
-                    component: 'sw-sales-channel-detail-template',
-                    path: 'template'
+                    path: 'analytics',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 }
             }
         },
@@ -73,7 +75,10 @@ Module.register('sw-sales-channel', {
             children: {
                 base: {
                     component: 'sw-sales-channel-create-base',
-                    path: 'base'
+                    path: 'base',
+                    meta: {
+                        privilege: 'sales_channel.creator'
+                    }
                 }
             }
         }

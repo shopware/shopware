@@ -50,6 +50,11 @@
         "tooltipFoundInProducts": "Found in products",
         "tooltipFoundInCategories": "Found in categories",
         "tooltipFoundInManufacturers": "Found in manufacturers",
+        "tooltipFoundInMailTemplate": "Found in mail templates",
+        "tooltipFoundInDocument": "Found in Document",
+        "tooltipFoundInUser": "Found in User",
+        "tooltipFoundInPayment": "Found in Payment",
+        "tooltipFoundShipping": "Found in Shipping",
         "titleMediaNotUsed": "Unused medium",
         "labelMediaNotUsed": "This media item is currently not in use."
       }
@@ -65,8 +70,8 @@
     },
     "sorting": {
       "labelSort": "Sort by:",
-      "labelSortByNameAsc": "Name, asc.",
-      "labelSortByNameDsc": "Name, desc.",
+      "labelSortByNameAsc": "Name, A-Z",
+      "labelSortByNameDsc": "Name, Z-A",
       "labelSortBySizeAsc": "Size, asc.",
       "labelSortBySizeDsc": "Size, desc.",
       "labelSortByCreatedAsc": "Creation date, asc.",

@@ -2,9 +2,6 @@ parameters:
     level: 5
     treatPhpDocTypesAsCertain: false
     tmpDir: %rootDir%/../../../../../../../var/cache/phpstan
-    autoload_files:
-        # the placeholder "%ShopwareAutoloadFile%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
-        - %ShopwareAutoloadFile%
     paths:
         - src
         - ../src
@@ -17,7 +14,8 @@ parameters:
     excludes_analyse:
         - src/Core/Flag/feature_*.php
         - src/Recovery/*
-
+        - src/Docs/Resources/*
+        - src/Storefront/Framework/Cache/CacheDecorator.php
         - src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
         # Tests
@@ -35,6 +33,19 @@ parameters:
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
+        # For BC in Store api routes
+        - '#Method Shopware\\Core\\Content\\Category\\SalesChannel\\AbstractNavigationRoute::load\(\) invoked with 5 parameters, 4 required\.#'
+        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\AbstractProductListingRoute::load\(\) invoked with 4 parameters, 3 required\.#'
+        - '#Method .*Route::load\(\) invoked with 3 parameters, 2 required\.#'
+        -
+            message: '#PHPDoc tag @param references unknown parameter: \$criteria#'
+            path: src/Core/**/SalesChannel/**Route.php
+        # For BC in Entity repository clone
+        - '#Method .*EntityRepositoryInterface::clone\(\) invoked with 4 parameters, 2-3 required\.#'
+        -
+            message: '#PHPDoc tag @param references unknown parameter: \$behavior#'
+            path: src/Core/Framework/DataAbstractionLayer/EntityRepositoryInterface.php
+
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -

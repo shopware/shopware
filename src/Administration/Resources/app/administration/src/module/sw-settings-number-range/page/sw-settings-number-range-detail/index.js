@@ -292,7 +292,7 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         abortOnLanguageChange() {
-            return this.numberRange.hasChanges();
+            return this.numberRangeRepository.hasChanges(this.numberRange);
         },
 
         saveOnLanguageChange() {

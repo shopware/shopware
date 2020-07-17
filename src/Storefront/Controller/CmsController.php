@@ -6,8 +6,9 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
+use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,11 +24,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class CmsController extends StorefrontController
 {
     /**
-     * @var ProductListingGateway
-     */
-    private $listingGateway;
-
-    /**
      * @var AbstractCmsRoute
      */
     private $cmsRoute;
@@ -37,14 +33,19 @@ class CmsController extends StorefrontController
      */
     private $categoryRoute;
 
+    /**
+     * @var AbstractProductListingRoute
+     */
+    private $listingRoute;
+
     public function __construct(
-        ProductListingGateway $listingGateway,
         AbstractCmsRoute $cmsRoute,
-        AbstractCategoryRoute $categoryRoute
+        AbstractCategoryRoute $categoryRoute,
+        AbstractProductListingRoute $listingRoute
     ) {
-        $this->listingGateway = $listingGateway;
         $this->cmsRoute = $cmsRoute;
         $this->categoryRoute = $categoryRoute;
+        $this->listingRoute = $listingRoute;
     }
 
     /**
@@ -116,7 +117,9 @@ class CmsController extends StorefrontController
         // Allows to convert all post-filters to filters. This leads to the fact that only aggregation values are returned, which are combinable with the previous applied filters.
         $request->request->set('reduce-aggregations', true);
 
-        $listing = $this->listingGateway->search($request, $context);
+        $listing = $this->listingRoute
+            ->load($navigationId, $request, $context, new Criteria())
+            ->getResult();
 
         $mapped = [];
         foreach ($listing->getAggregations() as $aggregation) {

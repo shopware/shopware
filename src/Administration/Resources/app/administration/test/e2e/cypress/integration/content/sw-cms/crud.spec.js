@@ -18,7 +18,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: create and read layout', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page',
+            url: '/api/v*/cms-page',
             method: 'post'
         }).as('saveData');
 
@@ -58,12 +58,12 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: update and read layout', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v1/category/*',
+            url: '/api/v*/category/*',
             method: 'patch'
         }).as('saveCategory');
 
@@ -87,7 +87,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 
         // Assign layout to root category
-        cy.visit(`${ Cypress.env('admin') }#/sw/category/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-tree-item__element').contains('Catalogue #1').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
@@ -104,13 +104,12 @@ describe('CMS: Test crud operations of layouts', () => {
         // Verify layout in Storefront
         cy.visit('/');
         cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
-
     });
 
     it('@base @content: delete layout', () => {
         cy.server();
         cy.route({
-            url: '/api/v1/cms-page/*',
+            url: '/api/v*/cms-page/*',
             method: 'delete'
         }).as('deleteData');
 

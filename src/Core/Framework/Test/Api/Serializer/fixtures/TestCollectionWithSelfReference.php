@@ -13,8 +13,8 @@ class TestCollectionWithSelfReference extends SerializationFixture
         $parent->setId('3e352be2d85846dd97529c0f6b544870');
         $parent->setChildCount(1);
         $parent->setUseParentConfiguration(false);
-        $parent->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
-        $parent->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
+        $parent->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
+        $parent->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $parent->internalSetEntityName('media_folder');
 
         $child = new MediaFolderEntity();
@@ -22,8 +22,8 @@ class TestCollectionWithSelfReference extends SerializationFixture
         $child->setChildCount(1);
         $child->setUseParentConfiguration(true);
         $child->setParentId('3e352be2d85846dd97529c0f6b544870');
-        $child->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
-        $child->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
+        $child->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
+        $child->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $child->internalSetEntityName('media_folder');
         $parent->setChildren(new MediaFolderCollection([$child]));
 
@@ -44,8 +44,8 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'parentId' => null,
                         'childCount' => 1,
                         'name' => null,
-                        'createdAt' => '2012-08-15T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'customFields' => null,
                     ],
                     'links' => [
@@ -102,8 +102,8 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'parentId' => '3e352be2d85846dd97529c0f6b544870',
                         'childCount' => 1,
                         'name' => null,
-                        'createdAt' => '2012-08-15T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'customFields' => null,
                     ],
                     'links' => [
@@ -178,8 +178,8 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         '_uniqueIdentifier' => '5846dd97529c0f6b5448713e352be2d8',
                         'versionId' => null,
                         'translated' => [],
-                        'createdAt' => '2012-08-15T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'extensions' => [],
                         'apiAlias' => 'media_folder',
                     ],
@@ -190,8 +190,8 @@ class TestCollectionWithSelfReference extends SerializationFixture
                 '_uniqueIdentifier' => '3e352be2d85846dd97529c0f6b544870',
                 'versionId' => null,
                 'translated' => [],
-                'createdAt' => '2012-08-15T00:00:00+00:00',
-                'updatedAt' => '2017-11-21T11:25:34+00:00',
+                'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                 'extensions' => [],
                 'apiAlias' => 'media_folder',
             ],

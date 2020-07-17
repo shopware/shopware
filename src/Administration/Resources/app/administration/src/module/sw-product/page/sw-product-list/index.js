@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'numberRangeService', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -24,7 +24,9 @@ Component.register('sw-product-list', {
             naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
-            total: 0
+            total: 0,
+            product: null,
+            cloning: false
         };
     },
 
@@ -53,7 +55,7 @@ Component.register('sw-product-list', {
             }).map(item => {
                 return {
                     property: `price-${item.isoCode}`,
-                    dataIndex: `price-${item.id}`,
+                    dataIndex: 'price',
                     label: `${item.name}`,
                     routerLink: 'sw.product.detail',
                     allowResize: true,
@@ -122,7 +124,7 @@ Component.register('sw-product-list', {
                 this.getList();
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
-                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, { entityName: productName })
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
                 });
             });
         },
@@ -136,7 +138,7 @@ Component.register('sw-product-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
         },
 
@@ -211,6 +213,20 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'right'
             }];
+        },
+
+        onDuplicate(referenceProduct) {
+            this.product = referenceProduct;
+            this.cloning = true;
+        },
+
+        onDuplicateFinish(duplicate) {
+            this.cloning = false;
+            this.product = null;
+
+            this.$nextTick(() => {
+                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+            });
         }
     }
 });

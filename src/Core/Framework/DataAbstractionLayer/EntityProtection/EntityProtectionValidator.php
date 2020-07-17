@@ -69,11 +69,16 @@ class EntityProtectionValidator implements EventSubscriberInterface
     public function validateWriteCommands(PreWriteValidationEvent $event): void
     {
         foreach ($event->getCommands() as $command) {
+            // Don't validate commands that fake operations on DB level, e.g. cascade deletes
+            if (!$command->isValid()) {
+                continue;
+            }
+
             $writeProtection = $command->getDefinition()->getProtections()->get(WriteProtection::class);
             if ($writeProtection && !$writeProtection->isAllowed($event->getContext()->getScope())) {
                 throw new AccessDeniedHttpException(
                     sprintf(
-                        'Write access to entity %s" are not allowed in scope "%s".',
+                        'Write access to entity "%s" are not allowed in scope "%s".',
                         $command->getDefinition()->getEntityName(),
                         $event->getContext()->getScope()
                     )

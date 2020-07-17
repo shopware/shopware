@@ -7,25 +7,25 @@
                     <div class="order-detail-content-header">
                         <div class="row">
                             {% block page_account_order_item_detail_table_header_name %}
-                                <div class="col-6 order-header-name">
+                                <div class="col-6 order-detail-content-header-cell order-header-name">
                                     {{ "account.orderItemColumnName"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_quantity %}
-                                <div class="col-2 order-header-quantity">
+                                <div class="col-2 order-detail-content-header-cell order-header-quantity">
                                     {{ "account.orderItemColumnQuantity"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_price %}
-                                <div class="col-2 order-header-price">
+                                <div class="col-2 order-detail-content-header-cell order-header-price">
                                     {{ "account.orderItemColumnPrice"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_account_order_item_detail_table_header_total %}
-                                <div class="col-2 order-header-total">
+                                <div class="col-2 order-detail-content-header-cell order-header-total">
                                     {{ "account.orderItemColumnTotal"|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
@@ -34,8 +34,28 @@
                 {% endblock %}
 
                 {% block page_account_order_item_detail_table_body %}
-                    <div class="order-detail-content-body js-order-detail-container-{{ order.id }}"></div>
+                    <div class="order-detail-content-body">
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list.html.twig' %}
+                    </div>
                 {% endblock %}
+
+                {% if order.customerComment %}
+                    {% block page_account_order_item_detail_table_body_customer_comment %}
+                        <div class="order-detail-content-body">
+                            <div class="row order-detail-content-row">
+                                {% block page_account_order_customer_comment_header %}
+                                    <div class="col-12 card-title">
+                                        {{ "checkout.customerCommentHeader"|trans|sw_sanitize }}
+                                    </div>
+                                {% endblock %}
+
+                                {% block page_account_order_customer_comment_content %}
+                                    <div class="col-12">{{ order.customerComment|sw_sanitize|nl2br }}</div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endif %}
 
                 {% block page_account_order_item_detail_table_footer %}
                     <div class="order-detail-content-footer">
@@ -50,7 +70,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_date_value %}
-                                                    <dd class="col-6 col-md-7">{{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</dd>
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</dd>
                                                 {% endblock %}
                                             {% endblock %}
 
@@ -60,7 +80,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_detail_number_value %}
-                                                    <dd class="col-6 col-md-7">{{ order.orderNumber }}</dd>
+                                                    <dd class="col-6 col-md-7 order-item-detail-labels-value">{{ order.orderNumber }}</dd>
                                                 {% endblock %}
                                             {% endblock %}
 
@@ -71,7 +91,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_payment_method_value %}
-                                                        <dd class="col-6 col-md-7">
+                                                        <dd class="col-6 col-md-7 order-item-detail-labels-value">
                                                             {% for transaction in order.transactions %}
                                                                 {% if not loop.first and loop.index > 1 %}, {% endif %}{{ transaction.paymentMethod.translated.name }}
                                                             {% endfor %}
@@ -87,7 +107,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_method_value %}
-                                                        <dd class="col-6 col-md-7">
+                                                        <dd class="col-6 col-md-7 order-item-detail-labels-value">
                                                             {% for delivery in order.deliveries %}
                                                                 {% if not loop.first and loop.index > 1 %}, {% endif %}{{ delivery.shippingMethod.translated.name }}
                                                             {% endfor %}

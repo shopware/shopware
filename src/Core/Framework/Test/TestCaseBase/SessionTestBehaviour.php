@@ -10,12 +10,22 @@ use Symfony\Component\HttpFoundation\Session\Session;
 trait SessionTestBehaviour
 {
     /**
+     * @before
+     */
+    public function clearSessionBefore(): void
+    {
+        $this->clearSessionAfter();
+    }
+
+    /**
      * @after
+     * @before
      */
     public function clearSessionAfter(): void
     {
         /** @var Session $session */
         $session = $this->getContainer()->get('session');
         $session->clear();
+        $session->getFlashBag();
     }
 }

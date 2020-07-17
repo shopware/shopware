@@ -1,6 +1,5 @@
 import './page/sw-settings-shipping-list';
 import './page/sw-settings-shipping-detail';
-import './page/sw-settings-shipping-create';
 import './component/sw-price-rule-modal';
 import './component/sw-settings-shipping-price-matrices';
 import './component/sw-settings-shipping-price-matrix';
@@ -28,13 +27,16 @@ Module.register('sw-settings-shipping', {
         },
         detail: {
             component: 'sw-settings-shipping-detail',
-            path: 'detail/:id',
+            path: 'detail/:id?',
             meta: {
                 parentPath: 'sw.settings.shipping.index'
+            },
+            props: {
+                default: (route) => ({ shippingMethodId: route.params.id })
             }
         },
         create: {
-            component: 'sw-settings-shipping-create',
+            component: 'sw-settings-shipping-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.shipping.index'

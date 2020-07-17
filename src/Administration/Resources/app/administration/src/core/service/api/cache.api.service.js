@@ -12,12 +12,17 @@ class CacheApiService {
 
     index() {
         const headers = this.getHeaders();
-        return this.httpClient.post('/_action/index', { headers });
+        return this.httpClient.post('/_action/index', {}, { headers });
     }
 
     clear() {
         const headers = this.getHeaders();
         return this.httpClient.delete('/_action/cache', { headers });
+    }
+
+    cleanupOldCaches() {
+        const headers = this.getHeaders();
+        return this.httpClient.delete('/_action/cleanup', { headers });
     }
 
     clearAndWarmup() {

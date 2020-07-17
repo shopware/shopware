@@ -1,8 +1,9 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
+const { Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -47,8 +48,12 @@ Component.register('sw-language-switch', {
     },
 
     computed: {
-        languageStore() {
-            return StateDeprecated.getStore('language');
+        languageCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
         }
     },
 
@@ -62,7 +67,7 @@ Component.register('sw-language-switch', {
 
     methods: {
         createdComponent() {
-            this.languageId = this.languageStore.getCurrentId();
+            this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
             this.$root.$on('on-change-language-clicked', this.changeToNewLanguage);
         },
@@ -71,8 +76,9 @@ Component.register('sw-language-switch', {
             this.$root.$off('on-change-language-clicked', this.changeToNewLanguage);
         },
 
-        onInput() {
-            this.newLanguageId = this.languageId;
+        onInput(newLanguageId) {
+            this.languageId = newLanguageId;
+            this.newLanguageId = newLanguageId;
 
             this.checkAbort();
         },
@@ -86,7 +92,7 @@ Component.register('sw-language-switch', {
                 })) {
                     this.showUnsavedChangesModal = true;
                     this.languageId = this.lastLanguageId;
-                    this.$refs.languageSelect.loadSelected();
+
                     return;
                 }
             }
@@ -98,7 +104,7 @@ Component.register('sw-language-switch', {
             this.lastLanguageId = this.languageId;
 
             if (this.changeGlobalLanguage) {
-                this.languageStore.setCurrentId(this.languageId);
+                Shopware.State.commit('context/setApiLanguageId', this.languageId);
                 this.$root.$emit('on-change-application-language', { languageId: this.languageId });
             }
 
@@ -135,7 +141,6 @@ Component.register('sw-language-switch', {
             }
             this.languageId = this.newLanguageId;
             this.newLanguageId = '';
-            this.$refs.languageSelect.loadSelected();
             this.emitChange();
         }
     }

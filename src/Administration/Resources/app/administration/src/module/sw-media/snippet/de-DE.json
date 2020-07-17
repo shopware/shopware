@@ -50,6 +50,11 @@
         "tooltipFoundInProducts": "Gefunden in Produkten",
         "tooltipFoundInCategories": "Gefunden in Kategorien",
         "tooltipFoundInManufacturers": "Gefunden in Herstellern",
+        "tooltipFoundInMailTemplate": "Gefunden in E-Mail-Templates",
+        "tooltipFoundInDocument": "Gefunden in Document",
+        "tooltipFoundInUser": "Gefunden in User",
+        "tooltipFoundInPayment": "Gefunden in Zahlungart",
+        "tooltipFoundShipping": "Gefunden in Versandart",
         "titleMediaNotUsed": "Medium nicht verwendet",
         "labelMediaNotUsed": "Das Medium wird zurzeit nicht verwendet."
       }
@@ -65,8 +70,8 @@
     },
     "sorting": {
       "labelSort": "Sortiere nach:",
-      "labelSortByNameAsc": "Name, aufsteigend",
-      "labelSortByNameDsc": "Name, absteigend",
+      "labelSortByNameAsc": "Name, A-Z",
+      "labelSortByNameDsc": "Name, Z-A",
       "labelSortBySizeAsc": "Größe, aufsteigend",
       "labelSortBySizeDsc": "Größe, absteigend",
       "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",

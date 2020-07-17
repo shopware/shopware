@@ -7,27 +7,28 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
-use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Finder\Finder;
 
-class ThemeCompiler
+class ThemeCompiler implements ThemeCompilerInterface
 {
     /**
      * @var FilesystemInterface
      */
-    private $publicFilesystem;
-
-    /**
-     * @var string
-     */
-    private $cacheDir;
+    private $filesystem;
 
     /**
      * @var Compiler
@@ -40,7 +41,7 @@ class ThemeCompiler
     private $themeFileResolver;
 
     /**
-     * @var ThemeFileImporterInterface|null
+     * @var ThemeFileImporterInterface
      */
     private $themeFileImporter;
 
@@ -55,21 +56,34 @@ class ThemeCompiler
     private $tempFilesystem;
 
     /**
-     * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
+     * @var EntityRepositoryInterface
      */
+    private $mediaRepository;
+
+    /**
+     * @var Package[]
+     */
+    private $packages;
+
+    /**
+     * @var CacheClearer
+     */
+    private $cacheClearer;
+
     public function __construct(
-        FilesystemInterface $publicFilesystem,
+        FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
-        string $cacheDir,
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
-        ?ThemeFileImporterInterface $themeFileImporter = null
+        ThemeFileImporterInterface $themeFileImporter,
+        EntityRepositoryInterface $mediaRepository,
+        iterable $packages,
+        CacheClearer $cacheClearer
     ) {
-        $this->publicFilesystem = $publicFilesystem;
+        $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
-        $this->cacheDir = $cacheDir;
         $this->themeFileImporter = $themeFileImporter;
 
         $this->scssCompiler = new Compiler();
@@ -77,6 +91,9 @@ class ThemeCompiler
 
         $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
         $this->eventDispatcher = $eventDispatcher;
+        $this->mediaRepository = $mediaRepository;
+        $this->packages = $packages;
+        $this->cacheClearer = $cacheClearer;
     }
 
     public function compileTheme(
@@ -89,8 +106,8 @@ class ThemeCompiler
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
         $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
 
-        if ($withAssets && $this->publicFilesystem->has($outputPath)) {
-            $this->publicFilesystem->deleteDir($outputPath);
+        if ($withAssets && $this->filesystem->has($outputPath)) {
+            $this->filesystem->deleteDir($outputPath);
         }
 
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
@@ -99,34 +116,29 @@ class ThemeCompiler
 
         $concatenatedStyles = '';
         foreach ($styleFiles as $file) {
-            if ($this->themeFileImporter) {
-                $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
-            } else {
-                $concatenatedStyles .= '@import \'' . $file->getFilepath() . '\';' . PHP_EOL;
-            }
+            $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
-        $this->publicFilesystem->put($cssFilepath, $compiled);
+        $this->filesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
         $scriptFiles = $resolvedFiles[ThemeFileResolver::SCRIPT_FILES];
         $concatenatedScripts = '';
         foreach ($scriptFiles as $file) {
-            if ($this->themeFileImporter) {
-                $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
-            } else {
-                $concatenatedScripts .= file_get_contents($file->getFilepath()) . PHP_EOL;
-            }
+            $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
         }
 
         $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
-        $this->publicFilesystem->put($scriptFilepath, $concatenatedScripts);
+        $this->filesystem->put($scriptFilepath, $concatenatedScripts);
 
         // assets
         if ($withAssets) {
             $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
         }
+
+        // Reset cache buster state for improving performance in getMetadata
+        $this->cacheClearer->invalidateTags(['theme-metaData']);
     }
 
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
@@ -156,14 +168,10 @@ class ThemeCompiler
                 continue;
             }
 
-            if ($this->themeFileImporter) {
-                $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
-            } else {
-                $assets = $this->getCopyBatchInputsForAssets($configuration, $outputPath, $asset);
-            }
+            $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
             // method copyBatch is provided by copyBatch filesystem plugin
-            $this->publicFilesystem->copyBatch(...$assets);
+            $this->filesystem->copyBatch(...$assets);
         }
     }
 
@@ -224,19 +232,54 @@ class ThemeCompiler
         }
 
         $variables = [];
+        $mediaIds = [];
         foreach ($config['fields'] as $key => $data) {
-            if (array_key_exists('value', $data) && $data['value']) {
-                // Do not include fields which have the scss option set to false
-                if (array_key_exists('scss', $data) && $data['scss'] === false) {
-                    continue;
+            if (!isset($data['value'])) {
+                continue;
+            }
+
+            // Do not include fields which have the scss option set to false
+            if (array_key_exists('scss', $data) && $data['scss'] === false) {
+                continue;
+            }
+
+            // value must not be an empty string since because an empty value can not be compiled
+            if ($data['value'] === '') {
+                continue;
+            }
+
+            if (in_array($data['type'], ['media', 'textarea'], true)) {
+                if ($data['type'] === 'media') {
+                    // Add id of media which needs to be resolved
+                    if (Uuid::isValid($data['value'])) {
+                        $mediaIds[$key] = $data['value'];
+                    }
                 }
 
-                if ($data['type'] === 'media') {
-                    $variables[$key] = '\'' . $data['value'] . '\'';
-                } else {
-                    $variables[$key] = $data['value'];
-                }
+                $variables[$key] = '\'' . $data['value'] . '\'';
+            } else {
+                $variables[$key] = $data['value'];
             }
+        }
+
+        // Resolve media urls
+        if (count($mediaIds) > 0) {
+            /** @var MediaCollection $medias */
+            $medias = $this->mediaRepository
+            ->search(
+                new Criteria(array_values($mediaIds)),
+                Context::createDefaultContext()
+            )
+            ->getEntities();
+
+            foreach ($mediaIds as $key => $mediaId) {
+                /* @var MediaEntity $media */
+                $variables[$key] = '\'' . $medias->get($mediaId)->getUrl() . '\'';
+            }
+        }
+
+        foreach ($this->packages as $key => $package) {
+            $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
         }
 
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
@@ -261,37 +304,5 @@ class ThemeCompiler
 #variables#
 
 PHP_EOL;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 can safely be removed once the themeFileImporter prop is required
-     */
-    private function getCopyBatchInputsForAssets(StorefrontPluginConfiguration $configuration, string $outputPath, $asset): array
-    {
-        if (!is_dir($asset)) {
-            throw new ThemeCompileException(
-                $configuration->getTechnicalName(),
-                sprintf('Unable to find asset. Path: "%s"', $asset)
-            );
-        }
-
-        $finder = new Finder();
-        $files = $finder->files()->in($asset);
-        $assets = [];
-
-        foreach ($files as $file) {
-            $relativePathname = $file->getRelativePathname();
-            $assetDir = basename($asset);
-
-            $assets[] = new CopyBatchInput(
-                $asset . DIRECTORY_SEPARATOR . $relativePathname,
-                [
-                    'bundles' . DIRECTORY_SEPARATOR . mb_strtolower($configuration->getTechnicalName()) . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                    $outputPath . DIRECTORY_SEPARATOR . $assetDir . DIRECTORY_SEPARATOR . $relativePathname,
-                ]
-            );
-        }
-
-        return $assets;
     }
 }

@@ -3,9 +3,9 @@
   "viewportWidth": 1920,
   "baseUrl": "http://docker.vm:8000",
   "watchForFileChanges": false,
-  "requestTimeout": 100000,
-  "responseTimeout": 600000,
-  "defaultCommandTimeout": 100000,
+  "requestTimeout": 30000,
+  "responseTimeout": 60000,
+  "defaultCommandTimeout": 10000,
   "salesChannelName": "Storefront",
   "useDarkTheme": false,
   "useShopwareTheme": true,
@@ -15,5 +15,17 @@
   "reporter": "cypress-multi-reporters",
   "reporterOptions": {
     "configFile": "reporter-config.json"
+  },
+  "env": {
+    "apiVersion": "v1",
+    "user": "admin",
+    "pass": "shopware",
+    "salesChannelName": "Storefront",
+    "admin": "/admin",
+    "apiPath": "/api/v1",
+    "locale": "en-GB",
+    "checkoutAllowed": false,
+    "projectRoot": "/app",
+    "localUsage": false
   }
 }

@@ -53,7 +53,6 @@ Core
     * Define permissions for AdminOrders at class `SalesChannelProxyController` within the array constant `ADMIN_ORDER_PERMISSIONS`.
     * Define permissions for the Recalculation at class `OrderConverter` within the array constant `ADMIN_EDIT_ORDER_PERMISSIONS`.
     * Extended permissions with subscribe event `SalesChannelContextPermissionsChangedEvent`, see detail at class `SalesChannelContextFactory`
-    
 * The usage of `$connection->executeQuery()` for write operations is deprecated, use 
 `$connection->executeUpdate()` instead.
 * For the possibility to add individual product to across selling, you need to use a new field for creating a cross selling
@@ -61,7 +60,6 @@ Core
 * The `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface` will be removed, extend from the abstract class `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension` instead.
 * Deprecated `\Shopware\Core\Framework\Routing\RouteScopeInterface` use abstract class `\Shopware\Core\Framework\Routing\AbstractRouteScope` instead
 * Deprecated `\Shopware\Core\Content\ContactForm\ContactFormService` use the new service `\Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute` instead
-
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway` use `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteInterface` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface` use `\Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteInterface` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchGateway` use `\Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteInterface` instead
@@ -84,6 +82,14 @@ Core
 * Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use one of the following new services
     * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRouteInterface`
     * `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRouteInterface`
+* Deprecated `\Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackagerInterface` use `\Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager` instead
+* Added optional second parameter `$context` to `\Shopware\Core\Framework\Plugin\PluginManagementService::uploadPlugin` and `\Shopware\Core\Framework\Plugin\PluginManagementService::deletePlugin`. It will be required in 6.3.0
+* Deprecated `\Shopware\Core\Framework\Plugin\PluginManagementService::extractPluginZip` which will be private in 6.3.0
+* Added optional third parameter `$definition` to `Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`. It will be required in 6.3.0.
+* Added a new translatable `label` property to `\Shopware\Core\Content\ImportExport\ImportExportProfileDefinition`
+    * This property is required
+    * The name may be omitted now
+* Added new message `\Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders` to cleanup old cache folders in `var/cache`
 
 Administration
 --------------
@@ -234,7 +240,8 @@ Administration
 * The id of checkbox and switch fields are now unique. Therefore you have to update your selectors if you want to get the fields by id.
 This was an important change, because every checkbox and switch field has the same id. This causes problems when you click
 on the corresponding label.
- 
+
+
 Storefront
 ----------
 
@@ -330,6 +337,36 @@ Now the variable can be overwritten with `replace_recursive`:
 * Added `HoneypotCaptcha`
   * This captcha checks wether a form field hidden from the user was filled out and stops the request if that's the case
   * The `HoneypotCaptcha` is active by default
+* If you use the `widgets.search.pagelet` route in your template, you have to replace this with `widgets.search.pagelet.v2`:
+  * Before: `url('widgets.search.pagelet', { search: page.searchTerm })`
+  * After: `url('widgets.search.pagelet.v2')`
+* It is no longer possible to send requests against the `sales-channel-api` with the `HttpClient`. You have to use the `StoreApiClient` for this:
+    * before: 
+        ```javascript
+        import Plugin from 'src/plugin-system/plugin.class';
+        import HttpClient from 'src/service/http-client.service';
+        
+        export default class MyStorefrontPlugin extends Plugin {
+            
+            init() {
+                this.client = new HttpClient();
+                this.client.get('sales-channel-api-route', response => {})
+            }
+        }
+        ```
+    * after:
+        ```javascript
+        import Plugin from 'src/plugin-system/plugin.class';
+        import StoreApiClient from 'src/service/store-api-client.service';
+        
+        export default class MyStorefrontPlugin extends Plugin {
+            
+            init() {
+                this.client = new StoreApiClient();
+                this.client.get('sales-channel-api-route', response => {});
+            }
+        }
+        ```
 
 Refactorings
 ------------

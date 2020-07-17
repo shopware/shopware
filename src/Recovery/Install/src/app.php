@@ -4,7 +4,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\HttpClient\Client;
-use Shopware\Recovery\Common\MigrationRuntime;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Common\Steps\ErrorResult;
@@ -17,8 +16,8 @@ use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\Requirements;
 use Shopware\Recovery\Install\RequirementsPath;
 use Shopware\Recovery\Install\Service\AdminService;
-use Shopware\Recovery\Install\Service\ConfigWriter;
 use Shopware\Recovery\Install\Service\DatabaseService;
+use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Struct\AdminUser;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
@@ -76,9 +75,13 @@ $localeForLanguage = static function (string $language): string {
             return 'pt-PT';
         case 'pl':
             return 'pl-PL';
+        case 'sv':
+            return 'sv-SE';
+        case 'cs':
+            return 'cs-CZ';
     }
 
-    return mb_strtolower($language) . '_' . mb_strtoupper($language);
+    return mb_strtolower($language) . '-' . mb_strtoupper($language);
 };
 
 $app->add(function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($container, $localeForLanguage) {
@@ -373,6 +376,27 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         ]);
     }
 
+    // setting up a database connection
+    $connection = (new DatabaseFactory())->createPDOConnection($_SESSION['databaseConnectionInfo']);
+
+    // getting iso code of all countries
+    $statement = $connection->prepare('SELECT iso3, iso FROM country');
+    $statement->execute();
+
+    // formatting string e.g. "en-GB" to "GB"
+    $localeIsoCode = substr($localeForLanguage($_SESSION['language']), -2, 2);
+
+    // flattening array
+    $countryIsos = array_map(function ($country) use ($localeIsoCode) {
+        return [
+            'iso3' => $country['iso3'],
+            'default' => $country['iso'] === $localeIsoCode ? true : false,
+        ];
+    }, $statement->fetchAll());
+
+    // make iso codes available for the select field
+    $viewAttributes['countryIsos'] = $countryIsos;
+
     if ($request->getMethod() === 'POST') {
         $adminUser = new AdminUser([
             'email' => $_SESSION['parameters']['c_config_admin_email'],
@@ -387,6 +411,8 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'name' => $_SESSION['parameters']['c_config_shopName'],
             'locale' => $_SESSION['parameters']['c_config_shop_language'],
             'currency' => $_SESSION['parameters']['c_config_shop_currency'],
+            'additionalCurrencies' => empty($_SESSION['parameters']['c_available_currencies']) ? null : $_SESSION['parameters']['c_available_currencies'],
+            'country' => $_SESSION['parameters']['c_config_shop_country'],
             'email' => $_SESSION['parameters']['c_config_mail'],
             'host' => $_SERVER['HTTP_HOST'],
             'basePath' => str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
@@ -396,7 +422,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         $shopService = new ShopService($db, $systemConfigService);
         $adminService = new AdminService($db);
 
-        /** @var ConfigWriter $configWriter */
+        /** @var EnvConfigWriter $configWriter */
         $configWriter = $container->offsetGet('config.writer');
         $configWriter->writeConfig($_SESSION['databaseConnectionInfo'], $shop);
 
@@ -423,6 +449,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
 
     $selectedLanguage = $container->offsetGet('install.language');
     $locale = '';
+
     if ($selectedLanguage === 'en') {
         $locale = 'en-GB';
     } elseif ($selectedLanguage === 'de') {
@@ -507,21 +534,12 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $response = $response->withHeader('Content-Type', 'application/json')
         ->withStatus(200);
 
-    /** @var MigrationRuntime $migrationManger */
-    $migrationManger = $container->get('migration.manager');
-
     /** @var MigrationCollectionLoader $migrationCollectionLoader */
-    $migrationCollectionLoader = $container->get('migration.collection.loader');
+    $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
+
+    $coreMigrations = $migrationCollectionLoader->collect('core');
 
     $resultMapper = new ResultMapper();
-
-    /** @var array $identifiers */
-    $identifiers = array_column($container->get('migration.paths'), 'name');
-
-    foreach ($identifiers as &$identifier) {
-        $identifier = sprintf('Shopware\\%s\\Migration', $identifier);
-    }
-    unset($identifier);
 
     $parameters = $request->getParsedBody();
 
@@ -542,18 +560,15 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
             }
         }
 
-        reset($identifiers);
-        foreach ($identifiers as $identifier) {
-            $migrationCollectionLoader->syncMigrationCollection($identifier);
-        }
+        $coreMigrations->sync();
     }
 
     if (!$total) {
-        $total = \count($migrationManger->getExecutableMigrations(null, null, $identifiers)) * 2;
+        $total = \count($coreMigrations->getExecutableMigrations()) * 2;
     }
 
     try {
-        $result = $migrationManger->migrate(null, 1, $identifiers);
+        $result = $coreMigrations->migrateInSteps(null, 1);
 
         if (iterator_count($result) === 1) {
             return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
@@ -565,7 +580,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     }
 
     try {
-        $result = $migrationManger->migrateDestructive(null, 1, $identifiers);
+        $result = $coreMigrations->migrateDestructiveInSteps(null, 1);
 
         if (iterator_count($result) === 1) {
             return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));

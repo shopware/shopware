@@ -97,7 +97,7 @@ This file contains the generic styling for all filter items.
     margin: 0;
     line-height: 1;
     border: 0 none;
-    font-weight: bold;
+    font-weight: $font-weight-bold;
     color: $dark;
     font-size: 16px;
     background-color: transparent;
@@ -125,7 +125,7 @@ This file contains the generic styling for all filter items.
     border-radius: 50px;
     height: 32px;
     line-height: 26px;
-    font-weight: normal;
+    font-weight: $font-weight-normal;
     vertical-align: top;
     margin-right: 8px;
 }

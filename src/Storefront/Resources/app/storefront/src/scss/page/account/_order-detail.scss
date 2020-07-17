@@ -7,10 +7,9 @@
 }
 
 .order-detail-content-header,
-.order-detail-content-body,
 .order-item-detail-footer {
-    padding-left: $grid-gutter-width / 2;
-    padding-right: $grid-gutter-width / 2;
+    padding-left: $order-grid-gutter-width / 2;
+    padding-right: $order-grid-gutter-width / 2;
 }
 
 .order-detail-content-body {
@@ -24,21 +23,47 @@
     }
 }
 
+.order-detail-content-header,
 .order-detail-content-row {
+    margin-right: $order-grid-gutter-width;
+    margin-left: $order-grid-gutter-width;
+}
+
+.order-detail-content-row {
+    font-weight: $font-weight-normal;
     padding-top: $spacer;
     padding-bottom: $spacer;
     border-bottom: 1px solid $border-color;
+
+    .order-item:last-of-type {
+        padding-right: 0;
+    }
+
+    .order-item:first-of-type {
+        padding-left: 0;
+    }
+}
+
+@include media-breakpoint-down(md) {
+    .order-item {
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
 .order-item-detail-list-item {
     margin-bottom: $spacer;
 
+    &:last-of-type .order-detail-content-row {
+        border-bottom: 0 none;
+    }
+
     &.is-nested,
     &.is-child {
         border-left: 3px solid $border-color;
         border-bottom-color: transparent;
-        margin: 0 $grid-gutter-width/-2;
-        padding: 0 $grid-gutter-width/2;
+        margin: 0 $order-grid-gutter-width/-2;
+        padding: 0 $order-grid-gutter-width/2;
     }
 
     &.is-discount {
@@ -50,6 +75,10 @@
 
 .order-item-discount-icon {
     text-align: center;
+}
+
+.order-item-total {
+    font-weight: $font-weight-bold;
 }
 
 .order-item-nested-icon {
@@ -74,8 +103,7 @@
 }
 
 .order-item-detail-footer {
-    padding-bottom: $spacer;
-    padding-top: $spacer;
+    padding: $spacer;
 }
 
 .order-item-detail-footer dl {
@@ -88,6 +116,15 @@
 
 .order-item-detail-labels {
     margin-bottom: 0;
+}
+
+.order-item-detail-labels-value {
+    font-weight: $font-weight-normal;
+}
+
+.order-detail-content-header {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .order-item-detail-summary {
@@ -123,6 +160,10 @@
 
 .order-item-variants-properties-name {
     margin-right: $spacer-sm;
+}
+
+.order-detail-form {
+    float: right;
 }
 
 @include media-breakpoint-up(md) {

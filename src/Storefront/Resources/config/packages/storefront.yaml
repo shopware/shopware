@@ -2,3 +2,6 @@ storefront:
     csrf:
         enabled: true
         mode: twig
+    htmlPurifier:
+        cacheDir: '%kernel.cache_dir%'
+        cacheEnabled: true

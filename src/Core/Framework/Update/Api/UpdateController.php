@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -319,9 +317,8 @@ class UpdateController extends AbstractController
             $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
         }
 
-        // reboot with plugins
-        $container = $this->rebootWithPlugins();
-        $container->get('event_dispatcher')->dispatch(
+        // TODO: NEXT-8271 - The kernel should be rebooted with the plugins reactivated. This does not happen to save some time, because plugins were not reactivated anyway.
+        $this->eventDispatcher->dispatch(
             new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion)
         );
 
@@ -362,20 +359,6 @@ class UpdateController extends AbstractController
         return $kernel->getContainer();
     }
 
-    private function rebootWithPlugins(): ContainerInterface
-    {
-        /** @var Kernel $kernel */
-        $kernel = $this->container->get('kernel');
-
-        $classLoad = $kernel->getPluginLoader()->getClassLoader();
-
-        $pluginLoader = new DbalKernelPluginLoader($classLoad, null, $this->container->get(Connection::class));
-
-        $kernel->reboot(null, $pluginLoader);
-
-        return $kernel->getContainer();
-    }
-
     /**
      * @param ValidResult|FinishResult $result
      */
@@ -402,7 +385,7 @@ class UpdateController extends AbstractController
 
     private function replaceRecoveryFiles(string $fileDir): void
     {
-        $recoveryDir = $fileDir . '/recovery';
+        $recoveryDir = $fileDir . '/vendor/shopware/recovery';
         if (!is_dir($recoveryDir)) {
             return;
         }

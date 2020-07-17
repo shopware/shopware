@@ -10,6 +10,7 @@
       "buttonAddProperty": "Add",
       "columnName": "Property",
       "columnOptions": "Property values",
+      "columnFilterable": "Display in product filter",
       "contextMenuView": "Edit",
       "contextMenuDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
@@ -30,6 +31,7 @@
       "cardTitleGroupInfo": "Basic information",
       "labelName": "Name",
       "placeholderName": "Enter name...",
+      "labelFilterable": "Display in product filters",
       "labelDisplayType": "Value display type",
       "labelSortingType": "Sorting",
       "labelOptionName": "Name",
@@ -61,7 +63,8 @@
       "messageSaveError": "Property \"{name}\" could not be saved",
       "messageOptionsEmpty": "No property values yet",
       "messageOptionsEmptySubline": "Add property values here.",
-      "optionEmptyStateSubline": "Fill in basic information, save the property - then add values."
+      "optionEmptyStateSubline": "Fill in basic information, save the property - then add values.",
+      "labelMediaUpload": "Default image"
     }
   }
 }

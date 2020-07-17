@@ -22,7 +22,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $user->setActive(true);
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
-        $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16.000+00:00'));
         $user->internalSetEntityName('user');
 
         $media1 = new MediaEntity();
@@ -32,8 +32,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media1->setMimeType('image/jpg');
         $media1->setFileExtension('jpg');
         $media1->setFileSize(18921);
-        $media1->setCreatedAt(new \DateTime('2012-08-15T00:00:00+00:00'));
-        $media1->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
+        $media1->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
+        $media1->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media1->setTitle('Lagerkorn-5,0klein');
         $media1->internalSetEntityName('media');
 
@@ -44,8 +44,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media2->setMimeType('image/jpg');
         $media2->setFileExtension('jpg');
         $media2->setFileSize(155633);
-        $media2->setCreatedAt(new \DateTime('2012-08-17T00:00:00+00:00'));
-        $media2->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
+        $media2->setCreatedAt(new \DateTime('2012-08-17T00:00:00.000+00:00'));
+        $media2->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media2->setTitle('Jasmine-Lotus-Cover');
         $media2->internalSetEntityName('media');
 
@@ -72,8 +72,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'fileSize' => 18921,
                         'metaData' => null,
                         'mediaType' => null,
-                        'createdAt' => '2012-08-15T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'alt' => null,
                         'title' => 'Lagerkorn-5,0klein',
                         'url' => '',
@@ -224,8 +224,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'fileSize' => 155633,
                         'metaData' => null,
                         'mediaType' => null,
-                        'createdAt' => '2012-08-17T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-17T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'alt' => null,
                         'title' => 'Jasmine-Lotus-Cover',
                         'url' => '',
@@ -378,9 +378,10 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                         'email' => 'user1@shop.de',
                         'active' => true,
                         'customFields' => null,
-                        'createdAt' => '2018-01-15T08:01:16+00:00',
+                        'createdAt' => '2018-01-15T08:01:16.000+00:00',
                         'updatedAt' => null,
                         'admin' => true,
+                        'title' => null,
                     ],
                     'links' => [
                         'self' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
@@ -477,10 +478,11 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                     '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
                     'versionId' => null,
                     'translated' => [],
-                    'createdAt' => '2018-01-15T08:01:16+00:00',
+                    'createdAt' => '2018-01-15T08:01:16.000+00:00',
                     'updatedAt' => null,
                     'extensions' => [],
                     'admin' => true,
+                    'title' => null,
                     'aclRoles' => null,
                     'apiAlias' => 'user',
                 ],
@@ -510,8 +512,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 '_uniqueIdentifier' => '3e352be2d85846dd97529c0f6b544870',
                 'versionId' => null,
                 'translated' => [],
-                'createdAt' => '2012-08-15T00:00:00+00:00',
-                'updatedAt' => '2017-11-21T11:25:34+00:00',
+                'createdAt' => '2012-08-15T00:00:00.000+00:00',
+                'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                 'extensions' => [],
                 'apiAlias' => 'media',
             ], [
@@ -547,10 +549,11 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                     '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
                     'versionId' => null,
                     'translated' => [],
-                    'createdAt' => '2018-01-15T08:01:16+00:00',
+                    'createdAt' => '2018-01-15T08:01:16.000+00:00',
                     'updatedAt' => null,
                     'extensions' => [],
                     'admin' => true,
+                    'title' => null,
                     'aclRoles' => null,
                     'apiAlias' => 'user',
                 ],
@@ -580,8 +583,8 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 '_uniqueIdentifier' => 'f1ad1d0c02454a40abf250f764d16248',
                 'versionId' => null,
                 'translated' => [],
-                'createdAt' => '2012-08-17T00:00:00+00:00',
-                'updatedAt' => '2017-11-21T11:25:34+00:00',
+                'createdAt' => '2012-08-17T00:00:00.000+00:00',
+                'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                 'extensions' => [],
                 'apiAlias' => 'media',
             ],

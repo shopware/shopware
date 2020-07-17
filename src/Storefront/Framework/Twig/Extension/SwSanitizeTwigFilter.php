@@ -112,16 +112,19 @@ class SwSanitizeTwigFilter extends AbstractExtension
     private $purifiers = [];
 
     /**
-     * @var string|null
+     * @var string
      */
     private $cacheDir;
 
     /**
-     * @deprecated tag:v6.3.0 cacheDir will be mandatory from 6.3.0 onwards
+     * @var bool
      */
-    public function __construct(?string $cacheDir = null)
+    private $cacheEnabled;
+
+    public function __construct(?string $cacheDir = null, bool $cacheEnabled = true)
     {
         $this->cacheDir = $cacheDir;
+        $this->cacheEnabled = $cacheEnabled;
     }
 
     public function getFilters(): array
@@ -131,12 +134,13 @@ class SwSanitizeTwigFilter extends AbstractExtension
         ];
     }
 
-    public function sanitize(string $text, $options = null, bool $override = false): string
+    public function sanitize(string $text, ?array $options = [], bool $override = false): string
     {
-        if ($options === null) {
-            $options = [];
+        $hash = md5(json_encode($options));
+
+        if ($override) {
+            $hash .= '-override';
         }
-        $hash = md5(json_encode($options)) . $override;
 
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override);
@@ -146,48 +150,46 @@ class SwSanitizeTwigFilter extends AbstractExtension
         return $this->purifiers[$hash]->purify($text);
     }
 
-    private function getConfig($options, bool $override): \HTMLPurifier_Config
+    private function getBaseConfig(): \HTMLPurifier_Config
     {
         $config = \HTMLPurifier_Config::createDefault();
 
-        if ($this->cacheDir) {
+        if ($this->cacheDir !== '') {
             $config->set('Cache.SerializerPath', $this->cacheDir);
         }
 
-        if ($override && empty($options)) {
-            $config->set('HTML.AllowedElements', []);
-            $config->set('HTML.AllowedAttributes', []);
-
-            return $config;
-        } elseif ($override) {
-            $this->allowedElements = [];
-            $this->allowedAttributes = [];
+        if (!$this->cacheEnabled) {
+            $config->set('Cache.DefinitionImpl', null);
         }
-
-        if ($options === null) {
-            $config->set('HTML.AllowedElements', $this->allowedElements);
-            $config->set('HTML.AllowedAttributes', $this->allowedAttributes);
-
-            return $config;
-        }
-
-        $this->setConfigArrays($options);
-
-        $config->set('HTML.AllowedElements', $this->allowedElements);
-        $config->set('HTML.AllowedAttributes', $this->allowedAttributes);
 
         return $config;
     }
 
-    private function setConfigArrays(array $options): void
+    private function getConfig($options, bool $override): \HTMLPurifier_Config
     {
+        $config = $this->getBaseConfig();
+
+        $allowedElements = [];
+        $allowedAttributes = [];
+
         foreach ($options as $element => $attributes) {
             if ($element !== '*') {
-                array_push($this->allowedElements, $element);
+                $allowedElements[] = $element;
             }
-            foreach ($attributes as $attribute) {
-                array_push($this->allowedAttributes, ($element . '.' . $attribute));
+
+            foreach ($attributes as $attr) {
+                $allowedAttributes[] = $element === '*' ? $attr : "{$element}.{$attr}";
             }
         }
+
+        if (!$override) {
+            $allowedElements = array_merge($this->allowedElements, $allowedElements);
+            $allowedAttributes = array_merge($this->allowedAttributes, $allowedAttributes);
+        }
+
+        $config->set('HTML.AllowedElements', $allowedElements);
+        $config->set('HTML.AllowedAttributes', $allowedAttributes);
+
+        return $config;
     }
 }

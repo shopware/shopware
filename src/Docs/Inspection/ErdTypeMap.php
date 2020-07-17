@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextWithHtmlField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -73,7 +72,6 @@ class ErdTypeMap
         JsonField::class => 'json',
         ListField::class => 'list',
         LongTextField::class => 'longText',
-        LongTextWithHtmlField::class => 'longTextWithHtml',
         ManyToManyAssociationField::class => 'manyToManyAssociation',
         ManyToOneAssociationField::class => 'manyToOneAssociation',
         ObjectField::class => 'object',

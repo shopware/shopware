@@ -1,194 +1,107 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Data: { Criteria }, Context } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
+const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-shipping-price-matrices', {
     template,
+
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder')
     ],
 
-    props: {
-        shippingMethod: {
-            type: Object,
-            required: true
-        }
-    },
-
     computed: {
-        ruleStore() {
-            return StateDeprecated.getStore('rule');
+        ...mapState('swShippingDetail', [
+            'shippingMethod'
+        ]),
+
+        ...mapGetters('swShippingDetail', [
+            'shippingPriceGroups',
+            'usedRules',
+            'unrestrictedPriceMatrixExists',
+            'newPriceMatrixExists'
+        ]),
+
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
         },
+
         ruleFilter() {
-            return CriteriaFactory.multi('OR',
-                CriteriaFactory.contains('rule.moduleTypes.types', 'price'),
-                CriteriaFactory.equals('rule.moduleTypes', null));
-        },
-        priceRuleStore() {
-            return this.shippingMethod.getAssociation('prices');
-        },
-
-        currencyStore() {
-            return StateDeprecated.getStore('currency');
+            const criteria = new Criteria(1, 500);
+            criteria.addFilter(Criteria.multi('OR', [
+                Criteria.contains('rule.moduleTypes.types', 'price'),
+                Criteria.equals('rule.moduleTypes', null)
+            ]));
+            return criteria;
         },
 
-        priceRuleGroups() {
-            const priceRuleGroups = {};
-
-            this.shippingMethod.prices.forEach((rule) => {
-                if (this.priceRuleStore.getById(rule.id).isDeleted) {
-                    return;
-                }
-
-                if (!priceRuleGroups[rule.ruleId]) {
-                    priceRuleGroups[rule.ruleId] = {
-                        ruleId: rule.ruleId,
-                        rule: this.findRuleById(rule.ruleId),
-                        currencyId: rule.currencyId,
-                        currency: this.findCurrencyById(rule.currencyId),
-                        calculation: rule.calculation,
-                        prices: []
-                    };
-                }
-
-                priceRuleGroups[rule.ruleId].prices.push(rule);
-            });
-
-            return priceRuleGroups;
-        },
-
-        canAddPriceRule() {
-            const usedRules = Object.keys(this.priceRuleGroups).length;
-            const availableRules = this.rules.length;
-
-            const priceRuleWithoutRule = this.shippingMethod.prices.find(rule => {
-                return !rule.ruleId;
-            });
-
-            return !priceRuleWithoutRule && usedRules !== availableRules;
+        shippingPriceRepository() {
+            return this.repositoryFactory.create('shipping_method_price');
         },
 
         isLoaded() {
-            return !this.isLoadingRules &&
-                this.currencies.length &&
-                this.shippingMethod;
-        },
-
-        defaultCurrency() {
-            return this.currencies.find(currency => currency.isSystemDefault);
+            return this.currencies.length && this.shippingMethod;
         }
     },
 
-    data() {
-        return {
-            currencies: [],
-            rules: [],
-            totalRules: 0,
-            isLoadingRules: false
-        };
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
-        createdComponent() {
-            this.currencyStore.getList({
-                page: 1,
-                limit: 500
-            }).then((currencyResponse) => {
-                this.currencies = currencyResponse.items;
-
-                this.priceRuleStore.getList({
-                    page: 1,
-                    limit: 500
-                }).then((priceResponse) => {
-                    if (priceResponse.total === 0) {
-                        this.onAddNewPriceGroup();
-                    }
-                });
-            });
-
-            this.loadRules();
-
-            this.$on('rule-add', this.loadRules);
-        },
-
-        beforeDestroyComponent() {
-            this.$off('rule-add');
-        },
-
-        loadRules() {
-            this.isLoadingRules = true;
-
-            this.ruleStore.getList({
-                page: 1,
-                limit: 500,
-                criteria: this.ruleFilter
-            }).then((response) => {
-                this.rules = response.items;
-                this.totalRules = response.total;
-
-                this.isLoadingRules = false;
-            });
-        },
-
         onAddNewPriceGroup() {
-            const newPriceRule = this.priceRuleStore.create();
-            newPriceRule.shippingMethodId = this.shippingMethod.id;
-            newPriceRule.currencyId = this.defaultCurrency.id;
+            const newShippingPrice = this.shippingPriceRepository.create(Context.api);
+            newShippingPrice.shippingMethodId = this.shippingMethod.id;
+            newShippingPrice.quantityStart = 1;
+            newShippingPrice.ruleId = null;
 
-            this.shippingMethod.prices.push(newPriceRule);
+            // Create a flagged as new price matrix, if there is already an unrestricted.
+            if (this.unrestrictedPriceMatrixExists) {
+                // Flag to indicate that this price is in a new matrix
+                newShippingPrice._inNewMatrix = true;
+            }
+
+            this.shippingMethod.prices.add(newShippingPrice);
         },
 
-        onDeletePriceMatrix(priceRuleGroup) {
-            this.priceRuleStore.forEach((item) => {
-                if (item.ruleId === priceRuleGroup.ruleId) {
-                    item.delete();
+        onDeletePriceMatrix(shippingPriceGroup) {
+            this.shippingMethod.prices = this.shippingMethod.prices.filter((shippingPrice) => {
+                // If the shipping price group is new and the prices is also flagged new, remove it
+                if (shippingPriceGroup.isNew) {
+                    if (shippingPrice._inNewMatrix) {
+                        return false;
+                    }
+                    return true;
                 }
-            });
 
-            this.shippingMethod.prices = this.shippingMethod.prices.filter((priceRule) => {
-                return priceRule.ruleId !== priceRuleGroup.ruleId;
+                return shippingPrice.ruleId !== shippingPriceGroup.ruleId;
             });
         },
 
         onDuplicatePriceMatrix(priceGroup) {
+            const newPrices = [];
             priceGroup.prices.forEach(price => {
-                const newPriceRule = this.priceRuleStore.duplicate(price.id);
-                newPriceRule.ruleId = null;
-
-                this.shippingMethod.prices.push(newPriceRule);
-            });
-        },
-
-        onRuleChange(value, ruleId) {
-            this.shippingMethod.prices.forEach((priceRule) => {
-                if (priceRule.ruleId === ruleId) {
-                    priceRule.ruleId = value;
+                const newShippingPrice = this.shippingPriceRepository.create(Context.api);
+                // Create a flagged as new price matrix, if there is already an unrestricted.
+                if (this.unrestrictedPriceMatrixExists) {
+                    // Flag to indicate that this price is in a new matrix
+                    newShippingPrice._inNewMatrix = true;
                 }
-            });
-        },
 
-        findRuleById(ruleId) {
-            return this.rules.find((rule) => {
-                return rule.id === ruleId;
-            });
-        },
+                newShippingPrice.ruleId = null;
+                newShippingPrice.calculation = price.calculation;
+                newShippingPrice.calculationRule = price.calculationRule;
+                newShippingPrice.calculationRuleId = price.calculationRuleId;
+                newShippingPrice.shippingMethodId = price.shippingMethodId;
+                newShippingPrice.currencyPrice = cloneDeep(price.currencyPrice);
+                newShippingPrice.quantityStart = price.quantityStart;
+                newShippingPrice.quantityEnd = price.quantityEnd;
 
-        findCurrencyById(currencyId) {
-            return this.currencies.find((currency) => {
-                return currency.id === currencyId;
+                newPrices.push(newShippingPrice);
             });
+
+            this.shippingMethod.prices.push(...newPrices);
         }
     }
 });

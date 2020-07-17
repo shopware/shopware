@@ -61,6 +61,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new TranslatedField('description'),
             new IntField('position', 'position'),
             new BoolField('active', 'active'),
+            new BoolField('after_order_enabled', 'afterOrderEnabled'),
             new TranslatedField('customFields'),
             new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class),
             new FkField('media_id', 'mediaId', MediaDefinition::class),

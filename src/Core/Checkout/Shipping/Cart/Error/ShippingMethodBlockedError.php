@@ -46,7 +46,7 @@ class ShippingMethodBlockedError extends Error
 
     public function getLevel(): int
     {
-        return self::LEVEL_ERROR;
+        return self::LEVEL_WARNING;
     }
 
     public function getMessageKey(): string

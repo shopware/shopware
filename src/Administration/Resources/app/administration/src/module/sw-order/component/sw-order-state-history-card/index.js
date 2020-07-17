@@ -63,7 +63,12 @@ Component.register('sw-order-state-history-card', {
         },
 
         transaction() {
-            return this.order.transactions[0];
+            for (let i = 0; i < this.order.transactions.length; i += 1) {
+                if (this.order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
+                    return this.order.transactions[i];
+                }
+            }
+            return this.order.transactions.last();
         },
 
         delivery() {

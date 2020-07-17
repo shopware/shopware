@@ -17,7 +17,8 @@ services:
         spacing: 'one'
     PhpCsFixer\Fixer\Phpdoc\GeneralPhpdocAnnotationRemoveFixer:
         annotations: ['copyright', 'category']
-    PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer: ~
+    PhpCsFixer\Fixer\Phpdoc\NoSuperfluousPhpdocTagsFixer:
+        allow_unused_params: true
     PhpCsFixer\Fixer\Phpdoc\PhpdocOrderFixer: ~
     PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer: ~
     PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertFixer:

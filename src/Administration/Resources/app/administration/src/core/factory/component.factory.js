@@ -2,6 +2,7 @@
  * @module core/factory/component
  */
 import { warn } from 'src/core/service/utils/debug.utils';
+import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 
 export default {
@@ -13,8 +14,16 @@ export default {
     getComponentRegistry,
     getOverrideRegistry,
     getComponentHelper,
-    registerComponentHelper
+    registerComponentHelper,
+    resolveComponentTemplates,
+    markComponentTemplatesAsNotResolved
 };
+
+/**
+ * Indicates if the templates of the components are resolved.
+ * @type {boolean}
+ */
+let templatesResolved = false;
 
 /**
  * Registry which holds all components
@@ -148,7 +157,7 @@ function register(componentName, componentConfiguration = {}) {
  * @param {Object} componentConfiguration
  * @returns {Object} config
  */
-function extend(componentName, extendComponentName, componentConfiguration) {
+function extend(componentName, extendComponentName, componentConfiguration = {}) {
     const config = componentConfiguration;
 
     if (config.template) {
@@ -220,6 +229,9 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
  * @returns {string}
  */
 function getComponentTemplate(componentName) {
+    if (!templatesResolved) {
+        resolveComponentTemplates();
+    }
     return TemplateFactory.getRenderedTemplate(componentName);
 }
 
@@ -231,6 +243,10 @@ function getComponentTemplate(componentName) {
  * @returns {*}
  */
 function build(componentName, skipTemplate = false) {
+    if (!templatesResolved) {
+        resolveComponentTemplates();
+    }
+
     if (!componentRegistry.has(componentName)) {
         return false;
     }
@@ -248,12 +264,14 @@ function build(componentName, skipTemplate = false) {
     }
 
     if (overrideRegistry.has(componentName)) {
-        const overrides = overrideRegistry.get(componentName);
+        // clone the override configuration to prevent side-effects to the config
+        const overrides = cloneDeep(overrideRegistry.get(componentName));
 
         convertOverrides(overrides).forEach((overrideComp) => {
             const comp = Object.create(overrideComp);
 
             comp.extends = Object.create(config);
+            comp._isOverride = true;
             config = comp;
         });
     }
@@ -329,6 +347,11 @@ function convertOverrides(overrides) {
 function buildSuperRegistry(config) {
     let superRegistry = {};
 
+    // if it is an override build the super registry recursively
+    if (config._isOverride) {
+        superRegistry = buildSuperRegistry(config.extends);
+    }
+
     /**
      * Search for `this.$super()` call in every `computed` property and `method``
      * and resolve the call chain.
@@ -389,6 +412,7 @@ function addSuperBehaviour(inheritedFrom, superRegistry) {
             this._initVirtualCallStack(name);
 
             const superStack = this._findInSuperRegister(name);
+
             const superFuncObject = superStack[this._virtualCallStack[name]];
 
             this._virtualCallStack[name] = superFuncObject.parent;
@@ -534,4 +558,25 @@ function isAnOverride(config) {
  */
 function isNotEmptyObject(obj) {
     return (Object.keys(obj).length !== 0 && obj.constructor === Object);
+}
+
+/**
+ * Resolves the component templates using the template factory.
+ * @returns {boolean}
+ */
+function resolveComponentTemplates() {
+    TemplateFactory.resolveTemplates();
+    templatesResolved = true;
+    return true;
+}
+
+/**
+ * Helper method which clears the normalized templates and marks
+ * the indicator as `false`, so another resolve run is possible
+ * @returns {boolean}
+ */
+function markComponentTemplatesAsNotResolved() {
+    TemplateFactory.getNormalizedTemplateRegistry().clear();
+    templatesResolved = false;
+    return true;
 }

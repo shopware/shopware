@@ -25,6 +25,7 @@
         align-items: center;
         cursor: pointer;
         border: 1px dashed $dark;
+        border-radius: $border-radius;
         box-shadow: inset 3px 3px 0 $white, inset -3px -3px 0 $white;
         background-color: $white;
         display: inline-flex;

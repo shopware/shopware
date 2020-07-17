@@ -2,11 +2,13 @@
  * @module core/service/utils
  */
 import throttle from 'lodash/throttle';
+import flow from 'lodash/flow';
 import debounce from 'lodash/debounce';
 import flattenDeep from 'lodash/flattenDeep';
 import uuidV4 from 'uuid/v4';
 import remove from 'lodash/remove';
 import slice from 'lodash/slice';
+import uniqBy from 'lodash/uniqBy';
 
 import {
     deepCopyObject,
@@ -16,7 +18,8 @@ import {
     cloneDeep,
     merge,
     get,
-    set
+    set,
+    pick
 } from './utils/object.utils';
 import { warn } from './utils/debug.utils';
 import { currency, date, fileSize, md5 } from './utils/format.utils';
@@ -34,7 +37,8 @@ export const object = {
     cloneDeep: cloneDeep,
     merge: merge,
     get: get,
-    set: set
+    set: set,
+    pick: pick
 };
 
 export const debug = {
@@ -94,13 +98,15 @@ export const sort = {
 export const array = {
     flattenDeep: flattenDeep,
     remove: remove,
-    slice: slice
+    slice: slice,
+    uniqBy: uniqBy
 };
 
 export default {
     createId,
     throttle,
     debounce,
+    flow,
     get,
     object,
     debug,

@@ -7,10 +7,33 @@
     <parameters>
         <parameter key="elasticsearch.index.config" type="collection">
             <parameter key="settings" type="collection">
-                <parameter key="number_of_shards">3</parameter>
-                <parameter key="number_of_replicas">3</parameter>
-                <parameter key="mapping.total_fields.limit">5000</parameter>
-                <parameter key="mapping.nested_fields.limit">500</parameter>
+                <parameter key="index" type="collection">
+                    <parameter key="number_of_shards">3</parameter>
+                    <parameter key="number_of_replicas">3</parameter>
+                    <parameter key="mapping.total_fields.limit">5000</parameter>
+                    <parameter key="mapping.nested_fields.limit">500</parameter>
+                </parameter>
+
+                <parameter key="analysis" type="collection">
+                    <parameter key="analyzer" type="collection">
+                        <parameter key="sw_ngram_analyzer" type="collection">
+                            <parameter key="type">custom</parameter>
+                            <parameter key="tokenizer">whitespace</parameter>
+                            <parameter key="filter" type="collection">
+                                <parameter>lowercase</parameter>
+                                <parameter>sw_ngram_filter</parameter>
+                            </parameter>
+                        </parameter>
+                    </parameter>
+
+                    <parameter key="filter" type="collection">
+                        <parameter key="sw_ngram_filter" type="collection">
+                            <parameter key="type">ngram</parameter>
+                            <parameter key="min_gram">4</parameter>
+                            <parameter key="max_gram">5</parameter>
+                        </parameter>
+                    </parameter>
+                </parameter>
             </parameter>
         </parameter>
     </parameters>
@@ -38,15 +61,9 @@
             <argument>%elasticsearch.hosts%</argument>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\Indexing\EntityIndexer" public="true">
-        </service>
-
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
             <argument type="service" id="Elasticsearch\Client"/>
             <argument>%elasticsearch.index.config%</argument>
-        </service>
-
-        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMessageDispatcher">
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
@@ -62,6 +79,20 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Product\ProductUpdater">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"
+        class="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator"/>
+
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"
+            class="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregatorHydrator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher"
                  decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
                  decoration-priority="1000">
@@ -70,6 +101,8 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"
@@ -79,7 +112,8 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\SearchKeywordReplacement"
@@ -99,15 +133,11 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Framework\Indexing\IndexingMessageHandler">
-            <tag name="messenger.message_handler"/>
-        </service>
-
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">
             <argument type="service" id="scheduled_task.repository" />
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -117,14 +147,14 @@
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry">
-            <argument type="tagged" tag="shopware.es.definition" />
+            <argument type="tagged" tag="shopware.es.definition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
 
-            <tag name="shopware.es.definition" />
+            <tag name="shopware.es.definition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchCreateAliasCommand">
@@ -158,9 +188,17 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="messenger.bus.shopware"/>
-            <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="shopware.entity_indexer" priority="1000"/>
         </service>
 
+        <!-- This is required to prevent the 'Environment variables %VAR is never used' error -->
+        <service id="_dummy_es_env_usage" class="iterable" lazy="true">
+            <argument>%env(bool:default:default_whitespace:SHOPWARE_ES_ENABLED)%</argument>
+            <argument>%env(bool:default:default_whitespace:SHOPWARE_ES_INDEXING_ENABLED)%</argument>
+            <argument>%env(string:default:default_whitespace:SHOPWARE_ES_HOSTS)%</argument>
+            <argument>%env(string:default:default_elasticsearch_prefix:SHOPWARE_ES_INDEX_PREFIX)%</argument>
+        </service>
     </services>
 </container>

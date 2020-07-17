@@ -50,15 +50,10 @@ trait CriteriaQueryHelper
             $criteria->addQuery(...$queries);
         }
 
+        $filters = array_merge($criteria->getFilters(), $criteria->getPostFilters());
         $filter = $this->antiJoinTransform(
             $definition,
-            new MultiFilter(
-                'AND',
-                array_merge(
-                    $criteria->getFilters(),
-                    $criteria->getPostFilters()
-                )
-            )
+            count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
         );
 
         $criteria->resetFilters();
@@ -90,7 +85,7 @@ trait CriteriaQueryHelper
 
         $this->addQueries($definition, $criteria, $query, $context);
 
-        $this->addSortings($definition, $criteria->getSorting(), $query, $context);
+        $this->addSortings($definition, $criteria, $criteria->getSorting(), $query, $context);
 
         return $query;
     }
@@ -205,8 +200,9 @@ trait CriteriaQueryHelper
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as _score');
 
-        if (empty($criteria->getSorting())) {
-            $query->addOrderBy('_score', 'DESC');
+        // Sort by _score primarily if the criteria has a score query or search term
+        if (!$this->hasScoreSorting($criteria)) {
+            $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
         $minScore = array_map(function (ScoreQuery $query) {
@@ -224,7 +220,7 @@ trait CriteriaQueryHelper
         }
     }
 
-    private function addSortings(EntityDefinition $definition, array $sortings, QueryBuilder $query, Context $context): void
+    private function addSortings(EntityDefinition $definition, Criteria $criteria, array $sortings, QueryBuilder $query, Context $context): void
     {
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
@@ -242,8 +238,28 @@ trait CriteriaQueryHelper
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());
             }
 
+            if (!$this->hasGroupBy($criteria, $query)) {
+                $query->addOrderBy($accessor, $sorting->getDirection());
+
+                continue;
+            }
+
+            if ($sorting->getDirection() === FieldSorting::ASCENDING) {
+                $accessor = 'MIN(' . $accessor . ')';
+            } else {
+                $accessor = 'MAX(' . $accessor . ')';
+            }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }
+    }
+
+    private function hasGroupBy(Criteria $criteria, QueryBuilder $query): bool
+    {
+        if ($query->hasState(EntityReader::MANY_TO_MANY_LIMIT_QUERY)) {
+            return false;
+        }
+
+        return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || !empty($criteria->getGroupFields());
     }
 
     /**
@@ -274,6 +290,17 @@ trait CriteriaQueryHelper
         }
 
         return array_unique(array_merge(...$fields));
+    }
+
+    private function hasScoreSorting(Criteria $criteria): bool
+    {
+        foreach ($criteria->getSorting() as $sorting) {
+            if ($sorting->getField() === '_score') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

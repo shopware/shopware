@@ -1,0 +1,11 @@
+{% block sw_settings_user_detail_content_password %}
+    <sw-password-field
+            :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
+            class="sw-settings-user-detail__grid-password"
+            v-model="user.password"
+            :passwordToggleAble="true"
+            :copyAble="false">
+    </sw-password-field>
+{% endblock %}
+
+{% block sw_settings_user_detail_grid_change_password %}{% endblock %}

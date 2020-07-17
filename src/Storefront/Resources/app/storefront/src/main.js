@@ -38,6 +38,7 @@ import FlyoutMenuPlugin from 'src/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
+import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'src/plugin/forms/form-submit-loader.plugin';
 import FormFieldTogglePlugin from 'src/plugin/forms/form-field-toggle.plugin';
@@ -48,7 +49,6 @@ import GallerySliderPlugin from 'src/plugin/slider/gallery-slider.plugin';
 import ProductSliderPlugin from 'src/plugin/slider/product-slider.plugin';
 import ZoomModalPlugin from 'src/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/plugin/magnifier/magnifier.plugin';
-import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
 import CmsSlotReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-reload.plugin';
 import CmsSlotHistoryReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
@@ -73,6 +73,7 @@ import CrossSellingPlugin from 'src/plugin/cross-selling/cross-selling.plugin';
 import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select.plugin';
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
+import SwagBlockLink from 'src/helper/block-link.helper';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -106,6 +107,7 @@ PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-s
 PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
+PluginManager.register('FormPreserver', FormPreserverPlugin, '[data-form-preserver]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
 PluginManager.register('BaseSlider', BaseSliderPlugin, '[data-base-slider]');
@@ -113,7 +115,6 @@ PluginManager.register('GallerySlider', GallerySliderPlugin, '[data-gallery-slid
 PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
-PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
@@ -135,6 +136,7 @@ PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]');
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
+PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');

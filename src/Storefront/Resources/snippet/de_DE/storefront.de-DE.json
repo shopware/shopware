@@ -43,7 +43,7 @@
     "searchButton": "Suchen",
     "searchPlaceholder": "Suchbegriff...",
     "searchAllResults": "Alle Ergebnisse anzeigen",
-    "searchResults": "Ergebnisse",
+    "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
     "searchNoResult": "Keine Suchergebnisse gefunden."
@@ -202,10 +202,33 @@
     "optInGuestAlert": "Vielen Dank für Ihr Interesse! Sie erhalten in Kürze eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihre E-Mail-Adresse zu bestätigen.",
     "optInRegistrationAlert": "Vielen Dank für Ihre Anmeldung! Sie erhalten in Kürze eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um die Anmeldung abzuschließen.",
     "optInSuccessAlert": "Sofern die von Ihnen eingegebene E-Mail-Adresse registriert ist, haben wir Ihnen eine Bestätigungs-E-Mail gesendet.",
-    "ordersWelcome": "Hier finden Sie ihre Bestellungen nach Datum sortiert.",
-    "ordersInfoEmpty": "Sie haben noch keine Bestellung durchgeführt.",
+    "ordersWelcome": "Hier finden Sie alle ihrer Bestellungen, nach Datum sortiert:",
+    "ordersInfoEmpty": "Sie haben noch keine Bestellungen getätigt.",
+    "orderHeadline": "Bestellung:",
+    "orderStatus": "Status:",
+    "orderStatusActionRequired": "Bearbeitung notwendig",
+    "orderNumber": "Bestellnummer:",
+    "orderShippingStatus": "Lieferstatus",
+    "orderPaymentStatus": "Zahlungsstatus",
+    "orderPaymentMethod": "Zahlungsart",
+    "orderShippingMethod": "Lieferart",
+    "orderContextMenuChangePayment": "Zahlungsart ändern",
+    "orderContextMenuReorder": "Bestellung wiederholen",
+    "orderContextMenuCancel": "Bestellung stornieren",
+    "editOrder": "Bestellung bearbeiten",
+    "editOrderUpdateButton": "Änderungen bestätigen",
+    "editOrderBackToAccountButton": "Zurück zum Account",
+    "editOrderBackToOrderButton": "Zurück zur Bestellung",
+    "editOrderCancelOrderButton": "Bestellung stornieren",
+    "editOrderCancelOrderModalHeader": "Bestellung stornieren",
+    "editOrderCancelOrderModalBodyText": "Achtung, wenn Sie die Bestellung stornieren, gehen alle bereits getätigten Zahlungen und alle enthaltenen Rabatte und Aktionen verloren!",
+    "editOrderCancelOrderModalBodyQuestion": "Sind sie sicher, dass sie die Bestellung unwiderruflich stornieren wollen?",
+    "editOrderCancelOrderModalFooterButton": "Bestellung stornieren",
+    "editOrderCancelOrderModalFooterButtonBack": "Zurück",
+    "editOrderPaymentNotChangeable": "Die Zahlart kann nicht geändert werden, da ein Rabatt oder eine andere Aktion verknüpft ist. Stattdessen sollten Sie die Bestellung stornieren und ggf. erneut aufgeben.",
     "orderItemColumnDate": "Datum",
-    "orderItemColumnNumber": "Bestellnummer",
+    "orderNumber": "Bestellnummer:",
+    "orderItemColumnNumber": "Bestellnummer:",
     "orderItemColumnPaymentMethod": "Zahlungsart",
     "orderItemColumnShippingMethod": "Versandart",
     "orderItemColumnActions": "Aktionen",
@@ -235,7 +258,8 @@
     "newsletterSettings": "Ja, ich möchte regelmäßig den kostenlosen Newsletter von %shopname% erhalten! Ich weiß, dass ich mich hier jederzeit wieder von dem Newsletter abmelden kann.",
     "passwordResetTitle": "Haben Sie Ihr Passwort vergessen?",
     "passwordResetInfo": "Wenn Sie das Passwort für Ihr Konto vergessen haben, können Sie hier ein neues definieren. Wenn Sie das neue Passwort speichern, wird Ihr altes Passwort ungültig.",
-    "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern."
+    "passwordOptInInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
+    "colonCharacter": ":"
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",
@@ -265,7 +289,7 @@
     "itemCounter": "{1} 1 Produkt|]1,Inf[ %count% Produkte",
     "addressHeader": "Versandinformation",
     "addressLoginToggle": "Sie sind bereits Kunde? Klicken Sie dann hier, um sich einzuloggen.",
-    "registerGuestmodeLabel": "Ohne Kundenkonto forfahren.",
+    "registerGuestmodeLabel": "Kein Kundenkonto anlegen.",
     "addressRegisterCardTitle": "Persönliche Informationen",
     "cartTitle": "Warenkorb",
     "cartHeader": "Warenkorb",
@@ -289,8 +313,6 @@
     "cartItemInfoId": "Produkt-Nr.:",
     "addPromotionLabel": "Gutschein-Code",
     "addPromotionPlaceholder": "Gutschein-Code eingeben ...",
-    "promotionAlreadyExistsInfo": "Der Gutschein-Code wurde nicht auf den Warenkorb angewendet, da er bereits hinzugefügt wurde.",
-    "promotionExistsButRulesDoNotMatch": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
     "addProductLabel": "Produktnummer eingeben",
     "addProductPlaceholder": "Produktnummer eingeben ...",
     "summaryPositionPrice": "Summe",
@@ -306,10 +328,13 @@
     "confirmPaymentMethod": "Zahlungsart",
     "confirmPaymentMethodNotAvailable": "Zahlungsart nicht verfügbar",
     "confirmChangePayment": "Zahlungsart ändern",
+    "confirmChoosePayment": "Zahlungsart auswählen",
     "confirmShippingMethod": "Versandart",
     "confirmShippingMethodNotAvailable": "Versandart nicht verfügbar",
     "confirmChangeShipping": "Versandart ändern",
+    "confirmChooseShipping": "Versandart auswählen",
     "confirmCurrentPaymentShipping": "Aktuelle Auswahl:",
+    "confirmSelectionNone": "Nichts augewählt",
     "confirmChangePaymentShippingSave": "Speichern",
     "confirmChangePaymentShippingCancel": "Abbrechen",
     "confirmSubmit": "Zahlungspflichtig bestellen",
@@ -319,10 +344,14 @@
     "finishInfoPayment": "Zahlungsart:",
     "finishInfoShipping": "Versandart:",
     "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
+    "finishUpdateHeader": "Vielen Dank das sie ihre Bestellung aktualisiert haben!",
+    "finishPaymentHeader": "Die Zahlart für Ihre Bestellung wurde zu %paymentName% geändert!",
     "finishInfoHeader": "Informationen",
     "finishInfoOrdernumber": "Bestellnummer:",
     "finishInfoConfirmationMail": "Wir haben Ihnen eine Bestellbestätigung per E-Mail geschickt.",
     "finishButtonBackToShop": "Zurück zum Shop",
+    "finishChangePayment":  "Zahlungsart ändern",
+    "finishPaymentFailed": "Leider ist die Zahlung fehlgeschlagen. Bitte ändere die Zahlart um die Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
     "codeAddedSuccessful": "Code wurde erfolgreich hinzugefügt.",
     "addToCartSuccess": "{1} 1 Produkt wurde erfolgreich zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte wurden erfolgreich zum Warenkorb hinzugefügt.",
     "shippingCosts": "Versandkosten",
@@ -336,7 +365,12 @@
     "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
     "promotion-discount-deleted": "Der Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
     "promotion-discount-added": "Der Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
-    "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich."
+    "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
+    "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
+    "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
+    "customerCommentHeader": "Zusätzliche Informationen",
+    "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
+    "customerCommentPlaceholder": "Kommentieren Sie hier ..."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -355,7 +389,7 @@
     "filterManufacturerDisplayName": "Hersteller",
     "filterRatingDisplayName": "Bewertung mind.",
     "filterRatingActiveLabelStart": "Mindestens",
-    "filterRatingActiveLabelEnd": "Sterne",
+    "filterRatingActiveLabelEnd": "Stern(e)",
     "filterRangeMinLabel": "Minimal",
     "filterRangeMaxLabel": "Maximal",
     "filterRangeActiveMinLabel": "Preis ab",
@@ -394,10 +428,11 @@
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden diese schnellstmöglich bearbeiten."
   },
   "search": {
-    "headline": "Zu \"%searchTerm%\" wurden %totalCount% Produkt(e) gefunden"
+    "headline": "{0} Zu \"%searchTerm%\" wurde kein Produkt gefunden | {1} Zu \"%searchTerm%\" wurde 1 Produkt gefunden | ]1,Inf[ Zu \"%searchTerm%\" wurden %count% Produkte gefunden"
   },
   "detail": {
-    "ordernumberLabel": "Produkt-Nr.:",
+    "ordernumberLabel": "Produktnummer:",
+    "productNumberLabel": "Produktnummer:",
     "addProduct": "In den Warenkorb",
     "tabsDescription": "Beschreibung",
     "tabsPreviewMore": "mehr",
@@ -462,8 +497,8 @@
     "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "Ihre E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter und Sie werden stets unter den Ersten sein, über neue Produkte und Angebote informiert werden.",
-    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
-    "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a href=\"#\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
+    "excludeVat": "* Alle Preise verstehen sich zzgl. Mehrwertsteuer und <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders beschrieben",
     "copyrightInfo": "Realisiert mit Shopware"
   },
   "cookie": {
@@ -484,5 +519,26 @@
   "ellipsis": {
     "expandLabel": "mehr anzeigen",
     "shrinkLabel": "weniger anzeigen"
+  },
+  "component": {
+    "product": {
+      "feature": {
+        "label": {
+          "manufacturerNumber": "Herstellernummer:",
+          "ean": "EAN:",
+          "weight": "Gewicht:",
+          "width":  "Breite:",
+          "height": "Höhe:",
+          "length":  "Länge:",
+          "releaseDate": "Veröffentlicht:",
+          "description":  "Beschreibung:",
+          "referencePrice": "Inhalt:"
+        },
+        "customField": {
+          "true": "Ja",
+          "false": "Nein"
+        }
+      }
+    }
   }
 }

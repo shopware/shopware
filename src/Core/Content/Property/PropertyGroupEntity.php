@@ -37,6 +37,11 @@ class PropertyGroupEntity extends Entity
     protected $position;
 
     /**
+     * @var bool
+     */
+    protected $filterable;
+
+    /**
      * @var PropertyGroupOptionCollection|null
      */
     protected $options;
@@ -59,6 +64,16 @@ class PropertyGroupEntity extends Entity
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getFilterable(): bool
+    {
+        return $this->filterable;
+    }
+
+    public function setFilterable(bool $filterable): void
+    {
+        $this->filterable = $filterable;
     }
 
     public function getOptions(): ?PropertyGroupOptionCollection

@@ -4,25 +4,18 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Shopware\Core\Content\Sitemap\Service\SitemapWriter">
-            <argument type="service" id="shopware.filesystem.public"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Sitemap\Service\SitemapNameGenerator">
-            <argument type="service" id="shopware.filesystem.public"/>
-        </service>
-
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapExporter">
             <argument type="tagged" tag="shopware.sitemap_url_provider"/>
             <argument type="service" id="cache.system"/>
             <argument>%shopware.sitemap.batchsize%</argument>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.sitemap"/>
+            <argument type="service" id="shopware.asset.sitemap"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">

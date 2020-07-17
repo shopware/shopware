@@ -17,7 +17,7 @@ class AclRoleCollection extends EntityCollection
 {
     public function getApiAlias(): string
     {
-        return 'dal_acl_rote_collection';
+        return 'dal_acl_role_collection';
     }
 
     protected function getExpectedClass(): string

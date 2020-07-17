@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
@@ -44,7 +45,10 @@ class CrossSellingLoaderTest extends TestCase
             null,
             null,
             null,
-            (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL])
+            (new SalesChannelEntity())->assign([
+                'id' => Defaults::SALES_CHANNEL,
+                'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
+            ])
         );
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->crossSellingLoader = $this->getContainer()->get(CrossSellingLoader::class);

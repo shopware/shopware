@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-product-modal-delivery', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         product: {
@@ -52,7 +52,8 @@ Component.register('sw-product-modal-delivery', {
 
         handleExpandedListing(product) {
             if (product && product.listingMode !== 'single') {
-                product.mainVariant = null;
+                // remove main_variant_id from configuratorGroupConfig
+                product.mainVariantId = null;
             }
 
             delete product.listingMode;

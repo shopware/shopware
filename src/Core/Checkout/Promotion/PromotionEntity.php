@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Rule\Container\AndRule;
@@ -556,7 +555,9 @@ class PromotionEntity extends Entity
         // verify if we are in SetGroup mode and build
         // a custom setgroup rule for all groups
         if ($this->isUseSetGroups() !== null && $this->isUseSetGroups() && $this->getSetgroups() !== null && $this->getSetgroups()->count() > 0) {
-            $groupsRootRule = new OrRule();
+            // if we have groups, then all groups
+            // must match now to fulfill the new group definition in shopware promotions
+            $groupsRootRule = new AndRule();
 
             foreach ($this->getSetgroups() as $group) {
                 $groupRule = new LineItemGroupRule();

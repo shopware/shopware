@@ -29,6 +29,7 @@
       "labelName": "Name",
       "labelPosition": "Position",
       "labelActive": "Active",
+      "labelAfterOrderEnabled": "Allow payment change after checkout",
       "labelDescription": "Description",
       "labelLogoUpload": "Logo",
       "sidebar": {
@@ -43,6 +44,6 @@
     }
   },
   "sw-plugin-box": {
-    "buttonPluginSettings": "Plugin Settings"
+    "buttonPluginSettings": "Plugin settings"
   }
 }

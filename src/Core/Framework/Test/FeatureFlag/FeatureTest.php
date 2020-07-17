@@ -15,9 +15,6 @@ use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix102;
 
 class FeatureTest extends TestCase
 {
-    /**
-     * @var mixed
-     */
     private $indicator;
 
     /**

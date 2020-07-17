@@ -26,12 +26,12 @@ class RangeFilter extends Filter
      * @example
      *
      * new RangeFilter('price', [
-     *      'gte' => 5.99,
-     *      'lte' => 21.99
+     *      RangeFilter::GTE => 5.99,
+     *      RangeFilter::LTE => 21.99
      * ])
      *
      * new RangeFilter('price', [
-     *      'gt' => 5.99
+     *      RangeFilter::GT => 5.99
      * ])
      */
     public function __construct(string $field, array $parameters = [])

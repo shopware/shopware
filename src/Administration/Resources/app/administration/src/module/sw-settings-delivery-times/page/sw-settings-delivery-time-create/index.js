@@ -1,12 +1,6 @@
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 
 Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-detail', {
-    computed: {
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        }
-    },
-
     methods: {
         saveFinish() {
             this.isSaveSuccessful = false;
@@ -16,7 +10,7 @@ Component.extend('sw-settings-delivery-time-create', 'sw-settings-delivery-time-
         },
 
         createdComponent() {
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
 
             this.deliveryTime = this.deliveryTimeRepository.create(Shopware.Context.api);
         }

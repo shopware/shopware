@@ -1,0 +1,98 @@
+{% block sw_import_export_entity_path_select %}
+    <sw-select-base class="sw-import-export-entity-path-select"
+                    ref="selectBase"
+                    :isLoading="isLoading"
+                    @select-expanded="onSelectExpanded"
+                    @select-collapsed="onSelectCollapsed"
+                    v-bind="$attrs"
+                    v-on="$listeners">
+        {% block sw_import_export_entity_path_select_base %}
+            {% block sw_import_export_entity_path_select_base_selection %}
+                <template #sw-select-selection="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+                    {% block sw_import_export_entity_path_select_base_selection_slot %}
+                        <div class="sw-import-export-entity-path-select__selection">
+                            {% block sw_import_export_entity_path_select_single_selection_inner %}
+                                {% block sw_import_export_entity_path_select_single_selection_inner_label %}
+                                    <div v-if="!isExpanded"
+                                         class="sw-import-export-entity-path-select__selection-text"
+                                         :class="selectionTextClasses">
+                                        <template v-if="singleSelection">
+                                            <slot name="selection-label-property" v-bind="{ item: singleSelection, labelProperty, valueProperty, searchTerm, getKey }">
+                                                {{ getKey(singleSelection, labelProperty) }}
+                                            </slot>
+                                        </template>
+                                        <template v-else>
+                                            {{ placeholder }}
+                                        </template>
+                                    </div>
+                                {% endblock %}
+                                {% block sw_import_export_entity_path_select_single_selection_inner_input %}
+                                    <input ref="swSelectInput"
+                                           class="sw-import-export-entity-path-select__selection-input"
+                                           :class="inputClasses"
+                                           type="text"
+                                           :placeholder="placeholder"
+                                           @input="onInputSearch"
+                                           v-model="searchInput">
+                                {% endblock %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            {% block sw_import_export_entity_path_select_base_results %}
+                <template #results-list>
+                    {% block sw_import_export_entity_path_select_base_results_slot %}
+                        <sw-select-result-list ref="resultsList"
+                                               :options="visibleResults"
+                                               :isLoading="isLoading"
+                                               :emptyMessage="$tc('global.sw-single-select.messageNoResults', 0, { term: searchInput })"
+                                               :focusEl="$refs.swSelectInput"
+                                               @paginate="$emit('paginate')"
+                                               @item-select="setValue">
+                            {% block sw_import_export_entity_path_select_base_results_list %}
+                                {% block sw_import_export_entity_path_select_base_results_list_before %}
+                                    <template #before-item-list>
+                                        <slot name="before-item-list"></slot>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_import_export_entity_path_select_base_results_list_result %}
+                                    <template #result-item="{ item, index }">
+                                        <slot name="result-item" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                                            <li is="sw-select-result" :selected="isSelected(item)" @item-select="setValue" v-bind="{ item, index }">
+                                                {% block sw_import_export_entity_path_select_base_results_list_result_label %}
+                                                    <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }">
+                                                        <sw-highlight-text v-if="highlightSearchTerm"
+                                                                           :text="getKey(item, labelProperty)"
+                                                                           :searchTerm="searchTerm">
+                                                        </sw-highlight-text>
+                                                        <template v-else>
+                                                            {{ getKey(item, labelProperty) }}
+                                                        </template>
+
+                                                        <sw-icon v-if="item.relation && item.relation !== 'many_to_many'"
+                                                                 name="small-arrow-small-right"
+                                                                 size="16px">
+                                                        </sw-icon>
+                                                    </slot>
+                                                {% endblock %}
+                                            </li>
+                                        </slot>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_import_export_entity_path_select_base_results_list_after %}
+                                    <template #after-item-list>
+                                        <slot name="after-item-list"></slot>
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-select-result-list>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+        {% endblock %}
+    </sw-select-base>
+{% endblock %}

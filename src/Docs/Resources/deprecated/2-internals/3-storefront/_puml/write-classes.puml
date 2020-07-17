@@ -1,0 +1,15 @@
+@startuml
+hide empty members
+
+class AddressController << Storefront Controller >>
+
+package "Shopware Core" as core <<Rectangle>> {
+    class AddressService << SalesChannel Service >>
+    class AddressRepository << SalesChannel Repository >>
+    class AddressValidator << SalesChannel Validator>>
+}
+
+AddressController --> AddressService : invokes
+AddressService --> AddressRepository : writes
+AddressService .right.. AddressValidator : validates
+@enduml

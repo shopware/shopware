@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,6 +51,7 @@ class CustomerRoute extends AbstractCustomerRoute
     }
 
     /**
+     * @Entity("customer")
      * @OA\Get(
      *      path="/account/customer",
      *      description="Returns informations about the loggedin customer",
@@ -64,19 +66,17 @@ class CustomerRoute extends AbstractCustomerRoute
      * )
      * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
      */
-    public function load(Request $request, SalesChannelContext $context): CustomerResponse
+    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): CustomerResponse
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
         }
 
-        $criteria = new Criteria([$context->getCustomer()->getId()]);
-        $criteria = $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->customerDefinition,
-            $context->getContext()
-        );
+        // @deprecated tag:v6.4.0 - Criteria will be required
+        if (!$criteria) {
+            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->customerDefinition, $context->getContext());
+        }
+        $criteria->setIds([$context->getCustomer()->getId()]);
 
         $customer = $this->customerRepository->search($criteria, $context->getContext())->first();
 

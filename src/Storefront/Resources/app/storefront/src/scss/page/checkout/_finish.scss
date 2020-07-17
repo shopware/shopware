@@ -11,13 +11,26 @@
             @extend .col-lg-8;
         }
 
+        .checkout-additional {
+            @extend .col-sm-7;
+            @extend .col-md-6;
+            @extend .offset-lg-2;
+            @extend .col-lg-4;
+            margin-top: $spacer;
+            margin-bottom: $spacer;
+        }
+
         .checkout-aside {
+            @extend .col;
             @extend .offset-sm-5;
             @extend .col-sm-7;
             @extend .offset-md-6;
             @extend .col-md-6;
-            @extend .offset-lg-6;
             @extend .col-lg-4;
+        }
+
+        .checkout-aside-no-offset {
+            @include make-col-offset(0);
         }
     }
 }
@@ -25,6 +38,7 @@
 .finish-content {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: $spacer-xl * 2;
 }
 
 .finish-ordernumber {
@@ -33,7 +47,6 @@
 }
 
 .finish-teaser {
-    margin-bottom: $spacer;
     text-align: center;
 }
 
@@ -46,11 +59,19 @@
     text-align: center;
 }
 
-.finish-action {
-    margin-bottom: $spacer-lg;
+.finish-order-subtitle {
     text-align: center;
 }
 
-.finish-back-button {
-    margin-right: $spacer-sm;
+.finish-change-payment-wrapper {
+    text-align: center;
+}
+
+.finish-action {
+    text-align: center;
+    margin-bottom: $spacer-xl;
+}
+
+.finish-info {
+    margin-bottom: $spacer-xl;
 }

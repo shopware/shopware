@@ -1,13 +1,9 @@
 {% block sw_settings_shipping_price_matrices %}
     <div class="sw-settings-shipping-price-matrices">
         {% block sw_settings_shipping_price_matrices_price_matrix %}
-            <sw-settings-shipping-price-matrix v-for="priceGroup in priceRuleGroups"
+            <sw-settings-shipping-price-matrix v-for="priceGroup in shippingPriceGroups"
                                                :key="priceGroup.ruleId"
                                                :priceGroup="priceGroup"
-                                               :priceRuleGroups="priceRuleGroups"
-                                               :shippingMethod="shippingMethod"
-                                               @rule-change="onRuleChange"
-                                               @rule-add="loadRules"
                                                @duplicate-price-matrix="onDuplicatePriceMatrix"
                                                @delete-price-matrix="onDeletePriceMatrix">
             </sw-settings-shipping-price-matrix>
@@ -16,7 +12,14 @@
         {% block sw_settings_shipping_detail_advanced_prices_actions %}
             <div class="sw-settings-shipping-price-matrices__actions">
                 {% block sw_settings_shipping_detail_advanced_prices_actions_add_button %}
-                    <sw-button :disabled="!canAddPriceRule"
+                    <sw-button :disabled="newPriceMatrixExists"
+                               class="sw-settings-shipping-price-matrices__actions-add-matrix"
+                               v-tooltip="{
+                                    showDelay: 300,
+                                    showOnDisabledElements: true,
+                                    message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
+                                    disabled: !newPriceMatrixExists
+                                }"
                                @click="onAddNewPriceGroup">
                         {{ $tc('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}
                     </sw-button>

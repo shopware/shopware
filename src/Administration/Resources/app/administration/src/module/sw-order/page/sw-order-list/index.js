@@ -23,6 +23,7 @@ Component.register('sw-order-list', {
             sortDirection: 'DESC',
             isLoading: false,
             filterLoading: false,
+            showDeleteModal: false,
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
@@ -62,8 +63,10 @@ Component.register('sw-order-list', {
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
+            criteria.addAssociation('documents');
             criteria.addAssociation('transactions');
             criteria.addAssociation('deliveries');
+            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
 
             return criteria;
         },
@@ -78,10 +81,6 @@ Component.register('sw-order-list', {
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
 
             return criteria;
-        },
-
-        ifNext5515() {
-            return this.next5515;
         }
     },
 
@@ -126,10 +125,15 @@ Component.register('sw-order-list', {
                 this.isLoading = false;
             });
         },
+
         getBillingAddress(order) {
             return order.addresses.find((address) => {
                 return address.id === order.billingAddressId;
             });
+        },
+
+        disableDeletion(order) {
+            return order.documents.length > 0;
         },
 
         getOrderColumns() {
@@ -162,7 +166,7 @@ Component.register('sw-order-list', {
                 label: 'sw-order.list.columnState',
                 allowResize: true
             }, {
-                property: 'transactions[0].stateMachineState.name',
+                property: 'transactions.last().stateMachineState.name',
                 label: 'sw-order.list.columnTransactionState',
                 allowResize: true
             }, {
@@ -195,8 +199,15 @@ Component.register('sw-order-list', {
         },
 
         getVariantFromPaymentState(order) {
+            let technicalName = order.transactions.last().stateMachineState.technicalName;
+            // set the payment status to the first transaction that is not cancelled
+            for (let i = 0; i < order.transactions.length; i += 1) {
+                if (order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
+                    technicalName = order.transactions[i].stateMachineState.technicalName;
+                }
+            }
             return this.stateStyleDataProviderService.getStyle(
-                'order_transaction.state', order.transactions[0].stateMachineState.technicalName
+                'order_transaction.state', technicalName
             ).variant;
         },
 
@@ -228,6 +239,22 @@ Component.register('sw-order-list', {
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
             this.getList();
+        },
+
+        onDelete(id) {
+            this.showDeleteModal = id;
+        },
+
+        onCloseDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        onConfirmDelete(id) {
+            this.showDeleteModal = false;
+
+            return this.orderRepository.delete(id, Shopware.Context.api).then(() => {
+                this.getList();
+            });
         }
     }
 });

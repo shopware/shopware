@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -19,11 +20,6 @@ class CacheStore implements StoreInterface
      * @var TagAwareAdapterInterface
      */
     private $cache;
-
-    /**
-     * @var ObjectCacheKeyFinder
-     */
-    private $cacheKeyDetector;
 
     /**
      * @var array
@@ -45,18 +41,23 @@ class CacheStore implements StoreInterface
      */
     private $cacheHash;
 
+    /**
+     * @var CacheTagCollection
+     */
+    private $cacheTagCollection;
+
     public function __construct(
         string $cacheHash,
         TagAwareAdapterInterface $cache,
-        ObjectCacheKeyFinder $cacheKeyDetector,
         CacheStateValidator $stateValidator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        CacheTagCollection $cacheTagCollection
     ) {
         $this->cache = $cache;
-        $this->cacheKeyDetector = $cacheKeyDetector;
         $this->stateValidator = $stateValidator;
         $this->eventDispatcher = $eventDispatcher;
         $this->cacheHash = $cacheHash;
+        $this->cacheTagCollection = $cacheTagCollection;
     }
 
     public function lookup(Request $request)
@@ -76,21 +77,26 @@ class CacheStore implements StoreInterface
             return null;
         }
 
+        $this->eventDispatcher->dispatch(
+            new HttpCacheHitEvent($item, $request, $response)
+        );
+
         return $response;
     }
 
     public function write(Request $request, Response $response)
     {
         $key = $this->generateCacheKey($request);
+        if ($response instanceof StorefrontResponse) {
+            $response->setData(null);
+            $response->setContext(null);
+        }
 
         $item = $this->cache->getItem($key);
         $item->set(serialize($response));
         $item->expiresAt($response->getExpires());
 
-        $tags = [];
-        if ($response instanceof StorefrontResponse) {
-            $tags = $this->cacheKeyDetector->find($response->getData(), $response->getContext());
-        }
+        $tags = $this->cacheTagCollection->getTags();
 
         if (!empty($tags) && $item instanceof CacheItem) {
             $item->tag($tags);

@@ -6,14 +6,8 @@ use Shopware\Core\Framework\Context;
 
 class EntityIndexingMessage
 {
-    /**
-     * @var mixed
-     */
     protected $data;
 
-    /**
-     * @var mixed
-     */
     protected $offset;
 
     /**

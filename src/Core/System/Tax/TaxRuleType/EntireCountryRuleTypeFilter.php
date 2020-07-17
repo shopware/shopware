@@ -13,7 +13,7 @@ class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
     public function match(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
     {
         if ($taxRuleEntity->getType()->getTechnicalName() !== self::TECHNICAL_NAME
-            || !$this->metPreconditions($taxRuleEntity, $customer, $shippingLocation)
+            || !$this->metPreconditions($taxRuleEntity, $shippingLocation)
         ) {
             return false;
         }
@@ -21,12 +21,8 @@ class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
         return true;
     }
 
-    private function metPreconditions(TaxRuleEntity $taxRuleEntity, ?CustomerEntity $customer, ShippingLocation $shippingLocation): bool
+    private function metPreconditions(TaxRuleEntity $taxRuleEntity, ShippingLocation $shippingLocation): bool
     {
-        if ($customer !== null && $customer->getActiveBillingAddress() !== null) {
-            return $customer->getActiveBillingAddress()->getCountryId() === $taxRuleEntity->getCountryId();
-        }
-
         return $shippingLocation->getCountry()->getId() === $taxRuleEntity->getCountryId();
     }
 }

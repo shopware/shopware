@@ -14,5 +14,6 @@ class NoContentResponse extends StoreApiResponse
     public function __construct()
     {
         parent::__construct(new ArrayStruct());
+        $this->setStatusCode(self::HTTP_NO_CONTENT);
     }
 }

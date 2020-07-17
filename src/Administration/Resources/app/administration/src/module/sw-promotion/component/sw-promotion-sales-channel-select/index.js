@@ -13,6 +13,12 @@ Component.register('sw-promotion-sales-channel-select', {
             type: Object,
             required: false,
             default: null
+        },
+
+        fileAccept: {
+            type: String,
+            required: false,
+            default: 'image/*'
         }
     },
 

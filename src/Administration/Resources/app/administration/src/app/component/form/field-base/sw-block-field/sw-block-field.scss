@@ -9,6 +9,10 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         overflow: hidden;
     }
 
+    .sw-field--select__options .sw-icon {
+        margin-bottom: 5px;
+    }
+
     input,
     select,
     textarea {

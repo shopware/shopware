@@ -23,7 +23,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.server();
 
         cy.route({
-            url: '/api/v1/rule',
+            url: '/api/v*/rule',
             method: 'post'
         }).as('saveData');
 
@@ -40,13 +40,13 @@ describe('Rule builder: Test crud operations', () => {
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
             cy.wrap(field).should('have.class', 'has--error');
-            cy.get('input', { withinSubject: field}).type('Rule 1st');
+            cy.get('input', { withinSubject: field }).type('Rule 1st');
             cy.wrap(field).should('not.have.class', 'has--error');
         });
 
         cy.get('.sw-field').contains('.sw-field', 'Priority').then((field) => {
             cy.wrap(field).should('have.class', 'has--error');
-            cy.get('input', { withinSubject: field}).type('1').blur();
+            cy.get('input', { withinSubject: field }).type('1').blur();
             cy.wrap(field).should('not.have.class', 'has--error');
         });
 
@@ -63,7 +63,7 @@ describe('Rule builder: Test crud operations', () => {
 
                     cy.get('.sw-select-result-list-popover-wrapper',).contains('Time range')
                         .click();
-                })
+                });
         });
 
         // Verify rule
@@ -84,7 +84,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/rule/*',
+            url: '/api/v*/rule/*',
             method: 'delete'
         }).as('deleteData');
 

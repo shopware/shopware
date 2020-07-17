@@ -21,6 +21,15 @@
 
 .cart-item-discount-icon {
     text-align: center;
+    height: 100%;
+
+    .icon {
+        height: 100%;
+
+        > svg {
+            top: 0;
+        }
+    }
 }
 
 .cart-item-nested-icon {
@@ -96,6 +105,15 @@
 .cart-item-quantity-row {
     align-items: center;
     margin-bottom: $spacer-sm;
+}
+
+.cart-item-details-characteristics {
+    margin: $spacer-sm 0;
+    font-size: $font-size-sm;
+
+    .cart-item-details-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
 }
 
 .cart-item-variants {

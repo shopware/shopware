@@ -1,0 +1,20 @@
+@startuml
+hide empty members
+
+control Controller
+
+participant AddressPageLoader
+participant PageWithHeaderLoader
+participant HeaderPageletLoader
+participant FooterPageletLoader
+
+Controller --> AddressPageLoader : load
+AddressPageLoader --> PageWithHeaderLoader : load
+PageWithHeaderLoader  --> HeaderPageletLoader : load
+PageWithHeaderLoader  <-- HeaderPageletLoader : HeaderPage
+PageWithHeaderLoader  --> FooterPageletLoader : load
+PageWithHeaderLoader  <-- FooterPageletLoader : FooterPage
+AddressPageLoader <-- PageWithHeaderLoader : PageWithHeader
+Controller <-- AddressPageLoader : AddressPage
+
+@enduml

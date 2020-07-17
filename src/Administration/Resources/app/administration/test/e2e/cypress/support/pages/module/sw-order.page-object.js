@@ -18,7 +18,7 @@ export default class OrderPageObject {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v1/_action/order${callType}/**/state/${call}`,
+            url: `/api/v*/_action/order${callType}/**/state/${call}`,
             method: 'post'
         }).as(`${call}Call`);
 

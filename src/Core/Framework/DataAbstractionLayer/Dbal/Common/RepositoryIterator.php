@@ -66,7 +66,7 @@ class RepositoryIterator
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        $result = $this->repository->search($this->criteria, $this->context);
+        $result = $this->repository->search(clone $this->criteria, $this->context);
 
         // increase offset for next iteration
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());

@@ -22,7 +22,7 @@ describe('Dynamic product group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-stream',
+            url: '/api/v*/product-stream',
             method: 'post'
         }).as('saveData');
 
@@ -50,7 +50,7 @@ describe('Dynamic product group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-stream/*',
+            url: '/api/v*/product-stream/*',
             method: 'patch'
         }).as('saveData');
 
@@ -80,7 +80,7 @@ describe('Dynamic product group: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/product-stream/*',
+            url: '/api/v*/product-stream/*',
             method: 'delete'
         }).as('deleteData');
 

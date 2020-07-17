@@ -12,10 +12,20 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\Rule\CurrencyRule;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -23,6 +33,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemListPriceRuleTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @var LineItemListPriceRule
      */
@@ -181,6 +193,121 @@ class LineItemListPriceRuleTest extends TestCase
         ));
 
         static::assertFalse($match);
+    }
+
+    public function testProductListPrice(): void
+    {
+        $ids = new TestDataCollection();
+
+        $currency = [
+            'id' => $ids->create('currency'),
+            'name' => 'dollar',
+            'factor' => 1.3,
+            'symbol' => '$',
+            'isoCode' => 'US',
+            'decimalPrecision' => 2,
+            'shortName' => 'dollar',
+        ];
+
+        $this->getContainer()->get('currency.repository')
+            ->create([$currency], Context::createDefaultContext());
+
+        // create product with two different currency prices
+        $data = [
+            'id' => $ids->create('product'),
+            'name' => 'test',
+            'productNumber' => $ids->create('get'),
+            'stock' => 10,
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 15,
+                    'net' => 10,
+                    'linked' => false,
+                    'listPrice' => ['gross' => 20, 'net' => 15, 'linked' => false],
+                ],
+                [
+                    'currencyId' => $ids->get('currency'),
+                    'gross' => 5,
+                    'net' => 5,
+                    'linked' => false,
+                    'listPrice' => ['gross' => 15, 'net' => 15, 'linked' => false],
+                ],
+            ],
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create('test', Defaults::SALES_CHANNEL);
+
+        $service = $this->getContainer()->get(CartService::class);
+
+        // create cart and product line item
+        $cart = $service->getCart('test', $context);
+        $lineItem = $this->getContainer()
+            ->get(ProductLineItemFactory::class)
+            ->create($ids->get('product'));
+
+        $service->add($cart, $lineItem, $context);
+        static::assertTrue($cart->has($ids->get('product')));
+
+        // assert list price is calculated for default price
+        $lineItem = $cart->get($ids->get('product'));
+        static::assertInstanceOf(LineItem::class, $lineItem);
+        static::assertInstanceOf(CalculatedPrice::class, $lineItem->getPrice());
+        static::assertInstanceOf(ListPrice::class, $lineItem->getPrice()->getListPrice());
+        $listPrice = $lineItem->getPrice()->getListPrice();
+        static::assertEquals(20, $listPrice->getPrice());
+
+        $rules = [
+            new LineItemListPriceRule(Rule::OPERATOR_GTE, 19),
+            new LineItemListPriceRule(Rule::OPERATOR_GT, 19),
+            new LineItemListPriceRule(Rule::OPERATOR_LTE, 21),
+            new LineItemListPriceRule(Rule::OPERATOR_LT, 21),
+            new LineItemListPriceRule(Rule::OPERATOR_EQ, 20),
+            new LineItemListPriceRule(Rule::OPERATOR_NEQ, 15),
+        ];
+
+        // test different rules for the default list price
+        $scope = new LineItemScope($lineItem, $context);
+        foreach ($rules as $rule) {
+            static::assertTrue($rule->match($scope));
+        }
+
+        // create new context for other currency
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create('test', Defaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+
+        // fetch cart for recalculation
+        $cart = $service->getCart('test', $context, CartService::SALES_CHANNEL, false);
+        $lineItem = $cart->get($ids->get('product'));
+
+        $rules = [
+            new LineItemListPriceRule(Rule::OPERATOR_GTE, 14),
+            new LineItemListPriceRule(Rule::OPERATOR_GT, 14),
+            new LineItemListPriceRule(Rule::OPERATOR_LTE, 16),
+            new LineItemListPriceRule(Rule::OPERATOR_LT, 16),
+            new LineItemListPriceRule(Rule::OPERATOR_EQ, 15),
+            new LineItemListPriceRule(Rule::OPERATOR_NEQ, 14),
+        ];
+
+        $scope = new LineItemScope($lineItem, $context);
+        foreach ($rules as $rule) {
+            // test combination with currency rule to validate currency list prices
+            $wrapper = new AndRule([
+                new CurrencyRule(CurrencyRule::OPERATOR_EQ, $ids->getList(['currency'])),
+                $rule,
+            ]);
+
+            static::assertTrue($wrapper->match($scope));
+        }
     }
 
     /**

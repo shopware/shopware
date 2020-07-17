@@ -216,7 +216,7 @@
                                 <template slot="header">{{ $tc('sw-newsletter-recipient.general.tags') }}</template>
                                 <template slot="content">
                                     {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
-                                        <sw-entity-multi-select v-model="tagCollection" @input="onChange"></sw-entity-multi-select>
+                                        <sw-entity-multi-select v-model="tagCollection" @change="onChange"></sw-entity-multi-select>
                                     {% endblock %}
                                 </template>
                             </sw-sidebar-collapse>

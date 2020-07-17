@@ -9,4 +9,9 @@ class SetNullOnDeleteCommand extends UpdateCommand
         // prevent execution
         return false;
     }
+
+    public function getPrivilege(): ?string
+    {
+        return null;
+    }
 }

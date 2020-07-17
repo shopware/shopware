@@ -50,6 +50,9 @@ class Processor
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         $cart = new Cart($original->getName(), $original->getToken());
+        $cart->setCustomerComment($original->getCustomerComment());
+        $cart->setAffiliateCode($original->getAffiliateCode());
+        $cart->setCampaignCode($original->getCampaignCode());
 
         // move data from previous calculation into new cart
         $cart->setData($original->getData());
@@ -67,7 +70,6 @@ class Processor
 
         $this->calculateAmount($context, $cart);
 
-        /** @var CartProcessorInterface $processor */
         // start processing, cart will be filled step by step with line items of original cart
         foreach ($this->processors as $processor) {
             $processor->process($cart->getData(), $original, $cart, $context, $behavior);

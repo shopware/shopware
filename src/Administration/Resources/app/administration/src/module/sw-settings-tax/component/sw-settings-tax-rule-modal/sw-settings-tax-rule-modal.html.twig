@@ -7,6 +7,7 @@
                     {% block sw_settings_tax_rule_modal_country_select %}
                         <sw-entity-single-select required
                                                  :label="$tc('sw-settings-tax.taxRuleCard.labelCountryName')"
+                                                 :helpText="$tc('sw-settings-tax.taxRuleCard.tooltipCountries')"
                                                  v-model="taxRule.countryId"
                                                  :error="taxRuleCountryIdError"
                                                  entity="country">

@@ -5,16 +5,20 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -408,6 +412,68 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+
+        //create a new shipping method and request to change
+        $shippingMethodId = $this->createShippingMethod();
+        $browser->request('PATCH', $this->getUrl(Defaults::SALES_CHANNEL, '/context'), [
+            'shippingMethodId' => $shippingMethodId,
+        ]);
+
+        //assert response format
+        $response = $this->getBrowser()->getResponse()->getContent();
+        $response = json_decode($response, true);
+        static::assertNotEmpty($response);
+        static::assertArrayHasKey('sw-context-token', $response);
+        static::assertNotEmpty($response['sw-context-token']);
+
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+
+        //assert shipping method in cart is changed but shipping costs in cart is not changed
+        static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
+        static::assertEquals('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
+
+        static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+    }
+
+    public function testSwitchDeliveryMethodAndPriceWillBeCalculated(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+
+        //assert shipping cost in cart is default from sales channel
+        static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+
+        //create a new shipping method and request to change
+        $shippingMethodId = $this->createShippingMethod();
+        $browser->request('PATCH', $this->getUrl(Defaults::SALES_CHANNEL, '/context'), [
+            'shippingMethodId' => $shippingMethodId,
+        ]);
+
+        //assert response format
+        $response = $this->getBrowser()->getResponse()->getContent();
+        $response = json_decode($response, true);
+        static::assertNotEmpty($response);
+        static::assertArrayHasKey('sw-context-token', $response);
+        static::assertNotEmpty($response['sw-context-token']);
+
+        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+
+        //assert shipping method and cost are changed
+        static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
+        static::assertEquals('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
+
+        static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(30, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
     }
 
     public function testDisableAutomaticPromotions(): void
@@ -749,5 +815,72 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+    }
+
+    private function createShippingMethod(): string
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $repository = $this->getContainer()->get('shipping_method.repository');
+
+        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
+        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
+
+        $data = [
+            'id' => $shippingMethodId,
+            'type' => 0,
+            'name' => 'Test shipping method',
+            'bindShippingfree' => false,
+            'active' => true,
+            'prices' => [
+                [
+                    'name' => 'Std',
+                    'price' => '10.00',
+                    'currencyId' => Defaults::CURRENCY,
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 20,
+                            'gross' => 30,
+                            'linked' => false,
+                        ],
+                    ],
+                ],
+            ],
+            'deliveryTime' => $this->createDeliveryTime(),
+            'availabilityRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'true',
+                'priority' => 1,
+                'conditions' => [
+                    [
+                        'type' => (new TrueRule())->getName(),
+                    ],
+                ],
+            ],
+        ];
+
+        $repository->create([$data], $this->context);
+
+        $saleChannelShippingMethodRepository = $this->getContainer()->get('sales_channel_shipping_method.repository');
+        $saleChannelShippingMethodRepository->create([[
+            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'shippingMethodId' => $shippingMethodId,
+        ]], $this->context);
+
+        return $shippingMethodId;
+    }
+
+    private function createDeliveryTime(): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'min' => 1,
+            'max' => 90,
+            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+        ];
     }
 }

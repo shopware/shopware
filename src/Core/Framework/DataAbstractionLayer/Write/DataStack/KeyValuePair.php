@@ -9,9 +9,6 @@ class KeyValuePair
      */
     private $key;
 
-    /**
-     * @var mixed
-     */
     private $value;
 
     /**

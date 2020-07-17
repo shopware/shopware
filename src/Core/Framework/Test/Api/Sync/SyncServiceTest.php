@@ -17,11 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedConverter;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedDefinition;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
@@ -84,6 +87,114 @@ class SyncServiceTest extends TestCase
         static::assertArrayHasKey('entities', $written);
         static::assertArrayHasKey('product_manufacturer', $written['entities']);
         static::assertArrayHasKey('product_manufacturer_translation', $written['entities']);
+    }
+
+    public function testSingleOperationWithDeletesAndWrites(): void
+    {
+        $ids = new TestDataCollection();
+
+        $operations = [
+            new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('m1'), 'name' => 'first manufacturer'],
+                ['id' => $ids->create('m2'), 'name' => 'second manufacturer'],
+            ], PlatformRequest::API_VERSION),
+            new SyncOperation('write', 'tax', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('t1'), 'name' => 'first tax', 'taxRate' => 10],
+                ['id' => $ids->create('t2'), 'name' => 'second tax', 'taxRate' => 10],
+            ], PlatformRequest::API_VERSION),
+            new SyncOperation('write', 'country', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('c1'), 'name' => 'first country'],
+                ['id' => $ids->create('c2'), 'name' => 'second country'],
+            ], PlatformRequest::API_VERSION),
+        ];
+
+        $behavior = new SyncBehavior(false, true);
+
+        $this->service->sync($operations, Context::createDefaultContext(), $behavior);
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = $this
+            ->getMockBuilder(CallableClass::class)
+            ->getMock();
+
+        $listener->expects(static::once())
+            ->method('__invoke');
+
+        $dispatcher->addListener(EntityWrittenContainerEvent::class, $listener);
+
+        $operations = [
+            new SyncOperation('manufacturers', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('m3'), 'name' => 'third manufacturer'],
+                ['id' => $ids->create('m4'), 'name' => 'fourth manufacturer'],
+            ], PlatformRequest::API_VERSION),
+            new SyncOperation('taxes', 'tax', SyncOperation::ACTION_DELETE, [
+                ['id' => $ids->get('t1')],
+                ['id' => $ids->get('t2')],
+            ], PlatformRequest::API_VERSION),
+            new SyncOperation('countries', 'country', SyncOperation::ACTION_DELETE, [
+                ['id' => $ids->get('c1')],
+                ['id' => $ids->get('c2')],
+            ], PlatformRequest::API_VERSION),
+        ];
+
+        $this->service->sync($operations, Context::createDefaultContext(), $behavior);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['m1', 'm2', 'm3', 'm4']))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        static::assertCount(4, $exists);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT id FROM tax WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        static::assertEmpty($exists);
+
+        $exists = $this->connection->fetchAll(
+            'SELECT id FROM country WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+        static::assertEmpty($exists);
+    }
+
+    public function testSingleOperationParameter(): void
+    {
+        $ids = new TestDataCollection();
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = $this
+            ->getMockBuilder(CallableClass::class)
+            ->getMock();
+
+        $listener->expects(static::once())
+            ->method('__invoke');
+
+        $dispatcher->addListener(EntityWrittenContainerEvent::class, $listener);
+
+        $operations = [
+            new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('m1'), 'name' => 'first manufacturer'],
+                ['id' => $ids->create('m2'), 'name' => 'second manufacturer'],
+            ], PlatformRequest::API_VERSION),
+            new SyncOperation('write', 'tax', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('t1'), 'name' => 'first tax', 'taxRate' => 10],
+                ['id' => $ids->create('t2'), 'name' => 'second tax', 'taxRate' => 10],
+            ], PlatformRequest::API_VERSION),
+            new SyncOperation('write', 'country', SyncOperation::ACTION_UPSERT, [
+                ['id' => $ids->create('c1'), 'name' => 'first country'],
+                ['id' => $ids->create('c2'), 'name' => 'second country'],
+            ], PlatformRequest::API_VERSION),
+        ];
+
+        $behavior = new SyncBehavior(false, true);
+
+        $this->service->sync($operations, Context::createDefaultContext(), $behavior);
     }
 
     public function testError(): void
@@ -291,7 +402,9 @@ class SyncServiceTest extends TestCase
         $syncService = new SyncService(
             $definitionRegistry,
             $this->getContainer()->get(Connection::class),
-            $apiVersionConverter
+            $apiVersionConverter,
+            $this->getContainer()->get(EntityWriter::class),
+            $this->getContainer()->get('event_dispatcher')
         );
 
         $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
@@ -347,7 +460,9 @@ class SyncServiceTest extends TestCase
         $syncService = new SyncService(
             $definitionRegistry,
             $this->getContainer()->get(Connection::class),
-            $apiVersionConverter
+            $apiVersionConverter,
+            $this->getContainer()->get(EntityWriter::class),
+            $this->getContainer()->get('event_dispatcher')
         );
         $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
 
@@ -413,7 +528,9 @@ class SyncServiceTest extends TestCase
         $syncService = new SyncService(
             $definitionRegistry,
             $this->getContainer()->get(Connection::class),
-            $versionConverter
+            $versionConverter,
+            $this->getContainer()->get(EntityWriter::class),
+            $this->getContainer()->get('event_dispatcher')
         );
         $result = $syncService->sync($operations, Context::createDefaultContext(), new SyncBehavior(true));
 

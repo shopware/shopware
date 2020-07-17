@@ -11,6 +11,17 @@ $box-image-height-img: 332px;
     height: 100%;
 }
 
+.product-variant-characteristics {
+    min-height: 3em;
+
+    .product-variant-characteristics-text {
+        @include truncate-multiline(1.5em, 2, $sw-background-color);
+
+        color: $gray-500;
+        font-size: $font-size-sm;
+    }
+}
+
 .product-image-wrapper {
     height: $box-standard-height-img;
     flex-grow: 1;
@@ -38,6 +49,7 @@ $box-image-height-img: 332px;
     // 'max-height: 100%' not working in firefox
     max-height: $box-standard-height-img;
     object-fit: contain;
+    font-family: 'object-fit: contain;'; // IE polyfill
 
     &.is-cover,
     &.is-contain {
@@ -47,10 +59,12 @@ $box-image-height-img: 332px;
 
     &.is-cover {
         object-fit: cover;
+        font-family: 'object-fit: cover;'; // IE polyfill
     }
 
     &.is-contain {
         object-fit: contain;
+        font-family: 'object-fit: contain;'; // IE polyfill
     }
 }
 
@@ -163,6 +177,7 @@ $box-image-height-img: 332px;
         .product-image.is-standard {
             height: 100%;
             object-fit: cover;
+            font-family: 'object-fit: cover;'; // IE polyfill
         }
     }
 }

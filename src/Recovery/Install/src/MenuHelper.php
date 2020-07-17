@@ -34,7 +34,7 @@ class MenuHelper
         $result = [];
         $complete = true;
         foreach ($this->entries as $entry) {
-            $active = ($entry === current($this->entries));
+            $active = $entry === current($this->entries);
             if ($active) {
                 $complete = false;
             }

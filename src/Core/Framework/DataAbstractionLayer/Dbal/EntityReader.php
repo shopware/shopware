@@ -816,7 +816,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->setParameter('rootIds', $bytes, Connection::PARAM_STR_ARRAY);
 
         $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
-        $offset = ($fieldCriteria->getOffset() + 1);
+        $offset = $fieldCriteria->getOffset() + 1;
 
         $wrapper->setParameter('limit', $limit);
         $wrapper->setParameter('offset', $offset);

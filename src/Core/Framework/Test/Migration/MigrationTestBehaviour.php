@@ -20,55 +20,55 @@ trait MigrationTestBehaviour
         $loader = $this->getContainer()->get(MigrationCollectionLoader::class);
 
         $loader->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 '_test_migrations_invalid_namespace',
                 [__DIR__ . '/_test_migrations_invalid_namespace' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_invalid_namespace']
-            ))
+            )
         );
 
         $loader->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 '_test_migrations_valid',
                 [__DIR__ . '/_test_migrations_valid' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
-            ))
+            )
         );
 
         $loader->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 '_test_migrations_valid_run_time',
                 [__DIR__ . '/_test_migrations_valid_run_time' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time']
-            ))
+            )
         );
 
         $loader->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 '_test_migrations_valid_run_time_exceptions',
                 [__DIR__ . '/_test_migrations_valid_run_time_exceptions' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions']
-            ))
+            )
         );
 
         $loader->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 '_test_trigger_with_trigger_',
                 [__DIR__ . '/_test_trigger_with_trigger_' => 'Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_']
-            ))
+            )
         );
 
         $this->getContainer()->get(MigrationCollectionLoader::class)->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 self::INTEGRATION_IDENTIFIER(),
                 [__DIR__ . '/_test_migrations_valid' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid']
-            ))
+            )
         );
 
         $this->getContainer()->get(MigrationCollectionLoader::class)->addSource(
-            (new MigrationSource(
+            new MigrationSource(
                 self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER(),
                 [
                     __DIR__ . '/_test_migrations_valid' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid',
                     __DIR__ . '/_test_migrations_valid_run_time_exceptions' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time_exceptions',
                 ]
-            ))
+            )
         );
     }
 

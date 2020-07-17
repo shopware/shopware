@@ -231,14 +231,12 @@ class EntityDefinitionQueryHelper
 
         $query->from(self::escape($table));
 
-        $useVersionFallback = (
-            // only applies for versioned entities
-            $definition->isVersionAware()
+        $useVersionFallback // only applies for versioned entities
+            = $definition->isVersionAware()
             // only add live fallback if the current version isn't the live version
             && $context->getVersionId() !== Defaults::LIVE_VERSION
             // sub entities have no live fallback
-            && $definition->getParentDefinition() === null
-        );
+            && $definition->getParentDefinition() === null;
 
         if ($useVersionFallback) {
             $this->joinVersion($query, $definition, $definition->getEntityName(), $context);

@@ -164,7 +164,7 @@ class LineItemDimensionWeightRuleTest extends TestCase
      */
     private function createLineItem(float $weight): LineItem
     {
-        $deliveryInformation = (new DeliveryInformation(1, $weight, false));
+        $deliveryInformation = new DeliveryInformation(1, $weight, false);
 
         return (new LineItem(Uuid::randomHex(), 'product', null, 3))
             ->setDeliveryInformation($deliveryInformation);

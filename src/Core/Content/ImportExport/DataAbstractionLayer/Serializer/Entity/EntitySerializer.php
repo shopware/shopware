@@ -26,6 +26,7 @@ class EntitySerializer extends AbstractEntitySerializer
             $field = $fields->get($key);
             if ($field === null) {
                 yield $key => $value; // pass-through
+
                 continue;
             }
 

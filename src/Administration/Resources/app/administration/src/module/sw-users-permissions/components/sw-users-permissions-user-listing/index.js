@@ -3,12 +3,14 @@ import './sw-users-permissions-user-listing.scss';
 
 const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
 const { Criteria } = Data;
+const types = Shopware.Utils.types;
 
 Component.register('sw-users-permissions-user-listing', {
     template,
 
     inject: [
         'userService',
+        'loginService',
         'repositoryFactory'
     ],
 
@@ -23,7 +25,8 @@ Component.register('sw-users-permissions-user-listing', {
             user: [],
             isLoading: false,
             itemToDelete: null,
-            disableRouteParams: true
+            disableRouteParams: true,
+            confirmPassword: ''
         };
     },
 
@@ -119,7 +122,7 @@ Component.register('sw-users-permissions-user-listing', {
             this.itemToDelete = user;
         },
 
-        onConfirmDelete(user) {
+        async onConfirmDelete(user) {
             const username = `${user.firstName} ${user.lastName} `;
             const titleDeleteSuccess = this.$tc('sw-users-permissions.users.user-grid.notification.deleteSuccess.title');
             const messageDeleteSuccess = this.$tc('sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
@@ -137,7 +140,17 @@ Component.register('sw-users-permissions-user-listing', {
                 return;
             }
 
-            this.userRepository.delete(user.id, Shopware.Context.api).then(() => {
+            const verifiedToken = await this.verifyUserToken();
+
+            if (!verifiedToken) {
+                return;
+            }
+
+            this.confirmPasswordModal = false;
+            const context = { ...Shopware.Context.api };
+            context.authToken.access = verifiedToken;
+
+            this.userRepository.delete(user.id, context).then(() => {
                 this.createNotificationSuccess({
                     title: titleDeleteSuccess,
                     message: messageDeleteSuccess
@@ -154,6 +167,28 @@ Component.register('sw-users-permissions-user-listing', {
 
         onCloseDeleteModal() {
             this.itemToDelete = null;
+        },
+
+        verifyUserToken() {
+            const { username } = State.get('session').currentUser;
+
+            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
+                this.confirmPassword = '';
+
+                if (types.isString(access)) {
+                    return access;
+                }
+
+                return false;
+            }).catch(() => {
+                this.confirmPassword = '';
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                });
+
+                return false;
+            });
         }
     }
 });

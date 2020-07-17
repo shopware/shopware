@@ -150,11 +150,11 @@ class ThemeCompilerTest extends TestCase
 \$sw-color-brand-primary: #008490;
 \$sw-color-brand-secondary: #526e7f;
 \$sw-border-color: #bcc1c7;
-\$sw-asset-theme-url: 'http://localhost';
 \$sw-custom-header: 0;
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-asset-theme-url: 'http://localhost';
 
 PHP_EOL;
 

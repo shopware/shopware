@@ -110,7 +110,10 @@ class UserController extends AbstractController
         }
 
         $data = $request->request->all();
-        $data['id'] = $userId ?? null;
+
+        if (!isset($data['id'])) {
+            $data['id'] = $userId ?? null;
+        }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
             return $this->userRepository->upsert([$data], $context);

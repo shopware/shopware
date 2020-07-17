@@ -2,15 +2,22 @@ import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
+const types = Shopware.Utils.types;
 
 Component.register('sw-users-permissions-user-detail', {
     template,
 
-    inject: ['userService', 'userValidationService', 'integrationService', 'repositoryFactory'],
+    inject: [
+        'userService',
+        'loginService',
+        'userValidationService',
+        'integrationService',
+        'repositoryFactory'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -32,6 +39,8 @@ Component.register('sw-users-permissions-user-detail', {
             integrations: [],
             currentIntegration: null,
             mediaItem: null,
+
+            // @deprecated tag:v6.4.0 will be removed by changing the password confirmation logic
             changePasswordModal: false,
             newPassword: '',
             newPasswordConfirm: '',
@@ -42,7 +51,9 @@ Component.register('sw-users-permissions-user-detail', {
             isModalLoading: false,
             showSecretAccessKey: false,
             showDeleteModal: null,
-            skeletonItemAmount: 3
+            skeletonItemAmount: 3,
+            confirmPasswordModal: false,
+            confirmPassword: ''
         };
     },
 
@@ -259,7 +270,9 @@ Component.register('sw-users-permissions-user-detail', {
             if (this.user.email && !email(this.user.email)) {
                 this.createNotificationError({
                     title: this.$tc('sw-users-permissions.users.user-detail.notification.saveError.title'),
-                    message: this.$tc('sw-users-permissions.users.user-detail.notification.notificationInvalidEmailErrorMessage')
+                    message: this.$tc(
+                        'sw-users-permissions.users.user-detail.notification.notificationInvalidEmailErrorMessage'
+                    )
                 });
                 return Promise.reject();
             }
@@ -315,6 +328,10 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         onSave() {
+            this.confirmPasswordModal = true;
+        },
+
+        saveUser(authToken) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
             let promises = [];
@@ -339,7 +356,10 @@ Component.register('sw-users-permissions-user-detail', {
                         'sw-users-permissions.users.user-detail.notification.saveError.message', 0, { name: this.fullName }
                     );
 
-                    return this.userRepository.save(this.user, Shopware.Context.api).then(() => {
+                    const context = { ...Shopware.Context.api };
+                    context.authToken.access = authToken;
+
+                    return this.userRepository.save(this.user, context).then(() => {
                         return this.updateCurrentUser();
                     }).then(() => {
                         this.createdComponent();
@@ -383,16 +403,25 @@ Component.register('sw-users-permissions-user-detail', {
             this.$router.push({ name: 'sw.users.permissions.index' });
         },
 
+        /**
+         * @deprecated tag:v6.4.0
+         */
         onChangePassword() {
             this.changePasswordModal = true;
         },
 
+        /**
+         * @deprecated tag:v6.4.0
+         */
         onClosePasswordModal() {
             this.newPassword = '';
             this.newPasswordConfirm = '';
             this.changePasswordModal = false;
         },
 
+        /**
+         * @deprecated tag:v6.4.0
+         */
         async onSubmit() {
             this.user.password = this.newPassword;
             this.newPassword = '';
@@ -438,6 +467,45 @@ Component.register('sw-users-permissions-user-detail', {
 
             this.onCloseDeleteModal();
             return this.keyRepository.delete(id, Shopware.Context.api).then(this.loadKeys);
+        },
+
+        async onSubmitConfirmPassword() {
+            const verifiedToken = await this.verifyUserToken();
+
+            if (!verifiedToken) {
+                return;
+            }
+
+            await this.saveUser(verifiedToken);
+
+            this.confirmPasswordModal = false;
+        },
+
+        onCloseConfirmPasswordModal() {
+            this.confirmPassword = '';
+            this.confirmPasswordModal = false;
+        },
+
+        verifyUserToken() {
+            const { username } = State.get('session').currentUser;
+
+            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
+                this.confirmPassword = '';
+
+                if (types.isString(access)) {
+                    return access;
+                }
+
+                return false;
+            }).catch(() => {
+                this.confirmPassword = '';
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                });
+
+                return false;
+            });
         }
     }
 });

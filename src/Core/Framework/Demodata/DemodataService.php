@@ -20,7 +20,7 @@ class DemodataService
     /**
      * @var DemodataGeneratorInterface[]
      */
-    private $generators = [];
+    private $generators;
 
     /**
      * @var string
@@ -37,9 +37,6 @@ class DemodataService
      */
     private $connection;
 
-    /**
-     * @param DemodataGeneratorInterface[] $generators
-     */
     public function __construct(
         Connection $connection,
         iterable $generators,
@@ -47,10 +44,7 @@ class DemodataService
         DefinitionInstanceRegistry $registry
     ) {
         $this->projectDir = $projectDir;
-
-        foreach ($generators as $generator) {
-            $this->generators[$generator->getDefinition()] = $generator;
-        }
+        $this->generators = iterator_to_array($generators);
         $this->registry = $registry;
         $this->connection = $connection;
     }
@@ -75,14 +69,20 @@ class DemodataService
 
             $console->section(sprintf('Generating %d items for %s', $numberOfItems, $definition->getEntityName()));
 
-            $generator = $this->generators[$definitionClass] ?? null;
+            $validGenerators = array_filter($this->generators, static function (DemodataGeneratorInterface $generator) use ($definitionClass) {
+                return $generator->getDefinition() === $definitionClass;
+            });
 
-            if (!$generator) {
+            if (empty($validGenerators)) {
                 throw new \RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass));
             }
 
             $start = microtime(true);
-            $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definitionClass));
+
+            foreach ($validGenerators as $generator) {
+                $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definitionClass));
+            }
+
             $end = microtime(true) - $start;
 
             $console->note(sprintf('Took %f seconds', (float) $end));

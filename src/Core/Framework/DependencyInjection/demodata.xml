@@ -8,6 +8,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Command\DemodataCommand">
             <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>
+            <argument type="service" id="event_dispatcher" />
             <argument>%kernel.environment%</argument>
 
             <tag name="console.command"/>

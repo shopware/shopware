@@ -379,6 +379,21 @@ Table of contents
 * Added new `Shopware\Core\Checkout\Cusomer\Rule\CustomerTagRule` to check for tags assigned to customer
 * Events will now correctly stop event flow / propagation when `$event->stopPropagation()` is called
 * Added composer dependency `psr/event-dispatcher`
+* Added various primary keys, where it was missing
+    * Added primary keys to initial Migrations
+        * `Shopware/Core/Migration/Migration1536233510DocumentConfiguration`
+        * `Shopware/Core/Migration/Migration1536233380UserRecovery`
+        * `Shopware/Core/Migration/Migration1558505525Logging`
+        * `Shopware/Core/Migration/Migration1570622696CustomerPasswordRecovery`
+        * `Shopware/Core/Migration/Migration1570187167AddedAppConfig`
+        * `Shopware/Core/Migration/Migration1587039363AddImportExportLabelField`
+    * Added checks to set primary key, if not set yet
+        * `Shopware/Core/Migration/Migration1572264837AddCacheId`
+        * `Shopware/Core/Migration/Migration1594885630AddUserRecoveryPK`
+        * `Shopware/Core/Migration/Migration1594886106AddDocumentBaseConfigSalesChannelPK`
+        * `Shopware/Core/Migration/Migration1594886773LogEntryPK`
+        * `Shopware/Core/Migration/Migration1594886895CustomerRecoveryPK`
+        * `Shopware/Core/Migration/Migration1594887027AppConfigPK`
 
 #### Storefront
 * Added plugin injection in hot mode

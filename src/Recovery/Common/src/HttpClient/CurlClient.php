@@ -4,10 +4,10 @@ namespace Shopware\Recovery\Common\HttpClient;
 
 class CurlClient implements Client
 {
-    const METHOD_GET = 'GET';
-    const METHOD_PUT = 'PUT';
-    const METHOD_POST = 'POST';
-    const METHOD_DELETE = 'DELETE';
+    private const METHOD_GET = 'GET';
+    private const METHOD_PUT = 'PUT';
+    private const METHOD_POST = 'POST';
+    private const METHOD_DELETE = 'DELETE';
 
     /**
      * @var string[]

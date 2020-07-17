@@ -4,9 +4,7 @@ namespace Shopware\Recovery\Common\DependencyInjection;
 
 interface ContainerInterface
 {
-    const EXCEPTION_ON_INVALID_REFERENCE = 1;
-    const NULL_ON_INVALID_REFERENCE = 2;
-    const IGNORE_ON_INVALID_REFERENCE = 3;
+    public const EXCEPTION_ON_INVALID_REFERENCE = 1;
 
     /**
      * Sets a service.

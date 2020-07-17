@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\Events\CustomerIndexerEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;

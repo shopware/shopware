@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Customer\Events;
+namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;

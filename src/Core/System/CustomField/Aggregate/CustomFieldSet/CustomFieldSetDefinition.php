@@ -43,6 +43,13 @@ class CustomFieldSetDefinition extends EntityDefinition
         return CustomFieldSetEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'position' => 1,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
@@ -52,7 +59,7 @@ class CustomFieldSetDefinition extends EntityDefinition
 
             new BoolField('active', 'active'),
             new BoolField('global', 'global'),
-            (new IntField('position', 'position'))->addFlags(new Required()),
+            (new IntField('position', 'position')),
 
             (new OneToManyAssociationField('customFields', CustomFieldDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('relations', CustomFieldSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),

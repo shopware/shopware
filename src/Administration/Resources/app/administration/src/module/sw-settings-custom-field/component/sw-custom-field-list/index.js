@@ -69,6 +69,7 @@ Component.register('sw-custom-field-list', {
             this.isLoading = true;
             const params = this.getListingParams();
             params.sortBy = 'config.customFieldPosition';
+            params['total-count-mode'] = 1;
 
             if (params.term) {
                 params.criteria = CriteriaFactory.multi(

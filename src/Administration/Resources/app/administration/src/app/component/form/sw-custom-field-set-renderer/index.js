@@ -27,6 +27,12 @@ Component.register('sw-custom-field-set-renderer', {
         };
     },
 
+    computed: {
+        sortedSets() {
+            return this.sets.sort((a, b) => a.position - b.position);
+        }
+    },
+
     props: {
         sets: {
             type: Array,

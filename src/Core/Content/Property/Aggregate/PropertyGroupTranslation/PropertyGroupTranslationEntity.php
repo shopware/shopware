@@ -28,6 +28,11 @@ class PropertyGroupTranslationEntity extends TranslationEntity
     protected $position;
 
     /**
+     * @var bool|null
+     */
+    protected $visibleOnDetail;
+
+    /**
      * @var PropertyGroupEntity|null
      */
     protected $propertyGroup;
@@ -85,6 +90,16 @@ class PropertyGroupTranslationEntity extends TranslationEntity
     public function setPosition(?int $position): void
     {
         $this->position = $position;
+    }
+
+    public function getVisibleOnDetail(): ?bool
+    {
+        return $this->visibleOnDetail;
+    }
+
+    public function setVisibleOnDetail(bool $visibleOnDetail): void
+    {
+        $this->visibleOnDetail = $visibleOnDetail;
     }
 
     public function getCustomFields(): ?array

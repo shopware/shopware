@@ -108,7 +108,7 @@ class ProductLoader
         foreach ($properties as $option) {
             $group = $option->getGroup();
 
-            if (!$group) {
+            if (!$group || !$group->getVisibleOnDetail()) {
                 continue;
             }
 

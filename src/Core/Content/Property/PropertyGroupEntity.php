@@ -42,6 +42,11 @@ class PropertyGroupEntity extends Entity
     protected $filterable;
 
     /**
+     * @var bool
+     */
+    protected $visibleOnDetail;
+
+    /**
      * @var PropertyGroupOptionCollection|null
      */
     protected $options;
@@ -74,6 +79,16 @@ class PropertyGroupEntity extends Entity
     public function setFilterable(bool $filterable): void
     {
         $this->filterable = $filterable;
+    }
+
+    public function getVisibleOnDetail(): bool
+    {
+        return $this->visibleOnDetail;
+    }
+
+    public function setVisibleOnDetail(bool $visibleOnDetail): void
+    {
+        $this->visibleOnDetail = $visibleOnDetail;
     }
 
     public function getOptions(): ?PropertyGroupOptionCollection

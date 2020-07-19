@@ -32,6 +32,7 @@
       "labelName": "Name",
       "placeholderName": "Namen eingeben ...",
       "labelFilterable": "Im Produktfilter von Produktlisten anzeigen",
+      "labelVisibleOnDetail": "Anzeige auf der Produktdetailseite",
       "labelDisplayType": "Darstellung der Ausprägungsauswahl",
       "labelSortingType": "Sortierung",
       "labelOptionName": "Name",

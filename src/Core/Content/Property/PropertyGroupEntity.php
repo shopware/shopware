@@ -81,7 +81,7 @@ class PropertyGroupEntity extends Entity
         $this->filterable = $filterable;
     }
 
-    public function getVisibleOnDetail(): bool
+    public function isVisibleOnDetail(): bool
     {
         return $this->visibleOnDetail;
     }

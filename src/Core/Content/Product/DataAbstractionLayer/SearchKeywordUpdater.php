@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SearchKeyword\AbstractProductSearchKeywordAnalyzer;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -77,7 +78,12 @@ class SearchKeywordUpdater
     {
         $products = $context->disableCache(function (Context $context) use ($ids) {
             return $context->enableInheritance(function (Context $context) use ($ids) {
-                return $this->productRepository->search(new Criteria($ids), $context);
+                $criteria = new Criteria($ids);
+                if ($this->analyzer instanceof AbstractProductSearchKeywordAnalyzer) {
+                    $this->analyzer->extendCriteria($criteria);
+                }
+
+                return $this->productRepository->search($criteria, $context);
             });
         });
 

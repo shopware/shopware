@@ -22,6 +22,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
     * Added `user:change-password` command to set the password of an administration user
     * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
+    * Added `AbstractProductSearchKeywordAnalyzer` to allow keyword analyzers to fetch additional product data by 
+    extending the used Criteria.
     
 * Storefront
     * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead

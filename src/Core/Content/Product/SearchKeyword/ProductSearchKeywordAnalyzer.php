@@ -4,9 +4,10 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 
-class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
+class ProductSearchKeywordAnalyzer extends AbstractProductSearchKeywordAnalyzer
 {
     /**
      * @var TokenizerInterface
@@ -43,5 +44,12 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         }
 
         return $keywords;
+    }
+
+    public function extendCriteria(Criteria $criteria): void
+    {
+        $criteria->addAssociations([
+            'manufacturer',
+        ]);
     }
 }

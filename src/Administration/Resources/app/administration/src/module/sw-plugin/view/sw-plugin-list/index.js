@@ -40,7 +40,8 @@ Component.register('sw-plugin-list', {
             sortBy: 'upgradedAt',
             sortDirection: 'desc',
             sortType: 'upgradedAt:desc',
-            showDeleteModal: false
+            showDeleteModal: false,
+            activePagePlugins: null
         };
     },
 
@@ -80,8 +81,20 @@ Component.register('sw-plugin-list', {
             };
         },
 
-        plugins() {
+        initialPlugins() {
             return State.get('swPlugin').plugins;
+        },
+
+        plugins: {
+            get() {
+                if (this.activePagePlugins) {
+                    return this.activePagePlugins;
+                }
+                return State.get('swPlugin').plugins;
+            },
+            set(plugins) {
+                this.activePagePlugins = plugins;
+            }
         },
 
         totalPlugins() {
@@ -139,10 +152,6 @@ Component.register('sw-plugin-list', {
     watch: {
         searchTerm() {
             this.onSearch(this.searchTerm);
-        },
-
-        plugins() {
-            return this.isConfigAvailableForPlugins();
         }
     },
 
@@ -389,6 +398,11 @@ Component.register('sw-plugin-list', {
             })).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        onUpdateRecords(records) {
+            this.plugins = records;
+            this.isConfigAvailableForPlugins();
         },
 
         getLicenseInformationForPlugin(plugin) {

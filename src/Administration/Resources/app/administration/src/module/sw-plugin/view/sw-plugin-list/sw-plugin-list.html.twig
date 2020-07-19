@@ -37,13 +37,14 @@
                             class="sw-plugin-list__listing"
                             :repository="pluginRepository"
                             :columns="pluginColumns"
-                            :items="plugins"
+                            :items="initialPlugins"
                             :showSelection="false"
                             :fullPage="false"
                             :showPreviews="true"
                             :sortBy="sortBy"
                             :sortDirection="sortDirection"
-                            :compactMode="false">
+                            :compactMode="false"
+                            @update-records="onUpdateRecords">
 
                             <template #column-label="{ item, compact }" >
                                 {% block sw_plugin_list_grid_columns_label_label %}

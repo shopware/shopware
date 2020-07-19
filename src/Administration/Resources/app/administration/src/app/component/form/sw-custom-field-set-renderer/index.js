@@ -118,17 +118,17 @@ Component.register('sw-custom-field-set-renderer', {
 
         visibleCustomFieldSets() {
             if (!this.filterCustomFields) {
-                return this.sets;
+                return this.sortSets(this.sets);
             }
 
-            return this.sets.filter(set => {
+            return this.sortSets(this.sets.filter(set => {
                 // Return custom field sets of parent if current state is inherited
                 if (this.hasParent && this.entity.customFieldSets.length < 1) {
                     return this.parentEntity.customFieldSets.has(set.id) || set.global;
                 }
 
                 return this.entity.customFieldSets.has(set.id) || set.global;
-            });
+            }));
         },
 
         customFieldSetCriteria() {
@@ -234,6 +234,13 @@ Component.register('sw-custom-field-set-renderer', {
                     return false;
                 });
             }
+        },
+
+        /**
+         * @param { Array } sets
+         */
+        sortSets(sets) {
+            return sets.sort((a, b) => a.position - b.position);
         }
     }
 });

@@ -1,6 +1,6 @@
 {% block sw_custom_field_set_renderer %}
     <div class="sw-custom-field-set-renderer">
-        <template v-if="customFieldSetSelectionAvailable">
+        <template v-if="next9225 && customFieldSetSelectionAvailable">
             <sw-inherit-wrapper
                 v-model="customFieldSetSelectionActive"
                 :inheritedValue="getParentCustomFieldSetSelectionSwitchState"
@@ -87,14 +87,16 @@
                                         <sw-inherit-wrapper v-if="entity && entity.customFields"
                                                             v-model="entity.customFields[customField.name]"
                                                             :hasParent="hasParent"
-                                                            :inheritedValue="getInheritValue('customFields', customField.name)"
+                                                            :inheritedValue="getInheritedCustomField(customField.name)"
+                                                            :helpText="getInlineSnippet(customField.config.helpText)"
                                                             :label="getInlineSnippet(customField.config.label)">
-                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                            <template #content="props">
                                                 <sw-form-field-renderer
                                                     v-bind="getBind(customField)"
-                                                    :disabled="disabled || isInherited"
-                                                    :value="currentValue"
-                                                    @change="updateCurrentValue">
+                                                    :disabled="disabled || props.isInherited"
+                                                    :value="props.currentValue"
+                                                    @input="props.updateCurrentValue"
+                                                    @change="props.updateCurrentValue">
                                                 </sw-form-field-renderer>
                                             </template>
                                         </sw-inherit-wrapper>

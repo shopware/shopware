@@ -25,7 +25,7 @@
                 {% block sw_product_detail_properties_empty_state %}
                     <div class="sw-product-detail-properties__empty-state">
 
-                        {% block sw_product_detail_prices_empty_state_image %}
+                        {% block sw_product_detail_properties_empty_state_image %}
                             <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
                         {% endblock %}
 
@@ -38,8 +38,8 @@
                                             {% block sw_product_detail_properties_empty_state_text_link %}
                                                 <router-link
                                                     v-if="isInherited"
-                                                    :to="{ name: 'sw.product.detail.prices', params: { id: product.parentId } }"
-                                                    class="sw-product-detail-properties__parent-prices-link">
+                                                    :to="{ name: 'sw.product.detail.properties', params: { id: product.parentId } }"
+                                                    class="sw-product-detail-properties__parent-properties-link">
                                                     {{ $tc('sw-product.properties.linkPropertiesOfParent') }}
                                                     <sw-icon name="default-arrow-simple-right" small></sw-icon>
                                                 </router-link>

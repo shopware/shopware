@@ -722,6 +722,34 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     to
     * `sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage`
 * Removed `login.service::getLocalStorageKey()`
+* Added property `disabled` to component `sw-property-assignment`
+* Added property `disabled` to component `sw-property-search`
+* Added property `parentEntity` to component `sw-custom-field-set-renderer`
+* Added property `showCustomFieldSetSelection` to component `sw-custom-field-set-renderer`
+* Added computed variable `visibleCustomFieldSets` to component `sw-custom-field-set-renderer`
+* Added property `helpText` to component `sw-inherit-wrapper`
+* Added block `sw_inherit_wrapper_toggle_wrapper_help_text` to component `sw-inherit-wrapper`
+* Added block `sw_product_detail_prices_price_empty_state_text_child` to component `sw-product-detail-context-prices`
+* Added block `sw_product_detail_prices_price_empty_state_text_inherited` to component `sw-product-detail-context-prices`
+* Added block `sw_product_detail_prices_price_empty_state_text_link` to component `sw-product-detail-context-prices`
+* Added block `sw_product_detail_prices_price_empty_state_text_not_inherited` to component `sw-product-detail-context-prices`
+* Added block `sw_product_detail_prices_price_empty_state_text_empty` to component `sw-product-detail-context-prices`
+* Added block `sw_product_detail_prices_price_empty_state__inherit_switch` to component `sw-product-detail-context-prices`
+* Added block `sw_product_detail_properties_assignment_card` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_assignment_card_assignment` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_assignment_card_empty` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_card` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_image` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_text` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_text_child` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_text_inherited` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_text_link` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_text_not_inherited` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state_text_empty` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty_state__inherit_switch` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_assginment` to component `sw-product-detail-properties`
+* Added block `sw_product_detail_properties_empty` to component `sw-product-detail-properties`
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

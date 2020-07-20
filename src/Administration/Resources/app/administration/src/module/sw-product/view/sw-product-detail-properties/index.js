@@ -47,7 +47,7 @@ Component.register('sw-product-detail-properties', {
         },
 
         mountedComponent() {
-            this.isInherited = this.isChild && !this.product.prices.total;
+            this.isInherited = this.isChild && !this.product.options.total;
         },
 
         checkIfPropertiesExists() {

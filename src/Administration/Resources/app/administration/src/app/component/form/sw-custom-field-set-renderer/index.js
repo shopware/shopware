@@ -3,6 +3,7 @@ import './sw-custom-field-set-renderer.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const utils = Shopware.Utils;
 
 /**
  * @public
@@ -162,15 +163,8 @@ Component.register('sw-custom-field-set-renderer', {
             }
         },
 
-        getInheritValue(firstKey, secondKey) {
-            const parentEntity = this.parentEntity;
-
-            if (parentEntity && parentEntity[firstKey]) {
-                return parentEntity[firstKey].hasOwnProperty(secondKey) ?
-                    parentEntity[firstKey][secondKey] : parentEntity[firstKey];
-            }
-
-            return null;
+        getInheritedCustomField(customFieldName) {
+            return utils.get(this.parentEntity, `translated.customFields.${customFieldName}`, null);
         },
 
         getParentCustomFieldSetSelectionSwitchState() {
@@ -186,6 +180,7 @@ Component.register('sw-custom-field-set-renderer', {
         getBind(customField) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
             delete customFieldClone.config.label;
+            delete customFieldClone.config.helpText;
 
             return customFieldClone;
         },

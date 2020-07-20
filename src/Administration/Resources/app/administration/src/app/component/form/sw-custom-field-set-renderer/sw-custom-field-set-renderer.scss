@@ -19,4 +19,15 @@
         padding-left: 22px;
         margin-bottom: 22px;
     }
+
+    .sw-inherit-wrapper {
+        .sw-field--switch {
+            margin-top: 0;
+
+            .sw-field--switch__input {
+                height: 16px;
+                padding: 0;
+            }
+        }
+    }
 }

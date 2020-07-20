@@ -36,8 +36,10 @@ function createWrapper() {
             },
             parentEntity: {
                 id: 'parentId',
-                customFields: {
-                    customFieldName: 'inherit me'
+                translated: {
+                    customFields: {
+                        customFieldName: 'inherit me'
+                    }
                 }
             }
         },
@@ -55,6 +57,7 @@ function createWrapper() {
             'sw-icon': '<div class="sw-icon"></div>'
         },
         provide: {
+            next9225: false,
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve('bar') })
             },
@@ -63,7 +66,8 @@ function createWrapper() {
             }
         },
         mocks: {
-            $tc: key => key
+            $tc: key => key,
+            next9225: true
         }
     });
 }

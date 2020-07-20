@@ -55,21 +55,6 @@ Component.register('sw-settings-custom-field-set-list', {
             ));
 
             return criteria;
-        },
-
-        getList() {
-            this.isLoading = true;
-
-            this.entityRepository.search(this.listingCriteria, Shopware.Context.api)
-                .then((items) => {
-                    this.items = items;
-                    this.total = items.total;
-
-                    return this.items;
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
         }
     },
 

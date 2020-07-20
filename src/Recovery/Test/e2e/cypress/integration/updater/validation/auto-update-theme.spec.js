@@ -10,6 +10,8 @@ describe('Validation of theme and cache after auto update', () => {
 
     it('@update: Check caches after update', () => {
         cy.visit('/admin#/sw/settings/cache/index');
+        cy.login();
+
         cy.contains('Caches leeren').click();
         cy.visit('/');
         cy.get('.btn-buy')
@@ -18,6 +20,8 @@ describe('Validation of theme and cache after auto update', () => {
 
     it('@update: Check theme compile', () => {
         cy.visit('/admin');
+        cy.login();
+
         cy.get('.sw-admin-menu__sales-channel-item--0').click();
         cy.get('a[title="Theme"]').click();
 

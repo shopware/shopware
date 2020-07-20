@@ -17,6 +17,7 @@ describe('Minimal auto update', () => {
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/product/index');
+        cy.login();
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-data-grid__cell--name', 'Travel Pack | Proof Black').should('be.visible');
@@ -37,6 +38,7 @@ describe('Minimal auto update', () => {
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/category/index');
+        cy.login();
 
         cy.contains('.sw-tree-item__label', 'Startseite').click();
         cy.get('.sw-loader').should('not.exist');
@@ -58,6 +60,7 @@ describe('Minimal auto update', () => {
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/cms/index');
+        cy.login();
 
         cy.contains('.sw-cms-list-item', 'Beste Produkte Landingpage').click();
         cy.get('.sw-loader').should('not.exist');
@@ -79,6 +82,7 @@ describe('Minimal auto update', () => {
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/customer/index');
+        cy.login();
 
         cy.contains('.sw-data-grid__cell--firstName', 'Heino Knopf').click();
         cy.get('.sw-loader').should('not.exist');
@@ -100,6 +104,7 @@ describe('Minimal auto update', () => {
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/media/index');
+        cy.login();
 
         cy.get('.sw-media-library').should('be.visible');
         cy.get('.sw-media-media-item').scrollIntoView();

@@ -97,4 +97,10 @@ class SwSanitizeTwigFilterTest extends TestCase
         static::assertNull($newPurifier->config->get('Cache.DefinitionImpl'));
         static::assertEquals($cacheDir, $newPurifier->config->get('Cache.SerializerPath'));
     }
+
+    public function testSanitizeNotThrowingOnNull(): void
+    {
+        $filteredString = $this->swSanitize->sanitize($this->unfilteredString, null, true);
+        static::assertSame($filteredString, 'test');
+    }
 }

@@ -259,8 +259,12 @@ function applyTemplateOverrides(name) {
             override.raw
         );
 
-        // resolve the template tokens
-        baseTemplate.template.tokens = resolveTokens(baseTemplate.template.tokens, overrideTemplate.tokens);
+        overrideTemplate.tokens.forEach((overrideTokens) => {
+            // resolve the template tokens
+            if (overrideTokens.type === 'logic') {
+                baseTemplate.template.tokens = resolveTokens(baseTemplate.template.tokens, [overrideTokens], name);
+            }
+        });
     });
 
     normalizedTemplateRegistry.set(baseTemplate.name, baseTemplate);

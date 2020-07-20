@@ -125,7 +125,7 @@ class ProductDefinition extends EntityDefinition
 
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 
-            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
+            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ReadProtected(SalesChannelApiSource::class)),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
@@ -159,7 +159,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
-            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected(), new Inherited()),
+            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
             new ChildCountField(),
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
@@ -193,7 +193,7 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited()),
 
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
 
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),

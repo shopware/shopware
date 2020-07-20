@@ -2,6 +2,7 @@ import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-cross-selling', {
@@ -25,7 +26,40 @@ Component.register('sw-product-detail-cross-selling', {
         ])
     },
 
+    watch: {
+        product(product) {
+            product.crossSellings.forEach((item) => {
+                if (item.assignedProducts.length > 0) {
+                    return;
+                }
+
+                this.loadAssignedProducts(item);
+            });
+        }
+    },
+
     methods: {
+        loadAssignedProducts(crossSelling) {
+            const repository = this.repositoryFactory.create(
+                crossSelling.assignedProducts.entity,
+                crossSelling.assignedProducts.source
+            );
+
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('crossSellingId', crossSelling.id))
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .addAssociation('product');
+
+            repository.search(
+                criteria,
+                { ...Shopware.Context.api, inheritance: true }
+            ).then((assignedProducts) => {
+                crossSelling.assignedProducts = assignedProducts;
+            });
+
+            return crossSelling;
+        },
+
         onAddCrossSelling() {
             const crossSellingRepository = this.repositoryFactory.create(
                 this.product.crossSellings.entity,

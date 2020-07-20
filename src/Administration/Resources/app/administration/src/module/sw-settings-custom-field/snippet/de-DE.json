@@ -17,7 +17,8 @@
         "contextMenuEdit": "Bearbeiten",
         "buttonDelete": "Löschen",
         "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
-        "messageEmpty": "Noch keine Zusatzfelder."
+        "messageEmpty": "Noch keine Zusatzfelder.",
+        "helpTextGlobalSet": "Dieses Set ist global und kann nicht verändert werden."
       },
       "detail": {
         "labelTechnicalName": "Technischer Name",

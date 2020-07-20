@@ -53,12 +53,21 @@
                                         {% block sw_settings_custom_field_set_list_grid_column_label %}
                                             <sw-grid-column flex="minmax(180px, 2fr)"
                                                             :label="$tc('sw-settings-custom-field.set.list.columnName')">
-                                                <router-link
-                                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
-                                                         class="sw-custom-field-set-list__column-name"
-                                                         :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
+                                                <template v-if="item.global">
                                                     {{ getInlineSnippet(item.config.label) || item.name }}
-                                                </router-link>
+                                                    <sw-help-text
+                                                        class="sw-settings-custom-field-set-list__help-text-global-set"
+                                                        :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')">
+                                                    </sw-help-text>
+                                                </template>
+                                                <template v-else>
+                                                    <router-link
+                                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
+                                                        class="sw-custom-field-set-list__column-name"
+                                                        :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
+                                                        {{ getInlineSnippet(item.config.label) || item.name }}
+                                                    </router-link>
+                                                </template>
                                             </sw-grid-column>
                                         {% endblock %}
 
@@ -66,18 +75,26 @@
                                             <sw-grid-column flex="minmax(70px, 70px)"
                                                             align="center"
                                                             label="">
-                                                <sw-context-button>
-                                                    <sw-context-menu-item
-                                                            class="sw-custom-field-set-list__edit-action"
-                                                            :routerLink="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
-                                                        {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
-                                                    </sw-context-menu-item>
+                                                    <sw-context-button>
+                                                        <sw-context-menu-item
+                                                                v-tooltip="{
+                                                                    message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
+                                                                    showOnDisabledElements: true,
+                                                                    disabled: !item.global
+                                                                }"
+                                                                :disabled="item.global"
+                                                                class="sw-custom-field-set-list__edit-action"
+                                                                :routerLink="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
+                                                            {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
+                                                        </sw-context-menu-item>
 
-                                                    <sw-context-menu-item variant="danger"
-                                                                          @click="onDelete(item.id)">
-                                                        {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                                    </sw-context-menu-item>
-                                                </sw-context-button>
+                                                        <template v-if="!item.global">
+                                                            <sw-context-menu-item variant="danger"
+                                                                                  @click="onDelete(item.id)">
+                                                                {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                                            </sw-context-menu-item>
+                                                        </template>
+                                                    </sw-context-button>
                                             </sw-grid-column>
                                         {% endblock %}
 

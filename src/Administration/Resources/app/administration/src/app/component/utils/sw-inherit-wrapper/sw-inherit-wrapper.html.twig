@@ -17,6 +17,14 @@
                         {% block sw_inherit_wrapper_toggle_wrapper_label %}
                             <label class="sw-inherit-wrapper__inheritance-label">{{ label }}</label>
                         {% endblock %}
+
+                        {% block sw_inherit_wrapper_toggle_wrapper_help_text %}
+                            <sw-help-text
+                                v-if="helpText"
+                                class="sw-inherit-wrapper__help-text"
+                                :text="helpText">
+                            </sw-help-text>
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </template>

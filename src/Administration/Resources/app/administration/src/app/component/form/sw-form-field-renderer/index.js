@@ -9,7 +9,7 @@ const { types } = Shopware.Utils;
  * @status ready
  * @description
  * Dynamically renders components with a given configuration. The rendered component can be forced by defining
- * the config.componentName porperty. If not set the form-field-renderer will guess a suitable
+ * the config.componentName property. If not set the form-field-renderer will guess a suitable
  * component for the type. Everything inside the config prop will be passed to the rendered child prop as properties.
  * Also all additional props will be passed to the child.
  * @example-type code-only

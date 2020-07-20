@@ -899,5 +899,11 @@
     "tooltip": {
       "warning": "You have insufficient permissions."
     }
+  },
+  "sw-custom-field-set-renderer": {
+    "labelCustomFieldSetSelectSwitch": "Select custom field sets",
+    "placeholderCustomFieldSetSelect": "Select custom field sets...",
+    "labelCustomFieldSetSelect": "Custom field sets",
+    "messagePluginSets": "Plugin custom field sets (Can't be removed)"
   }
 }

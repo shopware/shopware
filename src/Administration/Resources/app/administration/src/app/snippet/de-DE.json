@@ -899,5 +899,11 @@
     "tooltip": {
       "warning": "Du hast nicht die erforderlichen Berechtigungen."
     }
+  },
+  "sw-custom-field-set-renderer": {
+    "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
+    "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
+    "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
+    "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
   }
 }

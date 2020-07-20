@@ -17,7 +17,8 @@
         "contextMenuEdit": "Edit",
         "buttonDelete": "Delete",
         "messageDeleteSuccess": "The set \"{name}\" has been deleted.",
-        "messageEmpty": "No custom fields yet."
+        "messageEmpty": "No custom fields yet.",
+        "helpTextGlobalSet": "This set is global and cannot be edited."
       },
       "detail": {
         "labelTechnicalName": "Technical name",

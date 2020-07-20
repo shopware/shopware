@@ -10,6 +10,7 @@
                         <slot name="toolbar-search-field">
                             <sw-field class="sw-property-search__search-field"
                                       v-model="searchTerm"
+                                      :disabled="disabled"
                                       ref="searchField"
                                       :placeholder="$tc('sw-property-search.placeholderSearch')"
                                       autocomplete="off"

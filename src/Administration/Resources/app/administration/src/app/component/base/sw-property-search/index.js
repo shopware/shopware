@@ -24,6 +24,11 @@ Component.register('sw-property-search', {
             default() {
                 return [];
             }
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

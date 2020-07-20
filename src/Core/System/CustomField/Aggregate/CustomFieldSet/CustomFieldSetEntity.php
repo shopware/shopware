@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSet;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
@@ -27,6 +28,11 @@ class CustomFieldSetEntity extends Entity
     protected $active;
 
     /**
+     * @var bool
+     */
+    protected $global;
+
+    /**
      * @var CustomFieldCollection|null
      */
     protected $customFields;
@@ -35,6 +41,11 @@ class CustomFieldSetEntity extends Entity
      * @var CustomFieldSetRelationCollection|null
      */
     protected $relations;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $products;
 
     public function getName(): string
     {
@@ -89,5 +100,25 @@ class CustomFieldSetEntity extends Entity
     public function getApiAlias(): string
     {
         return 'custom_field_set';
+    }
+
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    public function setProducts(ProductCollection $products): void
+    {
+        $this->products = $products;
+    }
+
+    public function isGlobal(): bool
+    {
+        return $this->global;
+    }
+
+    public function setGlobal(bool $global): void
+    {
+        $this->global = $global;
     }
 }

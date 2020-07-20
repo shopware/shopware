@@ -69,7 +69,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
                 // Confirm
-                cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+                cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
                 cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
                 cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');

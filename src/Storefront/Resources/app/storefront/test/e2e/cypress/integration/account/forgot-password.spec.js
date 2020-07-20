@@ -16,7 +16,7 @@ describe('Account: Forgot password', () => {
 
         cy.get('.alert.alert-success').should('be.visible');
         cy.get('.alert.alert-success').should((element) => {
-            expect(element).to.contain('We sent you a confirmation email, if the provided email address is registered.');
+            expect(element).to.contain('If the provided email address is registered, a confirmation email including a password reset link has been sent.');
         });
     });
 
@@ -33,7 +33,7 @@ describe('Account: Forgot password', () => {
 
         // The success message should always be shown for security reasons
         cy.get('.alert.alert-success').should((element) => {
-            expect(element).to.contain('We sent you a confirmation email, if the provided email address is registered.');
+            expect(element).to.contain('If the provided email address is registered, a confirmation email including a password reset link has been sent.');
         });
     });
 });

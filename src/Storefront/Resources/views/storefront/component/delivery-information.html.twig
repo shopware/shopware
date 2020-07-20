@@ -55,6 +55,7 @@
             <p class="delivery-information">
                 <span class="delivery-status-indicator bg-warning"></span>
                 {{ "detail.deliveryTimeRestock"|trans({
+                    '%count%': product.restockTime,
                     '%restockTime%': product.restockTime,
                     '%name%': product.deliveryTime.translation('name')
                 })|sw_sanitize }}

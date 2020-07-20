@@ -4,22 +4,22 @@ import OrderPageObject from '../../../support/pages/module/sw-order.page-object'
 
 function navigateToOrder(page) {
     cy.route({
-        url: '/api/v*/_action/version/order/**',
+        url: `${Cypress.env('apiPath')}/_action/version/order/**`,
         method: 'post'
     }).as('orderEditCall');
 
     cy.route({
-        url: 'api/v*/_action/version/merge/order/**',
+        url: `${Cypress.env('apiPath')}/_action/version/merge/order/**`,
         method: 'post'
     }).as('orderSaveCall');
 
     cy.route({
-        url: '/api/v*/_action/order/**/product/**',
+        url: `${Cypress.env('apiPath')}/_action/order/**/product/**`,
         method: 'post'
     }).as('orderAddProductCall');
 
     cy.route({
-        url: '/api/v*/_action/order/**/recalculate',
+        url: `${Cypress.env('apiPath')}/_action/order/**/recalculate`,
         method: 'post'
     }).as('orderRecalculateCall');
 

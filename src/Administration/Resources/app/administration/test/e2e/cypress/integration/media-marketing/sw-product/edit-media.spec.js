@@ -23,7 +23,7 @@ describe('Product: Edit product media', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v*/product/*',
+                url: `${Cypress.env('apPath')}/product/*`,
                 method: 'patch'
             }).as('saveProduct');
 
@@ -99,7 +99,7 @@ describe('Product: Edit product media', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v*/product/*',
+                url: `${Cypress.env('apiPath')}/product/*`,
                 method: 'patch'
             }).as('saveProduct');
 
@@ -182,11 +182,11 @@ describe('Product: Edit product media', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveProduct');
         cy.route({
-            url: '/api/v*/product/**/media/*',
+            url: `${Cypress.env('apiPath')}/product/**/media/*`,
             method: 'delete'
         }).as('removeProductMedia');
 

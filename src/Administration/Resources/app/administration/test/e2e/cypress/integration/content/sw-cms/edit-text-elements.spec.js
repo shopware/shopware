@@ -20,12 +20,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@base @content: use text block with headline', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page/*',
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
@@ -74,12 +74,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@content: use text block with three columns', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page/*',
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 

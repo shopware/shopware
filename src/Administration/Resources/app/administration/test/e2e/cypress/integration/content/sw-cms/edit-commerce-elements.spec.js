@@ -44,7 +44,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         }).as('saveData');
 
         cy.route({
-            url: 'api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 

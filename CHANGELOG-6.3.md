@@ -721,8 +721,8 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     * `sw-users-permissions.users.user-detail.notification.notificationInvalidEmailErrorMessage`
     to
     * `sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage`
-    
-    
+* Removed `login.service::getLocalStorageKey()`
+
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
 * Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but it is already passed:

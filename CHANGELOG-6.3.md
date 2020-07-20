@@ -50,6 +50,7 @@ NEXT
 * Added prop `salesChannelId` to `sw-order-line-items-grid-sales-channel/index.js`
 * Added prop `salesChannelId` to `sw-order-product-select/index.js`
 * Changed tax id of newly generated variants to null in order to inherit from the parent product
+* Fixed template factory so it is possible again to override nested blocks in one `Component.override()`
 
 #### Core
 
@@ -108,9 +109,6 @@ NEXT
     * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
 * Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
 * Fixed `packUnit` and `packUnitPlural` not being properly accessed in `buy-widget-form.html.twig`
-* Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
-* Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
-* Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
 
 6.3.0.0
 ----------------

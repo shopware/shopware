@@ -1348,8 +1348,30 @@ describe('core/factory/component.factory.js', () => {
         expect(component.template).toBe('<input type="password">');
     });
 
-    it('allows to overide nested blocks', () => {
+    it('override should redeclare blocks if parent is used', () => {
+        ComponentFactory.register('base-component', {
+            // eslint-disable-next-line max-len
+            template: '{% block base_component %}<div>{% block content %}This is the base content.{% endblock %}</div>{% endblock %}'
+        });
+
+        ComponentFactory.override('base-component', {
+            template: '{% block content %}{% parent %} This is the inner override.{% endblock %}'
+        });
+
+        ComponentFactory.override('base-component', {
+            template: '{% block base_component %}<div>This is the outer override. {% parent %}</div>{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('base-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div>This is the outer override. <div>This is the base content. This is the inner override.</div></div>';
+
+        expect(component.template).toBe(expected);
+    });
+
+    it('allows to override nested blocks', () => {
         ComponentFactory.register('root-component', {
+            // eslint-disable-next-line max-len
             template: '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
         });
 
@@ -1360,7 +1382,27 @@ describe('core/factory/component.factory.js', () => {
         });
 
         const component = ComponentFactory.build('root-component');
-        const expected = '<div class="root-component">Overriding outer block Overriding inner block <div>I\'m nested</div> </div>';
+        // eslint-disable-next-line max-len
+        const expected = '<div class="root-component">Overriding outer block Overriding inner block <div>I\'m nested</div>  </div>';
+
+        expect(component.template).toEqual(expected);
+    });
+
+    it('allows to override nested blocks with parent call', () => {
+        ComponentFactory.register('root-component', {
+            // eslint-disable-next-line max-len
+            template: '<div class="root-component">{% block outer_block %}Im the outer block {% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('root-component', {
+            template:
+                '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
+                '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
+        });
+
+        const component = ComponentFactory.build('root-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div class="root-component">Overriding outer block Im the outer block Overriding inner block <div>I\'m nested</div>  </div>';
 
         expect(component.template).toEqual(expected);
     });

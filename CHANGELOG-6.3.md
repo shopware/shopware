@@ -405,6 +405,8 @@ Table of contents
 * Added flag `ReadProtected` to `price`, `price` and `listingPrices` in `ProductDefinition`
 * Added `HEADER_CURRENCY_ID` to `Shopware\Core\PlatformRequest`
 * `Shopware\Core\Framework\Routing\ApiRequestContextResolver` is now able to resolve the `sw-currency-id` header
+* Allow specifying translations for languages that don't exist. These translations will now be silently skipped.
+  This used to throw the exception `\Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException`.
 
 #### Storefront
 * Added plugin injection in hot mode

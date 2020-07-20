@@ -46,5 +46,16 @@
                 background-color: $color-gray-100;
             }
         }
+
+        .sw-product-variants-delivery-listing_entity-select {
+            .sw-entity-single-select__selection {
+                display: flex;
+                align-items: center;
+            }
+
+            .sw-entity-single-select__selection-text {
+                max-width: 80%;
+            }
+        }
     }
 }

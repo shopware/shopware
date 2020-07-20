@@ -22,16 +22,18 @@
                         {% endblock %}
 
                         {% block sw_product_variants_delivery_listing_config_single_main_variant_select %}
-                                <sw-entity-single-select :value="mainVariant"
-                                                          entity="product"
-                                                          labelProperty="name"
-                                                          :criteria="variantCriteria"
-                                                          :context="context"
-                                                          id="mainVariant"
-                                                          :key="product.id"
-                                                          :disabled="isDisabledListingMode('single')"
-                                                          :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
-                                                          @change="updateMainVariant">
+                            <sw-entity-single-select
+                                class="sw-product-variants-delivery-listing_entity-select"
+                                :value="mainVariant"
+                                entity="product"
+                                labelProperty="name"
+                                :criteria="variantCriteria"
+                                :context="context"
+                                id="mainVariant"
+                                :key="product.id"
+                                :disabled="isDisabledListingMode('single')"
+                                :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
+                                @change="updateMainVariant">
                                     <template #selection-label-property="{ item }">
                                         <slot name="selection-label-property" v-bind="{ item }">
                                             <sw-product-variant-info

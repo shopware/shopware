@@ -51,7 +51,7 @@ Component.register('sw-product-variant-info', {
     },
 
     mounted() {
-        this.createdComponent();
+        this.mountedComponent();
     },
 
     computed: {
@@ -61,7 +61,7 @@ Component.register('sw-product-variant-info', {
     },
 
     methods: {
-        createdComponent() {
+        mountedComponent() {
             this.setHelpText();
         },
 

@@ -938,6 +938,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * `Shopware\Core\Framework\Routing\ApiRequestContextResolver` is now able to resolve the `sw-currency-id` header
 * Allow specifying translations for languages that don't exist. These translations will now be silently skipped.
   This used to throw the exception `\Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException`.
+* Added check to prevent mails being sent when `\Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent::stopPropagation` was called before
 
 #### Storefront
 * Added plugin injection in hot mode

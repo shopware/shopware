@@ -210,6 +210,13 @@ Table of contents
 * Added computed `customFieldCriteria` to `sw-custom-field-list`
 * Added method `setTotalOfCustomFields` to `sw-custom-field-list`
 * Added method `onPageChange` to `sw-custom-field-list`
+* `repository.data.js` now sends a `sw-currency-id` header when setting the option `currencyId`
+* `sw-entity-grid` now emits a new event `paginate` in method `paginate`
+* `sw-entity-listing` methods `sort` and `paginate` can now return `false` when using the boolean option `useCustomSort` on a grid column.
+    * The further execution of `doSearch` will be intercepted and custom logic can be implemented instead.
+* Added data prop `lastSortedColumn` to `sw-entity-listing`
+* Method `getCurrencyPriceByCurrencyId` in `sw-product-list/index.js` now receives parameters `(currencyId, prices)` instead of `(itemId, currencyId)`
+* Method `onColumnSort` added in `sw-product-list/index.js`
 * Added method `loadCurrentSalesChannelConfig` to `sw-system-config` to loads the current sales channel config without using the cached value 
 * `sw-entity-multi-id-select` can now consider criteria in result lists
 
@@ -396,6 +403,8 @@ Table of contents
         * `Shopware/Core/Migration/Migration1594887027AppConfigPK`
 * Added new property `merged` and method `isMerged` to `LineItemAddedEvent`
 * Added flag `ReadProtected` to `price`, `price` and `listingPrices` in `ProductDefinition`
+* Added `HEADER_CURRENCY_ID` to `Shopware\Core\PlatformRequest`
+* `Shopware\Core\Framework\Routing\ApiRequestContextResolver` is now able to resolve the `sw-currency-id` header
 
 #### Storefront
 * Added plugin injection in hot mode

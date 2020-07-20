@@ -500,6 +500,14 @@ export default class Repository {
                 headers
             );
         }
+
+        if (context.currencyId) {
+            headers = Object.assign(
+                { 'sw-currency-id': context.currencyId },
+                headers
+            );
+        }
+
         if (context.versionId) {
             headers = Object.assign(
                 { 'sw-version-id': context.versionId },

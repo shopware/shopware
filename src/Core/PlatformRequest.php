@@ -18,6 +18,7 @@ final class PlatformRequest
     public const HEADER_CONTEXT_TOKEN = 'sw-context-token';
     public const HEADER_ACCESS_KEY = 'sw-access-key';
     public const HEADER_LANGUAGE_ID = 'sw-language-id';
+    public const HEADER_CURRENCY_ID = 'sw-currency-id';
     public const HEADER_INHERITANCE = 'sw-inheritance';
     public const HEADER_VERSION_ID = 'sw-version-id';
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';

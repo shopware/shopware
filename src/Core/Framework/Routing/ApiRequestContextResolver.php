@@ -102,6 +102,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             }
         }
 
+        if ($request->headers->has(PlatformRequest::HEADER_CURRENCY_ID)) {
+            $currencyHeader = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
+
+            if ($currencyHeader !== null) {
+                $parameters['currencyId'] = $currencyHeader;
+            }
+        }
+
         if ($request->headers->has(PlatformRequest::HEADER_INHERITANCE)) {
             $parameters['considerInheritance'] = true;
         }

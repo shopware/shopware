@@ -80,7 +80,7 @@ class ThemeDumpCommand extends Command
 
         /** @var ThemeEntity $themeEntity */
         $themeEntity = $themes->first();
-        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($themeEntity->getTechnicalName());
+        $themeConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($this->getTechnicalName($themeEntity->getId()));
 
         $dump = $this->themeFileResolver->resolveFiles(
             $themeConfig,
@@ -96,5 +96,24 @@ class ThemeDumpCommand extends Command
         );
 
         return 0;
+    }
+
+    private function getTechnicalName(string $themeId): ?string
+    {
+        $technicalName = null;
+
+        do {
+            /** @var ThemeEntity|null $theme */
+            $theme = $this->themeRepository->search(new Criteria([$themeId]), $this->context)->first();
+
+            if (!$theme instanceof ThemeEntity) {
+                break;
+            }
+
+            $technicalName = $theme->getTechnicalName();
+            $themeId = $theme->getParentThemeId();
+        } while ($technicalName === null && $themeId !== null);
+
+        return $technicalName;
     }
 }

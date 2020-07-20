@@ -49,7 +49,7 @@
                                            value="1">
                                     <input type="hidden"
                                            name="lineItems[{{ id }}][quantity]"
-                                           value="1">
+                                           value="{{ product.minPurchase }}">
                                 {% endblock %}
 
                                 {% block page_product_detail_product_buy_meta %}

@@ -132,6 +132,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
+            if ($lineItem->getQuantity() < $product->getMinPurchase()) {
+                $lineItem->setQuantity($product->getMinPurchase());
+                $definition->setQuantity($product->getMinPurchase());
+            }
+
             $available = $product->getCalculatedMaxPurchase() ?? $lineItem->getQuantity();
 
             if ($available <= 0 || $available < $product->getMinPurchase()) {

@@ -42,7 +42,7 @@ describe('Country: Test crud operations', () => {
             .contains('01.Niemandsland');
     });
 
-    it('@settings: update and read country', () => {
+    it.skip('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

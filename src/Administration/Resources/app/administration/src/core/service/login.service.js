@@ -28,6 +28,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
 
     return {
         loginByUsername,
+        verifyUserByUsername,
         refreshToken,
         getToken,
         getBearerAuthentication,
@@ -100,6 +101,24 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
             });
 
             return response.data.access_token;
+        });
+    }
+
+    function verifyUserByUsername(user, pass) {
+        return httpClient.post('/oauth/token', {
+            grant_type: 'password',
+            client_id: 'administration',
+            scope: 'user-verified',
+            username: user,
+            password: pass
+        }, {
+            baseURL: context.apiPath
+        }).then((response) => {
+            return {
+                access: response.data.access_token,
+                expiry: response.data.expires_in,
+                refresh: response.data.refresh_token
+            };
         });
     }
 

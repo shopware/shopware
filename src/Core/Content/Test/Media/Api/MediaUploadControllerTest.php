@@ -111,7 +111,7 @@ class MediaUploadControllerTest extends TestCase
         $target = $this->getContainer()->getParameter('kernel.project_dir') . '/public/shopware-logo.png';
         copy(__DIR__ . '/../fixtures/shopware-logo.png', $target);
 
-        $baseUrl = $_SERVER['APP_URL'] ?? '';
+        $baseUrl = 'http://assets.shopware.com/sw_logo_white.png';
 
         $url = sprintf(
             '/api/v%s/_action/media/%s/upload',
@@ -128,7 +128,7 @@ class MediaUploadControllerTest extends TestCase
                 [
                     'HTTP_CONTENT-TYPE' => 'application/json',
                 ],
-                json_encode(['url' => $baseUrl . '/shopware-logo.png'])
+                json_encode(['url' => $baseUrl])
             );
             $response = $this->getBrowser()->getResponse();
         } finally {
@@ -145,7 +145,7 @@ class MediaUploadControllerTest extends TestCase
         );
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($media)));
 
-        $this->assertMediaApiResponse();
+        $this->assertMediaApiResponse(800);
     }
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
@@ -277,7 +277,7 @@ class MediaUploadControllerTest extends TestCase
         return $media;
     }
 
-    private function assertMediaApiResponse(): void
+    private function assertMediaApiResponse($width = 499): void
     {
         $this->getBrowser()->request(
             'GET',
@@ -292,7 +292,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertSame(
-            499,
+            $width,
             $responseData['data']['attributes']['metaData']['width'],
             print_r($responseData['data']['attributes'], true)
         );

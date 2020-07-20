@@ -5,7 +5,7 @@ describe('Account: Forgot password', () => {
         return cy.createCustomerFixtureStorefront()
     });
 
-    it('R@customer: equest a new password with existing customer mail', () => {
+    it('@customer: equest a new password with existing customer mail', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
         cy.get(page.elements.loginCard).should('be.visible');

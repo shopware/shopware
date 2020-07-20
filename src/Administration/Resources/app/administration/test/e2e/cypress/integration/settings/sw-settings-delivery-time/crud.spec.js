@@ -21,7 +21,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time',
+            url: `${Cypress.env('apiPath')}/delivery-time`,
             method: 'post'
         }).as('saveData');
 
@@ -75,7 +75,7 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Try to create delivery time with empty required fields', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time',
+            url: `${Cypress.env('apiPath')}/delivery-time`,
             method: 'post'
         }).as('saveEmptyData');
 
@@ -104,7 +104,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time/*',
+            url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'patch'
         }).as('updateData');
 
@@ -145,7 +145,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time/*',
+            url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'delete'
         }).as('deleteData');
 

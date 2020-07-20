@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -203,5 +204,29 @@ class MediaSerializerTest extends TestCase
 
         $actual = $mediaSerializer->deserialize($config, $mediaDefinition, []);
         static::assertEmpty($actual);
+    }
+
+    public function testSupportsOnlyMedia(): void
+    {
+        $serializer = new MediaSerializer(
+            $this->createMock(MediaService::class),
+            $this->createMock(FileSaver::class),
+            $this->getContainer()->get('media_folder.repository'),
+            $this->getContainer()->get('media.repository')
+        );
+
+        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        foreach ($definitionRegistry->getDefinitions() as $definition) {
+            $entity = $definition->getEntityName();
+
+            if ($entity === MediaDefinition::ENTITY_NAME) {
+                static::assertTrue($serializer->supports($entity));
+            } else {
+                static::assertFalse(
+                    $serializer->supports($entity),
+                    MediaSerializer::class . ' should not support ' . $entity
+                );
+            }
+        }
     }
 }

@@ -9,11 +9,10 @@
 Cypress.Commands.add('typeAndCheckSearchField', {
     prevSubject: 'element'
 }, (subject, value) => {
-
     // Request we want to wait for later
     cy.server();
     cy.route({
-        url: '/api/**/search/**',
+        url: `${Cypress.env('apiPath')}/search/**`,
         method: 'post'
     }).as('searchResultCall');
 
@@ -71,7 +70,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                     return [
                         ...selectedPrivileges,
                         ...requiredPermissions
-                    ]
+                    ];
                 })()
             }
         }).then(response => {
@@ -86,13 +85,13 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
             body: {
                 aclRoles: [{ id: roleID }],
                 admin: false,
-                email: "max@muster.com",
-                firstName: "Max",
-                id: "b7fb49e9d86d4e5b9b03c9d6f929e36b",
-                lastName: "Muster",
+                email: 'max@muster.com',
+                firstName: 'Max',
+                id: 'b7fb49e9d86d4e5b9b03c9d6f929e36b',
+                lastName: 'Muster',
                 localeId: localeId,
-                password: "Passw0rd!",
-                username: "maxmuster"
+                password: 'Passw0rd!',
+                username: 'maxmuster'
             }
         });
 
@@ -107,4 +106,23 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
         cy.get('#sw-field--password').type('Passw0rd!');
         cy.get('.sw-login__login-action').click();
     });
+});
+
+/**
+ * Cleans up any previous state by restoring database and clearing caches
+ * @memberOf Cypress.Chainable#
+ * @name openInitialPage
+ * @function
+ */
+Cypress.Commands.add('openInitialPage', (url) => {
+    // Request we want to wait for later
+    cy.server();
+    cy.route(`${Cypress.env('apiPath')}/_info/me`).as('meCall');
+
+
+    cy.visit(url);
+    cy.wait('@meCall').then((xhr) => {
+        expect(xhr).to.have.property('status', 200);
+    });
+    cy.get('.sw-desktop').should('be.visible');
 });

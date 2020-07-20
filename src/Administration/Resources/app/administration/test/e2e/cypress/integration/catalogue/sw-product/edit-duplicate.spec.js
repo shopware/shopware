@@ -22,7 +22,7 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/**/_action/clone/product/*',
+            url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
             method: 'POST'
         }).as('duplicateProduct');
         cy.route({
@@ -56,11 +56,11 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/**/_action/clone/product/*',
+            url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
             method: 'POST'
         }).as('duplicateProduct');
         cy.route({
-            url: '/api/**/search/product',
+            url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
         }).as('getProduct');
 

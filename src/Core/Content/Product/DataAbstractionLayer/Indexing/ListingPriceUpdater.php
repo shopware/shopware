@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPrice;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ListingPriceUpdater
@@ -22,10 +25,22 @@ class ListingPriceUpdater
      */
     private $priceRounding;
 
+    /**
+     * @var Price
+     */
+    private $priceStruct;
+
+    /**
+     * @var ListingPrice
+     */
+    private $listingPrice;
+
     public function __construct(Connection $connection, PriceRounding $priceRounding)
     {
         $this->connection = $connection;
         $this->priceRounding = $priceRounding;
+        $this->priceStruct = new Price('', 0, 0, true);
+        $this->listingPrice = new ListingPrice();
     }
 
     public function update(array $ids, Context $context): void
@@ -40,22 +55,8 @@ class ListingPriceUpdater
 
         $currencies = FetchModeHelper::groupUnique($currencies);
 
-        /**
-         * $prices is now grouped for parent_id
-         *
-         * parent_id = [
-         *      ['variant_id' => '..', 'rule_id' => '..', 'price' => '..'],
-         *      ['variant_id' => '..', 'rule_id' => '..', 'price' => '..'],
-         * ],
-         * parent_id = [
-         *      ['variant_id' => '..', 'rule_id' => '..', 'price' => '..'],
-         *      ['variant_id' => '..', 'rule_id' => '..', 'price' => '..'],
-         * ]
-         *
-         * Each product contains a list of all advanced prices (table: product_price => rule_id != null)
-         * Each product contains a list of all simple prices   (product.price => rule_id === null)
-         */
-        $prices = $this->fetchPrices($ids, $context);
+        $prices = $this->fetchPrices($ids, $currencies, $context);
+
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
         RetryableQuery::retryable(function () use ($ids, $versionId): void {
@@ -70,13 +71,24 @@ class ListingPriceUpdater
             $this->connection->prepare('UPDATE product SET listing_prices = :price WHERE id = :id AND version_id = :version')
         );
 
-        // now calculate the price range for each "parent" product
         foreach ($prices as $productId => $productPrices) {
-            $ruleIds = array_unique(array_column($productPrices, 'rule_id'));
+            $ruleIds = array_keys(array_flip(array_column($productPrices, 'rule_id')));
 
-            $listingPrices = $this->calculateListingPrices($ruleIds, $productPrices, $currencies);
+            $listingPrices = [];
 
-            $encoded = json_encode($listingPrices);
+            foreach ($ruleIds as $ruleId) {
+                foreach ($currencies as $currencyId => $_currency) {
+                    $range = $this->calculatePriceRange($currencyId, $ruleId, $productPrices);
+
+                    $currencyKey = 'c' . $currencyId;
+                    $ruleKey = 'r' . $ruleId;
+
+                    $listingPrices[$ruleKey][$currencyKey] = $range;
+                }
+            }
+
+            $structs = $this->hydrate($listingPrices);
+            $encoded = json_encode(['structs' => serialize($structs), 'formatted' => $listingPrices]);
 
             $query->execute([
                 'price' => $encoded,
@@ -86,22 +98,20 @@ class ListingPriceUpdater
         }
     }
 
-    private function fetchPrices(array $ids, Context $context): array
+    private function fetchPrices(array $ids, array $currencies, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
-            'LOWER(HEX(IFNULL(product.parent_id, product.id))) as group_id',
+            'LOWER(HEX(IFNULL(product.parent_id, product.id))) as id',
+            'LOWER(HEX(price.id)) as price_id',
             'LOWER(HEX(product.id)) as variant_id',
             'LOWER(HEX(price.rule_id)) as rule_id',
             'price.price',
         ]);
 
         $query->from('product', 'product');
-        $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.prices AND product.version_id = price.product_version_id');
+        $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.id AND product.version_id = price.product_version_id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
-        $query->andWhere('product.available = 1');
-        $query->andWhere('product.active = 1');
-        $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
         $query->andWhere('product.version_id = :version');
 
         $ids = Uuid::fromHexToBytesList($ids);
@@ -111,92 +121,58 @@ class ListingPriceUpdater
 
         $data = $query->execute()->fetchAll();
 
-        $grouped = [];
         foreach ($data as &$row) {
-            $row['price'] = json_decode($row['price'], true);
-            $grouped[$row['group_id']][] = $row;
-        }
+            $price = json_decode($row['price'], true);
 
-        $query = $this->connection->createQueryBuilder();
-        $query->select([
-            'LOWER(HEX(IFNULL(product.parent_id, product.id))) as group_id',
-            'LOWER(HEX(product.id)) as variant_id',
-            'NULL as rule_id',
-            'IFNULL(product.price, parent.price) as price',
-        ]);
+            $key = 'c' . Defaults::CURRENCY;
 
-        $query->from('product', 'product');
-        $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
-        $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
-        $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
-        $query->andWhere('product.available = 1');
-        $query->andWhere('product.active = 1');
-        $query->andWhere('product.version_id = :version');
-
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
-        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
-
-        $defaults = $query->execute()->fetchAll();
-
-        foreach ($defaults as $row) {
-            $row['price'] = json_decode($row['price'], true);
-            $grouped[$row['group_id']][] = $row;
-        }
-
-        return $grouped;
-    }
-
-    private function calculateListingPrices(array $ruleIds, array $prices, array $currencies): array
-    {
-        $ranges = [];
-
-        // at this point $prices contains only prices of the parent or his variants
-        // if a variant has a rule-price, we will add a fallback row with the simple price of the variant
-        // (inheritance of simple price is considered here)
-        $prices = $this->addFallbackToRulePrices($ruleIds, $prices);
-
-        foreach ($ruleIds as $ruleId) {
-            // check if the product contains prices for the currency rule
-            $rulePrices = array_filter($prices, function (array $price) use ($ruleId) {
-                return $price['rule_id'] === $ruleId;
-            });
-
-            if (empty($rulePrices)) {
-                continue;
+            if (!isset($price[$key])) {
+                throw new \RuntimeException(sprintf('Missing default price for product %s', $row['variant_id']));
             }
 
-            // now calculate currency prices that all prices are based on the same currencies
-            [$rulePrices, $currencyIds] = $this->unifyPrices($rulePrices, $currencies);
+            $default = $price[$key];
 
-            foreach ($currencyIds as $currencyId) {
-                $range = $this->calculatePriceRange($currencyId, $ruleId, $rulePrices);
+            foreach ($currencies as $currencyId => $currency) {
+                $key = 'c' . $currencyId;
 
-                if (empty($range)) {
+                if (isset($price[$key])) {
                     continue;
                 }
-                $currencyKey = 'c' . $currencyId;
 
-                $ruleKey = 'r' . $ruleId;
-                if ($ruleId === null) {
-                    $ruleKey = 'default';
-                }
+                $currencyPrice = $default;
 
-                $ranges[$ruleKey][$currencyKey] = $range;
+                $currencyPrice['gross'] = $this->priceRounding->round(
+                    $currencyPrice['gross'] * $currency['factor'],
+                    (int) $currency['decimal_precision']
+                );
+
+                $currencyPrice['net'] = $this->priceRounding->round(
+                    $currencyPrice['net'] * $currency['factor'],
+                    (int) $currency['decimal_precision']
+                );
+
+                $currencyPrice['currencyId'] = $currencyId;
+
+                $price[$key] = $currencyPrice;
             }
+
+            $row['price'] = $price;
         }
 
-        return $ranges;
+        return FetchModeHelper::group($data);
     }
 
-    private function calculatePriceRange(string $currencyId, ?string $ruleId, array $prices): array
+    private function calculatePriceRange(string $currencyId, string $ruleId, array $prices): array
     {
         $highest = null;
         $cheapest = null;
 
         foreach ($prices as $price) {
-            $key = 'c' . $currencyId;
+            if ($price['rule_id'] !== $ruleId) {
+                continue;
+            }
 
-            $currencyPrice = $price['price'][$key];
+            $currencyPrice = $price['price']['c' . $currencyId];
 
             if (!$highest || $currencyPrice['gross'] > $highest['gross']) {
                 $highest = $currencyPrice;
@@ -214,106 +190,28 @@ class ListingPriceUpdater
         ];
     }
 
-    /**
-     * Calculates all required currency prices.
-     * If the provided prices include different currency prices, they are all brought to a common denominator.
-     */
-    private function unifyPrices(array $prices, array $currencies): array
+    private function hydrate(array $listingPrices): ListingPriceCollection
     {
-        $requiredCurrencies = [];
-        foreach ($prices as $price) {
-            $requiredCurrencies = array_merge($requiredCurrencies, array_column($price['price'], 'currencyId'));
-        }
-        $requiredCurrencies = array_unique($requiredCurrencies);
+        $prices = [];
 
-        foreach ($requiredCurrencies as $currencyId) {
-            $currency = $currencies[$currencyId];
+        foreach ($listingPrices as $rulePrices) {
+            foreach ($rulePrices as $price) {
+                $to = clone $this->priceStruct;
+                $from = clone $this->priceStruct;
 
-            foreach ($prices as &$raw) {
-                $price = $raw['price'];
+                $to->assign($price['to']);
+                $from->assign($price['from']);
 
-                $key = 'c' . $currencyId;
+                $price['to'] = $to;
+                $price['from'] = $from;
 
-                // currency price set?
-                if (isset($price[$key])) {
-                    continue;
-                }
+                $listingPrice = clone $this->listingPrice;
+                $listingPrice->assign($price);
 
-                // no default price? calculation not possible!
-                $default = 'c' . Defaults::CURRENCY;
-                if (!isset($price[$default])) {
-                    throw new \RuntimeException(sprintf('Missing default price'));
-                }
-
-                $price[$key] = $this->calculateCurrencyPrice($currency, $price[$default]);
-
-                $raw['price'] = $price;
+                $prices[] = $listingPrice;
             }
         }
 
-        return [$prices, $requiredCurrencies];
-    }
-
-    private function calculateCurrencyPrice(array $currency, array $default): array
-    {
-        return array_replace(
-            $default,
-            [
-                'currencyId' => $currency['id'],
-                'gross' => $this->priceRounding->round(
-                    $default['gross'] * $currency['factor'],
-                    (int) $currency['decimal_precision']
-                ),
-                'net' => $this->priceRounding->round(
-                    $default['net'] * $currency['factor'],
-                    (int) $currency['decimal_precision']
-                ),
-            ]
-        );
-    }
-
-    private function addFallbackToRulePrices(array $ruleIds, array $prices): array
-    {
-        $ids = array_column($prices, 'variant_id');
-        $ids = array_unique($ids);
-
-        // filter null id for default price
-        $ruleIds = array_filter($ruleIds);
-
-        foreach ($ruleIds as $ruleId) {
-            foreach ($ids as $id) {
-                if ($this->hasRulePrice($ruleId, $id, $prices)) {
-                    continue;
-                }
-
-                $default = $this->getDefaultPrice($id, $prices);
-
-                $prices[] = array_replace($default, ['rule_id' => $ruleId]);
-            }
-        }
-
-        return $prices;
-    }
-
-    private function hasRulePrice(string $ruleId, string $id, array $prices): bool
-    {
-        foreach ($prices as $price) {
-            if ($price['rule_id'] === $ruleId && $price['variant_id'] === $id) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function getDefaultPrice(string $id, array $prices)
-    {
-        foreach ($prices as $price) {
-            if ($price['variant_id'] === $id && $price['rule_id'] === null) {
-                return $price;
-            }
-        }
-
-        throw new \RuntimeException(sprintf('Missing default price for variant %s', $id));
+        return new ListingPriceCollection($prices);
     }
 }

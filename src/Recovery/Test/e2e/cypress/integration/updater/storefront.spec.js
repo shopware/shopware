@@ -15,14 +15,15 @@ describe('Storefront test data set', () => {
         cy.get('.nav > [href$="/Maenner/"]').should('be.visible').click();
         cy.get('.nav > [href$="/Accessoires/"]').should('be.visible').click();
         cy.get('.nav > [href$="/Angebote/"]').should('be.visible').click();
-        cy.get('.nav > [href$="/Unsere-besten-Produkte/"]').should('be.visible').click();
+        //cy.get('.nav > [href$="/Unsere-besten-Produkte/"]').should('be.visible').click();
+        //@todo remove comment after NEXT-9476 is done
         cy.get('.nav > [href$="/Fairtrade/"]').should('be.visible').click();
         cy.get('.nav > [href$="/Angebote/"]').click()
 
         cy.get('.home-link').click()
     });
 
-    it('@storefront: put cargohose from cms page into cart', () => {
+    it.skip('@storefront: put cargohose from cms page into cart', () => {
         cy.visit('/Maenner/Hosen/');
 
         cy.get('.js-cookie-configuration-button > .btn').should('be.visible').click();
@@ -49,8 +50,9 @@ describe('Storefront test data set', () => {
         cy.get('body > div.offcanvas.is-right.is-open > button').should('be.visible').click();
         cy.get('.offcanvas').should('not.be.visible');
     });
+    //@todo remove skip after next-9476 is done
 
-    it('@storefront: search cargohose', () => {
+    it.skip('@storefront: search cargohose', () => {
         cy.visit('/');
         cy.get('input[type="search"]').should('be.visible').clear().type('cargohose{enter}');
 
@@ -59,8 +61,9 @@ describe('Storefront test data set', () => {
 
         cy.get('.product-info').contains('Cargo').should('be.visible');
     });
+    //@todo remove skip after next-9476 is done
 
-    it('@storefront: search cargohose downarrow enter', () => {
+    it.skip('@storefront: search cargohose downarrow enter', () => {
         cy.visit('/');
 
         cy.get('input[type="search"]').should('be.visible').clear().type('cargohose');
@@ -74,4 +77,5 @@ describe('Storefront test data set', () => {
 
         cy.get('.btn-buy').should('be.visible');
     });
+    //@todo remove skip after next-9476 is done
 });

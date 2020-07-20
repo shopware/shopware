@@ -101,9 +101,17 @@ class SnippetFileCollectionTest extends TestCase
         static::assertCount(1, $result['en-GB']);
     }
 
+    public function testHasFileForPath(): void
+    {
+        $collection = $this->getCollection();
+
+        static::assertTrue($collection->hasFileForPath(__DIR__ . '/../Mock/_fixtures/storefront.de-DE.json'));
+        static::assertFalse($collection->hasFileForPath(__DIR__ . '/test.json'));
+    }
+
     private function getCollection(): SnippetFileCollection
     {
-        $collection = new SnippetFileCollection([]);
+        $collection = new SnippetFileCollection();
         $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true));
         $collection->add(new MockSnippetFile('storefront.de-DE_extension', 'de-DE', '{}', false));
         $collection->add(new MockSnippetFile('storefront.en-GB', 'en-GB', '{}', true));

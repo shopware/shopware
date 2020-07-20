@@ -130,10 +130,10 @@ class StoreController extends AbstractController
         $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
         $this->configService->set('core.store.shopwareId', $shopwareId);
 
-        $userId = $context->getSource()->getUserId();
-        $this->userRepository->update([
-            ['id' => $userId, 'storeToken' => $accessTokenStruct->getShopUserToken()->getToken()],
-        ], $context);
+        $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($newStoreToken): void {
+            $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => $newStoreToken]], $context);
+        });
 
         return new JsonResponse();
     }
@@ -172,10 +172,9 @@ class StoreController extends AbstractController
             throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
-        $userId = $context->getSource()->getUserId();
-        $this->userRepository->update([
-            ['id' => $userId, 'storeToken' => null],
-        ], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function ($context): void {
+            $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => null]], $context);
+        });
 
         return new Response();
     }

@@ -300,13 +300,16 @@ class OrderConverter
                     continue;
                 }
 
-                $deliveryPositions->add(new DeliveryPosition(
+                $deliveryPosition = new DeliveryPosition(
                     $identifier,
                     $lineItems->get($identifier),
                     $position->getPrice()->getQuantity(),
                     $position->getPrice(),
                     $deliveryDate
-                ));
+                );
+                $deliveryPosition->addExtension(self::ORIGINAL_ID, new IdStruct($position->getId()));
+
+                $deliveryPositions->add($deliveryPosition);
             }
 
             $cartDelivery = new Delivery(

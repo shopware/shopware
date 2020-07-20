@@ -5,7 +5,7 @@ describe('Account: Login as customer', () => {
         return cy.createCustomerFixtureStorefront()
     });
 
-    it('@package @customer: Change email and log in', () => {
+    it('@base @customer: Change email and log in', () => {
         const page = new AccountPageObject();
 
         cy.visit('/account/login');

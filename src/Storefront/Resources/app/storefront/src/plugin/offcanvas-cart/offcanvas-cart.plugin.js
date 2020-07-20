@@ -19,7 +19,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         cartPromotionSelector: '.js-offcanvas-cart-promotion',
         offcanvasPosition: 'right',
         shippingContainerSelector: '.offcanvas-shipping-preference',
-        shippingToggleSelector: '.js-toggle-shipping-selection'
+        shippingToggleSelector: '.js-toggle-shipping-selection',
+        additionalOffcanvasClass: 'cart-offcanvas'
     };
 
     init() {
@@ -36,6 +37,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      */
     openOffCanvas(url, data, callback) {
         AjaxOffCanvas.open(url, data, this._onOffCanvasOpened.bind(this, callback), this.options.offcanvasPosition);
+        AjaxOffCanvas.setAdditionalClassName(this.options.additionalOffcanvasClass);
     }
 
     /**

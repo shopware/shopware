@@ -18,7 +18,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: create and read layout', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page',
+            url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'post'
         }).as('saveData');
 
@@ -58,12 +58,12 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: update and read layout', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page/*',
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
@@ -109,7 +109,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: delete layout', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page/*',
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'delete'
         }).as('deleteData');
 

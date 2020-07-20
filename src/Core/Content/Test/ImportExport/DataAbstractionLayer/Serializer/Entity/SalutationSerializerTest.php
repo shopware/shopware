@@ -8,11 +8,13 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 
 class SalutationSerializerTest extends TestCase
 {
@@ -101,5 +103,24 @@ class SalutationSerializerTest extends TestCase
         $salutationId = $this->salutationRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         static::assertSame($salutationId, $deserialized['id']);
+    }
+
+    public function testSupportsOnlySalutation(): void
+    {
+        $serializer = new SalutationSerializer($this->getContainer()->get('salutation.repository'));
+
+        $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
+        foreach ($definitionRegistry->getDefinitions() as $definition) {
+            $entity = $definition->getEntityName();
+
+            if ($entity === SalutationDefinition::ENTITY_NAME) {
+                static::assertTrue($serializer->supports($entity));
+            } else {
+                static::assertFalse(
+                    $serializer->supports($entity),
+                    SalutationDefinition::class . ' should not support ' . $entity
+                );
+            }
+        }
     }
 }

@@ -31,7 +31,12 @@
       "labelUseAsAvatar": "Als Profilbild nutzen",
       "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
       "placeholderNewPassword": "Gib ein neues Passwort ein ...",
-      "placeholderOldPassword": "Gib Dein altes Passwort ein ..."
+      "placeholderOldPassword": "Gib Dein altes Passwort ein ...",
+      "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
+      "labelConfirmPassword": "Passwort",
+      "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
+      "labelButtonCancel": "Abbrechen",
+      "labelButtonConfirm": "Bestätigen"
     }
   }
 }

@@ -349,6 +349,10 @@
         },
         "illegalFilename": {
           "message": "The filename \"{fileName}\" contains invalid characters."
+        },
+        "illegalFileUrl": {
+          "title": "Invalid URL",
+          "message": "Upload from local URLs not allowed."
         }
       },
       "caption": "Drag files here to upload"

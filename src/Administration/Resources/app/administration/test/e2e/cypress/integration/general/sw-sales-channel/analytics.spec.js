@@ -35,7 +35,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/sales-channel/*',
+            url: `${Cypress.env('apiPath')}/sales-channel/*`,
             method: 'patch'
         }).as('saveData');
 

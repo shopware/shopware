@@ -11,7 +11,7 @@ jobs:
   admin:
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: 6.2
+      DEVELOPMENT_BRANCH: master
 
     steps:
     - name: Clone development

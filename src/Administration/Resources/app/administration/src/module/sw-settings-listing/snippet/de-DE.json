@@ -5,9 +5,7 @@
       "textHeadline": "Produkte",
       "description": "Verwaltung von Einstellungen für Produkte.",
       "buttonSave": "Speichern",
-      "titleSaveSuccess": "Erfolg",
-      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert.",
-      "titleSaveError": "Fehler beim Speichern der Konfiguration."
+      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
     }
   }
 }

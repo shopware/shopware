@@ -142,7 +142,7 @@ Component.register('sw-settings-salutation-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-salutation.detail.notificationErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage')
                 });
             });

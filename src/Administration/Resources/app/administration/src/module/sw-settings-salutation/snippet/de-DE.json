@@ -27,7 +27,6 @@
       "fieldSalutationKeyLabel": "Technischer Name",
       "fieldSalutationKeyPlaceholder": "Bitte gib einen technischen Namen an ...",
       "placeholderNewSalutation": "Neue Anrede anlegen ...",
-      "notificationErrorTitle": "Fehler",
       "notificationErrorMessage": "Fehler beim Speichern der Anrede."
     }
   }

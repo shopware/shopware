@@ -90,7 +90,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.modal} p`).contains(
             'Are you sure you want to delete this address?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated customer
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');

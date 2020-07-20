@@ -56,7 +56,7 @@ Component.register('sw-media-modal-delete', {
                     errorOverall: this.$tc(
                         'global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'
                     ),
-                    modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.mediaAndFolder'),
+                    modalTitle: this.$tc('global.default.warning'),
                     deleteMessage: this.$tc(
                         'global.sw-media-modal-delete.deleteMessage.mediaAndFolder',
                         this.itemsToDelete.length,
@@ -72,7 +72,7 @@ Component.register('sw-media-modal-delete', {
                 return {
                     successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.media',
                     errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.media'),
-                    modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.media'),
+                    modalTitle: this.$tc('global.default.warning'),
                     deleteMessage: this.$tc(
                         'global.sw-media-modal-delete.deleteMessage.media',
                         this.mediaItems.length,
@@ -87,7 +87,7 @@ Component.register('sw-media-modal-delete', {
             return {
                 successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.folder',
                 errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
-                modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.folder'),
+                modalTitle: this.$tc('global.default.warning'),
                 deleteMessage: this.$tc(
                     'global.sw-media-modal-delete.deleteMessage.folder',
                     this.folders.length,

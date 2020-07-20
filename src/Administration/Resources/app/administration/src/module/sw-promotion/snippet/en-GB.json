@@ -57,7 +57,6 @@
       "contextMenuDuplicate": "Duplicate",
       "contextMenuEdit": "Edit",
       "messageEmpty": "No promotions yet",
-      "modalTitleDelete": "Delete promotion",
       "placeholderSearchBar": "Search promotions...",
       "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
       "titleSidebarItemRefresh": "Refresh"
@@ -68,7 +67,6 @@
         "titleEdit": "Promotion",
         "buttonCancel": "Cancel",
         "buttonSave": "Save",
-        "titleSaveSuccess": "Success",
         "messageSaveSuccess": "Promotion \"{name}\" has been saved."
       },
       "tabs": {

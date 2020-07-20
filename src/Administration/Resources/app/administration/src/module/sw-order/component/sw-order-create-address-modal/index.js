@@ -99,7 +99,7 @@ Component.register('sw-order-create-address-modal', {
                 await Shopware.State.dispatch('error/resetApiErrors');
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.create.titleFetchError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.create.messageFetchCustomerAddressesError')
                 });
             } finally {
@@ -190,7 +190,7 @@ Component.register('sw-order-create-address-modal', {
                 this.closeModal();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.detail.messageSaveError')
                 });
             } finally {
@@ -239,7 +239,7 @@ Component.register('sw-order-create-address-modal', {
                 this.showAddressFormModal = false;
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.detail.messageSaveError')
                 });
             } finally {

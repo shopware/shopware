@@ -65,7 +65,7 @@ Component.register('sw-login-recovery-recovery', {
                     this.$router.push({ name: 'sw.login.index' });
                 }).catch((error) => {
                     this.createNotificationError({
-                        title: this.$tc('sw-login.recovery.error.passwordUpdateTitle'),
+                        title: this.$tc('global.default.error'),
                         message: error.message
                     });
                 });

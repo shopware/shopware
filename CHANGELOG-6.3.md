@@ -219,7 +219,510 @@ Table of contents
 * Method `onColumnSort` added in `sw-product-list/index.js`
 * Added method `loadCurrentSalesChannelConfig` to `sw-system-config` to loads the current sales channel config without using the cached value 
 * `sw-entity-multi-id-select` can now consider criteria in result lists
-
+* Removed unused snippet keys from `src/app/snippet/de-DE.json`:
+    * `sw-file-input.invalidFileType.title`
+    * `sw-file-input.invalidFileSize.title`
+    * `sw-media-modal-folder-dissolve.titleModal`
+    * `sw-media-upload.notification.success.title`
+    * `sw-config-form-renderer.configLoadErrorTitle`
+* Removed unused snippet keys from `src/app/snippet/en-GB.json`:
+    * `sw-file-input.invalidFileType.title`
+    * `sw-file-input.invalidFileSize.title`
+    * `sw-media-modal-folder-dissolve.titleModal`
+    * `sw-media-upload.notification.success.title`
+    * `sw-config-form-renderer.configLoadErrorTitle`
+* Removed unused snippet keys from `src/module/sw-category/snippet/de-DE.json`:
+    * `sw-category.general.titleSaveSuccess`
+    * `sw-category.modal.modalTitleDelete`    
+* Removed unused snippet keys from `src/module/sw-category/snippet/en-GB.json`:
+    * `sw-category.general.titleSaveSuccess`
+    * `sw-category.modal.modalTitleDelete` 
+* Removed unused snippet keys from `src/module/sw-cms/snippet/de-DE.json`:
+    * `sw-cms.detail.notification.titleMissingBlockFields` 
+    * `sw-cms.detail.notification.titleMissingProductListing`
+    * `sw-cms.detail.notification.titlePageError` 
+    * `sw-cms.detail.notification.titleMissingBlocks` 
+    * `sw-cms.detail.notification.titleMissingElements`
+    * `sw-cms.components.cmsListItem.notificationDeleteErrorTitle`       
+    * `sw-cms.components.cmsListItem.modal.modalTitleDelete`
+* Removed unused snippet keys from `src/module/sw-cms/snippet/en-GB.json`:
+    * `sw-cms.detail.notification.titleMissingBlockFields` 
+    * `sw-cms.detail.notification.titleMissingProductListing`
+    * `sw-cms.detail.notification.titlePageError` 
+    * `sw-cms.detail.notification.titleMissingBlocks` 
+    * `sw-cms.detail.notification.titleMissingElements`
+    * `sw-cms.components.cmsListItem.notificationDeleteErrorTitle`       
+    * `sw-cms.components.cmsListItem.modal.modalTitleDelete`
+* Removed unused snippet keys from `src/module/sw-customer/snippet/de-DE.json`:
+    * `sw-customer.list.modalTitleDelete`
+    * `sw-customer.baseForm.modalTitleDeleteAddress`
+    * `sw-customer.detail.titleSaveError`
+    * `sw-customer.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-customer/snippet/en-GB.json`:
+    * `sw-customer.list.modalTitleDelete`
+    * `sw-customer.baseForm.modalTitleDeleteAddress`
+    * `sw-customer.detail.titleSaveError`
+    * `sw-customer.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-first-run-wizard/snippet/de-DE.json`:
+    * `sw-first-run-wizard.welcome.success`
+    * `sw-first-run-wizard.welcome.error`
+* Removed unused snippet keys from `src/module/sw-first-run-wizard/snippet/en-GB.json`:
+    * `sw-first-run-wizard.welcome.success`
+    * `sw-first-run-wizard.welcome.error`
+* Removed unused snippet keys from `src/module/sw-import-export/snippet/de-DE.json`:
+    * `sw-import-export.profile.titleSaveSuccess`
+    * `sw-import-export.profile.titleSaveError`
+    * `sw-import-export.profile.titleDeleteSuccess`
+    * `sw-import-export.profile.titleDeleteError`
+    * `sw-import-export.profile.titleDuplicateSuccess`
+    * `sw-import-export.profile.titleDuplicateError`
+    * `sw-import-export.profile.validationError`
+    * `sw-import-export.exporter.titleExportSuccess`
+    * `sw-import-export.exporter.errorNotificationTitle`
+    * `sw-import-export.importer.titleExportSuccess`
+    * `sw-import-export.importer.titleImportError`
+    * `sw-import-export.importer.errorNotificationTitle`
+* Removed unused snippet keys from `src/module/sw-import-export/snippet/en-GB.json`:
+    * `sw-import-export.profile.titleSaveSuccess`
+    * `sw-import-export.profile.titleSaveError`
+    * `sw-import-export.profile.titleDeleteSuccess`
+    * `sw-import-export.profile.titleDeleteError`
+    * `sw-import-export.profile.titleDuplicateSuccess`
+    * `sw-import-export.profile.titleDuplicateError`
+    * `sw-import-export.profile.validationError`
+    * `sw-import-export.exporter.titleExportSuccess`
+    * `sw-import-export.exporter.errorNotificationTitle`
+    * `sw-import-export.importer.titleExportSuccess`
+    * `sw-import-export.importer.titleImportError`
+    * `sw-import-export.importer.errorNotificationTitle`
+* Removed unused snippet keys from `src/module/sw-integration/snippet/de-DE.json`:
+    * `sw-integration.detail.titleSaveSuccess`
+    * `sw-integration.detail.titleSaveError`
+    * `sw-integration.detail.titleCreateNewError`
+* Removed unused snippet keys from `src/module/sw-integration/snippet/en-GB.json`:
+    * `sw-integration.detail.titleSaveSuccess`
+    * `sw-integration.detail.titleSaveError`
+    * `sw-integration.detail.titleCreateNewError`
+* Removed unused snippet keys from `src/module/sw-login/snippet/de-DE.json`:
+    * `sw-login.recovery.error.passwordUpdateTitle`
+* Removed unused snippet keys from `src/module/sw-login/snippet/en-GB.json`:
+    * `sw-login.recovery.error.passwordUpdateTitle`
+* Removed unused snippet keys from `src/module/sw-mail-template/snippet/de-DE.json`:
+    * `sw-mail-template.general.notificationTestMailErrorTitle`
+    * `sw-mail-template.general.notificationTestMailSuccessTitle`
+    * `sw-mail-template.list.modalTitleDelete`
+    * `sw-mail-template.detail.titleSaveSuccess`
+    * `sw-mail-template.detail.titleSaveError`
+    * `sw-mail-header-footer.detail.titleSaveSuccess`
+    * `sw-mail-header-footer.detail.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-mail-template/snippet/en-GB.json`:
+    * `sw-mail-template.general.notificationTestMailErrorTitle`
+    * `sw-mail-template.general.notificationTestMailSuccessTitle`
+    * `sw-mail-template.list.modalTitleDelete`
+    * `sw-mail-template.detail.titleSaveSuccess`
+    * `sw-mail-template.detail.titleSaveError`
+    * `sw-mail-header-footer.detail.titleSaveSuccess`
+    * `sw-mail-header-footer.detail.titleSaveError`     
+* Removed unused snippet keys from `src/module/sw-manufacturer-template/snippet/de-DE.json`:    
+    * `sw-manufacturer.detail.titleSaveSuccess`   
+* Removed unused snippet keys from `src/module/sw-manufacturer-template/snippet/en-GB.json`:    
+    * `sw-manufacturer.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-media/snippet/de-DE.json`:
+    * `sw-media.general.notification.title`     
+* Removed unused snippet keys from `src/module/sw-media/snippet/en-GB.json`:
+    * `sw-media.general.notification.title`  
+* Removed unused snippet keys from `src/module/sw-newsletter-recipient/snippet/de-DE.json`:     
+    * `sw-newsletter-recipient.detail.titleSaveSuccess`
+    * `sw-newsletter-recipient.detail.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-newsletter-recipient/snippet/ne-GB.json`:
+    * `sw-newsletter-recipient.detail.titleSaveSuccess`
+    * `sw-newsletter-recipient.detail.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-order/snippet/de-DE.json`:   
+    * `sw-order.list.modalTitleDelete`
+    * `sw-order.list.titleRecalculationError`
+    * `sw-order.detail.titleSaveError`
+    * `sw-order.detail.notification.shippingNotAvailable.title`
+    * `sw-order.create.titleSaveError`
+    * `sw-order.create.titleFetchError`
+    * `sw-order.stateCard.headlineErrorStateChange`
+Refactored `src/module/sw-order/snippet/de-DE.json`:
+    * `sw-order.detail.notification.shippingNotAvailable.message`
+    to
+    * `sw-order.detail.notification.messageShippingNotAvailable`
+* Removed unused snippet keys from `src/module/sw-order/snippet/en-GB.json`:   
+    * `sw-order.list.modalTitleDelete`
+    * `sw-order.list.titleRecalculationError`
+    * `sw-order.detail.titleSaveError`
+    * `sw-order.detail.notification.shippingNotAvailable.title`
+    * `sw-order.create.titleSaveError`
+    * `sw-order.create.titleFetchError`
+    * `sw-order.stateCard.headlineErrorStateChange`
+Refactored `src/module/sw-order/snippet/en-GB.json`:
+    * `sw-order.detail.notification.shippingNotAvailable.message`
+    to
+    * `sw-order.detail.notification.messageShippingNotAvailable`
+* Removed unused snippet keys from `src/module/sw-plugin/snippet/de-DE.json`:
+    * `sw-plugin.errors.titleGenericFailure`
+    * `sw-plugin.errors.titleUploadFailure`
+    * `sw-plugin.errors.titleLoginDataInvalid`
+    * `sw-plugin.errors.titleStoreHostMissing`
+    * `sw-plugin.errors.titleStoreNotAvailable`
+    * `sw-plugin.errors.titlePluginInstallationFailed`
+    * `sw-plugin.errors.titlePluginUninstallationFailed`
+    * `sw-plugin.errors.titlePluginActivationFailed`
+    * `sw-plugin.errors.titlePluginDeactivationFailed`
+    * `sw-plugin.errors.titlePluginUpdateFailed`
+    * `sw-plugin.fileUpload.titleUploadSuccess`
+    * `sw-plugin.store-login.titleLoginSuccess`
+    * `sw-plugin.list.titleActivateSuccess`
+    * `sw-plugin.list.titleDeactivateSuccess`
+    * `sw-plugin.list.titleUninstallSuccess`
+    * `sw-plugin.list.titleDeleteSuccess`
+    * `sw-plugin.list.titleUpdateSuccess`
+    * `sw-plugin.list.titleDeleteConfirm`
+    * `sw-plugin.updates.titleUpdateSuccess`
+    * `sw-plugin.sw-plugin-config.titleSaveSuccess`
+    * `sw-plugin.sw-plugin-config.titleSaveError`
+Refactored `src/module/sw-plugin/snippet/de-DE.json`:    
+    * `sw-plugin.store-login.titleLoginMessage`
+    to
+    * `sw-plugin.store-login.loginMessage` 
+* Removed unused snippet keys from `src/module/sw-plugin/snippet/en-GB.json`:
+    * `sw-plugin.errors.titleGenericFailure`
+    * `sw-plugin.errors.titleUploadFailure`
+    * `sw-plugin.errors.titleLoginDataInvalid`
+    * `sw-plugin.errors.titleStoreHostMissing`
+    * `sw-plugin.errors.titleStoreNotAvailable`
+    * `sw-plugin.errors.titlePluginInstallationFailed`
+    * `sw-plugin.errors.titlePluginUninstallationFailed`
+    * `sw-plugin.errors.titlePluginActivationFailed`
+    * `sw-plugin.errors.titlePluginDeactivationFailed`
+    * `sw-plugin.errors.titlePluginUpdateFailed`
+    * `sw-plugin.fileUpload.titleUploadSuccess`
+    * `sw-plugin.store-login.titleLoginSuccess`
+    * `sw-plugin.list.titleActivateSuccess`
+    * `sw-plugin.list.titleDeactivateSuccess`
+    * `sw-plugin.list.titleUninstallSuccess`
+    * `sw-plugin.list.titleDeleteSuccess`
+    * `sw-plugin.list.titleUpdateSuccess`
+    * `sw-plugin.list.titleDeleteConfirm`
+    * `sw-plugin.updates.titleUpdateSuccess`
+    * `sw-plugin.sw-plugin-config.titleSaveSuccess`
+    * `sw-plugin.sw-plugin-config.titleSaveError`
+Refactored `src/module/sw-plugin/snippet/en-GB.json`:    
+    * `sw-plugin.store-login.titleLoginMessage`
+    to
+    * `sw-plugin.store-login.loginMessage` 
+* Removed unused snippet keys from `src/module/sw-product-stream/snippet/de-DE.json`:
+    * `sw-product-stream.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-product-stream/snippet/en-GB.json`:
+    * `sw-product-stream.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-product/snippet/de-DE.json`:
+    * `sw-product.list.modalTitleDelete`
+    * `sw-product.list.titleSaveSuccess`
+    * `sw-product.detail.titleSaveSuccess`
+    * `sw-product.detail.titleSaveWarning`
+    * `sw-product.variations.generatedListDeleteModalTitle`
+    * `sw-product.variations.generatedListTitleSaveSuccess`
+    * `sw-product.variations.generatedListTitleSaveError`
+* Removed unused snippet keys from `src/module/sw-product/snippet/en-GB.json`:
+    * `sw-product.list.modalTitleDelete`
+    * `sw-product.list.titleSaveSuccess`
+    * `sw-product.detail.titleSaveSuccess`
+    * `sw-product.detail.titleSaveWarning`
+    * `sw-product.variations.generatedListDeleteModalTitle`
+    * `sw-product.variations.generatedListTitleSaveSuccess`
+    * `sw-product.variations.generatedListTitleSaveError`
+* Removed unused snippet keys from `src/module/sw-promotion/snippet/de-DE.json`:
+    * `sw-promotion.list.modalTitleDelete`
+    * `sw-promotion.detail.TitleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-promotion/snippet/en-GB.json`:
+    * `sw-promotion.list.modalTitleDelete`
+    * `sw-promotion.detail.TitleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-property/snippet/de-DE.json`:    
+    * `sw-property.list.modalTitleDelete`
+    * `sw-property.detail.titleSaveSuccess`
+    * `sw-property.detail.titleSaveError`      
+* Removed unused snippet keys from `src/module/sw-property/snippet/en-GB.json`:    
+    * `sw-property.list.modalTitleDelete`
+    * `sw-property.detail.titleSaveSuccess`
+    * `sw-property.detail.titleSaveError` 
+* Removed unused snippet keys from `src/module/sw-review/snippet/de-DE.json`:   
+    * `sw-review.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-review/snippet/en-GB.json`:   
+    * `sw-review.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-sales-channel/snippet/de-DE.json`: 
+    * `sw.sales.channel.detail.titleSaveSuccess`
+    * `sw.sales.channel.detail.titleSaveError`
+    * `sw.sales.channel.detail.titleActivateError`
+    * `sw.sales.channel.detail.titleFetchError`
+    * `sw.sales.channel.detail.titleDeleteSalesChannelWarning`  
+    * `sw-sales-channel.detail.productComparison.titleAccessKeyChanged`  
+* Removed unused snippet keys from `src/module/sw-sales-channel/snippet/en-GB.json`: 
+    * `sw.sales.channel.detail.titleSaveSuccess`
+    * `sw.sales.channel.detail.titleSaveError`
+    * `sw.sales.channel.detail.titleActivateError`
+    * `sw.sales.channel.detail.titleFetchError`
+    * `sw.sales.channel.detail.titleDeleteSalesChannelWarning`  
+    * `sw-sales-channel.detail.productComparison.titleAccessKeyChanged` 
+* Removed unused snippet keys from `src/module/sw-settings-address/snippet/de-DE.json`:
+    * `sw-settings-address.general.titleSaveSuccess`
+    * `sw-settings-address.general.titleSaveError` 
+* Removed unused snippet keys from `src/module/sw-settings-address/snippet/en-GB.json`:
+    * `sw-settings-address.general.titleSaveSuccess`
+    * `sw-settings-address.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-basic-information/snippet/de-DE.json`:
+    * `sw-settings-basic-information.general.titleSaveSuccess`
+    * `sw-settings-basic-information.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-basic-information/snippet/en-GB.json`:
+    * `sw-settings-basic-information.general.titleSaveSuccess`
+    * `sw-settings-basic-information.general.titleSaveError`  
+* Removed unused snippet keys from `src/module/sw-settings-cart/snippet/de-DE.json`:
+    * `sw-settings-cart.general.titleSaveSuccess`
+    * `sw-settings-cart.general.titleSaveError`     
+* Removed unused snippet keys from `src/module/sw-settings-cart/snippet/en-GB.json`:
+    * `sw-settings-cart.general.titleSaveSuccess`
+    * `sw-settings-cart.general.titleSaveError` 
+* Removed unused snippet keys from `src/module/sw-settings-country/snippet/de-DE.json`:
+    * `sw-settings-country.list.modalTitleDelete`
+    * `sw-settings-country.list.titleDeleteSuccess`
+    * `sw-settings-country.detail.titleSaveSuccess`
+    * `sw-settings-country.detail.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-country/snippet/en-GB.json`:
+    * `sw-settings-country.list.modalTitleDelete`
+    * `sw-settings-country.list.titleDeleteSuccess`
+    * `sw-settings-country.detail.titleSaveSuccess`
+    * `sw-settings-country.detail.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-currency/snippet/de-DE.json`:
+    * `sw-settings-currency.list.modalTitleDelete`
+    * `sw-settings-currency.list.titleDeleteSuccess`
+    * `sw-settings-currency.detail.titleSaveSuccess`
+    * `sw-settings-currency.detail.notificationErrorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-currency/snippet/en-GB.json`:
+    * `sw-settings-currency.list.modalTitleDelete`
+    * `sw-settings-currency.list.titleDeleteSuccess`
+    * `sw-settings-currency.detail.titleSaveSuccess`
+    * `sw-settings-currency.detail.notificationErrorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-custom-field/snippet/de-DE.json`:
+    * `sw-settings-custom-field.set.list.titleModalDelete`
+    * `sw-settings-custom-field.set.list.titleDeleteSuccess`
+    * `sw-settings-custom-field.set.detail.titleSaveSuccess`
+    * `sw-settings-custom-field.set.detail.titleNameNotUnique`
+* Removed unused snippet keys from `src/module/sw-settings-custom-field/snippet/en-GB.json`:
+    * `sw-settings-custom-field.set.list.titleModalDelete`
+    * `sw-settings-custom-field.set.list.titleDeleteSuccess`
+    * `sw-settings-custom-field.set.detail.titleSaveSuccess`
+    * `sw-settings-custom-field.set.detail.titleNameNotUnique`
+* Removed unused snippet keys from `src/module/sw-settings-customer-group/snippet/de-DE.json`:
+    * `sw-settings-customer-group.detail.notificationErrorTitle`
+    * `sw-settings-customer-group.detail.notification.errorTitleCannotDeleteCustomerGroup`
+* Removed unused snippet keys from `src/module/sw-settings-customer-group/snippet/en-GB.json`:
+    * `sw-settings-customer-group.detail.notificationErrorTitle`
+    * `sw-settings-customer-group.detail.notification.errorTitleCannotDeleteCustomerGroup`
+* Removed unused snippet keys from `src/module/sw-settings-document/snippet/de-DE.json`:
+    * `sw-settings-document.list.modalTitleDelete`
+    * `sw-settings-document.list.titleDeleteSuccess`
+    * `sw-settings-document.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-settings-document/snippet/en-GB.json`:
+    * `sw-settings-document.list.modalTitleDelete`
+    * `sw-settings-document.list.titleDeleteSuccess`
+    * `sw-settings-document.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-settings-language/snippet/de-DE.json`:
+    * `sw-settings-language.list.modalTitleDelete`
+    * `sw-settings-language.list.titleDeleteSuccess`
+    * `sw-settings-language.detail.titleSaveSuccess`
+    * `sw-settings-language.detail.titleAlertChangeParent`
+* Removed unused snippet keys from `src/module/sw-settings-language/snippet/en-GB.json`:
+    * `sw-settings-language.list.modalTitleDelete`
+    * `sw-settings-language.list.titleDeleteSuccess`
+    * `sw-settings-language.detail.titleSaveSuccess`
+    * `sw-settings-language.detail.titleAlertChangeParent`
+* Removed unused snippet keys from `src/module/sw-settings-listing/snippet/de-DE.json`:
+    * `sw-settings-listing.general.titleSaveSuccess`
+    * `sw-settings-listing.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-listing/snippet/en-GB.json`:
+    * `sw-settings-listing.general.titleSaveSuccess`
+    * `sw-settings-listing.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-login-registration/snippet/de-DE.json`:
+    * `sw-settings-login-registration.general.titleSaveSuccess`
+    * `sw-settings-login-registration.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-login-registration/snippet/en-GB.json`:
+    * `sw-settings-login-registration.general.titleSaveSuccess`
+    * `sw-settings-login-registration.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-number-range/snippet/de-DE.json`:
+    * `sw-settings-number-range.list.modalTitleDelete`
+    * `sw-settings-number-range.list.titleDeleteSuccess`
+    * `sw-settings-number-range.detail.titleSaveSuccess`
+    * `sw-settings-number-range.detail.titleSaveError`
+    * `sw-settings-number-range.detail.errorSalesChannelNeededTitle`
+    * `sw-settings-number-range.detail.errorPatternNeededTitle`
+* Removed unused snippet keys from `src/module/sw-settings-number-range/snippet/en-GB.json`:
+    * `sw-settings-number-range.list.modalTitleDelete`
+    * `sw-settings-number-range.list.titleDeleteSuccess`
+    * `sw-settings-number-range.detail.titleSaveSuccess`
+    * `sw-settings-number-range.detail.titleSaveError`
+    * `sw-settings-number-range.detail.errorSalesChannelNeededTitle`
+    * `sw-settings-number-range.detail.errorPatternNeededTitle`
+* Removed unused snippet keys from `src/module/sw-settings-payment/snippet/de-DE.json`:
+    * `sw-settings-payment.list.modalTitleDelete`
+    * `sw-settings-payment.list.titleDeleteSuccess`
+    * `sw-settings-payment.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-settings-payment/snippet/en-GB.json`:
+    * `sw-settings-payment.list.modalTitleDelete`
+    * `sw-settings-payment.list.titleDeleteSuccess`
+    * `sw-settings-payment.detail.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-settings-rule/snippet/de-DE.json`:
+    * `sw-settings-rule.detail.titleSaveSuccess`
+    * `sw-settings-rule.detail.titleSaveError`
+    * `sw-settings-rule.conditionModal.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-rule/snippet/e-GB.json`:
+    * `sw-settings-rule.detail.titleSaveSuccess`
+    * `sw-settings-rule.detail.titleSaveError`
+    * `sw-settings-rule.conditionModal.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-salutation/snippet/de-DE.json`:
+    * `sw-settings-salutation.detail.notificationErrorTitle`  
+* Removed unused snippet keys from `src/module/sw-settings-salutation/snippet/de-DE.json`:
+    * `sw-settings-salutation.detail.notificationErrorTitle`  
+ * Removed unused snippet keys from `src/module/sw-settings-seo/snippet/de-DE.json`:
+    * `sw-seo-url-template-card.general.titleSaveError` 
+    * `sw-seo-url-template-card.general.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-settings-seo/snippet/de-DE.json`:
+    * `sw-seo-url-template-card.general.titleSaveError` 
+    * `sw-seo-url-template-card.general.titleSaveSuccess`
+* Removed unused snippet keys from `src/module/sw-settings-shipping/snippet/de-DE.json`:
+    * `sw-settings-shipping.list.modalTitleDelete`
+    * `sw-settings-shipping.list.titleSaveSuccess`
+    * `sw-settings-shipping.list.titleDeleteSuccess`
+    * `sw-settings-shipping.detail.titleSaveSuccess`
+    * `sw-settings-shipping.priceMatrix.modalTitleDelete`
+    * `sw-settings-shipping.priceMatrix.deletionNotPossibleTitle`
+    * `sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsTitle`
+    * `sw-settings-shipping.priceMatrix.newMatrixAlertTitle`     
+* Removed unused snippet keys from `src/module/sw-settings-shipping/snippet/en-GB.json`:
+    * `sw-settings-shipping.list.modalTitleDelete`
+    * `sw-settings-shipping.list.titleSaveSuccess`
+    * `sw-settings-shipping.list.titleDeleteSuccess`
+    * `sw-settings-shipping.detail.titleSaveSuccess`
+    * `sw-settings-shipping.priceMatrix.modalTitleDelete`
+    * `sw-settings-shipping.priceMatrix.deletionNotPossibleTitle`
+    * `sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsTitle`
+    * `sw-settings-shipping.priceMatrix.newMatrixAlertTitle`
+* Removed unused snippet keys from `src/module/sw-settings-shopware-updates/snippet/de-DE.json`:
+    * `sw-settings-shopware-updates.notifications.title`           
+* Removed unused snippet keys from `src/module/sw-settings-shopware-updates/snippet/en-GB.json`:
+    * `sw-settings-shopware-updates.notifications.title` 
+* Removed unused snippet keys from `src/module/sw-settings-sitemap/snippet/de-DE.json`:      
+    * `sw-settings-sitemap.general.titelSaveSuccess`
+    * `sw-settings-sitemap.general.titelSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-sitemap/snippet/de-DE.json`:      
+    * `sw-settings-sitemap.general.titelSaveSuccess`
+    * `sw-settings-sitemap.general.titelSaveError`   
+* Removed unused snippet keys from `src/module/sw-settings-snippet/snippet/de-DE.json`:
+    * `sw-settings-snippet.general.errorBackRoutingTitle`
+    * `sw-settings-snippet.detail.titleSaveError`
+    * `sw-settings-snippet.detail.titleSaveSuccess`
+    * `sw-settings-snippet.list.modalTitleDelete`
+    * `sw-settings-snippet.list.titleDeleteSuccess`
+    * `sw-settings-snippet.list.titleSaveError`
+    * `sw-settings-snippet.list.titleSaveSuccess`
+    * `sw-settings-snippet.setList.cloneNoteErrorTitle`
+    * `sw-settings-snippet.setList.cloneNoteSuccessTitle`
+    * `sw-settings-snippet.setList.deleteNoteErrorTitle`
+    * `sw-settings-snippet.setList.deleteNoteSuccessTitle`
+    * `sw-settings-snippet.setList.inlineEditErrorTitle`
+    * `sw-settings-snippet.setList.inlineEditSuccessTitle`
+    * `sw-settings-snippet.setList.modalTitleDelete`
+    * `sw-settings-snippet.setList.notEditableNoteErrorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-snippet/snippet/en-GB.json`:
+    * `sw-settings-snippet.general.errorBackRoutingTitle`
+    * `sw-settings-snippet.detail.titleSaveError`
+    * `sw-settings-snippet.detail.titleSaveSuccess`
+    * `sw-settings-snippet.list.modalTitleDelete`
+    * `sw-settings-snippet.list.titleDeleteSuccess`
+    * `sw-settings-snippet.list.titleSaveError`
+    * `sw-settings-snippet.list.titleSaveSuccess`
+    * `sw-settings-snippet.setList.cloneNoteErrorTitle`
+    * `sw-settings-snippet.setList.cloneNoteSuccessTitle`
+    * `sw-settings-snippet.setList.deleteNoteErrorTitle`
+    * `sw-settings-snippet.setList.deleteNoteSuccessTitle`
+    * `sw-settings-snippet.setList.inlineEditErrorTitle`
+    * `sw-settings-snippet.setList.inlineEditSuccessTitle`
+    * `sw-settings-snippet.setList.modalTitleDelete`
+    * `sw-settings-snippet.setList.notEditableNoteErrorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-store/snippet/de-DE.json`:
+    * `sw-settings-store.general.titleSaveSuccess`
+    * `sw-settings-store.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-store/snippet/en-GB.json`:
+    * `sw-settings-store.general.titleSaveSuccess`
+    * `sw-settings-store.general.titleSaveError`
+* Removed unused snippet keys from `src/module/sw-settings-tax/snippet/de-DE.json`:
+    * `sw-settings-tax.list.modalTitleDelete`
+    * `sw-settings-tax.list.titleDeleteSuccess`
+    * `sw-settings-tax.detail.notificationErrorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-tax/snippet/en-GB.json`:
+    * `sw-settings-tax.list.modalTitleDelete`
+    * `sw-settings-tax.list.titleDeleteSuccess`
+    * `sw-settings-tax.detail.notificationErrorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-units/snippet/de-DE.json`:
+    * `sw-settings-units.notification.successTitle`
+    * `sw-settings-units.notification.errorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-units/snippet/en-GB.json`:
+    * `sw-settings-units.notification.successTitle`
+    * `sw-settings-units.notification.errorTitle`
+* Removed unused snippet keys from `src/module/sw-settings-user/snippet/de-DE.json`:
+    * `sw-users-permissions.users.user-detail.modal.deleteModalTitle`
+    * `sw-users-permissions.user-detail.modal.detailModalTitleEdit`
+    * `sw-users-permissions.user-detail.modal.titleSaveSuccess`
+    * `sw-users-permissions.user-detail.modal.titleSaveError`
+    * `sw-users-permissions.user-detail.modal.titleCreateNewError`
+* Removed unused snippet keys from `src/module/sw-settings-user/snippet/en-GB.json`:
+    * `sw-users-permissions.users.user-detail.modal.deleteModalTitle`
+    * `sw-users-permissions.user-detail.modal.detailModalTitleEdit`
+    * `sw-users-permissions.user-detail.modal.titleSaveSuccess`
+    * `sw-users-permissions.user-detail.modal.titleSaveError`
+    * `sw-users-permissions.user-detail.modal.titleCreateNewError`
+* Removed unused snippet keys from `src/module/sw-users-permissions/snippet/de-DE.json`:
+    * `sw-users-permissions.users.role-grid.notification.deleteSuccess.title`
+    * `sw-users-permissions.users.role-grid.notification.deleteError.title`
+    * `sw-users-permissions.users.user-grid.notification.deleteSuccess.title`
+    * `sw-users-permissions.users.user-grid.notification.deleteError.title`
+    * `sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.title`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveSuccess`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveError`
+    * `sw-users-permissions.users.user-grid.titleModalDelete`
+    * `sw-users-permissions.users.user-detail.notification.saveError.title`
+    * `sw-users-permissions.users.user-detail.notification.saveSuccess.title`
+    * `sw-users-permissions.users.user-detail.modal.deleteModalTitle`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveSuccess`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveError`
+    * `sw-users-permissions.users.user-detail.modal.titleCreateNewError`
+    * `sw-users-permissions.users.user-detail.notification.saveError.title`
+*Refactored `src/module/sw-users-permissions/snippet/de-DE.json`:
+    * `sw-users-permissions.users.user-detail.notification.notificationInvalidEmailErrorMessage`
+    to
+    * `sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage`
+* Removed unused snippet keys from `src/module/sw-users-permissions/snippet/en-GB.json`:
+    * `sw-users-permissions.users.role-grid.notification.deleteSuccess.title`
+    * `sw-users-permissions.users.role-grid.notification.deleteError.title`
+    * `sw-users-permissions.users.user-grid.notification.deleteSuccess.title`
+    * `sw-users-permissions.users.user-grid.notification.deleteError.title`
+    * `sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.title`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveSuccess`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveError`
+    * `sw-users-permissions.users.user-grid.titleModalDelete`
+    * `sw-users-permissions.users.user-detail.notification.saveError.title`
+    * `sw-users-permissions.users.user-detail.notification.saveSuccess.title`
+    * `sw-users-permissions.users.user-detail.modal.deleteModalTitle`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveSuccess`
+    * `sw-users-permissions.users.user-detail.modal.titleSaveError`
+    * `sw-users-permissions.users.user-detail.modal.titleCreateNewError`
+    * `sw-users-permissions.users.user-detail.notification.saveError.title`
+*Refactored `src/module/sw-users-permissions/snippet/de-DE.json`:
+    * `sw-users-permissions.users.user-detail.notification.notificationInvalidEmailErrorMessage`
+    to
+    * `sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage`
+    
+    
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
 * Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but it is already passed:

@@ -318,7 +318,7 @@ Component.register('sw-first-run-wizard-welcome', {
             const tryLater = this.$tc('sw-first-run-wizard.welcome.tryAgainLater');
 
             this.createNotificationError({
-                title: this.$tc('sw-first-run-wizard.welcome.error'),
+                title: this.$tc('global.default.error'),
                 message: `${message}\n${errorMessage}\n${tryLater}`
             });
         },
@@ -352,7 +352,7 @@ Component.register('sw-first-run-wizard-welcome', {
                 const installedPlugins = await missingSnippets.join(', ');
 
                 this.createNotification({
-                    title: this.$tc('sw-first-run-wizard.welcome.success'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-first-run-wizard.welcome.pluginsInstalledMessage', missingSnippets.length)
                         + installedPlugins
                 });

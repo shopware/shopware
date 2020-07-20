@@ -14,8 +14,6 @@
       "columnDefault": "Default",
       "buttonAddLanguage": "Add language",
       "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete language",
-      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Language \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
@@ -27,7 +25,6 @@
     "detail": {
       "textHeadline": "New language",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Language \"{name}\" has been saved.",
       "labelName": "Name",
       "labelLocale": "Locale",
@@ -41,7 +38,6 @@
       "tooltipIsoCodeNotChoosable": "You can only select locales that are not in use already.",
       "tooltipInheritanceNotPossible": "The system default language can not inherit from another language.",
       "textAlertChangeParent": "Changing the parent language can lead to inconsistencies in your translations.",
-      "titleAlertChangeParent": "Be aware",
       "textIsoCodeIsInUse": "This ISO code is already in use.",
       "textLanguageHasParent": "This language is already inheriting from another language."
     }

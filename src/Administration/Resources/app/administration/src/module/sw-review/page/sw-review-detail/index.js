@@ -86,7 +86,7 @@ Component.register('sw-review-detail', {
 
         onSave() {
             const reviewName = this.review.title;
-            const titleSaveSuccess = this.$tc('sw-review.detail.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-review.detail.messageSaveSuccess', 0, { name: reviewName });
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(

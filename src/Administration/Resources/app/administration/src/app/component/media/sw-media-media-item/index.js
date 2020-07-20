@@ -121,7 +121,7 @@ Component.register('sw-media-media-item', {
         copyItemLink(item) {
             dom.copyToClipboard(item.url);
             this.createNotificationSuccess({
-                title: this.$tc('sw-media.general.notification.urlCopied.title'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-media.general.notification.urlCopied.message')
             });
         },

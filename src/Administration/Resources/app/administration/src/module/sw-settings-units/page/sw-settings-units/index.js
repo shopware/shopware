@@ -93,7 +93,7 @@ Component.register('sw-settings-units', {
                 this.newUnit = null;
 
                 // throw success notification
-                const titleSaveSuccess = this.$tc('sw-settings-units.notification.successTitle');
+                const titleSaveSuccess = this.$tc('global.default.success');
                 const messageSaveSuccess = this.$tc('sw-settings-units.notification.successMessage');
 
                 this.createNotificationSuccess({
@@ -109,7 +109,7 @@ Component.register('sw-settings-units', {
                 }
 
                 // throw error notification
-                const titleSaveError = this.$tc('sw-settings-units.notification.errorTitle');
+                const titleSaveError = this.$tc('global.default.error');
                 const messageSaveError = this.$tc('sw-settings-units.notification.errorMessage');
 
                 this.createNotificationError({

@@ -2,10 +2,10 @@
   "sw-import-export": {
     "general": {
       "mainMenuItemGeneral": "Import/Export",
-      "descriptionTextModule": "Verwaltung von Imports und Exports."
+      "descriptionTextModule": "Verwaltung von Importen und Exporten."
     },
     "activity": {
-      "invalidHelpText": "Fehlerhafte Einträge können in dem Context-Menu heruntergeladen werden.",
+      "invalidHelpText": "Fehlerhafte Einträge können über das Kontext-Menü heruntergeladen werden.",
       "columns": {
         "size": "Größe",
         "profile": "Profil",
@@ -22,7 +22,7 @@
         "downloadInvalidFile": "Fehlerhafte Einträge herunterladen"
       },
       "detail": {
-        "modalTitle": "Log Informationen",
+        "modalTitle": "Log-Informationen",
         "labelClose": "Schließen",
         "labelFilename": "Dateiname",
         "labelType": "Typ",
@@ -39,7 +39,7 @@
         "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen"
       },
       "status": {
-        "progress": "Import im Gange",
+        "progress": "Importiere ...",
         "merging_files": "Dateien zusammenführen",
         "succeeded": "Erfolgreich",
         "failed": "Fehlgeschlagen",
@@ -47,17 +47,11 @@
       }
     },
     "profile": {
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Profil wurde erfolgreich gespeichert.",
-      "titleSaveError": "Fehler",
       "messageSaveError": "Das Profil konnte nicht gespeichert werden.",
-      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Das Profil wurde erfolgreich gelöscht.",
-      "titleDeleteError": "Fehler",
       "messageDeleteError": "Das Profil konnte nicht gelöscht werden. Bitte stelle sicher das keine Logs mehr zu dem Profil existieren.",
-      "titleDuplicateSuccess": "Erfolg",
       "messageDuplicateSuccess": "Das Profil wurde erfolgreich dupliziert.",
-      "titleDuplicateError": "Fehler",
       "messageDuplicateError": "Das Profil konnte nicht dupliziert werden.",
       "productLabel": "Produkt",
       "customerLabel": "Kunde",
@@ -78,36 +72,34 @@
       "saveProfileLabel": "Profil speichern",
       "closeProfileLabel": "Profil schließen",
       "generalTab": "Allgemein",
-      "fieldIndicatorsTab": "Feld Indikator",
+      "fieldIndicatorsTab": "Feld-Indikator",
       "profileNameFieldLabel": "Profilname",
       "objectTypeFieldLabel": "Objekt-Typ",
-      "separatorFieldLabel": "Seperatorzeichen",
+      "separatorFieldLabel": "Seperator-Zeichen",
       "enclosureFieldLabel": "Einfassungszeichen",
-      "addMappingTooltipText": "Bitte lege zunächst einen Object-Typ fest.",
-      "objectTypeFieldTooltipText": "Der Object-Typ kann nicht verändert werden, wenn bereits Mapping Optionen gepflegt wurden.",
+      "addMappingTooltipText": "Bitte lege zunächst einen Objekt-Typ fest.",
+      "objectTypeFieldTooltipText": "Der Objekt-Typ kann nicht mehr verändert werden, wenn bereits Mapping-Optionen gepflegt wurden.",
       "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Tabelle unten. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
       "mappingDescriptionBlock": "Verwende die Tabelle unten, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
-      "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separatorzeichen auftaucht.",
+      "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separator-Zeichen auftaucht.",
       "cancelLabel": "Abbrechen",
-      "addMappingLabel": "Neues Mappping hinzufügen",
+      "addMappingLabel": "Neues Mapping hinzufügen",
       "deleteLabel": "Löschen",
       "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
       "mapping": {
         "fileValueLabel": "CSV-Name",
-        "entityLabel": "Datenbankeintrag"
+        "entityLabel": "Datenbank-Eintrag"
       },
       "typeColumn": "Typ",
       "nameColumn": "Name",
       "customTypeLabel": "Benutzerdefiniert",
       "defaultTypeLabel": "Standard",
       "propertyLabel": "Eigenschaften",
-      "configuratorSettingLabel": "Variantenkonfiguration",
-      "validationError": "Profil nicht valide",
+      "configuratorSettingLabel": "Varianten-Konfiguration",
       "closeViolation": "Schließen",
-      "violationMessage": "Ihr Profil ist noch nicht gültig. Sie müssen Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:"
+      "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:"
     },
     "exporter": {
-      "titleExportSuccess": "Erfolg",
       "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",
       "startExportLabel": "Export starten",
       "showLogLabel": "Log anzeigen",
@@ -118,14 +110,11 @@
       "directExportPropertiesLabel": "Eigenschaften exportieren",
       "close": "Schließen",
       "variantsWarning": "<strong>Warnung: </strong> Stelle sicher, dass die in exportierten CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im neuen System vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu exportieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Export manuell im neuen System pflegen.",
-      "exportVariants": "Produktvarianten exportieren",
-      "errorNotificationTitle": "Fehler beim Export"
+      "exportVariants": "Produktvarianten exportieren"
     },
     "importer": {
-      "titleExportSuccess": "Erfolg",
       "messageExportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
-      "titleImportError": "Fehler",
-      "messageExportError": "Es gab Fehler während des Imports",
+      "messageExportError": "Es sind Fehler während des Importierens aufgetreten.",
       "uploadCsvLabel": "CSV-Datei hochladen",
       "startImportLabel": "Import starten",
       "selectProfileLabel": "Profil auswählen",
@@ -133,13 +122,12 @@
       "warningBlock": "<strong>Warnung: </strong>Stelle sicher, dass die in deiner hochgeladenen CSV-Datei verlinkten Eigenschaften und Varianten zu den Produkten im Shop vorhanden sind. Sollte dies nicht der Fall sein, hast du die Möglichkeit Eigenschaften und Varianten als einzelne CSV-Dateien mit entsprechenden Profilen zu importieren. Solltest du beide Fälle nicht haben, so musst du die Produkt Varianten im Anschluss an den Import im Produkt Modul manuell pflegen.",
       "importActivityLabel": "Import-Aktivität",
       "importLabel": "Import",
-      "directImportVariantsLabel": "Varianten Einstellungen importieren",
+      "directImportVariantsLabel": "Varianten-Einstellungen importieren",
       "directImportPropertiesLabel": "Eigenschaften importieren",
       "close": "Schließen",
       "labelUploadCaption": "Wähle eine Datei zum Hochladen",
       "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
-      "importVariants": "Produktvarianten importieren",
-      "errorNotificationTitle": "Fehler beim Import"
+      "importVariants": "Produktvarianten importieren"
     },
     "page": {
       "profileTab": "Profile",
@@ -153,16 +141,16 @@
       "fileSizeLabel": "kB",
       "successTitle": "erfolgreich",
       "downloadFileLabel": "Datei herunterladen",
-      "succeededImportText": "Import erfolgreich",
-      "succeededExportText": "Export erfolgreich",
+      "succeededImportText": "Importieren erfolgreich",
+      "succeededExportText": "Exportieren erfolgreich",
       "failedImportText": "Import fehlgeschlagen",
-      "progressImportText": "Import im Gange",
-      "progressExportText": "Export im Gange",
+      "progressImportText": "Importiere ...",
+      "progressExportText": "Exportiere ...",
       "downloadFailedLabel": "Fehlgeschlagene Einträge herunterladen",
       "successfulImportsText": "{records} Einträge erfolgreich importiert",
       "failedImportsText": "{failedRecords} Einträge konnten nicht importiert werden. Die fehlgeschlagenen Einträge können heruntergeladen, bearbeitet und erneut importiert werden.",
       "failedExportText": "Export fehlgeschlagen",
-      "showLogFileLabel": "Öffne Log Eintrag"
+      "showLogFileLabel": "Öffne Log-Eintrag"
     }
   }
 }

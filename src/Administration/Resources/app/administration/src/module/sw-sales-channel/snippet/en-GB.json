@@ -14,11 +14,7 @@
       "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
     },
     "detail": {
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Sales Channel \"{name}\" has been saved.",
-      "titleSaveError": "Error",
-      "titleActivateError": "Activation error",
-      "titleFetchError": "Error",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
@@ -33,7 +29,6 @@
       "titleProductComparisonPreview": "Preview",
       "titleProductComparisonPreviewErrors": "Errors during generation",
       "labelAccessKeyField": "API access key",
-      "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
       "titleGeneralSettings": "General Settings",
       "labelInputName": "Name",
@@ -82,7 +77,6 @@
       "footerCategory": "Entry point footer navigation",
       "serviceCategory": "Entry point service navigation",
       "titleOptionsApiKey": "API access",
-      "titleDeleteSalesChannelWarning": "Warning:",
       "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
       "buttonCopyApiKeyButton": "Copy API key",
       "titleStatus": "Status",
@@ -173,7 +167,6 @@
           "label": "Customer Group",
           "help": "Automatically selected by Sales Channel"
         },
-        "titleAccessKeyChanged": "Access key changed",
         "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
         "templates": {
           "label": "Template",
@@ -188,7 +181,6 @@
           "modal-confirm": "Apply template",
           "modal-cancel": "Cancel",
           "message": {
-            "template-applied-title": "Info",
             "template-applied-message": "Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes."
           }
         }

@@ -11,7 +11,7 @@
 {% block sw_data_grid_slot_bulk_modals %}
     <sw-modal v-if="showBulkDeleteModal"
               @modal-close="showBulkDeleteModal = false"
-              :title="$tc('global.entity-components.deleteTitle')"
+              :title="$tc('global.default.warning')"
               variant="small">
         <p class="sw-data-grid__confirm-bulk-delete-text">
             {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
@@ -25,7 +25,7 @@
             </slot>
 
             <slot name="bulk-modal-delete-items">
-                <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
+                <sw-button @click="deleteItems" variant="danger" size="small" :isLoading="isBulkLoading">
                     {{ $tc('global.default.delete') }}
                 </sw-button>
             </slot>
@@ -66,7 +66,7 @@
 {% endblock %}
 
 {% block sw_data_grid_slot_action_modals %}
-    <sw-modal v-if="deleteId === item.id" @modal-close="closeModal" :title="$tc('global.entity-components.deleteTitle')" variant="small">
+    <sw-modal v-if="deleteId === item.id" @modal-close="closeModal" :title="$tc('global.default.warning')" variant="small">
         <p class="sw-listing__confirm-delete-text">
             <slot name="delete-confirm-text" v-bind="{ item }">
                 {{ $tc('global.entity-components.deleteMessage') }}
@@ -82,7 +82,7 @@
                 </slot>
 
                 <slot name="delete-modal-delete-item" v-bind="{ item }">
-                    <sw-button @click="deleteItem(item.id)" variant="primary" size="small">
+                    <sw-button @click="deleteItem(item.id)" variant="danger" size="small">
                         {{ $tc('global.default.delete') }}
                     </sw-button>
                 </slot>

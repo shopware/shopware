@@ -281,7 +281,7 @@ describe('components/sw-import-export-importer', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'This is an error code: This is an detailed error message',
-            title: 'sw-import-export.importer.errorNotificationTitle'
+            title: 'global.default.error'
         });
 
         wrapper.vm.createNotificationError.mockRestore();

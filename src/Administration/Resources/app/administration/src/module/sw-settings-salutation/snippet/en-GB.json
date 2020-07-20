@@ -27,7 +27,6 @@
       "fieldSalutationKeyLabel": "Technical name",
       "fieldSalutationKeyPlaceholder": "Enter a technical name...",
       "placeholderNewSalutation": "New salutation...",
-      "notificationErrorTitle": "Error",
       "notificationErrorMessage": "An error occured while saving your salutation."
     }
   }

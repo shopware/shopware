@@ -178,7 +178,7 @@ Component.register('sw-settings-snippet-detail', {
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
@@ -232,7 +232,7 @@ Component.register('sw-settings-snippet-detail', {
                     errormsg = '<br/>Error Message: "'.concat(error.response.data.errors[0].detail).concat('"');
                 }
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,

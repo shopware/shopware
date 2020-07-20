@@ -274,7 +274,7 @@ Component.register('sw-cms-list', {
         },
 
         deleteCmsPage(page) {
-            const titleDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorTitle');
+            const titleDeleteError = this.$tc('global.default.error');
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;

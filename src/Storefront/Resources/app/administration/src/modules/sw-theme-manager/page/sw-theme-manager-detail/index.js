@@ -267,7 +267,7 @@ Component.register('sw-theme-manager-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('sw-theme-manager.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: error.toString(),
                     autoClose: false,
                     actions: [...actions]

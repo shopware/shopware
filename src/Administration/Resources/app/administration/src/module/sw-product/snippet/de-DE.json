@@ -177,10 +177,8 @@
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
       "messageEmpty": "Noch keine Produkte",
-      "modalTitleDelete": "Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen? | Möchtest Du diese {count} Produkte wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert."
     },
     "detail": {
@@ -194,11 +192,9 @@
       "tabProperties": "Eigenschaften zuweisen",
       "tabVariation": "Varianten",
       "tabCrossSelling": "Cross Selling",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Produkt \"{name}\" wurde erfolgreich gespeichert.",
       "messageUploadSuccess": "{count} von {total} Dateien erfolgreich gespeichert.",
-      "titleSaveWarning": "Keine Änderung",
-      "messageSaveWarning": "Sie haben keine Änderung vorgenommen."
+      "messageSaveWarning": "Keine Änderung vorgenommen."
     },
     "mediaForm": {
       "errorHeadline": "Fehler",
@@ -252,9 +248,6 @@
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
       "generatedListDeleteModalButtonCancel": "Abbrechen",
       "generatedListDeleteModalButtonDelete": "Löschen",
-      "generatedListDeleteModalTitle": "Variante",
-      "generatedListTitleSaveSuccess": "Gespeichert",
-      "generatedListTitleSaveError": "Fehler",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
       "generatedListTitleDeleteError": "Gelöscht",

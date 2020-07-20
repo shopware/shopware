@@ -57,7 +57,6 @@
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Rabattaktionen",
-      "modalTitleDelete": "Rabattaktion löschen",
       "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
       "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren"
@@ -68,7 +67,6 @@
         "titleEdit": "Aktion",
         "buttonCancel": "Abbrechen",
         "buttonSave": "Speichern",
-        "titleSaveSuccess": "Erfolg",
         "messageSaveSuccess": "Die Rabattaktion \"{name}\" wurde gespeichert."
       },
       "tabs": {

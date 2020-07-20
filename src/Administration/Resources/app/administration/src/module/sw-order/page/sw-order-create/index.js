@@ -106,7 +106,7 @@ Component.register('sw-order-create', {
 
         showError() {
             this.createNotificationError({
-                title: this.$tc('sw-order.create.titleSaveError'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-order.create.messageSaveError')
             });
         },

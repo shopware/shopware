@@ -6,7 +6,6 @@
       "placeholderSearchBar": "Durchsuche den aktuellen Ordner ...",
       "notification": {
         "urlCopied": {
-          "title": "Erfolg",
           "message": "URL in Zwischenablage kopiert."
         }
       }

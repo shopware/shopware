@@ -120,7 +120,7 @@ Component.register('sw-product-list', {
 
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-product.list.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName })
                 });
             }).catch(() => {

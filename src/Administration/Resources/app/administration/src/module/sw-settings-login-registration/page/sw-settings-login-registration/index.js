@@ -37,7 +37,7 @@ Component.register('sw-settings-login-registration', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-login-registration.general.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });

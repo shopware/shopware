@@ -445,3 +445,4 @@ Table of contents
 * Deprecated the following blocks, since they've been replaced by the new variant characteristics display:
     * `component_offcanvas_product_variants` in `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-item.html.twig`
     * `page_checkout_item_info_variants` in `src/Storefront/Resources/views/storefront/page/checkout/checkout-item.html.twig`
+* Fix sw_sanitize filter throwing when the parameter options is null

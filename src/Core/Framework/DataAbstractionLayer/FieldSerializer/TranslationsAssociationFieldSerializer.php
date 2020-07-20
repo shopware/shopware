@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
@@ -34,7 +33,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
     /**
      * @throws ExpectedArrayException
      * @throws InvalidSerializerFieldException
-     * @throws LanguageNotFoundException
      * @throws MissingSystemTranslationException
      * @throws MissingTranslationLanguageException
      */
@@ -72,8 +70,10 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             }
 
             $languageId = $parameters->getContext()->getLanguageId($identifier);
-            if (!$languageId) {
-                throw new LanguageNotFoundException($identifier);
+            if ($languageId === null) {
+                unset($value[$identifier]);
+
+                continue;
             }
 
             if (!isset($value[$languageId])) {

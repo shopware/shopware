@@ -82,6 +82,12 @@ Shopware.Component.register('sw-settings-mailer', {
 
         async saveMailerSettings() {
             this.isLoading = true;
+
+            // Inputs cannot return null
+            if (this.mailerSettings['core.mailerSettings.emailAgent'] === '') {
+                this.mailerSettings['core.mailerSettings.emailAgent'] = null;
+            }
+
             await this.systemConfigApiService.saveValues(this.mailerSettings);
             this.isLoading = false;
         },

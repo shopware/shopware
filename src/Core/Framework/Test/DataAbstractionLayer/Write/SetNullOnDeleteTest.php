@@ -85,7 +85,8 @@ class SetNullOnDeleteTest extends TestCase
                `updated_at` DATETIME(3) NULL,
                KEY `set_null_on_delete_parent_id` (`set_null_on_delete_parent_id`,`set_null_on_delete_parent_version_id`),
                CONSTRAINT `set_null_on_delete_child_ibfk_1` FOREIGN KEY (`set_null_on_delete_parent_id`, `set_null_on_delete_parent_version_id`)
-                   REFERENCES `set_null_on_delete_parent` (`id`, `version_id`) ON DELETE SET NULL
+                   REFERENCES `set_null_on_delete_parent` (`id`, `version_id`) ON DELETE SET NULL,
+               PRIMARY KEY `primary` (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
         );
 

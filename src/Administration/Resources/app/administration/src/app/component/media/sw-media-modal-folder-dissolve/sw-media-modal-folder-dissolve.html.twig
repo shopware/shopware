@@ -2,7 +2,7 @@
     <sw-modal variant="small"
               class="sw-media-modal-folder-dissolve"
               @modal-close="closeDissolveModal"
-              :title="$tc('global.sw-media-modal-folder-dissolve.titleModal')">
+              :title="$tc('global.default.warning')">
 
         {% block sw_media_modal_folder_dissolve_body %}
             {{ $tc('global.sw-media-modal-folder-dissolve.dissolveMessage', itemsToDissolve.length, { folderName: itemsToDissolve[0].name, count: itemsToDissolve.length }) }}
@@ -21,7 +21,7 @@
                     <sw-button class="sw-media-modal-folder-dissolve__confirm"
                                @click="dissolveSelection"
                                size="small"
-                               variant="primary">
+                               variant="danger">
                         {{ $tc('global.sw-media-modal-folder-dissolve.buttonDissolve') }}
                     </sw-button>
                 {% endblock %}

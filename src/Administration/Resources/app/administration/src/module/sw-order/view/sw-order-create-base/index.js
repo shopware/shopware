@@ -205,7 +205,7 @@ Component.register('sw-order-create-base', {
                 await this.updateCustomerContext();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.create.titleFetchError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.create.messageSwitchCustomerError')
                 });
             } finally {

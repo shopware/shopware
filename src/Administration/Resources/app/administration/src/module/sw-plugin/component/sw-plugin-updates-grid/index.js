@@ -144,7 +144,7 @@ Component.register('sw-plugin-updates-grid', {
             return storeService.downloadPlugin(this.currentDownload.name, this.currentDownload.integrated)
                 .then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('sw-plugin.updates.titleUpdateSuccess'),
+                        title: this.$tc('global.default.success'),
                         message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
                     });
 

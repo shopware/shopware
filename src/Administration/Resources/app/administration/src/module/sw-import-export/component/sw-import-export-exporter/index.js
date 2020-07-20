@@ -99,13 +99,13 @@ Shopware.Component.register('sw-import-export-exporter', {
             }).catch((error) => {
                 if (!error.response || !error.response.data || !error.response.data.errors) {
                     this.createNotificationError({
-                        title: this.$tc('sw-import-export.exporter.errorNotificationTitle'),
+                        title: this.$tc('global.default.error'),
                         message: error.message
                     });
                 } else {
                     error.response.data.errors.forEach((singleError) => {
                         this.createNotificationError({
-                            title: this.$tc('sw-import-export.exporter.errorNotificationTitle'),
+                            title: this.$tc('global.default.error'),
                             message: `${singleError.code}: ${singleError.detail}`
                         });
                     });
@@ -130,7 +130,7 @@ Shopware.Component.register('sw-import-export-exporter', {
 
         onProgressFinished() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-import-export.exporter.titleExportSuccess'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-import-export.exporter.messageExportSuccess', 0)
             });
             this.isLoading = false;

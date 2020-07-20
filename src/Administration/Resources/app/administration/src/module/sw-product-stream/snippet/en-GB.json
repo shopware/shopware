@@ -105,8 +105,8 @@
       "textHeadline": "New dynamic product group",
       "titleFilter": "Conditions",
       "titleResult": "Product group",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Dynamic product group \"{name}\" has been saved.",
+      "messageSaveError": "Dynamic product group \"{name}\" could not be saved.",
       "buttonOpenPreview": "Preview"
     },
     "previewModal": {

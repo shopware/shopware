@@ -15,8 +15,6 @@
       "buttonAddCountry": "Land anlegen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "modalTitleDelete": "Land löschen",
-      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Das Land \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -24,9 +22,7 @@
     "detail": {
       "textHeadline": "Neues Land",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Das Land \"{name}\" wurde erfolgreich gespeichert.",
-      "titleSaveError": "Fehler",
       "messageSaveError": "Das Land \"{name}\" konnte nicht gespeichert werden.",
       "labelName": "Name",
       "labelPosition": "Position",

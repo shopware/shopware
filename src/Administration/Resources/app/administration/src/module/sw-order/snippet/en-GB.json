@@ -31,7 +31,6 @@
       "titleSidebarItemFilterCampaignCode": "Campaign code",
       "buttonDelete": "Delete",
       "buttonCancel": "Cancel",
-      "modalTitleDelete": "Delete order",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?"
     },
     "detail": {
@@ -43,23 +42,14 @@
       "textHeadline": "Order",
       "textHeadlineNew": "New order",
       "tabGeneral": "General",
-      "titleRecalculationError": "Error",
       "messageRecalculationError": "An error occurred while calculating the price: <br>",
-      "titleSaveError": "Error",
       "messageSaveError": "An error occurred during saving",
-      "notification": {
-        "shippingNotAvailable": {
-          "title": "Error",
-          "message": "Delivery to the selected country not possible."
-        }
-      }
+      "messageShippingNotAvailable": "Delivery to the selected country not possible."
     },
     "create": {
       "textNewOrder": "New order",
       "buttonSaveOrder": "Save order",
       "buttonCancelOrder": "Cancel",
-      "titleSaveError": "Error",
-      "titleFetchError": "Error",
       "messageSaveError": "Order could not be saved.",
       "messageSwitchCustomerError": "An error occurred during switching customer",
       "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses"
@@ -249,7 +239,6 @@
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Select a status...",
       "labelSelectStateButton": "Update status and send email",
-      "headlineErrorStateChange": "Error",
       "labelErrorStateChange": "An error occured while updating the status:",
       "labelErrorNoAction": "Status unchanged.",
       "labelNoTransactionState": "No transactions yet",
@@ -315,7 +304,7 @@
     },
     "promotionModal": {
       "labelTitle": "Disable automatic promotions",
-      "message": "The following automatic promotions will be disabled",
+      "message": "The following automatic promotions will be disabled:",
       "messageNoItems": "No automatic promotions active.",
       "buttonDisable": "Disable"
     }

@@ -130,7 +130,7 @@ Component.register('sw-settings-customer-group-detail', {
                     });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-customer-group.detail.notificationErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage')
                 });
             }).finally(() => {

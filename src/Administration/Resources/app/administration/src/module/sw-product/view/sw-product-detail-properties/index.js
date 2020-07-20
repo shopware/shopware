@@ -12,18 +12,20 @@ Component.register('sw-product-detail-properties', {
 
     data() {
         return {
-            propertiesAvailable: true
+            propertiesAvailable: true,
+            isInherited: false
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
-
+            'product',
+            'parentProduct'
         ]),
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
+            'isChild'
         ]),
 
         propertyRepository() {
@@ -35,15 +37,31 @@ Component.register('sw-product-detail-properties', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
         createdComponent() {
             this.checkIfPropertiesExists();
+        },
+
+        mountedComponent() {
+            this.isInherited = this.isChild && !this.product.options.total;
         },
 
         checkIfPropertiesExists() {
             this.propertyRepository.search(new Criteria(1, 1), Shopware.Context.api).then((res) => {
                 this.propertiesAvailable = res.total > 0;
             });
+        },
+
+        restoreInheritance() {
+            this.isInherited = true;
+        },
+
+        removeInheritance() {
+            this.isInherited = false;
         }
     }
 });

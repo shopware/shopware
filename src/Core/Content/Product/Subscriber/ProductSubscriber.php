@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use function Flag\next7399;
 
 class ProductSubscriber implements EventSubscriberInterface
 {
@@ -33,7 +32,7 @@ class ProductSubscriber implements EventSubscriberInterface
 
     private function buildVariation(ProductEntity $product): array
     {
-        if (!$product->getOptions() || !next7399()) {
+        if (!$product->getOptions()) {
             return [];
         }
 

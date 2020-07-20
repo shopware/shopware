@@ -6,7 +6,6 @@
       "placeholderSearchBar": "Search current folder...",
       "notification": {
         "urlCopied": {
-          "title": "Success",
           "message": "URL has been copied to clipboard."
         }
       }

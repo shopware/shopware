@@ -429,7 +429,7 @@ Component.register('sw-cms-detail', {
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.pageConfigOpen();
 
-                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingFields');
+                const warningTitle = this.$tc('global.default.warning');
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationError({
                     title: warningTitle,
@@ -452,7 +452,7 @@ Component.register('sw-cms-detail', {
 
                 if (!foundListingBlock) {
                     this.createNotificationError({
-                        title: this.$tc('sw-cms.detail.notification.titleMissingProductListing'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-cms.detail.notification.messageMissingProductListing')
                     });
 
@@ -468,7 +468,7 @@ Component.register('sw-cms-detail', {
 
             if (sections.length < 1) {
                 this.createNotificationWarning({
-                    title: this.$tc('sw-cms.detail.notification.titleMissingSections'),
+                    title: this.$tc('global.default.warning'),
                     message: this.$tc('sw-cms.detail.notification.messageMissingSections')
                 });
 
@@ -477,7 +477,7 @@ Component.register('sw-cms-detail', {
 
             if (sections.length === 1 && sections[0].blocks.length === 0) {
                 this.createNotificationWarning({
-                    title: this.$tc('sw-cms.detail.notification.titleMissingBlocks'),
+                    title: this.$tc('global.default.warning'),
                     message: this.$tc('sw-cms.detail.notification.messageMissingBlocks')
                 });
 
@@ -498,7 +498,7 @@ Component.register('sw-cms-detail', {
             });
 
             if (foundEmptyRequiredField.length > 0) {
-                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingBlockFields');
+                const warningTitle = this.$tc('global.default.warning');
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
                 this.createNotificationWarning({
                     title: warningTitle,
@@ -521,7 +521,7 @@ Component.register('sw-cms-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
 
-                const errorNotificationTitle = this.$tc('sw-cms.detail.notification.titlePageError');
+                const errorNotificationTitle = this.$tc('global.default.error');
                 this.createNotificationError({
                     title: errorNotificationTitle,
                     message: exception.message
@@ -537,7 +537,7 @@ Component.register('sw-cms-detail', {
                 }
 
                 if (hasEmptyConfig === true) {
-                    const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingElements');
+                    const warningTitle = this.$tc('global.default.warning');
                     const warningMessage = this.$tc('sw-cms.detail.notificationM.messageMissingElements');
                     this.createNotificationWarning({
                         title: warningTitle,

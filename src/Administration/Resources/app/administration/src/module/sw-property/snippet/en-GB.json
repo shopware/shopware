@@ -18,7 +18,6 @@
       "columnDescription": "Description",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
-      "modalTitleDelete": "Property",
       "textDeleteConfirm": "Are you sure you really want to delete the property \"{name}\"?"
     },
     "detail": {
@@ -57,9 +56,7 @@
       "addOptionNotPossible": "Property values can only be added in the default language",
       "contextMenuOptionResetDelete": "Restore",
       "textOptionHeadline": "New value",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Property \"{name}\" has been saved.",
-      "titleSaveError": "Error",
       "messageSaveError": "Property \"{name}\" could not be saved",
       "messageOptionsEmpty": "No property values yet",
       "messageOptionsEmptySubline": "Add property values here.",

@@ -149,7 +149,7 @@
                                     {% block sw_customer_detail_addresses_delete_modal %}
                                         <sw-modal v-if="showDeleteAddressModal === item.id"
                                                   @modal-close="onCloseDeleteAddressModal"
-                                                  :title="$tc('sw-customer.detailAddresses.modalTitleDeleteAddress')"
+                                                  :title="$tc('global.default.warning')"
                                                   variant="small">
                                             {% block sw_customer_detail_addresses_delete_modal_confirm_delete_text %}
                                                 <p class="sw-customer-detail-addresses__confirm-delete-text">
@@ -174,7 +174,7 @@
 
                                                     {% block sw_customer_detail_addresses_delete_modal_confirm %}
                                                         <sw-button @click="onConfirmDeleteAddress(item.id)"
-                                                                   variant="primary"
+                                                                   variant="danger"
                                                                    size="small">
                                                             {{ $tc('sw-customer.detailAddresses.buttonDelete') }}
                                                         </sw-button>

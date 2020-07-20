@@ -105,8 +105,8 @@
       "textHeadline": "Neue Produktgruppe",
       "titleFilter": "Bedingungen",
       "titleResult": "Produkte",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Produktgruppe \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Die Produktgruppe \"{name}\" konnte nicht gespeichert werden.",
       "buttonOpenPreview": "Vorschau"
     },
     "previewModal": {

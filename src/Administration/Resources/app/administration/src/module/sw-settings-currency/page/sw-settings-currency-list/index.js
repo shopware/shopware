@@ -71,13 +71,13 @@ Component.register('sw-settings-currency-list', {
         onInlineEditSave(promise, currency) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-currency.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', 0, { name: currency.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-currency.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-currency.detail.messageSaveError')
                 });
             });

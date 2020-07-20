@@ -167,12 +167,12 @@ Shopware.Component.register('sw-import-export-activity', {
             this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-import-export.profile.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-import-export.profile.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-import-export.profile.messageSaveError', 0)
                 });
             }).finally(() => {

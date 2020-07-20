@@ -5,9 +5,7 @@
       "textHeadline": "Cart settings",
       "description": "Manage cart settings here.",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Configuration saved",
-      "messageSaveSuccess": "The configuration has been saved.",
-      "titleSaveError": "The configuration could not be saved"
+      "messageSaveSuccess": "The configuration has been saved."
     }
   }
 }

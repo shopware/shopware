@@ -118,9 +118,7 @@ Component.register('sw-product-cross-selling-assignment', {
                 newProduct.position = this.assignedProducts.length + 1;
                 this.assignedProducts.add(newProduct);
 
-                const context = { ...Context.api, inheritance: true };
-
-                this.productRepository.get(productId, context).then((product) => {
+                this.productRepository.get(productId, { ...Context.api, inheritance: true }).then((product) => {
                     newProduct.product = product;
                     this.isLoadingData = false;
                 });

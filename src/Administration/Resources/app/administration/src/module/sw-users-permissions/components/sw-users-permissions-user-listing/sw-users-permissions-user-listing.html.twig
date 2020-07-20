@@ -91,7 +91,7 @@
                         {% block sw_settings_user_list_delete_modal %}
                             <sw-modal v-if="getItemToDelete(item)"
                                       @modal-close="onCloseDeleteModal"
-                                      :title="$tc('sw-users-permissions.users.user-grid.titleModalDelete')"
+                                      :title="$tc('global.default.warning')"
                                       variant="small">
                                 {% block sw_settings_user_list_delete_modal_confirm_delete_text %}
                                     <p class="sw-settings-user-list__confirm-delete-text">
@@ -123,7 +123,7 @@
                                         {% block sw_settings_user_list_delete_modal_confirm %}
                                             <sw-button @click="onConfirmDelete(item)"
                                                        :disabled="!confirmPassword"
-                                                       variant="primary"
+                                                       variant="danger"
                                                        size="small">
                                                 {{ $tc('sw-settings-user.user-grid.labelButtonDelete') }}
                                             </sw-button>

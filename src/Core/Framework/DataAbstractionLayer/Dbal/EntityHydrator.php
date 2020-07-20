@@ -227,25 +227,6 @@ class EntityHydrator
         return $entity;
     }
 
-    /**
-     * @param string[] $jsonStrings
-     */
-    private function mergeJson(array $jsonStrings): string
-    {
-        $merged = [];
-        foreach ($jsonStrings as $string) {
-            $decoded = json_decode((string) $string, true);
-            if (!$decoded) {
-                continue;
-            }
-            foreach ($decoded as $key => $value) {
-                $merged[$key] = $value;
-            }
-        }
-
-        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
-    }
-
     private function extractManyToManyIds(string $root, ManyToManyAssociationField $field, array $row): ?array
     {
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
@@ -305,6 +286,7 @@ class EntityHydrator
         if ($field instanceof TranslatedField) {
             $key = $chain[0] . '.' . $propertyName;
             $decoded = $customField->getSerializer()->decode($customField, $row[$key]);
+
             $entity->assign([$propertyName => $decoded]);
 
             $values = [];
@@ -322,7 +304,12 @@ class EntityHydrator
              * In other terms: The first argument has the lowest 'priority', so we need to reverse the array
              */
             $merged = $this->mergeJson(\array_reverse($values, false));
-            $entity->addTranslated($propertyName, $customField->getSerializer()->decode($customField, $merged));
+            $decoded = $customField->getSerializer()->decode($customField, $merged);
+            $entity->addTranslated($propertyName, $decoded);
+
+            if ($inherited) {
+                $entity->assign([$propertyName => $decoded]);
+            }
 
             return;
         }
@@ -352,5 +339,30 @@ class EntityHydrator
         $merged = $customField->getSerializer()->decode($customField, $mergedJson);
 
         $entity->assign([$propertyName => $merged]);
+    }
+
+    /**
+     * @param string[] $jsonStrings
+     */
+    private function mergeJson(array $jsonStrings): string
+    {
+        $merged = [];
+        foreach ($jsonStrings as $string) {
+            $decoded = json_decode((string) $string, true);
+
+            if (!$decoded) {
+                continue;
+            }
+
+            foreach ($decoded as $key => $value) {
+                if ($value === null) {
+                    continue;
+                }
+
+                $merged[$key] = $value;
+            }
+        }
+
+        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
     }
 }

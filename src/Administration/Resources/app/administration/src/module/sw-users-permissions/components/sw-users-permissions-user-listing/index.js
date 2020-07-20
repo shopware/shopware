@@ -124,17 +124,17 @@ Component.register('sw-users-permissions-user-listing', {
 
         async onConfirmDelete(user) {
             const username = `${user.firstName} ${user.lastName} `;
-            const titleDeleteSuccess = this.$tc('sw-users-permissions.users.user-grid.notification.deleteSuccess.title');
+            const titleDeleteSuccess = this.$tc('global.default.success');
             const messageDeleteSuccess = this.$tc('sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
                 0,
                 { name: username });
-            const titleDeleteError = this.$tc('sw-users-permissions.users.user-grid.notification.deleteError.title');
+            const titleDeleteError = this.$tc('global.default.error');
             const messageDeleteError = this.$tc(
                 'sw-users-permissions.users.user-grid.notification.deleteError.message', 0, { name: username }
             );
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.title'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message')
                 });
                 return;

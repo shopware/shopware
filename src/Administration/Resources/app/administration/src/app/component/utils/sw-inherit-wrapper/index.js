@@ -94,6 +94,12 @@ Component.register('sw-inherit-wrapper', {
             type: Function,
             required: false,
             default: null
+        },
+
+        helpText: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
@@ -145,7 +151,7 @@ Component.register('sw-inherit-wrapper', {
                 return this.value.length <= 0;
             }
 
-            return this.value === null;
+            return this.value === null || this.value === undefined;
         }
     },
 

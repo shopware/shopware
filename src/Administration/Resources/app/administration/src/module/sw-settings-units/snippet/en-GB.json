@@ -16,9 +16,7 @@
       "subline": "Manage scale units here."
     },
     "notification": {
-      "successTitle": "Success",
       "successMessage": "Scale unit has been saved.",
-      "errorTitle": "Error",
       "errorMessage": "Scale unit could not be saved. Please fill in all required fields."
     }
   }

@@ -24,11 +24,17 @@ class LineItemAddedEvent extends Event
      */
     protected $context;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $context)
+    /**
+     * @var bool
+     */
+    protected $merged;
+
+    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $context, bool $merged = false)
     {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->context = $context;
+        $this->merged = $merged;
     }
 
     public function getLineItem(): LineItem
@@ -44,5 +50,10 @@ class LineItemAddedEvent extends Event
     public function getContext(): SalesChannelContext
     {
         return $this->context;
+    }
+
+    public function isMerged(): bool
+    {
+        return $this->merged;
     }
 }

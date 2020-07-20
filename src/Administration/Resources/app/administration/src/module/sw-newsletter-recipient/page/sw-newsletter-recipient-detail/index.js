@@ -60,7 +60,7 @@ Component.register('sw-newsletter-recipient-detail', {
         onClickSave() {
             this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-newsletter-recipient.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc(
                         'sw-newsletter-recipient.detail.messageSaveSuccess',
                         0,

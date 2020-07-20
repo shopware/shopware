@@ -4,11 +4,14 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: 600px;
     display: block;
     padding-right: 1em;
 
     .sw-product-variant-info__specification {
         color: $color-gray-600;
+    }
+
+    .sw-highlight-text {
+        display: inline-block;
     }
 }

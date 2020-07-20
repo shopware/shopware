@@ -142,7 +142,7 @@ describe('Product: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
         cy.wait('@deleteData').then((xhr) => {

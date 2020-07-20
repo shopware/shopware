@@ -189,7 +189,7 @@ Component.register('sw-upload-store-listener', {
         showErrorNotification(payload) {
             if (isIllegalFileNameException(payload.error)) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.sw-media-upload.notification.illegalFilename.title'),
+                    title: this.$root.$tc('global.default.error'),
                     message: this.$root.$tc(
                         'global.sw-media-upload.notification.illegalFilename.message',
                         0,

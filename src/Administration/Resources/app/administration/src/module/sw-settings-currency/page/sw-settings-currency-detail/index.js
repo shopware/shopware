@@ -139,7 +139,7 @@ Component.register('sw-settings-currency-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-currency.detail.notificationErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-currency.detail.notificationErrorMessage')
                 });
                 this.isLoading = false;

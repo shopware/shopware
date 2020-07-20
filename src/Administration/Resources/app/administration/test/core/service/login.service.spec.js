@@ -42,7 +42,6 @@ describe('core/service/login.service.js', () => {
         expect(loginService).toHaveProperty('addOnTokenChangedListener');
         expect(loginService).toHaveProperty('addOnLogoutListener');
         expect(loginService).toHaveProperty('addOnLoginListener');
-        expect(loginService).toHaveProperty('getLocalStorageKey');
         expect(loginService).toHaveProperty('notifyOnLoginListener');
     });
 
@@ -176,12 +175,6 @@ describe('core/service/login.service.js', () => {
         const { loginService } = loginServiceFactory();
 
         expect(loginService.getStorageKey()).toEqual('bearerAuth');
-    });
-
-    it('@deprecated 6.3.0: should return the storage key', async () => {
-        const { loginService } = loginServiceFactory();
-
-        expect(loginService.getLocalStorageKey()).toEqual('bearerAuth');
     });
 
     it('should check if user is logged in', async () => {

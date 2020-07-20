@@ -13,8 +13,6 @@
       "buttonAddNumberRange": "Add number range",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "modalTitleDelete": "Delete number range",
-      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
@@ -24,9 +22,7 @@
       "textHeadline": "New number range",
       "configCard": "Settings",
       "assignmentCard": "Assignment",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Number range \"{name}\" has been saved.",
-      "titleSaveError": "Error",
       "messageSaveError": "Number range \"{name}\" has not been saved.",
       "labelName": "Name",
       "labelDescription": "Description",
@@ -50,10 +46,8 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "helpTextAdvancedField": "Advanced pattern definition: <br/>{prefix}_{n}_{suffix}<br/>'n' is the defined start number<br/>('_' is an arbitrarily chosen separator)<br/><br/>Use e.g. the PHP parameter 'date': <br/>{date}:<br/>international date format (YYYY-MM-DD)<br/>{date_dmy}:<br/>user defined date format (DD-MM-YY)<br/><br/>",
-      "errorSalesChannelNeededTitle": "No sales channel selected!",
-      "errorSalesChannelNeededMessage": "Please select at least one sales channel.",
-      "errorPatternNeededTitle": "No pattern defined!",
-      "errorPatternNeededMessage": "Please define at least a start value."
+      "errorSalesChannelNeededMessage": "No Sales Channel selected. Please assign at least one Sales Channel.",
+      "errorPatternNeededMessage": "No pattern defined. Please define at least a start value."
     }
   }
 }

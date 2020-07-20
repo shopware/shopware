@@ -111,6 +111,13 @@ $sw-field--switch-color-error: $color-crimson;
         }
     }
 
+    .sw-field__inheritance-icon {
+        display: flex;
+        align-items: center;
+        margin-left: 8px;
+        margin-right: 0;
+    }
+
     &.sw-field--small.sw-field--switch-bordered {
         label {
             padding: 8px 10px;

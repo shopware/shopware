@@ -101,7 +101,7 @@
                                     {% block sw_settings_shipping_list_delete_modal %}
                                         <sw-modal v-if="showDeleteModal === item.id"
                                                   @modal-close="onCloseDeleteModal"
-                                                  :title="$tc('sw-settings-shipping.list.modalTitleDelete')"
+                                                  :title="$tc('global.default.warning')"
                                                   variant="small">
                                             {% block sw_settings_shipping_list_delete_modal_confirm_delete_text %}
                                                 <p class="sw-settings-shipping-list__confirm-delete-text">
@@ -118,7 +118,7 @@
                                                     {% endblock %}
 
                                                     {% block sw_settings_shipping_list_delete_modal_confirm %}
-                                                        <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                                        <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
                                                             {{ $tc('sw-settings-shipping.list.buttonDelete') }}
                                                         </sw-button>
                                                     {% endblock %}

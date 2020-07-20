@@ -95,7 +95,7 @@ describe('Tax: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the tax "High tax"?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         cy.wait('@deleteData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);

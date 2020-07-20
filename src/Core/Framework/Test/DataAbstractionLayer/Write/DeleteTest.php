@@ -37,7 +37,7 @@ class DeleteTest extends TestCase
             'DROP TABLE IF EXISTS delete_cascade_child;
              DROP TABLE IF EXISTS delete_cascade_parent;
              DROP TABLE IF EXISTS delete_cascade_many_to_one;
-             
+
              CREATE TABLE `delete_cascade_parent` (
                `id` binary(16) NOT NULL,
                `delete_cascade_many_to_one_id` binary(16) NOT NULL,
@@ -47,7 +47,7 @@ class DeleteTest extends TestCase
                `updated_at` DATETIME(3) NULL,
                PRIMARY KEY `primary` (`id`, `version_id`)
              );
-             
+
              CREATE TABLE `delete_cascade_child` (
                `id` binary(16) NOT NULL,
                `delete_cascade_parent_id` binary(16) NOT NULL,
@@ -57,9 +57,10 @@ class DeleteTest extends TestCase
                `updated_at` DATETIME(3) NULL,
                KEY `delete_cascade_parent_id` (`delete_cascade_parent_id`,`delete_cascade_parent_version_id`),
                CONSTRAINT `delete_cascade_child_ibfk_1` FOREIGN KEY (`delete_cascade_parent_id`, `delete_cascade_parent_version_id`)
-                   REFERENCES `delete_cascade_parent` (`id`, `version_id`) ON DELETE CASCADE
+                   REFERENCES `delete_cascade_parent` (`id`, `version_id`) ON DELETE CASCADE,
+               PRIMARY KEY `primary` (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-             
+
              CREATE TABLE `delete_cascade_many_to_one` (
                `id` binary(16) NOT NULL,
                `name` varchar(255) NOT NULL,
@@ -67,7 +68,7 @@ class DeleteTest extends TestCase
                `updated_at` DATETIME(3) NULL,
                PRIMARY KEY `primary` (`id`)
              );
-             
+
              ALTER TABLE `delete_cascade_parent`
              ADD FOREIGN KEY (`delete_cascade_many_to_one_id`) REFERENCES `delete_cascade_many_to_one` (`id`) ON DELETE CASCADE;'
         );

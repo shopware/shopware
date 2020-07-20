@@ -419,7 +419,7 @@ Component.register('sw-order-state-history-card', {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                title: this.$tc('sw-order.stateCard.headlineErrorStateChange'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage
             });
         }

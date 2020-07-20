@@ -75,7 +75,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.$emit('update-started');
             this.updaterIsRunning = true;
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted')
             });
 
@@ -87,7 +87,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.$emit('update-stopped');
             this.updaterIsRunning = false;
             this.createNotificationInfo({
-                title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                title: this.$tc('global.default.info'),
                 message: this.$tc('sw-settings-shopware-updates.notifications.updateStopped')
             });
         },
@@ -103,13 +103,13 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.downloadUpdate(response.offset);
                 } else {
                     this.createNotificationError({
-                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed')
                     });
                 }
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed')
                 });
             });
@@ -127,7 +127,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.deactivatePlugins(response.offset);
                 } else {
                     this.createNotificationError({
-                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
                     });
                 }
@@ -141,19 +141,15 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
                 if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                     this.createNotificationWarning({
-                        title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
-                        message: this.$tc(
-                            'sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants',
-                            null,
-                            null, {
-                                dependency: context.meta.parameters.dependency,
-                                dependantNames: context.meta.parameters.dependantNames
-                            }
-                        )
+                        title: this.$tc('global.default.warning'),
+                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedDependencies', null, null, {
+                            dependency: context.meta.parameters.dependency,
+                            dependantNames: context.meta.parameters.dependantNames
+                        })
                     });
                 } else {
                     this.createNotificationError({
-                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed')
                     });
                 }
@@ -171,7 +167,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                     this.unpackUpdate(response.offset);
                 } else {
                     this.createNotificationError({
-                        title: this.$tc('sw-settings-shopware-updates.notifications.title'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-shopware-updates.notifications.unpackFailed')
                     });
                 }

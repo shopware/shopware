@@ -10,16 +10,15 @@
     "set": {
       "list": {
         "textHeadline": "Custom fields",
-        "titleModalDelete": "Delete set",
         "textDeleteConfirm": "Do you really want to delete the set \"{name}\" ?",
         "buttonCancel": "Cancel",
         "buttonAdd": "Add new set",
         "columnName": "Label",
         "contextMenuEdit": "Edit",
         "buttonDelete": "Delete",
-        "titleDeleteSuccess": "Success",
         "messageDeleteSuccess": "The set \"{name}\" has been deleted.",
-        "messageEmpty": "No custom fields yet."
+        "messageEmpty": "No custom fields yet.",
+        "helpTextGlobalSet": "This set is global and cannot be edited."
       },
       "detail": {
         "labelTechnicalName": "Technical name",
@@ -30,14 +29,12 @@
         "labelName": "Set name",
         "placeholderName": "Enter a name...",
         "labelCheckboxTranslated": "Manage labels in all administration languages",
-        "titleSaveSuccess": "Custom field set",
         "messageSaveSuccess": "The set \"{name}\" has been saved.",
         "messageCustomFieldsEmpty": "No custom fields yet.",
         "addCustomField": "New custom field",
         "buttonApply": "Save",
         "labelEntities": "Assign to",
         "placeholderEntities": "Select modules...",
-        "titleNameNotUnique": "Error",
         "messageNameNotUnique": "That technical name already exists."
       }
     },

@@ -103,8 +103,8 @@ Component.register('sw-settings-tax-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-tax.detail.notificationErrorTitle'),
-                    message: this.$tc('sw-settings-tax.detail.notificationErrorMessage')
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('sw-settings-tax.detail.messageSaveError')
                 });
                 this.isLoading = false;
             });

@@ -28,7 +28,7 @@ Component.register('sw-settings-listing', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-listing.general.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });

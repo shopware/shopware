@@ -223,7 +223,7 @@ Component.register('sw-settings-rule-detail', {
 
         showErrorNotification() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-rule.detail.titleSaveError'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name })
             });
             this.isLoading = false;

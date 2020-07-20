@@ -70,7 +70,7 @@ class ProductControllerTest extends TestCase
             static::assertArrayHasKey('calculatedListingPrice', $product);
             static::assertArrayHasKey('calculatedPrices', $product);
             static::assertArrayHasKey('calculatedPrice', $product);
-            static::assertArrayHasKey('price', $product);
+            static::assertArrayNotHasKey('price', $product);
             static::assertArrayHasKey('name', $product);
             static::assertArrayHasKey('id', $product);
         }
@@ -107,7 +107,7 @@ class ProductControllerTest extends TestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         static::assertEquals($productId, $content['data']['id']);
-        static::assertEquals(10, $content['data']['price'][0]['gross']);
+        static::assertEquals(10, $content['data']['calculatedPrice']['totalPrice']);
         static::assertEquals('with id', $content['data']['tax']['name']);
         static::assertEquals(17, $content['data']['tax']['taxRate']);
     }

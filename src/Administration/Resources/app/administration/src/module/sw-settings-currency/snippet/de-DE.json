@@ -16,8 +16,6 @@
       "buttonAddCurrency": "Währung anlegen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
-      "modalTitleDelete": "Währung löschen",
-      "titleDeleteSuccess": "Erfolg",
       "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen"
@@ -27,7 +25,6 @@
       "labelPrecision": "Nachkommastellen",
       "placeholderPrecision": "Nachkommastellen eingeben ...",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Währung \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelIsoCode": "ISO-Code",
@@ -41,7 +38,6 @@
       "placeholderFactor": "Faktor eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "notificationErrorTitle": "Fehler",
       "notificationErrorMessage": "Fehler beim Speichern der Währung."
     }
   },

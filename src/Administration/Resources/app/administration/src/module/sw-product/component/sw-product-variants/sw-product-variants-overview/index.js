@@ -373,7 +373,7 @@ Component.register('sw-product-variants-overview', {
 
             this.productRepository.save(variation, Shopware.Context.api).then(() => {
                 // create success notification
-                const titleSaveSuccess = this.$tc('sw-product.detail.titleSaveSuccess');
+                const titleSaveSuccess = this.$tc('global.default.success');
                 const messageSaveSuccess = this.$tc('sw-product.detail.messageSaveSuccess', 0, {
                     name: productName
                 });
@@ -388,9 +388,7 @@ Component.register('sw-product-variants-overview', {
             }).catch(() => {
                 // create error notification
                 const titleSaveError = this.$tc('global.default.error');
-                const messageSaveError = this.$tc(
-                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
-                );
+                const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
                 this.createNotificationError({
                     title: titleSaveError,
@@ -415,7 +413,7 @@ Component.register('sw-product-variants-overview', {
                 this.modalLoading = false;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-product.variations.generatedListTitleDeleteError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
                 });
 

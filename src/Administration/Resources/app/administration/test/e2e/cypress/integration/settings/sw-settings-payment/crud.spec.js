@@ -97,7 +97,7 @@ describe('Payment: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the payment method "CredStick"?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify and check usage of payment-method
         cy.wait('@deleteData').then((xhr) => {

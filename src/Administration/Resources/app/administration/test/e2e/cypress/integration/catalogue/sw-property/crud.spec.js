@@ -121,7 +121,7 @@ describe('Property: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-property-list__confirm-delete-text`)
             .contains('Are you sure you really want to delete the property "Color"?');
 
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
         cy.wait('@deleteData').then((xhr) => {

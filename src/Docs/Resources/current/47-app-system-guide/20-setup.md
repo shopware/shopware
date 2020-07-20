@@ -84,6 +84,9 @@ attribute
 * `author`
 * `copyright`
 * `version`
+* `icon`: Optional, you can set the path to an icon that should be shown for your app
+* `license`: Optional
+* `privacy`: Optional, in this element you can link to your privacy policy
 
 ### Authorisation
 

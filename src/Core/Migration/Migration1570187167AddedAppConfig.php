@@ -18,7 +18,8 @@ class Migration1570187167AddedAppConfig extends MigrationStep
         $connection->executeUpdate('
             CREATE TABLE `app_config` (
               `key` varchar(50) NOT NULL,
-              `value` LONGTEXT NOT NULL
+              `value` LONGTEXT NOT NULL,
+               PRIMARY KEY (`key`)
             );
         ');
 

@@ -137,11 +137,9 @@
       "buttonChoose": "Datei auswählen",
       "notification": {
         "invalidFileType": {
-          "title": "Nicht unterstützter Dateityp",
           "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
         },
         "invalidFileSize": {
-          "title": "Dateigröße überschreitet das Upload-Limit",
           "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
         }
       },
@@ -232,7 +230,7 @@
         "folder": "Möchtest Du den Ordner \"{name}\" wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht. | Möchtest Du diese {count} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht.",
         "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Dateien aus den Ordner gelöscht."
       },
-      "mediaQuickInfoMessage": "Die Mediendatei wird derzeit noch verwendet und ist wie folgt verknüpft",
+      "mediaQuickInfoMessage": "Diese Mediendatei wird derzeit verwendet von",
       "mediaInUsagesMessage": "Die folgenden Mediendateien werden derzeit noch verwendet",
       "notification": {
         "errorSingle": {
@@ -258,7 +256,6 @@
       }
     },
     "sw-media-modal-folder-dissolve": {
-      "titleModal": "Ordner auflösen",
       "dissolveMessage": "Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
       "buttonDissolve": "Auflösen",
       "notification": {
@@ -344,14 +341,12 @@
       "buttonOpenMedia": "Medien öffnen",
       "notification": {
         "success": {
-          "title": "Medienupload",
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
         },
         "failure": {
           "message": "Fehler beim Hochladen."
         },
         "illegalFilename": {
-          "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
         },
         "illegalFileUrl": {
@@ -728,7 +723,6 @@
       }
     },
     "modal": {
-      "modalTitleDelete": "Element löschen",
       "textDeleteConfirm": "Möchtest Du das Element \"{name}\" wirklich löschen?",
       "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht."
@@ -790,8 +784,7 @@
   "sw-config-form-renderer": {
     "placeholder": "Bitte \"{name}\" ausfüllen ...",
     "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt ...",
-    "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
-    "configLoadErrorTitle": "Fehler beim Laden der Konfiguration."
+    "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:"
   },
   "locale": {
     "de-DE": "Deutsch",
@@ -910,5 +903,11 @@
     "tooltip": {
       "warning": "Du hast nicht die erforderlichen Berechtigungen."
     }
+  },
+  "sw-custom-field-set-renderer": {
+    "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
+    "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
+    "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
+    "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
   }
 }

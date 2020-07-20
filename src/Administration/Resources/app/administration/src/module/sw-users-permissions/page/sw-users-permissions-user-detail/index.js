@@ -269,9 +269,9 @@ Component.register('sw-users-permissions-user-detail', {
         checkEmail() {
             if (this.user.email && !email(this.user.email)) {
                 this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-detail.notification.saveError.title'),
+                    title: this.$tc('global.defaul.error'),
                     message: this.$tc(
-                        'sw-users-permissions.users.user-detail.notification.notificationInvalidEmailErrorMessage'
+                        'sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage'
                     )
                 });
                 return Promise.reject();
@@ -351,7 +351,7 @@ Component.register('sw-users-permissions-user-detail', {
             return Promise.all(promises).then(this.checkEmail().then(() => {
                 if (!this.isEmailUsed) {
                     this.isLoading = true;
-                    const titleSaveError = this.$tc('sw-users-permissions.users.user-detail.notification.saveError.title');
+                    const titleSaveError = this.$tc('global.default.error');
                     const messageSaveError = this.$tc(
                         'sw-users-permissions.users.user-detail.notification.saveError.message', 0, { name: this.fullName }
                     );
@@ -380,7 +380,7 @@ Component.register('sw-users-permissions-user-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('sw-users-permissions.users.user-detail.notification.saveError.title'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
                 });
 

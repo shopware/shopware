@@ -38,7 +38,6 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnTokenChangedListener,
         addOnLogoutListener,
         addOnLoginListener,
-        getLocalStorageKey,
         getStorageKey,
         notifyOnLoginListener
     };
@@ -305,14 +304,6 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     function isLoggedIn() {
         const bearerAuthExpiry = getExpiry();
         return validateExpiry(bearerAuthExpiry);
-    }
-
-    /**
-     * @deprecated 6.3.0 - use getStorageKey instead
-     * @returns {String}
-     */
-    function getLocalStorageKey() {
-        return getStorageKey();
     }
 
     /**

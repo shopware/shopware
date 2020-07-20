@@ -24,7 +24,6 @@
       "placeholderName": "Enter manufacturer name...",
       "placeholderDescription": "Enter description...",
       "placeholderLink": "Enter manufacturer website...",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Manufacturer \"{name}\" has been saved.",
       "labelLogo": "Logo",
       "labelUseAsLogo": "Use as Logo"

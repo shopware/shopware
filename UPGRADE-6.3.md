@@ -176,6 +176,25 @@ Administration
     * `cartSalesChannelService`: use `cartStoreApiService`
     * `checkOutSalesChannelService`: use `checkoutStoreService`
     * `salesChannelContextService`: use `storeContextService`
+* When using `getCurrencyPriceByCurrencyId` in `sw-product-list/index.js` parameters must be changed from `(itemId, currencyId)` to `(currencyId, prices)`.
+    * Before:
+        ```
+        <template v-for="currency in currencies"
+                  :slot="`column-price-${currency.isoCode}`"
+                  slot-scope="{ item }">
+            {{ getCurrencyPriceByCurrencyId(item.id, currency.id).gross | currency(currency.isoCode) }}
+        </template>
+        ```
+    * After:
+        ```
+        <template v-for="currency in currencies"
+                  :slot="`column-price-${currency.isoCode}`"
+                  slot-scope="{ item }">
+            {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+        </template>
+        ```
+* Removed the `inheritance` header being set to `true` in the method `loadProduct` of the component `sw-product-detail`
+* Removed unnecessary loading of `crossSelling` associations in the computed property `productCriteria` of the component `sw-product-detail`
 
 Storefront
 --------------

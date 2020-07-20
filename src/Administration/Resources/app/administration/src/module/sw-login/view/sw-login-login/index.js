@@ -100,7 +100,7 @@ Component.register('sw-login-login', {
         createNotificationFromResponse(response) {
             if (!response.response) {
                 this.createNotificationError({
-                    title: response.message,
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-login.index.messageGeneralRequestError')
                 });
                 return;

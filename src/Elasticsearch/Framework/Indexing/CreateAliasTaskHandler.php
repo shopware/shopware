@@ -25,17 +25,24 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
      */
     private $elasticsearchHelper;
 
+    /**
+     * @var array
+     */
+    private $config;
+
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         Client $client,
         Connection $connection,
-        ElasticsearchHelper $elasticsearchHelper
+        ElasticsearchHelper $elasticsearchHelper,
+        array $config
     ) {
         parent::__construct($scheduledTaskRepository);
         $this->client = $client;
         $this->connection = $connection;
         $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->elasticsearchHelper = $elasticsearchHelper;
+        $this->config = $config;
     }
 
     public static function getHandledMessages(): iterable
@@ -113,7 +120,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $this->client->indices()->putSettings([
                 'index' => $index,
                 'body' => [
-                    'number_of_replicas' => 3,
+                    'number_of_replicas' => $this->config['settings']['index']['number_of_replicas'],
                     'refresh_interval' => null,
                 ],
             ]);

@@ -126,7 +126,7 @@ Component.register('sw-system-config', {
             message += '</ul>';
 
             this.createNotificationError({
-                title: this.$tc('sw-config-form-renderer.configLoadErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: message,
                 autoClose: false
             });

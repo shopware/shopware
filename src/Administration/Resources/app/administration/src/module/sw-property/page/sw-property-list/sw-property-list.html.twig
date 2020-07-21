@@ -116,7 +116,7 @@
 
                             {% block sw_product_list_grid_action_modals %}
                                 <template slot="action-modals" slot-scope="{ item }">
-                                    <sw-modal v-if="showDeleteModal === item.id" @modal-close="onCloseDeleteModal" :title="$tc('sw-property.list.modalTitleDelete')" variant="small">
+                                    <sw-modal v-if="showDeleteModal === item.id" @modal-close="onCloseDeleteModal" :title="$tc('global.default.warning')" variant="small">
                                         <p class="sw-property-list__confirm-delete-text">
                                             {{ $tc('sw-property.list.textDeleteConfirm', 0, { name: item.translated.name }) }}
                                         </p>
@@ -126,7 +126,7 @@
                                                 {{ $tc('sw-property.list.buttonCancel') }}
                                             </sw-button>
 
-                                            <sw-button @click="onConfirmDelete(item.id)" variant="primary" size="small">
+                                            <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
                                                 {{ $tc('sw-property.list.buttonDelete') }}
                                             </sw-button>
                                         </template>

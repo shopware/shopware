@@ -246,7 +246,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function handlePriceFilter(Request $request, Criteria $criteria): void
     {
         $criteria->addAggregation(
-            new StatsAggregation('price', 'product.listingPrices', true, true, false, false)
+            new StatsAggregation('price', 'product.listingPrices')
         );
 
         $min = $request->get('min-price');

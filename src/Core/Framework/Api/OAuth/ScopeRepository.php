@@ -8,6 +8,7 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
+use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 
 class ScopeRepository implements ScopeRepositoryInterface
@@ -59,16 +60,16 @@ class ScopeRepository implements ScopeRepositoryInterface
             $hasWrite = true;
         }
 
+        if ($grantType !== 'password') {
+            $scopes = $this->removeScope($scopes, UserVerifiedScope::class);
+        }
+
         if ($grantType === 'client_credentials' && $clientEntity instanceof ApiClient && $clientEntity->getWriteAccess()) {
             $hasWrite = true;
         }
 
         if (!$hasWrite) {
-            foreach ($scopes as $index => $scope) {
-                if ($scope instanceof WriteScope) {
-                    unset($scopes[$index]);
-                }
-            }
+            $scopes = $this->removeScope($scopes, WriteScope::class);
         }
 
         if ($hasWrite) {
@@ -101,5 +102,16 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
 
         return array_values($uniqueScopes);
+    }
+
+    private function removeScope(array $scopes, string $class): array
+    {
+        foreach ($scopes as $index => $scope) {
+            if ($scope instanceof $class) {
+                unset($scopes[$index]);
+            }
+        }
+
+        return $scopes;
     }
 }

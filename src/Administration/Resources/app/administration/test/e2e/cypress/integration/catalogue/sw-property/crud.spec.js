@@ -24,7 +24,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/property-group',
+            url: `${Cypress.env('apiPath')}/property-group`,
             method: 'post'
         }).as('saveData');
 
@@ -48,7 +48,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/search/property-group',
+            url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('saveData');
 
@@ -86,7 +86,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/property-group/**',
+            url: `${Cypress.env('apiPath')}/property-group/**`,
             method: 'delete'
         }).as('deleteData');
 
@@ -121,7 +121,7 @@ describe('Property: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-property-list__confirm-delete-text`)
             .contains('Are you sure you really want to delete the property "Color"?');
 
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
         cy.wait('@deleteData').then((xhr) => {

@@ -64,6 +64,7 @@
         "ongr/elasticsearch-dsl": "7.0.0",
         "padaliyajay/php-autoprefixer": "1.2",
         "psr/cache": "1.0.1",
+        "psr/event-dispatcher": "1.0.0",
         "psr/http-factory": "1.0.1",
         "psr/http-message": "1.0.1",
         "psr/log": "1.1.2",
@@ -155,7 +156,7 @@
             "src/Core/Flag/feature_next3722.php",
             "src/Core/Flag/feature_next6009.php",
             "src/Core/Flag/feature_next6997.php",
-            "src/Core/Flag/feature_next7399.php"
+            "src/Core/Flag/feature_next9225.php"
         ],
         "exclude-from-classmap": [
             "src/**/Test/"

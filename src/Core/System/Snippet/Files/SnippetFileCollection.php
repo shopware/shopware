@@ -106,6 +106,17 @@ class SnippetFileCollection extends Collection
         return 'snippet_file_collection';
     }
 
+    public function hasFileForPath(string $filePath): bool
+    {
+        $filePath = realpath($filePath);
+
+        $filesWithMatchingPath = $this->filter(static function (SnippetFileInterface $file) use ($filePath): bool {
+            return realpath($file->getPath()) === $filePath;
+        });
+
+        return $filesWithMatchingPath->count() > 0;
+    }
+
     protected function getExpectedClass(): ?string
     {
         return SnippetFileInterface::class;

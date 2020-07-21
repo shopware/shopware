@@ -77,7 +77,7 @@ Component.register('sw-order-create', {
                     })
                     .then((response) => {
                         this.isSaveSuccessful = true;
-                        this.orderId = get(response, 'data.data.id');
+                        this.orderId = get(response, 'data.id');
                     })
                     .catch(() => this.showError())
                     .finally(() => {
@@ -106,7 +106,7 @@ Component.register('sw-order-create', {
 
         showError() {
             this.createNotificationError({
-                title: this.$tc('sw-order.create.titleSaveError'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-order.create.messageSaveError')
             });
         },

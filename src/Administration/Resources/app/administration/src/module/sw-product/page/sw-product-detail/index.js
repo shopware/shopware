@@ -135,7 +135,9 @@ Component.register('sw-product-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .getAssociation('assignedProducts')
                 .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('product');
+                .addAssociation('product')
+                .getAssociation('product')
+                .addAssociation('options.group');
 
             criteria
                 .addAssociation('cover')
@@ -146,7 +148,9 @@ Component.register('sw-product-detail', {
                 .addAssociation('unit')
                 .addAssociation('productReviews')
                 .addAssociation('seoUrls')
-                .addAssociation('mainCategories');
+                .addAssociation('mainCategories')
+                .addAssociation('options.group')
+                .addAssociation('customFieldSets');
 
             ifNext6997(() => criteria.addAssociation('featureSets'));
 
@@ -326,10 +330,7 @@ Component.register('sw-product-detail', {
 
             this.productRepository.get(
                 this.productId || this.product.id,
-                {
-                    ...Shopware.Context.api,
-                    inheritance: true
-                },
+                Shopware.Context.api,
                 this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);

@@ -121,13 +121,13 @@ Shopware.Component.register('sw-import-export-importer', {
             }).catch((error) => {
                 if (!error.response || !error.response.data || !error.response.data.errors) {
                     this.createNotificationError({
-                        title: this.$tc('sw-import-export.importer.errorNotificationTitle'),
+                        title: this.$tc('global.default.error'),
                         message: error.message
                     });
                 } else {
                     error.response.data.errors.forEach((singleError) => {
                         this.createNotificationError({
-                            title: this.$tc('sw-import-export.importer.errorNotificationTitle'),
+                            title: this.$tc('global.default.error'),
                             message: `${singleError.code}: ${singleError.detail}`
                         });
                     });
@@ -145,13 +145,13 @@ Shopware.Component.register('sw-import-export-importer', {
 
             if (progress.state === 'succeeded') {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-import-export.importer.titleImportSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-import-export.importer.messageImportSuccess', 0)
                 });
                 this.onProgressFinished();
             } else if (progress.state === 'failed') {
                 this.createNotificationError({
-                    title: this.$tc('sw-import-export.importer.titleImportError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-import-export.importer.messageImportError', 0)
                 });
                 this.onProgressFinished();

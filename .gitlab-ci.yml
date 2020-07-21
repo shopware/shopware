@@ -15,7 +15,7 @@ stages:
     - Deploy
 
 include:
-    -   local: .gitlab/ci/sync.yml
+    -   local: .gitlab/ci/split.yml
 
 default:
     image: shopware/development:latest
@@ -271,7 +271,7 @@ MySQL 8.0:
     services:
         -   name: mysql:8.0.19
             alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
+            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
@@ -284,7 +284,7 @@ MySQL 8.0 (Schedule):
     services:
         -   name: mysql:8.0.19
             alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password"]
+            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
@@ -388,7 +388,7 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.2.7 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.2.9 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
@@ -400,7 +400,7 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.2.7 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.2.9 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"

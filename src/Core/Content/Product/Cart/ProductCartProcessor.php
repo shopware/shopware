@@ -18,7 +18,6 @@ use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuild
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function Flag\next7399;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
@@ -258,9 +257,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'options' => $this->getOptions($product),
         ];
 
-        if (next7399()) {
-            $payload['options'] = $product->getVariation();
-        }
+        $payload['options'] = $product->getVariation();
 
         $lineItem->replacePayload($payload);
     }

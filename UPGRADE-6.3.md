@@ -12,6 +12,9 @@ Table of contents
 Core
 ----
 
+* The `\Shopware\Core\System\Snippet\Files\SnippetFileInterface` is deprecated, please provide your snippet files in the right directory with the right name so shopware is able to autoload them.
+Take a look at the `Autoloading of Storefront snippets` section in this guide: `Docs/Resources/current/30-theme-guide/40-snippets.md`, for more information.
+After that you are able to delete your implementation of the `SnippetFileInterface`.
 * Deprecated configuration `api.allowed_limits` in `src/Core/Framework/DependencyInjection/Configuration.php`
 * Removed deprecations:
     * Removed deprecated property `allowedLimits` and method `getAllowedLimits` in `Shopware\Core\Framework\DataAbstractionLayer\Search/RequestCriteriaBuilder.php`
@@ -169,7 +172,29 @@ Administration
 * Replace the component 'sw-settings-user-create' with 'sw-users-permissions-user-create'
 * Replace the component 'sw-settings-user-list' with 'sw-users-permissions-user-listing'
 * When using `sw-custom-field-list` make sure you have set the `page`, `limit` and `total` prop
-
+* Deprecated api services 
+    * `cartSalesChannelService`: use `cartStoreApiService`
+    * `checkOutSalesChannelService`: use `checkoutStoreService`
+    * `salesChannelContextService`: use `storeContextService`
+* When using `getCurrencyPriceByCurrencyId` in `sw-product-list/index.js` parameters must be changed from `(itemId, currencyId)` to `(currencyId, prices)`.
+    * Before:
+        ```
+        <template v-for="currency in currencies"
+                  :slot="`column-price-${currency.isoCode}`"
+                  slot-scope="{ item }">
+            {{ getCurrencyPriceByCurrencyId(item.id, currency.id).gross | currency(currency.isoCode) }}
+        </template>
+        ```
+    * After:
+        ```
+        <template v-for="currency in currencies"
+                  :slot="`column-price-${currency.isoCode}`"
+                  slot-scope="{ item }">
+            {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+        </template>
+        ```
+* Removed the `inheritance` header being set to `true` in the method `loadProduct` of the component `sw-product-detail`
+* Removed unnecessary loading of `crossSelling` associations in the computed property `productCriteria` of the component `sw-product-detail`
 
 Storefront
 --------------

@@ -23,7 +23,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.server();
 
         cy.route({
-            url: '/api/v*/rule',
+            url: `${Cypress.env('apiPath')}/rule`,
             method: 'post'
         }).as('saveData');
 
@@ -84,7 +84,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/rule/*',
+            url: `${Cypress.env('apiPath')}/rule/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -100,7 +100,7 @@ describe('Rule builder: Test crud operations', () => {
         );
         cy.get('.sw-listing__confirm-delete-text')
             .contains('Are you sure you want to delete this item?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.wait('@deleteData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });

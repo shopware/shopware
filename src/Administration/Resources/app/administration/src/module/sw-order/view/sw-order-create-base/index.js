@@ -205,7 +205,7 @@ Component.register('sw-order-create-base', {
                 await this.updateCustomerContext();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.create.titleFetchError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.create.messageSwitchCustomerError')
                 });
             } finally {
@@ -432,7 +432,7 @@ Component.register('sw-order-create-base', {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            Service('cartSalesChannelService').enableAutomaticPromotions(this.cart.token).then(() => {
+            Service('cartStoreService').enableAutomaticPromotions(this.cart.token).then(() => {
                 this.loadCart();
             });
         },

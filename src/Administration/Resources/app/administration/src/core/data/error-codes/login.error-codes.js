@@ -1,4 +1,4 @@
-const title = 'sw-login.index.titleErrorMessage';
+const title = 'global.default.error';
 
 const codes = {
     2: 'messageUnsupportedGrantType',

@@ -5,9 +5,7 @@
       "description": "Change the sitemap settings here.",
       "textHeadline": "Sitemap",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "The configuration has been saved.",
-      "titleSaveError": "The configuration could not be saved"
+      "messageSaveSuccess": "The configuration has been saved."
     }
   }
 }

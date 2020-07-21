@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -364,6 +365,43 @@ class MediaRepositoryDecoratorTest extends TestCase
 
         static::assertCount(1, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds());
         static::assertEquals($firstId, $event->getEventByEntityName(MediaDefinition::ENTITY_NAME)->getIds()[0]);
+    }
+
+    public function testItDoesNotDeleteFilesIfMediaHasDeleteRestrictions(): void
+    {
+        $mediaId = Uuid::randomHex();
+
+        $cmsPageRepository = $this->getContainer()->get('cms_page.repository');
+
+        $cmsPageRepository->create([[
+            'name' => 'cms-page',
+            'type' => 'page',
+            'previewMedia' => [
+                'id' => $mediaId,
+                'name' => 'test media',
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+            ],
+        ]], $this->context);
+
+        $read = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context);
+
+        $media = $read->get($mediaId);
+
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $mediaUrl = $urlGenerator->getRelativeMediaUrl($media);
+
+        $this->getPublicFilesystem()->putStream($mediaUrl, fopen(self::FIXTURE_FILE, 'rb'));
+
+        try {
+            $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+            static::fail('asserted DeleteRestrictViolationException');
+        } catch (RestrictDeleteViolationException $e) {
+            // ignore asserted exception
+        }
+
+        static::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
     }
 
     private function getOrderData(string $orderId, Context $context): array

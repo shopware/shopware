@@ -161,4 +161,57 @@ class BusinessEventDispatcherTest extends TestCase
 
         static::assertEquals($eventConfig, $this->testSubscriber->lastActionConfig);
     }
+
+    public function testEventPropagation(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestBusinessEvent($context);
+
+        $this->eventActionRepository->create([
+            [
+                'eventName' => TestBusinessEvent::EVENT_NAME,
+                'actionName' => 'unit_test_action',
+            ],
+        ], $context);
+
+        $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->expects(static::exactly(3))
+            ->method('dispatch')
+            ->willReturn($event);
+
+        $dispatcher = new BusinessEventDispatcher(
+            $eventDispatcherMock,
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(EventActionDefinition::class)
+        );
+
+        $dispatcher->dispatch($event, $event->getName());
+    }
+
+    public function testEventPropagationStopped(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestBusinessEvent($context);
+
+        $this->eventActionRepository->create([
+            [
+                'eventName' => TestBusinessEvent::EVENT_NAME,
+                'actionName' => 'unit_test_action',
+            ],
+        ], $context);
+
+        $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->expects(static::once())
+            ->method('dispatch')
+            ->willReturn($event);
+
+        $dispatcher = new BusinessEventDispatcher(
+            $eventDispatcherMock,
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(EventActionDefinition::class)
+        );
+
+        $event->stopPropagation();
+        $dispatcher->dispatch($event);
+    }
 }

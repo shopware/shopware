@@ -47,3 +47,7 @@ shopware:
 
     deployment:
         blue_green: '%env(bool:default:defaults_bool_true:BLUE_GREEN_DEPLOYMENT)%'
+
+    media:
+        enable_url_upload_feature: true
+        enable_url_validation: true

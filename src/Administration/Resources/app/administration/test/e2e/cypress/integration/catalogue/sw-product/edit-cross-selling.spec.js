@@ -43,11 +43,11 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/search/product-stream',
+            url: `${Cypress.env('apiPath')}/search/product-stream`,
             method: 'post'
         }).as('saveStream');
 
@@ -131,15 +131,15 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/search/product-stream',
+            url: `${Cypress.env('apiPath')}/search/product-stream`,
             method: 'post'
         }).as('saveStream');
         cy.route({
-            url: '/api/v*/search/product-cross-selling/**/assigned-products',
+            url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
             method: 'post'
         }).as('assignProduct');
 

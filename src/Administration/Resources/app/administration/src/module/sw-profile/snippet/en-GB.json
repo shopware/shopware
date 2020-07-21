@@ -28,7 +28,12 @@
       "notificationSaveSuccessMessage": "Profile information have been saved.",
       "notificationSaveErrorMessage": "Profile information could not be saved.",
       "labelUploadAvatar": "Upload avatar",
-      "labelUseAsAvatar": "Use as avatar"
+      "labelUseAsAvatar": "Use as avatar",
+      "titleConfirmPasswordModal": "Enter your current password to confirm",
+      "labelConfirmPassword": "Password",
+      "placeholderConfirmPassword": "Please enter your current password.",
+      "labelButtonCancel": "Cancel",
+      "labelButtonConfirm": "Confirm"
     }
   }
 }

@@ -12,9 +12,7 @@
       "tags": "Tags"
     },
     "detail": {
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Data for \"{key}\" has been saved.",
-      "titleSaveError": "Error",
       "messageSaveError": "Data for \"{key}\" could not be saved."
     },
     "list": {

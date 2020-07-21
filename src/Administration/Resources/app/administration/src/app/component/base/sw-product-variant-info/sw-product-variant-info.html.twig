@@ -1,0 +1,35 @@
+{% block sw_product_variant_info %}
+    <span class="sw-product-variant-info"
+          v-tooltip="{
+                message: helpText,
+                width: tooltipWidth
+              }">
+        <span class="sw-product-variant-info__text">
+            {% block sw_product_variant_info_product_name %}
+                <span class="sw-product-variant-info__product-name">
+                    <sw-highlight-text
+                        v-if="highlighted"
+                        :text="getFirstSlot()"
+                        :searchTerm="searchTerm">
+                    </sw-highlight-text>
+                    <slot v-else></slot>
+                </span>
+            {% endblock %}
+            {% block sw_product_variant_info_options %}
+                <span v-if="variations.length > 0"
+                    v-for="(variation, index) in variations"
+                    class="sw-product-variant-info__specification"
+                    :key="variation.group">
+                    <template v-if="index === 0">(</template>
+
+                    {% block sw_product_variant_info_options_text %}
+                        <span>{{ variation.group }}</span>: {{ variation.option }}
+                    {% endblock %}
+
+                    <template v-if="index === Object.keys(variations).length - 1">)</template>
+                    <template v-else> | </template>
+                </span>
+            {% endblock %}
+        </span>
+    </span>
+{% endblock %}

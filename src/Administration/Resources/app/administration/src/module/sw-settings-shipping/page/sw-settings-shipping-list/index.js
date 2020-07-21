@@ -92,7 +92,7 @@ Component.register('sw-settings-shipping-list', {
             return this.entityRepository.save(item, Shopware.Context.api)
                 .then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('sw-settings-shipping.list.titleSaveSuccess'),
+                        title: this.$tc('global.default.success'),
                         message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', 0, { name })
                     });
                 }).catch(() => {
@@ -116,7 +116,7 @@ Component.register('sw-settings-shipping-list', {
             this.shippingRepository.delete(id, Shopware.Context.api)
                 .then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('sw-settings-shipping.list.titleSaveSuccess'),
+                        title: this.$tc('global.default.success'),
                         message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', 0, { name })
                     });
                 }).catch(() => {

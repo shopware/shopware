@@ -138,8 +138,10 @@ Component.register('sw-settings-rule-detail', {
         },
 
         loadConditions(conditions = null) {
+            const context = { ...Context.api, inheritance: true };
+
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), Context.api).then((searchResult) => {
+                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -153,6 +155,10 @@ Component.register('sw-settings-rule-detail', {
                 conditions.criteria.page + 1,
                 conditions.criteria.limit
             );
+
+            if (conditions.entity === 'product') {
+                criteria.addAssociation('options.group');
+            }
 
             return this.conditionRepository.search(criteria, conditions.context).then((searchResult) => {
                 conditions.push(...searchResult);
@@ -217,7 +223,7 @@ Component.register('sw-settings-rule-detail', {
 
         showErrorNotification() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-rule.detail.titleSaveError'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-rule.detail.messageSaveError', 0, { name: this.rule.name })
             });
             this.isLoading = false;

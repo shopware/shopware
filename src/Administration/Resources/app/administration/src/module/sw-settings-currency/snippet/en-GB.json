@@ -16,8 +16,6 @@
       "buttonAddCurrency": "Add currency",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
-      "modalTitleDelete": "Delete currency",
-      "titleDeleteSuccess": "Currency",
       "messageDeleteSuccess": "Currency \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete"
@@ -27,7 +25,6 @@
       "labelPrecision": "Decimals",
       "placeholderPrecision": "Enter number of decimals to be displayed...",
       "titleCard": "Settings",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Currency \"{name}\" has been saved.",
       "labelName": "Name",
       "labelIsoCode": "ISO code",
@@ -41,7 +38,6 @@
       "placeholderFactor": "Enter conversion factor...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "notificationErrorTitle": "Error",
       "notificationErrorMessage": "An error occured while saving your currency."
     }
   },

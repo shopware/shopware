@@ -224,7 +224,7 @@
                     <template slot="action-modals" slot-scope="{ item }">
                         <sw-modal v-if="showDeleteModal === item.id"
                                   @modal-close="onCloseDeleteModal"
-                                  :title="$tc('sw-product.variations.generatedListDeleteModalTitle')"
+                                  :title="$tc('global.default.warning')"
                                   variant="small">
 
                             <p class="sw-product-variants-overview__modal--confirm-delete-text">
@@ -239,7 +239,7 @@
                                         {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
                                     </sw-button>
                                     <sw-button @click="onConfirmDelete(item)"
-                                               variant="primary"
+                                               variant="danger"
                                                size="small"
                                                :disabled="modalLoading">
                                         {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}

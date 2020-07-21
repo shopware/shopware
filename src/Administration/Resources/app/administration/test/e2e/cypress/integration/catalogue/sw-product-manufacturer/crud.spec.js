@@ -22,7 +22,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-manufacturer',
+            url: `${Cypress.env('apiPath')}/product-manufacturer`,
             method: 'post'
         }).as('saveData');
 
@@ -47,7 +47,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-manufacturer/**',
+            url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'patch'
         }).as('saveData');
 
@@ -71,7 +71,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product-manufacturer/**',
+            url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'delete'
         }).as('saveData');
 
@@ -84,7 +84,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify updated manufacturer

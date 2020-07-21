@@ -179,9 +179,11 @@ class Context extends Struct
         $currentScope = $this->getScope();
         $this->scope = $scope;
 
-        $result = $callback($this);
-
-        $this->scope = $currentScope;
+        try {
+            $result = $callback($this);
+        } finally {
+            $this->scope = $currentScope;
+        }
 
         return $result;
     }

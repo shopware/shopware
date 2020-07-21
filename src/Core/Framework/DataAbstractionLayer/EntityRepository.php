@@ -127,7 +127,7 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
-        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+        $result = $this->aggregator->aggregate($this->definition, clone $criteria, $context);
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $context);
         $this->eventDispatcher->dispatch($event, $event->getName());
@@ -137,6 +137,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $criteria = clone $criteria;
+
         $this->eventDispatcher->dispatch(
             new EntitySearchedEvent($criteria, $this->definition, $context)
         );

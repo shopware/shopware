@@ -236,8 +236,8 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addBundleRoutes($routes);
         $this->addApiRoutes($routes);
+        $this->addBundleRoutes($routes);
         $this->addFallbackRoute($routes);
     }
 

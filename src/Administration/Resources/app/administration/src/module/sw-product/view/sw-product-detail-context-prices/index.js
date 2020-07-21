@@ -17,7 +17,8 @@ Component.register('sw-product-detail-context-prices', {
     data() {
         return {
             rules: [],
-            totalRules: 0
+            totalRules: 0,
+            isInherited: false
         };
     },
 
@@ -25,6 +26,7 @@ Component.register('sw-product-detail-context-prices', {
         ...mapState('swProductDetail', [
             'repositoryFactory',
             'product',
+            'parentProduct',
             'taxes',
             'currencies'
         ]),
@@ -33,7 +35,8 @@ Component.register('sw-product-detail-context-prices', {
             'isLoading',
             'defaultCurrency',
             'defaultPrice',
-            'productTaxRate'
+            'productTaxRate',
+            'isChild'
         ]),
 
         priceRepository() {
@@ -175,6 +178,8 @@ Component.register('sw-product-detail-context-prices', {
 
                 Shopware.State.commit('swProductDetail/setLoading', ['rules', false]);
             });
+
+            this.isInherited = this.isChild && !this.product.prices.total;
         },
 
         sortCurrencies() {
@@ -401,6 +406,14 @@ Component.register('sw-product-detail-context-prices', {
             return [
                 `context-price-group-${number}`
             ];
+        },
+
+        restoreInheritance() {
+            this.isInherited = true;
+        },
+
+        removeInheritance() {
+            this.isInherited = false;
         }
     }
 });

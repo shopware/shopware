@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use function Flag\skipTestNext7399;
 
 class ProductLoadedSubscriberTest extends TestCase
 {
@@ -21,7 +20,6 @@ class ProductLoadedSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        skipTestNext7399($this);
     }
 
     public function testExtensionSubscribesToProductLoaded(): void

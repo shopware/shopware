@@ -36,11 +36,8 @@
       "permissions": "Permissions",
       "readAccessFieldLabel": "Read (default)",
       "writeAccessFieldLabel": "Write (optional)",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Integration has been saved.",
-      "titleSaveError": "Error",
       "messageSaveError": "Integration could not be saved.",
-      "titleCreateNewError": "Error",
       "messageCreateNewError": "Integration could not be saved."
     }
   }

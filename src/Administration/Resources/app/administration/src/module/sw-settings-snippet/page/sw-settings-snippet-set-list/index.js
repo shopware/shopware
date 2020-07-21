@@ -221,49 +221,49 @@ Component.register('sw-settings-snippet-set-list', {
 
         createDeleteSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessTitle'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessMessage')
             });
         },
 
         createDeleteErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.deleteNoteErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.deleteNoteErrorMessage')
             });
         },
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.setList.inlineEditSuccessTitle'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name })
             });
         },
 
         createInlineErrorNote(name) {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.inlineEditErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.inlineEditErrorMessage', name !== null, { name })
             });
         },
 
         createCloneSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-settings-snippet.setList.cloneNoteSuccessTitle'),
+                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-snippet.setList.cloneSuccessMessage')
             });
         },
 
         createCloneErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.cloneNoteErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage')
             });
         },
 
         createNotEditableErrorNote() {
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.setList.notEditableNoteErrorTitle'),
+                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.notEditableNoteErrorMessage')
             });
         }

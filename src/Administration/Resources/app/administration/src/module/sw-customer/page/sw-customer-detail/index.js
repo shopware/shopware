@@ -166,14 +166,14 @@ Component.register('sw-customer-detail', {
                 this.isSaveSuccessful = true;
                 this.createdComponent();
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
+                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
                         name: `${this.customer.firstName} ${this.customer.lastName}`
                     })
                 });
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('sw-customer.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
                 this.isLoading = false;
@@ -201,14 +201,14 @@ Component.register('sw-customer-detail', {
             if (passwordSet) {
                 if (passwordNotEquals) {
                     this.createNotificationError({
-                        title: this.$tc('sw-customer.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage')
                     });
 
                     return false;
                 } if (invalidLength) {
                     this.createNotificationError({
-                        title: this.$tc('sw-customer.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage')
                     });
 

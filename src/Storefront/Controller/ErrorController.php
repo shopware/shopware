@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
-use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader;
+use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +30,7 @@ class ErrorController extends StorefrontController
     private $headerPageletLoader;
 
     /**
-     * @var ErrorPageLoader
+     * @var ErrorPageLoaderInterface
      */
     private $errorPageLoader;
 
@@ -44,7 +44,7 @@ class ErrorController extends StorefrontController
         FlashBagInterface $flashBag,
         HeaderPageletLoaderInterface $headerPageletLoader,
         SystemConfigService $systemConfigService,
-        ErrorPageLoader $errorPageLoader
+        ErrorPageLoaderInterface $errorPageLoader
     ) {
         $this->errorTemplateResolver = $errorTemplateResolver;
         $this->flashBag = $flashBag;
@@ -97,7 +97,7 @@ class ErrorController extends StorefrontController
             $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        // after this controllers contents are rendered (even if the flashbag was not used e.g. 404 page)
+        // After this controllers content is rendered (even if the flashbag was not used e.g. on a 404 page),
         // clear the existing flashbag messages
         $this->flashBag->clear();
 

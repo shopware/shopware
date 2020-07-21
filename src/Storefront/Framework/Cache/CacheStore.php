@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -209,7 +210,11 @@ class CacheStore implements StoreInterface
     {
         $uri = $this->getRequestUri($request) . $this->cacheHash;
 
-        $hash = 'md' . hash('sha256', $uri);
+        $event = new HttpCacheGenerateKeyEvent($request, 'md' . hash('sha256', $uri));
+
+        $this->eventDispatcher->dispatch($event);
+
+        $hash = $event->getHash();
 
         if ($request->cookies->has(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE)) {
             return hash('sha256', $hash . '-' . $request->cookies->get(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE));

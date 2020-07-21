@@ -19,8 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FormController extends StorefrontController
 {
-    const SUBSCRIBE = 'subscribe';
-    const UNSUBSCRIBE = 'unsubscribe';
+    public const SUBSCRIBE = 'subscribe';
+    public const UNSUBSCRIBE = 'unsubscribe';
 
     /**
      * @var AbstractContactFormRoute

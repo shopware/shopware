@@ -27,13 +27,13 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it.skip('@base @catalogue: add variant to product', () => {
+    it('@base @catalogue: add variant to product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -78,13 +78,13 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it.skip('@base @catalogue: add multidimensional variant to product', () => {
+    it('@base @catalogue: add multidimensional variant to product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -132,8 +132,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    // TODO Unskip when feature flag 7399 is removed
-    it.skip('@base @catalogue: test multidimensional variant with diversification', () => {
+    it('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -177,9 +176,8 @@ describe('Product: Test variants', () => {
         // Verify in storefront
         cy.visit('/');
         cy.get('.product-box').its('length').should('be.gt', 8);
-        cy.get('.product-variant-characteristics').contains('Red | S');
-        cy.get('.product-variant-characteristics').contains('Red | S');
-        cy.get('.product-variant-characteristics').contains('Yellow | M');
-        cy.get('.product-variant-characteristics').contains('Green | L');
+        cy.get('.product-variant-characteristics').contains('Color: Red | Size: S');
+        cy.get('.product-variant-characteristics').contains('Color: Yellow | Size: M');
+        cy.get('.product-variant-characteristics').contains('Color: Green | Size: L');
     });
 });

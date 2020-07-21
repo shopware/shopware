@@ -42,7 +42,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 })
             });
 
-            it('@package @checkout: Run checkout', () => {
+            it('@base @checkout: Run checkout', () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
                 let productName = product.name;
@@ -89,7 +89,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
                 // Confirm
-                cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+                cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
                 cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
                 cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');

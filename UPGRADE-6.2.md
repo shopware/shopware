@@ -1,3 +1,17 @@
+UPGRADE FROM 6.2.x to 6.2.3
+=======================
+
+* The `user` entity is now write protected via api. To create, update or delete a `user` entity, you need the `user-verified` oauth-scope. The scope can be requested over the `/api/oauth/token` route.
+    ```php
+    $client->request('POST', '/api/oauth/token', [
+        'grant_type' => 'password',
+        'client_id' => 'administration',
+        'username' => 'admin',
+        'password' => 'shopware',
+        'scope' => ['user-verified'],
+    ]);
+    ```
+
 UPGRADE FROM 6.1.x to 6.2
 =======================
 
@@ -241,6 +255,8 @@ Administration
 This was an important change, because every checkbox and switch field has the same id. This causes problems when you click
 on the corresponding label.
 
+* Added block `sw_sales_channel_detail_analytics_fields_anonymize_ip` to `sw-sales-channel-detail-analytics.html.twig`
+
 
 Storefront
 ----------
@@ -367,6 +383,8 @@ Now the variable can be overwritten with `replace_recursive`:
             }
         }
         ```
+
+* Added block `component_head_analytics_tag_config` to `analytics.html.twig`
 
 Refactorings
 ------------

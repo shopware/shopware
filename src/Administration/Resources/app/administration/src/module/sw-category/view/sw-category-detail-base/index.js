@@ -63,9 +63,15 @@ Component.register('sw-category-detail-base', {
             return 'column-manufacturer.name';
         },
 
+        nameColumn() {
+            return 'column-name';
+        },
+
         productCriteria() {
             const productCriteria = new Criteria(1, 10);
-            productCriteria.addAssociation('manufacturer')
+            productCriteria
+                .addAssociation('options.group')
+                .addAssociation('manufacturer')
                 .addFilter(Criteria.equals('parentId', null));
             return productCriteria;
         },

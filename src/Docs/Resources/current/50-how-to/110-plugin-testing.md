@@ -118,3 +118,54 @@ Also make sure to have a look at the [Symfony PHPUnit documentation](https://sym
 
 There's a GitHub repository available, containing this example source.
 Check it out [here](https://github.com/shopware/swag-docs-plugin-testing).
+
+
+## Production template
+
+If you use the production template (which is also used by the zipped download version), you have to change a few things.
+
+First the path to the bootstrap file is different, because there's no `shopware/platform`, but `shopware/core`.
+So we have to change `vendor/shopware/platform/src/Core/TestBootstrap.php` to `vendor/shopware/core/TestBootstrap.php`.
+
+We also need to change the `KERNEL_CLASS` from `Shopware\Development\Kernel` to `Shopware\Production\Kernel`.
+
+An example config:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.1/phpunit.xsd"
+         bootstrap="../../../vendor/shopware/core/TestBootstrap.php"
+         cacheResult="false">
+
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <server name="KERNEL_CLASS" value="Shopware\Production\Kernel"/>
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="1"/>
+        <env name="APP_SECRET" value="s$cretf0rt3st"/>
+        <env name="SHELL_VERBOSITY" value="-1"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Example Testsuite">
+            <directory>tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./</directory>
+        </whitelist>
+    </filter>
+</phpunit>
+```
+### Database setup
+
+Additionally, you have to create a database with the name `$DBNAME_test`.
+For example if your database is `shopware` the tests will use the `shopware_test` database.
+
+This database needs to be set up with basic data. This can accomplished by
+running `DATABASE_URL=$myconnectionstring_test bin/console system:install --basic-data` or
+by coping a clean working database.

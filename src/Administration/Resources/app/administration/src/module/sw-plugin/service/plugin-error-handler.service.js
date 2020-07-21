@@ -7,31 +7,31 @@ function StoreError(title, message) {
 
 const errorCodes = {
     FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP: new StoreError(
-        'sw-plugin.errors.titleUploadFailure',
+        'global.default.error',
         'sw-plugin.errors.messageUploadFailureNoPluginFoundInZipFile'
     ),
     FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE: new StoreError(
-        'sw-plugin.errors.titleUploadFailure',
+        'global.default.error',
         'sw-plugin.errors.messageUploadFailureNotAZipFile'
     ),
     FRAMEWORK__PLUGIN_EXTRACTION_FAILED: new StoreError(
-        'sw-plugin.errors.titleUploadFailure',
+        'global.default.error',
         'sw-plugin.errors.messageUploadFailureUnzipFailed'
     ),
     FRAMEWORK__STORE_INVALID_CREDENTIALS: new StoreError(
-        'sw-plugin.errors.titleLoginDataInvalid',
+        'global.default.error',
         'sw-plugin.errors.messageLoginDataInvalid'
     ),
     FRAMEWORK__STORE_LICENSE_DOMAIN_IS_MISSING: new StoreError(
-        'sw-plugin.errors.titleStoreHostMissing',
+        'global.default.error',
         'sw-plugin.errors.messageStoreLicenseDomainMissing'
     ),
     FRAMEWORK__STORE_NOT_AVAILABLE: new StoreError(
-        'sw-plugin.errors.titleStoreNotAvailable',
+        'global.default.error',
         'sw-plugin.errors.messageStoreNotAvailable'
     ),
     FRAMEWORK__PLUGIN_BASE_CLASS_NOT_FOUND: new StoreError(
-        'sw-plugin.errors.titlePluginBaseClassNotFound',
+        'global.default.error',
         'sw-plugin.errors.messagePluginBaseClassNotFound'
     )
 };
@@ -49,7 +49,7 @@ function getNotification(error) {
     }
 
     return {
-        title: 'sw-plugin.errors.titleGenericFailure',
+        title: 'global.default.error',
         message: 'sw-plugin.errors.messageGenericFailure'
     };
 }

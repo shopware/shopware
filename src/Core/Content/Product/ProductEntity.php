@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -328,6 +329,11 @@ class ProductEntity extends Entity
      * @var CategoryCollection|null
      */
     protected $categories;
+
+    /**
+     * @var CustomFieldSetCollection|null
+     */
+    protected $customFieldSets;
 
     /**
      * @var TagCollection|null
@@ -928,6 +934,16 @@ class ProductEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getCustomFieldSets(): ?CustomFieldSetCollection
+    {
+        return $this->customFieldSets;
+    }
+
+    public function setCustomFieldSets(CustomFieldSetCollection $customFieldSets): void
+    {
+        $this->customFieldSets = $customFieldSets;
     }
 
     public function getTags(): ?TagCollection

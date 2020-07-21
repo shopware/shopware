@@ -220,6 +220,8 @@ class ContextSwitchRouteTest extends TestCase
         $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
+        $this->assignSalesChannelContext();
+
         $this->getSalesChannelBrowser()->request('POST', '/store-api/v1/account/login', [
             'username' => $email,
             'password' => $password,

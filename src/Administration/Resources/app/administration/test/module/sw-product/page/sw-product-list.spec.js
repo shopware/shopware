@@ -30,6 +30,22 @@ function mockContext() {
     };
 }
 
+function mockPrices() {
+    return [
+        {
+            currencyId: 'fce3465831e8639bb2ea165d0fcf1e8b',
+            net: 373.83,
+            gross: 400,
+            linked: true
+        },
+        {
+            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            net: 560.75,
+            gross: 600,
+            linked: true
+        }
+    ];
+}
 
 function mockCriteria() {
     return {
@@ -53,7 +69,7 @@ function getProductData(criteria) {
             available: true,
             price: [
                 {
-                    currencyId: '3f9c8b1b2b1d4d43a89cf267c3d43377',
+                    currencyId: 'fce3465831e8639bb2ea165d0fcf1e8b',
                     net: 373.83,
                     gross: 400,
                     linked: true
@@ -76,7 +92,7 @@ function getProductData(criteria) {
             available: true,
             price: [
                 {
-                    currencyId: '3f9c8b1b2b1d4d43a89cf267c3d43377',
+                    currencyId: 'fce3465831e8639bb2ea165d0fcf1e8b',
                     net: 20.56,
                     gross: 22,
                     linked: true
@@ -155,7 +171,15 @@ function createWrapper() {
             repositoryFactory: {
                 create: (name) => {
                     if (name === 'product') {
-                        return { search: (criteria) => Promise.resolve(getProductData(criteria)) };
+                        return { search: (criteria, context) => {
+                            const productData = getProductData(criteria);
+
+                            if (context.currencyId) {
+                                productData.reverse();
+                            }
+
+                            return Promise.resolve(productData);
+                        } };
                     }
 
                     return { search: () => Promise.resolve(getCurrencyData()) };
@@ -234,5 +258,64 @@ describe('module/sw-product/page/sw-product-list', () => {
         // verify that grid did not crash when sorting for prices
         const skeletonElement = wrapper.find('.sw-data-grid-skeleton');
         expect(skeletonElement.exists()).toBe(false);
+    });
+
+    it('should sort products by different currencies', async () => {
+        await wrapper.vm.getList();
+
+        const euroCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
+        const [firstEuroCell, secondEuroCell] = euroCells.wrappers;
+
+        expect(firstEuroCell.text()).toBe('600');
+        expect(secondEuroCell.text()).toBe('200');
+
+        const poundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
+        const [firstPoundCell, secondPoundCell] = poundCells.wrappers;
+
+        expect(firstPoundCell.text()).toBe('400');
+        expect(secondPoundCell.text()).toBe('22');
+
+        const columnHeaders = wrapper.findAll('.sw-data-grid__cell.sw-data-grid__cell--header');
+        const poundColumn = columnHeaders.at(6);
+
+        poundColumn.trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        const sortedPoundCells = wrapper.findAll('.sw-data-grid__cell--price-GBP');
+        const [firstSortedPoundCell, secondSortedPoundCell] = sortedPoundCells.wrappers;
+
+        expect(firstSortedPoundCell.text()).toBe('22');
+        expect(secondSortedPoundCell.text()).toBe('400');
+    });
+
+    it('should return price when given currency id', () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const prices = mockPrices();
+
+        const foundPriceData = wrapper.vm.getCurrencyPriceByCurrencyId(currencyId, prices);
+        const expectedPriceData = {
+            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            net: 560.75,
+            gross: 600,
+            linked: true
+        };
+
+        expect(foundPriceData).toEqual(expectedPriceData);
+    });
+
+    it('should return fallback when no price was found', () => {
+        const currencyId = 'no-valid-id';
+        const prices = mockPrices();
+
+        const foundPriceData = wrapper.vm.getCurrencyPriceByCurrencyId(currencyId, prices);
+        const expectedPriceData = {
+            currencyId: null,
+            gross: null,
+            linked: true,
+            net: null
+        };
+
+        expect(foundPriceData).toEqual(expectedPriceData);
     });
 });

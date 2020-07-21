@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -380,21 +379,31 @@ class TranslationTest extends TestCase
         $this->silentAssertArraySubset(['shortName' => $nlShortName], $payload[1]);
     }
 
-    public function testCurrencyTranslationWithInvalidLocaleCode(): void
+    public function testTranslationsOfUnknownLanguageCodesAreSkipped(): void
     {
         $data = [
             'factor' => 1,
             'symbol' => '$',
+            'decimalPrecision' => 2,
+            'isoCode' => 'TST',
             'translations' => [
-                'en-UK' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'US Dollar',
+                    'shortName' => 'DEF',
+                ],
+                'en-US' => [
                     'name' => 'US Dollar',
                     'shortName' => 'FOO',
                 ],
             ],
         ];
 
-        $this->expectException(LanguageNotFoundException::class);
-        $this->currencyRepository->create([$data], $this->context);
+        $events = $this->currencyRepository->create([$data], $this->context);
+        $writtenCurrencies = $events->getEventByEntityName('currency');
+        $writtenCurrencyTranslations = $events->getEventByEntityName('currency_translation');
+
+        static::assertCount(1, $writtenCurrencies->getIds());
+        static::assertCount(1, $writtenCurrencyTranslations->getIds());
     }
 
     public function testProductWithDifferentTranslations(): void

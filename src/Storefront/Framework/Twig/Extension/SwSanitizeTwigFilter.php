@@ -136,6 +136,8 @@ class SwSanitizeTwigFilter extends AbstractExtension
 
     public function sanitize(string $text, ?array $options = [], bool $override = false): string
     {
+        $options = $options ?? [];
+
         $hash = md5(json_encode($options));
 
         if ($override) {

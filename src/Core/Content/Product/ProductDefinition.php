@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryT
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
@@ -61,13 +62,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 use function Flag\next6997;
-use function Flag\next7399;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -126,7 +127,7 @@ class ProductDefinition extends EntityDefinition
 
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 
-            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required()),
+            (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ReadProtected(SalesChannelApiSource::class)),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
@@ -160,7 +161,7 @@ class ProductDefinition extends EntityDefinition
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
-            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected(), new Inherited()),
+            (new ListingPriceField('listing_prices', 'listingPrices'))->addFlags(new WriteProtected(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
             new ChildCountField(),
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
@@ -172,7 +173,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('metaTitle'))->addFlags(new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new Inherited()),
             (new TranslatedField('packUnitPlural'))->addFlags(new Inherited()),
-            new TranslatedField('customFields'),
+            (new TranslatedField('customFields'))->addFlags(new Inherited()),
 
             // associations
             new ParentAssociationField(self::class, 'id'),
@@ -194,7 +195,7 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited()),
 
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited(), new ReadProtected(SalesChannelApiSource::class)),
 
             (new OneToManyAssociationField('media', ProductMediaDefinition::class, 'product_id'))
                 ->addFlags(new CascadeDelete(), new Inherited()),
@@ -242,13 +243,14 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))
                 ->addFlags(new Inherited(), new Required()),
+
+            (new ManyToManyAssociationField('customFieldSets', CustomFieldSetDefinition::class, ProductCustomFieldSetDefinition::class, 'product_id', 'custom_field_set_id'))
+                ->addFlags(new CascadeDelete(), new Inherited()),
         ]);
 
-        if (next7399()) {
-            $collection->add(
-                (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
-            );
-        }
+        $collection->add(
+            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
+        );
 
         if (next6997()) {
             $collection->add(

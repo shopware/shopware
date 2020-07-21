@@ -42,7 +42,7 @@ describe('Country: Test crud operations', () => {
             .contains('01.Niemandsland');
     });
 
-    it('@settings: update and read country', () => {
+    it.skip('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -88,7 +88,7 @@ describe('Country: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete the country "1.Niemandsland"?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify creation

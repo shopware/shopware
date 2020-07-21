@@ -47,7 +47,6 @@ Component.register('sw-product-stream-modal-preview', {
                 }, {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-product-stream.filter.values.manufacturer')
-
                 }, {
                     property: 'active',
                     label: this.$tc('sw-product-stream.filter.values.active'),
@@ -110,6 +109,7 @@ Component.register('sw-product-stream-modal-preview', {
             criteria.term = this.searchTerm || null;
             criteria.filters = this.mapFiltersForSearch(this.filters);
             criteria.addAssociation('manufacturer');
+            criteria.addAssociation('options.group');
 
             return this.productRepository.search(criteria, {
                 ...Context.api,

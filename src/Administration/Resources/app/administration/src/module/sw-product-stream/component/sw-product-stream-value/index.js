@@ -2,6 +2,7 @@ import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-value', {
     template,
@@ -190,9 +191,21 @@ Component.register('sw-product-stream-value', {
         },
 
         context() {
-            const context = { ...Shopware.Context.api, inheritance: true };
+            return { ...Shopware.Context.api, inheritance: true };
+        },
 
-            return context;
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        resultCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
         }
     },
 

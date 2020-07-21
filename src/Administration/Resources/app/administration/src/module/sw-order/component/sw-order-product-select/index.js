@@ -2,6 +2,7 @@ import template from './sw-order-product-select.html.twig';
 import './sw-order-product-select.scss';
 
 const { Component, Service } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-product-select', {
     template,
@@ -37,11 +38,11 @@ Component.register('sw-order-product-select', {
         },
 
         lineItemTypes() {
-            return Service('cartSalesChannelService').getLineItemTypes();
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         lineItemPriceTypes() {
-            return Service('cartSalesChannelService').getLineItemPriceTypes();
+            return Service('cartStoreService').getLineItemPriceTypes();
         },
 
         isShownProductSelect() {
@@ -54,6 +55,13 @@ Component.register('sw-order-product-select', {
 
         contextWithInheritance() {
             return { ...Shopware.Context.api, inheritance: true };
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
         }
     },
 

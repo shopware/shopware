@@ -27,6 +27,8 @@ trait PluginIntegrationTestBehaviour
      */
     public function pluginIntegrationSetUp(): void
     {
+        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
+
         $this->connection = Kernel::getConnection();
         $this->connection->beginTransaction();
         $this->connection->exec('DELETE FROM plugin');

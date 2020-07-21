@@ -16,7 +16,9 @@
                             <li is="sw-select-result" :selected="isSelected(item)" v-bind="{ item, index }">
                                 {% block sw_entity_single_select_base_results_list_result_label %}
                                     <span class="sw-select-result__result-item-text">
-                                        {{ item.translated.name || item.name }}
+                                        <sw-product-variant-info :variations="item.variation">
+                                            {{ item.translated.name || item.name }}
+                                        </sw-product-variant-info>
                                     </span>
                                 {% endblock %}
                             </li>
@@ -41,6 +43,17 @@
                             {{ $tc('global.default.delete') }}
                         </sw-context-menu-item>
                     </template>
+
+                    <template #column-product.translated.name="{ item }">
+                        {% block sw_data_grid_columns_render_value %}
+                            <span>
+                                <sw-product-variant-info :variations="item.product.variation">
+                                    {{ item.product.translated.name || item.product.name }}
+                                </sw-product-variant-info>
+                            </span>
+                        {% endblock %}
+                    </template>
+
                     {% block sw_product_cross_selling_assignment_option_grid_column_position %}
                         <template #column-position="{ item }">
                             <sw-data-grid-column-position

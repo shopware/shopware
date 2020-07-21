@@ -7,4 +7,60 @@ $sw-property-assignment-background-color-options-item: $color-light-gray;
         position: relative;
         margin-top: 40px;
     }
+
+    .sw-product-detail-properties__empty-state {
+        max-width: 350px;
+        margin: 0 auto;
+        padding: 60px 20px 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        &-card {
+            width: 100%;
+            max-width: none;
+        }
+
+        p {
+            font-size: $font-size-default;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .sw-single-select {
+            width: 100%;
+        }
+
+        .sw-product-detail-properties__parent-properties-link {
+            color: $color-shopware-brand-500;
+            margin-bottom: 20px;
+        }
+    }
+
+    .sw-product-detail-properties__inherit-toggle-wrapper {
+        display: flex;
+        align-items: center;
+        line-height: 16px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        color: $color-kashmir;
+
+        .sw-product-detail-properties__inheritance-icon {
+            margin-right: 8px;
+        }
+
+        &.is--inherited {
+            color: $color-purple;
+        }
+
+        .sw-product-detail-properties__inherit-switch {
+            margin: 0 10px 0 0;
+
+            .sw-field--switch__input {
+                height: 16px;
+                padding: 0;
+            }
+        }
+    }
 }

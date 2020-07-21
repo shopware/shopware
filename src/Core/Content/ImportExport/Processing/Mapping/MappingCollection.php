@@ -33,6 +33,7 @@ class MappingCollection extends Collection
      */
     public function set($key, $mapping): void
     {
+        $this->validateType($mapping);
         parent::set($mapping->getKey(), $mapping);
         $this->reverseIndex[$mapping->getMappedKey()] = $mapping->getKey();
     }

@@ -22,11 +22,11 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product',
+            url: `${Cypress.env('apiPath')}/product`,
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/_action/calculate-price',
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculatePrice');
 
@@ -99,7 +99,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -129,7 +129,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -142,7 +142,7 @@ describe('Product: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
         cy.wait('@deleteData').then((xhr) => {

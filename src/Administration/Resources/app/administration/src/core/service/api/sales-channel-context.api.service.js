@@ -5,6 +5,7 @@ import ApiService from '../api.service';
  * Uses the _proxy endpoint of the admin api to connect to the sales-channel-api endpoint cart
  * @class
  * @extends ApiService
+ * @deprecated tag:v6.4.0 - Use storeContextService
  */
 class SalesChannelContextService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'sales-channel-context') {

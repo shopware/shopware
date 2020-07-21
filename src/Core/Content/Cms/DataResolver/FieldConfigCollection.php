@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Cms\DataResolver;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void             set(string $key, FieldConfig $entity)
  * @method FieldConfig[]    getIterator()
  * @method FieldConfig[]    getElements()
  * @method FieldConfig|null get(string $key)
@@ -20,6 +19,11 @@ class FieldConfigCollection extends Collection
     public function add($element): void
     {
         $this->set($element->getName(), $element);
+    }
+
+    public function set($key, $element): void
+    {
+        parent::set($element->getName(), $element);
     }
 
     public function getApiAlias(): string

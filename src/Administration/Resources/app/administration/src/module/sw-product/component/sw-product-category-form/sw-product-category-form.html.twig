@@ -22,10 +22,10 @@
         {% block sw_product_category_form_visibility_field %}
             <sw-inherit-wrapper v-model="product.visibilities"
                                 :inheritedValue="parentProduct.visibilities"
+                                :label="$tc('sw-product.visibility.labelVisibility')"
                                 isAssociation>
                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
                     <sw-product-visibility-select v-if="!loading.product && !loading.parentProduct && multiSelectVisible"
-                                                  :label="$tc('sw-product.visibility.labelVisibility')"
                                                   class="sw-product-detail__select-visibility"
                                                   :entityCollection="currentValue"
                                                   @change="updateCurrentValue"

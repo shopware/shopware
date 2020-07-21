@@ -51,6 +51,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.customerGroupRule',
         scopes: ['checkout']
     });
+    ruleConditionService.addCondition('customerTag', {
+        component: 'sw-condition-customer-tag',
+        label: 'global.sw-condition.condition.customerTagRule',
+        scopes: ['checkout']
+    });
     ruleConditionService.addCondition('customerCustomerNumber', {
         component: 'sw-condition-customer-number',
         label: 'global.sw-condition.condition.customerNumberRule',

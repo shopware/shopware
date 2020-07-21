@@ -90,6 +90,15 @@
                     :criteria="productCriteria"
                     :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')">
 
+                    <template v-slot:[nameColumn]="{ item, column }">
+                        <router-link
+                            :to="{ name: column.routerLink, params: { id: item.id } }">
+                            <sw-product-variant-info :variations="item.options">
+                                {{ item.name || item.translated.name }}
+                            </sw-product-variant-info>
+                        </router-link>
+                    </template>
+
                     <template v-slot:[manufacturerColumn]="{ item, column }">
                         <router-link
                             v-if="item.manufacturerId"

@@ -28,7 +28,7 @@ Component.register('sw-settings-custom-field-set-list', {
     computed: {
         // Settings Listing mixin override
         titleSaveSuccess() {
-            return this.$tc('sw-settings-custom-field.set.list.titleDeleteSuccess');
+            return this.$tc('global.default.success');
         },
         // Settings Listing mixin override
         messageSaveSuccess() {

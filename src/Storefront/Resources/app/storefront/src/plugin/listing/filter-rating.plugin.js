@@ -11,6 +11,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         radioSelector: '.product-detail-review-form-radio',
         snippets: {
             filterRatingActiveLabelStart: 'Minimum',
+            filterRatingActiveLabelEndSingular: 'star',
             filterRatingActiveLabelEnd: 'stars'
         }
     });
@@ -90,10 +91,15 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         let labels = [];
 
         if (currentRating) {
+            let endSnippet = this.options.snippets.filterRatingActiveLabelEnd;
+            if (parseInt(currentRating) === 1) {
+                endSnippet = this.options.snippets.filterRatingActiveLabelEndSingular;
+            }
+
             labels.push({
                 label: `${this.options.snippets.filterRatingActiveLabelStart} 
                         ${currentRating} 
-                        ${this.options.snippets.filterRatingActiveLabelEnd}`,
+                        ${endSnippet}`,
                 id: 'rating'
             });
         } else {

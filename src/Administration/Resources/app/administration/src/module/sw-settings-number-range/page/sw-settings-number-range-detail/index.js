@@ -242,7 +242,7 @@ Component.register('sw-settings-number-range-detail', {
             if (this.noSalesChannelSelected()) {
                 this.createNotificationError(
                     {
-                        title: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededTitle'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededMessage')
                     }
                 );
@@ -252,7 +252,7 @@ Component.register('sw-settings-number-range-detail', {
             if (!this.numberRange.pattern) {
                 this.createNotificationError(
                     {
-                        title: this.$tc('sw-settings-number-range.detail.errorPatternNeededTitle'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-number-range.detail.errorPatternNeededMessage')
                     }
                 );
@@ -267,7 +267,7 @@ Component.register('sw-settings-number-range-detail', {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        title: this.$tc('sw-settings-number-range.detail.titleSaveError'),
+                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName }
                         )

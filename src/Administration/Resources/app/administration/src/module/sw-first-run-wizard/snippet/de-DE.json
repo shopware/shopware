@@ -26,8 +26,6 @@
       "pluginInstallationFailedMessage": "Plugin konnte nicht installiert werden: ",
       "pluginActivationFailedMessage": "Plugin konnte nicht aktiviert werden: ",
       "tryAgainLater": "Bitte versuche es später erneut.",
-      "success": "Erfolg",
-      "error": "Fehler",
       "noConnectionMessage": "Verbindungsprobleme, die gewünschte Sprache kann derzeit nicht installiert werden."
     },
     "dataImport": {

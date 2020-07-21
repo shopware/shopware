@@ -108,8 +108,8 @@ Component.register('sw-order-address-modal', {
             const isShippingAvailable = this.order.addresses[0].country.shippingAvailable;
             if (!isShippingAvailable && typeof isShippingAvailable === 'boolean') {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.detail.notification.shippingNotAvailable.title'),
-                    message: this.$tc('sw-order.detail.notification.shippingNotAvailable.message')
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('sw-order.detail.messageShippingNotAvailable')
                 });
 
                 this.isLoading = false;
@@ -131,7 +131,7 @@ Component.register('sw-order-address-modal', {
                         this.$emit('save');
                     }).catch(() => {
                         this.createNotificationError({
-                            title: this.$tc('sw-order.detail.titleSaveError'),
+                            title: this.$tc('global.default.error'),
                             message: this.$tc('sw-order.detail.messageSaveError')
                         });
                     }).finally(() => {

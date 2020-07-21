@@ -18,6 +18,7 @@ final class PlatformRequest
     public const HEADER_CONTEXT_TOKEN = 'sw-context-token';
     public const HEADER_ACCESS_KEY = 'sw-access-key';
     public const HEADER_LANGUAGE_ID = 'sw-language-id';
+    public const HEADER_CURRENCY_ID = 'sw-currency-id';
     public const HEADER_INHERITANCE = 'sw-inheritance';
     public const HEADER_VERSION_ID = 'sw-version-id';
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
@@ -41,6 +42,12 @@ final class PlatformRequest
     public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
+    public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
+
+    /**
+     * CSP
+     */
+    public const ATTRIBUTE_CSP_NONCE = '_cspNonce';
 
     /**
      * OAuth attributes

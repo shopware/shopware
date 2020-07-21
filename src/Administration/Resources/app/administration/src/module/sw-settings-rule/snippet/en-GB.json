@@ -31,10 +31,8 @@
       "placeholderName": "Set a name for this rule...",
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
-      "titleSaveError": "Error",
       "messageSaveError": "An error occurred while saving rule \"{name}\".",
       "types": {
         "shipping": "Shipping",
@@ -49,7 +47,6 @@
       "modalTitle": "Filter",
       "delete": "Delete",
       "close": "Close",
-      "titleSaveError": "Error",
       "messageSaveError": "An error occurred while saving the filter."
     }
   }

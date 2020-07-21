@@ -23,6 +23,13 @@ Component.register('sw-cms-el-config-product-box', {
             context.inheritance = true;
 
             return context;
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
         }
     },
 
@@ -43,6 +50,7 @@ Component.register('sw-cms-el-config-product-box', {
             } else {
                 const criteria = new Criteria();
                 criteria.addAssociation('cover');
+                criteria.addAssociation('options.group');
 
                 this.productRepository.get(productId, this.productSelectContext, criteria).then((product) => {
                     this.element.config.product.value = productId;

@@ -5,7 +5,7 @@ describe('Account: Login as customer', () => {
         return cy.createCustomerFixtureStorefront()
     });
 
-    it('@package @customer: Change email and log in', () => {
+    it('@base @customer: Change email and log in', () => {
         const page = new AccountPageObject();
 
         cy.visit('/account/login');
@@ -21,7 +21,7 @@ describe('Account: Login as customer', () => {
 
         // Open profile
         cy.get('.account-overview-card a[href="/account/profile"]').click();
-        cy.get('h1').contains('Profile');
+        cy.get('h1').contains('Your profile');
 
         // Change email
         cy.get('a[href="#profile-email-form"]').click();
@@ -63,7 +63,7 @@ describe('Account: Login as customer', () => {
 
         // Open profile
         cy.get('.account-overview-card a[href="/account/profile"]').click();
-        cy.get('h1').contains('Profile');
+        cy.get('h1').contains('Your profile');
 
         // Change email
         cy.get('a[href="#profile-password-form"]').click();

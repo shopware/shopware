@@ -48,7 +48,7 @@ Component.register('sw-order-create-promotion-modal', {
 
         disableAutomaticPromotions() {
             this.isLoading = true;
-            Service('cartSalesChannelService').disableAutomaticPromotions(this.cart.token).then(() => {
+            Service('cartStoreService').disableAutomaticPromotions(this.cart.token).then(() => {
                 this.isLoading = false;
                 this.$emit('save');
             });

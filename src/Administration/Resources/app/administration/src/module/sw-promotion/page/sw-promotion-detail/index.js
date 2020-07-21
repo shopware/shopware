@@ -283,7 +283,9 @@ Component.register('sw-promotion-detail', {
                             this.createNotificationError({
                                 title: this.$tc('global.default.error'),
                                 message: this.$tc(
-                                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
+                                    'global.notification.unspecifiedSaveErrorMessage',
+                                    0,
+                                    { entityName: this.promotion.name }
                                 )
                             });
                             throw error;

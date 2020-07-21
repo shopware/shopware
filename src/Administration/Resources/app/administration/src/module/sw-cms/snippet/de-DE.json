@@ -121,16 +121,10 @@
       "notification": {
         "titleMissingFields": "Fehlende Konfiguration",
         "messageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus.",
-        "titleMissingBlockFields": "Fehlende Konfiguration",
         "messageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
-        "titleMissingProductListing": "Fehler",
         "messageMissingProductListing": "Speichern nicht möglich. Bitte füge einen Produktlisting-Block hinzu oder ändere den Layout-Typ.",
-        "titlePageError": "Layout konnte nicht gespeichert werden!",
-        "titleMissingSections": "Fehlende Konfiguration",
         "messageMissingSections": "Du kannst leere Seiten nicht speichern. Bitte füge zuerst eine Sektion hinzu.",
-        "titleMissingBlocks": "Fehlende Konfiguration",
         "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge Blöcke hinzu.",
-        "titleMissingElements": "Fehlende Elementkonfiguration!",
         "messageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts."
       },
       "placeholder": {
@@ -510,10 +504,8 @@
         "duplicate": "Duplizieren",
         "addPreviewImage": "Vorschau hinzufügen",
         "removePreviewImage": "Vorschau entfernen",
-        "notificationDeleteErrorTitle": "Fehler",
         "notificationDeleteErrorMessage": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
         "modal": {
-          "modalTitleDelete": "Layout Löschen",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
           "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"

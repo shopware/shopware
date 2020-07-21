@@ -124,7 +124,7 @@ Component.register('sw-settings-custom-field-set-detail', {
 
         onSave() {
             const setLabel = this.identifier;
-            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageSaveSuccess', 0, {
                 name: setLabel
             });

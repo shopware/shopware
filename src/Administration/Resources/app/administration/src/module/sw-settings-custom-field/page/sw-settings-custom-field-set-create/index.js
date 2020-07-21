@@ -39,7 +39,7 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             });
         },
         createNameNotUniqueNotification() {
-            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleNameNotUnique');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
 
             this.createNotificationError({

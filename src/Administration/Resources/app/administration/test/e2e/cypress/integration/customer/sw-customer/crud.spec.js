@@ -140,7 +140,7 @@ describe('Customer: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-customer-list__confirm-delete-text`).contains(
             'Are you sure you want to delete the customer "Pep Eroni"?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated customer
         cy.wait('@deleteData').then((xhr) => {

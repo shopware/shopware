@@ -14,7 +14,7 @@ describe(`Checkout as Guest`, () => {
         });
     });
 
-    it('@package @checkout: Run checkout', () => {
+    it('@base @checkout: Run checkout', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
@@ -54,7 +54,7 @@ describe(`Checkout as Guest`, () => {
         cy.get(`${accountPage.elements.registerSubmit} [type="submit"]`).click();
 
         // Checkout
-        cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
         cy.get('.confirm-address').contains('John Doe');

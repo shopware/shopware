@@ -8,15 +8,22 @@ class ProductVisibilityCollection extends EntityCollection
 {
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductVisibilityEntity $productService) {
-            return $productService->getProductId();
+        return $this->fmap(function (ProductVisibilityEntity $visibility) {
+            return $visibility->getProductId();
         });
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductVisibilityEntity $productService) use ($id) {
-            return $productService->getProductId() === $id;
+        return $this->filter(function (ProductVisibilityEntity $visibility) use ($id) {
+            return $visibility->getProductId() === $id;
+        });
+    }
+
+    public function filterBySalesChannelId(string $id): self
+    {
+        return $this->filter(function (ProductVisibilityEntity $visibility) use ($id) {
+            return $visibility->getSalesChannelId() === $id;
         });
     }
 

@@ -215,7 +215,7 @@ Component.register('sw-seo-url-template-card', {
             });
         },
         createSaveErrorNotification() {
-            const titleSaveSuccess = this.$tc('sw-seo-url-template-card.general.titleSaveError');
+            const titleSaveSuccess = this.$tc('global.default.error');
             const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveError');
 
             this.createNotificationError({
@@ -224,7 +224,7 @@ Component.register('sw-seo-url-template-card', {
             });
         },
         createSaveSuccessNotification() {
-            const titleSaveSuccess = this.$tc('sw-seo-url-template-card.general.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveSuccess');
 
             this.createNotificationSuccess({

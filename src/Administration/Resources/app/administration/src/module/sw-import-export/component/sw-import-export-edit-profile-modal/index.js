@@ -92,6 +92,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             return this.profile.isNew();
         },
 
+
         mappingLength() {
             if (!this.profile.mapping) {
                 return 0;

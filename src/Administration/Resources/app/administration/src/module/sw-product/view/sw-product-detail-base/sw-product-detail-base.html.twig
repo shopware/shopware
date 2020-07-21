@@ -136,6 +136,8 @@
                      :isLoading="loading.product || loading.customFieldSets">
                     <sw-custom-field-set-renderer
                             :entity="product"
+                            showCustomFieldSetSelection
+                            :parentEntity="parentProduct"
                             :sets="customFieldSetsArray">
                     </sw-custom-field-set-renderer>
                 </sw-card>

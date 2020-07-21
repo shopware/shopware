@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void                  set(string $key, DeliveryPosition $entity)
  * @method DeliveryPosition[]    getIterator()
  * @method DeliveryPosition[]    getElements()
  * @method DeliveryPosition|null first()
@@ -23,6 +22,11 @@ class DeliveryPositionCollection extends Collection
     {
         $key = $this->getKey($deliveryPosition);
         $this->elements[$key] = $deliveryPosition;
+    }
+
+    public function set($key, $deliveryPosition): void
+    {
+        parent::set($this->getKey($deliveryPosition), $deliveryPosition);
     }
 
     public function exists(DeliveryPosition $deliveryPosition): bool

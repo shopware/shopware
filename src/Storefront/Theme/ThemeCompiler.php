@@ -248,13 +248,17 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            if ($data['type'] === 'media') {
-                // Add id of media which needs to be resolved
-                if (Uuid::isValid($data['value'])) {
-                    $mediaIds[$key] = $data['value'];
+            if (in_array($data['type'], ['media', 'textarea'], true)) {
+                if ($data['type'] === 'media') {
+                    // Add id of media which needs to be resolved
+                    if (Uuid::isValid($data['value'])) {
+                        $mediaIds[$key] = $data['value'];
+                    }
                 }
 
                 $variables[$key] = '\'' . $data['value'] . '\'';
+            } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
+                $variables[$key] = (int) ($data['value']);
             } else {
                 $variables[$key] = $data['value'];
             }

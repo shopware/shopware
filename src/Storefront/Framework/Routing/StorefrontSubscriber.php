@@ -267,7 +267,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
     public function replaceCsrfToken(BeforeSendResponseEvent $event): void
     {
         $event->setResponse(
-            $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse())
+            $this->csrfPlaceholderHandler->replaceCsrfToken($event->getResponse(), $event->getRequest())
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,9 +43,15 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if ($event instanceof BusinessEventInterface) {
-            $this->callActions($event);
+        if (!$event instanceof BusinessEventInterface) {
+            return $event;
         }
+
+        if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
+            return $event;
+        }
+
+        $this->callActions($event);
 
         return $event;
     }

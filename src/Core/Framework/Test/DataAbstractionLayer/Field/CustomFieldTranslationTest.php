@@ -526,8 +526,6 @@ class CustomFieldTranslationTest extends TestCase
 
         /** @var Entity $first */
         $first = $result->first();
-        static::assertArrayNotHasKey('system', $first->get('customTranslated'));
-        static::assertArrayNotHasKey('root', $first->get('customTranslated'));
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['sub']);
         static::assertSame(3, $first->get('customTranslated')['int']);
 

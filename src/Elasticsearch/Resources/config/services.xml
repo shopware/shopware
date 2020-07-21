@@ -15,6 +15,15 @@
                 </parameter>
 
                 <parameter key="analysis" type="collection">
+                    <parameter key="normalizer" type="collection">
+                        <parameter key="sw_lowercase_normalizer" type="collection">
+                            <parameter key="type">custom</parameter>
+                            <parameter key="filter" type="collection">
+                                <parameter>lowercase</parameter>
+                            </parameter>
+                        </parameter>
+                    </parameter>
+
                     <parameter key="analyzer" type="collection">
                         <parameter key="sw_ngram_analyzer" type="collection">
                             <parameter key="type">custom</parameter>

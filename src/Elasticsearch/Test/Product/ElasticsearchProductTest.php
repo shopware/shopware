@@ -1473,6 +1473,33 @@ class ElasticsearchProductTest extends TestCase
         static::assertTrue($listing->getAggregations()->has('manufacturer'));
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testSortingIsCaseInsensitive(TestDataCollection $data): void
+    {
+        $criteria = new Criteria();
+
+        $criteria->addFilter(new EqualsFilter('categoriesRo.id', $data->get('cs1')));
+        $criteria->addSorting(new FieldSorting('name'));
+
+        $searcher = $this->createEntitySearcher();
+        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext())->getIds();
+
+        // 3 products per letter
+        $idList = array_chunk($ids, 3);
+
+        // Cause the product names are lowercased: Aa, AA, aa is the same for elastic. We can't determine the right order
+        // So we split the ids the first 3 should be one of aa products, last 3 should be some of Bb
+        static::assertContains($data->get('s1'), $idList[0]);
+        static::assertContains($data->get('s2'), $idList[0]);
+        static::assertContains($data->get('s3'), $idList[0]);
+
+        static::assertContains($data->get('s4'), $idList[1]);
+        static::assertContains($data->get('s5'), $idList[1]);
+        static::assertContains($data->get('s6'), $idList[1]);
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -1543,6 +1570,12 @@ class ElasticsearchProductTest extends TestCase
             $this->createProduct('n9', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
             $this->createProduct('n10', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
             $this->createProduct('n11', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('s1', 'aa', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s2', 'Aa', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s3', 'AA', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s4', 'Ba', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s5', 'BA', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s6', 'BB', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
         ], Context::createDefaultContext());
     }
 }

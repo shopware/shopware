@@ -221,3 +221,24 @@ You can compile the JavaScript with the `./psh.phar storefront:build` command. T
 be found inside the `app/storefront/dist/storefront/js/` directory.
 
 Find out more about JavaScript in the [JavaScript section of the theme guide](./../../30-theme-guide/60-javascript.md).
+
+### Snippets
+
+**Note that this feature is only available from v6.2.3 onward**.
+In order to include custom storefront snippets in your app, simply make use of the autoloading snippet feature.
+Therefore place your snippet files under a snippet folder in your Resources folder:
+
+```
+...
+└── DemoTheme
+    ├── Resources
+    │   ├── app
+    │   ├── views
+    │   ├── snippet
+    │   │   ├── storefront.de-DE.json <-- snippets with german translations
+    │   │   └── storefront.en-GB.json <-- snippets with english translations
+    │   └── theme.json
+    └── manifest.xml
+```
+
+For a detailed explanation on how the snippet files are loaded, take a look into the according section of the [Theme Guide](./../../30-theme-guide/40-snippets.md).

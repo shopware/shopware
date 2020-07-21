@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class ChangePasswordRouteTest extends TestCase
 {
@@ -53,7 +54,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $this->email,
                     'password' => 'shopware',
@@ -70,7 +71,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-password',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
                 [
                 ]
             );
@@ -86,7 +87,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-password',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
                 [
                     'password' => 'foooware',
                     'newPassword' => 'foooware',
@@ -104,7 +105,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-password',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-password',
                 [
                     'password' => 'shopware',
                     'newPassword' => 'foooware',
@@ -120,7 +121,7 @@ class ChangePasswordRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $this->email,
                     'password' => 'foooware',

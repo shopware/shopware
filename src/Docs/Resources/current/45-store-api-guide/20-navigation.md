@@ -17,7 +17,7 @@ This route needs some parameters:
 
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 ```
-POST /store-api/v1/navigation/main-navigation/main-navigation
+POST /store-api/v3/navigation/main-navigation/main-navigation
 
 {
     "includes": {
@@ -51,7 +51,7 @@ Thanks to the aliases (`service-navigation`) for the categories you easily can f
 Beware, that your Sales Channel has a service navigation assigned to it, otherwise you won't get the expected result.
 
 ```
-POST /store-api/v1/navigation/service-navigation/service-navigation
+POST /store-api/v3/navigation/service-navigation/service-navigation
 
 {
     "includes": {
@@ -86,7 +86,7 @@ To get the footer navigation we're using the same route (`store-api.navigation`)
 Note, that your Sales Channel needs a footer-navigation attached to it, otherwise you won't get the data you expected to get.
 
 ```
-POST /store-api/v1/navigation/footer-navigation/footer-navigation
+POST /store-api/v3/navigation/footer-navigation/footer-navigation
 
 {
     "includes": {
@@ -139,7 +139,7 @@ In this route only the data configured in the CMS page is loaded. This route sho
 If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
-POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
+POST /store-api/v3/cms/da05c76975104f39a9f283b0b64db930
 
 {
     "includes": {
@@ -195,7 +195,7 @@ This route supports an alias `home` to load the home page of the sales channel.
 If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
-POST /store-api/v1/category/04cfc07532344f938d1c88735b54281e
+POST /store-api/v3/category/04cfc07532344f938d1c88735b54281e
 
 {
     "includes": {

@@ -6,13 +6,13 @@ sales channel.
 
 ## Get salutations
 
-**GET  /sales-channel-api/v1/salutation**
+**GET  /sales-channel-api/v3/salutation**
 
 **Response:** Returns a list of salutations defined in the settings of your shop.
 
 ## Get currencies
 
-**GET  /sales-channel-api/v1/currency**
+**GET  /sales-channel-api/v3/currency**
 
 **Response:** Returns a list of currencies assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
@@ -20,7 +20,7 @@ You find more information about these operations [here](./050-filter-search-limi
 
 ## Get languages
 
-**GET  /sales-channel-api/v1/language**
+**GET  /sales-channel-api/v3/language**
 
 **Response:** Returns a list of languages assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.
@@ -28,7 +28,7 @@ You find more information about these operations [here](./050-filter-search-limi
 
 ## Get countries
 
-**GET  /sales-channel-api/v1/country**
+**GET  /sales-channel-api/v3/country**
 
 **Response:** Returns a list of countries assigned to the sales channel.
 All filter, sorting, limit, and search operations are supported.

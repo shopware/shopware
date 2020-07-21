@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 
 class CmsRouteTest extends TestCase
 {
@@ -39,7 +40,7 @@ class CmsRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/cms/e63dfd85345645068881959c0260a1a1',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/cms/e63dfd85345645068881959c0260a1a1',
                 [
                 ]
             );
@@ -55,7 +56,7 @@ class CmsRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/cms/' . $this->ids->get('page'),
+                '/store-api/v' . PlatformRequest::API_VERSION . '/cms/' . $this->ids->get('page'),
                 [
                 ]
             );

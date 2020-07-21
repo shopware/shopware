@@ -281,7 +281,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $this->getBrowser()->request(
             'GET',
-            "/api/v1/media/{$this->mediaId}"
+            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId
         );
 
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);

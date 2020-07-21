@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelBrowser;
 
@@ -28,11 +29,11 @@ class VersionTest extends TestCase
     public function protectedRoutesDataProvider(): array
     {
         return [
-            ['GET', '/api/v1/product'],
-            ['GET', '/api/v1/tax'],
-            ['POST', '/api/v1/_action/sync'],
-            ['GET', '/api/v1/_info/swagger.html'],
-            ['GET', '/api/v1/_info/entity-schema.json'],
+            ['GET', '/api/v' . PlatformRequest::API_VERSION . '/product'],
+            ['GET', '/api/v' . PlatformRequest::API_VERSION . '/tax'],
+            ['POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync'],
+            ['GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/swagger.html'],
+            ['GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/entity-schema.json'],
         ];
     }
 

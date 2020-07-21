@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ContactFormRouteTest extends TestCase
@@ -57,7 +58,7 @@ class ContactFormRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/contact-form',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/contact-form',
                 [
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Firstname',

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 class StoreApiSeoResolverTest extends TestCase
@@ -44,7 +45,7 @@ class StoreApiSeoResolverTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v1/category/home',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/category/home',
             [
             ]
         );
@@ -61,7 +62,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/v1/category/home',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/category/home',
             [],
             [],
             []
@@ -83,7 +84,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/v1/category/home',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/category/home',
             [],
             [],
             []

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 
 class ContextLoadRouteTest extends TestCase
 {
@@ -37,7 +38,7 @@ class ContextLoadRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v1/context',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/context',
                 [
                 ]
             );

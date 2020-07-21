@@ -8,7 +8,7 @@ On this page you can find all the api routes that are able to give you informati
 If you want to get the current context you can use the following route `store-api.context`.
 
 ```
-GET /store-api/v1/context
+GET /store-api/v3/context
 
 {
     "includes": {
@@ -48,7 +48,7 @@ To get all languages of an Sales Channel you can use the following route `store-
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-POST /store-api/v1/language
+POST /store-api/v3/language
 
 {
     "includes": {
@@ -79,7 +79,7 @@ With `store-api.currency` you can fetch all currencies that are available in thi
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-POST /store-api/v1/currency
+POST /store-api/v3/currency
 
 {
     "includes": {
@@ -127,7 +127,7 @@ This route needs the following parameters:
 Note, for this route to work the customer has to be logged in.
 
 ```
-PATCH /store-api/v1/context
+PATCH /store-api/v3/context
 
 {
     "currencyId": "9f42e5f57d834c509541068ef3344683",
@@ -151,7 +151,7 @@ When you want to get Information about your SEO Urls then you can use this route
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-GET /store-api/v1/seo-url
+GET /store-api/v3/seo-url
 
 {
     "includes": {
@@ -181,12 +181,12 @@ GET /store-api/v1/seo-url
 
 ### Payment methods
 
-The api `/store-api/v1/payment-method` can be used to list all payment methods of the sales channel.
+The api `/store-api/v3/payment-method` can be used to list all payment methods of the sales channel.
 With the parameter `onlyAvailable` you can restrict the result to only valid payments methods.
 Additionally, the api basic parameters (`filter`, `aggregations`, etc.) can be used to restrict the result, for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-POST /store-api/v1/payment-method
+POST /store-api/v3/payment-method
 
 {
     "includes": {
@@ -212,12 +212,12 @@ POST /store-api/v1/payment-method
 
 ### Available Shipping methods
 
-The api `/store-api/v1/shipping-method` can be used to list all payment methods of the sales channel.
+The api `/store-api/v3/shipping-method` can be used to list all payment methods of the sales channel.
 With the parameter `onlyAvailable` you can restrict the result to only valid shipping methods.
 Additionally, the api basic parameters (`filter`, `aggregations`, etc.) can be used to restrict the result, for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-POST /store-api/v1/shipping-method
+POST /store-api/v3/shipping-method
 
 {
     "includes": {

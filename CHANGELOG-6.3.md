@@ -939,6 +939,9 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Allow specifying translations for languages that don't exist. These translations will now be silently skipped.
   This used to throw the exception `\Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException`.
 * Added check to prevent mails being sent when `\Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent::stopPropagation` was called before
+* Increase the API version to v3
+    * API version v1 is removed
+    * API version v2 will be removed with next major version
 
 #### Storefront
 * Added plugin injection in hot mode

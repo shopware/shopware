@@ -9,7 +9,7 @@ This `accessKey` is used for the authentication by providing it in the `sw-acces
 
 You can test the authentication by sending a request to the `store-api/v1/context` endpoint
 ```
-GET http://shopware.development/store-api/v1/context
+GET http://shopware.development/store-api/v3/context
 --header sw-access-key SWSCYKQZODFVTVHJEHI0RFN0RG
 
 {
@@ -30,7 +30,7 @@ of your current "session" like active language, currency or shipping location.
 The token can be provided in each request in the `sw-context-token` header:
 
 ```
-GET http://shopware.development/store-api/v1/context
+GET http://shopware.development/store-api/v3/context
 --header sw-access-key SWSCYKQZODFVTVHJEHI0RFN0RG
 --header sw-context-token OCqj5ZEnpS0W9KgseOofPLqGArVjd5CE
 
@@ -50,7 +50,7 @@ When you not providing the token, you will get a new session and persisted data,
 Some Store API routes generate, for security reasons, a new token - such as the customer login route.
 
 ```
-POST /store-api/v1/account/login
+POST /store-api/v3/account/login
 --header sw-access-key SWSCYKQZODFVTVHJEHI0RFN0RG
 --header sw-context-token OCqj5ZEnpS0W9KgseOofPLqGArVjd5CE
 

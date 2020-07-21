@@ -456,7 +456,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         $browser->request(
             'POST',
-            '/sales-channel-api/v1/checkout/cart/line-item/' . $productId,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $productId,
             [
                 'type' => $type,
                 'referencedId' => $productId,
@@ -540,7 +540,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         $browser->request(
             'PATCH',
-            '/sales-channel-api/v1/checkout/cart/line-item/' . $productId,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $productId,
             [
                 'referencedId' => $productId,
                 'quantity' => $quantity,
@@ -574,7 +574,7 @@ class SalesChannelCartControllerTest extends TestCase
         $accessHeader = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $this->getSalesChannelBrowser()->setServerParameter($accessHeader, '');
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/cart');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(500, $response->getStatusCode(), $response->getContent());
         $content = json_decode($response->getContent(), true);
@@ -588,7 +588,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         $browser->request(
             'POST',
-            '/sales-channel-api/v1/checkout/cart/line-item/' . $id,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $id,
             [
                 'label' => 'Test',
                 'type' => 'credit',
@@ -619,7 +619,7 @@ class SalesChannelCartControllerTest extends TestCase
 
         $browser->request(
             'POST',
-            '/sales-channel-api/v1/checkout/cart/line-item/' . $id,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $id,
             [
                 'label' => 'Test',
                 'type' => 'credit',
@@ -640,7 +640,7 @@ class SalesChannelCartControllerTest extends TestCase
     private function createCart(): KernelBrowser
     {
         $this->assignSalesChannelContext();
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
         $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -655,7 +655,7 @@ class SalesChannelCartControllerTest extends TestCase
 
     private function getCart(KernelBrowser $browser)
     {
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/cart');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
 
         $cart = json_decode($browser->getResponse()->getContent(), true);
 
@@ -666,7 +666,7 @@ class SalesChannelCartControllerTest extends TestCase
     {
         $browser->request(
             'POST',
-            '/sales-channel-api/v1/checkout/cart/product/' . $id,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/product/' . $id,
             [
                 'quantity' => $quantity,
             ]
@@ -675,16 +675,16 @@ class SalesChannelCartControllerTest extends TestCase
 
     private function changeQuantity(KernelBrowser $browser, string $lineItemId, int $quantity): void
     {
-        $browser->request('PATCH', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
+        $browser->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
     }
 
     private function updateLineItemQuantity(KernelBrowser $browser, string $lineItemId, int $quantity): void
     {
-        $browser->request('PATCH', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
+        $browser->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $lineItemId, ['quantity' => $quantity]);
     }
 
     private function removeLineItem(KernelBrowser $browser, string $lineItemId): void
     {
-        $browser->request('DELETE', '/sales-channel-api/v1/checkout/cart/line-item/' . $lineItemId);
+        $browser->request('DELETE', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item/' . $lineItemId);
     }
 }

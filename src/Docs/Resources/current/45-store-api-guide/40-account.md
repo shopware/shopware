@@ -14,7 +14,7 @@ This route needs two parameters:
 For this example we are using the account credentials for the dummy user.
 
 ```
-POST /store-api/v1/account/login
+POST /store-api/v3/account/login
 
 {
     "username": "test@example.com",
@@ -46,7 +46,7 @@ The `store-api.account.register` needs the following parameters:
 * `storefrontUrl`: the url to your storefront 
 
 ```
-POST /store-api/v1/account/register
+POST /store-api/v3/account/register
 
 {
     "guest": false,
@@ -131,7 +131,7 @@ This route does not need any parameter.
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/logout
+POST /store-api/v3/account/logout
 
 // when you get a 204 http reponse code you successfully logged out your customer.
 
@@ -148,7 +148,7 @@ Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) 
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/customer
+POST /store-api/v3/account/customer
 
 {
     "includes": {
@@ -179,7 +179,7 @@ This route takes three parameters:
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/change-profile
+POST /store-api/v3/account/change-profile
 
 {
     "salutationId": "99362bce5d764c959289e65039d8d625",
@@ -204,7 +204,7 @@ It takes in three parameters:
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/change-email
+POST /store-api/v3/account/change-email
 
 {
     "email": "jon.doe@example.com",
@@ -231,7 +231,7 @@ The parameters for this route are:
 In this example we change the password with a new password that is more secure than the old one.
 
 ```
-POST /store-api/v1/account/change-password
+POST /store-api/v3/account/change-password
 
 {
     "password": "password",
@@ -255,7 +255,7 @@ The `store-api.account.recovery.send.mail` has two parameters:
 * `storefrontUrl`: for this parameter you enter the base path to the Sales Channel
 
 ```
-POST /store-api/v1/account/recovery-password
+POST /store-api/v3/account/recovery-password
 
 {
     "email": "jon.doe@example.com",
@@ -278,7 +278,7 @@ It needs the following parameters:
 * `storefrontUrl`: this parameters needs the base url of the Sales Channel
 
 ```
-POST /store-api/v1/account/recovery-password-confirm
+POST /store-api/v3/account/recovery-password-confirm
 
 {
     "hash": "J18339ctUmiD82fSxsPU0VnOmhEG4XXt",
@@ -302,7 +302,7 @@ This route has a parameter the following parameter:
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/change-payment-method/da4aa20cd7b9417094a0eb51426f0912
+POST /store-api/v3/account/change-payment-method/da4aa20cd7b9417094a0eb51426f0912
 
 {
     "success": true,
@@ -318,7 +318,7 @@ Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) 
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-GET /store-api/v1/order
+GET /store-api/v3/order
 
 {
     "includes": {
@@ -373,7 +373,7 @@ This route has a few parameters:
 * `storefrontUrl`: url to your storefront
 
 ```
-POST /store-api/v1/newsletter/subscribe
+POST /store-api/v3/newsletter/subscribe
 
 {
     "email": "test@example.com",
@@ -400,7 +400,7 @@ This route has only one parameter:
 * `email`: the email of the customer
 
 ```
-POST /store-api/v1/newsletter/unsubscribe
+POST /store-api/v3/newsletter/unsubscribe
 
 {
     "email": "test@example.com"
@@ -424,7 +424,7 @@ This route needs a few parameters:
 * `comment`: this parameters takes the actual message the customer wants to send you
 
 ```
-POST /store-api/v1/contact-form
+POST /store-api/v3/contact-form
 
 {
     "salutationId": "99362bce5d764c959289e65039d8d625",

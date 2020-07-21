@@ -46,7 +46,7 @@ class ResponseTypeRegistryTest extends TestCase
         $id = Uuid::randomHex();
         $accept = 'application/json';
         $context = $this->getAdminContext();
-        $response = $this->getDetailResponse($context, $id, '/api/v1/category/' . $id, 1, $accept, false);
+        $response = $this->getDetailResponse($context, $id, '/api/v' . PlatformRequest::API_VERSION . '/category/' . $id, 1, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -57,9 +57,9 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/api/v1/category/' . $id;
+        $self = 'http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id;
         $context = $this->getAdminContext();
-        $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
+        $response = $this->getDetailResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -74,9 +74,9 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = '*/*';
-        $self = 'http://localhost/api/v1/category/' . $id;
+        $self = 'http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id;
         $context = $this->getAdminContext();
-        $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
+        $response = $this->getDetailResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept, false);
 
         static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -92,7 +92,7 @@ class ResponseTypeRegistryTest extends TestCase
         $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::randomHex();
         $accept = 'text/plain';
-        $self = 'http://localhost/api/v1/category/' . $id;
+        $self = 'http://localhost/api/' . PlatformRequest::API_VERSION . '/category/' . $id;
         $context = $this->getAdminContext();
         $this->getDetailResponse($context, $id, $self, 1, $accept, false);
     }
@@ -171,9 +171,9 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/api/v1/category';
+        $self = 'http://localhost/api/v' . PlatformRequest::API_VERSION . '/category';
         $context = $this->getAdminContext();
-        $response = $this->getListResponse($context, $id, $self, 1, $accept);
+        $response = $this->getListResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);

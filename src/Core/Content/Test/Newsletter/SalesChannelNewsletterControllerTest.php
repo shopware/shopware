@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class SalesChannelNewsletterControllerTest extends TestCase
 {
@@ -47,7 +48,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe', [
             'email' => $email,
         ]);
         $response = $this->getSalesChannelBrowser()->getResponse();
@@ -69,7 +70,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe', [
             'email' => $email,
         ]);
         $response = $this->getSalesChannelBrowser()->getResponse();
@@ -83,7 +84,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
 
         $hash = $subscriptions->first()->getHash();
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/confirm', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/confirm', [
             'hash' => $hash,
         ]);
 
@@ -107,13 +108,13 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe', [
             'email' => $email,
         ]);
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/unsubscribe', [
             'email' => $email,
         ]);
 
@@ -137,7 +138,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe', [
             'email' => $email,
         ]);
         $response = $this->getSalesChannelBrowser()->getResponse();
@@ -151,7 +152,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
 
         $hash = $subscriptions->first()->getHash();
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/confirm', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/confirm', [
             'hash' => $hash,
         ]);
 
@@ -167,7 +168,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
 
         static::assertEquals('optIn', $subscriptions->first()->getStatus());
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/unsubscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/unsubscribe', [
             'email' => $email,
         ]);
 
@@ -191,7 +192,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         /** @var EntityRepositoryInterface $newsletterRecipientRepository */
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe', [
             'email' => $email,
         ]);
         $response = $this->getSalesChannelBrowser()->getResponse();
@@ -206,7 +207,7 @@ class SalesChannelNewsletterControllerTest extends TestCase
         static::assertEquals('notSet', $subscriptions->first()->getStatus());
         static::assertEmpty($subscriptions->first()->getFirstName());
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/newsletter/subscribe', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe', [
             'id' => $subscriptions->first()->getId(),
             'firstName' => $firstName,
             'email' => $email,

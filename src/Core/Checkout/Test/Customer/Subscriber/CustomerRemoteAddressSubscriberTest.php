@@ -90,7 +90,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/sales-channel-api/v1/checkout/cart/product/' . $id,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/product/' . $id,
             [
                 'quantity' => $quantity,
             ]
@@ -99,19 +99,19 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 
     private function order(): void
     {
-        $this->browser->request('POST', '/sales-channel-api/v1/checkout/order');
+        $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/order');
     }
 
     private function createCart(): void
     {
-        $this->browser->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
     }
 
     private function login(string $email, string $password): string
     {
         $customerId = $this->createCustomer($password, $email);
 
-        $this->browser->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);

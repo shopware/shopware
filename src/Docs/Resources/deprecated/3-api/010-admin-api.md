@@ -56,13 +56,13 @@ You can see a shortened example response below:
                     }
                 },
                 "links": {
-                    "self": "http://localhost:8000/api/v1/product/01bd7e70a50443ec96a01fd34890dcc5"
+                    "self": "http://localhost:8000/api/v3/product/01bd7e70a50443ec96a01fd34890dcc5"
                 },
                 "relationships": {
                     "children": {
                         "data": [],
                         "links": {
-                            "related": "http://localhost:8000/api/v1/product/01bd7e70a50443ec96a01fd34890dcc5/children"
+                            "related": "http://localhost:8000/api/v3/product/01bd7e70a50443ec96a01fd34890dcc5/children"
                         }
                     }
                 }
@@ -78,23 +78,23 @@ You can see a shortened example response below:
                     "createdAt": "2018-09-13T09:54:01.341+02:00"
                 },
                 "links": {
-                    "self": "http://localhost:8000/api/v1/tax/792203a53e564e28bcb7ffa1867fb485"
+                    "self": "http://localhost:8000/api/v3/tax/792203a53e564e28bcb7ffa1867fb485"
                 },
                 "relationships": {
                     "products": {
                         "data": [],
                         "links": {
-                            "related": "http://localhost:8000/api/v1/tax/792203a53e564e28bcb7ffa1867fb485/products"
+                            "related": "http://localhost:8000/api/v3/tax/792203a53e564e28bcb7ffa1867fb485/products"
                         }
                     }
                 }
             }
         ],
         "links": {
-            "first": "http://localhost:8000/api/v1/product?limit=1&page=1",
-            "last": "http://localhost:8000/api/v1/product?limit=1&page=50",
-            "next": "http://localhost:8000/api/v1/product?limit=1&page=2",
-            "self": "http://localhost:8000/api/v1/product?limit=1"
+            "first": "http://localhost:8000/api/v3/product?limit=1&page=1",
+            "last": "http://localhost:8000/api/v3/product?limit=1&page=50",
+            "next": "http://localhost:8000/api/v3/product?limit=1&page=2",
+            "self": "http://localhost:8000/api/v3/product?limit=1"
         },
         "meta": {
             "fetchCount": 1,
@@ -197,7 +197,7 @@ For detailed information take a look at [usage](./030-admin-api-usage.md) and [e
         .then((response) => response.json())
         .then(({ access_token }) => {
             const headers = { Authorization: "Bearer " + access_token };
-            fetch(`${baseUrl}/api/v1/product`, { headers })
+            fetch(`${baseUrl}/api/v3/product`, { headers })
                 .then((response) => response.json())
                 .then((products) => console.log('Products', products))
         });

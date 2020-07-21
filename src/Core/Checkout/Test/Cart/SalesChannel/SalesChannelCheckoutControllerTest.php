@@ -525,7 +525,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(500, $response->getStatusCode(), print_r($response, true));
     }
@@ -535,7 +535,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $expectedOrder = $this->createGuestOrder();
         $orderId = $expectedOrder['data']['id'];
         $accessCode = $expectedOrder['data']['deepLinkCode'];
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
@@ -560,7 +560,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $orderId = $order['data']['id'];
         $accessCode = Random::getBase64UrlString(32);
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -574,7 +574,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $order = $this->createGuestOrder();
 
         $orderId = $order['data']['id'];
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order/' . $orderId);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -589,7 +589,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
         $orderId = Uuid::randomHex();
         $accessCode = $order['data']['deepLinkCode'];
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order/' . $orderId, ['accessCode' => $accessCode]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertSame(400, $response->getStatusCode());
@@ -696,7 +696,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
     {
         $salesChannelClient = $browser ?? $this->getSalesChannelBrowser();
         $this->assignSalesChannelContext($salesChannelClient);
-        $salesChannelClient->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $salesChannelClient->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
         $response = $salesChannelClient->getResponse();
 
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
@@ -715,7 +715,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
     {
         $browser->request(
             'POST',
-            '/sales-channel-api/v1/checkout/cart/product/' . $id,
+            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/product/' . $id,
             [
                 'quantity' => $quantity,
             ]
@@ -724,17 +724,17 @@ class SalesChannelCheckoutControllerTest extends TestCase
 
     private function order(KernelBrowser $browser): void
     {
-        $browser->request('POST', '/sales-channel-api/v1/checkout/order');
+        $browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/order');
     }
 
     private function guestOrder(KernelBrowser $browser, array $payload): void
     {
-        $browser->request('POST', '/sales-channel-api/v1/checkout/guest-order', $payload);
+        $browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/guest-order', $payload);
     }
 
     private function login(KernelBrowser $browser, string $email, string $password): void
     {
-        $browser->request('POST', '/sales-channel-api/v1/customer/login', [
+        $browser->request('POST', '/sales-channel-api/v3/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);

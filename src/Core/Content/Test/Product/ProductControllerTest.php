@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class ProductControllerTest extends TestCase
 {
@@ -54,7 +55,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/sales-channel-api/v1/product');
+        $client->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product');
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -100,7 +101,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+        $client->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
 
@@ -138,7 +139,7 @@ class ProductControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $client->request('GET', '/sales-channel-api/v1/product/' . $productId);
+        $client->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/product/' . $productId);
 
         static::assertSame(404, $client->getResponse()->getStatusCode(), $client->getResponse()->getContent());
     }

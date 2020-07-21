@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class ShippingMethodRouteTest extends TestCase
@@ -64,7 +65,7 @@ class ShippingMethodRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/shipping-method',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/shipping-method',
                 [
                 ]
             );
@@ -84,7 +85,7 @@ class ShippingMethodRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/shipping-method',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/shipping-method',
                 [
                     'includes' => [
                         'shipping_method' => [
@@ -106,7 +107,7 @@ class ShippingMethodRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/shipping-method',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/shipping-method',
                 [
                     'associations' => [
                         'availabilityRule' => [],

@@ -537,7 +537,7 @@ const webpackConfig = {
                                 return JSON.stringify(flagConfig);
                             })(),
                             // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
-                            apiVersion: 2
+                            apiVersion: 3
                         },
                         inject: false
                     }),

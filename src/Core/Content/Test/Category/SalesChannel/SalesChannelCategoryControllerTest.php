@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class SalesChannelCategoryControllerTest extends TestCase
 {
@@ -43,7 +44,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category', 'active' => true],
         ], $this->context);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category');
 
         $response = $this->getSalesChannelBrowser()->getResponse();
 
@@ -65,7 +66,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $id, 'name' => 'Test category', 'active' => true],
         ], $this->context);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category/' . $id);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category/' . $id);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -96,7 +97,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', $params);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $params);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -105,7 +106,7 @@ class SalesChannelCategoryControllerTest extends TestCase
         static::assertSame([$categoryA, $categoryB, $categoryC], $ids);
 
         $params['sort'] = '-name';
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', $params);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $params);
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertNotEmpty($content);
@@ -126,7 +127,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ['id' => $categoryB, 'active' => true, 'name' => 'Matching name'],
         ], $this->context);
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', ['term' => 'Matching']);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', ['term' => 'Matching']);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -158,7 +159,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category', $params);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $params);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -193,7 +194,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -216,7 +217,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -238,7 +239,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -262,7 +263,7 @@ class SalesChannelCategoryControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/category', $body);
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -292,7 +293,7 @@ class SalesChannelCategoryControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/category/' . $id);
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/category/' . $id);
         $response = $this->getSalesChannelBrowser()->getResponse();
 
         static::assertSame(404, $response->getStatusCode());

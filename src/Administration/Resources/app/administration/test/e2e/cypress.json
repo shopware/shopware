@@ -17,7 +17,7 @@
     "configFile": "reporter-config.json"
   },
   "env": {
-    "apiVersion": "v1",
+    "apiVersion": "v2",
     "user": "admin",
     "pass": "shopware",
     "salesChannelName": "Storefront",

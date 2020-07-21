@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 
 class NewsletterConfirmRouteTest extends TestCase
 {
@@ -38,7 +39,7 @@ class NewsletterConfirmRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/newsletter/confirm',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/confirm',
                 [
                 ]
             );
@@ -53,7 +54,7 @@ class NewsletterConfirmRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/newsletter/confirm',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/confirm',
                 [
                     'email' => 'test@test.de',
                     'hash' => 'foooo',
@@ -70,7 +71,7 @@ class NewsletterConfirmRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/newsletter/confirm',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/confirm',
                 [
                     'email' => 'xxxxx@test.de',
                     'hash' => 'foooo',
@@ -87,7 +88,7 @@ class NewsletterConfirmRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/newsletter/subscribe',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
                 [
                     'email' => 'test@test.de',
                     'option' => 'subscribe',
@@ -102,7 +103,7 @@ class NewsletterConfirmRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/newsletter/confirm',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/confirm',
                 [
                     'email' => 'test@test.de',
                     'hash' => $hash,

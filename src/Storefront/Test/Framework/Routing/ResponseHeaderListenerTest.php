@@ -26,7 +26,7 @@ class ResponseHeaderListenerTest extends TestCase
     public function testSalesChannelApiPresent(): void
     {
         $browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
-        $browser->request('POST', '/sales-channel-api/v1/checkout/cart');
+        $browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));

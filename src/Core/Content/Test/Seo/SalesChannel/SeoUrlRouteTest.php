@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 class SeoUrlRouteTest extends TestCase
@@ -35,7 +36,7 @@ class SeoUrlRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v1/seo-url',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/seo-url',
             [
             ]
         );
@@ -51,7 +52,7 @@ class SeoUrlRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v1/seo-url',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/seo-url',
             [
                 'includes' => [
                     'seo_url' => [
@@ -73,7 +74,7 @@ class SeoUrlRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v1/seo-url',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/seo-url',
             [
                 'filter' => [
                     [
@@ -94,7 +95,7 @@ class SeoUrlRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v1/seo-url',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/seo-url',
             [
                 'filter' => [
                     [

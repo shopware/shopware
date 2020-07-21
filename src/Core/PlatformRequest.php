@@ -5,7 +5,7 @@ namespace Shopware\Core;
 final class PlatformRequest
 {
     // should be increased with every major version
-    public const API_VERSION = 2;
+    public const API_VERSION = 3;
 
     /**
      * Response Headers

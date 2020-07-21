@@ -17,6 +17,7 @@
             "Shopware\\Recovery\\Test\\": "Test"
         }
     },
+    "version": "6.3.0.0",
     "extra": {
         "branch-alias": {
             "dev-master": "6.3.x-dev"

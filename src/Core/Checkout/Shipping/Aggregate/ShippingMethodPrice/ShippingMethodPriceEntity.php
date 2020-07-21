@@ -19,7 +19,7 @@ class ShippingMethodPriceEntity extends Entity
     protected $shippingMethodId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $currencyId;
 
@@ -153,12 +153,12 @@ class ShippingMethodPriceEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    public function getCurrencyId(): string
+    public function getCurrencyId(): ?string
     {
         return $this->currencyId;
     }
 
-    public function setCurrencyId(string $currencyId): void
+    public function setCurrencyId(?string $currencyId): void
     {
         $this->currencyId = $currencyId;
     }

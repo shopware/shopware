@@ -472,7 +472,7 @@
     "reviewTeaserButton": "Write a review!",
     "reviewTeaserButtonHide": "Show reviews",
     "reviewExistsTeaserTitle": "Edit your review!",
-    "reviewExistsTeaserText": "You have already reviewed this product, edit your review?",
+    "reviewExistsTeaserText": "You have already reviewed this product. Would you like to edit your review?",
     "reviewExistsTeaserButton": "Edit review",
     "reviewLanguageFilterLabel": "Display reviews in current language only.",
     "reviewSortLabel": "Sort by",

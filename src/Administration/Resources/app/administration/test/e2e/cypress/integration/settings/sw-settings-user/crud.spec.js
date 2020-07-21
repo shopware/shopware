@@ -6,7 +6,7 @@ describe('User: Test crud operations', () => {
             .then(() => {
                 cy.loginViaApi()
                     .then(() => {
-                        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/user/list`);
+                        cy.openInitialPage(`${Cypress.env('admin')}#/sw/users/permissions/index`);
                     });
             });
     });
@@ -31,9 +31,8 @@ describe('User: Test crud operations', () => {
             method: 'post'
         }).as('oauthCall');
 
-
         // create a new user
-        cy.get('.sw-settings-user-list__create-user-action')
+        cy.get('.sw-users-permissions-user-listing__add-user-button')
             .should('be.visible')
             .click();
 
@@ -93,7 +92,7 @@ describe('User: Test crud operations', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        cy.get('input.sw-search-bar__input').type('abraham');
+        cy.get('.sw-simple-search-field input').type('abraham');
 
         cy.wait('@searchCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -109,16 +108,16 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-modal')
             .should('be.visible');
         cy.get('.sw-modal__title')
-            .contains('Delete user');
+            .contains('Warning');
 
-        cy.get('.sw-modal__footer > .sw-button--primary')
+        cy.get('.sw-modal__footer > .sw-button--danger')
             .should('be.disabled');
 
         cy.get('.sw-modal__body input[name="sw-field--confirm-password"]')
             .should('be.visible')
             .typeAndCheck('shopware');
 
-        cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
+        cy.get('.sw-modal__footer > .sw-button--danger > .sw-button__content')
             .should('not.be.disabled')
             .click();
 

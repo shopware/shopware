@@ -11,7 +11,7 @@
 
             function gtag() { dataLayer.push(arguments); }
 
-            window.gtagCallback = () => {
+            window.gtagCallback = function gtagCallbackFunction() {
                 gtag('js', new Date());
 
                 gtag('config', '{{ trackingId }}', {

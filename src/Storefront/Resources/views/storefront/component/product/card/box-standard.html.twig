@@ -42,13 +42,7 @@
 
                                     {% sw_thumbnails 'product-image-thumbnails' with {
                                         media: cover,
-                                        sizes: {
-                                            'xs': '501px',
-                                            'sm': '315px',
-                                            'md': '427px',
-                                            'lg': '333px',
-                                            'xl': '284px'
-                                        }
+                                        sizes: sizes
                                     } %}
                                 {% else %}
                                     <div class="product-image-placeholder">

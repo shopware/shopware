@@ -139,7 +139,13 @@
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                                                media: image
+                                                                                media: image,
+                                                                                sizes: {
+                                                                                    'xs': '225px',
+                                                                                    'sm': '430px',
+                                                                                    'md': '430px',
+                                                                                    'lg': '430px'
+                                                                                }
                                                                             } %}
                                                                         </div>
                                                                     </div>

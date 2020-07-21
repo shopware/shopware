@@ -6,5 +6,21 @@
         {% set layout = 'standard' %}
     {% endif %}
 
+    {# Default is 200px #}
+    {% set sizes = {
+        'default': '200px'
+    } %}
+
+    {# We overwrite definition for layout image #}
+    {% if layout == 'image' %}
+        {% set sizes = {
+            'xs': '332px',
+            'sm': '295px',
+            'md': '332px',
+            'lg': '319px',
+            'xl': '274px',
+        } %}
+    {% endif %}
+
     {% sw_include "@Storefront/storefront/component/product/card/box-" ~ layout ~ ".html.twig" ignore missing %}
 {% endblock %}

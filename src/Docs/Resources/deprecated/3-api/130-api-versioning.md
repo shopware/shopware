@@ -4,7 +4,7 @@
 The Admin-API and Sales-Channel-API are versioned. That means whenever a breaking change to the API occurs we release a new API version.
 We may release a new API version with every major release, but the old API version stays supported until the next major release, e.g. 6.2.0 or 6.3.0.
 
-The API version you want to use is determined by the API-Route you call, e.g. `/api/v1/...` for version 1 of the Admin-API or `/sales-channel-api/v2` for version 2 of the SalesChannelApi.
+The API version you want to use is determined by the API-Route you call, e.g. `/api/v3/...` for version 1 of the Admin-API or `/sales-channel-api/v2` for version 2 of the SalesChannelApi.
 
 The currently available API versions are available as a container parameter under `kernel.supported_api_versions`.
 
@@ -176,7 +176,7 @@ Fields that are not available are those that are marked as deprecated in Version
 
 When you try to write those fields or use them in a filter for example you will get an error. Also all not available fields get stripped from the responses.
 
-So a request to `POST /api/v1/product` with payload
+So a request to `POST /api/v3/product` with payload
 ```json
 {
     "id": "01bd7e70a50443ec96a01fd34890dcc5",
@@ -195,7 +195,7 @@ Similarly requesting `POST /api/v2/product` with payload
 ```
 will return a status code of 400 with the error code `FRAMEWORK__WRITE_REMOVED_FIELD`, because the `name` field was removed in v2 of the API.
 
-If we request the entity in v1 `GET /api/v1/product/01bd7e70a50443ec96a01fd34890dcc5` we will get the following response:
+If we request the entity in v1 `GET /api/v3/product/01bd7e70a50443ec96a01fd34890dcc5` we will get the following response:
 ```json
 {
     "data": {
@@ -246,7 +246,7 @@ You now have to create two actions one for the old version and one for the curre
 First you change the `v{version}` wildcard in your old action, to the hard-coded version for which this implementation of the route should be used, e.g. `v1` and mark your action with the `@deprecated` tag to be removed in a upcoming release.
 ```php
 /**
- * @Route("/api/v1/_action/do-something", name="api.do.something.v1", methods={"POST"}, requirements={"version"="\d+"})
+ * @Route("/api/v3/_action/do-something", name="api.do.something.v1", methods={"POST"}, requirements={"version"="\d+"})
  * @deprecated tag:v6.2.0
  */
 public function doSomethingV1(Context $context): Response

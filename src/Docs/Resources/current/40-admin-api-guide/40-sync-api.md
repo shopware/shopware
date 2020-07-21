@@ -14,7 +14,7 @@ Within a request, different entities can therefore be written in batch.
 The operations can be assigned a key, which makes debugging easier. The key is then used in the response to define which entities are written in which operation:
 
 ```
-POST /api/v1/_action/sync
+POST /api/v3/_action/sync
 {
     "write-tax": {
         "entity": "tax",
@@ -157,7 +157,7 @@ To do this, you have to provide the following headers:
     * `disable-indexing` - The data indexing is completely disabled
 
 ```
-/api/v1/_action/sync
+/api/v3/_action/sync
 --header 'single-operation: 1'
 --header 'indexing-behavior: use-queue-indexing'
 

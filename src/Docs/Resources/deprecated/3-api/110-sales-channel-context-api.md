@@ -36,7 +36,7 @@ You find more information about these operations [here](./050-filter-search-limi
 
 ## Get country states
 
-**GET  /sales-channel-api/v1/country/{countryId}/state**
+**GET  /sales-channel-api/v3/country/{countryId}/state**
 
 **Response:** Returns a list of country states assigned to the sales channel and country.
 All filter, sorting, limit, and search operations are supported.
@@ -44,7 +44,7 @@ You find more information about these operations [here](./050-filter-search-limi
 
 ## Get payment methods
 
-**GET  /sales-channel-api/v1/payment-method**
+**GET  /sales-channel-api/v3/payment-method**
 
 **Header:** sw-context-token is required  
 **Response:** Returns a list of payment methods assigned to the sales channel.
@@ -53,7 +53,7 @@ You find more information about these operations [here](./050-filter-search-limi
 
 ## Get shipping methods
 
-**GET  /sales-channel-api/v1/shipping-method**
+**GET  /sales-channel-api/v3/shipping-method**
 
 **Header:** sw-context-token is required  
 **Response:** Returns a list of shipping methods assigned to the sales channel.

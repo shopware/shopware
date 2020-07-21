@@ -154,7 +154,7 @@ it('edit plugin\'s configuration', () => {
     // Request we want to wait for later
     cy.server();
     cy.route({
-        url: '/api/v1/_action/system-config/batch',
+        url: '/api/v3/_action/system-config/batch',
         method: 'post'
     }).as('saveData');
 
@@ -187,7 +187,7 @@ more reliable way of waiting for the configuration to be saved.
 ```javascript
 cy.server(); // Start a server to begin routing responses
 cy.route({ // Manage the behavior of network requests
-    url: '/api/v1/_action/system-config/batch', 
+    url: '/api/v3/_action/system-config/batch', 
     method: 'post' // Route POST requests with given URL
 }).as('saveData'); // Save the request as alias to use it later
 ```
@@ -247,7 +247,7 @@ describe('PluginCypressTests: Test configuration', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/batch',
+            url: '/api/v3/_action/system-config/batch',
             method: 'post'
         }).as('saveData');
 

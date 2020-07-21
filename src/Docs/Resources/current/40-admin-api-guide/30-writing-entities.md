@@ -15,16 +15,16 @@ For an entity, the system automatically generates the following routes where the
 | api.customer_group.delete | DELETE | /api/v{version}/customer-group/{id} | Delete the entity |
 | api.customer_group.create | POST   | /api/v{version}/customer-group      | Create a new entity |                 
 
-A list of all routes and registered entities in the system can be read out via the `/api/v1/_info/*` routes:
+A list of all routes and registered entities in the system can be read out via the `/api/v3/_info/*` routes:
 
 ### Routes
 A complete listing of all routes is available via the OpenAPI schema: 
 
-`/api/v1/_info/openapi3.json`
+`/api/v3/_info/openapi3.json`
 
 A complete list of all entities in the system including their fields is available via the OpenAPI or entity schema:
 
-`/api/v1/_info/open-api-schema.json` / `api/v1/_info/entity-schema.json`
+`/api/v3/_info/open-api-schema.json` / `api/v1/_info/entity-schema.json`
 
 ### Payload
 If it is not clear how the data has to be sent despite the scheme, it is also possible to open the administration and to have a look at the corresponding requests. 
@@ -43,7 +43,7 @@ When creating an entity, all `required` fields must be provided in the request b
 If one or more fields have not been passed or contain incorrect data, the API outputs all errors for an entity:
 
 ```
-POST /api/v1/product/
+POST /api/v3/product/
 {
     "name" : "test"
 }
@@ -89,7 +89,7 @@ POST /api/v1/product/
 If the entity has been successfully created, the API responds with a `204 No Content` status code.
 
 ```
-POST /api/v1/product/
+POST /api/v3/product/
 {
     "name" : "test",
     "productNumber" : "random",
@@ -116,7 +116,7 @@ This is recommended because the system reacts differently in the background to c
 For example, to update the stock of a product and update the price at the same time, we recommend the following payload:
 
 ```
-PATCH /api/v1/product/021523dde52d42c9a0b005c22ac85043
+PATCH /api/v3/product/021523dde52d42c9a0b005c22ac85043
 {
     "stock": 10,
     "price": [
@@ -131,13 +131,13 @@ PATCH /api/v1/product/021523dde52d42c9a0b005c22ac85043
 ```
 
 ### Deleting entities
-To delete an entity the route `DELETE /api/v1/product/{id}` can be used. If the entity has been successfully deleted, the API returns a `204 - No Content` response.
+To delete an entity the route `DELETE /api/v3/product/{id}` can be used. If the entity has been successfully deleted, the API returns a `204 - No Content` response.
 
 When deleting data, it can happen that this is prevented by foreign key restrictions. This happens if the entity is still linked to another entity which requires the relation.
 For example, if you try to delete a tax record which is marked as required for a product, the delete request will be prevented with a `409 - Conflict`:
 
 ```
-DELETE /api/v1/tax/5840ff0975ac428ebf7838359e47737f
+DELETE /api/v3/tax/5840ff0975ac428ebf7838359e47737f
 
 {
     "errors": [
@@ -152,13 +152,13 @@ DELETE /api/v1/tax/5840ff0975ac428ebf7838359e47737f
 ```
 
 ### Cloning an entity
-To clone an entity the route `POST /api/v1/_action/clone/{entity}/{id}` can be used. The API clones all àssociations which is marked with `CascadeDelete`.
+To clone an entity the route `POST /api/v3/_action/clone/{entity}/{id}` can be used. The API clones all àssociations which is marked with `CascadeDelete`.
 The `CascadeDelete` flag allows to disable this behavior by providing `false` in the constructor: `new CascadeDelete(false)`.
 Some entities have a `ChildrenAssociationField`. The children are also considered in a clone request. However, since this results in large amounts of data, the parameter `cloneChildren: false` can be sent in the payload so that they are no longer duplicated.
 It is also possible to overwrite fields in the clone using the payload parameter 'overwrites'. This is especially helpful if the entity has an unique constraint in the database.
 As response, the API returns the new id of the entity:
 ```
-POST /api/v1/_action/clone/product/53be6fb93e4b44ed877736cbe01a47b8
+POST /api/v3/_action/clone/product/53be6fb93e4b44ed877736cbe01a47b8
 {
 	"overwrites": {
 		"name" : "New name",
@@ -197,7 +197,7 @@ There are three ways in which `ManyToMany` associations can be used in the API
 In this case all required fields are sent with the entity. 
 
 ```
-PATCH /api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH /api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "categories": [
@@ -213,7 +213,7 @@ In this case, the entity already exists in the system, but it can be updated in 
 For this purpose, the corresponding ID of the entity is sent with the request. If the ID does not exist in the system, the API creates a new entity with this id.
 
 ```
-PATCH /api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH /api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "categories": [
@@ -229,7 +229,7 @@ If both data records already exist in the system and are to be linked to the PAT
 This has the advantage that there is no update of the linked entity, which means less load on the system:
 
 ```
-PATCH /api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH /api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "categories": [
@@ -253,7 +253,7 @@ There are three ways in which `ManyToOne` associations can be used in the API
 In this case all required fields of the entity must be given:
 
 ```
-PATCH {{host}}/api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
@@ -268,7 +268,7 @@ With the above payload, the system creates a new manufacturer in the system and 
 In this case it is necessary to send the ID of the existing entity.
 
 ```
-PATCH {{host}}/api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "manufacturer": { 
@@ -285,7 +285,7 @@ If the manufacturer already exists, the name of the manufacturer is updated. The
 With this option, the manufacturer already exists and should only be linked with the product. For this, either only the `id` can be sent, or the foreign key can be specified directly:
 
 ```
-PATCH {{host}}/api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "manufacturer": { 
@@ -295,7 +295,7 @@ PATCH {{host}}/api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 ```
 
 ```
-PATCH {{host}}/api/v1/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
+PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "manufacturerId": "98432def39fc4624b33213a56b8c944d"
@@ -319,7 +319,7 @@ There are two ways to use `OneToMany` associations in the API.
 In this case all fields marked as required must be given. An ID can also be given here if it is not to be generated on server side:
 
 ```
-POST /api/v1/country
+POST /api/v3/country
 {
     "name" : "new country",
     "states": [
@@ -335,7 +335,7 @@ POST /api/v1/country
 In this case, it is necessary that the ID of the entity is also given. If this is not done, the system tries to create a new entity:
 
 ```
-PATCH /api/v1/country
+PATCH /api/v3/country
 {
     "id": "98432def39fc4624b33213a56b8c944d",
     "name" : "new country",
@@ -348,7 +348,7 @@ PATCH /api/v1/country
 If an error occurs while writing the data, the API returns a `400 Bad Request` response in which all errors are listed.
 The affected records and fields can be identified via `source.pointer`:
 ```
-POST /api/v1/country
+POST /api/v3/country
 
 {
     "name" : "new country",
@@ -604,8 +604,8 @@ For assigning several `properties` and `categories` this is an exemplary payload
 ``` 
 
 To remove these `properties` and `categories`, the corresponding routes can be used for the mapping entities: 
-* `DELETE /api/v1/product/{productId}/properties/{optionId}`
-* `DELETE /api/v1/product/{productId}/categories/{categoryId}`
+* `DELETE /api/v3/product/{productId}/properties/{optionId}`
+* `DELETE /api/v3/product/{productId}/categories/{categoryId}`
 
 To delete several assignments at once, the `/_action/sync` route can be used:
 
@@ -664,7 +664,7 @@ The `product.media` association is a `one-to-many` association on the `product_m
 }
 ```
 
-To delete a media assignment, the ID of the `product_media` entity is required. In the above case this is the `5f78f2d4b19f49648eb1b38881463da0`. The corresponding route `DELETE /api/v1/product/{productId}/media/{productMediaId}` can be used for this. To delete multiple assignments, the `/_action/sync` route can also be used here:
+To delete a media assignment, the ID of the `product_media` entity is required. In the above case this is the `5f78f2d4b19f49648eb1b38881463da0`. The corresponding route `DELETE /api/v3/product/{productId}/media/{productMediaId}` can be used for this. To delete multiple assignments, the `/_action/sync` route can also be used here:
 
 ```
 {
@@ -725,7 +725,7 @@ Since visibility can be configured per sales channel, the entity also has its ow
 }
 ``` 
 
-Deleting a sales channel assignment is done via the route `/api/v1/product/{productId}/visibilities/{visibilityId}`.
+Deleting a sales channel assignment is done via the route `/api/v3/product/{productId}/visibilities/{visibilityId}`.
 To delete several assignments at once, the `/_action/sync` route can be used:
 
 ``` 
@@ -787,7 +787,7 @@ To define a separate `price` for a variant, the same payload can be used as for 
 To restore inheritance, the value `null` can be passed for simple data fields:
 
 ``` 
-// PATCH /api/v1/product/0d0adf2a3aa1488eb177288cfac9d47e
+// PATCH /api/v3/product/0d0adf2a3aa1488eb177288cfac9d47e
 {
     "price": null
 }

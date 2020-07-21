@@ -5,7 +5,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Register a customer
 
-**POST  /sales-channel-api/v1/customer**
+**POST  /sales-channel-api/v3/customer**
 
 **Description:** Register a new customer. 
 
@@ -55,7 +55,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Log in a customer
 
-**POST  /sales-channel-api/v1/customer/login**
+**POST  /sales-channel-api/v3/customer/login**
 
 **Description:** Log in a customer. 
 
@@ -70,7 +70,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Log out a customer
 
-**POST  /sales-channel-api/v1/customer/logout**
+**POST  /sales-channel-api/v3/customer/logout**
 
 **Header:** sw-context-token is required
 
@@ -78,7 +78,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Get a order overview
 
-**GET  /sales-channel-api/v1/customer/order**
+**GET  /sales-channel-api/v3/customer/order**
 
 **Parameter:**
 
@@ -93,7 +93,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Update email address
 
-**PATCH  /sales-channel-api/v1/customer/email**
+**PATCH  /sales-channel-api/v3/customer/email**
 
 **Parameter:**
 
@@ -108,7 +108,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Update password
 
-**PATCH  /sales-channel-api/v1/customer/password**
+**PATCH  /sales-channel-api/v3/customer/password**
 
 **Parameter:**
 
@@ -123,7 +123,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 ## Update profile information
 
 **PATCH 
-/sales-channel-api/v1/customer**
+/sales-channel-api/v3/customer**
 
 **Parameter:**
 
@@ -143,7 +143,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ## Get detailed customer information
 
-**GET  /sales-channel-api/v1/customer**
+**GET  /sales-channel-api/v3/customer**
 
 **Header:** sw-context-token is required
 
@@ -153,7 +153,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Get customer addresses
 
-**GET /sales-channel-api/v1/customer/address**
+**GET /sales-channel-api/v3/customer/address**
 
 **Header:** sw-context-token is required
 
@@ -161,7 +161,7 @@ The customer endpoint is used to register and log in customers. It can also be u
 
 ### Get customer address
 
-**GET /sales-channel-api/v1/customer/address/{id}**
+**GET /sales-channel-api/v3/customer/address/{id}**
 
 **Header:** sw-context-token is required
 
@@ -170,7 +170,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Create customer address
 
-**POST /sales-channel-api/v1/customer/address**
+**POST /sales-channel-api/v3/customer/address**
 
 **Header:** sw-context-token is required
 
@@ -188,7 +188,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Delete customer address
 
-**DELETE /sales-channel-api/v1/customer/address/{id}**
+**DELETE /sales-channel-api/v3/customer/address/{id}**
 
 **Note:** You can not delete a default shipping or billing address.
 
@@ -196,7 +196,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Set default shipping address
 
-**PATCH  /sales-channel-api/v1/customer/address/{id}/default-shipping**
+**PATCH  /sales-channel-api/v3/customer/address/{id}/default-shipping**
 
 **Header:** sw-context-token is required
 
@@ -204,7 +204,7 @@ Note: The address id must be assigned with the customer currently logged in.
 
 ### Set default billing address
 
-**PATCH  /sales-channel-api/v1/customer/address/{id}/default-billing**
+**PATCH  /sales-channel-api/v3/customer/address/{id}/default-billing**
 
 **Header:** sw-context-token is required
 
@@ -236,21 +236,21 @@ Note: The address id must be assigned with the customer currently logged in.
     };
 
     function getCountry(iso3) {
-        const url = `${baseUrl}/sales-channel-api/v1/country?filter[iso3]=${iso3}`;
+        const url = `${baseUrl}/sales-channel-api/v3/country?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then((json) => json.data[0]);
     }
 
     function getSalutation() {
-        const url = `${baseUrl}/sales-channel-api/v1/salutation`;
+        const url = `${baseUrl}/sales-channel-api/v3/salutation`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then((json) => json.data[0]);
     }
 
     function registerCustomer(customer) {
-        const url = `${baseUrl}/sales-channel-api/v1/customer`;
+        const url = `${baseUrl}/sales-channel-api/v3/customer`;
         const body = JSON.stringify(customer);
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -258,7 +258,7 @@ Note: The address id must be assigned with the customer currently logged in.
     }
 
     function login(username, password) {
-        const url = `${baseUrl}/sales-channel-api/v1/customer/login`;
+        const url = `${baseUrl}/sales-channel-api/v3/customer/login`;
         const body = JSON.stringify({ username, password });
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -268,14 +268,14 @@ Note: The address id must be assigned with the customer currently logged in.
     }
 
     function logout() {
-        const url = `${baseUrl}/sales-channel-api/v1/customer/logout`;
+        const url = `${baseUrl}/sales-channel-api/v3/customer/logout`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text())
             .then(() => { headers['sw-context-token'] = null });
     }
 
     function getProfile() {
-        const url = `${baseUrl}/sales-channel-api/v1/customer`;
+        const url = `${baseUrl}/sales-channel-api/v3/customer`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data);

@@ -264,7 +264,7 @@ class InvoiceServiceTest extends TestCase
                 [
                     'name' => 'Std',
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => 10.00,
                             'gross' => 10.00,

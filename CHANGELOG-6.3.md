@@ -127,7 +127,7 @@ Table of contents
 * Refactor `sw-settings-user-detail`
     * Added `newPasswordConfirm`
     * Fixed issue when saving new admin password
-    * Disabled `change` button if passwords doesnt match
+    * Disabled `change` button if passwords does not match
 * Added language switch to Scale Units list page to translate scale units
 * Added tooltips to the toolbar of text editor
 * Added isInlineEdit property to component `sw-text-editor-toolbar`
@@ -751,10 +751,15 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added block `sw_product_detail_properties_assginment` to component `sw-product-detail-properties`
 * Added block `sw_product_detail_properties_empty` to component `sw-product-detail-properties`
 * Changed Vue `asset` filter to remove double slashes
+* Fixed active state in the flyout navigation
+* Fixed `sw-modal` styles for `variant="full"` to stay at full page size
+* Custom fields assigned to a category entity can now also be configured in categories of type "link"
+* Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
+* Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
-* Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but it is already passed:
+* Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but the following parameters are already passed:
     * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute`
     * `Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute`
     * `Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute`
@@ -874,7 +879,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Removed `source` parameter in api requests
 * Removed `Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$source`
 * Removed `Shopware\Core\Framework\DataAbstractionLayer\EntityExtensionInterface`
-* `Shopware\Core\Framework\Plugin\PluginManagementService::uploadPlugin`, context parameter is now required
+* `Shopware\Core\Framework\Plugin\PluginManagementService::uploadPlugin` context parameter is now required
 * Removed `Shopware\Core\Framework\Routing\RouteScopeInterface`
 * Removed `Shopware\Core\Framework\Adapter\Twig\TemplateFinder::registerBundles`
 * Removed `Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles`
@@ -901,7 +906,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     * `featureSets`
     * `properties.group`
 * Added new `asset`, `sitemap` and  `theme` asset package
-* Added new class `\Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy` which adds cache bustering to asset urls with usage of flysystem adapters
+* Added new class `\Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy` which adds cache busting to asset urls with usage of flysystem adapters
 * Added new class `\Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage` which adds a fallback to shop URL if the given URL is empty
 * Added new class `\Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass` which fixes backward compatibility in the filesystem configs
 * Changed `\Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver` to consider sales channel entities.
@@ -943,13 +948,16 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Increase the API version to v3
     * API version v1 is removed
     * API version v2 will be removed with next major version
+* Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+* Added `user:change-password` command to set the password of an administration user
+* Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 
 #### Storefront
 * Added plugin injection in hot mode
 * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
 * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
-* Fix timezone of `orderDate` in ordergrid
-* Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
+* Fix timezone of `orderDate` in the ordergrid
+* Added an image lazy loading capability to the `ZoomModalPlugin` which allows image loading only if the zoom modal is opened
 * Refactored Webpack configuration files to one single file
     * Removed build/utils.js
     * Removed build/webpack.base.config.js
@@ -993,3 +1001,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     * `component_offcanvas_product_variants` in `src/Storefront/Resources/views/storefront/component/checkout/offcanvas-item.html.twig`
     * `page_checkout_item_info_variants` in `src/Storefront/Resources/views/storefront/page/checkout/checkout-item.html.twig`
 * Fix sw_sanitize filter throwing when the parameter options is null
+* Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
+* Fixed property sorting for multi language shops
+* Added an additional class to the cart offcanvas called `cart-offcanvas`
+* Added all language flags according to language packs

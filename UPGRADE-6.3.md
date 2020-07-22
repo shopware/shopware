@@ -95,6 +95,52 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
         }
     }
     ```
+  * Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:
+      * Affected routes:
+          * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute`           
+          * `Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute`                 
+          * `Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute`       
+          * `Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute`     
+          * `Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute`          
+          * `Shopware\Core\Content\Product\SalesChannel\Listing/AbstractProductListingRoute`
+          * `Shopware\Core\Content\Product\SalesChannel\Search/AbstractProductSearchRoute` 
+          * `Shopware\Core\Content\Seo\SalesChannel\AbstractSeoUrlRoute`                   
+          * `Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute`             
+          * `Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute`             
+          * `Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute`         
+      * Sources before:
+          ```
+          /**
+           * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
+           */
+          public function load(Request $request, SalesChannelContext $context): CustomerResponse
+          {
+              $criteria = $this->requestCriteriaBuilder->handleRequest(
+                  $request, 
+                  new Criteria(), 
+                  $this->customerDefinition, 
+                  $context->getContext()
+              );
+          }      
+          ```
+      * Sources after:
+          ```
+          use Shopware\Core\Framework\Routing\Annotation\Entity;
+          
+          /**
+           * the below @Entity() annotation builds the criteria automatically for the current request
+           * @Entity("customer")  
+           * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
+           */
+          public function load(Request $request, SalesChannelContext $context, Criteria $criteria = null): CustomerResponse
+          {
+              // remove this code with, 6.4.0. The criteria will be required in this version
+              if (!$criteria) {
+                  $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->customerDefinition, $context->getContext());
+              }
+          }
+          ```
+
 
 Administration
 --------------
@@ -114,51 +160,6 @@ Administration
 * Refactored data fetching and saving in `sw-settings-documents` module
     * It now uses repositories for data handling instead of `State.getStore()`
     * See the `CHANGELOG-6.3.md` file for a detailed overview
-* Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change the your sources as follow:
-    * Affected routes:
-        * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute`           
-        * `Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute`                 
-        * `Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute`       
-        * `Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute`     
-        * `Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute`          
-        * `Shopware\Core\Content\Product\SalesChannel\Listing/AbstractProductListingRoute`
-        * `Shopware\Core\Content\Product\SalesChannel\Search/AbstractProductSearchRoute` 
-        * `Shopware\Core\Content\Seo\SalesChannel\AbstractSeoUrlRoute`                   
-        * `Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute`             
-        * `Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute`             
-        * `Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute`         
-    * Sources before:
-        ```
-        /**
-         * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
-         */
-        public function load(Request $request, SalesChannelContext $context): CustomerResponse
-        {
-            $criteria = $this->requestCriteriaBuilder->handleRequest(
-                $request, 
-                new Criteria(), 
-                $this->customerDefinition, 
-                $context->getContext()
-            );
-        }      
-        ```
-    * Sources after:
-        ```
-        use Shopware\Core\Framework\Routing\Annotation\Entity;
-        
-        /**
-         * the below @Entity() annotation builds the criteria automatically for the current request
-         * @Entity("customer")  
-         * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
-         */
-        public function load(Request $request, SalesChannelContext $context, Criteria $criteria = null): CustomerResponse
-        {
-            // remove this sources with, 6.4.0. The criteria will be required in this version
-            if (!$criteria) {
-                $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->customerDefinition, $context->getContext());
-            }
-        }
-        ```
 * Removed the Vue event `inline-edit-assign` from `onClickCancelInlineEdit` method in `src/Administration/Resources/app/administration/src/app/component/data-grid/sw-data-grid/index.js`
     * This event is responsible for assigning the value of an inline-edit field of the data grid, which should not happen when the inline-edit is being canceled by the user.
     * In order to react to saving or cancelling the inline-edit of the `sw-data-grid`, use the `inline-edit-save` and `inline-edit-cancel` events.
@@ -212,7 +213,7 @@ All file system configuration have now an `url` config option, this url will be 
 
 ## Usage of the Symfony asset
 
-To unify the URL generation, we create a Symfony asset for each public filesystem adapter. This will build the correct URL with a version cache bustering.
+To unify the URL generation, we create a Symfony asset for each public filesystem adapter. This will build the correct URL with a version cache busting.
 These assets are prefixed in dependency injection with `shopware.asset.{ADAPTER_NAME}`
     * `shopware.asset.public`
     * `shopware.asset.theme`

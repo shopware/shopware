@@ -270,16 +270,16 @@ class ImportExportLogApiTest extends TestCase
 
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
-            $profile = $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])];
+            $profile = $profiles[Uuid::fromHexToBytes($profileIds[$i % 2])];
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[($i % 2)],
+                'activity' => $activities[$i % 2],
                 'state' => sprintf('state %s', $i),
-                'userId' => $userIds[($i % 2)],
-                'profileId' => $profileIds[($i % 2)],
-                'fileId' => $fileIds[($i % 2)],
-                'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'],
+                'userId' => $userIds[$i % 2],
+                'profileId' => $profileIds[$i % 2],
+                'fileId' => $fileIds[$i % 2],
+                'username' => $users[Uuid::fromHexToBytes($userIds[$i % 2])]['username'],
                 'profileName' => $profile['label'],
                 'records' => 10 * $i,
                 'config' => ['profile' => $profile],

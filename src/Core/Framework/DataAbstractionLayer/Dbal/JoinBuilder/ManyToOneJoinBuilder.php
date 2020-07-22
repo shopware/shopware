@@ -36,7 +36,7 @@ class ManyToOneJoinBuilder implements JoinBuilderInterface
 
         $table = $reference->getEntityName();
 
-        $versionAware = ($definition->isVersionAware() && $reference->isVersionAware());
+        $versionAware = $definition->isVersionAware() && $reference->isVersionAware();
 
         $source = EntityDefinitionQueryHelper::escape($on) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 

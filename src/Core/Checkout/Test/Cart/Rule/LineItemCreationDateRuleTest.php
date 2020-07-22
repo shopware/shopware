@@ -157,9 +157,9 @@ class LineItemCreationDateRuleTest extends TestCase
     {
         $this->rule->assign(['lineItemCreationDate' => '2020-02-06 00:00:00', 'operator' => LineItemCreationDateRule::OPERATOR_EQ]);
 
-        $match = $this->rule->match((new CheckoutRuleScope(
+        $match = $this->rule->match(new CheckoutRuleScope(
             $this->createMock(SalesChannelContext::class)
-        )));
+        ));
 
         static::assertFalse($match);
     }
@@ -180,10 +180,10 @@ class LineItemCreationDateRuleTest extends TestCase
 
         $cart->setLineItems($lineItemCollection);
 
-        $match = $this->rule->match((new CartRuleScope(
+        $match = $this->rule->match(new CartRuleScope(
             $cart,
             $this->createMock(SalesChannelContext::class)
-        )));
+        ));
 
         static::assertEquals($expected, $match);
     }

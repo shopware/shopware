@@ -56,7 +56,7 @@ class OpenApiLoader
                     $operation->tags = array_values($operation->tags);
                 }
 
-                $allUndefined = ($pathItem->$key === UNDEFINED && $allUndefined === true);
+                $allUndefined = $pathItem->$key === UNDEFINED && $allUndefined === true;
             }
 
             if (!$allUndefined) {

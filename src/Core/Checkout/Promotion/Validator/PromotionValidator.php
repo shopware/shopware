@@ -472,7 +472,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter(':promotion_id', $promotionId);
         }
 
-        $existingIndividual = (count($query->execute()->fetchAll()) > 0);
+        $existingIndividual = count($query->execute()->fetchAll()) > 0;
 
         if ($existingIndividual) {
             return true;

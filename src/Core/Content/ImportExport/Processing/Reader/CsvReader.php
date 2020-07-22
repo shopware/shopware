@@ -112,7 +112,7 @@ class CsvReader extends AbstractReader
             }
 
             // skip if it's an empty line
-            if (($record === false || (count($record) === 1 && $record[0] === null))) {
+            if ($record === false || (count($record) === 1 && $record[0] === null)) {
                 continue;
             }
 

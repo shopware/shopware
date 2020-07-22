@@ -368,7 +368,7 @@ class PromotionDeliveryCalculator
         // we may only discount the available shipping costs (these may be reduced by another discount before)
         $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
 
-        if (mb_strlen($maxValue) > 0) {
+        if ($maxValue !== '') {
             $castedMaxValue = (float) $maxValue;
 
             if ($castedMaxValue < $maxReducedPrice) {

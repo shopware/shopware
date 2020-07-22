@@ -55,6 +55,16 @@ export default class DatePickerPlugin extends Plugin {
             localeIndex = this.options.locale.substring(0, 2);
         }
 
+        if (this.options.enableTime && this.options.noCalendar && this.options.minDate) {
+            // workaround because the minDate always needs to be a full date string even in time only mode.
+            this.options.minDate = this.convertTimeToTodayDateString(this.options.minDate);
+        }
+
+        if (this.options.enableTime && this.options.noCalendar && this.options.maxDate) {
+            // workaround because the maxDate always needs to be a full date string even in time only mode.
+            this.options.maxDate = this.convertTimeToTodayDateString(this.options.maxDate);
+        }
+
         const options = {
             altFormat: this.getAltFormat(localeIndex),
             locale: Locales[localeIndex],
@@ -65,5 +75,15 @@ export default class DatePickerPlugin extends Plugin {
             ...this.options,
             ...options
         });
+    }
+
+    convertTimeToTodayDateString(timeString) {
+        if (timeString.includes('T')) {
+            return timeString;
+        }
+
+        const today = (new Date()).toISOString();
+        const dateString = today.split('T')[0];
+        return `${dateString}T${timeString}`;
     }
 }

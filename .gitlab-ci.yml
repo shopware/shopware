@@ -5,6 +5,7 @@ variables:
     MYSQL_ROOT_PASSWORD: app
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/development/public
     GIT_STRATEGY: clone
+    LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
 
 stages:
     - unit
@@ -137,8 +138,11 @@ PHP analysis:
 
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
+        when: always
         paths:
             - development/build/artifacts/
+            - development/var/log/*
+            - $CI_PROJECT_DIR/stdout.log
         reports:
             junit: development/build/artifacts/phpunit.junit.xml
 
@@ -378,6 +382,8 @@ Storefront (Jest):
         when: always
         paths:
             - development/build/artifacts/e2e/
+            - development/var/log/*
+            - $CI_PROJECT_DIR/stdout.log
         reports:
             junit: development/build/artifacts/e2e/*.xml
 

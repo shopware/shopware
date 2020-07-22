@@ -34,12 +34,19 @@ class UserController extends AbstractController
      */
     private $userDefinition;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $keyRepository;
+
     public function __construct(
         EntityRepositoryInterface $userRepository,
+        EntityRepositoryInterface $keyRepository,
         UserDefinition $userDefinition
     ) {
         $this->userRepository = $userRepository;
         $this->userDefinition = $userDefinition;
+        $this->keyRepository = $keyRepository;
     }
 
     /**
@@ -97,6 +104,22 @@ class UserController extends AbstractController
         });
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $userId, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/user/{userId}/access-keys/{id}", name="api.user_access_keys.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     */
+    public function deleteUserAccessKey(string $id, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id): void {
+            $this->keyRepository->delete([['id' => $id]], $context);
+        });
+
+        return $factory->createRedirectResponse($this->keyRepository->getDefinition(), $id, $request, $context);
     }
 
     /**

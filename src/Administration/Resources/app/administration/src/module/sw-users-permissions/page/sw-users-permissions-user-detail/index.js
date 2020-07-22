@@ -246,9 +246,7 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         loadKeys() {
-            return this.keyRepository.search(new Criteria(), Shopware.Context.api).then((accessKeys) => {
-                this.integrations = accessKeys;
-            });
+            this.integrations = this.user.accessKeys;
         },
 
         addAccessKey() {
@@ -315,16 +313,6 @@ Component.register('sw-users-permissions-user-detail', {
 
         saveFinish() {
             this.isSaveSuccessful = false;
-        },
-
-        onSortColumn(column) {
-            if (this.sortBy === column.dataIndex) {
-                this.sortDirection = (this.sortDirection === 'ASC' ? 'DESC' : 'ASC');
-            } else {
-                this.sortDirection = 'ASC';
-                this.sortBy = column.dataIndex;
-            }
-            this.loadKeys();
         },
 
         onSave() {
@@ -437,9 +425,7 @@ Component.register('sw-users-permissions-user-detail', {
                 return;
             }
 
-            this.keyRepository.get(id, Shopware.Context.api).then((entity) => {
-                this.currentIntegration = entity;
-            });
+            this.currentIntegration = this.user.accessKeys.get(id);
         },
 
         onCloseDetailModal() {
@@ -452,7 +438,11 @@ Component.register('sw-users-permissions-user-detail', {
             if (!this.currentIntegration) {
                 return;
             }
-            this.keyRepository.save(this.currentIntegration, Shopware.Context.api).then(this.loadKeys);
+
+            if (!this.user.accessKeys.has(this.currentIntegration.id)) {
+                this.user.accessKeys.add(this.currentIntegration);
+            }
+
             this.onCloseDetailModal();
         },
 
@@ -462,11 +452,11 @@ Component.register('sw-users-permissions-user-detail', {
 
         onConfirmDelete(id) {
             if (!id) {
-                return false;
+                return;
             }
 
             this.onCloseDeleteModal();
-            return this.keyRepository.delete(id, Shopware.Context.api).then(this.loadKeys);
+            this.user.accessKeys.remove(id);
         },
 
         async onSubmitConfirmPassword() {

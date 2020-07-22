@@ -171,13 +171,11 @@
                                               @modal-close="onCloseConfirmPasswordModal"
                                               :title="$tc('sw-settings-user.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
                                               variant="small">
-                                        {{ $tc('sw-users-permissions.users.user-detail.textChangePassword') }}
 
                                         {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
                                             <sw-password-field
                                                 class="sw-settings-user-detail__confirm-password"
                                                 v-model="confirmPassword"
-                                                required
                                                 name="sw-field--confirm-password"
                                                 :passwordToggleAble="true"
                                                 :copyAble="false"
@@ -234,8 +232,7 @@
                                                 :columns="integrationColumns"
                                                 identifier="user-grid"
                                                 :showSettings="true"
-                                                :skeletonItemAmount="skeletonItemAmount"
-                                                @column-sort="onSortColumn">
+                                                :skeletonItemAmount="skeletonItemAmount">
 
                                                 {% block sw_settings_user_detail_key_grid_column_write_access %}
                                                     <template #column-writeAccess="{ item }">

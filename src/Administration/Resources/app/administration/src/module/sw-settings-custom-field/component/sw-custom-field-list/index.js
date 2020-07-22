@@ -98,12 +98,14 @@ Component.register('sw-custom-field-list', {
                 criteria.setTerm(this.term);
             }
 
-            this.customFieldRepository.search(
+            return this.customFieldRepository.search(
                 criteria,
                 Shopware.Context.api
             ).then((response) => {
                 this.customFields = response;
                 this.total = response.total;
+
+                return response;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -138,7 +140,7 @@ Component.register('sw-custom-field-list', {
         onSaveCustomField(field = this.currentCustomField) {
             this.removeEmptyProperties(field.config);
 
-            this.customFieldRepository.save(field, Shopware.Context.api).finally(() => {
+            return this.customFieldRepository.save(field, Shopware.Context.api).finally(() => {
                 this.currentCustomField = null;
 
                 // Wait for modal to be closed
@@ -202,7 +204,7 @@ Component.register('sw-custom-field-list', {
                 toBeDeletedCustomFields.push(this.deleteCustomField.id);
             }
 
-            this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, Shopware.Context.api).then(() => {
+            return this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, Shopware.Context.api).then(() => {
                 this.deleteButtonDisabled = true;
                 this.deleteCustomField = null;
 

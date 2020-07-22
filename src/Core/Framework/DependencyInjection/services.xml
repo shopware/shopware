@@ -126,7 +126,6 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
 
             <tag name="console.command"/>
@@ -141,7 +140,6 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
 
             <tag name="console.command"/>

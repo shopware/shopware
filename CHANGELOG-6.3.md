@@ -750,6 +750,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added block `sw_product_detail_properties_empty_state__inherit_switch` to component `sw-product-detail-properties`
 * Added block `sw_product_detail_properties_assginment` to component `sw-product-detail-properties`
 * Added block `sw_product_detail_properties_empty` to component `sw-product-detail-properties`
+* Changed Vue `asset` filter to remove double slashes
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

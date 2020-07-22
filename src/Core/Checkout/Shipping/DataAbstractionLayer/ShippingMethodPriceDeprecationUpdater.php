@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.4.0 - deprecated since 6.3.0 will be removed in 6.4.0
+ */
 class ShippingMethodPriceDeprecationUpdater
 {
     /**

@@ -23,7 +23,7 @@ describe('Product: Edit product media', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: `${Cypress.env('apPath')}/product/*`,
+                url: `${Cypress.env('apiPath')}/product/*`,
                 method: 'patch'
             }).as('saveProduct');
 

@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,11 +24,6 @@ class MigrationCommand extends Command
     protected $loader;
 
     /**
-     * @var MigrationRuntime
-     */
-    protected $runner;
-
-    /**
      * @var SymfonyStyle
      */
     protected $io;
@@ -39,15 +33,11 @@ class MigrationCommand extends Command
      */
     private $cache;
 
-    public function __construct(
-        MigrationCollectionLoader $loader,
-        MigrationRuntime $runner,
-        TagAwareAdapterInterface $cache
-    ) {
+    public function __construct(MigrationCollectionLoader $loader, TagAwareAdapterInterface $cache)
+    {
         parent::__construct();
 
         $this->loader = $loader;
-        $this->runner = $runner;
         $this->cache = $cache;
     }
 

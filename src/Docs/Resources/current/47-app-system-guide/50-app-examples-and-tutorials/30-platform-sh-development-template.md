@@ -75,11 +75,38 @@ To communicate with the shop you can use the `src/SwagAppsystem/Client.php`.
 The client includes all necessary functionality for communication purposes.  
 
 It will authenticate itself to the shop whenever needed.  
-For example if you want to search a specific product it will first authenticate itself to get the bearer token from the shop.  
-Then it will set the necessary headers which are needed and then perform your search.  
+For example if you want to fetch a specific product like this: 
+```php
+$productData = $client->fetchDetail('product', $id);
+```
+it will first authenticate itself to the shop, then perform the api action:
+```php
+// Client.php
+public function getHttpClient(): HttpClient
+    {
+        if ($this->httpClient !== null) {
+            return $this->httpClient;
+        }
 
-If there is some functionality which isn't implemented into the client you can simply get your own client with `$client->getHttpClient`.  
-This client has already the needed header and token to communicate with the shop.  
+        if ($this->credentials->getToken() !== null) {
+            $this->httpClient = $this->buildClient($this->credentials->getToken());
+
+            return $this->httpClient;
+        }
+
+        $this->credentials = Authenticator::authenticate($this->credentials, $this->authenticationHandlerStack);
+        $this->httpClient = $this->buildClient($this->credentials->getToken());
+
+        return $this->httpClient;
+    }
+```
+
+You can also call `$client->getHttpClient` directly if you want to call a specific api route.
+```php
+$client->getHttpClient()->post(
+    "/api/v2/_action/media/${mediaId}/upload",
+    //...
+```  
 Now you can perform your own requests.  
 
 ##Handling events
@@ -97,6 +124,44 @@ There are five app lifecycle events which can be triggered during the lifecycle 
 The events are `app_installed`, `app_updated`, `app_deleted`, `app_activated` and `app_deactivated`.
 To use this events you have to create the webhooks in your manifest.  
 If you want to implement your own code you only need to implement the `src/SwagAppsystem/AppLifecycleHandler.php` interface and write your own code.  
+
+```php
+class LifecycleListener implements App\SwagAppsystem\AppLifecycleHandler
+{
+    public function appInstalled(Event $event): void
+    {
+        // ...
+    }
+
+    public function appUpdated(Event $event): void
+    {
+        // ...
+    }
+
+    public function appActivated(Event $event): void
+    {
+        // ...
+    }
+
+    public function appDeactivated(Event $event): void
+    {
+        // ...
+    }   
+
+    public function appDeleted(Event $event): void
+    {
+        // ...
+    }
+}
+```
+
+Then tag the service as `swag.app_lifecycle_handler` and your code will be executed in addition to the default behavior of the
+app template.
+
+```yaml
+App\LifecycleListener:
+        tags: ['swag.app_lifecycle_handler']
+```
 
 The `app_installed` event gets triggered each time the app gets installed.  
 This will also trigger the `app_activated` event.  

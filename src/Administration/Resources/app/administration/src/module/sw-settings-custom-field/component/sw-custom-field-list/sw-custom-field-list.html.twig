@@ -1,6 +1,5 @@
 {% block sw_custom_field_list %}
-    <sw-card :isLoading="set.isLoading"
-             class="sw-custom-field-list">
+    <sw-card class="sw-custom-field-list">
         {% block sw_custom_field_list_toolbar %}
             <div class="sw-custom-field-list__toolbar">
                 <sw-container columns="1fr 32px minmax(100px, 200px)" gap="0 10px">
@@ -8,7 +7,8 @@
                         <sw-simple-search-field
                             size="small"
                             variant="form"
-                            v-model="term">
+                            v-model="term"
+                            :delay="500">
                         </sw-simple-search-field>
                     {% endblock %}
 
@@ -38,16 +38,19 @@
 
         {% block sw_custom_field_list_grid %}
             <sw-grid
-                    v-if="filteredCustomFields.length || term"
+                    v-if="(customFields && customFields.length > 0) || term"
                     class="sw-custom-field-list__grid"
                     ref="grid"
-                    :items="filteredCustomFields"
+                    :items="customFields"
                     :isFullpage="false"
                     table
                     selectable
+                    @inline-edit-finish="onInlineEditFinish"
                     @inline-edit-cancel="onInlineEditCancel"
-                    @sw-grid-select-item="selectionChanged">
+                    @sw-grid-select-item="selectionChanged"
+                    @sw-grid-select-all="selectionChanged">
                 <template slot="columns" slot-scope="{ item }">
+
                     {% block sw_custom_field_list_grid_column_label %}
                         <sw-grid-column
                                 dataIndex="label"
@@ -133,10 +136,10 @@
                 {% block sw_custom_field_list_grid_pagination %}
                     <template slot="pagination">
                         <sw-pagination
-                            v-if="paginationVisible"
                             :limit="limit"
                             :page="page"
-                            :total="total"
+                            :autoHide="false"
+                            :total="customFields.total"
                             :steps="[limit]"
                             @page-change="onPageChange">
                         </sw-pagination>
@@ -160,6 +163,42 @@
                     @custom-field-edit-save="onSaveCustomField"
                     @custom-field-edit-cancel="onCancelCustomField">
             </sw-custom-field-detail>
+        {% endblock %}
+
+        {% block sw_custom_field_list_custom_field_delete %}
+            <sw-modal
+                v-if="deleteCustomField"
+                @modal-close="onCancelDeleteCustomField"
+                :title="$tc('sw-settings-custom-field.customField.list.titleDeleteAction', deleteCustomField.length)"
+                variant="small">
+
+                {% block sw_custom_field_list_custom_field_delete_text %}
+                    <p class="sw-custom-field-delete__description">
+                        {{ $tc('sw-settings-custom-field.customField.list.textDeleteActionConfirmation', deleteCustomField.length, { count: deleteCustomField.length }) }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_custom_field_list_custom_field_delete_actions %}
+                    <template #modal-footer>
+                        {% block sw_custom_field_list_custom_field_delete_action_cancel %}
+                            <sw-button
+                                @click="onCancelDeleteCustomField"
+                                size="small">
+                                {{ $tc('global.default.cancel') }}
+                            </sw-button>
+                        {% endblock %}
+
+                        {% block sw_custom_field_list_custom_field_delete_action_confirm %}
+                            <sw-button
+                                @click="onDeleteCustomField"
+                                variant="danger"
+                                size="small">
+                                {{ $tc('global.default.delete') }}
+                            </sw-button>
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+            </sw-modal>
         {% endblock %}
 
         {% block sw_custom_field_list_loader %}

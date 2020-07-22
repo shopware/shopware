@@ -17,6 +17,7 @@ Component.register('sw-custom-field-detail', {
             type: Object,
             required: true
         },
+
         set: {
             type: Object,
             required: true
@@ -64,6 +65,7 @@ Component.register('sw-custom-field-detail', {
         required(value) {
             if (value) {
                 this.currentCustomField.config.validation = 'required';
+
                 return;
             }
 
@@ -101,24 +103,31 @@ Component.register('sw-custom-field-detail', {
                 this.$set(this.currentCustomField.config, 'customFieldPosition', 1);
             }
         },
+
         onCancel() {
             this.$emit('custom-field-edit-cancel', this.currentCustomField);
         },
+
         onSave() {
             this.applyTypeConfiguration();
+
             if (!this.currentCustomField._isNew) {
                 this.$emit('custom-field-edit-save', this.currentCustomField);
+
                 return;
             }
 
             this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then(isUnique => {
                 if (isUnique) {
                     this.$emit('custom-field-edit-save', this.currentCustomField);
+
                     return;
                 }
+
                 this.createNameNotUniqueNotification();
             });
         },
+
         createNameNotUniqueNotification() {
             const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
@@ -128,12 +137,14 @@ Component.register('sw-custom-field-detail', {
                 message: messageSaveSuccess
             });
         },
+
         applyTypeConfiguration() {
             const customFieldType = this.currentCustomField.config.customFieldType;
 
             if (!this.currentCustomField.type) {
                 this.currentCustomField.type = this.fieldTypes[customFieldType].type || customFieldType;
             }
+
             this.currentCustomField.config = {
                 ...this.fieldTypes[customFieldType].config,
                 ...this.currentCustomField.config

@@ -52,3 +52,15 @@
         background: 0;
     }
 }
+
+.sw-plugin-list__uninstall_modal {
+    .sw-field .sw-field__label {
+        font-size: 16px;
+        color: $color-crimson-500;
+    }
+
+    .sw-plugin-list__remove_plugin_data_checkbox {
+        margin-top: 0.5em;
+        margin-bottom: 0;
+    }
+}

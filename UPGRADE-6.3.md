@@ -96,6 +96,11 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
     }
     ```
 
+* The behaviour when uninstalling a plugin has changed: `keepMigrations` now has the same value as `keepUserData` in `\Shopware\Core\Framework\Plugin\Context\UninstallContext` by default.
+    * From now on migrations will be removed if the user data should be removed, and kept if the user data should be kept.
+    * The `enableKeepMigrations()` function is no longer to be used and will be removed along with `keepMigrations()` in v6.4.0.
+    * Please note: In case of a complete uninstall all tables should be removed as well. Please verify the uninstall method of your plugin complies with this.
+
 Administration
 --------------
 

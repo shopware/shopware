@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 trait ShippingMethodPricesTestBehaviour
 {
@@ -33,7 +32,7 @@ trait ShippingMethodPricesTestBehaviour
         }
 
         $priceStruct = json_encode([
-            Uuid::randomHex() => [
+            'c' . Defaults::CURRENCY => [
                 'currencyId' => Defaults::CURRENCY,
                 'net' => $price,
                 'gross' => $price,

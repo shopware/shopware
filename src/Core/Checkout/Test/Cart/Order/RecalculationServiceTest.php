@@ -1183,7 +1183,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '10.00',
                             'gross' => '10.00',
@@ -1245,7 +1245,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '15.00',
                             'gross' => '15.00',
@@ -1268,7 +1268,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '20.00',
                             'gross' => '20.00',
@@ -1324,7 +1324,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '15.00',
                             'gross' => '15.00',
@@ -1348,7 +1348,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '10.00',
                             'gross' => '10.00',
@@ -1406,7 +1406,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '15.00',
                             'gross' => '15.00',
@@ -1430,7 +1430,7 @@ class RecalculationServiceTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'currencyPrice' => [
-                        Uuid::randomHex() => [
+                        [
                             'currencyId' => Defaults::CURRENCY,
                             'net' => '9.99',
                             'gross' => '9.99',

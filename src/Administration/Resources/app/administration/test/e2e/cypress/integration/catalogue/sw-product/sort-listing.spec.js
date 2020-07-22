@@ -66,7 +66,7 @@ describe('Product: Sort grid', () => {
             });
     });
 
-    it('@base @catalogue: edit a product\'s translation', () => {
+    it('@base @catalogue: sort product listing', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -74,7 +74,7 @@ describe('Product: Sort grid', () => {
             method: 'patch'
         }).as('saveData');
 
-        // open context menu
+        // open context menu and display pound
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
         cy.get('.sw-data-grid__settings-item--9 .sw-field--checkbox').click();
 
@@ -82,12 +82,17 @@ describe('Product: Sort grid', () => {
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
 
         // check product order
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.contains('Pound');
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-GBP').contains('232,00 £');
         cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--price-GBP').contains('67,00 £');
 
         // sort products by gbp
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-data-grid__sort-indicator').should('be.visible');
+        cy.contains('Pound');
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-GBP').contains('67,00 £');
         cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--price-GBP').contains('232,00 £');
     });

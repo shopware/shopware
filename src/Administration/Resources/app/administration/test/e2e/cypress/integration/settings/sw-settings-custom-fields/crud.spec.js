@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Currency: Test crud operations', () => {
     beforeEach(() => {
@@ -11,7 +11,7 @@ describe('Currency: Test crud operations', () => {
             });
     });
 
-    it('@base @settings: create and read custom field', () => {
+    it('@settings: create and read custom field', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -76,7 +76,7 @@ describe('Currency: Test crud operations', () => {
         cy.get('.sw-grid__row--0 .sw-grid-column:nth-of-type(5)').contains('1');
     });
 
-    it('@base @settings: edit custom field', () => {
+    it('@settings: edit custom field', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -130,7 +130,7 @@ describe('Currency: Test crud operations', () => {
         cy.get('.sw-grid__row--0 .sw-grid-column:nth-of-type(5)').contains('2');
     });
 
-    it('@base @settings: delete custom field', () => {
+    it('@settings: delete custom field', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({

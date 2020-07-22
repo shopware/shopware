@@ -13,7 +13,7 @@ class CheckoutStoreService extends ApiService {
     }
 
     checkout(salesChannelId, contextToken, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/store-api/${salesChannelId}/v${Shopware.Context.api.apiVersion}/checkout/order`;
+        const route = `_proxy/store-api/${salesChannelId}/v${this.getApiVersion()}/checkout/order`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken

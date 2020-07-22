@@ -203,13 +203,11 @@ Table of contents
 * Added ACL permissions to currency module in settings
 * Added `customFieldSetCriteria` computed property to `sw-customer-detail-base`
 * Added `createdComponent` method to `sw-customer-detail-base`
-* Added `page`, `limit`, and `total` as required prop to `sw-custom-field-list`
-* `sw-custom-field-list` emits `custom-field-change` event
-* `sw-custom-field-list` emits `page-change` event
 * Added computed `customFieldRepository` to `sw-custom-field-list`
-* Added computed `customFieldCriteria` to `sw-custom-field-list`
-* Added method `setTotalOfCustomFields` to `sw-custom-field-list`
 * Added method `onPageChange` to `sw-custom-field-list`
+* Added method `loadCustomFields` in `sw-custom-field-list/index.js` which is responsible to load, paginate and search the custom fields directly via the API.
+* Add hook `created` and method `createdComponent` to `sw-custom-field-list/index.js`
+* Deprecated computed `filteredCustomFields` in `sw-custom-field-list/index.js`. The search is now done via request against the API.
 * `repository.data.js` now sends a `sw-currency-id` header when setting the option `currencyId`
 * `sw-entity-grid` now emits a new event `paginate` in method `paginate`
 * `sw-entity-listing` methods `sort` and `paginate` can now return `false` when using the boolean option `useCustomSort` on a grid column.

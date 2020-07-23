@@ -57,6 +57,8 @@ class PluginManagementServiceTest extends TestCase
     {
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
         $this->filesystem->remove($this->cacheDir);
+
+        \Shopware\Core\Kernel::getConnection()->executeUpdate('DELETE FROM plugin');
     }
 
     public function testUploadPlugin(): void

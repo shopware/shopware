@@ -33,11 +33,6 @@ class KernelPluginIntegrationTest extends TestCase
      */
     private $kernel;
 
-    public function setUp(): void
-    {
-        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
-    }
-
     public function tearDown(): void
     {
         if ($this->kernel) {

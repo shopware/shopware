@@ -12,7 +12,7 @@
 // the project's config changing)
 
 module.exports = (on, config) => {
-    require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
+    const packagePlugins = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
 
     // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
     on('before:browser:launch', (browser, launchOptions) => {
@@ -21,4 +21,6 @@ module.exports = (on, config) => {
             return launchOptions;
         }
     });
+
+    return packagePlugins(on, config);
 }

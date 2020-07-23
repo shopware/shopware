@@ -66,7 +66,7 @@ describe('Product: Sort grid', () => {
             });
     });
 
-    it('@base @catalogue: sort product listing', () => {
+    it.skip('@base @catalogue: sort product listing', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({

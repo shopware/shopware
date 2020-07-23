@@ -11,7 +11,14 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-// The e2e-testsuite-pllatform version is not compatible with 4.0.0 yet so we comment it out for now
-// module.exports = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
+module.exports = (on, config) => {
+    require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
 
-module.exports = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
+    // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
+    on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.name === 'chrome' && browser.isHeadless) {
+            launchOptions.args.push('--disable-gpu');
+            return launchOptions;
+        }
+    });
+}

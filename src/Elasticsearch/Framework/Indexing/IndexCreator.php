@@ -44,6 +44,7 @@ class IndexCreator
                 'match_mapping_type' => 'string',
                 'mapping' => [
                     'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
                     'fields' => [
                         'text' => [
                             'type' => 'text',

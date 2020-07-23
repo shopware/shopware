@@ -10,10 +10,22 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
+* [NEXT](#NEXT)
 * [6.3.0](#630)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
+  
+NEXT
+----------------
+
+#### Administration
+
+#### Core
+
+* Changed `keyword` fields in Elasticsearch to normalize to lower case
+
+#### Storefront
 
 6.3.0
 ----------------

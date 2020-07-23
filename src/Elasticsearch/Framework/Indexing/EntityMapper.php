@@ -57,7 +57,10 @@ class EntityMapper
         'ignore_malformed' => true,
     ];
 
-    public const KEYWORD_FIELD = ['type' => 'keyword'];
+    public const KEYWORD_FIELD = [
+        'type' => 'keyword',
+        'normalizer' => 'sw_lowercase_normalizer',
+    ];
 
     public function mapField(EntityDefinition $definition, Field $field, Context $context): ?array
     {

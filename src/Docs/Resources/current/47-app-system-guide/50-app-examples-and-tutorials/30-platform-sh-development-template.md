@@ -2,7 +2,7 @@
 [metaDescriptionEn]: <>(Here you can find all informations about the app system development template)
 [hash]: <>(article:app_development_template)
 
-##Platform-sh
+## Platform-sh
 
 The development template is optimized for the use with [platform.sh](https://platform.sh/).  
 
@@ -10,7 +10,10 @@ With this development template in addition with platform.sh you can easily devel
 You don't need to think about the hosting and communication with the shop.  
 This will all be done by platform.sh and our controller and services. 
 
-##Getting started
+## Getting started
+
+The app template can be found on [GitHub](https://github.com/shopwareLabs/AppTemplate). Fork the repository and use it to develop your apps.
+For an example take a look at this [example app](./50-platform-sh-example.md).
 
 In order to use this template for development or for production you need to configure two things.  
 
@@ -40,7 +43,7 @@ variables:
         APP_SECRET: myAppSecret
 ```
 
-###Deployment on platform.sh
+### Deployment on platform.sh
 
 To deploy your app on [platform.sh](platform.sh) just follow the instructions:
 * [Public GitHub repository](https://docs.platform.sh/integrations/source/github.html)
@@ -50,9 +53,9 @@ To deploy your app on [platform.sh](platform.sh) just follow the instructions:
 After the deployment you can use the [Plaform.sh CLI](https://github.com/platformsh/platformsh-cli) to set up the database.
 First ssh to your server: `platform ssh`  
 Then run the migrations: `vendor/bin/doctrine-migrations migrations:migrate`  
-That's is. Your server is running and you can start developing your own app. 
+That's it. Your server is running and you can start developing your own app. 
 
-##The registration process 
+## The registration process 
 
 The registration is the most important thing in your app.  
 To handle this we have the `src\SwagAppsystem\Controller\Registration.php` controller.  
@@ -69,7 +72,7 @@ The registration will go through several steps.
 
 Now the shop is registered to the app and you can start communicating with it. 
 
-##Communicating with the shop
+## Communicating with the shop
 
 To communicate with the shop you can use the `src/SwagAppsystem/Client.php`.  
 The client includes all necessary functionality for communication purposes.  
@@ -109,7 +112,7 @@ $client->getHttpClient()->post(
 ```  
 Now you can perform your own requests.  
 
-##Handling events
+## Handling events
 
 In your manifest you can define your own webhooks.  
 To handle these in your app we included the `src/SwagAppsystem/Event.php`.  
@@ -118,7 +121,7 @@ You can use it whenever an event gets triggered.
 The event itself has all the necessary information you might need.  
 It includes the `shopUrl`, `shopId`, `appVersion` and the `eventData`.  
 
-##App lifecycle events
+## App lifecycle events
 
 There are five app lifecycle events which can be triggered during the lifecycle of an app.  
 The events are `app_installed`, `app_updated`, `app_deleted`, `app_activated` and `app_deactivated`.
@@ -203,7 +206,7 @@ The webhook could look like this:
 <webhook name="appLifecycleDeactivated" url="https://your-shop-url/applifecycle/deactivated" event="app_deactivated"/>
 ```
 
-##The argument resolver
+## The argument resolver
 
 There are two argument resolver. One for the `Client` and one for the `Event`.  
 The purpose of those is to inject the `Client` and the `Event` whenever you need them.  
@@ -215,14 +218,14 @@ But how do you know that the request is from the shop and not from someone who i
 The argument resolver take care of it. Whenever you use one of them as a parameter the request will be authenticated.  
 If the request isn't authenticated the `Client` or the `Event` will be null. 
 
-##The shop repository
+## The shop repository
 
 The `src/Repository/ShopRepository.php` can be used to get the secret of the shop and the `src/SwagAppsystem/Credentials`.  
 
 For example if you want to build your own authentication you can use the `ShopRepository` to get the secret to the corresponding shop.  
 But if you want to build your own `Client` you can simply get the `Credentials` for a specific `shopId`.  
 
-##Code quality
+## Code quality
 
 To improve your code style we added [EasyCodingStandard](https://github.com/symplify/easy-coding-standard) and for testing purposes [PHPUnit](https://phpunit.de/index.html).
 

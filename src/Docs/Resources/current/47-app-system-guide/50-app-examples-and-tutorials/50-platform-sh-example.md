@@ -13,7 +13,9 @@ It demonstrates three ways to interact with an app.
 2. An extra admin module to display the the order lists
 3. An action button to extend the order detail page
 
-##Getting started
+The source code can be found on [GitHub](https://github.com/shopwareLabs/AppExample).
+
+## Getting started
 
 This app allows you to generate and print order lists for each order.
   
@@ -54,7 +56,7 @@ The `order-list-table` template is needed to render the actual order list.
 The order list itself is rendered in the `order-list-table` template.  
 This template is also used to render the order list for the custom fields in the order.   
 
-##The manifest.xml
+## The manifest.xml
 
 This manifest.xml is pre configured.  
 It is necessary to change the `meta->name` because this name has to be unique.  
@@ -133,7 +135,7 @@ Now you can install it with the command `./bin/console app:install SwagExampleAp
 </manifest>
 ```
 
-##Deployment on platform.sh
+## Deployment on platform.sh
 
 To deploy your app on [platform.sh](platform.sh) just follow the instructions:
 * [Public GitHub repository](https://docs.platform.sh/integrations/source/github.html)

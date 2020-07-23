@@ -2,7 +2,7 @@
 [metaDescriptionEn]: <>(This is all about the hosting on platformm.sh)
 [hash]: <>(article:app_platform_sh_hosting)
 
-##Infrastructure
+## Infrastructure
 
 Let's talk about the infrastructure.  
 The infrastructure is coupled to your plan which you are paying for.  
@@ -12,7 +12,7 @@ There are three types of resources which you can configure.
 CPU, RAM and disk space.  
 You can configure them in your `.platform.app.yaml` for your application and in your `.platform/services.yaml` for your services.  
 
-###CPU and RAM
+### CPU and RAM
 
 The resources for CPU and RAM are shared between all your container in the cluster.  
 By default platform.sh decides for you how much resources each application and service needs.
@@ -30,7 +30,7 @@ This also means that the `size` key has no impact on your development environmen
 The default `size` for a development environment is `S`.  
 However if you need to increase it you can do this on your plan settings page for a fee.  
 
-###Disc space
+### Disc space
 
 The resources for disc space are shared between all your container in the cluster.  
 The key for this is `disk` and it is optional.  

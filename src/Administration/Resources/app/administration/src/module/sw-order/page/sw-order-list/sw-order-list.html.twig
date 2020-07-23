@@ -206,7 +206,8 @@
             </template>
 
             {% block sw_order_list_sidebar %}
-                <sw-sidebar #sidebar class="sw-order-list__sidebar">
+                <template #sidebar>
+                <sw-sidebar class="sw-order-list__sidebar">
 
                     {% block sw_order_list_sidebar_refresh %}
                         <sw-sidebar-item
@@ -250,6 +251,7 @@
                         </sw-sidebar-item>
                     {% endblock %}
                 </sw-sidebar>
+                </template>
             {% endblock %}
         {% endblock %}
     </sw-page>

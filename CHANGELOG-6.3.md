@@ -762,7 +762,8 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added block `sw_product_detail_properties_empty_state__inherit_switch` to component `sw-product-detail-properties`
 * Added block `sw_product_detail_properties_assginment` to component `sw-product-detail-properties`
 * Added block `sw_product_detail_properties_empty` to component `sw-product-detail-properties`
-
+* Fixed the sidebar with filters that wasn't displayed in the orderlist
+ 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
 * Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but it is already passed:

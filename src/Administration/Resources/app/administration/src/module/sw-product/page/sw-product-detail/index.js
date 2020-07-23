@@ -635,6 +635,7 @@ Component.register('sw-product-detail', {
         },
 
         onDuplicateFinish(duplicate) {
+            this.cloning = false;
             this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
         }
     }

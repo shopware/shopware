@@ -27,6 +27,10 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
 
         $value = json_decode((string) $value, true);
 
+        if (!array_key_exists('structs', $value)) {
+            return new ListingPriceCollection();
+        }
+
         return new ListingPriceCollection(unserialize($value['structs']));
     }
 }

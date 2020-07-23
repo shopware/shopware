@@ -53,7 +53,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
                 const price = customer.displayGross ? product.price[0].gross : product.price[0].net;
-                const vatSnippet = customer.displayGross ? 'VAT included' : 'VAT excluded';
+                const vatSnippet = customer.displayGross ? 'incl. VAT' : 'excl. VAT';
 
                 // Login
                 cy.get(accountPage.elements.loginCard).should('be.visible');

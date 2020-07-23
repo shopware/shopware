@@ -20,7 +20,7 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
             case 'local':
                 return new \Swift_SendmailTransport($this->getSendMailCommandLineArgument($configService));
             default:
-                throw new \RuntimeException('Invalid mail agent given "%s"', $emailAgent);
+                throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent));
         }
     }
 

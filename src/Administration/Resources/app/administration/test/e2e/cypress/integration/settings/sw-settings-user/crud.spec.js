@@ -15,15 +15,15 @@ describe('User: Test crud operations', () => {
         // Requests we want to wait for later
         cy.server();
         cy.route({
-            url: 'api/v*/search/user',
+            url: `${Cypress.env('apiPath')}/search/user`,
             method: 'post'
         }).as('searchCall');
         cy.route({
-            url: 'api/v*/user',
+            url: `${Cypress.env('apiPath')}/user`,
             method: 'post'
         }).as('createCall');
         cy.route({
-            url: 'api/v*/user/**',
+            url: `${Cypress.env('apiPath')}/user/**`,
             method: 'delete'
         }).as('deleteCall');
         cy.route({

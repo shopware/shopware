@@ -39,11 +39,11 @@ export default class ProductPageObject {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: 'api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('productCall');
         cy.route({
-            url: 'api/v*/search/product',
+            url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('searchCall');
 

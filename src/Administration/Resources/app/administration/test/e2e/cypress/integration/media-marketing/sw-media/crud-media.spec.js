@@ -24,7 +24,7 @@ describe('Media: Test crud operations', () => {
         }).as('saveDataFileUpload');
 
         cy.route({
-            url: '/api/v*/_action/media/**/upload?extension=png&fileName=sw_logo_white',
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
             method: 'post'
         }).as('saveDataUrlUpload');
 

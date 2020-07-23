@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
@@ -45,7 +46,26 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $select[] = str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.formatted.#rule_key#.#currency_key#.to.#tax_mode#")) + 0.0)'
+                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) + 0.0)'
+            );
+
+            if ($context->getCurrencyId() === Defaults::CURRENCY) {
+                continue;
+            }
+
+            $parameters = [
+                '#root#' => $root,
+                '#field#' => $field->getStorageName(),
+                '#rule_key#' => 'r' . $ruleId,
+                '#currency_key#' => 'c' . Defaults::CURRENCY,
+                '#factor#' => $context->getCurrencyFactor(),
+                '#tax_mode#' => $taxMode,
+            ];
+
+            $select[] = str_replace(
+                array_keys($parameters),
+                array_values($parameters),
+                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) * #factor#)'
             );
         }
 

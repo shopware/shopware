@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
@@ -11,12 +12,14 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 use function Flag\next3722;
+use function Flag\next6059;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
@@ -53,6 +56,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $params = $this->getContextParameters($request);
         $languageIdChain = $this->getLanguageIdChain($params);
 
+        $rounding = $this->getCashRounding($params['currencyId']);
+
         $context = new Context(
             $this->resolveContextSource($request),
             [],
@@ -60,8 +65,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $languageIdChain,
             $params['versionId'] ?? Defaults::LIVE_VERSION,
             $params['currencyFactory'],
-            $params['currencyPrecision'],
-            $params['considerInheritance']
+            $params['considerInheritance'],
+            CartPrice::TAX_STATE_GROSS,
+            $rounding
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
@@ -275,5 +281,25 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return array_unique(array_filter($list));
+    }
+
+    private function getCashRounding($currencyId): CashRoundingConfig
+    {
+        $rounding = $this->connection->fetchAssoc(
+            'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($currencyId)]
+        );
+
+        if (!next6059()) {
+            return new CashRoundingConfig((int) $rounding['decimal_precision'], 0.01, true);
+        }
+
+        $rounding = json_decode($rounding['item_rounding'], true);
+
+        return new CashRoundingConfig(
+            (int) $rounding['decimals'],
+            (float) $rounding['interval'],
+            (bool) $rounding['roundForNet']
+        );
     }
 }

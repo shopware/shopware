@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Context extends Struct
@@ -34,11 +35,6 @@ class Context extends Struct
      * @var float
      */
     protected $currencyFactor;
-
-    /**
-     * @var int
-     */
-    protected $currencyPrecision;
 
     /**
      * @var string
@@ -70,7 +66,12 @@ class Context extends Struct
     /**
      * @var bool
      */
-    private $useCache = true;
+    protected $useCache = true;
+
+    /**
+     * @var CashRoundingConfig
+     */
+    protected $rounding;
 
     public function __construct(
         ContextSource $source,
@@ -79,9 +80,9 @@ class Context extends Struct
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
         string $versionId = Defaults::LIVE_VERSION,
         float $currencyFactor = 1.0,
-        int $currencyPrecision = 2,
         bool $considerInheritance = false,
-        string $taxState = CartPrice::TAX_STATE_GROSS
+        string $taxState = CartPrice::TAX_STATE_GROSS,
+        ?CashRoundingConfig $rounding = null
     ) {
         $this->source = $source;
 
@@ -99,9 +100,9 @@ class Context extends Struct
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
         }
         $this->languageIdChain = array_keys(array_flip(array_filter($languageIdChain)));
-        $this->currencyPrecision = $currencyPrecision;
         $this->considerInheritance = $considerInheritance;
         $this->taxState = $taxState;
+        $this->rounding = $rounding ?? new CashRoundingConfig(2, 0.01, true);
     }
 
     /**
@@ -158,9 +159,9 @@ class Context extends Struct
             $this->languageIdChain,
             $versionId,
             $this->currencyFactor,
-            $this->currencyPrecision,
             $this->considerInheritance,
-            $this->taxState
+            $this->taxState,
+            $this->rounding
         );
         $context->scope = $this->scope;
 
@@ -195,7 +196,7 @@ class Context extends Struct
 
     public function getCurrencyPrecision(): int
     {
-        return $this->currencyPrecision;
+        return $this->rounding->getDecimals();
     }
 
     public function considerInheritance(): bool
@@ -289,5 +290,10 @@ class Context extends Struct
     public function getApiAlias(): string
     {
         return 'context';
+    }
+
+    public function getRounding(): CashRoundingConfig
+    {
+        return $this->rounding;
     }
 }

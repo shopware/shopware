@@ -9,14 +9,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -39,21 +38,14 @@ class PriceActionController extends AbstractController
      */
     private $grossCalculator;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $currencyRepository;
-
     public function __construct(
         EntityRepositoryInterface $taxRepository,
         NetPriceCalculator $netCalculator,
-        GrossPriceCalculator $grossCalculator,
-        EntityRepositoryInterface $currencyRepository
+        GrossPriceCalculator $grossCalculator
     ) {
         $this->taxRepository = $taxRepository;
         $this->netCalculator = $netCalculator;
         $this->grossCalculator = $grossCalculator;
-        $this->currencyRepository = $currencyRepository;
     }
 
     /**
@@ -74,8 +66,6 @@ class PriceActionController extends AbstractController
         $output = $request->request->get('output', 'gross');
         $preCalculated = $request->request->getBoolean('calculated', true);
 
-        $precision = $this->getCurrencyPrecision($request, $context);
-
         $taxes = $this->taxRepository->search(new Criteria([$taxId]), $context);
         $tax = $taxes->get($taxId);
         if (!$tax instanceof TaxEntity) {
@@ -87,40 +77,19 @@ class PriceActionController extends AbstractController
             $calculator = $this->netCalculator;
         }
 
-        $definition = new QuantityPriceDefinition(
-            $price,
-            new TaxRuleCollection([new TaxRule($tax->getTaxRate())]),
-            $precision,
-            $quantity,
-            $preCalculated
-        );
+        $taxRules = new TaxRuleCollection([new TaxRule($tax->getTaxRate())]);
 
-        $calculated = $calculator->calculate($definition);
+        $definition = QuantityPriceDefinition::create($price, $taxRules, $quantity);
+        $definition->setIsCalculated($preCalculated);
+
+        $config = new CashRoundingConfig(50, 0.01, true);
+
+        $calculated = $calculator->calculate($definition, $config);
 
         $data = json_decode(json_encode($calculated, JSON_PRESERVE_ZERO_FRACTION), true);
 
         return new JsonResponse(
             ['data' => $data]
         );
-    }
-
-    private function getCurrencyPrecision(Request $request, Context $context): int
-    {
-        if (!$request->request->has('currencyId')) {
-            return $context->getCurrencyPrecision();
-        }
-
-        $currencyId = $request->request->get('currencyId');
-
-        $currency = $this->currencyRepository
-            ->search(new Criteria([$currencyId]), $context)
-            ->get($currencyId);
-
-        if (!$currency) {
-            throw new NotFoundHttpException(sprintf('Currency for id %s not found', $currencyId));
-        }
-
-        /* @var CurrencyEntity $currency */
-        return $currency->getDecimalPrecision();
     }
 }

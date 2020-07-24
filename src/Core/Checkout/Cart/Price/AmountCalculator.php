@@ -20,7 +20,7 @@ class AmountCalculator
     private $taxDetector;
 
     /**
-     * @var PriceRoundingInterface
+     * @var CashRounding
      */
     private $rounding;
 
@@ -36,7 +36,7 @@ class AmountCalculator
 
     public function __construct(
         TaxDetector $taxDetector,
-        PriceRoundingInterface $rounding,
+        CashRounding $rounding,
         PercentageTaxRuleBuilder $taxRuleBuilder,
         TaxCalculator $taxCalculator
     ) {
@@ -86,27 +86,32 @@ class AmountCalculator
      */
     private function calculateGrossAmount(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
     {
-        $allPrices = $prices->merge($shippingCosts);
+        $all = $prices->merge($shippingCosts);
 
-        $total = $allPrices->sum();
-
-        $positionPrice = $prices->sum();
+        $total = $all->sum();
 
         if ($this->taxDetector->isNetDelivery($context)) {
             $taxes = new CalculatedTaxCollection([]);
         } else {
-            $taxes = $this->calculateTaxes($allPrices, $context);
+            $taxes = $this->calculateTaxes($all, $context);
         }
 
-        $net = $total->getTotalPrice() - $taxes->getAmount();
-        $net = $this->rounding->round($net, $context->getContext()->getCurrencyPrecision());
+        $price = $this->rounding->cashRound(
+            $total->getTotalPrice(),
+            $context->getTotalRounding()
+        );
+
+        $net = $this->rounding->cashRound(
+            $price - $taxes->getAmount(),
+            $context->getTotalRounding()
+        );
 
         return new CartPrice(
             $net,
-            $total->getTotalPrice(),
-            $positionPrice->getTotalPrice(),
+            $price,
+            $prices->sum()->getTotalPrice(),
             $taxes,
-            $positionPrice->getTaxRules(),
+            $total->getTaxRules(),
             CartPrice::TAX_STATE_GROSS
         );
     }
@@ -129,12 +134,14 @@ class AmountCalculator
             $taxes = $this->calculateTaxes($all, $context);
         }
 
-        $gross = $total->getTotalPrice() + $taxes->getAmount();
-        $gross = $this->rounding->round($gross, $context->getContext()->getCurrencyPrecision());
+        $price = $this->rounding->cashRound(
+            $total->getTotalPrice() + $taxes->getAmount(),
+            $context->getTotalRounding()
+        );
 
         return new CartPrice(
             $total->getTotalPrice(),
-            $gross,
+            $price,
             $prices->sum()->getTotalPrice(),
             $taxes,
             $total->getTaxRules(),
@@ -145,7 +152,14 @@ class AmountCalculator
     private function calculateTaxes(PriceCollection $prices, SalesChannelContext $context): CalculatedTaxCollection
     {
         if ($context->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL) {
-            return $prices->getCalculatedTaxes();
+            $taxes = $prices->getCalculatedTaxes();
+
+            $taxes->cashRounding(
+                $this->rounding,
+                $context->getTotalRounding()
+            );
+
+            return $taxes;
         }
 
         $price = $prices->sum();
@@ -158,7 +172,7 @@ class AmountCalculator
             $taxes = $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $rules);
         }
 
-        $taxes->round($this->rounding, $context->getCurrency()->getDecimalPrecision());
+        $taxes->cashRounding($this->rounding, $context->getTotalRounding());
 
         return $taxes;
     }

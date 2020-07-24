@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -12,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PercentagePriceCalculator
 {
     /**
-     * @var PriceRoundingInterface
+     * @var CashRounding
      */
     private $rounding;
 
@@ -21,7 +22,7 @@ class PercentagePriceCalculator
      */
     private $taxRuleBuilder;
 
-    public function __construct(PriceRoundingInterface $rounding, PercentageTaxRuleBuilder $taxRuleBuilder)
+    public function __construct(CashRounding $rounding, PercentageTaxRuleBuilder $taxRuleBuilder)
     {
         $this->rounding = $rounding;
         $this->taxRuleBuilder = $taxRuleBuilder;
@@ -36,21 +37,21 @@ class PercentagePriceCalculator
     {
         $total = $prices->sum();
 
-        $discount = $this->rounding->round(
+        $discount = $this->round(
             $total->getTotalPrice() / 100 * $percentage,
-            $context->getContext()->getCurrencyPrecision()
+            $context
         );
 
         $taxes = new CalculatedTaxCollection();
         foreach ($prices->getCalculatedTaxes() as $calculatedTax) {
-            $tax = $this->rounding->round(
+            $tax = $this->round(
                 $calculatedTax->getTax() / 100 * $percentage,
-                $context->getContext()->getCurrencyPrecision()
+                $context
             );
 
-            $price = $this->rounding->round(
+            $price = $this->round(
                 $calculatedTax->getPrice() / 100 * $percentage,
-                $context->getContext()->getCurrencyPrecision()
+                $context
             );
 
             $taxes->add(
@@ -61,5 +62,14 @@ class PercentagePriceCalculator
         $rules = $this->taxRuleBuilder->buildRules($total);
 
         return new CalculatedPrice($discount, $discount, $taxes, $rules, 1);
+    }
+
+    private function round(float $price, SalesChannelContext $context): float
+    {
+        if ($context->getTaxState() !== CartPrice::TAX_STATE_GROSS && !$context->getItemRounding()->roundForNet()) {
+            return $this->rounding->mathRound($price, $context->getItemRounding());
+        }
+
+        return $this->rounding->cashRound($price, $context->getItemRounding());
     }
 }

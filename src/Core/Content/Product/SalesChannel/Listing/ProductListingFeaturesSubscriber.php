@@ -9,8 +9,13 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -24,13 +29,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
-    public const DEFAULT_SORT = 'name-asc';
     public const DEFAULT_SEARCH_SORT = 'score';
 
     /**
@@ -39,22 +47,36 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private $optionRepository;
 
     /**
-     * @var ProductListingSortingRegistry
+     * @var EntityRepositoryInterface
      */
-    private $sortingRegistry;
+    private $sortingRepository;
 
     /**
      * @var Connection
      */
     private $connection;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var ProductListingSortingRegistry
+     */
+    private $sortingRegistry;
+
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $optionRepository,
+        EntityRepositoryInterface $productSortingRepository,
+        SystemConfigService $systemConfigService,
         ProductListingSortingRegistry $sortingRegistry
     ) {
         $this->optionRepository = $optionRepository;
+        $this->sortingRepository = $productSortingRepository;
         $this->connection = $connection;
+        $this->systemConfigService = $systemConfigService;
         $this->sortingRegistry = $sortingRegistry;
     }
 
@@ -73,7 +95,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 ['handleSearchRequest', 100],
                 ['switchFilter', -100],
             ],
-            ProductListingResultEvent::class => 'handleResult',
+            ProductListingResultEvent::class => [
+                ['handleResult', 100],
+                ['removeScoreSorting', -100],
+            ],
             ProductSearchResultEvent::class => 'handleResult',
         ];
     }
@@ -120,25 +145,35 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $criteria = $event->getCriteria();
+        $salesChannelContext = $event->getSalesChannelContext();
+
+        if (!$request->get('order')) {
+            $request->request->set('order', $this->getSystemDefaultSorting($salesChannelContext));
+        }
 
         $criteria->addAssociation('cover.media');
         $criteria->addAssociation('options');
 
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
-        $this->handleSorting($request, $criteria, self::DEFAULT_SORT);
+        $this->handleSorting($request, $criteria, $salesChannelContext);
     }
 
     public function handleSearchRequest(ProductSearchCriteriaEvent $event): void
     {
         $request = $event->getRequest();
         $criteria = $event->getCriteria();
+        $salesChannelContext = $event->getSalesChannelContext();
+
+        if (!$request->get('order')) {
+            $request->request->set('order', self::DEFAULT_SEARCH_SORT);
+        }
 
         $criteria->addAssociation('cover.media');
 
         $this->handlePagination($request, $criteria);
         $this->handleFilters($request, $criteria);
-        $this->handleSorting($request, $criteria, self::DEFAULT_SEARCH_SORT);
+        $this->handleSorting($request, $criteria, $salesChannelContext);
     }
 
     public function handleResult(ProductListingResultEvent $event): void
@@ -149,26 +184,31 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $this->addCurrentFilters($event);
 
-        $defaultSort = $event instanceof ProductSearchResultEvent ? self::DEFAULT_SEARCH_SORT : self::DEFAULT_SORT;
-        $currentSorting = $this->getCurrentSorting($event->getRequest(), $defaultSort);
+        $request = $event->getRequest();
 
-        $event->getResult()->setSorting($currentSorting);
+        /** @var ProductSortingCollection $sortings */
+        $sortings = $event->getResult()->getCriteria()->getExtension('sortings');
+        $currentSortingKey = $this->getCurrentSorting($sortings, $request)->getKey();
 
-        $sortings = $this->sortingRegistry->getSortings();
-        /** @var ProductListingSorting $sorting */
-        foreach ($sortings as $sorting) {
-            $sorting->setActive($sorting->getKey() === $currentSorting);
-        }
-
-        if (!$event instanceof ProductSearchResultEvent) {
-            unset($sortings['score']);
-        }
-
-        $event->getResult()->setSortings($sortings);
-
+        $event->getResult()->setSorting($currentSortingKey);
+        $event->getResult()->setAvailableSortings($sortings);
         $event->getResult()->setPage($this->getPage($event->getRequest()));
-
         $event->getResult()->setLimit($this->getLimit($event->getRequest()));
+    }
+
+    public function removeScoreSorting(ProductListingResultEvent $event): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_5983')) {
+            return;
+        }
+
+        $sortings = $event->getResult()->getAvailableSortings();
+
+        if ($sortings->hasKey(self::DEFAULT_SEARCH_SORT)) {
+            $sortings->remove($sortings->getByKey(self::DEFAULT_SEARCH_SORT)->getId());
+        }
+
+        $event->getResult()->setAvailableSortings($sortings);
     }
 
     private function handleFilters(Request $request, Criteria $criteria): void
@@ -306,25 +346,72 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria->addPostFilter(new EqualsFilter('product.shippingFree', true));
     }
 
-    private function handleSorting(Request $request, Criteria $criteria, string $defaultSorting): void
+    private function handleSorting(Request $request, Criteria $criteria, SalesChannelContext $salesChannelContext): void
     {
-        $currentSorting = $this->getCurrentSorting($request, $defaultSorting);
+        /** @var ProductSortingCollection $sortings */
+        $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
+        $sortings->merge($this->getAvailableSortings($request, $salesChannelContext->getContext()));
 
-        if (!$currentSorting) {
-            return;
-        }
+        $currentSorting = $this->getCurrentSorting($sortings, $request);
 
-        $sorting = $this->sortingRegistry->get(
-            $currentSorting
+        $criteria->addSorting(
+            ...$currentSorting->createDalSorting()
         );
 
-        if (!$sorting) {
-            return;
+        $criteria->addExtension('sortings', $sortings);
+    }
+
+    /**
+     * @throws ProductSortingNotFoundException
+     */
+    private function getCurrentSorting(ProductSortingCollection $sortings, Request $request): ProductSortingEntity
+    {
+        $key = $request->get('order');
+
+        if ($sortings->hasKey($key)) {
+            return $sortings->getByKey($key);
         }
 
-        foreach ($sorting->createDalSortings() as $fieldSorting) {
-            $criteria->addSorting($fieldSorting);
+        throw new ProductSortingNotFoundException($key);
+    }
+
+    private function getAvailableSortings(Request $request, Context $context): EntityCollection
+    {
+        if (!Feature::isActive('FEATURE_NEXT_5983')) {
+            return $this->sortingRegistry->getProductSortingEntities();
         }
+
+        $criteria = new Criteria();
+        $availableSortings = $request->get('availableSortings');
+        $availableSortingsFilter = [];
+
+        if ($availableSortings) {
+            \arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
+            $availableSortingsFilter = \array_keys($availableSortings);
+
+            $criteria->addFilter(new EqualsAnyFilter('key', $availableSortingsFilter));
+        }
+
+        $criteria
+            ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('priority', 'DESC'));
+
+        /** @var ProductSortingCollection $sortings */
+        $sortings = $this->sortingRepository->search($criteria, $context)->getEntities();
+        $sortings->merge($this->sortingRegistry->getProductSortingEntities($availableSortings));
+
+        if ($availableSortings) {
+            $sortings->sortByKeyArray($availableSortingsFilter);
+        }
+
+        return $sortings;
+    }
+
+    private function getSystemDefaultSorting(SalesChannelContext $salesChannelContext): string
+    {
+        return $this
+            ->systemConfigService
+            ->get('core.listing.defaultSorting', $salesChannelContext->getSalesChannel()->getId());
     }
 
     private function collectOptionIds(ProductListingResultEvent $event): array
@@ -448,21 +535,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             'min' => $event->getRequest()->get('min-price'),
             'max' => $event->getRequest()->get('max-price'),
         ]);
-    }
-
-    private function getCurrentSorting(Request $request, string $default): ?string
-    {
-        $key = $request->get('order', $default);
-
-        if (!$key) {
-            return null;
-        }
-
-        if ($this->sortingRegistry->has($key)) {
-            return $key;
-        }
-
-        return $default;
     }
 
     private function getManufacturerIds(Request $request): array

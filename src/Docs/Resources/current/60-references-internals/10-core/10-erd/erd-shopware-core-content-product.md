@@ -64,6 +64,11 @@ __EMPTY__
 __EMPTY__
 
 
+### Table `product_sorting`
+
+Provides functionality to define sorting groups to sort products by.
+
+
 ### Table `product_visibility`
 
 Set the visibility of a single product in a sales channel

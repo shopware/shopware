@@ -700,4 +700,9 @@ The storefront application of Shopware 6.
 Therefore contains Storefront specific entities that do not need to be part of the core and just support inner workings of this particular Storefront.
 EOD
     ,
+    Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition::class => <<<'EOD'
+Provides functionality to define sorting groups to sort products by.
+EOD
+    ,
+    Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => '',
 ];

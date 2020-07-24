@@ -23,6 +23,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\Produ
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
@@ -332,6 +333,11 @@ class LanguageEntity extends Entity
      * @var ActionButtonTranslationCollection|null
      */
     protected $actionButtonTranslations;
+
+    /**
+     * @var ProductSortingTranslationCollection|null
+     */
+    protected $productSortingTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -891,5 +897,20 @@ class LanguageEntity extends Entity
     public function setActionButtonTranslations(ActionButtonTranslationCollection $actionButtonTranslations): void
     {
         $this->actionButtonTranslations = $actionButtonTranslations;
+    }
+
+    public function getProductSortingTranslations(): ?ProductSortingTranslationCollection
+    {
+        return $this->productSortingTranslations;
+    }
+
+    public function setProductSortingTranslations(ProductSortingTranslationCollection $productSortingTranslations): void
+    {
+        $this->productSortingTranslations = $productSortingTranslations;
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'language';
     }
 }

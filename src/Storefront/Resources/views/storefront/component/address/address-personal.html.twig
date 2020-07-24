@@ -47,7 +47,6 @@
                                 <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"{% if data.get('accountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %} selected{% endif %}>
                                     {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                                 </option>
-                                <option>test</option>
                             {% endif %}
                         </select>
                     {% endblock %}

@@ -31,8 +31,7 @@ describe('Minimal auto update', () => {
         cy.get('.register-submit .btn[type="submit"]').click();
 
         cy.get('.account-welcome h1').should((element) => {
-            expect(element).to.contain('Kundenkonto');
-            cy.url().should('include', '/account');
+            expect(element).to.contain('Übersicht');
         });
     });
 });

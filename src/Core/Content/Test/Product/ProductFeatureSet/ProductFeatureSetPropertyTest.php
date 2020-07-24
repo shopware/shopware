@@ -6,17 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use function Flag\skipTestNext6997;
 
 class ProductFeatureSetPropertyTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use ProductFeatureSetFixtures;
-
-    protected function setUp(): void
-    {
-        skipTestNext6997($this);
-    }
 
     /**
      * @testWith    ["featureSet"]

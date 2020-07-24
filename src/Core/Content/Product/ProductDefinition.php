@@ -67,7 +67,6 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
-use function Flag\next6997;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -252,16 +251,14 @@ class ProductDefinition extends EntityDefinition
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
         );
 
-        if (next6997()) {
-            $collection->add(
-                (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
-                    ->addFlags(new Inherited())
-            );
-            $collection->add(
-                (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
-                    ->addFlags(new Inherited())
-            );
-        }
+        $collection->add(
+            (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
+                ->addFlags(new Inherited())
+        );
+        $collection->add(
+            (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
+                ->addFlags(new Inherited())
+        );
 
         return $collection;
     }

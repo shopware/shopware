@@ -25,8 +25,6 @@ const additionalData = {
     referenceUnit: 0.33
 }
 
-// TODO: Remove skip from tests, once the NEXT_6997 feature flag is removed
-
 describe('Test if essential characteristics are displayed in checkout', () => {
     beforeEach(() => {
         return cy.createProductFixture(additionalData).then(() => {
@@ -39,7 +37,7 @@ describe('Test if essential characteristics are displayed in checkout', () => {
         });
     });
 
-    it.skip('@package @checkout: Should display essential characteristics', () => {
+    it('@package @checkout: Should display essential characteristics', () => {
         const page = new CheckoutPageObject();
 
         // Product detail

@@ -4,10 +4,15 @@ namespace Shopware\Elasticsearch\Product;
 
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
@@ -16,12 +21,18 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     /**
      * @var ProductDefinition
      */
-    private $definition;
+    protected $definition;
 
-    public function __construct(ProductDefinition $definition, EntityMapper $mapper)
+    /**
+     * @var CashRounding
+     */
+    private $rounding;
+
+    public function __construct(ProductDefinition $definition, EntityMapper $mapper, CashRounding $rounding)
     {
         parent::__construct($mapper);
         $this->definition = $definition;
+        $this->rounding = $rounding;
     }
 
     public function getEntityDefinition(): EntityDefinition
@@ -34,7 +45,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $definition = $this->definition;
 
         return [
-            '_source' => ['includes' => ['id']],
+            '_source' => ['includes' => ['id', 'price']],
             'properties' => array_merge(
                 $this->mapper->mapFields($definition, $context),
                 [
@@ -63,6 +74,29 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         ;
     }
 
+    public function extendDocuments(array $documents, Context $context): array
+    {
+        $currencies = $context->getExtension('currencies');
+
+        if (!$currencies instanceof EntityCollection) {
+            throw new \RuntimeException('Currencies are required for indexing process');
+        }
+
+        foreach ($documents as &$document) {
+            $prices = [];
+
+            foreach ($currencies as $currency) {
+                $key = 'c_' . $currency->getId();
+
+                $prices[$key] = $this->getCurrencyPrice($document['entity'], $currency);
+            }
+
+            $document['document']['price'] = $prices;
+        }
+
+        return $documents;
+    }
+
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         $query = parent::buildTermQuery($context, $criteria);
@@ -73,5 +107,39 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         );
 
         return $query;
+    }
+
+    private function getCurrencyPrice(ProductEntity $entity, CurrencyEntity $currency)
+    {
+        $origin = $entity->getCurrencyPrice($currency->getId());
+
+        if (!$origin) {
+            throw new \RuntimeException(sprintf('Missing default price for product %s', $entity->getProductNumber()));
+        }
+        $price = clone $origin;
+
+        // fallback price returned?
+        if ($price->getCurrencyId() !== $currency->getId()) {
+            $price->setGross($price->getGross() * $currency->getFactor());
+            $price->setNet($price->getNet() * $currency->getFactor());
+        }
+
+        $config = $currency->getItemRounding();
+
+        if (!$config) {
+            return json_decode(JsonFieldSerializer::encodeJson($price), true);
+        }
+
+        $price->setGross(
+            $this->rounding->cashRound($price->getGross(), $config)
+        );
+
+        if ($config->roundForNet()) {
+            $price->setNet(
+                $this->rounding->cashRound($price->getNet(), $config)
+            );
+        }
+
+        return json_decode(JsonFieldSerializer::encodeJson($price), true);
     }
 }

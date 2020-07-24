@@ -2,8 +2,10 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlacklistRuleField;
@@ -107,7 +109,7 @@ class EntityMapper
                 return ['type' => 'object', 'dynamic' => true];
 
             case $field instanceof PriceField:
-                return self::PRICE_FIELD;
+                return $this->createPriceField($context);
 
             case $field instanceof ListingPriceField:
                 return [
@@ -203,5 +205,29 @@ class EntityMapper
     protected function createLongTextField(): array
     {
         return ['type' => 'text'];
+    }
+
+    private function createPriceField(Context $context): array
+    {
+        $currencies = $context->getExtension('currencies');
+
+        if (!$currencies instanceof EntityCollection) {
+            return [
+                'type' => 'object',
+                'properties' => ['c_' . Defaults::CURRENCY => self::PRICE_FIELD],
+            ];
+        }
+        $fields = [];
+
+        foreach ($currencies as $currency) {
+            $field = 'c_' . $currency->getId();
+
+            $fields[$field] = self::PRICE_FIELD;
+        }
+
+        return [
+            'type' => 'object',
+            'properties' => $fields,
+        ];
     }
 }

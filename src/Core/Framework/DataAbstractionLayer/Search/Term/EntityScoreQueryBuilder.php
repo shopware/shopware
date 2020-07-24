@@ -34,7 +34,6 @@ class EntityScoreQueryBuilder
         $fields = $this->getQueryFields($definition, $context);
 
         $queries = [];
-        /** @var Field $field */
         foreach ($fields as $field) {
             /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);

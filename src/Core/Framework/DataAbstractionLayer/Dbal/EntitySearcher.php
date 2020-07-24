@@ -76,6 +76,9 @@ class EntitySearcher implements EntitySearcherInterface
             if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
                 continue;
             }
+            if (!$field instanceof StorageAware) {
+                continue;
+            }
             /* @var StorageAware $field */
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())

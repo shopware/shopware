@@ -419,7 +419,6 @@ class VersionManager
 
         $fields = $definition->getFields();
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             /** @var WriteProtected|null $writeProtection */
             $writeProtection = $field->getFlag(WriteProtected::class);
@@ -842,15 +841,20 @@ class VersionManager
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
         foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
+            $property = $primaryKey->getPropertyName();
+
             if ($primaryKey instanceof VersionField || $primaryKey instanceof ReferenceVersionField) {
                 continue;
             }
 
-            /** @var Field|StorageAware $primaryKey */
-            if (!isset($rawData[$primaryKey->getPropertyName()])) {
+            /* @var Field|StorageAware $primaryKey */
+            if (!isset($rawData[$property])) {
                 throw new \RuntimeException(
-                    sprintf('Missing primary key %s for definition %s', $primaryKey->getPropertyName(), $definition->getClass())
+                    sprintf('Missing primary key %s for definition %s', $property, $definition->getClass())
                 );
+            }
+            if (!$primaryKey instanceof StorageAware) {
+                continue;
             }
             $key = 'primaryKey' . $index;
 
@@ -858,7 +862,7 @@ class VersionManager
                 EntityDefinitionQueryHelper::escape($primaryKey->getStorageName()) . ' = :' . $key
             );
 
-            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$primaryKey->getPropertyName()]));
+            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
         }
 
         $fk = $query->execute()->fetchColumn();

@@ -822,6 +822,6 @@ class WhitelistRuleFieldTest extends TestCase
 
     private function createContextWithRules(array $ruleIds = []): Context
     {
-        return new Context(new SystemSource(), $ruleIds, Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
+        return new Context(new SystemSource(), $ruleIds, Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
     }
 }

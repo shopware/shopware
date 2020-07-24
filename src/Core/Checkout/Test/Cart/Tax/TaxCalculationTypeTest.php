@@ -153,7 +153,7 @@ class TaxCalculationTypeTest extends TestCase
         foreach ($items as $i => $item) {
             $lineItem = new LineItem('item-' . $i, 'test', 'item-' . $i, $item->quantity);
 
-            $definition = new QuantityPriceDefinition($item->price, new TaxRuleCollection([new TaxRule($item->taxRate)]), 2, $item->quantity, true);
+            $definition = QuantityPriceDefinition::create($item->price, new TaxRuleCollection([new TaxRule($item->taxRate)]), $item->quantity);
 
             $lineItem->setPriceDefinition($definition);
 

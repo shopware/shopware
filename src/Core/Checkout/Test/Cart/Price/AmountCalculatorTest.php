@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
@@ -15,8 +15,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -38,12 +38,14 @@ class AmountCalculatorTest extends TestCase
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
+        $salesChannelContext->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding(),
+            new CashRounding(),
             new PercentageTaxRuleBuilder(),
-            new TaxCalculator(new TaxRuleCalculator())
+            new TaxCalculator()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -66,12 +68,14 @@ class AmountCalculatorTest extends TestCase
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
         $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
+        $salesChannelContext->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding(),
+            new CashRounding(),
             new PercentageTaxRuleBuilder(),
-            new TaxCalculator(new TaxRuleCalculator())
+            new TaxCalculator()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -94,9 +98,9 @@ class AmountCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding(),
+            new CashRounding(),
             new PercentageTaxRuleBuilder(),
-            new TaxCalculator(new TaxRuleCalculator())
+            new TaxCalculator()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);

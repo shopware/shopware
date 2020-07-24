@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration;
+namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;

@@ -2660,7 +2660,7 @@ class ProductRepositoryTest extends TestCase
 
     private function createLanguageContext(array $languages, bool $inheritance)
     {
-        return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, 2, $inheritance);
+        return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);
     }
 
     private function createContext(array $ruleIds = []): Context

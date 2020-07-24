@@ -43,17 +43,14 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         $definitions = [];
 
+        $reference = $this->buildReferencePriceDefinition($product);
+
         foreach ($prices as $price) {
             $quantity = $price->getQuantityEnd() ?? $price->getQuantityStart();
 
-            $definitions[] = new QuantityPriceDefinition(
-                $this->getCurrencyPrice($price, $context),
-                $taxRules,
-                $context->getContext()->getCurrencyPrecision(),
-                $quantity,
-                true,
-                $this->buildReferencePriceDefinition($product)
-            );
+            $definition = QuantityPriceDefinition::create($this->getCurrencyPrice($price, $context), $taxRules, $quantity);
+            $definition->setReferencePriceDefinition($reference);
+            $definitions[] = $definition;
         }
 
         return new PriceDefinitionCollection($definitions);
@@ -63,22 +60,21 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
     {
         $price = $this->getProductCurrencyPrice($product, $context);
 
-        return new QuantityPriceDefinition(
-            $price,
-            $context->buildTaxRules($product->getTaxId()),
-            $context->getContext()->getCurrencyPrecision(),
-            1,
-            true,
-            $this->buildReferencePriceDefinition($product),
-            $this->getListPrice($product, $context)
-        );
+        $list = $this->getListPrice($product, $context);
+        $reference = $this->buildReferencePriceDefinition($product);
+
+        $definition = QuantityPriceDefinition::create($price, $context->buildTaxRules($product->getTaxId()));
+        $definition->setReferencePriceDefinition($reference);
+        $definition->setListPrice($list);
+
+        return $definition;
     }
 
     private function buildListingPriceDefinition(ProductEntity $product, SalesChannelContext $context): array
     {
         $taxRules = $context->buildTaxRules($product->getTaxId());
 
-        $currencyPrecision = $context->getContext()->getCurrencyPrecision();
+        $reference = $this->buildReferencePriceDefinition($product);
 
         if ($product->getListingPrices()) {
             $listingPrice = $product->getListingPrices()->getContextPrice($context->getContext());
@@ -86,18 +82,20 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             if ($listingPrice) {
                 // indexed listing prices are indexed for each currency
                 $from = $this->getPriceForTaxState($listingPrice->getFrom(), $context);
-
                 $to = $this->getPriceForTaxState($listingPrice->getTo(), $context);
+
+                $from = QuantityPriceDefinition::create($from, $taxRules);
+                $from->setReferencePriceDefinition($reference);
+
+                $to = QuantityPriceDefinition::create($to, $taxRules);
+                $to->setReferencePriceDefinition($reference);
 
                 if ($listingPrice->getCurrencyId() !== $context->getContext()->getCurrencyId()) {
                     $from *= $context->getContext()->getCurrencyFactor();
                     $to *= $context->getContext()->getCurrencyFactor();
                 }
 
-                return [
-                    'from' => new QuantityPriceDefinition($from, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
-                    'to' => new QuantityPriceDefinition($to, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
-                ];
+                return ['from' => $from, 'to' => $to];
             }
         }
 
@@ -106,7 +104,8 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         if (!$prices || count($prices) <= 0) {
             $price = $this->getProductCurrencyPrice($product, $context);
 
-            $definition = new QuantityPriceDefinition($price, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product));
+            $definition = QuantityPriceDefinition::create($price, $taxRules);
+            $definition->setReferencePriceDefinition($reference);
 
             return ['from' => $definition, 'to' => $definition];
         }
@@ -121,10 +120,13 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             $lowest = $value < $lowest ? $value : $lowest;
         }
 
-        return [
-            'from' => new QuantityPriceDefinition($lowest, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
-            'to' => new QuantityPriceDefinition($highest, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product)),
-        ];
+        $from = QuantityPriceDefinition::create($lowest, $taxRules);
+        $from->setReferencePriceDefinition($reference);
+
+        $to = QuantityPriceDefinition::create($highest, $taxRules);
+        $to->setReferencePriceDefinition($reference);
+
+        return ['from' => $from, 'to' => $to];
     }
 
     private function buildPriceDefinitionForQuantity(ProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
@@ -137,27 +139,32 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         if (!$prices) {
             $price = $this->getProductCurrencyPrice($product, $context);
 
-            return new QuantityPriceDefinition(
-                $price,
-                $taxRules,
-                $context->getContext()->getCurrencyPrecision(),
-                $quantity,
-                true,
-                $this->buildReferencePriceDefinition($product),
+            $definition = QuantityPriceDefinition::create($price, $taxRules, $quantity);
+
+            $definition->setListPrice(
                 $this->getListPrice($product, $context)
             );
+
+            $definition->setReferencePriceDefinition(
+                $this->buildReferencePriceDefinition($product)
+            );
+
+            return $definition;
         }
 
         $prices = $this->getQuantityPrices($prices, $quantity);
 
-        return new QuantityPriceDefinition(
-            $this->getCurrencyPrice($prices[0], $context),
-            $taxRules,
-            $context->getContext()->getCurrencyPrecision(),
-            $quantity,
-            true,
+        $definition = QuantityPriceDefinition::create($this->getCurrencyPrice($prices[0], $context), $taxRules, $quantity);
+
+        $definition->setListPrice(
+            $this->getListPrice($product, $context)
+        );
+
+        $definition->setReferencePriceDefinition(
             $this->buildReferencePriceDefinition($product)
         );
+
+        return $definition;
     }
 
     private function getQuantityPrices(array $prices, int $quantity): array

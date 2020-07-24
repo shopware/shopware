@@ -53,6 +53,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $listPrice;
 
+    /**
+     * @deprecated tag:v6.4.0 - Use `\Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition::create`
+     */
     public function __construct(
         float $price,
         TaxRuleCollection $taxRules,
@@ -65,10 +68,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->price = $price;
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
-        $this->isCalculated = $isCalculated;
         $this->precision = $precision;
+        $this->isCalculated = $isCalculated;
         $this->referencePriceDefinition = $referencePrice;
         $this->listPrice = $listPrice;
+    }
+
+    public static function create(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
+    {
+        return new self($price, $taxRules, 2, $quantity, true);
     }
 
     public function getPrice(): float
@@ -101,6 +109,9 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         return $this->precision;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed. Currency precision will only be tracked in CashRoundingConfig.
+     */
     public function setPrecision(int $precision): void
     {
         $this->precision = $precision;
@@ -117,6 +128,8 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             },
             $data['taxRules']
         );
+
+        $data['precision'] = $data['precision'] ?? 2;
 
         return new self(
             (float) $data['price'],
@@ -175,5 +188,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public function getApiAlias(): string
     {
         return 'cart_price_quantity';
+    }
+
+    public function setIsCalculated(bool $isCalculated): void
+    {
+        $this->isCalculated = $isCalculated;
+    }
+
+    public function setReferencePriceDefinition(?ReferencePriceDefinition $referencePriceDefinition): void
+    {
+        $this->referencePriceDefinition = $referencePriceDefinition;
     }
 }

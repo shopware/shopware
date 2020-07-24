@@ -15,7 +15,7 @@
                         <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
                                 id="{{ prefix }}accountType"
                                 required="required"
-                                class="custom-select contact-select{% if formViolations.getViolations('/typeId') %} is-invalid{% endif %}"
+                                class="custom-select contact-select{% if formViolations.getViolations('/typeId').count > 0 %} is-invalid{% endif %}"
                                 data-form-field-toggle="true"
                                 data-form-field-toggle-target=".js-field-toggle-contact-type-company"
                                 data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
@@ -41,12 +41,13 @@
                                         value="">
                                     {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                 </option>
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"{% if data.get('acountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %} selected{% endif %}>
                                     {{ "account.personalTypePrivate"|trans|sw_sanitize }}
                                 </option>
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
+                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"{% if data.get('accountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %} selected{% endif %}>
                                     {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
                                 </option>
+                                <option>test</option>
                             {% endif %}
                         </select>
                     {% endblock %}

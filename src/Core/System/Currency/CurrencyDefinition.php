@@ -8,7 +8,9 @@ use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -24,10 +26,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use function Flag\next6059;
 
 class CurrencyDefinition extends EntityDefinition
 {
@@ -50,14 +54,15 @@ class CurrencyDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $decimalsField = (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required());
+
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FloatField('factor', 'factor'))->addFlags(new Required()),
             (new StringField('symbol', 'symbol'))->addFlags(new Required()),
             (new StringField('iso_code', 'isoCode'))->addFlags(new Required()),
             (new TranslatedField('shortName'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required()),
             new IntField('position', 'position'),
             (new BoolField('is_system_default', 'isSystemDefault'))->addFlags(new Runtime()),
             new TranslatedField('customFields'),
@@ -70,5 +75,25 @@ class CurrencyDefinition extends EntityDefinition
             (new OneToManyAssociationField('promotionDiscountPrices', PromotionDiscountPriceDefinition::class, 'currency_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
+
+        if (next6059()) {
+            $decimalsField = (new IntField('decimal_precision', 'decimalPrecision'))
+                ->addFlags(new Deprecated('v6.3.0', 'v6.4.0', 'itemRounding'));
+
+            $fields->add(
+                new CashRoundingConfigField('item_rounding', 'itemRounding')
+            );
+            $fields->add(
+                new CashRoundingConfigField('total_rounding', 'totalRounding')
+            );
+            $fields->add(
+                (new OneToManyAssociationField('countryRoundings', CurrencyCountryRoundingDefinition::class, 'currency_id'))
+                    ->addFlags(new CascadeDelete())
+            );
+        }
+
+        $fields->add($decimalsField);
+
+        return $fields;
     }
 }

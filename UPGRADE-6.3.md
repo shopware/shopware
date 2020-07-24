@@ -242,3 +242,10 @@ body {
 ```
 
 To access in scss the asset url, you can use the variable `$sw-asset-url`
+
+## Configuring `asset` and `theme` asset to other locations
+
+Make sure you are using the correct asset package in the twig function `asset`.
+
+* Themes: `{{ asset('folder/image.png', 'theme') }`
+* Plugins: `{{ asset('folder/image.png', 'asset') }` or `{{ asset('folder/image.png', '@MyPluginName') }`

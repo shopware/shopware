@@ -37,28 +37,68 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
          *
          * We can indirectly cast to float by adding 0.0
          */
-        $select[] = sprintf(
-            '(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s.%s")) %s)',
-            $root,
-            $field->getStorageName(),
-            'c' . $context->getCurrencyId(),
-            $jsonAccessor,
-            '+ 0.0'
-        );
+
+        $template = '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.c#currencyId#.#property#")) #factor#)';
+
+        $variables = [
+            '#root#' => $root,
+            '#field#' => $field->getStorageName(),
+            '#currencyId#' => $context->getCurrencyId(),
+            '#property#' => $jsonAccessor,
+            '#factor#' => '+ 0.0',
+        ];
+
+        $select[] = str_replace(array_keys($variables), array_values($variables), $template);
 
         if ($context->getCurrencyId() !== Defaults::CURRENCY) {
-            $currencyFactor = sprintf('* %F', $context->getCurrencyFactor());
+            $variables = [
+                '#root#' => $root,
+                '#field#' => $field->getStorageName(),
+                '#currencyId#' => Defaults::CURRENCY,
+                '#property#' => $jsonAccessor,
+                '#factor#' => sprintf('* %F', $context->getCurrencyFactor()),
+            ];
 
-            $select[] = sprintf(
-                '(JSON_UNQUOTE(JSON_EXTRACT(`%s`.`%s`, "$.%s.%s")) %s)',
-                $root,
-                $field->getStorageName(),
-                'c' . Defaults::CURRENCY,
-                $jsonAccessor,
-                $currencyFactor
-            );
+            $select[] = str_replace(array_keys($variables), array_values($variables), $template);
         }
 
-        return sprintf('(COALESCE(%s))', implode(',', $select));
+        $template = '(COALESCE(%s))';
+
+        $variables = [
+            '#template#' => $template,
+            '#decimals#' => 20,
+        ];
+
+        $template = str_replace(
+            array_keys($variables),
+            array_values($variables),
+            '(ROUND(CAST(#template# as DECIMAL(30, #decimals#)), #decimals#))'
+        );
+
+        if ($this->useCashRounding($context)) {
+            $multiplier = 100 / ($context->getRounding()->getInterval() * 100);
+
+            $variables = [
+                '#accessor#' => $template,
+                '#multiplier#' => $multiplier,
+            ];
+
+            $template = str_replace(array_keys($variables), array_values($variables), '(ROUND(#accessor# * #multiplier#, 0) / #multiplier#)');
+        }
+
+        return sprintf($template, implode(',', $select));
+    }
+
+    private function useCashRounding(Context $context): bool
+    {
+        if ($context->getRounding()->getDecimals() !== 2) {
+            return false;
+        }
+
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            return true;
+        }
+
+        return $context->getRounding()->roundForNet();
     }
 }

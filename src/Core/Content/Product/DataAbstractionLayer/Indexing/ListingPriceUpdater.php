@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
+use function Flag\next6059;
 
 class ListingPriceUpdater
 {
@@ -315,5 +316,18 @@ class ListingPriceUpdater
         }
 
         throw new \RuntimeException(sprintf('Missing default price for variant %s', $id));
+    }
+
+
+    private function round(float $value, int $precision): float
+    {
+        if (next6059()) {
+            return $value;
+        }
+
+        return $this->rounding->mathRound(
+            $value,
+            new CashRoundingConfig($precision, 0.01, true)
+        );
     }
 }

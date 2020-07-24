@@ -572,7 +572,7 @@ class InstallCommand extends Command
                 'shop-country',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Shop country'
+                'Expects an ISO-3166 three-letter country-code. This parameter sets the default country for the default sales-channel.'
             )
         ;
     }

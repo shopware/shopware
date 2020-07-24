@@ -148,7 +148,8 @@ class ProductListingLoader
         $ids = array_combine($ids, $ids);
 
         $config = $this->connection->fetchAll(
-            'SELECT parent.configurator_group_config,
+            '# product-listing-loader::resolve-previews
+            SELECT parent.configurator_group_config,
                         LOWER(HEX(parent.main_variant_id)) as mainVariantId,
                         LOWER(HEX(child.id)) as id
              FROM product as child

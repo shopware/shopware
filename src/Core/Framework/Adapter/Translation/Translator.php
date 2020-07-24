@@ -299,6 +299,8 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('snippet-translator::load-fallback');
+
         $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
         $criteria->addAssociation('locale');
 

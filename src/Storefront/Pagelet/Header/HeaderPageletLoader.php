@@ -87,8 +87,11 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $salesChannel->getNavigationCategoryDepth()
         );
 
+        $criteria = new Criteria();
+        $criteria->setTitle('header::currencies');
+
         $currencies = $this->currencyRoute
-            ->load($event->getStoreApiRequest(), $context, new Criteria())
+            ->load($event->getStoreApiRequest(), $context, $criteria)
             ->getCurrencies();
 
         $page = new HeaderPagelet(
@@ -123,6 +126,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection
     {
         $criteria = new Criteria();
+        $criteria->setTitle('header::languages');
 
         $criteria->addFilter(
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId())

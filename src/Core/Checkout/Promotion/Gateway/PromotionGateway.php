@@ -25,6 +25,8 @@ class PromotionGateway implements PromotionGatewayInterface
      */
     public function get(Criteria $criteria, SalesChannelContext $context): EntityCollection
     {
+        $criteria->setTitle('cart::promotion');
+
         return $this->promotionRepository->search($criteria, $context->getContext())->getEntities();
     }
 }

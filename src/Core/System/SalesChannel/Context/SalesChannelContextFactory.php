@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -134,6 +135,7 @@ class SalesChannelContextFactory
         $context = $this->getContext($salesChannelId, $options);
 
         $criteria = new Criteria([$salesChannelId]);
+        $criteria->setTitle('context-factory::sales-channel');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 
@@ -155,7 +157,9 @@ class SalesChannelContextFactory
         if (array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
             $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
 
-            $currency = $this->currencyRepository->search(new Criteria([$currencyId]), $context)->get($currencyId);
+            $criteria = new Criteria([$currencyId]);
+            $criteria->setTitle('context-factory::currency');
+            $currency = $this->currencyRepository->search($criteria, $context)->get($currencyId);
         }
 
         // customer
@@ -186,7 +190,10 @@ class SalesChannelContextFactory
         $groupIds = array_keys(array_flip($groupIds));
 
         //fallback customer group is hard coded to 'EK'
-        $customerGroups = $this->customerGroupRepository->search(new Criteria($groupIds), $context);
+        $criteria = new Criteria($groupIds);
+        $criteria->setTitle('context-factory::customer-group');
+
+        $customerGroups = $this->customerGroupRepository->search($criteria, $context);
         $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
         $customerGroup = $customerGroups->get($groupId);
 
@@ -242,8 +249,9 @@ class SalesChannelContextFactory
     public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();
-
+        $criteria->setTitle('context-factory::taxes');
         $criteria->addAssociation('rules.type');
+        $criteria->addExtension('test', new Criteria());
 
         $taxes = $this->taxRepository->search($criteria, $context)->getEntities();
 
@@ -284,6 +292,7 @@ class SalesChannelContextFactory
         }
 
         $criteria = (new Criteria([$id]))->addAssociation('media');
+        $criteria->setTitle('context-factory::payment-method');
 
         return $this->paymentMethodRepository
             ->search($criteria, $context)
@@ -299,6 +308,7 @@ class SalesChannelContextFactory
         }
 
         $criteria = (new Criteria([$id]))->addAssociation('media');
+        $criteria->setTitle('context-factory::shipping-method');
 
         return $this->shippingMethodRepository->search($criteria, $context)->get($id);
     }
@@ -306,6 +316,8 @@ class SalesChannelContextFactory
     private function getContext(string $salesChannelId, array $session): Context
     {
         $sql = '
+        # context-factory::base-context
+
         SELECT
           sales_channel.id as sales_channel_id,
           sales_channel.language_id as sales_channel_default_language_id,
@@ -373,6 +385,7 @@ class SalesChannelContextFactory
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
         $criteria = new Criteria([$customerId]);
+        $criteria->setTitle('context-factory::customer');
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('defaultPaymentMethod');
         $criteria->addAssociation('defaultBillingAddress.country');
@@ -393,6 +406,7 @@ class SalesChannelContextFactory
         $addressIds[] = $shippingAddressId;
 
         $criteria = new Criteria($addressIds);
+        $criteria->setTitle('context-factory::addresses');
         $criteria->addAssociation('country');
         $criteria->addAssociation('countryState');
 
@@ -411,13 +425,16 @@ class SalesChannelContextFactory
     ): ShippingLocation {
         //allows to preview cart calculation for a specify state for not logged in customers
         if (array_key_exists(SalesChannelContextService::COUNTRY_STATE_ID, $options) && $options[SalesChannelContextService::COUNTRY_STATE_ID]) {
-            $state = $this->countryStateRepository->search(new Criteria([$options[SalesChannelContextService::COUNTRY_STATE_ID]]), $context)
+            $criteria = new Criteria([$options[SalesChannelContextService::COUNTRY_STATE_ID]]);
+            $criteria->addAssociation('country');
+
+            $criteria->setTitle('context-factory::country');
+
+            $state = $this->countryStateRepository->search($criteria, $context)
                 ->get($options[SalesChannelContextService::COUNTRY_STATE_ID]);
 
-            $country = $this->countryRepository->search(new Criteria([$state->getCountryId()]), $context)
-                ->get($state->getCountryId());
-
-            return new ShippingLocation($country, $state, null);
+            /* @var CountryStateEntity $state */
+            return new ShippingLocation($state->getCountry(), $state, null);
         }
 
         $countryId = $salesChannel->getCountryId();
@@ -425,7 +442,10 @@ class SalesChannelContextFactory
             $countryId = $options[SalesChannelContextService::COUNTRY_ID];
         }
 
-        $country = $this->countryRepository->search(new Criteria([$countryId]), $context)
+        $criteria = new Criteria([$countryId]);
+        $criteria->setTitle('context-factory::country');
+
+        $country = $this->countryRepository->search($criteria, $context)
             ->get($countryId);
 
         return ShippingLocation::createFromCountry($country);

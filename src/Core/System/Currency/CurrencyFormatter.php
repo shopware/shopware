@@ -94,6 +94,8 @@ class CurrencyFormatter
             ->addAssociation('locale')
             ->addFilter(new EqualsFilter('language.id', $languageId));
 
+        $criteria->setTitle('currency-formatter::load-locale');
+
         /** @var LanguageEntity|null $language */
         $language = $this->languageRepository->search($criteria, $context)->get($languageId);
 

@@ -169,6 +169,10 @@ class EntityAggregator implements EntityAggregatorInterface
         $query = $this->buildQueryByCriteria($query, $definition, $clone, $context);
         $query->resetQueryPart('orderBy');
 
+        if ($criteria->getTitle()) {
+            $query->setTitle($criteria->getTitle() . '::aggregation::' . $aggregation->getName());
+        }
+
         $this->addIdCondition($criteria, $definition, $query);
 
         $table = $definition->getEntityName();

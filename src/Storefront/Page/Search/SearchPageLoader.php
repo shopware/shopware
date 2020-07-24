@@ -53,8 +53,11 @@ class SearchPageLoader
             throw new MissingRequestParameterException('search');
         }
 
+        $criteria = new Criteria();
+        $criteria->setTitle('search-page');
+
         $result = $this->productSearchRoute
-            ->load($request, $salesChannelContext, new Criteria())
+            ->load($request, $salesChannelContext, $criteria)
             ->getListingResult();
 
         $page->setListing($result);

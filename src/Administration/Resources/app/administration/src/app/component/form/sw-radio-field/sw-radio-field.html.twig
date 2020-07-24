@@ -17,7 +17,7 @@
                             :name="identification"
                             :id="`${identification}-${index}`"
                             :value="index"
-                            :disabled="disabled"
+                            :disabled="disabled || option.disabled"
                             :checked="currentIndex === index"
                             @change="onChange"/>
                         <div class="sw-field__radio-state"></div>

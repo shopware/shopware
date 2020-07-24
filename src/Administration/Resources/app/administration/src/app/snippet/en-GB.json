@@ -648,7 +648,8 @@
       "unit": "Unit | Units",
       "user": "User | Users",
       "delivery_time": "Delivery time | Delivery times",
-      "import_export_profile": "Import/Export Profile | Import/Export Profiles"
+      "import_export_profile": "Import/Export Profile | Import/Export Profiles",
+      "feature_set": "Template | Templates"
     },
     "day-of-week": {
       "monday": "Monday",

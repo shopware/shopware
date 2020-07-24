@@ -193,6 +193,11 @@ Administration
             {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
         </template>
         ```
+* Added the following new components, to enable administration of essential characteristics
+    * `sw-settings-product-feature-sets-modal`
+    * `sw-settings-product-feature-sets-values-card`
+    * `sw-settings-product-feature-sets-detail`
+    * `sw-settings-product-feature-sets-list`
 * Removed the `inheritance` header being set to `true` in the method `loadProduct` of the component `sw-product-detail`
 * Removed unnecessary loading of `crossSelling` associations in the computed property `productCriteria` of the component `sw-product-detail`
 

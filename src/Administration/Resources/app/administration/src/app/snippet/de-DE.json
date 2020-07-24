@@ -647,7 +647,8 @@
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
       "delivery_time": "Lieferzeit | Lieferzeiten",
-      "import_export_profile": "Import/Export Profil | Import/Export Profile"
+      "import_export_profile": "Import/Export Profil | Import/Export Profile",
+      "feature_set": "Template | Templates"
     },
     "day-of-week": {
       "monday": "Montag",

@@ -24,6 +24,7 @@ NEXT
 #### Core
 
 * Changed `keyword` fields in Elasticsearch to normalize to lower case
+* Changed temporary filename of sitemap to avoid conflicts with other installations
 
 #### Storefront
 

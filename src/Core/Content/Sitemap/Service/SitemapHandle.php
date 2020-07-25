@@ -43,7 +43,7 @@ class SitemapHandle implements SitemapHandleInterface
     {
         $this->filesystem = $filesystem;
 
-        $filePath = $this->getTmpFilePath();
+        $filePath = $this->getTmpFilePath($context);
         $this->handle = gzopen($filePath, 'ab');
         $this->printHeader();
 
@@ -68,7 +68,7 @@ class SitemapHandle implements SitemapHandleInterface
                 $this->printFooter();
                 gzclose($this->handle);
                 ++$this->index;
-                $path = $this->getTmpFilePath();
+                $path = $this->getTmpFilePath($this->context);
                 $this->handle = gzopen($path, 'ab');
                 $this->printHeader();
                 $this->tmpFiles[] = $path;
@@ -97,7 +97,7 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function getFilePath(int $index, SalesChannelContext $salesChannelContext): string
     {
-        return $this->getPath($salesChannelContext) . $this->getFileName($index);
+        return $this->getPath($salesChannelContext) . $this->getFileName($salesChannelContext, $index);
     }
 
     private function getPath(SalesChannelContext $salesChannelContext): string
@@ -105,14 +105,14 @@ class SitemapHandle implements SitemapHandleInterface
         return 'sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getSalesChannel()->getLanguageId() . '/';
     }
 
-    private function getTmpFilePath(): string
+    private function getTmpFilePath(SalesChannelContext $salesChannelContext): string
     {
-        return rtrim(sys_get_temp_dir(), '/') . '/' . $this->getFileName();
+        return rtrim(sys_get_temp_dir(), '/') . '/' . $this->getFileName($salesChannelContext);
     }
 
-    private function getFileName(?int $index = null): string
+    private function getFileName(SalesChannelContext $salesChannelContext, ?int $index = null): string
     {
-        return sprintf(self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
+        return sprintf($salesChannelContext->getSalesChannel()->getId() . '-' . self::SITEMAP_NAME_PATTERN, $index ?? $this->index);
     }
 
     private function printHeader(): void

@@ -47,8 +47,6 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
-
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/SwagTest.php';
         require_once __DIR__ . '/_fixture/plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = $this->getContainer()->get('plugin.repository');

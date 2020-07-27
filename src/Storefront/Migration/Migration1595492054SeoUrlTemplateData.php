@@ -24,7 +24,7 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
             ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
             ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
-        
+
         if ((int) $stmt->fetch(\PDO::FETCH_COLUMN) === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
@@ -35,7 +35,7 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
                 'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
-        
+
         $stmt->execute([
             'category',
             NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE,

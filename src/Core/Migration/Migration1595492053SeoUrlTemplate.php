@@ -3,13 +3,9 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
-class Migration1595492053SeoUrlTemplateData extends MigrationStep
+class Migration1595492053SeoUrlTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -25,7 +21,7 @@ class Migration1595492053SeoUrlTemplateData extends MigrationStep
                 `route_name` VARCHAR(255) NOT NULL,
                 `entity_name` VARCHAR(64) NOT NULL,
                 `template` VARCHAR(750) NOT NULL,
-                `is_valid` TINYINT(1) NOT NULL DEFAULT 1,              
+                `is_valid` TINYINT(1) NOT NULL DEFAULT 1,
                 `custom_fields` JSON NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,

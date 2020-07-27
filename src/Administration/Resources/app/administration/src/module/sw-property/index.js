@@ -43,7 +43,7 @@ Module.register('sw-property', {
             },
             meta: {
                 parentPath: 'sw.property.index',
-                privilege: 'property.editor'
+                privilege: 'property.viewer'
             }
         },
         create: {

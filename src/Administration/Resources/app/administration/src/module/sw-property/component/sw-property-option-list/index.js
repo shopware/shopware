@@ -7,7 +7,8 @@ Component.register('sw-property-option-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     props: {
@@ -43,6 +44,25 @@ Component.register('sw-property-option-list', {
 
         currentLanguage() {
             return State.get('context').api.languageId;
+        },
+
+        tooltipAdd() {
+            if (!this.acl.can('property.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('property.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
+            return {
+                message: this.$tc('sw-property.detail.addOptionNotPossible'),
+                disabled: this.isSystemLanguage
+            };
+        },
+
+        disableAddButton() {
+            return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         }
     },
 
@@ -70,6 +90,10 @@ Component.register('sw-property-option-list', {
             }
 
             return this.optionRepository.delete(option.id, Shopware.Context.api);
+        },
+
+        onSingleOptionDelete(option) {
+            this.$refs.grid.deleteItem(option);
         },
 
         onDeleteOptions() {

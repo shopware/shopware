@@ -35,6 +35,7 @@ Component.register('sw-cms-el-config-product-slider', {
         productMediaFilter() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('cover');
+            criteria.addAssociation('options.group');
 
             return criteria;
         },
@@ -62,6 +63,7 @@ Component.register('sw-cms-el-config-product-slider', {
             if (this.element.config.products.value.length > 0) {
                 const criteria = new Criteria(1, 100);
                 criteria.addAssociation('cover');
+                criteria.addAssociation('options.group');
                 criteria.setIds(this.element.config.products.value);
 
                 this.productRepository.search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))

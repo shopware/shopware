@@ -1,5 +1,8 @@
 import HttpClient from './http-client.service';
 
+/** 
+ * @deprecated tag:v6.4.0 use storefront controller instead
+ */
 export default class StoreApiClient extends HttpClient {
 
     constructor() {

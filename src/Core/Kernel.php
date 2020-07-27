@@ -236,8 +236,9 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addApiRoutes($routes);
         $this->addBundleRoutes($routes);
+        $this->addApiRoutes($routes);
+        $this->addBundleOverwrites($routes);
         $this->addFallbackRoute($routes);
     }
 
@@ -333,6 +334,15 @@ class Kernel extends HttpKernel
         foreach ($this->getBundles() as $bundle) {
             if ($bundle instanceof Framework\Bundle) {
                 $bundle->configureRoutes($routes, (string) $this->environment);
+            }
+        }
+    }
+
+    private function addBundleOverwrites(RouteCollectionBuilder $routes): void
+    {
+        foreach ($this->getBundles() as $bundle) {
+            if ($bundle instanceof Framework\Bundle) {
+                $bundle->configureRouteOverwrites($routes, (string) $this->environment);
             }
         }
     }

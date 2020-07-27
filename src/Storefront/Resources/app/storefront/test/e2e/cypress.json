@@ -27,5 +27,9 @@
     "checkoutAllowed": false,
     "projectRoot": "/app",
     "localUsage": false
+  },
+  "firefoxGcInterval": {
+    "runMode": null,
+    "openMode": null
   }
 }

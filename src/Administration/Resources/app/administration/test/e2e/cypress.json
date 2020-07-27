@@ -26,5 +26,9 @@
     "locale": "en-GB",
     "projectRoot": "/app",
     "localUsage": false
+  },
+  "firefoxGcInterval": {
+    "runMode": null,
+    "openMode": null
   }
 }

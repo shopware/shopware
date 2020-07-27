@@ -66,7 +66,7 @@ describe('Product: Sort grid', () => {
             });
     });
 
-    it('@base @catalogue: edit a product\'s translation', () => {
+    it.skip('@base @catalogue: edit a product\'s translation', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({

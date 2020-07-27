@@ -84,7 +84,14 @@
                                              v-for="element in block.slots">
 
                                             {% block sw_cms_page_form_element_config %}
-                                                <component :is="cmsElements[element.type].configComponent" 
+                                                <sw-alert v-if="!cmsElements[element.type]"
+                                                          variant="error"
+                                                          appearance="default"
+                                                          :showIcon="false"
+                                                          :closable="false">Error rendering element of type "{{ element.type }}"
+                                                </sw-alert>
+                                                <component :is="cmsElements[element.type].configComponent"
+                                                           v-if="cmsElements[element.type]"
                                                            :element="element">
                                                 </component>
                                             {% endblock %}

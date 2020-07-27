@@ -21,6 +21,8 @@ NEXT
 
 #### Administration
 
+* Fixed the link from an order detail page to the product corresponding to an order line item, which could be incorrect for order line items not originating from ordinary cart line items.
+
 #### Core
 
 * Changed `keyword` fields in Elasticsearch to normalize to lower case

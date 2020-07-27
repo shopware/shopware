@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list';
 import 'src/app/component/structure/sw-page';

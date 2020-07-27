@@ -2,8 +2,6 @@ import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
-/** @deprecated tag:v6.4.0 */
-const { StateDeprecated } = Shopware;
 
 Component.register('sw-integration-list', {
     template,
@@ -35,11 +33,6 @@ Component.register('sw-integration-list', {
         /** @deprecated tag:v6.4.0 */
         id() {
             return this.$vnode.tag;
-        },
-
-        /** @deprecated tag:v6.4.0 */
-        integrationStore() {
-            return StateDeprecated.getStore('integration');
         },
 
         integrationRepository() {

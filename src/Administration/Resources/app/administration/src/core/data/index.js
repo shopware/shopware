@@ -1,21 +1,23 @@
-import LocalStore from './LocalStore';
-import LanguageStore from './LanguageStore';
-import UploadStore from './UploadStore';
-import EntityStore from './EntityStore';
+import ChangesetGenerator from './changeset-generator.data';
+import Criteria from './criteria.data';
+import Entity from './entity.data';
+import EntityCollection from './entity-collection.data';
+import EntityDefinition from './entity-definition.data';
+import EntityFactory from './entity-factory.data';
+import EntityHydrator from './entity-hydrator.data';
+import Repository from './repository.data';
 import ErrorResolver from './error-resolver.data';
 import ErrorStore from './error-store.data';
-import AssociationStore from './AssociationStore';
-import EntityProxy from './EntityProxy';
-import CriteriaFactory from '../factory/criteria.factory';
 
 export default {
-    LocalStore,
-    LanguageStore,
-    UploadStore,
-    EntityStore,
-    CriteriaFactory,
+    ChangesetGenerator,
+    Criteria,
+    Entity,
+    EntityCollection,
+    EntityDefinition,
+    EntityFactory,
+    EntityHydrator,
+    Repository,
     ErrorResolver,
-    ErrorStore,
-    AssociationStore,
-    EntityProxy
+    ErrorStore
 };

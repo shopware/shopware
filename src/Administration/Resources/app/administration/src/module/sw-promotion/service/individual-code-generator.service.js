@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import CodeGenerator from '../service/code-generator.service';
-import Criteria from '../../../core/data-new/criteria.data';
+import Criteria from '../../../core/data/criteria.data';
 
 export default class IndividualCodeGenerator extends EventEmitter {
     /**

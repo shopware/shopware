@@ -12,7 +12,6 @@ const {
     ApiService,
     EntityDefinition,
     WorkerNotification,
-    DataDeprecated,
     Data,
     Classes,
     Helper
@@ -132,15 +131,6 @@ describe('core/common.js', () => {
         expect(WorkerNotification).toHaveProperty('initialize');
     });
 
-    /**
-     * @deprecated 6.1
-     */
-    it('should contain the necessary methods for the DataDeprecated', () => {
-        expect(DataDeprecated).toHaveProperty('LocalStore');
-        expect(DataDeprecated).toHaveProperty('UploadStore');
-        expect(DataDeprecated).toHaveProperty('CriteriaFactory');
-    });
-
     it('should contain the necessary methods for the Data', () => {
         expect(Data).toHaveProperty('ChangesetGenerator');
         expect(Data).toHaveProperty('Criteria');
@@ -159,7 +149,6 @@ describe('core/common.js', () => {
 
     it('should contain the necessary methods for the Helper', () => {
         expect(Helper).toHaveProperty('FlatTreeHelper');
-        expect(Helper).toHaveProperty('InfiniteScrollingHelper');
         expect(Helper).toHaveProperty('MiddlewareHelper');
     });
 });

@@ -1,4 +1,4 @@
-import RepositoryData from 'src/core/data-new/repository.data';
+import RepositoryData from 'src/core/data/repository.data';
 
 function mockContext() {
     return {

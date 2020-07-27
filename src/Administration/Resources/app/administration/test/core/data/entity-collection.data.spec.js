@@ -1,4 +1,4 @@
-import EntityCollection from 'src/core/data-new/entity-collection.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import utils from 'src/core/service/util.service';
 
 const fixture = [

@@ -48,7 +48,7 @@ Component.register('sw-manufacturer-list', {
 
         manufacturerCriteria() {
             const criteria = new Criteria();
-            const params = this.getListingParams();
+            const params = this.getMainListingParams();
 
             // Default sorting
             params.sortBy = params.sortBy || 'name';

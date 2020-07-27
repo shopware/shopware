@@ -11,6 +11,11 @@ class QueryBuilder extends DBALQueryBuilder
      */
     private $states = [];
 
+    /**
+     * @var string|null
+     */
+    private $title;
+
     public function addState(string $state): void
     {
         $this->states[] = $state;
@@ -24,5 +29,26 @@ class QueryBuilder extends DBALQueryBuilder
     public function getStates(): array
     {
         return $this->states;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function getSQL()
+    {
+        $sql = parent::getSQL();
+
+        if ($this->getTitle()) {
+            $sql = '# ' . $this->title . PHP_EOL . $sql;
+        }
+
+        return $sql;
     }
 }

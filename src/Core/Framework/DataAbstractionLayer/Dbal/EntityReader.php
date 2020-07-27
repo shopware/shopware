@@ -288,6 +288,10 @@ class EntityReader implements EntityReaderInterface
             $this->addIdCondition($criteria, $definition, $query);
         }
 
+        if ($criteria->getTitle()) {
+            $query->setTitle($criteria->getTitle() . '::read');
+        }
+
         return $query->execute()->fetchAll();
     }
 
@@ -298,6 +302,12 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection
     ): void {
         $associationCriteria = $criteria->getAssociation($association->getPropertyName()) ?? new Criteria();
+
+        if (!$associationCriteria->getTitle() && $criteria->getTitle()) {
+            $associationCriteria->setTitle(
+                $criteria->getTitle() . '::association::' . $association->getPropertyName()
+            );
+        }
 
         //check if the requested criteria is restricted (limit, offset, sorting, filtering)
         if ($this->isAssociationRestricted($criteria, $association->getPropertyName())) {
@@ -380,6 +390,12 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria = new Criteria();
         if ($criteria->hasAssociation($association->getPropertyName())) {
             $fieldCriteria = $criteria->getAssociation($association->getPropertyName());
+        }
+
+        if (!$fieldCriteria->getTitle() && $criteria->getTitle()) {
+            $fieldCriteria->setTitle(
+                $criteria->getTitle() . '::association::' . $association->getPropertyName()
+            );
         }
 
         //association should not be paginated > load data over foreign key condition
@@ -965,6 +981,12 @@ class EntityReader implements EntityReaderInterface
         $associationCriteria = $criteria->getAssociation($association->getPropertyName());
         if (!$associationCriteria->getAssociations()) {
             return;
+        }
+
+        if (!$associationCriteria->getTitle() && $criteria->getTitle()) {
+            $associationCriteria->setTitle(
+                $criteria->getTitle() . '::association::' . $association->getPropertyName()
+            );
         }
 
         $related = $collection->map(function (Entity $entity) use ($association) {

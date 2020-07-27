@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -230,15 +231,17 @@ class SnippetService
 
     private function fetchSnippetsFromDatabase(string $snippetSetId): array
     {
-        $snippets = $this->connection->createQueryBuilder()
+        $query = (new QueryBuilder($this->connection))
             ->select(['snippet.translation_key', 'snippet.value'])
             ->from('snippet')
             ->where('snippet.snippet_set_id = :snippetSetId')
             ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId))
             ->addGroupBy('snippet.translation_key')
-            ->addGroupBy('snippet.id')
-            ->execute()
-            ->fetchAll();
+            ->addGroupBy('snippet.id');
+
+        $query->setTitle('snippet-service::load-snippets');
+
+        $snippets = $query->execute()->fetchAll();
 
         return FetchModeHelper::keyPair($snippets);
     }
@@ -320,13 +323,15 @@ class SnippetService
 
     private function getLocaleBySnippetSetId(string $snippetSetId): string
     {
-        $locale = $this->connection->createQueryBuilder()
+        $query = (new QueryBuilder($this->connection))
             ->select(['iso'])
             ->from('snippet_set')
             ->where('id = :snippetSetId')
-            ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId))
-            ->execute()
-            ->fetchColumn();
+            ->setParameter('snippetSetId', Uuid::fromHexToBytes($snippetSetId));
+
+        $query->setTitle('snippet-service::get-snippet-iso');
+
+        $locale = $query->execute()->fetchColumn();
 
         if ($locale === false) {
             throw new \InvalidArgumentException(sprintf('No snippetSet with id "%s" found', $snippetSetId));

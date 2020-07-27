@@ -70,6 +70,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         $criteria = new Criteria($ids);
         $criteria->addAssociation('prices');
         $criteria->addAssociation('deliveryTime');
+        $criteria->setTitle('cart::shipping-methods');
 
         $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
 

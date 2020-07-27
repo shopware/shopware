@@ -23,6 +23,7 @@ class ProductGateway implements ProductGatewayInterface
     public function get(array $ids, SalesChannelContext $context): ProductCollection
     {
         $criteria = new Criteria($ids);
+        $criteria->setTitle('cart::products');
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
 

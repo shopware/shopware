@@ -45,8 +45,11 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         $navigationId = $this->getNavigationId($request, $context);
 
+        $criteria = new Criteria();
+        $criteria->setTitle('cms::product-listing');
+
         $listing = $this->listingRoute
-            ->load($navigationId, $request, $context, new Criteria())
+            ->load($navigationId, $request, $context, $criteria)
             ->getResult();
 
         $data->setListing($listing);

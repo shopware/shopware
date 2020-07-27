@@ -100,6 +100,10 @@ class EntitySearcher implements EntitySearcherInterface
 
         $this->addTotalCountMode($criteria, $query);
 
+        if ($criteria->getTitle()) {
+            $query->setTitle($criteria->getTitle() . '::search-ids');
+        }
+
         //execute and fetch ids
         $rows = $query->execute()->fetchAll();
 

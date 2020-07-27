@@ -95,6 +95,7 @@ class NavigationRoute extends AbstractNavigationRoute
     ): NavigationRouteResponse {
         $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
+
         $activeId = $this->resolveAliasId($requestActiveId, $context->getSalesChannel());
         $rootId = $this->resolveAliasId($requestRootId, $context->getSalesChannel());
 
@@ -207,6 +208,7 @@ class NavigationRoute extends AbstractNavigationRoute
     private function getCategoryMetaInfo(string $activeId, string $rootId): array
     {
         $result = $this->connection->fetchAll('
+            # navigation-route::meta-information
             SELECT LOWER(HEX(`id`)), `path`, `level`
             FROM `category`
             WHERE `id` = :activeId OR `parent_id` = :activeId OR `id` = :rootId

@@ -211,6 +211,7 @@ class SystemConfigService
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('system-config::load');
 
         if ($salesChannelId === null) {
             $criteria->addFilter(new EqualsFilter('salesChannelId', null));

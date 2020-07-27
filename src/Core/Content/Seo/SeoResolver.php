@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -47,7 +48,7 @@ class SeoResolver implements SeoResolverInterface
             return $item->get();
         }
 
-        $query = $this->connection->createQueryBuilder()
+        $query = (new QueryBuilder($this->connection))
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical')
             ->from('seo_url')
             ->where('language_id = :language_id')
@@ -59,6 +60,8 @@ class SeoResolver implements SeoResolverInterface
             ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
             ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
             ->setParameter('seoPath', $seoPathInfo);
+
+        $query->setTitle('seo-url::resolve');
 
         $seoPath = $query->execute()->fetch();
 

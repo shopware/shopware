@@ -26,13 +26,16 @@ class RepositoryIteratorTest extends TestCase
 
         $iterator = new RepositoryIterator($systemConfigRepository, $context, $criteria);
 
-        $expectedCriteriaJson = '{"sorting":[],"filters":[{"field":"configurationKey","value":"core","extensions":[]}],"postFilters":[],"aggregations":[],"queries":[],"groupFields":[],"offset":XXOFFSETXX,"limit":1,"totalCountMode":0,"associations":[],"ids":[],"states":[],"inherited":false,"term":null,"includes":null,"extensions":[]}';
-
-        $x = 0;
+        $offset = 1;
         while (($result = $iterator->fetch()) !== null) {
-            $expectedCriteriaJsonActual = str_replace('XXOFFSETXX', ++$x, $expectedCriteriaJson);
             static::assertNotEmpty($result->first()->getId());
-            static::assertEquals($expectedCriteriaJsonActual, json_encode($criteria));
+            static::assertEquals(
+                [new ContainsFilter('configurationKey', 'core')],
+                $criteria->getFilters()
+            );
+            static::assertCount(0, $criteria->getPostFilters());
+            static::assertEquals($offset, $criteria->getOffset());
+            ++$offset;
         }
     }
 }

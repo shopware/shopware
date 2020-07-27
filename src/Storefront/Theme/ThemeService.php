@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
@@ -150,20 +151,31 @@ class ThemeService
     public function getThemeConfiguration(string $themeId, bool $translate, Context $context): array
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
-        /** @var ThemeEntity $baseTheme */
-        $baseTheme = $this->themeRepository->search($criteria, $context)->first();
+        $criteria->setTitle('theme-service::load-config');
 
-        $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
+        $criteria->addFilter(new MultiFilter(
+            MultiFilter::CONNECTION_OR,
+            [
+                new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME),
+                new EqualsFilter('id', $themeId),
+            ]
+        ));
 
-        $criteria = new Criteria([$themeId]);
+        $themes = $this->themeRepository->search($criteria, $context);
+
+        $theme = $themes->get($themeId);
 
         /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
-
         if (!$theme) {
             throw new InvalidThemeException($themeId);
         }
+
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $themes->filter(function (ThemeEntity $theme) {
+            return $theme->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME;
+        })->first();
+
+        $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
         $themeConfigFieldFactory = new ThemeConfigFieldFactory();
         $configFields = [];
@@ -209,7 +221,9 @@ class ThemeService
             $resolvedConfig[$key] = $data['value'];
         }
 
-        $result = $this->mediaRepository->search(new Criteria(array_keys($mediaItems)), $context);
+        $criteria = new Criteria(array_keys($mediaItems));
+        $criteria->setTitle('theme-service::resolve-media');
+        $result = $this->mediaRepository->search($criteria, $context);
 
         foreach ($result as $media) {
             if (!array_key_exists($media->getId(), $mediaItems)) {

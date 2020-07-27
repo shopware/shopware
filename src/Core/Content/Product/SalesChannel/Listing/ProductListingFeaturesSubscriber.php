@@ -415,6 +415,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria->addAssociation('group');
         $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsFilter('group.filterable', true));
+        $criteria->setTitle('product-listing::property-filter');
 
         $result = $this->optionRepository->search($criteria, $event->getContext());
 

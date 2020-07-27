@@ -427,17 +427,12 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         convertPrice(value, currency) {
-            const price = {
+            return {
                 net: value.net * currency.factor,
                 gross: value.gross * currency.factor,
                 currencyId: currency.id,
                 linked: false
             };
-
-            price.net = Number(price.net.toFixed(currency.decimalPrecision));
-            price.gross = Number(price.gross.toFixed(currency.decimalPrecision));
-
-            return price;
         },
 
         onQuantityEndChange(price) {

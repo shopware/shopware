@@ -194,6 +194,7 @@
                                         :size="compact ? 'small' : 'default'"
                                         class="sw-settings-shipping-price-matrix__price-input"
                                         v-model="props.currentValue.gross"
+                                        :digits="50"
                                         :disabled="props.isInherited">
                                     </sw-number-field>
                                     <sw-number-field
@@ -201,6 +202,7 @@
                                         :size="compact ? 'small' : 'default'"
                                         class="sw-settings-shipping-price-matrix__price-input"
                                         v-model="props.currentValue.net"
+                                        :digits="50"
                                         :disabled="props.isInherited">
                                     </sw-number-field>
                                 </template>

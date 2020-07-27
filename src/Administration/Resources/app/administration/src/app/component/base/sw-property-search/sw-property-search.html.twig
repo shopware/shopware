@@ -89,8 +89,13 @@
 
                                 {% block sw_property_search_tree_option_grid_columns %}
                                     <template slot="columns" slot-scope="{ item }">
+
                                         {% block sw_property_search_tree_option_grid_columns_name %}
-                                            <sw-grid-column truncate flex="200px" dataIndex="name">
+                                            <sw-grid-column class="sw-property-search__tree-selection__option_grid--option-value"
+                                                truncate
+                                                flex="minmax(0, 1fr)"
+                                                dataIndex="name"
+                                                :title="item.translated.name">
                                                 {{ item.translated.name }}
                                             </sw-grid-column>
                                         {% endblock %}

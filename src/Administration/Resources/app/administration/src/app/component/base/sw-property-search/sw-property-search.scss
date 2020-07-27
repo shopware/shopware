@@ -1,8 +1,12 @@
 @import "~scss/variables";
 
 .sw-property-search {
-    .sw-property-search__tree-selection__option_grid {
+    &__tree-selection__option_grid {
         padding-top: 10px;
+
+        .sw-property-search__tree-selection__option_grid--option-value div.sw-grid__cell-content {
+            padding: 0 20px 0 0;
+        }
     }
 
     .sw-property-search__tree-selection {

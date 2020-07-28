@@ -69,6 +69,11 @@
                 <file name="platform/src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
             </errorLevel>
         </InaccessibleMethod>
+        <UnusedVariable>
+            <errorLevel type="info">
+                <file name="platform/src/Storefront/Test/Theme/ThemeTest.php"/>
+            </errorLevel>
+        </UnusedVariable>
 
         <LessSpecificImplementedReturnType errorLevel="info"/>
 

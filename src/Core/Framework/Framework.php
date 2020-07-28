@@ -95,6 +95,11 @@ class Framework extends Bundle
     {
         parent::boot();
 
+        Feature::setRegisteredFeatures(
+            $this->container->getParameter('shopware.feature.flags'),
+            $this->container->getParameter('kernel.cache_dir') . '/shopware_features.php'
+        );
+
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
@@ -129,6 +134,10 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+        $shopwareFeaturesPath = $container->getParameter('kernel.cache_dir') . '/shopware_features.php';
+        if (is_readable($shopwareFeaturesPath)) {
+            $configLoader->load($shopwareFeaturesPath, 'php');
+        }
     }
 
     private function registerEntityExtensions(

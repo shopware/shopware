@@ -51,3 +51,12 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: true
+
+    feature:
+        flags:
+            - NEXT-733
+            - NEXT-1797
+            - NEXT-3722
+            - NEXT-6009
+            - NEXT-6997
+            - NEXT-9225

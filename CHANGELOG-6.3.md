@@ -30,12 +30,13 @@ NEXT
 
 #### Storefront
 
+* Added open, close and clear input functionality to the datetime picker component
 * We extended setup of the `storefront:hot-proxy`
     * The proxy's assets port is now configurable.
         * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
     * The default port is still port 9999.
-
-6.3.0.0
+    
+6.3.0
 ----------------
 
 #### Administration
@@ -147,7 +148,7 @@ NEXT
 * Refactor `sw-settings-user-detail`
     * Added `newPasswordConfirm`
     * Fixed issue when saving new admin password
-    * Disabled `change` button if passwords does not match
+    * Disabled `change` button if passwords do not match
 * Added language switch to Scale Units list page to translate scale units
 * Added tooltips to the toolbar of text editor
 * Added isInlineEdit property to component `sw-text-editor-toolbar`

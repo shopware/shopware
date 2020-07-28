@@ -184,8 +184,8 @@
       "placeholderCity": "Enter city...",
       "placeholderCountry": "Select country...",
       "placeholderState": "Select state...",
-      "placeholderAdditionalAddressLine1": "Enter a first additional address line ...",
-      "placeholderAdditionalAddressLine2": "Enter a second additional address line ...",
+      "placeholderAdditionalAddressLine1": "Enter a first additional address line...",
+      "placeholderAdditionalAddressLine2": "Enter a second additional address line...",
       "placeholderPhoneNumber": "Enter phone number...",
       "placeholderVatId": "Enter VAT-ID..."
     },

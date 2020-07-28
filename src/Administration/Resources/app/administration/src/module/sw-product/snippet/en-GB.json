@@ -171,7 +171,7 @@
       "columnActive": "Active",
       "columnPrice": "Price",
       "columnInStock": "In stock",
-      "columnAvailableStock": "Still available",
+      "columnAvailableStock": "Available",
       "columnActions": "Action(s)",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",

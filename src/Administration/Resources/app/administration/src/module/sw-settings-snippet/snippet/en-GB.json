@@ -58,7 +58,7 @@
     },
     "setList": {
       "title": "Manage snippets",
-      "description": "This is an overview of your snippet sets. Select a set and edit individual snippets to your liking. It will also be possible to import snippets, create new ones and export existing ones to local CSV files.",
+      "description": "This is an overview of your snippet sets. Select a set and edit individual snippets to your liking.",
       "cardTitle": "Snippet sets",
       "buttonAddSet": "Add snippet set",
       "buttonCancel": "Cancel",

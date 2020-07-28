@@ -8,9 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Snippet\SnippetService;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\Exception\LogicException;
 use Symfony\Component\Translation\Formatter\ChoiceMessageFormatterInterface;
@@ -31,19 +29,9 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     private $translator;
 
     /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
      * @var CacheItemPoolInterface
      */
     private $cache;
-
-    /**
-     * @var array
-     */
-    private $isCustomized = [];
 
     /**
      * @var MessageFormatterInterface
@@ -56,19 +44,9 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     private $snippetService;
 
     /**
-     * @var string|null
-     */
-    private $fallbackLocale;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $languageRepository;
-
-    /**
-     * @var string|null
-     */
-    private $snippetSetId = null;
 
     /**
      * @var string|null
@@ -80,22 +58,27 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private $environment;
 
+    /**
+     * @var TranslatorRequestCache
+     */
+    private $translatorRequestCache;
+
     public function __construct(
         TranslatorInterface $translator,
-        RequestStack $requestStack,
         CacheItemPoolInterface $cache,
         MessageFormatterInterface $formatter,
         SnippetService $snippetService,
         EntityRepositoryInterface $languageRepository,
-        string $environment
+        string $environment,
+        TranslatorRequestCache $translatorRequestCache
     ) {
         $this->translator = $translator;
-        $this->requestStack = $requestStack;
         $this->cache = $cache;
         $this->formatter = $formatter;
         $this->snippetService = $snippetService;
         $this->languageRepository = $languageRepository;
         $this->environment = $environment;
+        $this->translatorRequestCache = $translatorRequestCache;
     }
 
     /**
@@ -191,9 +174,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
 
     public function resetInMemoryCache(): void
     {
-        $this->isCustomized = [];
-        $this->fallbackLocale = null;
-        $this->snippetSetId = null;
+        $this->translatorRequestCache->reset();
     }
 
     /**
@@ -211,7 +192,7 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     public function resetInjection(): void
     {
         $this->setLocale($this->localeBeforeInject);
-        $this->snippetSetId = null;
+        $this->translatorRequestCache->setSnippetSetId(null);
     }
 
     private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
@@ -233,9 +214,9 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
     {
         $snippetSet = $this->snippetService->getSnippetSet($salesChannelId, $languageId, $locale, $context);
         if ($snippetSet === null) {
-            $this->snippetSetId = null;
+            $this->translatorRequestCache->setSnippetSetId(null);
         } else {
-            $this->snippetSetId = $snippetSet->getId();
+            $this->translatorRequestCache->setSnippetSetId($snippetSet->getId());
         }
     }
 
@@ -244,13 +225,13 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
      */
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId();
+        $snippetSetId = $this->translatorRequestCache->getSnippetSetId();
         if (!$snippetSetId) {
             return $catalog;
         }
 
-        if (array_key_exists($snippetSetId, $this->isCustomized)) {
-            return $this->isCustomized[$snippetSetId];
+        if (array_key_exists($snippetSetId, $this->translatorRequestCache->getIsCustomized())) {
+            return $this->translatorRequestCache->getIsCustomized()[$snippetSetId];
         }
 
         $snippets = $this->loadSnippets($catalog, $snippetSetId, $fallbackLocale);
@@ -258,7 +239,11 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         $newCatalog = clone $catalog;
         $newCatalog->add($snippets);
 
-        return $this->isCustomized[$snippetSetId] = $newCatalog;
+        $customized = $this->translatorRequestCache->getIsCustomized();
+        $customized[$snippetSetId] = $newCatalog;
+        $this->translatorRequestCache->setIsCustomized($customized);
+
+        return $newCatalog;
     }
 
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
@@ -276,26 +261,10 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
         return $snippets;
     }
 
-    private function getSnippetSetId(): ?string
-    {
-        if ($this->snippetSetId !== null) {
-            return $this->snippetSetId;
-        }
-
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return null;
-        }
-
-        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
-
-        return $this->snippetSetId;
-    }
-
     private function getFallbackLocale(): string
     {
-        if ($this->fallbackLocale) {
-            return $this->fallbackLocale;
+        if ($this->translatorRequestCache->getFallbackLocale()) {
+            return $this->translatorRequestCache->getFallbackLocale();
         }
 
         $criteria = new Criteria();
@@ -306,6 +275,8 @@ class Translator implements TranslatorInterface, TranslatorBagInterface, LegacyT
 
         $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
 
-        return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
+        $this->translatorRequestCache->setFallbackLocale($defaultLanguage->getLocale()->getCode());
+
+        return $this->translatorRequestCache->getFallbackLocale();
     }
 }

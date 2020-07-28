@@ -193,12 +193,12 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator.inner"/>
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument type="service" id="language.repository"/>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\TranslatorRequestCache"/>
 
             <tag name="monolog.logger"/>
         </service>
@@ -209,6 +209,14 @@ base-uri 'self';
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Translation\RequestStackCacheInvalidate"
+                 decorates="request_stack">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\RequestStackCacheInvalidate.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\TranslatorRequestCache"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Translation\TranslatorRequestCache"/>
 
         <!-- Snippets -->
         <service id="Shopware\Core\System\Snippet\SnippetService">

@@ -46,6 +46,10 @@ Component.register('sw-property-option-list', {
             return State.get('context').api.languageId;
         },
 
+        allowInlineEdit() {
+            return !!this.acl.can('property.editor');
+        },
+
         tooltipAdd() {
             if (!this.acl.can('property.editor')) {
                 return {

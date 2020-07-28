@@ -58,7 +58,7 @@
                 :columns="getGroupColumns()"
                 :fullPage="false"
                 :localMode="propertyGroup.isNew()"
-                :allowInlineEdit="acl.can('property.editor')"
+                :allowInlineEdit="allowInlineEdit"
                 :sortBy="sortBy"
                 :sortDirection="sortDirection"
                 @selection-change="onGridSelectionChanged">

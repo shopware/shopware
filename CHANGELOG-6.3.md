@@ -949,6 +949,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
 * Added `user:change-password` command to set the password of an administration user
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
+* It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin
 
 #### Storefront
 * Added plugin injection in hot mode

@@ -28,24 +28,24 @@
       "buttonSave": "Speichern",
       "messageSaveError": "Fehler beim Speichern des Steuersatzes.",
       "messageSaveSuccess": "Steuersatz gespeichert."
+    },
+    "taxRuleCard": {
+      "tooltipCountries": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
+      "labelTaxRate": "Steuersatz",
+      "labelAppliesOn": "Gilt für",
+      "labelCountryName": "Land",
+      "cardTitle": "Länder-Steuersätze",
+      "searchBarPlaceholder": "Suche Länder",
+      "labelCreateNew": "Land hinzufügen",
+      "labelCancel": "Abbrechen",
+      "labelStates": "Staaten",
+      "labelZipCode": "Postleitzahl",
+      "labelFromZipCode": "Bis ...",
+      "labelToZipCode": "Von ...",
+      "emptyStateDescription": "Füge Steuerraten für verschiedene Länder hinzu.",
+      "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
+      "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
+      "placeholderStates": "Staaten hinzufügen"
     }
-  },
-  "taxRuleCard": {
-    "tooltipCountries": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",
-    "labelTaxRate": "Steuersatz",
-    "labelAppliesOn": "Gilt für",
-    "labelCountryName": "Land",
-    "cardTitle": "Länder-Steuersätze",
-    "searchBarPlaceholder": "Suche Länder",
-    "labelCreateNew": "Land hinzufügen",
-    "labelCancel": "Abbrechen",
-    "labelStates": "Staaten",
-    "labelZipCode": "Postleitzahl",
-    "labelFromZipCode": "Bis ...",
-    "labelToZipCode": "Von ...",
-    "emptyStateDescription": "Füge Steuerraten für verschiedene Länder hinzu.",
-    "createStateDescription": "Speichere zuerst den Steuersatz, um weitere Länder hinzufügen zu können.",
-    "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
-    "placeholderStates": "Staaten hinzufügen"
   }
 }

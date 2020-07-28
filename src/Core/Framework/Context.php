@@ -194,6 +194,9 @@ class Context extends Struct
         return $this->scope;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Use getRounding instead
+     */
     public function getCurrencyPrecision(): int
     {
         return $this->rounding->getDecimals();
@@ -295,5 +298,10 @@ class Context extends Struct
     public function getRounding(): CashRoundingConfig
     {
         return $this->rounding;
+    }
+
+    public function setRounding(CashRoundingConfig $rounding): void
+    {
+        $this->rounding = $rounding;
     }
 }

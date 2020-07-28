@@ -36,15 +36,17 @@ class CurrencyFormatter
      * @throws InconsistentCriteriaIdsException
      * @throws LanguageNotFoundException
      */
-    public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context): string
+    public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null): string
     {
+        $decimals = $decimals ?? $context->getCurrencyPrecision();
+
         return $this->formatCurrency(
             $price,
             $this->getLocale($languageId, $context),
             $currency,
             \NumberFormatter::CURRENCY,
             null,
-            $context->getCurrencyPrecision()
+            $decimals
         );
     }
 

@@ -43,7 +43,7 @@ CREATE TABLE `currency_country_rounding` (
   `item_rounding` json NOT NULL,
   `total_rounding` json NOT NULL,
   `created_at` datetime(3) NOT NULL,
-  `updated_at` datetime(3) NOT NULL,
+  `updated_at` datetime(3) NULL,
   PRIMARY KEY (`id`),
   KEY `currency_id` (`currency_id`),
   KEY `country_id` (`country_id`),

@@ -1,0 +1,13 @@
+{% block page_checkout_summary_net %}
+    {% block page_checkout_summary_net_label %}
+        <dt class="col-7 checkout-aside-summary-label summary-net">
+            {{ "checkout.summaryNetPrice"|trans|sw_sanitize }}
+        </dt>
+    {% endblock %}
+
+    {% block page_checkout_summary_net_value %}
+        <dd class="col-5 checkout-aside-summary-value summary-net">
+            {{ summary.price.netPrice|currency }}
+        </dd>
+    {% endblock %}
+{% endblock %}

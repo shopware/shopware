@@ -10,10 +10,9 @@
         }
 
         .checkout-aside {
-            @extend .col-xl-3;
+            @extend .col-xl-4;
             @extend .col-lg-4;
             @extend .col-md-5;
-            @extend .offset-xl-1;
             @extend .offset-lg-0;
             @extend .offset-md-7;
         }

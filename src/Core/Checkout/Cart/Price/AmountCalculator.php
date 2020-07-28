@@ -102,8 +102,8 @@ class AmountCalculator
         );
 
         $net = $this->rounding->mathRound(
-            $price - $taxes->getAmount(),
-            $context->getTotalRounding()
+            $total->getTotalPrice() - $taxes->getAmount(),
+            $context->getItemRounding()
         );
 
         return new CartPrice(
@@ -112,7 +112,8 @@ class AmountCalculator
             $prices->sum()->getTotalPrice(),
             $taxes,
             $total->getTaxRules(),
-            CartPrice::TAX_STATE_GROSS
+            CartPrice::TAX_STATE_GROSS,
+            $total->getTotalPrice()
         );
     }
 
@@ -145,7 +146,8 @@ class AmountCalculator
             $prices->sum()->getTotalPrice(),
             $taxes,
             $total->getTaxRules(),
-            CartPrice::TAX_STATE_NET
+            CartPrice::TAX_STATE_NET,
+            $total->getTotalPrice() + $taxes->getAmount()
         );
     }
 
@@ -156,7 +158,7 @@ class AmountCalculator
 
             $taxes->mathRound(
                 $this->rounding,
-                $context->getTotalRounding()
+                $context->getItemRounding()
             );
 
             return $taxes;
@@ -172,7 +174,7 @@ class AmountCalculator
             $taxes = $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $rules);
         }
 
-        $taxes->mathRound($this->rounding, $context->getTotalRounding());
+        $taxes->mathRound($this->rounding, $context->getItemRounding());
 
         return $taxes;
     }

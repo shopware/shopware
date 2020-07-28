@@ -84,16 +84,16 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                 $from = $this->getPriceForTaxState($listingPrice->getFrom(), $context);
                 $to = $this->getPriceForTaxState($listingPrice->getTo(), $context);
 
+                if ($listingPrice->getCurrencyId() !== $context->getContext()->getCurrencyId()) {
+                    $from *= $context->getContext()->getCurrencyFactor();
+                    $to *= $context->getContext()->getCurrencyFactor();
+                }
+
                 $from = QuantityPriceDefinition::create($from, $taxRules);
                 $from->setReferencePriceDefinition($reference);
 
                 $to = QuantityPriceDefinition::create($to, $taxRules);
                 $to->setReferencePriceDefinition($reference);
-
-                if ($listingPrice->getCurrencyId() !== $context->getContext()->getCurrencyId()) {
-                    $from *= $context->getContext()->getCurrencyFactor();
-                    $to *= $context->getContext()->getCurrencyFactor();
-                }
 
                 return ['from' => $from, 'to' => $to];
             }

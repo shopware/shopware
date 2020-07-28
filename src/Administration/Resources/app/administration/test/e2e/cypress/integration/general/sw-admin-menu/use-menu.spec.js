@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import MenuPageObject from '../../../support/pages/module/sw-admin-menu.page-object';
 

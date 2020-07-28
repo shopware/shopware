@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('CMS: Check usage and editing of commerce elements', () => {
     beforeEach(() => {

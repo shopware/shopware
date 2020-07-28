@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import PropertyPageObject from '../../../support/pages/module/sw-property.page-object';
 

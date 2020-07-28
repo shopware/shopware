@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('Plugin: Plugin manager', () => {
     beforeEach(() => {

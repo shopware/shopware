@@ -81,7 +81,7 @@ class CalculatedTaxCollection extends Collection
     }
 
     /**
-     * @deprecated tag:v6.4.0 - Use `cashRounding` instead
+     * @deprecated tag:v6.4.0 - Use `mathRound` instead
      */
     public function round(PriceRoundingInterface $priceRounding, int $precision): void
     {
@@ -92,11 +92,11 @@ class CalculatedTaxCollection extends Collection
         }
     }
 
-    public function cashRounding(CashRounding $rounding, CashRoundingConfig $config): void
+    public function mathRound(CashRounding $rounding, CashRoundingConfig $config): void
     {
         foreach ($this->elements as $tax) {
             $tax->setTax(
-                $rounding->cashRound($tax->getTax(), $config)
+                $rounding->mathRound($tax->getTax(), $config)
             );
         }
     }

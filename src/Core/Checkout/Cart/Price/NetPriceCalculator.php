@@ -48,7 +48,7 @@ class NetPriceCalculator
         );
 
         foreach ($calculatedTaxes as $tax) {
-            $total = $this->round(
+            $total = $this->priceRounding->mathRound(
                 $tax->getTax() * $definition->getQuantity(),
                 $config
             );
@@ -96,7 +96,7 @@ class NetPriceCalculator
 
         $price = $price / $definition->getPurchaseUnit() * $definition->getReferenceUnit();
 
-        $price = $this->round($price, $config);
+        $price = $this->priceRounding->mathRound($price, $config);
 
         return new ReferencePrice(
             $price,

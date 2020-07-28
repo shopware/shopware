@@ -61,7 +61,7 @@ describe('Product: Test crud operations', () => {
 
         // Check net price calculation
         cy.wait('@calculatePrice').then(() => {
-            cy.get('#sw-price-field-net').should('have.value', '8.4');
+            cy.get('#sw-price-field-net').should('have.value', '8.403361344537815');
         });
 
         cy.get('input[name=sw-field--product-stock]').type('100');

@@ -101,7 +101,7 @@ class AmountCalculator
             $context->getTotalRounding()
         );
 
-        $net = $this->rounding->cashRound(
+        $net = $this->rounding->mathRound(
             $price - $taxes->getAmount(),
             $context->getTotalRounding()
         );
@@ -154,7 +154,7 @@ class AmountCalculator
         if ($context->getTaxCalculationType() === SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL) {
             $taxes = $prices->getCalculatedTaxes();
 
-            $taxes->cashRounding(
+            $taxes->mathRound(
                 $this->rounding,
                 $context->getTotalRounding()
             );
@@ -172,7 +172,7 @@ class AmountCalculator
             $taxes = $this->taxCalculator->calculateNetTaxes($price->getTotalPrice(), $rules);
         }
 
-        $taxes->cashRounding($this->rounding, $context->getTotalRounding());
+        $taxes->mathRound($this->rounding, $context->getTotalRounding());
 
         return $taxes;
     }

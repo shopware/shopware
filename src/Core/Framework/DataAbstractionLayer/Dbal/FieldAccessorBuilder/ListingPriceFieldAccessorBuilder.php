@@ -34,6 +34,16 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $taxMode = 'gross';
         }
 
+        $template = '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.formatted.#rule_key#.#currency_key#.to.#tax_mode#")))';
+
+        $template = '(ROUND(CAST(' . $template . ' as DECIMAL(30, 20)), #decimals#))';
+
+        $multiplier = null;
+        if ($this->useCashRounding($context)) {
+            $multiplier = 100 / ($context->getRounding()->getInterval() * 100);
+            $template = '(ROUND(' . $template . ' * #multiplier#, 0) / #multiplier#)';
+        }
+
         foreach ($keys as $ruleId) {
             $parameters = [
                 '#root#' => $root,
@@ -41,12 +51,17 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#rule_key#' => 'r' . $ruleId,
                 '#currency_key#' => 'c' . $context->getCurrencyId(),
                 '#tax_mode#' => $taxMode,
+                '#decimals#' => $context->getRounding()->getDecimals(),
             ];
+
+            if ($multiplier !== null) {
+                $parameters['#multiplier#'] = $multiplier;
+            }
 
             $select[] = str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) + 0.0)'
+                $template
             );
 
             if ($context->getCurrencyId() === Defaults::CURRENCY) {
@@ -60,12 +75,13 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#currency_key#' => 'c' . Defaults::CURRENCY,
                 '#factor#' => $context->getCurrencyFactor(),
                 '#tax_mode#' => $taxMode,
+                '#decimals#' => $context->getRounding()->getDecimals(),
             ];
 
             $select[] = str_replace(
                 array_keys($parameters),
                 array_values($parameters),
-                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) * #factor#)'
+                $template
             );
         }
 
@@ -73,5 +89,18 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             ->buildAccessor($root, new PriceField('price', 'price'), $context, '');
 
         return sprintf('COALESCE(%s)', implode(',', $select));
+    }
+
+    private function useCashRounding(Context $context): bool
+    {
+        if ($context->getRounding()->getDecimals() !== 2) {
+            return false;
+        }
+
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            return true;
+        }
+
+        return $context->getRounding()->roundForNet();
     }
 }

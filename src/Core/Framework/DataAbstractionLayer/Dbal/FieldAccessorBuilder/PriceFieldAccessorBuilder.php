@@ -66,13 +66,13 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         $variables = [
             '#template#' => $template,
-            '#decimals#' => 20,
+            '#decimals#' => $context->getRounding()->getDecimals(),
         ];
 
         $template = str_replace(
             array_keys($variables),
             array_values($variables),
-            '(ROUND(CAST(#template# as DECIMAL(30, #decimals#)), #decimals#))'
+            '(ROUND(CAST(#template# as DECIMAL(30, 20)), #decimals#))'
         );
 
         if ($this->useCashRounding($context)) {

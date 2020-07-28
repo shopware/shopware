@@ -96,7 +96,7 @@ Component.register('sw-settings-tax-list', {
                 width: '250px',
                 primary: true
             }, {
-                property: 'defaultTaxRate',
+                property: 'taxRate',
                 inlineEdit: 'number',
                 label: 'sw-settings-tax.list.columnDefaultTaxRate'
             }];

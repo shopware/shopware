@@ -56,7 +56,7 @@
                                                        :isLoading="isLoading"
                                                        @inline-edit-save="onInlineEditSave">
                                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
-                                            <template #column-defaultTaxRate="{ item, isInlineEdit, compact }">
+                                            <template #column-taxRate="{ item, isInlineEdit, compact }">
                                                 <template v-if="isInlineEdit">
                                                     <sw-number-field :size="compact ? 'small' : 'default'" v-model="item.taxRate">
                                                         <template #suffix>

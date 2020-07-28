@@ -87,24 +87,21 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     public function process(CartDataCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)
-            && $behavior->hasPermission(self::SKIP_DELIVERY_TAX_RECALCULATION)) {
-            $deliveries = $original->getDeliveries();
+        if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)) {
+            $originalDeliveries = $original->getDeliveries();
+            $deliveriesWithNewShippingMethod = $this->builder->build($calculated, $data, $context, $behavior);
 
-            $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
+            if ($originalDeliveries->count() > 0 && $deliveriesWithNewShippingMethod->count() > 0) {
+                $originalDeliveries->first()->setShippingMethod($deliveriesWithNewShippingMethod->first()->getShippingMethod());
+            }
 
-            $calculated->setDeliveries($deliveries);
+            // New shipping method (if changed) but with old prices
+            $calculated->setDeliveries($originalDeliveries);
 
             return;
         }
 
         $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
-
-        if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)
-            && $deliveries->count() > 0
-            && $original->getDeliveries()->count() > 0) {
-            $deliveries->first()->setShippingCosts($original->getDeliveries()->first()->getShippingCosts());
-        }
 
         $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
 

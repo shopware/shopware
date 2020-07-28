@@ -51,14 +51,6 @@ Component.register('sw-property-option-list', {
         },
 
         tooltipAdd() {
-            if (!this.acl.can('property.editor')) {
-                return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('property.editor'),
-                    showOnDisabledElements: true
-                };
-            }
-
             return {
                 message: this.$tc('sw-property.detail.addOptionNotPossible'),
                 disabled: this.isSystemLanguage
@@ -66,7 +58,7 @@ Component.register('sw-property-option-list', {
         },
 
         disableAddButton() {
-            return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
+            return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.creator');
         }
     },
 

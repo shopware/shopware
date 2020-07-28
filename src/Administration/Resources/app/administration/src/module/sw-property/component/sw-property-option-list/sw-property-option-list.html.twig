@@ -39,7 +39,12 @@
                                     :disabled="disableAddButton"
                                     @click="onAddOption(propertyGroup)"
                                     size="small"
-                                    class="sw-property-option-list__add-button">
+                                    class="sw-property-option-list__add-button"
+                                    v-tooltip="{
+                                        message: this.$tc('sw-privileges.tooltip.warning'),
+                                        disabled: this.acl.can('property.creator'),
+                                        showOnDisabledElements: true
+                                    }">
                                     {{ $tc('sw-property.detail.addOption') }}
                                 </sw-button>
                             </sw-container>
@@ -67,6 +72,11 @@
                     <template v-if="isInlineEdit">
                        <sw-field v-model="item.name" size="small"></sw-field>
                     </template>
+
+                    <div v-else-if="!acl.can('property.editor')"
+                         class="sw-settings-option-detail__link">
+                        {{ item.translated.name }}
+                    </div>
 
                     <a v-else class="sw-settings-option-detail__link"
                        @click="onOptionEdit(item)">

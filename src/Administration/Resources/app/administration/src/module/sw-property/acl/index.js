@@ -7,14 +7,18 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'property_group_option:read',
-                    'property_group:read'
+                    'property_group:read',
+                    'media_default_folder:read',
+                    'media_folder:read',
+                    'media:read'
                 ],
                 dependencies: []
             },
             editor: {
                 privileges: [
                     'property_group_option:update',
-                    'property_group:update'
+                    'property_group:update',
+                    'media:create'
                 ],
                 dependencies: [
                     'property.viewer'

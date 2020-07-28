@@ -12,7 +12,7 @@ class ListingPrice extends Struct
     protected $currencyId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $ruleId;
 
@@ -36,12 +36,12 @@ class ListingPrice extends Struct
         $this->currencyId = $currencyId;
     }
 
-    public function getRuleId(): string
+    public function getRuleId(): ?string
     {
         return $this->ruleId;
     }
 
-    public function setRuleId(string $ruleId): void
+    public function setRuleId(?string $ruleId): void
     {
         $this->ruleId = $ruleId;
     }

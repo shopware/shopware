@@ -37,6 +37,7 @@
 
                 {% block sw_property_list_add_button %}
                     <sw-button
+                        class="sw-property-list__button-create"
                         :disabled="!acl.can('property.creator')"
                         :routerLink="{ name: 'sw.property.create' }"
                         variant="primary"
@@ -62,7 +63,9 @@
                 <div class="sw-property-list__content">
 
                     {% block sw_property_list_grid %}
-                        <sw-entity-listing :items="propertyGroup"
+                        <sw-entity-listing
+                            class="sw-property-list-grid"
+                            :items="propertyGroup"
                             :columns="getPropertyColumns()"
                             :repository="propertyRepository"
                             ref="propertyList"
@@ -120,7 +123,7 @@
                                     {% endblock %}
 
                                     {% block sw_property_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item
+                                        <sw-context-menu-item class="sw-property-list__delete-action"
                                             variant="danger"
                                             @click="onDelete(item.id)"
                                             :disabled=" !acl.can('property.deleter')">

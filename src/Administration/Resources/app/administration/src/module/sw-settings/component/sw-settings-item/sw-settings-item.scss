@@ -40,6 +40,7 @@ $sw-settings-item-hover-text-color: $color-shopware-blue;
 
     .sw-settings-item__label {
         font-size: $font-size-small;
+        word-break: break-all;
     }
 
     &:hover {

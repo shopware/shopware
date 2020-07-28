@@ -21,7 +21,9 @@
             "yes": "Yes",
             "no": "No",
             "confirm": "Confirm",
-            "view": "View"
+            "view": "Anzeigen",
+            "ascending": "Ascending",
+            "descending": "Descending"
         },
         "notification": {
             "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

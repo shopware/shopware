@@ -74,6 +74,7 @@ import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 import SwagBlockLink from 'src/helper/block-link.helper';
+import StoreApiClient from 'src/service/store-api-client.service';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -146,6 +147,11 @@ if (window.csrf.enabled && window.csrf.mode === 'ajax') {
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
+
+/** 
+ * @deprecated tag:v6.4.0 use storefront controller instead
+ */
+window.storeApiClient = StoreApiClient;
 
 /*
 run plugins

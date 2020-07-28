@@ -72,9 +72,13 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['translations'] = static function (Container $c) {
-            $selectedLanguage = $c->offsetGet('install.language') ?: 'en';
+            // load 'en' as fallback translation
+            $fallbackTranslation = require __DIR__ . '/../data/lang/en.php';
 
-            return require __DIR__ . "/../data/lang/$selectedLanguage.php";
+            $selectedLanguage = $c->offsetGet('install.language') ?: 'en';
+            $selectedTranslation = require __DIR__ . "/../data/lang/$selectedLanguage.php";
+
+            return array_merge($fallbackTranslation, $selectedTranslation);
         };
 
         $container['translation.service'] = static function (Container $c) {

@@ -40,8 +40,13 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
     @session_start();
     @set_time_limit(0);
 
+    // load 'en' as fallback translation
+    $fallbackTranslation = require __DIR__ . '/../data/lang/en.php';
+
     $selectedLanguage = Utils::getLanguage($lang);
-    $language = require __DIR__ . "/../data/lang/$selectedLanguage.php";
+    $selectedTranslation = require __DIR__ . "/../data/lang/$selectedLanguage.php";
+
+    $language = array_merge($fallbackTranslation, $selectedTranslation);
 
     $clientIp = Utils::getRealIpAddr();
 

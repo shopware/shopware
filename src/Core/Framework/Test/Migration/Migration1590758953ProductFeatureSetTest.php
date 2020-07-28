@@ -11,7 +11,6 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -42,11 +41,16 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
         $migration = new Migration1590758953ProductFeatureSet();
 
-        if ($this->hasFeatureSetsColumn($connection, 'product')) {
-            $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `featureSets`;');
+        if ($this->hasColumn($connection, 'product', 'featureSet')) {
+            $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `featureSet`;');
         }
 
-        $connection->executeUpdate('DROP TABLE IF EXISTS `product_feature`;');
+        if ($this->hasColumn($connection, 'product', 'product_feature_set_id')) {
+            $connection->executeUpdate('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.feature_set_id`;');
+            $connection->executeUpdate('ALTER TABLE `product` DROP INDEX `fk.product.feature_set_id`;');
+            $connection->executeUpdate('ALTER TABLE `product` DROP COLUMN `product_feature_set_id`;');
+        }
+
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_feature_set_translation`;');
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_feature_set`;');
 
@@ -64,6 +68,22 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         sort($expectedColumns);
 
         static::assertEquals($expectedColumns, $actualColumns);
+    }
+
+    public function testProductTableExtensionIsComplete(): void
+    {
+        /* @var Column[] $columns */
+        $columns = array_filter(
+            $this->connection->getSchemaManager()->listTableColumns('product'),
+            static function (Column $column): bool {
+                return in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true);
+            }
+        );
+
+        foreach ($columns as $column) {
+            static::assertEquals(new BinaryType(), $column->getType());
+            static::assertFalse($column->getNotnull());
+        }
     }
 
     public function testDefaultFeatureSetIsCreated(): void
@@ -138,14 +158,6 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
                     self::getColumn('updated_at', new DateTimeType()),
                 ],
             ],
-            [
-                ProductFeatureDefinition::ENTITY_NAME,
-                [
-                    self::getColumn('product_feature_set_id', new BinaryType(), true),
-                    self::getColumn('product_id', new BinaryType(), true),
-                    self::getColumn('product_version_id', new BinaryType(), true),
-                ],
-            ],
         ];
     }
 
@@ -203,12 +215,12 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
         );
     }
 
-    private function hasFeatureSetsColumn(Connection $connection, string $table): bool
+    private function hasColumn(Connection $connection, string $table, string $columnName): bool
     {
         return count(array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
-            static function (Column $column): bool {
-                return $column->getName() === 'featureSets';
+            static function (Column $column) use ($columnName): bool {
+                return $column->getName() === $columnName;
             }
         )) > 0;
     }

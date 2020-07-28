@@ -39,6 +39,7 @@
                               :showActions="false"
                               :isLoading="valuesLoading"
                               identifier="sw-product-feature-set-modal-custom-field-list"
+                              ref="customFieldGrid"
                               @selection-change="setFeatureSelection">
 
                     {% block sw_settings_product_feature_sets_modal_custom_field_list_column_name %}
@@ -50,6 +51,18 @@
                     {% block sw_settings_product_feature_sets_modal_custom_field_list_column_type %}
                         <template #column-type="{ item }">
                             {{ item.type }}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_settings_product_feature_sets_modal_custom_field_list_pagination %}
+                        <template #pagination>
+                            <sw-pagination v-if="customFieldTotal > customFieldCriteria.limit"
+                                           :total="customFieldTotal"
+                                           :limit="customFieldCriteria.limit"
+                                           :page="customFieldCriteria.page"
+                                           :autoHide="false"
+                                           @page-change="paginateCustomFieldGrid">
+                            </sw-pagination>
                         </template>
                     {% endblock %}
 
@@ -81,11 +94,24 @@
                               :showActions="false"
                               :isLoading="valuesLoading"
                               identifier="sw-product-feature-set-modal-property-list"
+                              ref="propertyGroupGrid"
                               @selection-change="setFeatureSelection">
 
                     {% block sw_settings_product_feature_sets_modal_property_list_column_property %}
                         <template #column-id="{ item }">
                             {{ item.name }}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_settings_product_feature_sets_modal_property_list_pagination %}
+                        <template #pagination>
+                            <sw-pagination v-if="propertyGroupTotal > propertyGroupCriteria.limit"
+                                           :total="propertyGroupTotal"
+                                           :limit="propertyGroupCriteria.limit"
+                                           :page="propertyGroupCriteria.page"
+                                           :autoHide="false"
+                                           @page-change="paginatePropertyGroupGrid">
+                            </sw-pagination>
                         </template>
                     {% endblock %}
 

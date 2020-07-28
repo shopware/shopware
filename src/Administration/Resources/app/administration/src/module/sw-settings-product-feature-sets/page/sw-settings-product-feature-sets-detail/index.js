@@ -93,10 +93,12 @@ Component.register('sw-settings-product-feature-sets-detail', {
 
             if (this.productFeatureSetId) {
                 this.productFeatureSetId = this.$route.params.id;
-                this.productFeatureSetsRepository.get(this.productFeatureSetId, Shopware.Context.api).then((productFeatureSet) => {
-                    this.productFeatureSet = productFeatureSet;
-                    this.isLoading = false;
-                });
+                this.productFeatureSetsRepository
+                    .get(this.productFeatureSetId, Shopware.Context.api)
+                    .then((productFeatureSet) => {
+                        this.productFeatureSet = productFeatureSet;
+                        this.isLoading = false;
+                    });
                 return;
             }
 

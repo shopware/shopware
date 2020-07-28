@@ -34,7 +34,7 @@ class Migration1590758953ProductFeatureSet extends MigrationStep
         $defaultFeatureSetId = Uuid::randomBytes();
 
         $this->createTables($connection);
-        $this->updateInheritance($connection, 'product', 'featureSets');
+        $this->updateTables($connection);
 
         $this->insertDefaultFeatureSet($connection, $defaultFeatureSetId);
         $this->insertDefaultFeatureSetTranslations($connection, $defaultFeatureSetId);
@@ -70,20 +70,37 @@ CREATE TABLE IF NOT EXISTS `product_feature_set_translation` (
     CONSTRAINT `fk.product_feature_set_translation.product_feature_set_id` FOREIGN KEY (`product_feature_set_id`)
         REFERENCES `product_feature_set` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `product_feature` (
-    `product_feature_set_id` BINARY(16) NOT NULL,
-    `product_id`             BINARY(16) NOT NULL,
-    `product_version_id`     BINARY(16) NOT NULL,
-    PRIMARY KEY (`product_feature_set_id`, `product_id`, `product_version_id`),
-    CONSTRAINT `fk.product_feature.product_feature_set_id` FOREIGN KEY (`product_feature_set_id`)
-        REFERENCES `product_feature_set` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk.product_feature.product_id` FOREIGN KEY (`product_id`, `product_version_id`)
-        REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
 
         $connection->executeUpdate($sql);
+    }
+
+    private function updateTables(Connection $connection): void
+    {
+        $featureSetColumn = $connection->fetchColumn(
+            'SHOW COLUMNS FROM `product` WHERE `Field` LIKE :column;',
+            ['column' => 'product_feature_set_id']
+        );
+        $featureSetInheritanceColumn = $connection->fetchColumn(
+            'SHOW COLUMNS FROM `product` WHERE `Field` LIKE :column;',
+            ['column' => 'featureSet']
+        );
+
+        if ($featureSetColumn === false) {
+            $sql = <<<'SQL'
+ALTER TABLE `product`
+    ADD COLUMN `product_feature_set_id` BINARY(16) NULL AFTER `unit_id`;
+ALTER TABLE `product`
+    ADD CONSTRAINT `fk.product.feature_set_id` FOREIGN KEY (`product_feature_set_id`)
+        REFERENCES `product_feature_set` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+SQL;
+
+            $connection->executeUpdate($sql);
+        }
+
+        if ($featureSetInheritanceColumn === false) {
+            $this->updateInheritance($connection, 'product', 'featureSet');
+        }
     }
 
     private function insertDefaultFeatureSet(Connection $connection, string $featureSetId): void
@@ -133,9 +150,7 @@ SQL;
     private function assignDefaultFeatureSet(Connection $connection, string $featureSetId): void
     {
         $sql = <<<'SQL'
-INSERT INTO `product_feature` (`product_feature_set_id`, `product_id`, `product_version_id`)
-SELECT :feature_set_id, `id`, `version_id`
-FROM `product`;
+UPDATE `product` SET `product_feature_set_id` = :feature_set_id WHERE `product_feature_set_id` IS NULL;
 SQL;
 
         $connection->executeUpdate(

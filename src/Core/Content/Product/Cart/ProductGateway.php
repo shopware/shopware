@@ -27,7 +27,7 @@ class ProductGateway implements ProductGatewayInterface
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
 
-        ifNext6997Call($criteria, 'addAssociation', 'featureSets');
+        ifNext6997Call($criteria, 'addAssociation', 'featureSet');
         ifNext6997Call($criteria, 'addAssociation', 'properties.group');
 
         /** @var ProductCollection $result */

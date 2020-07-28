@@ -346,7 +346,7 @@
       "configInformation": "Create {0} templates first and assign them to each of your products by using the dropdown below.",
       "linkFeatureSetsConfig": "Essential Characteristics",
       "templateSelectFieldLabel": "Template",
-      "templateSelectFieldPlaceholder": "Choose one or more templates..."
+      "templateSelectFieldPlaceholder": "Select a template..."
     }
   },
   "sw-privileges": {

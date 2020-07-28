@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
 
@@ -103,7 +104,11 @@ Component.register('sw-settings-product-feature-sets-list', {
             promise.then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('global.default.success'),
-                    message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveSuccess', 0, { name: productFeatureSets.name })
+                    message: this.$tc(
+                        'sw-settings-product-feature-sets.detail.messageSaveSuccess',
+                        0,
+                        { name: productFeatureSets.name }
+                    )
                 });
             }).catch(() => {
                 this.getList();

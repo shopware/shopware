@@ -19,7 +19,7 @@ class ProductFeatureSetPropertyTest extends TestCase
     }
 
     /**
-     * @testWith    ["featureSets"]
+     * @testWith    ["featureSet"]
      */
     public function testDefinitionFieldsAreComplete(string $field): void
     {
@@ -29,7 +29,7 @@ class ProductFeatureSetPropertyTest extends TestCase
     }
 
     /**
-     * @testWith    ["getFeatureSets"]
+     * @testWith    ["getFeatureSet"]
      */
     public function testEntityIsComplete(string $method): void
     {

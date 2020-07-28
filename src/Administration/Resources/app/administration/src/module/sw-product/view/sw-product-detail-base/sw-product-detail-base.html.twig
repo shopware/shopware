@@ -130,6 +130,16 @@
             </sw-card>
         {% endblock %}
 
+        {% block sw_product_detail_base_feature_set_card %}
+            <sw-card :title="$tc('sw-product.featureSets.cardTitle')"
+                     :isLoading="loading.product"
+                     v-if="next6997">
+                {% block sw_product_detail_base_feature_set_form %}
+                    <sw-product-feature-set-form></sw-product-feature-set-form>
+                {% endblock %}
+            </sw-card>
+        {% endblock %}
+
         {% block sw_product_detail_attribute_sets %}
             <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
                      v-if="customFieldSetsArray.length > 0"
@@ -248,16 +258,6 @@
                                 icon="default-documentation-file"
                                 :subline="$tc('sw-product.reviewForm.messageEmptySubline')">
                 </sw-empty-state>
-            </sw-card>
-        {% endblock %}
-
-        {% block sw_product_detail_base_feature_set_card %}
-            <sw-card :title="$tc('sw-product.featureSets.cardTitle')"
-                     :isLoading="loading.product"
-                     v-if="next6997">
-                {% block sw_product_detail_base_feature_set_form %}
-                    <sw-product-feature-set-form></sw-product-feature-set-form>
-                {% endblock %}
             </sw-card>
         {% endblock %}
 

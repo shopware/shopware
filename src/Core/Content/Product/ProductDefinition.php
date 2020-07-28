@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductCo
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomFieldSetDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
@@ -254,8 +253,12 @@ class ProductDefinition extends EntityDefinition
 
         if (next6997()) {
             $collection->add(
-                (new ManyToManyAssociationField('featureSets', ProductFeatureSetDefinition::class, ProductFeatureDefinition::class, 'product_id', 'product_feature_set_id'))
-                    ->addFlags(new CascadeDelete(), new Inherited())
+                (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
+                    ->addFlags(new Inherited())
+            );
+            $collection->add(
+                (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
+                    ->addFlags(new Inherited())
             );
         }
 

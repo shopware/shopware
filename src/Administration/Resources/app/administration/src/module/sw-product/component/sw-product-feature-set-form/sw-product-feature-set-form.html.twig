@@ -34,21 +34,20 @@
                 <sw-container class="sw-product-feature-set-form__form">
 
                     {% block sw_product_feature_set_form_wrapper_input %}
-                        <sw-inherit-wrapper v-model="product.featureSets"
-                                            :inheritedValue="parentProduct.featureSets"
+                        <sw-inherit-wrapper v-model="product.featureSetId"
+                                            :inheritedValue="parentProduct.featureSetId"
                                             :label="$tc('sw-product.featureSets.templateSelectFieldLabel')"
                                             isAssociation>
                                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
 
                                     {% block sw_product_feature_set_form_input %}
-                                        <sw-entity-multi-select v-if="!loading.product && !loading.parentProduct"
-                                                                entity="product_feature_set"
-                                                                :entityCollection="currentValue"
-                                                                @change="updateCurrentValue"
-                                                                :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
-                                                                :disabled="isInherited"
-                                                                :key="isInherited">
-                                        </sw-entity-multi-select>
+                                        <sw-entity-single-select entity="product_feature_set"
+                                                                 :value="currentValue"
+                                                                 @change="updateCurrentValue"
+                                                                 :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
+                                                                 :disabled="isInherited"
+                                                                 :key="isInherited">
+                                        </sw-entity-single-select>
                                     {% endblock %}
 
                                 </template>

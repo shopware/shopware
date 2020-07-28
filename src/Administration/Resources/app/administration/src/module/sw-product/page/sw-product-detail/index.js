@@ -152,7 +152,7 @@ Component.register('sw-product-detail', {
                 .addAssociation('options.group')
                 .addAssociation('customFieldSets');
 
-            ifNext6997(() => criteria.addAssociation('featureSets'));
+            ifNext6997(() => criteria.addAssociation('featureSet'));
 
             return criteria;
         },
@@ -319,7 +319,7 @@ Component.register('sw-product-detail', {
                     gross: null
                 }];
 
-                this.product.featureSets = this.defaultFeatureSet;
+                this.product.featureSet = this.defaultFeatureSet;
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });

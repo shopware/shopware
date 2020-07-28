@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductFeatureSet;
 
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -29,6 +30,11 @@ class ProductFeatureSetEntity extends Entity
      * @var ProductFeatureSetTranslationCollection|null
      */
     protected $translations;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $products;
 
     public function getName(): ?string
     {
@@ -68,5 +74,15 @@ class ProductFeatureSetEntity extends Entity
     public function setTranslations(ProductFeatureSetTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    public function setProducts(ProductCollection $products): void
+    {
+        $this->products = $products;
     }
 }

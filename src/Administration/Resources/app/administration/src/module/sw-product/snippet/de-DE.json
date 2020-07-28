@@ -338,7 +338,7 @@
       "configInformation": "Lege zuerst Vorlagen für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
       "linkFeatureSetsConfig": "Wesentliche Merkmale",
       "templateSelectFieldLabel": "Vorlagen",
-      "templateSelectFieldPlaceholder": "Wähle eine oder mehrere Vorlagen aus..."
+      "templateSelectFieldPlaceholder": "Wähle eine Vorlage aus..."
     }
   },
   "sw-privileges": {

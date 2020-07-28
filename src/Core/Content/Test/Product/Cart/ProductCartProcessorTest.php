@@ -161,9 +161,7 @@ class ProductCartProcessorTest extends TestCase
         }
 
         $this->createProduct(array_merge([
-            'featureSets' => [
-                $this->createFeatureSet([$testedFeature]),
-            ],
+            'featureSet' => $this->createFeatureSet([$testedFeature]),
         ], $productData));
 
         $cart = $this->getProductCart();

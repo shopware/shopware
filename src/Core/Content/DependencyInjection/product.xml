@@ -108,11 +108,6 @@
             <tag name="shopware.feature" flag="next6997"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Aggregate\ProductFeature\ProductFeatureDefinition">
-            <tag name="shopware.entity.definition" entity="product_feature"/>
-            <tag name="shopware.feature" flag="next6997"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">
             <argument type="service" id="sales_channel.product.repository"/>
         </service>

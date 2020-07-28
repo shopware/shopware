@@ -70,47 +70,45 @@ class ProductFeatureBuilder
     private function buildFeatures(CartDataCollection $data, LineItem $lineItem, SalesChannelProductEntity $product): array
     {
         $features = [];
-        $featureSets = $product->getFeatureSets();
+        $featureSet = $product->getFeatureSet();
 
-        if ($featureSets === null || $featureSets->count() < 1) {
+        if ($featureSet === null) {
             return $features;
         }
 
-        foreach ($featureSets as $set) {
-            $sorted = $set->getFeatures();
+        $sorted = $featureSet->getFeatures();
 
-            if (empty($sorted)) {
+        if (empty($sorted)) {
+            return $features;
+        }
+
+        usort($sorted, static function (array $a, array $b) {
+            return $a['position'] <=> $b['position'];
+        });
+
+        foreach ($sorted as $feature) {
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE) {
+                $features[] = $this->getAttribute($feature['name'], $product);
+
                 continue;
             }
 
-            usort($sorted, static function (array $a, array $b) {
-                return $a['position'] <=> $b['position'];
-            });
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY) {
+                $features[] = $this->getProperty($feature['id'], $product);
 
-            foreach ($sorted as $feature) {
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE) {
-                    $features[] = $this->getAttribute($feature['name'], $product);
+                continue;
+            }
 
-                    continue;
-                }
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
+                $features[] = $this->getCustomField($feature['name'], $data, $product);
 
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY) {
-                    $features[] = $this->getProperty($feature['id'], $product);
+                continue;
+            }
 
-                    continue;
-                }
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE) {
+                $features[] = $this->getReferencePrice($lineItem, $product);
 
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-                    $features[] = $this->getCustomField($feature['name'], $data, $product);
-
-                    continue;
-                }
-
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE) {
-                    $features[] = $this->getReferencePrice($lineItem, $product);
-
-                    continue;
-                }
+                continue;
             }
         }
 
@@ -197,15 +195,17 @@ class ProductFeatureBuilder
      */
     private function isRequiredCustomField(string $name, SalesChannelProductEntity $product): bool
     {
-        foreach ($product->getFeatureSets() as $set) {
-            foreach ($set->getFeatures() as $feature) {
-                if ($feature['type'] !== ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-                    continue;
-                }
+        if ($product->getFeatureSet() === null || $product->getFeatureSet()->getFeatures() === null) {
+            return false;
+        }
 
-                if ($feature['name'] === $name && array_key_exists($name, $product->getTranslation('customFields'))) {
-                    return true;
-                }
+        foreach ($product->getFeatureSet()->getFeatures() as $feature) {
+            if ($feature['type'] !== ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
+                continue;
+            }
+
+            if ($feature['name'] === $name && array_key_exists($name, $product->getTranslation('customFields'))) {
+                return true;
             }
         }
 

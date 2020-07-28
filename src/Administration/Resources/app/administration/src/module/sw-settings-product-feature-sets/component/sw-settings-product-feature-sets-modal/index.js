@@ -106,6 +106,14 @@ Component.register('sw-settings-product-feature-sets-modal', {
                     name: this.$tc('sw-settings-product-feature-sets.modal.textReferencePriceLabel')
                 }
             ];
+        },
+
+        customFieldTotal() {
+            return this.customFields.total || 0;
+        },
+
+        propertyGroupTotal() {
+            return this.propertyGroups.total || 0;
         }
     },
 
@@ -113,7 +121,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
         return {
             showModal: false,
             featureType: null,
-            selectedFeatures: null,
+            selectedFeatures: new Map(),
             features: [],
             selectedFeatureType: null,
             showPageOne: true,
@@ -190,6 +198,9 @@ Component.register('sw-settings-product-feature-sets-modal', {
                 this.features = this.productFeatureSet.features;
             }
 
+            this.customFieldCriteria.setLimit(10);
+            this.propertyGroupCriteria.setLimit(10);
+
             this.getCustomFieldList();
             this.getPropertyList();
             this.getProductInformationList();
@@ -238,24 +249,31 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         getCustomFieldList() {
-            this.valuesLoading = true;
-            this.customFieldsRepository.search(this.customFieldCriteria, Shopware.Context.api).then((items) => {
-                this.customFields = items;
-
-                this.valuesLoading = false;
-                return items;
-            }).catch(() => {
-                this.valuesLoading = false;
-            });
+            return this.getList(
+                this.customFieldsRepository,
+                this.customFieldCriteria,
+                (items) => {
+                    this.customFields = items;
+                    this.valuesLoading = false;
+                }
+            );
         },
 
         getPropertyList() {
-            this.valuesLoading = true;
-            this.propertyGroupsRepository.search(this.propertyGroupCriteria, Shopware.Context.api).then((items) => {
-                this.propertyGroups = items;
+            return this.getList(
+                this.propertyGroupsRepository,
+                this.propertyGroupCriteria,
+                (items) => {
+                    this.propertyGroups = items;
+                    this.valuesLoading = false;
+                }
+            );
+        },
 
-                this.valuesLoading = false;
-            }).catch(() => {
+        getList(repository, criteria, callback) {
+            this.valuesLoading = true;
+
+            return repository.search(criteria, Shopware.Context.api).then(callback).catch(() => {
                 this.valuesLoading = false;
             });
         },
@@ -293,7 +311,7 @@ Component.register('sw-settings-product-feature-sets-modal', {
                     position: this.features.length + 1
                 });
             } else {
-                this.setFeatures(this.selectedFeatures);
+                this.selectedFeatures.forEach(features => this.setFeatures(features));
             }
 
             this.productFeatureSet.features = this.features;
@@ -325,14 +343,36 @@ Component.register('sw-settings-product-feature-sets-modal', {
         },
 
         setFeatureSelection(features, count) {
-            if (count < 1) {
-                this.addButtonDisabled = true;
-                this.selectedFeatures = null;
+            // Return early if we do not need to take pagination/preselection into account
+            if (!(this.showCustomField || this.showPropertyGroups)) {
+                if (count < 1) {
+                    this.addButtonDisabled = true;
+
+                    return;
+                }
+
+                this.selectedFeatures.set(1, features);
+                this.addButtonDisabled = false;
+
                 return;
             }
 
-            this.selectedFeatures = features;
-            this.addButtonDisabled = false;
+            const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
+            const page = criteria.page;
+            const preSelected = this.selectedFeatures.get(page);
+
+            // Apply the current selection, if there wasn't anything selected on this page before
+            if (!preSelected || Object.keys(preSelected).length < 1) {
+                this.selectedFeatures.set(page, features);
+                this.addButtonDisabled = false;
+
+                return;
+            }
+
+            const grid = this.showCustomField ? this.$refs.customFieldGrid : this.$refs.propertyGroupGrid;
+
+            // Mark all preselected items as selected
+            Object.keys(preSelected).forEach(key => grid.selectItem(true, preSelected[key]));
         },
 
         getPropertyGroupColumns() {
@@ -360,6 +400,20 @@ Component.register('sw-settings-product-feature-sets-modal', {
                 label: 'sw-settings-product-feature-sets.modal.labelName',
                 primary: true
             }];
+        },
+
+        paginateCustomFieldGrid({ page, limit }) {
+            this.customFieldCriteria.setPage(page);
+            this.customFieldCriteria.setLimit(limit);
+
+            this.getCustomFieldList();
+        },
+
+        paginatePropertyGroupGrid({ page, limit }) {
+            this.propertyGroupCriteria.setPage(page);
+            this.propertyGroupCriteria.setLimit(limit);
+
+            this.getPropertyList();
         },
 
         readCustomFieldLabel(field) {

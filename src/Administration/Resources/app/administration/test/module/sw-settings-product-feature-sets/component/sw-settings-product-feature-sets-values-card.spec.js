@@ -139,8 +139,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         const bodyCells = firstRow.findAll(`.${classes.valueListCellContent}`);
 
-        console.info(firstRow.html());
-
         expect(bodyCells).toHaveLength(Object.values(headerCellContent).length);
 
         [

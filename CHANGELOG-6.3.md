@@ -84,6 +84,7 @@ NEXT
 * Added bool `custom_field_set_selection_active` to ProductDefinition
 * Added many to many association `customFieldSets` to ProductDefinition
 * Added new entity `product_custom_field_set`
+* Added possibility to use a write operation without actual data, which then does nothing
 
 #### Storefront
 

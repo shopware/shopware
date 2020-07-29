@@ -261,6 +261,10 @@ class EntityWriter implements EntityWriterInterface
     {
         $this->validateWriteInput($rawData);
 
+        if (!$rawData) {
+            return [];
+        }
+
         $commandQueue = new WriteCommandQueue();
         $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue);
 

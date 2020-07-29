@@ -68,6 +68,7 @@
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
+            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">

@@ -953,6 +953,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Allow specifying translations for languages that don't exist. These translations will now be silently skipped.
   This used to throw the exception `\Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException`.
 * Added check to prevent mails being sent when `\Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent::stopPropagation` was called before
+* Added `Logger` to `Shopware\Elasticsearch\Framework\ClientFactory::createClient`
 
 #### Storefront
 * Added plugin injection in hot mode

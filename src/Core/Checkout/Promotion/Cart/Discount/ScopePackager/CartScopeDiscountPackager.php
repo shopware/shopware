@@ -47,7 +47,7 @@ class CartScopeDiscountPackager extends DiscountPackager
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
-        $allItems = $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $allItems = new LineItemCollection($cart->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE));
 
         $singleItems = $this->splitQuantities($allItems, $context);
 

@@ -457,13 +457,14 @@ class PromotionCalculator
      */
     private function enrichPackagesWithCartData(DiscountPackageCollection $result, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
+        $flattenLineItems = $cart->getLineItems()->getFlat();
+
         // set the line item from the cart for each unit
         foreach ($result as $package) {
             $cartItemsForUnit = new LineItemFlatCollection();
 
             foreach ($package->getMetaData() as $item) {
-                /** @var LineItem $cartItem */
-                $cartItem = $cart->get($item->getLineItemId());
+                $cartItem = $flattenLineItems[$item->getLineItemId()];
 
                 // create a new item with only a quantity of x
                 // including calculated price for our original cart item

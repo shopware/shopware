@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -178,7 +178,7 @@ class PromotionMixedCalculationTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         /** @var CalculatedPrice $discountPrice */
-        $discountPrice = $cart->getLineItems()->getFlat()[2]->getPrice();
+        $discountPrice = $cart->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE)[0]->getPrice();
 
         /** @var CalculatedTax $tax1 */
         $tax1 = $discountPrice->getCalculatedTaxes()->getElements()[19]->getTax();

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -93,7 +93,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        $discountItem = $cart->getLineItems()->getFlat()[2];
+        $discountItem = $cart->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE)[0];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
@@ -141,7 +141,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        $discountItem = $cart->getLineItems()->getFlat()[2];
+        $discountItem = $cart->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE)[0];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
@@ -269,7 +269,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        $discountItem = $cart->getLineItems()->getFlat()[2];
+        $discountItem = $cart->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE)[0];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
@@ -320,7 +320,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
         // get discount line item
-        $discountItem = $cart->getLineItems()->getFlat()[2];
+        $discountItem = $cart->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE)[0];
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
@@ -346,7 +346,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        $promotions = $cart->getLineItems()->filterType('promotion');
+        $promotions = $cart->getLineItems()->filterType(LineItem::PROMOTION_LINE_ITEM_TYPE);
         static::assertCount(1, $promotions);
 
         return $this->cartService->order($cart, $context);

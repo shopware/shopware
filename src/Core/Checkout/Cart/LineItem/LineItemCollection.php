@@ -199,7 +199,7 @@ class LineItemCollection extends Collection
     {
         $flat = [];
         foreach ($lineItems as $lineItem) {
-            $flat[] = $lineItem;
+            $flat[$lineItem->getId()] = $lineItem;
             if (!$lineItem->getChildren()) {
                 continue;
             }
@@ -207,7 +207,7 @@ class LineItemCollection extends Collection
             $nested = $this->buildFlat($lineItem->getChildren());
 
             foreach ($nested as $nest) {
-                $flat[] = $nest;
+                $flat[$nest->getId()] = $nest;
             }
         }
 

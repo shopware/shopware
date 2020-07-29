@@ -6,7 +6,15 @@
   "license": "MIT",
   "dependencies": {
     "@shopware-ag/e2e-testsuite-platform": "^1.2.4",
-    "cypress": "^4.5.0"
+    "cypress": "^4.10.0",
+    "cypress-multi-reporters": "^1.2.3",
+    "mocha": "^7.0.0",
+    "mocha-junit-reporter": "^1.23.1",
+    "mochawesome": "^4.1.0"
+  },
+  "devDependencies": {
+    "mochawesome-merge": "^4.0.0",
+    "mochawesome-report-generator": "^4.1.0"
   },
   "engines": {
     "node": ">= 8.10.0",

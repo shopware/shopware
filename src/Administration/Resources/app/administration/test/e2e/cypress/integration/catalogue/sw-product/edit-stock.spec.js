@@ -16,7 +16,7 @@ describe('Product: Edit in various ways', () => {
             });
     });
 
-    it('@catalogue: check out-of-stock-behavior without clearance', () => {
+    it('@base @catalogue: check out-of-stock-behavior without clearance', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

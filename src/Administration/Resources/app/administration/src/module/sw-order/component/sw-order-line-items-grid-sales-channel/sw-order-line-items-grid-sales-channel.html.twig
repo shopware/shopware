@@ -90,14 +90,17 @@
                             <template #column-label="{ item, isInlineEdit}">
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_label_inline_edit %}
                                     <sw-order-product-select v-if="isInlineEdit"
-                                                             :item="item">
+                                                             :item="item"
+                                                             :salesChannelId="salesChannelId">
                                     </sw-order-product-select>
                                 {% endblock %}
 
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_label_link %}
                                     <router-link v-else-if="!isInlineEdit && isProductItem(item)"
+                                                 target="_blank"
+                                                 rel="noopener"
                                                  :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                                                 :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
+                                                 :to="{ name: 'sw.product.detail', params: { id: item.identifier || item.id } }">
 
                                         {% block sw_order_line_items_grid_column_payload_options %}
                                         <div v-if="item.payload && item.payload.options"

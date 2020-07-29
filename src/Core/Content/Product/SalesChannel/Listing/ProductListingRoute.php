@@ -115,7 +115,6 @@ class ProductListingRoute extends AbstractProductListingRoute
                     $salesChannelContext->getContext()
                 );
 
-                $criteria = new Criteria();
                 $criteria->addFilter(...$filters);
             } else {
                 $criteria->addFilter(

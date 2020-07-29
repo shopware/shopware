@@ -14,7 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\HttpFoundation\Request;
@@ -181,6 +183,29 @@ class ProductListingTest extends TestCase
         static::assertSame(7, $listing->getTotal());
         static::assertFalse($listing->has($this->productIdWidth100));
         static::assertTrue($listing->has($this->productIdWidth150));
+    }
+
+    public function testListingWithProductStreamAndAdditionalCriteria(): void
+    {
+        skipTestNext9278($this);
+        $this->createTestProductStreamEntity($this->categoryStreamId);
+        $request = new Request();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('name', 'Foo Bar'));
+
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryStreamId, $request, $context, $criteria)
+            ->getResult();
+
+        static::assertSame(3, $listing->getTotal());
+        static::assertInstanceOf(ContainsFilter::class, $listing->getCriteria()->getFilters()[0]);
+        static::assertEquals('name', $listing->getCriteria()->getFilters()[0]->getField());
+        static::assertEquals('Foo Bar', $listing->getCriteria()->getFilters()[0]->getValue());
     }
 
     public function testNotFilterableProperty(): void
@@ -485,9 +510,11 @@ class ProductListingTest extends TestCase
 
     private function createProducts(): array
     {
+        $ids = new TestDataCollection();
+        $ids->create('manufacturer');
+        $ids->create('taxId');
+
         $productRepository = $this->getContainer()->get('product.repository');
-        $manufacturerId = Uuid::randomHex();
-        $taxId = Uuid::randomHex();
         $salesChannelId = Defaults::SALES_CHANNEL;
         $products = [];
 
@@ -504,16 +531,29 @@ class ProductListingTest extends TestCase
             '190',
         ];
 
+        $names = [
+            'Wooden Heavy Magma',
+            'Small Plastic Prawn Leather',
+            'Fantastic Marble Megahurts',
+            'Foo Bar Aerodynamic Iron Viagreat',
+            'Foo Bar Awesome Bronze Sulpha Quik',
+            'Foo Bar Aerodynamic Silk Ideoswitch',
+            'Heavy Duty Wooden Magnina',
+            'Incredible Wool Q-lean',
+            'Heavy Duty Cotton Gristle Chips',
+            'Heavy Steel Hot Magma',
+        ];
+
         for ($i = 0; $i < 10; ++$i) {
             $products[] = [
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
                 'width' => $widths[$i],
                 'stock' => 1,
-                'name' => 'Test',
+                'name' => $names[$i],
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
-                'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
+                'manufacturer' => ['id' => $ids->get('manufacturer'), 'name' => 'test'],
+                'tax' => ['id' => $ids->get('taxId'), 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],

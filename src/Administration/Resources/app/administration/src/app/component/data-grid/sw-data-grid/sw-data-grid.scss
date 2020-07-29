@@ -348,13 +348,13 @@
                 }
 
                 &:hover .sw-data-grid__cell {
-                    background-color: $color-cadet-blue;
+                    background-color: $color-shopware-brand-50;
                 }
 
                 &.is--inline-edit,
                 &.is--selected {
                     .sw-data-grid__cell {
-                        background-color: $color-cadet-blue;
+                        background-color: $color-shopware-brand-50;
                     }
                 }
 
@@ -372,7 +372,7 @@
 
             .sw-data-grid__cell {
                 border-right: 0 none;
-                border-bottom: 1px solid $color-steam-cloud;
+                border-bottom: 1px solid $color-gray-300;
             }
         }
 
@@ -381,11 +381,11 @@
         }
 
         .sw-data-grid__cell--header.sw-data-grid__cell--selection {
-            box-shadow: inset 0 -1px 0 0 $color-steam-cloud;
+            box-shadow: inset 0 -1px 0 0 $color-gray-300;
         }
 
         .sw-data-grid__cell-settings {
-            box-shadow: inset 0 -1px 0 $color-steam-cloud;
+            box-shadow: inset 0 -1px 0 $color-gray-300;
         }
     }
 

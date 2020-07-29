@@ -17,8 +17,8 @@
 
         {% block sw_product_stream_grid_preview_grid %}
             <sw-data-grid
-                class="sw-product-stream-grid-preview__grid"
                 v-if="total"
+                class="sw-product-stream-grid-preview__grid"
                 :dataSource="products"
                 :columns="productColumns"
                 :showSelection="false"

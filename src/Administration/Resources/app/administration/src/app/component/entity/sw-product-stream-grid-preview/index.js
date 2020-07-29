@@ -137,7 +137,7 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         loadSystemDefaultCurrency() {
-            return this.currencyRepository.get(Shopware.Context.app.systemCurrencyId, Context.api);
+            return this.currencyRepository.get(Context.app.systemCurrencyId, Context.api);
         },
 
         loadProducts() {
@@ -167,9 +167,11 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         getPriceForDefaultCurrency(product) {
-            return product.price.find((productPrice) => {
+            const price = product.price.find((productPrice) => {
                 return productPrice.currencyId === this.systemCurrency.id;
-            }).gross;
+            });
+
+            return price ? price.gross : '-';
         }
     }
 });

@@ -257,7 +257,6 @@ class MailService implements MailServiceInterface
 
         $urls = [];
         foreach ($media as $mediaItem) {
-            $urls[] = $mediaItem->getUrl();
             $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
         }
 

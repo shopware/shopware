@@ -25,8 +25,6 @@ class MailActionControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        static::markTestSkipped('Too slow');
     }
 
     public function testSendingSimpleTestMail(): void

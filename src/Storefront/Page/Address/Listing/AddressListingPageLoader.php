@@ -144,7 +144,7 @@ class AddressListingPageLoader
         }
 
         $criteria = (new Criteria())
-            ->addAssociation('customer_address.country')
+            ->addAssociation('country')
             ->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
 
         $this->eventDispatcher->dispatch(

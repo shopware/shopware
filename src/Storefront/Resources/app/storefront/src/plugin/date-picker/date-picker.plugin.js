@@ -4,7 +4,7 @@ import Locales from 'flatpickr/dist/l10n/index';
 import DomAccess from 'src/helper/dom-access.helper';
 
 /**
- * Controlls the date picker component
+ * Controls the date picker component
  *
  * @class
  */
@@ -112,7 +112,7 @@ export default class DatePickerPlugin extends Plugin {
     }
 
     /**
-     * Disabled the clearButton if input is empty and vice versa
+     * Disables the clearButton if input is empty and vice versa
      *
      * @returns {void}
      */

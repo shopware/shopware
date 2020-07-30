@@ -30,13 +30,19 @@ NEXT
 
 #### Storefront
 
-* Added open, close and clear input functionality to the datetime picker component
+* Added new plugin class `clear-input.plugin.js`
+* Added new event methods `onOpenButtonClick`, `onCloseButtonClick` and `onClearButtonClick` in `date-picker.plugin.js`
+* Added new method `registerEventListeners` in `date-picker.plugin.js`
+* Added new property `selectors` to `static options` in `date-picker.plugin.js` with the following values:
+   * `openButton: null`
+   * `closeButton: null`
+   * `clearButton: null`
 * We extended setup of the `storefront:hot-proxy`
     * The proxy's assets port is now configurable.
         * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
     * The default port is still port 9999.
     
-6.3.0
+6.3.0.0
 ----------------
 
 #### Administration

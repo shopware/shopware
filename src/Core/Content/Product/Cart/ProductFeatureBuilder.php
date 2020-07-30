@@ -112,7 +112,7 @@ class ProductFeatureBuilder
      * loadSystemLanguage fetches the system language and is only needed for being able to read these labels
      * later on.
      *
-     * @see https://jira.shopware.com/browse/NEXT-9321
+     * @see https://issues.shopware.com/issues/NEXT-9321
      */
     private function loadSystemLanguage(CartDataCollection $data, Context $context): void
     {

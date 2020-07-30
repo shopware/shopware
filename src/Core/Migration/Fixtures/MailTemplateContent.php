@@ -28,7 +28,7 @@ return [
                         <td style="border-bottom:1px solid #cccccc;">{{ loop.index }} </td>
                         <td style="border-bottom:1px solid #cccccc;">
                           {{ lineItem.label|u.wordwrap(80) }}<br>
-                            {% if lineItem.payload.options|length >= 1 %}
+                            {% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}
                                 {% for option in lineItem.payload.options %}
                                     {{ option.group }}: {{ option.option }}
                                     {% if lineItem.payload.options|last != option %}
@@ -107,7 +107,7 @@ return [
 
                 Pos.   Prod. No.			Description			Quantities			Price			Total
                 {% for lineItem in order.lineItems %}
-                {{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}{% if lineItem.payload.options|length >= 1 %}, {% for option in lineItem.payload.options %}{{ option.group }}: {{ option.option }}{% if lineItem.payload.options|last != option %}{{ " | " }}{% endif %}{% endfor %}{% endif %}				{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
+                {{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}{% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}, {% for option in lineItem.payload.options %}{{ option.group }}: {{ option.option }}{% if lineItem.payload.options|last != option %}{{ " | " }}{% endif %}{% endfor %}{% endif %}				{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
                 {% endfor %}
 
                 {% set delivery = order.deliveries.first %}
@@ -177,7 +177,7 @@ return [
                         <td style="border-bottom:1px solid #cccccc;">{{ loop.index }} </td>
                         <td style="border-bottom:1px solid #cccccc;">
                           {{ lineItem.label|u.wordwrap(80) }}<br>
-                            {% if lineItem.payload.options|length >= 1 %}
+                            {% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}
                                 {% for option in lineItem.payload.options %}
                                     {{ option.group }}: {{ option.option }}
                                     {% if lineItem.payload.options|last != option %}
@@ -255,7 +255,7 @@ return [
 
                 Pos.   Artikel-Nr.			Beschreibung			Menge			Preis			Summe
                 {% for lineItem in order.lineItems %}
-                {{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}{% if lineItem.payload.options|length >= 1 %}, {% for option in lineItem.payload.options %}{{ option.group }}: {{ option.option }}{% if lineItem.payload.options|last != option %}{{ " | " }}{% endif %}{% endfor %}{% endif %}				{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
+                {{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}{% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}, {% for option in lineItem.payload.options %}{{ option.group }}: {{ option.option }}{% if lineItem.payload.options|last != option %}{{ " | " }}{% endif %}{% endfor %}{% endif %}				{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
                 {% endfor %}
 
                 {% set delivery = order.deliveries.first %}

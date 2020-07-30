@@ -681,7 +681,7 @@ POST /api/v3/search/category
     "total": 1,
     "data": [
         {
-            "name": "Catalogue #1",
+            "name": "Home",
             "products": [
                 {
                     "active": true,

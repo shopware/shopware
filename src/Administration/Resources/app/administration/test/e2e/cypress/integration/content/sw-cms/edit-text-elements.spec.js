@@ -53,7 +53,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Catalogue #1').click();
+        cy.get('.sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
@@ -111,7 +111,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Catalogue #1').click();
+        cy.get('.sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

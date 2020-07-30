@@ -210,6 +210,7 @@
             <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.productComparison.storefront')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
                     <sw-entity-single-select
+                        class="sw-sales-channel-detail__product-comparison-storefront"
                         @change="onStorefrontSelectionChange"
                         :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
                         :criteria="storefrontSalesChannelCriteria"
@@ -223,6 +224,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
                     <sw-entity-single-select
+                        class="sw-sales-channel-detail__product-comparison-domain"
                         @change="onStorefrontDomainSelectionChange"
                         :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
                         :criteria="storefrontSalesChannelDomainCriteria"
@@ -366,6 +368,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
                     <sw-entity-single-select
+                        class="sw-sales-channel-detail__product-comparison-product-stream"
                         :label="$tc('sw-sales-channel.detail.productComparison.productStream')"
                         labelProperty="name"
                         valueProperty="id"

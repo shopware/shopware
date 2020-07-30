@@ -90,33 +90,35 @@ describe('Media: Test crud operations', () => {
         cy.get('input[placeholder="Cypress example title"]').should('be.visible');
     });
 
-    it('@base @media: delete medium', () => {
-        const page = new MediaPageObject();
+    for (let i = 0; i < 31 ; i++) {
+        it('@base @media: delete medium', () => {
+            const page = new MediaPageObject();
 
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media/*`,
-            method: 'delete'
-        }).as('deleteData');
+            // Request we want to wait for later
+            cy.server();
+            cy.route({
+                url: `${Cypress.env('apiPath')}/media/*`,
+                method: 'delete'
+            }).as('deleteData');
 
-        if (Cypress.isBrowser({ family: 'chromium' })) {
-            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+            if (Cypress.isBrowser({family: 'chromium'})) {
+                page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-            cy.awaitAndCheckNotification('File has been saved.');
-            page.deleteFile('sw-login-background.png');
-        }
+                cy.awaitAndCheckNotification('File has been saved.');
+                page.deleteFile('sw-login-background.png');
+            }
 
-        if (Cypress.isBrowser('firefox')) {
-            // Upload medium
-            cy.clickContextMenuItem(
-                '.sw-media-upload-v2__button-url-upload',
-                '.sw-media-upload-v2__button-context-menu'
-            );
-            page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+            if (Cypress.isBrowser('firefox')) {
+                // Upload medium
+                cy.clickContextMenuItem(
+                    '.sw-media-upload-v2__button-url-upload',
+                    '.sw-media-upload-v2__button-context-menu'
+                );
+                page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
 
-            cy.awaitAndCheckNotification('File has been saved.');
-            page.deleteFile('sw_logo_white.png');
-        }
-    });
+                cy.awaitAndCheckNotification('File has been saved.');
+                page.deleteFile('sw_logo_white.png');
+            }
+        });
+    }
 });

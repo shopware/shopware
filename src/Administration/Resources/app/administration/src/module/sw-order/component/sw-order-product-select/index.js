@@ -59,7 +59,18 @@ Component.register('sw-order-product-select', {
 
         productCriteria() {
             const criteria = new Criteria();
+
             criteria.addAssociation('options.group');
+
+            criteria.addFilter(
+                Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('product.childCount', 0),
+                        Criteria.equals('product.childCount', null)
+                    ]
+                )
+            );
 
             return criteria;
         }

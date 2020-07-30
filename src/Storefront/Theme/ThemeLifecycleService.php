@@ -6,12 +6,14 @@ use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
@@ -49,7 +51,7 @@ class ThemeLifecycleService
     private $fileSaver;
 
     /**
-     * @var ThemeFileImporterInterface|null
+     * @var ThemeFileImporterInterface
      */
     private $themeFileImporter;
 
@@ -59,8 +61,10 @@ class ThemeLifecycleService
     private $fileNameProvider;
 
     /**
-     * @param ThemeFileImporterInterface|null $themeFileImporter will be required in v6.3.0
+     * @var EntityRepositoryInterface
      */
+    private $languageRepository;
+
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
@@ -69,7 +73,8 @@ class ThemeLifecycleService
         EntityRepositoryInterface $themeMediaRepository,
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
-        ?ThemeFileImporterInterface $themeFileImporter = null
+        ThemeFileImporterInterface $themeFileImporter,
+        EntityRepositoryInterface $languageRepository
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;
@@ -79,6 +84,7 @@ class ThemeLifecycleService
         $this->fileSaver = $fileSaver;
         $this->fileNameProvider = $fileNameProvider;
         $this->themeFileImporter = $themeFileImporter;
+        $this->languageRepository = $languageRepository;
     }
 
     public function refreshThemes(
@@ -110,17 +116,16 @@ class ThemeLifecycleService
             $themeData['active'] = true;
         }
 
-        $translations = [];
+        $systemLanguageLocale = $this->getSystemLanguageLocale($context);
 
         $labelTranslations = $this->getLabelsFromConfig($configuration->getThemeConfig());
-        foreach ($labelTranslations as $locale => $translation) {
-            $translations[$locale] = ['labels' => $translation];
-        }
+        $translations = $this->mapTranslations($labelTranslations, 'labels', $systemLanguageLocale);
 
         $helpTextTranslations = $this->getHelpTextsFromConfig($configuration->getThemeConfig());
-        foreach ($helpTextTranslations as $locale => $translation) {
-            $translations[$locale]['helpTexts'] = $translation;
-        }
+        $translations = array_merge_recursive(
+            $translations,
+            $this->mapTranslations($helpTextTranslations, 'helpTexts', $systemLanguageLocale)
+        );
 
         $themeData['name'] = $configuration->getName();
         $themeData['technicalName'] = $configuration->getTechnicalName();
@@ -198,9 +203,7 @@ class ThemeLifecycleService
             return null;
         }
 
-        if ($this->themeFileImporter) {
-            $path = $this->themeFileImporter->getRealPath($path);
-        }
+        $path = $this->themeFileImporter->getRealPath($path);
 
         $pathinfo = pathinfo($path);
 
@@ -296,10 +299,6 @@ class ThemeLifecycleService
 
     private function fileExists(string $path): bool
     {
-        if (!$this->themeFileImporter) {
-            return file_exists($path) && !is_dir($path);
-        }
-
         return $this->themeFileImporter->fileExists($path);
     }
 
@@ -338,5 +337,39 @@ class ThemeLifecycleService
                 // This files will be recreated using the file name strategy for duplicated filenames.
             }
         }
+    }
+
+    private function getSystemLanguageLocale(Context $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('translationCode');
+        $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+
+        /** @var LanguageEntity $language */
+        $language = $this->languageRepository->search($criteria, $context)->first();
+
+        return $language->getTranslationCode()->getCode();
+    }
+
+    private function mapTranslations(array $translations, string $property, string $systemLanguageLocale): array
+    {
+        $result = [];
+        $containsSystemLanguage = false;
+        foreach ($translations as $locale => $translation) {
+            if ($locale === $systemLanguageLocale) {
+                $containsSystemLanguage = true;
+            }
+            $result[$locale] = [$property => $translation];
+        }
+
+        if (!$containsSystemLanguage && count($translations) > 0) {
+            $translation = array_shift($translations);
+            if (array_key_exists('en-GB', $translations)) {
+                $translation = $translations['en-GB'];
+            }
+            $result[$systemLanguageLocale] = [$property => $translation];
+        }
+
+        return $result;
     }
 }

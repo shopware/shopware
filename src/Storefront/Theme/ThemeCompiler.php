@@ -268,15 +268,21 @@ class ThemeCompiler implements ThemeCompilerInterface
         if (count($mediaIds) > 0) {
             /** @var MediaCollection $medias */
             $medias = $this->mediaRepository
-            ->search(
-                new Criteria(array_values($mediaIds)),
-                Context::createDefaultContext()
-            )
-            ->getEntities();
+                ->search(
+                    new Criteria(array_values($mediaIds)),
+                    Context::createDefaultContext()
+                )
+                ->getEntities();
 
             foreach ($mediaIds as $key => $mediaId) {
+                $media = $medias->get($mediaId);
+                if ($media === null) {
+                    unset($variables[$key]);
+
+                    continue;
+                }
                 /* @var MediaEntity $media */
-                $variables[$key] = '\'' . $medias->get($mediaId)->getUrl() . '\'';
+                $variables[$key] = '\'' . $media->getUrl() . '\'';
             }
         }
 

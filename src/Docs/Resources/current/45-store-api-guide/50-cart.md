@@ -6,10 +6,10 @@ Here you can find all the available routes for the cart. You should always send 
 
 ### Fetching cart
 
-The api `/store-api/v1/checkout/cart` can be used to fetch the current state of the cart.
+The api `/store-api/v3/checkout/cart` can be used to fetch the current state of the cart.
 
 ```
-POST /store-api/v1/checkout/cart
+POST /store-api/v3/checkout/cart
 {
     "includes": {
         "cart": ["price", "lineItems"],
@@ -30,20 +30,20 @@ POST /store-api/v1/checkout/cart
 
 ### Deleting entire cart
 
-The api `/store-api/v1/checkout/cart` can be used to delete the entire cart.
+The api `/store-api/v3/checkout/cart` can be used to delete the entire cart.
 
 ```
-DELETE /store-api/v1/checkout/cart
+DELETE /store-api/v3/checkout/cart
 ```
 
 ### Adding new items to the cart
 
-The api `POST /store-api/v1/checkout/cart/line-item` can be used to add multiple new line items.
+The api `POST /store-api/v3/checkout/cart/line-item` can be used to add multiple new line items.
 
 #### Product
 
 ```
-POST /store-api/v1/checkout/cart/line-item
+POST /store-api/v3/checkout/cart/line-item
 {
     "items": [
         {
@@ -64,7 +64,7 @@ You can set following properties on a product line item: `referencedId`, `payloa
 #### Promotion
 
 ```
-POST /store-api/v1/checkout/cart/line-item
+POST /store-api/v3/checkout/cart/line-item
 {
     "items": [
         {
@@ -96,10 +96,10 @@ An example for invalid `referencedId` would be look like this:
 
 ### Updating items in the cart
 
-The api `PATCH /store-api/v1/checkout/cart/line-item` can be used to update line items in to cart.
+The api `PATCH /store-api/v3/checkout/cart/line-item` can be used to update line items in to cart.
 
 ```
-PATCH /store-api/v1/checkout/cart/line-item
+PATCH /store-api/v3/checkout/cart/line-item
 {
     "items": [
         {
@@ -113,10 +113,10 @@ PATCH /store-api/v1/checkout/cart/line-item
 
 ### Deleting items in the cart
 
-The api `DELETE /store-api/v1/checkout/cart/line-item` can be used to remove line items to the cart
+The api `DELETE /store-api/v3/checkout/cart/line-item` can be used to remove line items to the cart
 
 ```
-DELETE /store-api/v1/checkout/cart/line-item
+DELETE /store-api/v3/checkout/cart/line-item
 {
     "ids": [
         "<id>"
@@ -126,10 +126,10 @@ DELETE /store-api/v1/checkout/cart/line-item
 
 ### Creating an order from cart
 
-The api `/store-api/v1/checkout/order` can be used to create an order from the cart. You will need items in the cart and you need to be logged in.
+The api `/store-api/v3/checkout/order` can be used to create an order from the cart. You will need items in the cart and you need to be logged in.
 
 ```
-POST /store-api/v1/checkout/order
+POST /store-api/v3/checkout/order
 {
     "includes": {
         "order": ["orderNumber", "price", "lineItems"],
@@ -195,13 +195,13 @@ POST /store-api/v1/checkout/order
 
 ### Payment methods
 
-The api `/store-api/v1/payment-method` can be used to list all payment methods of the sales channel.
+The api `/store-api/v3/payment-method` can be used to list all payment methods of the sales channel.
 With the parameter `onlyAvailable` you can restrict the result to only valid payments methods.
 
 Additionally, the api basic parameters (`filter`, `aggregations`, etc.) can be used to restrict the result, see [Reading entities](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-POST /store-api/v1/payment-method
+POST /store-api/v3/payment-method
 
 {
     "includes": {
@@ -227,13 +227,13 @@ POST /store-api/v1/payment-method
 
 ### Shipping methods
 
-The api `/store-api/v1/shipping-method` can be used to list all payment methods of the sales channel.
+The api `/store-api/v3/shipping-method` can be used to list all payment methods of the sales channel.
 With the parameter `onlyAvailable` you can restrict the result to only valid shipping methods.
 
 Additionally, the api basic parameters (`filter`, `aggregations`, etc.) can be used to restrict the result, see [Reading entities](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
-POST /store-api/v1/shipping-method
+POST /store-api/v3/shipping-method
 
 {
     "includes": {

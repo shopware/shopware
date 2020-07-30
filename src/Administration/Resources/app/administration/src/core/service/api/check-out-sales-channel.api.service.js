@@ -14,7 +14,7 @@ class CheckOutSalesChannelService extends ApiService {
     }
 
     checkout(salesChannelId, contextToken, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/checkout/order`;
+        const route = `_proxy/sales-channel-api/${salesChannelId}/v${this.getApiVersion()}/checkout/order`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken

@@ -148,9 +148,10 @@ class PluginController extends AbstractController
     public function uninstallPlugin(QueryDataBag $queryParams, int $version, Context $context): JsonResponse
     {
         $pluginName = $queryParams->get('pluginName');
+        $keepUserData = (bool) $queryParams->get('keepUserData', 1);
         $plugin = $this->pluginService->getPluginByName($pluginName, $context);
 
-        $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
+        $this->pluginLifecycleService->uninstallPlugin($plugin, $context, $keepUserData);
 
         return new JsonResponse($this->apiVersionConverter->convertEntity(
             $this->pluginDefinition,

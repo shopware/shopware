@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Locale\LocaleCollection;
 
 class LanguageRouteTest extends TestCase
@@ -61,7 +62,7 @@ class LanguageRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/language',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/language',
                 [
                 ]
             );
@@ -85,7 +86,7 @@ class LanguageRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/language',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/language',
                 [
                     'includes' => [
                         'language' => ['name'],
@@ -105,7 +106,7 @@ class LanguageRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/language',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/language',
                 [
                     'associations' => [
                         'locale' => [],

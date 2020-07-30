@@ -19,7 +19,7 @@ By default, the following aggregations are also loaded:
 * `properties` - Determines an entity aggregation to determine all product properties that occur in the listing.
 
 ```
-POST /store-api/v1/product-listing/256b32bb62c84ecd86ddcb16df87ef28
+POST /store-api/v3/product-listing/256b32bb62c84ecd86ddcb16df87ef28
 
 {
     "includes": {
@@ -185,7 +185,7 @@ Unlike the `store-api.product.listing` the parameter `search` is required instea
 This parameter is a search term to be searched for.
 
 ```
-POST /store-api/v1/search
+POST /store-api/v3/search
 
 {
 	"search": "Awesome Iron",
@@ -380,7 +380,7 @@ To load a product suggest search, the route 'store-api.search.suggest' can be us
 This works in the same way as the `store-api.search` but no aggregations are loaded here.
 
 ```
-POST /store-api/v1/search-suggest
+POST /store-api/v3/search-suggest
 {
 	"search": "Awesome Iron",
     "includes": {

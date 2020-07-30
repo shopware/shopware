@@ -189,7 +189,7 @@ trait SalesChannelApiTestBehaviour
     private function assignSalesChannelContext(?KernelBrowser $customBrowser = null): void
     {
         $browser = $customBrowser ?: $this->getSalesChannelBrowser();
-        $browser->request('GET', '/sales-channel-api/v1/context');
+        $browser->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context');
         $response = $browser->getResponse();
         $content = json_decode($response->getContent(), true);
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);

@@ -12,9 +12,9 @@
   "useShopwareTheme": true,
   "theme": "dark",
   "screenshotsFolder": "artifacts/screenshots",
-  "reporter": "junit",
+  "reporter": "cypress-multi-reporters",
   "reporterOptions": {
-    "mochaFile": "artifacts/my-test-output-[hash].xml",
-    "toConsole": true
-  }
+    "configFile": "reporter-config.json"
+  },
+  "chromeWebSecurity": false
 }

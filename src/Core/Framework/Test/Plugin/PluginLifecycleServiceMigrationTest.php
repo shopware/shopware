@@ -150,10 +150,10 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     /**
      * @depends testDeactivate
      */
-    public function testUninstall(MigrationCollection $migrationCollection): void
+    public function testUninstallKeepUserData(MigrationCollection $migrationCollection): void
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
-        $this->pluginLifecycleService->uninstallPlugin($migrationPlugin, $this->context);
+        $this->pluginLifecycleService->uninstallPlugin($migrationPlugin, $this->context, true);
         $this->assertMigrationCount($migrationCollection, 4);
     }
 

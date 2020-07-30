@@ -39,12 +39,25 @@
                                         @change="onProductsChange"
                                         :context="productMultiSelectContext"
                                         :criteria="productMediaFilter">
-                                    <template #result-label-property="{ item, index, labelProperty, searchTerm, getKey }">
-                                        <sw-highlight-text
-                                                :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                :searchTerm="searchTerm">
-                                        </sw-highlight-text>
-                                        <span class="sw-cms-el-config-product-slider__select-product-number">{{ item.productNumber }}</span>
+                                        <template #selection-label-property="{ item }">
+                                            <sw-product-variant-info
+                                                :variations="item.variation">
+                                                {{ item.translated.name || item.name }}
+                                            </sw-product-variant-info>
+                                        </template>
+                                    <template #result-item="{ item, index }">
+                                        <slot name="result-item" v-bind="{ item, index }">
+                                            <li is="sw-select-result" v-bind="{ item, index }">
+                                                {% block sw_entity_single_select_base_results_list_result_label %}
+                                                    <span class="sw-select-result__result-item-text">
+                                                        <sw-product-variant-info
+                                                            :variations="item.variation">
+                                                            {{ item.translated.name || item.name }}
+                                                        </sw-product-variant-info>
+                                                    </span>
+                                                {% endblock %}
+                                            </li>
+                                        </slot>
                                     </template>
                                 </sw-entity-multi-select>
                             {% endblock %}

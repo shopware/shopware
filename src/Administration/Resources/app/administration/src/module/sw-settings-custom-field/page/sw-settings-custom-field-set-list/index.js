@@ -30,17 +30,19 @@ Component.register('sw-settings-custom-field-set-list', {
         titleSaveSuccess() {
             return this.$tc('global.default.success');
         },
+
         // Settings Listing mixin override
         messageSaveSuccess() {
             if (this.deleteEntity) {
                 return this.$tc(
                     'sw-settings-custom-field.set.list.messageDeleteSuccess',
                     0,
-                    { name: this.getInlineSnippet(this.deleteEntity.config.label) }
+                    { name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name }
                 );
             }
             return '';
         },
+
         listingCriteria() {
             const criteria = new Criteria();
 

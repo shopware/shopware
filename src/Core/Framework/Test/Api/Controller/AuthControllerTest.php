@@ -450,7 +450,7 @@ class AuthControllerTest extends TestCase
          * Access protected routes
          */
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
-        $client->request('GET', '/api/v1/tax');
+        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }

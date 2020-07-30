@@ -103,14 +103,17 @@
                                                       @modal-close="onCloseDeleteModal"
                                                       :title="$tc('global.default.warning')"
                                                       variant="small">
+
                                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
                                                     <p>
-                                                        {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0, { name: getInlineSnippet(item.config.label) }) }}
+                                                        {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
+                                                            { name: getInlineSnippet(item.config.label) || item.name }) }}
                                                     </p>
                                                 {% endblock %}
 
                                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
                                                     <template slot="modal-footer">
+
                                                         {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
                                                             <sw-button @click="onCloseDeleteModal"
                                                                        size="small">

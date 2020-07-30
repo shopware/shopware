@@ -263,7 +263,14 @@ class InvoiceServiceTest extends TestCase
             'prices' => [
                 [
                     'name' => 'Std',
-                    'price' => '10.00',
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 10.00,
+                            'gross' => 10.00,
+                            'linked' => false,
+                        ],
+                    ],
                     'currencyId' => Defaults::CURRENCY,
                     'calculation' => 1,
                     'quantityStart' => 1,

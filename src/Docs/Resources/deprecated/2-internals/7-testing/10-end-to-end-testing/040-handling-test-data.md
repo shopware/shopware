@@ -216,7 +216,7 @@ All fields belonging to an entity are defined there. For example, if you're sear
 please search for CustomerDefinition in Shopware platform.
 * Furthermore, you can always look at our Swagger UI every Shopware installation is coming with to
 find out the correct data structure besides looking up the EntityDefinitions. The UI can be found via
-`http://<your-installation>/api/v1/_info/swagger.html`.
+`http://<your-installation>/api/v3/_info/swagger.html`.
 * If you want to extract mandatory data that is not covered by the error message received with the API's response,
 it's useful to reproduce your workflow manually: E.g. if you need to find out what data is mandatory for creating
 a customer, try to save an empty one in the administration. Keep an eye on the developer tools of your browser while

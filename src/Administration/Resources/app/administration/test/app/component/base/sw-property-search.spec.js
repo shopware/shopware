@@ -71,10 +71,6 @@ for (let i = 0; i < 12; i += 1) {
         relationships: null,
         options: [],
         type: 'property_group',
-        links: {
-            self:
-                'http://shopware.local/api/v1/property-group/bc909198131346e299b93aa60dd40eeb'
-        },
         meta: {},
         translations: [],
         optionCount: 3,

@@ -110,9 +110,7 @@
     {% block base_body_script %}
         {% block base_script_token %}
             <script>
-                {# @deprecated tag:v6.3.0 accessKey and contextToken will be removed #}
-                window.accessKey = '';
-                window.contextToken = '';
+                {# @deprecated tag:v6.4.0 apiAccessUrl will be removed #}
                 window.apiAccessUrl = "{{ url('frontend.api-access') }}";
             </script>
         {% endblock %}

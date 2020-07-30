@@ -60,6 +60,7 @@ class CsrfController extends StorefrontController
     }
 
     /**
+     * @deprecated tag:v6.4.0 will be removed without replacement
      * @Route("/api-access", name="frontend.api-access", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={"GET"})
      */
     public function getApiAccess(SalesChannelContext $context): JsonResponse

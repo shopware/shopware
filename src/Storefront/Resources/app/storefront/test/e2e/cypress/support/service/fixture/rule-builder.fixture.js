@@ -7,18 +7,18 @@ class RuleBuilderFixture {
     }
 
     create(endpoint, rawData) {
-        return this.apiClient.post(`/v1/${endpoint}?response=true`, rawData);
+        return this.apiClient.post(`/v3/${endpoint}?response=true`, rawData);
     }
 
     update(userData) {
         if (!userData.id) {
             throw new Error('Update fixtures must always contain an id');
         }
-        return this.apiClient.patch(`/v1/${userData.type}/${userData.id}`, userData.data);
+        return this.apiClient.patch(`/v3/${userData.type}/${userData.id}`, userData.data);
     }
 
     search(type, filter) {
-        return this.apiClient.post(`/v1/search/${type}?response=true`, {
+        return this.apiClient.post(`/v3/search/${type}?response=true`, {
             filter: [{
                 field: filter.field ? filter.field : 'name',
                 type: 'equals',

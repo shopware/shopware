@@ -147,7 +147,7 @@ class RestService
     {
         return new Request(
             $method,
-            getenv('APP_URL') . '/api/v1/' . $uri,
+            getenv('APP_URL') . '/api/v3/' . $uri,
             [
                 'Authorization' => 'Bearer ' . $this->accessToken,
                 'Accept' => '*/*'

@@ -40,8 +40,13 @@ $app->add(function (ServerRequestInterface $request, ResponseInterface $response
     @session_start();
     @set_time_limit(0);
 
+    // load 'en' as fallback translation
+    $fallbackTranslation = require __DIR__ . '/../data/lang/en.php';
+
     $selectedLanguage = Utils::getLanguage($lang);
-    $language = require __DIR__ . "/../data/lang/$selectedLanguage.php";
+    $selectedTranslation = require __DIR__ . "/../data/lang/$selectedLanguage.php";
+
+    $language = array_merge($fallbackTranslation, $selectedTranslation);
 
     $clientIp = Utils::getRealIpAddr();
 
@@ -133,7 +138,7 @@ $app->get('/finish', function (ServerRequestInterface $request, ResponseInterfac
     /** @var SystemConfigService $systemConfig */
     $systemConfig = $container->get('system.config');
     $systemConfig->set('core.update.token', $updateToken);
-    $redirectUrl = $shopPath . 'api/v1/_action/update/finish/' . $updateToken;
+    $redirectUrl = $shopPath . 'api/v3/_action/update/finish/' . $updateToken;
 
     if (UPDATE_META_FILE && file_exists(UPDATE_META_FILE)) {
         @unlink(UPDATE_META_FILE);

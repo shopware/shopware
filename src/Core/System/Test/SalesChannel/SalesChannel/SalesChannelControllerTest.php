@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 class SalesChannelControllerTest extends TestCase
@@ -53,7 +54,7 @@ class SalesChannelControllerTest extends TestCase
     {
         $originalCurrency = $this->addCurrency();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/currency');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/currency');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
@@ -68,7 +69,7 @@ class SalesChannelControllerTest extends TestCase
     {
         $originalLanguage = $this->addLanguage();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/language');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/language');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -84,7 +85,7 @@ class SalesChannelControllerTest extends TestCase
     {
         $originalCountry = $this->addCountry();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/country');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/country');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -110,7 +111,7 @@ class SalesChannelControllerTest extends TestCase
             ],
         ];
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/country-state', $body);
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/country-state', $body);
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -129,7 +130,7 @@ class SalesChannelControllerTest extends TestCase
     {
         $originalPaymentMethod = $this->addPaymentMethod();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/payment-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/payment-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -145,7 +146,7 @@ class SalesChannelControllerTest extends TestCase
     {
         $originalShippingMethod = $this->addShippingMethod();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/shipping-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/shipping-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -162,7 +163,7 @@ class SalesChannelControllerTest extends TestCase
         $originalShippingMethod = $this->addShippingMethod();
         $this->addUnavailableShippingMethod();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/shipping-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/shipping-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -179,7 +180,7 @@ class SalesChannelControllerTest extends TestCase
         $originalShippingMethod = $this->addShippingMethod();
         $this->addShippingMethod();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/shipping-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/shipping-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -195,7 +196,7 @@ class SalesChannelControllerTest extends TestCase
     public function testGetDefaultSalesChannelShippingMethod(): void
     {
         $this->addUnavailableShippingMethod();
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/shipping-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/shipping-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -209,7 +210,7 @@ class SalesChannelControllerTest extends TestCase
         $originalPaymentMethod = $this->addPaymentMethod();
         $this->addUnavailablePaymentMethod();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/payment-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/payment-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
@@ -227,7 +228,7 @@ class SalesChannelControllerTest extends TestCase
         $originalPaymentMethod = $this->addPaymentMethod();
         $this->addPaymentMethod();
 
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/payment-method');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/payment-method');
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -243,7 +244,7 @@ class SalesChannelControllerTest extends TestCase
 
     public function testGetSalutations(): void
     {
-        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v1/salutation');
+        $this->getSalesChannelBrowser()->request('GET', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/salutation');
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());

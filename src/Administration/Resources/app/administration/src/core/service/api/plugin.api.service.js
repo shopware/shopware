@@ -34,11 +34,12 @@ class PluginApiService extends ApiService {
             });
     }
 
-    uninstall(pluginName) {
+    uninstall(pluginName, { keepUserData = true }) {
         const headers = this.getBasicHeaders();
 
+        const requestParams = { pluginName, keepUserData: keepUserData ? 1 : 0 };
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/uninstall`, {}, { params: { pluginName }, headers })
+            .post(`/_action/${this.getApiBasePath()}/uninstall`, {}, { params: requestParams, headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

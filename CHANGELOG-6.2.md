@@ -8,28 +8,6 @@ To get the diff for a specific change, go to https://github.com/shopware/platfor
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0..v6.2.0
 To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
 
-### 6.2.4
-
-**Addition / Changes**
-    
-* Administration
-    * Fixed active state in the flyout navigation
-    * Fixed `sw-modal` styles for `variant="full"` to stay at fullpage size
-    * Custom fields assigned to a category entity can now also be configured in categories of type "link"
-    * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
-    * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
-
-* Core
-    * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
-    * Added `user:change-password` command to set the password of an administration user
-    * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
-    
-* Storefront
-    * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
-    * Fixed property sorting for multi language shops
-    * Added an additional class to the cart offcanvas called `cart-offcanvas`
-    * Added all language flags according to language packs
-
 ### 6.2.3
 
 **Addition / Changes**

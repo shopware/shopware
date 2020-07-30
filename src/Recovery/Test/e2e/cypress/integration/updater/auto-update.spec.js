@@ -35,24 +35,24 @@ describe('Minimal auto update', () => {
             .click();
 
         cy.server();
-        cy.route({ url: '/api/v1/_action/update/download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
-        cy.route({ url: '/api/v1/_action/update/deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
-        cy.route({ url: '/api/v1/_action/update/unpack*', method: 'get' }).as('unpack');
+        cy.route({ url: '/api/v*/_action/update/download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
+        cy.route({ url: '/api/v*/_action/update/deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
+        cy.route({ url: '/api/v*/_action/update/unpack*', method: 'get' }).as('unpack');
         cy.route({url: '*applyMigrations*', method: 'get'}).as('applyMigrations');
 
         cy.get('.sw-settings-shopware-updates-check__start-update-actions > .sw-button--primary')
             .should('be.enabled')
             .click();
 
-        cy.wait('@downloadLatestUpdate', { responseTimeout: 300000, timeout: 310000 })
+        cy.wait('@downloadLatestUpdate', { responseTimeout: 600000, timeout: 600000 })
             .then((xhr) => {
                 expect(xhr).to.have.property('status', 200);
             });
-        cy.wait('@deactivatePlugins', { responseTimeout: 300000, timeout: 310000 })
+        cy.wait('@deactivatePlugins', { responseTimeout: 600000, timeout: 600000 })
             .then((xhr) => {
                 expect(xhr).to.have.property('status', 200);
             });
-        cy.wait('@unpack', { responseTimeout: 300000, timeout: 310000 })
+        cy.wait('@unpack', { responseTimeout: 600000, timeout: 600000 })
             .then((xhr) => {
                 expect(xhr).to.have.property('status', 200);
             });

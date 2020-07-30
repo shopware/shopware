@@ -36,6 +36,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">

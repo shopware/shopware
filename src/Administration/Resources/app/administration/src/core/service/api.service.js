@@ -371,8 +371,13 @@ class ApiService {
     showDeprecationWarning(functionName) {
         Shopware.Utils.debug.warn(
             `${this.apiEndpoint} - Api Service`,
+            // eslint-disable-next-line max-len
             `The ${functionName} function is deprecated. Please use the 'repository.data.js' class for data handling of entities.`
         );
+    }
+
+    getApiVersion() {
+        return Shopware.Context.api.apiVersion - 1;
     }
 
     /**

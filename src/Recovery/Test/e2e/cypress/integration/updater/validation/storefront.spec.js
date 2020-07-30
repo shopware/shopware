@@ -7,6 +7,7 @@ describe('Storefront test data set', () => {
      * - install.lock must exist
      * - system is setup with the test data set
      */
+
     it('@storefront: top navigation', () => {
         cy.visit('/');
 

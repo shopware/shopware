@@ -50,7 +50,7 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Shipping method
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['shippingMethodId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingMethodId' => $testId]);
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
@@ -62,7 +62,7 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Payment method
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['paymentMethodId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['paymentMethodId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
@@ -79,7 +79,7 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['billingAddressId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
@@ -91,7 +91,7 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingAddressId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
@@ -110,7 +110,7 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['billingAddressId' => $testId]);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
@@ -123,7 +123,7 @@ class SalesChannelContextControllerTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingAddressId' => $testId]);
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
@@ -143,7 +143,7 @@ class SalesChannelContextControllerTest extends TestCase
          * Billing address
          */
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/sales-channel-api/v1/context', ['billingAddressId' => $billingId]);
+            ->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['billingAddressId' => $billingId]);
 
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
@@ -151,7 +151,7 @@ class SalesChannelContextControllerTest extends TestCase
          * Shipping address
          */
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/sales-channel-api/v1/context', ['shippingAddressId' => $shippingId]);
+            ->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingAddressId' => $shippingId]);
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
     }
 
@@ -160,7 +160,7 @@ class SalesChannelContextControllerTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
+            ->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['languageId' => $id]);
 
         $request = $this->getSalesChannelBrowser()->getResponse();
 
@@ -179,7 +179,7 @@ class SalesChannelContextControllerTest extends TestCase
         $id = Defaults::LANGUAGE_SYSTEM;
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/sales-channel-api/v1/context', ['languageId' => $id]);
+            ->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['languageId' => $id]);
 
         $request = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($request->getContent(), true);
@@ -192,7 +192,7 @@ class SalesChannelContextControllerTest extends TestCase
         $id = Defaults::CURRENCY;
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
+            ->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['currencyId' => $id]);
 
         $request = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($request->getContent(), true);
@@ -205,7 +205,7 @@ class SalesChannelContextControllerTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/sales-channel-api/v1/context', ['currencyId' => $id]);
+            ->request('PATCH', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/context', ['currencyId' => $id]);
 
         $request = $this->getSalesChannelBrowser()->getResponse();
 
@@ -226,7 +226,7 @@ class SalesChannelContextControllerTest extends TestCase
 
         $this->assignSalesChannelContext();
 
-        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v1/customer/login', [
+        $this->getSalesChannelBrowser()->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/customer/login', [
             'username' => $email,
             'password' => $password,
         ]);

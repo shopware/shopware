@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class RegisterRouteTest extends TestCase
@@ -48,7 +49,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/register',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
                 $this->getRegistrationData()
             );
 
@@ -59,7 +60,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
@@ -80,7 +81,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/register',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
                 $this->getRegistrationData()
             );
 
@@ -93,7 +94,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',
@@ -113,7 +114,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/register-confirm',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register-confirm',
                 [
                     'hash' => $customer->getHash(),
                     'em' => sha1('teg-reg@example.com'),
@@ -125,7 +126,7 @@ class RegisterRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => 'teg-reg@example.com',
                     'password' => '12345678',

@@ -41,7 +41,7 @@ class SalesChannelContextService extends ApiService {
         additionalParams = {},
         additionalHeaders = {}
     ) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/context`;
+        const route = `_proxy/sales-channel-api/${salesChannelId}/v${this.getApiVersion()}/context`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken
@@ -56,7 +56,7 @@ class SalesChannelContextService extends ApiService {
     }
 
     getContext(salesChannelId, source, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_proxy/sales-channel-api/${salesChannelId}/v1/${source}`;
+        const route = `_proxy/sales-channel-api/${salesChannelId}/v${this.getApiVersion()}/${source}`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient.post(route, {}, { additionalParams, headers });

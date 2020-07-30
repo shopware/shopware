@@ -5,7 +5,7 @@ The newsletter endpoint is used to subscribe, confirm and unsubscribe to newslet
 
 ## Subscribe to newsletters
 
-**POST  /sales-channel-api/v1/newsletter/subscribe**
+**POST  /sales-channel-api/v3/newsletter/subscribe**
 
 **Description:** Subscribe to a newsletter. 
 
@@ -30,7 +30,7 @@ The newsletter endpoint is used to subscribe, confirm and unsubscribe to newslet
 
 ## Confirm to newsletters
 
-**POST  /sales-channel-api/v1/newsletter/confirm**
+**POST  /sales-channel-api/v3/newsletter/confirm**
 
 **Description:** confirmation of subscription to newsletters. 
 
@@ -47,7 +47,7 @@ The newsletter endpoint is used to subscribe, confirm and unsubscribe to newslet
 
 ## Unsubscribe password
 
-**POST  /sales-channel-api/v1/newsletter/unsubscribe**
+**POST  /sales-channel-api/v3/newsletter/unsubscribe**
 
 **Parameter:**
 
@@ -61,7 +61,7 @@ The newsletter endpoint is used to subscribe, confirm and unsubscribe to newslet
 
 ## Update recipient information
 
-**POST  /sales-channel-api/v1/newsletter/update**
+**POST  /sales-channel-api/v3/newsletter/update**
 
 **Parameter:**
 
@@ -104,14 +104,14 @@ The newsletter endpoint is used to subscribe, confirm and unsubscribe to newslet
     };
 
     function getSalutation() {
-        const url = `${baseUrl}/sales-channel-api/v1/salutation`;
+        const url = `${baseUrl}/sales-channel-api/v3/salutation`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then((json) => json.data[0]);
     }
 
     function subscribeRecipient(recipient) {
-        const url = `${baseUrl}/sales-channel-api/v1/newsletter/subscribe`;
+        const url = `${baseUrl}/sales-channel-api/v3/newsletter/subscribe`;
         const body = JSON.stringify(recipient);
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())

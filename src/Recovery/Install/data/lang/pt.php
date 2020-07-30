@@ -35,6 +35,7 @@ return [
     'language-selection_header' => 'A tua instalação de Shopware',
     'language-selection_info_message' => 'Esta seleção refere-se apenas ao idioma do assistente de instalação. Podes definir posteriormente o idioma padrão do sistema da tua loja.',
     'language-selection_welcome_message' => 'Ficamos contentes por quereres fazer parte da nossa fantástica Shopware Community, presente em todo o mundo! Vamos acompanhar-te passo a passo no processo de instalação. Se tiveres dúvidas, visita primeiro o nosso <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Fórum</a>, contacta-nos telefonicamente pelo <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> ou escreve-nos um <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.',
+
     'requirements_header' => 'Requisitos do sistema',
     'requirements_header_files' => 'Ficheiros e diretórios',
     'requirements_header_system' => 'Sistema',
@@ -56,10 +57,12 @@ return [
     'requirements_status_error' => 'Erro',
     'requirements_status_warning' => 'Aviso',
     'requirements_status_ready' => 'Preparado',
+
     'license_agreement_header' => 'Condições Gerais de Venda ("CGV")',
     'license_agreement_info' => 'Encontras aqui as nossas Condições Gerais de Venda. Para continuares a instalação do Shopware 6, deves começar por ler as CGV e, em seguida, aceitá-las. A Edição Community do Shopware 6 é disponibilizada ao abrigo das condições da licença MIT.',
     'license_agreement_error' => 'Aceita as nossas CGV!',
     'license_agreement_checkbox' => 'Aceito as CGV!',
+
     'database-configuration_header' => 'Configurar base de dados',
     'database-configuration_field_host' => 'Servidor:',
     'database-configuration_advanced_settings' => 'Configurações avançadas',
@@ -82,15 +85,18 @@ return [
     'database_import_install_label' => 'Instalação da base de dados:',
     'database_import_install_step_text' => 'Passo',
     'database_import_install_from_text' => 'de',
+
     'migration_counter_text_migrations' => 'A atualização da base de dados está a ser executada',
     'migration_counter_text_snippets' => 'Os módulos de texto estão a ser atualizados',
     'migration_update_success' => 'A base de dados foi importada com sucesso!',
+
     'edition_header' => 'Já tens uma licença de Shopware?',
     'edition_info' => 'O Shopware está disponível na <a href="https://de.shopware.com/versionen/" target="_blank">Edição Community</a> gratuita e também nas <a href="https://de.shopware.com/versionen/" target="_blank">Edições Professional e Enterprise</a>, que são pagas.',
     'edition_ce' => 'Não, desejo utilizar a <a href="https://de.shopware.com/versionen/" target="_blank">Edição Community</a> gratuita.',
     'edition_cm' => 'Sim, tenho uma licença Shopware paga (<a href="https://de.shopware.com/versionen/" target="_blank">Professional ou Enterprise</a>).',
     'edition_license' => 'Indica aqui o teu código de licença. Encontra-lo na tua conta do Shopware, em "Licenças" → "Licenças de produto" → "Pormenores / Download":',
     'edition_license_error' => 'Para a instalação de uma versão de Shopware paga, é necessária uma licença válida.',
+
     'configuration_header' => 'Configuração',
     'configuration_sconfig_text' => 'Faz-se depressa. Agora só precisas de definir algumas configurações básicas para a tua loja, para terminar a instalação.',
     'configuration_sconfig_name' => 'Nome da loja',
@@ -104,24 +110,30 @@ return [
     'configuration_admin_currency_eur' => 'Euro',
     'configuration_admin_currency_usd' => 'Dólar (EUA)',
     'configuration_admin_currency_gbp' => 'Libra esterlina (RU)',
+    'configuration_admin_currency_pln' => 'Zloty polonês',
+    'configuration_admin_currency_chf' => 'Franco suíço',
+    'configuration_admin_currency_sek' => 'Coroa sueca',
+    'configuration_admin_currency_dkk' => 'Coroa dinamarquesa',
+    'configuration_admin_currency_nok' => 'Coroa norueguesa',
+    'configuration_admin_currency_czk' => 'Coroa checa',
     'configuration_admin_username' => 'Nome de utilizador do Admin:',
     'configuration_admin_mail' => 'Endereço de e-mail do Admin:',
     'configuration_admin_firstName' => 'Nome do Admin:',
     'configuration_admin_lastName' => 'Apelido do Admin:',
     'configuration_defaults_warning' => 'O idioma padrão e a moeda padrão do sistema não podem ser alterados posteriormente.',
     'configuration_email_help_text' => 'Este endereço de e-mail é utilizado para enviar e-mails da loja.',
-    'configuration_admin_language_de' => 'Deutsch',
     'configuration_admin_currency_headline' => 'Moedas disponíveis',
     'configuration_admin_currency_text' => 'Adicione mais moedas à sua loja de lojinhas. Se você quiser adicionar moedas depois, você pode fazer isso a qualquer momento na administração.',
-
+    'configuration_admin_language_de' => 'Alemão',
     'configuration_admin_language_en' => 'Inglês',
     'configuration_admin_password' => 'Palavra-passe do Admin:',
+
     'finish_header' => 'Instalação concluída',
     'finish_info' => 'Instalaste o Shopware com sucesso!',
     'finish_info_heading' => 'Boa!',
     'finish_first_steps' => 'Guia "Primeiros Passos"',
     'finish_frontend' => 'Para a montra',
-    'finish_backend' => 'Para a administração',
+    'finish_backend' => 'Para a Administration (administração)',
     'finish_message' => '
 <p>
     <strong>Bem-vindo ao Shopware,</strong>

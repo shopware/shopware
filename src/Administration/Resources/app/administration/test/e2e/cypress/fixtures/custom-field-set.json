@@ -1,0 +1,30 @@
+{
+    "active": true,
+    "name": "custom_field_set",
+    "config": {
+        "label": {
+            "en-GB": "My custom field"
+        }
+    },
+    "customFields": [
+        {
+            "active": true,
+            "name": "custom_field_set_property",
+            "type": "text",
+            "config": {
+                "componentName": "sw-field",
+                "customFieldPosition": 1,
+                "customFieldType": "text",
+                "helpText": {
+                    "en-GB": "helptext"
+                },
+                "label": {
+                    "en-GB": "label"
+                },
+                "placeholder": {
+                    "en-GB": "placeholder"
+                }
+            }
+        }
+    ]
+}

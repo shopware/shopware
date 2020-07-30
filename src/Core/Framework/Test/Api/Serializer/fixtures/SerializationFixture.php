@@ -4,11 +4,12 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\PlatformRequest;
 
 abstract class SerializationFixture
 {
-    public const API_BASE_URL = 'http://localhost/api/v1';
-    public const SALES_CHANNEL_API_BASE_URL = 'http://localhost/sales-channel-api/v1';
+    public const API_BASE_URL = 'http://localhost/api/v' . PlatformRequest::API_VERSION;
+    public const SALES_CHANNEL_API_BASE_URL = 'http://localhost/sales-channel-api/v' . PlatformRequest::API_VERSION;
     public const API_VERSION = 1;
 
     /**

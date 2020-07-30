@@ -35,7 +35,8 @@
         "buttonApply": "Save",
         "labelEntities": "Assign to",
         "placeholderEntities": "Select modules...",
-        "messageNameNotUnique": "That technical name already exists."
+        "messageNameNotUnique": "That technical name already exists.",
+        "emptyStateDescription": "Before you can add a custom field you have to save this set."
       }
     },
     "customField": {
@@ -79,7 +80,9 @@
         "labelCustomFieldPosition": "Position",
         "contextMenuCustomFieldResetDelete": "Restore",
         "contextMenuCustomFieldView": "Edit",
-        "contextMenuCustomFieldDelete": "Delete"
+        "contextMenuCustomFieldDelete": "Delete",
+        "titleDeleteAction": "Delete custom field | Delete custom fields",
+        "textDeleteActionConfirmation": "Are you sure that you want to delete this custom field? | Are you sure that you want to delete these {count} custom fields?"
       }
     },
     "types": {

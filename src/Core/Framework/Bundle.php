@@ -75,6 +75,16 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    public function configureRouteOverwrites(RouteCollectionBuilder $routes, string $environment): void
+    {
+        $fileSystem = new Filesystem();
+        $confDir = $this->getPath() . '/Resources/config';
+
+        if ($fileSystem->exists($confDir)) {
+            $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, '/', 'glob');
+        }
+    }
+
     protected function getActionEvents(): array
     {
         return [];

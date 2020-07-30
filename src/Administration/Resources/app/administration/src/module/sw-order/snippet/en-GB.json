@@ -14,7 +14,7 @@
       "columnTransactionState": "Payment status",
       "columnDeliveryState": "Delivery status",
       "columnOrderNumber": "Order number",
-      "columnSalesChannel": "Sales channel",
+      "columnSalesChannel": "Sales Channel",
       "columnAffiliateCode": "Affiliate code",
       "columnCampaignCode": "Campaign code",
       "orderDate": "Order date",

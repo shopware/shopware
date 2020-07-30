@@ -92,12 +92,12 @@ describe('Minimal install', () => {
         cy.get('#c_config_shop_currency').select('GBP');
 
         // check if the shop currency is disabled in the additional currencies
-        cy.get('input#gpb').should('be.disabled');
-        cy.get('input#gpb').should('be.checked');
+        cy.get('input#gbp').should('be.disabled');
+        cy.get('input#gbp').should('be.checked');
 
         // add additional currencies
-        cy.get('input#sek').check();
-        cy.get('input#eur').check();
+        cy.get('input#sek').check({ force: true });
+        cy.get('input#eur').check({ force: true });
 
         cy.get('#c_config_admin_email').clear().type('e2e@example.com');
 
@@ -180,7 +180,7 @@ describe('Minimal install', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v1/_action/store/frw/finish',
+            url: '/api/v2/_action/store/frw/finish',
             method: 'post'
         }).as('finishCall');
 

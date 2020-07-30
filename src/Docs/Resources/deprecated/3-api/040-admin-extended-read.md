@@ -12,7 +12,7 @@ The examples mentioned below are only available for the following entities:
 
 ## General search
 
-**GET /api/v1/_search**
+**GET /api/v3/_search**
 
 Query parameters:
 
@@ -23,7 +23,7 @@ Query parameters:
 
 ## Advanced search
 
-**POST /api/v1/search/{entity\_name}**
+**POST /api/v3/search/{entity\_name}**
 
 The advanced search endpoint allows you to query by complex conditions and aggregate at the same time.
 
@@ -59,7 +59,7 @@ The following aggregations are currently supported:
 
 **Example:**
 
-**POST /api/v1/search/category**
+**POST /api/v3/search/category**
 
 ```javascript
     const data = {
@@ -109,7 +109,7 @@ The following aggregations are currently supported:
         headers
     };
     
-    fetch('/api/v1/search/category', init)
+    fetch('/api/v3/search/category', init)
         .then((response) => response.json())
         .then((responseData) => {
             console.log(responseData);
@@ -214,13 +214,13 @@ The following aggregations are currently supported:
 
 ## Simple schema
 
-**GET /api/v1/_info/entity-schema.json**
+**GET /api/v3/_info/entity-schema.json**
 
 This endpoint responses with a simple schema describing the whole Admin API.
 
 ## OpenAPI 3 schema
 
-**GET /api/v1/_info/openapi3.json**
+**GET /api/v3/_info/openapi3.json**
 
 This endpoint's response with an [OpenAPI 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md)
 schema describing the whole Admin API. 

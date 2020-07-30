@@ -6,13 +6,13 @@ change their quantity and placing an order.
 
 ## Create an empty cart
 
-**POST  /sales-channel-api/v1/checkout/cart**  
+**POST  /sales-channel-api/v3/checkout/cart**  
 **Response:** If successful, the sw-context-token will be returned and the sw-context-token header will be set.
 Include this token as an HTTP header for all future requests.
 
 ## Get a cart
 
-**GET  /sales-channel-api/v1/checkout/cart**
+**GET  /sales-channel-api/v3/checkout/cart**
 
 **Header:** sw-context-token is required
 
@@ -20,7 +20,7 @@ Include this token as an HTTP header for all future requests.
 
 ## Add product to cart
 
-**POST  /sales-channel-api/v1/checkout/cart/product/{id}**
+**POST  /sales-channel-api/v3/checkout/cart/product/{id}**
 
 **Header:** sw-context-token is required
 
@@ -38,7 +38,7 @@ Include this token as an HTTP header for all future requests.
 
 ## Add line item to cart
 
-**POST  /sales-channel-api/v1/checkout/cart/line-item/{id}**
+**POST  /sales-channel-api/v3/checkout/cart/line-item/{id}**
 
 **Header:** sw-context-token is
 required
@@ -62,7 +62,7 @@ required
 
 ## Remove line item from cart
 
-**DELETE  /sales-channel-api/v1/checkout/cart/line-item/{id}**
+**DELETE  /sales-channel-api/v3/checkout/cart/line-item/{id}**
 
 **Header:** sw-context-token is required
 
@@ -70,7 +70,7 @@ required
 
 ## Update line item
 
-**PATCH  /sales-channel-api/v1/checkout/cart/line-item/{id}**
+**PATCH  /sales-channel-api/v3/checkout/cart/line-item/{id}**
 
 **Header:** sw-context-token is required
 
@@ -91,7 +91,7 @@ required
 
 ## Create an order
 
-**POST  /sales-channel-api/v1/checkout/order**
+**POST  /sales-channel-api/v3/checkout/order**
 
 **Header:** sw-context-token is required
 
@@ -99,7 +99,7 @@ required
 
 ## Create a guest order
 
-**POST  /sales-channel-api/v1/checkout/guest-order**
+**POST  /sales-channel-api/v3/checkout/guest-order**
 
 **Header:** sw-context-token is required
 
@@ -110,7 +110,7 @@ The guest parameter is always set to true.
 
 ## Start the payment process for an order
 
-**POST  /sales-channel-api/v1/checkout/order/{orderId}/pay**
+**POST  /sales-channel-api/v3/checkout/order/{orderId}/pay**
 
 **Header:** sw-context-token is required
 
@@ -124,7 +124,7 @@ If the payment process is completed or the payment processor use an external pay
 
 ## Get guest order by a deep link
 
-**GET  /sales-channel-api/v1/checkout/guest-order/{id}**
+**GET  /sales-channel-api/v3/checkout/guest-order/{id}**
 
 **Parameter:** The *accessCode* parameter is required and will be returned when a guest order is placed.
 
@@ -151,7 +151,7 @@ If the payment process is completed or the payment processor use an external pay
 
     function initCart() {
         const init = { method: 'POST', headers };
-        return fetch(baseUrl + '/sales-channel-api/v1/checkout/cart', init)
+        return fetch(baseUrl + '/sales-channel-api/v3/checkout/cart', init)
             .then((resp) => resp.json())
             .then(({ 'sw-context-token': contextToken }) => {
                 headers['sw-context-token'] = contextToken;
@@ -160,38 +160,38 @@ If the payment process is completed or the payment processor use an external pay
 
     function getCart() {
         const init = { method: 'GET', headers };
-        return fetch(baseUrl + '/sales-channel-api/v1/checkout/cart', init)
+        return fetch(baseUrl + '/sales-channel-api/v3/checkout/cart', init)
             .then((resp) => resp.json());
     }
 
     function addProductToCart(productId) {
-        const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/product/${productId}`;
+        const url = `${baseUrl}/sales-channel-api/v3/checkout/cart/product/${productId}`;
         return fetch(url, { method: 'POST', headers })
             .then((resp) => resp.text());
     }
     
     function getProducts() {
-        return fetch(baseUrl + '/sales-channel-api/v1/product', { headers })
+        return fetch(baseUrl + '/sales-channel-api/v3/product', { headers })
             .then((resp) => resp.json())
             .then(({ data }) => data)
     }
 
     function changeLineItemQuantity(id, quantity) {
-        const url = `${baseUrl}/sales-channel-api/v1/checkout/cart/line-item/${id}`;
+        const url = `${baseUrl}/sales-channel-api/v3/checkout/cart/line-item/${id}`;
         const body = JSON.stringify({ quantity: quantity });
         return fetch(url, { method: 'PATCH', headers, body })
             .then((resp) => resp.json());
     }
 
     function getCountry(iso3) {
-        const url = `${baseUrl}/sales-channel-api/v1/sales-channel/countries?filter[iso3]=${iso3}`;
+        const url = `${baseUrl}/sales-channel-api/v3/sales-channel/countries?filter[iso3]=${iso3}`;
         return fetch(url, { method: 'GET', headers })
             .then((resp) => resp.json())
             .then(({ data }) => data[0]);
     }
 
     function guestOrder(customer) {
-        const url = `${baseUrl}/sales-channel-api/v1/checkout/guest-order`;
+        const url = `${baseUrl}/sales-channel-api/v3/checkout/guest-order`;
         const body = JSON.stringify(customer);
         return fetch(url, { method: 'POST', headers, body })
             .then((resp) => resp.json())
@@ -199,7 +199,7 @@ If the payment process is completed or the payment processor use an external pay
     }
 
     function getGuestOrder(orderId, accessCode) {
-        const url = new URL(`${baseUrl}/sales-channel-api/v1/checkout/guest-order/${orderId}`);
+        const url = new URL(`${baseUrl}/sales-channel-api/v3/checkout/guest-order/${orderId}`);
         url.searchParams.append('accessCode', accessCode);
     
         return fetch(url, { method: 'GET', headers })

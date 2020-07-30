@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -220,7 +221,7 @@ class UpdateController extends AbstractController
             $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
 
             return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/api/v1/_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
+                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
             ]);
         }
 

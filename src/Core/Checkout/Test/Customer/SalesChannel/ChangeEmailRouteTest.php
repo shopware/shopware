@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class ChangeEmailRouteTest extends TestCase
 {
@@ -48,7 +49,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -65,7 +66,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-email',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
                 [
                 ]
             );
@@ -81,7 +82,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-email',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
                 [
                     'password' => 'foooware',
                     'email' => 'test@fooware.de',
@@ -99,7 +100,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-email',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
                 [
                     'password' => 'shopware',
                     'email' => 'test@fooware.de',
@@ -115,7 +116,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v1/account/customer',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
                 [
                 ]
             );

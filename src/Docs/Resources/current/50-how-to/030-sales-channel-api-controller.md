@@ -67,7 +67,7 @@ class MyController extends AbstractController
 {
     /**
      * @RouteScope(scopes={"sales-channel-api"})
-     * @Route("/sales-channel-api/v1/swag/my-sales-channel-api-action", name="sales-channel-api.action.swag.my-sales-channel-api-action", methods={"GET"})
+     * @Route("/sales-channel-api/v3/swag/my-sales-channel-api-action", name="sales-channel-api.action.swag.my-sales-channel-api-action", methods={"GET"})
      */
     public function myFirstApi(): JsonResponse
     {

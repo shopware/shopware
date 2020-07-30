@@ -11,7 +11,7 @@ The `NumberRangeValueGenerator` is used to generate a unique identifier for a gi
 
 The configuration will be provided in the `administration` where you can provide a pattern for a specific entity in a specific sales channel.
 
-You can reserve a new value for a number range by calling the route `/api/v1/_action/number-range/reserve/{entity}/{salesChannelId}` with the name of the entity like `product` or `order` and, for sales channel dependent number ranges, also the salesChanelId 
+You can reserve a new value for a number range by calling the route `/api/v3/_action/number-range/reserve/{entity}/{salesChannelId}` with the name of the entity like `product` or `order` and, for sales channel dependent number ranges, also the salesChanelId 
 
 In-Code reservation of a new value for a number range can be done by using the `NumberRangeValueGenerator` method `getValue(string $definition, Context $context, ?string $salesChannelId)` directly. 
 

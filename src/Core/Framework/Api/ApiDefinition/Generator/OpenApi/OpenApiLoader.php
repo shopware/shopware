@@ -6,7 +6,6 @@ use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use OpenApi\Annotations\Schema;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use function OpenApi\scan;
 use const OpenApi\Annotations\UNDEFINED;
@@ -22,13 +21,13 @@ class OpenApiLoader
     ];
 
     /**
-     * @var RouteCollection
+     * @var RouterInterface
      */
-    private $routeCollection;
+    private $router;
 
     public function __construct(RouterInterface $router)
     {
-        $this->routeCollection = $router->getRouteCollection();
+        $this->router = $router;
     }
 
     public function load(string $api): OpenApi
@@ -72,7 +71,7 @@ class OpenApiLoader
 
     private function getApiRoutes(): \Generator
     {
-        foreach ($this->routeCollection as $item) {
+        foreach ($this->router->getRouteCollection() as $item) {
             $path = $item->getPath();
             if (
                 strpos($path, '/api/') !== 0

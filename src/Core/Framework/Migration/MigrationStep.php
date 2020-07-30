@@ -25,6 +25,11 @@ abstract class MigrationStep
 
     public function removeTrigger(Connection $connection, string $name): void
     {
+        $blueGreenDeployment = (int) getenv('BLUE_GREEN_DEPLOYMENT');
+        if ($blueGreenDeployment === 0) {
+            return;
+        }
+
         $connection->executeUpdate(sprintf('DROP TRIGGER %s', $name));
     }
 

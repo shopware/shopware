@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
@@ -33,7 +34,7 @@ class MailActionControllerTest extends TestCase
         $data = $this->getTestData();
 
         $this->getProfiler()->enable();
-        $this->getBrowser()->request('POST', '/api/v1/_action/mail-template/send', $data);
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/mail-template/send', $data);
         $this->getProfiler()->disable();
 
         // check response status code
@@ -70,7 +71,7 @@ class MailActionControllerTest extends TestCase
         $data = $this->getTestDataWithAttachments();
 
         $this->getProfiler()->enable();
-        $this->getBrowser()->request('POST', '/api/v1/_action/mail-template/send', $data);
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/mail-template/send', $data);
         $this->getProfiler()->disable();
 
         // check response status code
@@ -103,7 +104,7 @@ class MailActionControllerTest extends TestCase
         $data = $this->getTestDataWithHeaderAndFooter();
 
         $this->getProfiler()->enable();
-        $this->getBrowser()->request('POST', '/api/v1/_action/mail-template/send', $data);
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/mail-template/send', $data);
         $this->getProfiler()->disable();
 
         // check response status code

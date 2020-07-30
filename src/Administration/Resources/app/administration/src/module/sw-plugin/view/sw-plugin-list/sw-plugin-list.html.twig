@@ -107,7 +107,7 @@
                                     <sw-context-menu-item
                                         v-if="item.installedAt"
                                         variant="danger"
-                                        @click="onUninstallPlugin(item)">
+                                        @click="onShowUninstallPluginModal(item)">
 
                                         {{ $tc('sw-plugin.list.contextUninstall') }}
                                     </sw-context-menu-item>
@@ -147,6 +147,45 @@
                                         {% block sw_plugin_list_delete_modal_confirm %}
                                         <sw-button @click="onConfirmDelete(item)" variant="primary" size="small">
                                             {{ $tc('global.default.delete') }}
+                                        </sw-button>
+                                        {% endblock %}
+                                    </template>
+                                    {% endblock %}
+                                </sw-modal>
+                                {% endblock %}
+                                {% block sw_plugin_list_uninstall_modal %}
+                                <sw-modal v-if="showUninstallModal === item.id"
+                                          @modal-close="onCloseUninstallModal"
+                                          :title="$tc('sw-plugin.list.titleUninstallConfirm')"
+                                          :isLoading="isLoading"
+                                          variant="small"
+                                          class="sw-plugin-list__uninstall_modal">
+                                    {% block sw_plugin_list_uninstall_modal_confirm_uninstall_text %}
+                                    <p class="sw-plugin-list__confirm-uninstall-text">
+                                        {{ $tc('sw-plugin.list.messageUninstallConfirm', 0, { pluginName: item.translated.label }) }}
+                                    </p>
+                                    {% endblock %}
+
+                                    <p>
+                                        <sw-switch-field
+                                            v-model="removePluginData"
+                                            :label="$tc('sw-plugin.list.labelRemovePluginData')"
+                                            :helpText="$tc('sw-plugin.list.helpTextRemovePluginData')"
+                                            class="sw-plugin-list__remove_plugin_data_checkbox">
+                                        </sw-switch-field>
+                                    </p>
+
+                                    {% block sw_plugin_list_uninstall_modal_footer %}
+                                    <template #modal-footer>
+                                        {% block sw_plugin_list_uninstall_modal_cancel %}
+                                        <sw-button @click="onCloseUninstallModal" size="small">
+                                            {{ $tc('global.default.cancel') }}
+                                        </sw-button>
+                                        {% endblock %}
+
+                                        {% block sw_plugin_list_uninstall_modal_uninstall %}
+                                        <sw-button @click="onUninstallPlugin(item)" variant="primary" size="small">
+                                            {{ $tc('sw-plugin.list.labelUninstallButton') }}
                                         </sw-button>
                                         {% endblock %}
                                     </template>

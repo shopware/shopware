@@ -14,12 +14,12 @@ const headers = {
     "Authorization": "Bearer " + token,
     "Accept": "application/json"
 };
-fetch(`${baseUrl}/api/v1/product`, { headers })
+fetch(`${baseUrl}/api/v3/product`, { headers })
     .then((response) => response.json())
     .then((products) => console.log('Products', products));
 ```
 
-### GET /api/v1/category?limit=1
+### GET /api/v3/category?limit=1
 
 Get a list of categories with a limit of 1.
 
@@ -88,7 +88,7 @@ Get a list of categories with a limit of 1.
 ```
  
 
-### GET /api/v1/category/{id}
+### GET /api/v3/category/{id}
 
 Get a single category.
 
@@ -149,7 +149,7 @@ Get a single category.
 }
 ```
 
-### POST /api/v1/category
+### POST /api/v3/category
 
 Add a new category.
 
@@ -163,10 +163,10 @@ Add a new category.
 **Response:**
 
     Status 204 No Content
-    Location: http://localhost:8000/api/v1/category/20080911ffff4fffafffffff19830531
+    Location: http://localhost:8000/api/v3/category/20080911ffff4fffafffffff19830531
  
 
-### PATCH /api/v1/category/{id}
+### PATCH /api/v3/category/{id}
 
 Change attributes of the category.
 
@@ -179,9 +179,9 @@ Change attributes of the category.
 **Response:**
 
     Status 204 No Content
-    Location: http://localhost:8000/api/v1/category/20080911ffff4fffafffffff19830531
+    Location: http://localhost:8000/api/v3/category/20080911ffff4fffafffffff19830531
 
-### DELETE /api/v1/category/{id}
+### DELETE /api/v3/category/{id}
 
 Delete the category.
 
@@ -189,7 +189,7 @@ Delete the category.
 
     Status 204 No Content
 
-### GET /api/v1/category/{id}/products?limit=1
+### GET /api/v3/category/{id}/products?limit=1
 
 Get a list of products belonging to the category.
 ```json
@@ -482,7 +482,7 @@ Get a list of products belonging to the category.
 }
 ```
 
-### GET /api/v1/product?associations[media][]&limit=1
+### GET /api/v3/product?associations[media][]&limit=1
 
 Not all associations are loaded by default if you request an entity.
 If you want to load product images with your product, add the `associations` parameter.
@@ -719,5 +719,5 @@ List of products with their media associations limited to one.
 
 ## Full schema
 
-The full schema can be explored with swagger: `/api/v1/_info/swagger.html`
+The full schema can be explored with swagger: `/api/v3/_info/swagger.html`
 To access the full schema, you have to make sure, that the `APP_ENV` is set to `dev`.

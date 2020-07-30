@@ -250,9 +250,10 @@ function applyTemplateOverrides(name) {
         return updatedTemplate;
     }
 
+    const baseTemplate = normalizedTemplateRegistry.get(item.name);
+
     // iterate the overrides per component
     item.overrides.forEach((override, index) => {
-        const baseTemplate = normalizedTemplateRegistry.get(item.name);
         const overrideTemplate = buildTwigTemplateInstance(
             `${baseTemplate.name}-${index}`,
             override.raw
@@ -260,9 +261,9 @@ function applyTemplateOverrides(name) {
 
         // resolve the template tokens
         baseTemplate.template.tokens = resolveTokens(baseTemplate.template.tokens, overrideTemplate.tokens);
-
-        normalizedTemplateRegistry.set(baseTemplate.name, baseTemplate);
     });
+
+    normalizedTemplateRegistry.set(baseTemplate.name, baseTemplate);
 
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
@@ -305,7 +306,9 @@ function resolveTokens(tokens, overrideTokens) {
 
         const resolvedTokens = resolveTokens(token.token.output, overrideTokens);
 
-        return [...acc, ...resolvedTokens];
+        token.token.output = resolvedTokens;
+
+        return [...acc, token];
     }, []);
 }
 

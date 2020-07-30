@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class LogoutRouteTest extends TestCase
 {
@@ -48,7 +49,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/logout',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
                 [
                 ]
             );
@@ -68,7 +69,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -83,7 +84,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/logout',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
                 [],
                 [],
                 [
@@ -95,7 +96,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/customer',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
                 [],
                 [],
                 [

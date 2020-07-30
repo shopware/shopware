@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 
 trait ShippingMethodPricesTestBehaviour
 {
@@ -20,19 +21,28 @@ trait ShippingMethodPricesTestBehaviour
     public function setNewShippingPrices(Connection $conn, float $price): void
     {
         $rows = $conn->executeQuery(
-            'SELECT id,price FROM shipping_method_price'
+            'SELECT id,currency_price FROM shipping_method_price'
         );
 
         foreach ($rows as $row) {
             if (array_key_exists($row['id'], $this->oldValues)) {
                 continue;
             }
-            $this->oldValues[$row['id']] = $row['price'];
+            $this->oldValues[$row['id']] = $row['currency_price'];
         }
 
+        $priceStruct = json_encode([
+            'c' . Defaults::CURRENCY => [
+                'currencyId' => Defaults::CURRENCY,
+                'net' => $price,
+                'gross' => $price,
+                'linked' => false,
+            ],
+        ]);
+
         $conn->executeUpdate(
-            'UPDATE shipping_method_price SET price=:price WHERE id in(:ids)',
-            ['price' => $price, 'ids' => array_keys($this->oldValues)],
+            'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id in(:ids)',
+            ['currencyPrice' => $priceStruct, 'ids' => array_keys($this->oldValues)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
     }
@@ -46,8 +56,8 @@ trait ShippingMethodPricesTestBehaviour
     {
         foreach ($this->oldValues as $k => $v) {
             $conn->executeUpdate(
-                'UPDATE shipping_method_price SET price=:price WHERE id=:id',
-                ['price' => $v, 'id' => $k]
+                'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id=:id',
+                ['currencyPrice' => $v, 'id' => $k]
             );
         }
     }

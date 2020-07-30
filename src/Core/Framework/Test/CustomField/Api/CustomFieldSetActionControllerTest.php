@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\CustomField\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\PlatformRequest;
 
 class CustomFieldSetActionControllerTest extends TestCase
 {
@@ -11,7 +12,7 @@ class CustomFieldSetActionControllerTest extends TestCase
 
     public function testGetAvailableRelations(): void
     {
-        $this->getBrowser()->request('GET', '/api/v1/_action/attribute-set/relations');
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/attribute-set/relations');
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode());

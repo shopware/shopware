@@ -315,6 +315,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">
             <argument type="service" id="user.repository"/>
+            <argument type="service" id="user_access_key.repository"/>
             <argument type="service" id="Shopware\Core\System\User\UserDefinition"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

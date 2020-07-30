@@ -35,6 +35,7 @@ return [
     'language-selection_header' => 'Vaše instalace softwaru Shopware',
     'language-selection_info_message' => 'Tato volba se vztahuje jen na jazyk průvodce instalací. Systémový standardní jazyk svého obchodu můžete ještě definovat později.',
     'language-selection_welcome_message' => 'Těší nás, že chcete být součástí naší celosvětové komunity Shopware! Nyní vás provedeme krok za krokem procesem instalace. Pokud budete mít otázky, podívejte se nejdříve na naše <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Fórum</a>, kontaktujte nás telefonicky na čísle <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> nebo nám napište <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.',
+
     'requirements_header' => 'Systémové předpoklady',
     'requirements_header_files' => 'Soubory a adresáře',
     'requirements_header_system' => 'Systém',
@@ -56,10 +57,12 @@ return [
     'requirements_status_error' => 'Chyba',
     'requirements_status_warning' => 'Varování',
     'requirements_status_ready' => 'Připraven',
+
     'license_agreement_header' => 'Všeobecné obchodní podmínky („VOP“)',
     'license_agreement_info' => 'Zde najdete naše Všeobecné obchodní podmínky. Aby bylo možné pokračovat v instalaci softwaru Shopware 6, musíte si nejdříve přečíst naše VOP a poté je přijmout. Vydání Community Edition softwaru Shopware 6 je uvolněno podle podmínek licence MIT.',
     'license_agreement_error' => 'Vyjádřete svůj souhlas s našimi VOP!',
     'license_agreement_checkbox' => 'Souhlasím s VOP!',
+
     'database-configuration_header' => 'Konfigurovat databázi',
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Rozšířená nastavení',
@@ -82,15 +85,18 @@ return [
     'database_import_install_label' => 'Instalace databáze:',
     'database_import_install_step_text' => 'Krok',
     'database_import_install_from_text' => 'z',
+
     'migration_counter_text_migrations' => 'Provádí se aktualizace databáze',
     'migration_counter_text_snippets' => 'Aktualizují se textové bloky',
     'migration_update_success' => 'Databáze úspěšně importována!',
+
     'edition_header' => 'Máte již licenci softwaru Shopware?',
     'edition_info' => 'Shopware existuje v bezplatném vydání <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition </a> a také v hrazených verzích <a href="https://de.shopware.com/versionen/" target="_blank">Professional a Enterprise</a>.',
     'edition_ce' => 'Ne, chci používat bezplatnou verzi <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a>.',
     'edition_cm' => 'Ano, mám hrazenou licenci softwaru Shopware (<a href="https://de.shopware.com/versionen/" target="_blank">Professional nebo Enterprise</a>).',
     'edition_license' => 'Sem zadejte svůj licenční klíč. Ten najdete na svém účtu Shopware v části "Licence" → "Licence produktů" → "Podrobnosti/stažení":',
     'edition_license_error' => 'Pro instalaci hrazené verze softwaru Shopware je nutná platná licence.',
+
     'configuration_header' => 'Konfigurace',
     'configuration_sconfig_text' => 'Už je to téměř hotovo. Nyní musíte ještě provést několik základních nastavení svého obchodu, poté je instalace dokončena.',
     'configuration_sconfig_name' => 'Název obchodu',
@@ -104,6 +110,12 @@ return [
     'configuration_admin_currency_eur' => 'Euro',
     'configuration_admin_currency_usd' => 'Dolar (US)',
     'configuration_admin_currency_gbp' => 'Britská libra (GB)',
+    'configuration_admin_currency_pln' => 'Polský zlotý',
+    'configuration_admin_currency_chf' => 'Švýcarský frank',
+    'configuration_admin_currency_sek' => 'Švédská koruna',
+    'configuration_admin_currency_dkk' => 'Dánská koruna',
+    'configuration_admin_currency_nok' => 'Norská koruna',
+    'configuration_admin_currency_czk' => 'Koruna česká',
     'configuration_admin_username' => 'Přihlašovací jméno správce:',
     'configuration_admin_mail' => 'E-mailová adresa správce:',
     'configuration_admin_firstName' => 'Jméno správce:',
@@ -113,12 +125,13 @@ return [
     'configuration_admin_language_de' => 'Německy',
     'configuration_admin_language_en' => 'Anglicky',
     'configuration_admin_password' => 'Heslo správce:',
+
     'finish_header' => 'Instalace je dokončena.',
     'finish_info' => 'Úspěšně jste instalovali software Shopware!',
     'finish_info_heading' => 'Jupí!',
     'finish_first_steps' => 'Příručka "První kroky"',
     'finish_frontend' => 'K rozhraní obchodu',
-    'finish_backend' => 'Ke správě',
+    'finish_backend' => 'Ke Administration (správě)',
     'finish_message' => '
 <p>
     <strong>Vítejte v aplikaci Shopware,</strong>

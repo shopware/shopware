@@ -97,7 +97,7 @@
       "passwordConfirmation": {
         "titleConfirmPasswordModal": "Enter your current password to confirm",
         "labelConfirmPassword": "Password",
-        "placeholderConfirmPassword": "Please enter your current password.",
+        "placeholderConfirmPassword": "Please enter your current password...",
         "labelButtonCancel": "Cancel",
         "labelButtonConfirm": "Confirm",
         "notificationPasswordErrorTitle": "Error",

@@ -10,6 +10,7 @@ import ElementClosestPolyfill from 'element-closest';
 import 'formdata-polyfill';
 import 'object-fit-polyfill';
 import 'intersection-observer';
+import 'report-validity';
 
 ElementClosestPolyfill(window);
 objectFitImages();

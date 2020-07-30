@@ -218,16 +218,16 @@
           "trackingId": {
             "label": "Tracking-ID",
             "placeHolder": "Tracking-ID eingeben ...",
-            "helpText": "Nach der Anmeldung in Ihrem Google-Analytics-Konto erhalten Sie eine Tracking-ID. Tracking-IDs können wie folgt aussehen: UA-12345678-1"
+            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen: UA-12345678-1"
           },
           "active": {
             "label": "Google Analytics aktivieren"
           },
           "trackOrders": {
-            "label": "Bestellungen tracken"
+            "label": "Bestellungen verfolgen"
           },
           "anonymizeIp": {
-            "label": "Ip-Anonymisierung"
+            "label": "IP-Anonymisierung"
           }
         }
       },

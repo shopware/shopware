@@ -4,12 +4,17 @@ namespace Shopware\Storefront\Test\Theme;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
+use Shopware\Storefront\Test\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
+use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
+use Shopware\Storefront\Theme\Aggregate\ThemeTranslationEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -108,6 +113,52 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
     }
 
+    public function testItSkipsTranslationsIfLanguageIsNotAvailable(): void
+    {
+        $bundle = $this->getThemeConfigWithLabels();
+        $this->deleteLanguageForLocale('de-DE');
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $theme = $this->getTheme($bundle);
+
+        static::assertCount(1, $theme->getTranslations());
+        static::assertEquals('en-GB', $theme->getTranslations()->first()->getLanguage()->getLocale()->getCode());
+        static::assertEquals([
+            'fields.sw-image' => 'test label',
+        ], $theme->getTranslations()->first()->getLabels());
+        static::assertEquals([
+            'fields.sw-image' => 'test help',
+        ], $theme->getTranslations()->first()->getHelpTexts());
+    }
+
+    public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
+    {
+        $bundle = $this->getThemeConfigWithLabels();
+        $this->changeDefaultLanguageLocale('xx-XX');
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $theme = $this->getTheme($bundle);
+
+        static::assertCount(2, $theme->getTranslations());
+        $translation = $this->getTranslationByLocale('xx-XX', $theme->getTranslations());
+        static::assertEquals([
+            'fields.sw-image' => 'test label',
+        ], $translation->getLabels());
+        static::assertEquals([
+            'fields.sw-image' => 'test help',
+        ], $translation->getHelpTexts());
+
+        $germanTranslation = $this->getTranslationByLocale('de-DE', $theme->getTranslations());
+        static::assertEquals([
+            'fields.sw-image' => 'Test label',
+        ], $germanTranslation->getLabels());
+        static::assertEquals([
+            'fields.sw-image' => 'Test Hilfe',
+        ], $germanTranslation->getHelpTexts());
+    }
+
     private function getThemeConfig(): StorefrontPluginConfiguration
     {
         $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
@@ -115,11 +166,19 @@ class ThemeLifecycleServiceTest extends TestCase
         return $factory->createFromBundle(new ThemeWithFileAssociations());
     }
 
+    private function getThemeConfigWithLabels(): StorefrontPluginConfiguration
+    {
+        $factory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
+
+        return $factory->createFromBundle(new ThemeWithLabels());
+    }
+
     private function getTheme(StorefrontPluginConfiguration $bundle): ThemeEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $bundle->getTechnicalName()));
         $criteria->addAssociation('media');
+        $criteria->addAssociation('translations.language.locale');
 
         return $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
     }
@@ -158,5 +217,51 @@ class ThemeLifecycleServiceTest extends TestCase
         ];
 
         $bundle->setThemeConfig($config);
+    }
+
+    private function deleteLanguageForLocale(string $locale): void
+    {
+        /** @var EntityRepositoryInterface $languageRepository */
+        $languageRepository = $this->getContainer()->get('language.repository');
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('translationCode.code', $locale));
+
+        $id = $languageRepository->searchIds($criteria, $context)->firstId();
+
+        $languageRepository->delete([
+            ['id' => $id],
+        ], $context);
+    }
+
+    private function changeDefaultLanguageLocale(string $locale): void
+    {
+        /** @var EntityRepositoryInterface $languageRepository */
+        $languageRepository = $this->getContainer()->get('language.repository');
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+
+        /** @var LanguageEntity $language */
+        $language = $languageRepository->search($criteria, $context)->first();
+
+        /** @var EntityRepositoryInterface $localeRepository */
+        $localeRepository = $this->getContainer()->get('locale.repository');
+
+        $localeRepository->upsert([
+            [
+                'id' => $language->getTranslationCodeId(),
+                'code' => $locale,
+            ],
+        ], $context);
+    }
+
+    private function getTranslationByLocale(string $locale, ThemeTranslationCollection $translations): ThemeTranslationEntity
+    {
+        return $translations->filter(static function (ThemeTranslationEntity $translation) use ($locale): bool {
+            return $locale === $translation->getLanguage()->getLocale()->getCode();
+        })->first();
     }
 }

@@ -19,7 +19,7 @@ Component.register('sw-version', {
     computed: {
         version() {
             const version = Shopware.Context.app.config.version;
-            const match = version.match(/(\d+\.?\d+?\.?\d+?)-?([a-z]+)?(\d+(.\d+)*)?/i);
+            const match = version.match(/(\d+\.?\d+\.?\d+?\.?\d+?)-?([a-z]+)?(\d+(.\d+)*)?/i);
 
             if (match === null) {
                 return version;

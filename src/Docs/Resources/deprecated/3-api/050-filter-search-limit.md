@@ -18,8 +18,8 @@ defined limit.
 
 **Examples:**
 
-    /api/v1/product?limit=10 => Entities 1-10 are returned
-    /api/v1/product?limit=10&page=5 => Entities 41-50
+    /api/v3/product?limit=10 => Entities 1-10 are returned
+    /api/v3/product?limit=10&page=5 => Entities 41-50
 
 ## Filter
 
@@ -28,8 +28,8 @@ Simple queries can be made via GET parameters.
 
 **Examples for simple queries:**
 
-    /api/v1/product?filter[product.active]=1
-    /api/v1/product?filter[product.active]=1&filter[product.name]=Test
+    /api/v3/product?filter[product.active]=1
+    /api/v3/product?filter[product.active]=1&filter[product.name]=Test
 
 ## Search
 
@@ -38,20 +38,20 @@ Simple searches can be made via GET parameters.
 
 **Examples for simple queries:**
 
-    /api/v1/product?term=searchterm
+    /api/v3/product?term=searchterm
 
 ## Sort
 
 The list routes support both, sorting data via GET parameter and POST parameter, for more complex queries.
 Simple sorting can be made via GET parameters.
 
-    /api/v1/product?sort=name => Ascending sort by name
-    /api/v1/product?sort=-name => Descending sort by name
+    /api/v3/product?sort=name => Ascending sort by name
+    /api/v3/product?sort=-name => Descending sort by name
 
 # Advanced search
 The advanced search endpoint allows you to query by complex conditions and aggregate at the same time.
 
-    POST /api/v1/search/{entityName}
+    POST /api/v3/search/{entityName}
     
 The following options are possible in the POST request body:
 
@@ -69,7 +69,7 @@ The following options are possible in the POST request body:
 | aggregations     | object | Allows aggregated data to be determined for the entire result                                  |
 | associations     | object | Allows to fetch additional data for the entities                                               |
 
-All following examples were executed on the API resource `POST http://localhost/api/v1/search/product`.
+All following examples were executed on the API resource `POST http://localhost/api/v3/search/product`.
 
 ## Page & Limit
 ```json

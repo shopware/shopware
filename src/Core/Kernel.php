@@ -25,7 +25,7 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '9999999-dev';
+    public const SHOPWARE_FALLBACK_VERSION = '6.3.9999999.9999999-dev';
 
     /**
      * @var Connection|null
@@ -236,8 +236,9 @@ class Kernel extends HttpKernel
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, '/', 'glob');
         $routes->import($confDir . '/{routes}' . self::CONFIG_EXTS, '/', 'glob');
 
-        $this->addApiRoutes($routes);
         $this->addBundleRoutes($routes);
+        $this->addApiRoutes($routes);
+        $this->addBundleOverwrites($routes);
         $this->addFallbackRoute($routes);
     }
 
@@ -270,7 +271,7 @@ class Kernel extends HttpKernel
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
                 'kernel.plugin_infos' => $this->pluginLoader->getPluginInfos(),
-                'kernel.supported_api_versions' => [1, 2],
+                'kernel.supported_api_versions' => [2, 3],
                 'defaults_bool_true' => true,
                 'defaults_bool_false' => false,
             ]
@@ -333,6 +334,15 @@ class Kernel extends HttpKernel
         foreach ($this->getBundles() as $bundle) {
             if ($bundle instanceof Framework\Bundle) {
                 $bundle->configureRoutes($routes, (string) $this->environment);
+            }
+        }
+    }
+
+    private function addBundleOverwrites(RouteCollectionBuilder $routes): void
+    {
+        foreach ($this->getBundles() as $bundle) {
+            if ($bundle instanceof Framework\Bundle) {
+                $bundle->configureRouteOverwrites($routes, (string) $this->environment);
             }
         }
     }

@@ -881,19 +881,3 @@ The following payload can be used to generate a product with the variants: red-x
         { "optionId": "ea14a701771148d6b04045f99c502829" }      // size:  XL
     ]
 }
-``` 
-### Assigning a feature set
-The reference price for a product is calculated on the fly, if the product has a unit assigned to it. For this price to
-be displayed in the storefront (or in API requests as `features`), it has to be marked as an essential characteristic
-of the product. You can do this by using essential characteristics templates, called `featureSets` on the technical
-side. Shopware comes with a default `featureSet` which includes the `referencePrice`, but you may of course choose your
-own as well.
-
-```
-{
-    "id": "4aec0bce64b742418a3dfa9e16c64f8f",
-    "featureSet": {
-        "id": "682f99ff1d9e4bbca00cb2fce5573892"
-    }
-}
-```

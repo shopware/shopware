@@ -51,7 +51,8 @@ const customFields = [
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-customer-detail-base'), {
         mocks: {
-            $tc: () => {}
+            $tc: () => {},
+            next9225: true
         },
 
         provide: {

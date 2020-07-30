@@ -492,6 +492,25 @@ const webpackConfig = {
                         template: 'index.html.tpl',
                         templateParameters: {
                             featureFlags: (() => {
+                                const getFeatureFlagNames = (sourceFolder) => {
+                                    const flagsPath = path.join(sourceFolder, '/flag');
+
+                                    if (!fs.existsSync(flagsPath)) {
+                                        return [];
+                                    }
+
+                                    return fs.readdirSync(flagsPath)
+                                        .filter((file) => {
+                                            return file.indexOf('feature_') === 0;
+                                        })
+                                        .map(file => {
+                                            return path.basename(
+                                                file.substring(8),
+                                                '.js'
+                                            );
+                                        });
+                                }
+
                                 const envResult = dotenv.config({ path: process.env.ENV_FILE });
 
                                 if (envResult.hasOwnProperty('error')) {
@@ -499,16 +518,11 @@ const webpackConfig = {
                                     return {};
                                 }
 
-                                const allNames = fs.readdirSync(path.join(__dirname, './src/flag'))
-                                    .filter((file) => {
-                                        return file.indexOf('feature_') === 0;
-                                    })
-                                    .map(file => {
-                                        return path.basename(
-                                            file.substring(8),
-                                            '.js'
-                                        );
-                                    });
+                                const coreFlags = getFeatureFlagNames(path.join(__dirname, './src'));
+
+                                const allNames = pluginEntries.reduce((acc, plugin) => {
+                                    return  [...acc, ...getFeatureFlagNames(plugin.path)];
+                                }, coreFlags);
 
                                 const allActive = Object.keys(envResult.parsed)
                                     .filter((key) => {

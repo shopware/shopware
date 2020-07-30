@@ -99,11 +99,11 @@ class CartService
         $this->cart[$cart->getToken()] = $cart;
     }
 
-    public function createNew(string $token, string $name = self::SALES_CHANNEL): Cart
+    public function createNew(string $token, SalesChannelContext $context, string $name = self::SALES_CHANNEL): Cart
     {
         $cart = new Cart($name, $token);
 
-        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
+        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart, $context));
 
         return $this->cart[$cart->getToken()] = $cart;
     }

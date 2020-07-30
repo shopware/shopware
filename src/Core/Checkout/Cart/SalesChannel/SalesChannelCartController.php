@@ -152,7 +152,7 @@ class SalesChannelCartController extends AbstractController
         $token = $request->request->getAlnum('token', $context->getToken());
         $name = $request->request->getAlnum('name', CartService::SALES_CHANNEL);
 
-        $this->cartService->createNew($token, $name);
+        $this->cartService->createNew($token, $context, $name);
 
         return new JsonResponse(
             [PlatformRequest::HEADER_CONTEXT_TOKEN => $context->getToken()],

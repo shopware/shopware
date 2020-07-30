@@ -345,7 +345,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
     private function orderWithPromotion(string $code, array $productIds, SalesChannelContext $context): string
     {
-        $cart = $this->cartService->createNew($context->getToken());
+        $cart = $this->cartService->createNew($context->getToken(), $context);
 
         foreach ($productIds as $productId) {
             $cart = $this->addProduct($productId, 3, $cart, $this->cartService, $context);

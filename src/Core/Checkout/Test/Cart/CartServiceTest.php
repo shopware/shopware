@@ -97,12 +97,12 @@ class CartServiceTest extends TestCase
         $cartService = $this->getContainer()->get(CartService::class);
 
         $token = Uuid::randomHex();
-        $newCart = $cartService->createNew($token, __METHOD__);
+        $newCart = $cartService->createNew($token, $this->getSalesChannelContext(), __METHOD__);
 
         static::assertInstanceOf(CartCreatedEvent::class, $caughtEvent);
         static::assertSame($newCart, $caughtEvent->getCart());
         static::assertSame($newCart, $cartService->getCart($token, $this->getSalesChannelContext()));
-        static::assertNotSame($newCart, $cartService->createNew($token, __METHOD__));
+        static::assertNotSame($newCart, $cartService->createNew($token, $this->getSalesChannelContext(), __METHOD__));
     }
 
     public function testLineItemAddedEventFired(): void

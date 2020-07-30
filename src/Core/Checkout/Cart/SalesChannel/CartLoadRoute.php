@@ -69,17 +69,17 @@ class CartLoadRoute extends AbstractCartLoadRoute
         try {
             $cart = $this->persister->load($token, $context);
         } catch (CartTokenNotFoundException $e) {
-            $cart = $this->createNew($token, $name);
+            $cart = $this->createNew($token, $context, $name);
         }
 
         return new CartResponse($this->cartCalculator->calculate($cart, $context));
     }
 
-    private function createNew($token, $name): Cart
+    private function createNew($token, SalesChannelContext $context, $name): Cart
     {
         $cart = new Cart($name, $token);
 
-        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
+        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart, $context));
 
         return $cart;
     }

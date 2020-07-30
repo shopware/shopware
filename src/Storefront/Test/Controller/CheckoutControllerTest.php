@@ -111,10 +111,9 @@ class CheckoutControllerTest extends TestCase
 
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken, false, true);
+        $salesChannelContext = $this->fillCart($contextToken, false, true);
 
         $requestDataBag = $this->createRequestDataBag('');
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, true);
         $request = $this->createRequest();
 
         /** @var RedirectResponse|Response $response */
@@ -284,10 +283,9 @@ class CheckoutControllerTest extends TestCase
     {
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken, $useInactivePaymentMethod);
+        $salesChannelContext = $this->fillCart($contextToken, $useInactivePaymentMethod);
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
         if ($request === null) {
             $request = $this->createRequest();
         }
@@ -378,24 +376,29 @@ class CheckoutControllerTest extends TestCase
         return $productId;
     }
 
-    private function fillCart(string $contextToken, ?bool $useInactivePaymentMethod = false, ?bool $useFailedPaymentMethod = false): void
+    private function fillCart(string $contextToken, ?bool $useInactivePaymentMethod = false, ?bool $useFailedPaymentMethod = false): SalesChannelContext
     {
-        $cart = $this->getContainer()->get(CartService::class)->createNew($contextToken);
-
         $productId = $this->createProduct();
+
+        $context = $this->createSalesChannelContext($contextToken, $useFailedPaymentMethod);
+
+        $cart = $this->getContainer()->get(CartService::class)->createNew($contextToken, $context);
+
         $cart->add(new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
 
         if ($useInactivePaymentMethod) {
             $cart->setTransactions($this->createTransactionWithInactivePaymentMethod());
 
-            return;
+            return $context;
         }
         if ($useFailedPaymentMethod) {
             $cart->setTransactions($this->createTransactionWithFailedPaymentMethod());
 
-            return;
+            return $context;
         }
         $cart->setTransactions($this->createTransaction());
+
+        return $context;
     }
 
     private function createTransaction(): TransactionCollection

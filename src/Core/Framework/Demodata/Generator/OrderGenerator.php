@@ -128,7 +128,7 @@ SQL;
 
             $new = $lineItems->slice($offset, $itemCount);
 
-            $cart = $this->cartService->createNew($token, 'demo-data');
+            $cart = $this->cartService->createNew($token, $salesChannelContext, 'demo-data');
             $cart->addLineItems($new);
 
             $cart = $this->cartService->recalculate($cart, $salesChannelContext);

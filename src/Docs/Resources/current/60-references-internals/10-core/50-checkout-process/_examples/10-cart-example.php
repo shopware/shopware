@@ -2,6 +2,7 @@
 
 namespace ExampleCreateNew {
     use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+    use Shopware\Core\System\SalesChannel\SalesChannelContext;
     use Symfony\Component\Routing\Annotation\Route;
 
     class NewCartController
@@ -12,11 +13,11 @@ namespace ExampleCreateNew {
         /**
          * @Route("/", name="cart.test")
          */
-        public function createNewCart(): void
+        public function createNewCart(SalesChannelContext $salesChannelContext): void
         {
             // Load the token through the request or from other sources
             $token = '596a70b408014230a140fd5d94d3402b';
-            $cart = $this->cartService->createNew($token);
+            $cart = $this->cartService->createNew($token, $salesChannelContext);
         }
     }
 } // code-example-end
@@ -217,7 +218,7 @@ namespace DocsTest {
             $controller = new NewCartController();
 
             $this->setUpController($controller);
-            $controller->createNewCart();
+            $controller->createNewCart($this->getSalesChannelContext());
 
             static::assertTrue(true); //indicate all went well
         }

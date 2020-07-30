@@ -106,6 +106,7 @@ NEXT
     * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
     * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
 * Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
+* Fixed `packUnit` and `packUnitPlural` not being properly accessed in `buy-widget-form.html.twig`
 
 6.3.0.0
 ----------------

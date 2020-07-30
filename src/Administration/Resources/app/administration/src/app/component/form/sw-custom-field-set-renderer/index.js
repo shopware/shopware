@@ -154,7 +154,6 @@ Component.register('sw-custom-field-set-renderer', {
     watch: {
         'entity.customFieldSetSelectionActive': {
             handler(value) {
-                console.log('watch : ');
                 this.onChangeCustomFieldSetSelectionActive(value);
             },
             deep: true
@@ -232,7 +231,6 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         onChangeCustomFieldSetSelectionActive(newVal) {
-            console.log('newVal : ', newVal);
             this.onChangeCustomFieldSets();
             if (!newVal) {
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {

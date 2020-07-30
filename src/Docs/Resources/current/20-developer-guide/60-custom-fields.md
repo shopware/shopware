@@ -81,3 +81,31 @@ $this->productRepository->search(
     (new Criteria())->addFilter(new EqualsFilter('customFields.swag_example_color', '#189eff'))
 , $context);
 ```
+
+### Global custom field sets
+It is possible to make custom field sets "global". That means that the administration user
+ is not able to change its custom fields. Also, a global set cannot be hidden on the product detail page.
+This is meant for plugins which rely on certain custom fields to exist and prevents the user from deleting
+them in the administration. 
+Here is a small example:
+```php
+$this->customFieldSetRepository->create([
+    [
+        'name' => 'swag_example_set',
+        'global' => true,
+        'config' => [
+            'label' => [
+                'de-DE' => 'Beispiel Plugin Zusatzfeld Set',
+                'en-GB' => 'Example plugin custom field set'
+            ]
+        ],
+        'relations' => [[
+            'entityName' => 'product'
+        ]],
+        'customFields' => [
+            ['name' => 'swag_example_size', 'type' => CustomFieldTypes::INT],
+            ['name' => 'swag_example_color', 'type' => CustomFieldTypes::TEXT]
+        ]
+    ]
+], $context);
+```

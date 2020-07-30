@@ -19,14 +19,14 @@
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_delete %}
-                            <sw-button :disabled="deleteButtonDisabled || !acl.can('property.deleter')"
+                            <sw-button :disabled="deleteButtonDisabled || !acl.can('property.editor')"
                                 @click="onDeleteOptions"
                                 square
                                 size="small"
                                 class="sw-property-option-list__delete-button"
                                 v-tooltip="{
                                     message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('property.deleter'),
+                                    disabled: acl.can('property.editor'),
                                     showOnDisabledElements: true
                                 }">
                                 <sw-icon name="default-action-trash" small/>
@@ -41,8 +41,8 @@
                                     size="small"
                                     class="sw-property-option-list__add-button"
                                     v-tooltip="{
-                                        message: this.$tc('sw-privileges.tooltip.warning'),
-                                        disabled: this.acl.can('property.creator'),
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('property.editor'),
                                         showOnDisabledElements: true
                                     }">
                                     {{ $tc('sw-property.detail.addOption') }}
@@ -102,7 +102,7 @@
                         <sw-context-menu-item
                             variant="danger"
                             @click="onSingleOptionDelete(item.id)"
-                            :disabled="!acl.can('property.deleter')">
+                            :disabled="!acl.can('property.editor')">
                             {{ $tc('sw-property.list.contextMenuDelete') }}
                         </sw-context-menu-item>
                     </template>

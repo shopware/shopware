@@ -55,7 +55,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                     const privilegesService = $w.Shopware.Service('privileges');
 
                     const requiredPermissions = privilegesService.getRequiredPrivileges();
-                    const selectedPrivileges = permissions.reduce((selectedPrivileges, {key, role}) => {
+                    const selectedPrivileges = permissions.reduce((selectedPrivileges, { key, role }) => {
                         const identifier = `${key}.${role}`;
 
                         selectedPrivileges.push(
@@ -97,7 +97,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                     'Content-Type': 'application/json'
                 },
                 body: {
-                    aclRoles: [{id: roleID}],
+                    aclRoles: [{ id: roleID }],
                     admin: false,
                     email: 'max@muster.com',
                     firstName: 'Max',

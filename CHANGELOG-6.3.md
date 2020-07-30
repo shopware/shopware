@@ -20,6 +20,13 @@ NEXT
 ----------------
 
 #### Administration
+* Added new privileges service: 
+`src/Administration/Resources/app/administration/src/module/sw-property/acl/index.js`
+* Added prop `savePermission` to `sw-language-switch/index.js`
+* Added new computed props to `sw-property-option-list/index.js`
+    * `allowInlineEdit`
+    * `tooltipAdd`
+    * `disableAddButton`
 
 #### Core
 
@@ -775,9 +782,6 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
 * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
 * Fixed the sidebar with filters that wasn't displayed in the orderlist
- 
-* Added `acl` role and privileges for property module 
-
 * Fix truncated text in `sw-property-search`. Changed prop `flex` of `sw-grid-column` to `minmax(0, 1fr)`
 
 #### Core

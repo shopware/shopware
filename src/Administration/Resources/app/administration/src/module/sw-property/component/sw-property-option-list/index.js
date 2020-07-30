@@ -58,7 +58,7 @@ Component.register('sw-property-option-list', {
         },
 
         disableAddButton() {
-            return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.creator');
+            return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         }
     },
 

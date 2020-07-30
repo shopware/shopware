@@ -42,7 +42,8 @@
             <template slot="language-switch">
                 <sw-language-switch @on-change="onChangeLanguage"
                     :saveChangesFunction="saveOnLanguageChange"
-                    :abortChangeFunction="abortOnLanguageChange">
+                    :abortChangeFunction="abortOnLanguageChange"
+                    :savePermission="acl.can('property.editor')">
                 </sw-language-switch>
             </template>
         {% endblock %}

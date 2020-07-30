@@ -17,8 +17,22 @@ Shopware.Service('privileges')
             editor: {
                 privileges: [
                     'property_group_option:update',
+                    'property_group_option:update',
+                    'property_group_option:delete',
+                    'property_group_option:create',
                     'property_group:update',
-                    'media:create'
+                    'media:create',
+                    'tag:read',
+                    'product_media:read',
+                    'product:read',
+                    'category:read',
+                    'product_manufacturer:read',
+                    'mail_template_media:read',
+                    'mail_template:read',
+                    'document_base_config:read',
+                    'user:read',
+                    'payment_method:read',
+                    'shipping_method:read'
                 ],
                 dependencies: [
                     'property.viewer'
@@ -26,7 +40,6 @@ Shopware.Service('privileges')
             },
             creator: {
                 privileges: [
-                    'property_group_option:create',
                     'property_group:create'
                 ],
                 dependencies: [
@@ -36,7 +49,6 @@ Shopware.Service('privileges')
             },
             deleter: {
                 privileges: [
-                    'property_group_option:delete',
                     'property_group:delete'
                 ],
                 dependencies: [

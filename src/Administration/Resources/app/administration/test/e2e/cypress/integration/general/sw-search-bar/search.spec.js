@@ -43,16 +43,16 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').type('Catalogue #1');
+        cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.get('.sw-search-bar-item')
             .should('be.visible')
-            .contains('Catalogue #1')
+            .contains('Home')
             .click();
 
         cy.get('.smart-bar__header h2')
             .should('be.visible')
-            .contains('Catalogue #1');
+            .contains('Home');
     });
 
     it('@searchBar @search: search for a customer', () => {

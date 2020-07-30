@@ -10,12 +10,12 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
-* [6.3.0](#630)
+* [6.3.0.0](#630)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
 
-6.3.0
+6.3.0.0
 ----------------
 
 #### Administration

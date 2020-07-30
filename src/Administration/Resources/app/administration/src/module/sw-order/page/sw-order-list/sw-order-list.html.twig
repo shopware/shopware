@@ -206,50 +206,51 @@
             </template>
 
             {% block sw_order_list_sidebar %}
-                <sw-sidebar #sidebar class="sw-order-list__sidebar">
+                <template #sidebar>
+                    <sw-sidebar class="sw-order-list__sidebar">
+                        {% block sw_order_list_sidebar_refresh %}
+                            <sw-sidebar-item
+                                icon="default-arrow-360-left"
+                                :title="$tc('sw-order.list.titleSidebarItemRefresh')"
+                                @click="onRefresh">
+                            </sw-sidebar-item>
+                        {% endblock %}
 
-                    {% block sw_order_list_sidebar_refresh %}
-                        <sw-sidebar-item
-                            icon="default-arrow-360-left"
-                            :title="$tc('sw-order.list.titleSidebarItemRefresh')"
-                            @click="onRefresh">
-                        </sw-sidebar-item>
-                    {% endblock %}
+                        {% block sw_order_list_sidebar_filter %}
+                            <sw-sidebar-item icon="default-action-filter"
+                                             :title="$tc('sw-order.list.titleSidebarItemFilter')">
 
-                    {% block sw_order_list_sidebar_filter %}
-                        <sw-sidebar-item icon="default-action-filter"
-                                         :title="$tc('sw-order.list.titleSidebarItemFilter')">
+                                {% block sw_order_list_sidebar_filter_items %}
 
-                            {% block sw_order_list_sidebar_filter_items %}
+                                    {% block sw_order_list_sidebar_filter_affiliate_code %}
+                                        <sw-multi-select
+                                            :label="$tc('sw-order.list.titleSidebarItemFilterAffiliateCode')"
+                                            :options="availableAffiliateCodes"
+                                            :isLoading="filterLoading"
+                                            valueProperty="key"
+                                            labelProperty="key"
+                                            :value="affiliateCodeFilter"
+                                            @change="onChangeAffiliateCodeFilter">
+                                        </sw-multi-select>
+                                    {% endblock %}
 
-                                {% block sw_order_list_sidebar_filter_affiliate_code %}
-                                    <sw-multi-select
-                                        :label="$tc('sw-order.list.titleSidebarItemFilterAffiliateCode')"
-                                        :options="availableAffiliateCodes"
-                                        :isLoading="filterLoading"
-                                        valueProperty="key"
-                                        labelProperty="key"
-                                        :value="affiliateCodeFilter"
-                                        @change="onChangeAffiliateCodeFilter">
-                                    </sw-multi-select>
+                                    {% block sw_order_list_sidebar_filter_campaign_code %}
+                                        <sw-multi-select
+                                            :label="$tc('sw-order.list.titleSidebarItemFilterCampaignCode')"
+                                            :options="availableCampaignCodes"
+                                            :isLoading="filterLoading"
+                                            valueProperty="key"
+                                            labelProperty="key"
+                                            @change="onChangeCampaignCodeFilter"
+                                            :value="campaignCodeFilter">
+                                        </sw-multi-select>
+                                    {% endblock %}
+
                                 {% endblock %}
-
-                                {% block sw_order_list_sidebar_filter_campaign_code %}
-                                    <sw-multi-select
-                                        :label="$tc('sw-order.list.titleSidebarItemFilterCampaignCode')"
-                                        :options="availableCampaignCodes"
-                                        :isLoading="filterLoading"
-                                        valueProperty="key"
-                                        labelProperty="key"
-                                        @change="onChangeCampaignCodeFilter"
-                                        :value="campaignCodeFilter">
-                                    </sw-multi-select>
-                                {% endblock %}
-
-                            {% endblock %}
-                        </sw-sidebar-item>
-                    {% endblock %}
-                </sw-sidebar>
+                            </sw-sidebar-item>
+                        {% endblock %}
+                    </sw-sidebar>
+                </template>
             {% endblock %}
         {% endblock %}
     </sw-page>

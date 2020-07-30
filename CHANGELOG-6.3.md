@@ -774,7 +774,8 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Custom fields assigned to a category entity can now also be configured in categories of type "link"
 * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
 * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
-
+* Fixed the sidebar with filters that wasn't displayed in the orderlist
+ 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
 * Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment the parameter is commented out in the `*AbstractRoute`, but the following parameters are already passed:

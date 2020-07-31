@@ -257,5 +257,12 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
 
+
+        <service id="Shopware\Storefront\Controller\VerificationHashController" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

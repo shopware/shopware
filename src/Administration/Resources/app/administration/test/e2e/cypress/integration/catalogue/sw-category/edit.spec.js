@@ -20,7 +20,7 @@ describe('Category: Edit categories', () => {
 
         cy.get('.sw-tree-item__label')
             .should('be.visible')
-            .contains('Catalogue #1');
+            .contains('Home');
 
         page.changeTranslation('Deutsch', 1);
         cy.get('.sw-tree-item__label').should('be.visible');
@@ -36,19 +36,19 @@ describe('Category: Edit categories', () => {
 
         cy.get('.sw-tree-item__label')
             .should('be.visible')
-            .contains('Catalogue #1');
+            .contains('Home');
     });
 
     it('@catalogue: change content language with selected category', () => {
         const page = new CategoryPageObject();
 
         cy.get('.sw-tree-item__label')
-            .contains('Catalogue #1')
+            .contains('Home')
             .click();
 
         cy.get('#categoryName')
             .should('be.visible')
-            .should('have.value', 'Catalogue #1');
+            .should('have.value', 'Home');
 
         page.changeTranslation('Deutsch', 1);
         cy.get('#categoryName')

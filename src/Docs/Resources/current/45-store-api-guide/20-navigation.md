@@ -211,7 +211,7 @@ POST /store-api/v3/category/04cfc07532344f938d1c88735b54281e
 {
     "parentId": null,
     "breadcrumb": [
-        "Catalogue #1"
+        "Home"
     ],
     "active": true,
     "cmsPage": {

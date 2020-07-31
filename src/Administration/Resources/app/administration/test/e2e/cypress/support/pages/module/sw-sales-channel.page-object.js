@@ -20,7 +20,7 @@ export default class SalesChannelPageObject {
         cy.get(this.elements.salesChannelNameInput).typeAndCheck(salesChannelName);
 
         cy.get('.sw-sales-channel-detail__select-navigation-category-id')
-            .typeSingleSelectAndCheck('Catalogue #1', '.sw-sales-channel-detail__select-navigation-category-id');
+            .typeSingleSelectAndCheck('Home', '.sw-sales-channel-detail__select-navigation-category-id');
 
         cy.get('.sw-sales-channel-detail__select-customer-group')
             .typeSingleSelectAndCheck('Standard customer group', '.sw-sales-channel-detail__select-customer-group');

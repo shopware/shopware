@@ -275,7 +275,7 @@ MySQL 8.0:
     services:
         -   name: mysql:8.0.19
             alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
+            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON", "--ansi"]
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
@@ -288,7 +288,7 @@ MySQL 8.0 (Schedule):
     services:
         -   name: mysql:8.0.19
             alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
+            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON", '--ansi']
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]

@@ -15,6 +15,8 @@ const URL_DATA_ATTRIBUTE = 'data-url';
  *
  * Notice: The response template needs to have the markup as defined in the Bootstrap docs
  * https://getbootstrap.com/docs/4.3/components/modal/#live-demo
+ *
+ * @deprecated tag:v6.5.0 - Use UrlModalPlugin instead
  */
 export default class AjaxModalExtensionUtil {
 
@@ -22,6 +24,7 @@ export default class AjaxModalExtensionUtil {
      * Constructor.
      */
     constructor(modalBackdrop = true) {
+        console.warn('Using the AjaxModalExtensionUtil is deprecated and will be removed in 6.5.0. Use UrlModalPlugin instead');
         this._client = new HttpClient();
         this.useModalBackdrop = modalBackdrop;
 

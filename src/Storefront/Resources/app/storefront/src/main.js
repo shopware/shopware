@@ -83,6 +83,7 @@ import WishlistWidgetPlugin from 'src/plugin/header/wishlist-widget.plugin';
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import WishlistPersistStoragePlugin from 'src/plugin/wishlist/persist-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
+import UrlModalPlugin from 'src/plugin/url-modal/url-modal.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -161,6 +162,8 @@ PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
+PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]')
+PluginManager.register('UrlModal', UrlModalPlugin, '[data-toggle="modal"][data-url]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
@@ -187,8 +190,6 @@ document.addEventListener('readystatechange', (event) => {
 /*
 run utils
 */
-new AjaxModalExtensionUtil();
-
 new TimezoneUtil();
 
 new TooltipUtil();

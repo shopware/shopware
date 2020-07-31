@@ -20,6 +20,13 @@ NEXT
 ----------------
 
 #### Administration
+* Added new privileges service: 
+`src/Administration/Resources/app/administration/src/module/sw-property/acl/index.js`
+* Added prop `savePermission` to `sw-language-switch/index.js`
+* Added new computed props to `sw-property-option-list/index.js`
+    * `allowInlineEdit`
+    * `tooltipAdd`
+    * `disableAddButton`
 
 #### Core
 
@@ -27,6 +34,9 @@ NEXT
 * Changed temporary filename of sitemap to avoid conflicts with other installations
 * Removed required flag of customer_id
 * Added `Logger` to `Shopware\Elasticsearch\Framework\ClientFactory::createClient`
+* Added event `GenericPageLoadedEvent`, which is fired once a page is requested via the `GenericPageLoader`
+* Changed the way the `CheckoutConfirmPage` is loaded. It now uses the `GenericPageLoader` as well.
+* Deprecated the constructor of `Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`. Use `CheckoutConfirmPage::createFrom` instead.
 
 #### Storefront
 
@@ -41,7 +51,11 @@ NEXT
     * The proxy's assets port is now configurable.
         * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
     * The default port is still port 9999.
-    
+* Fixed to show the listing loader for `cms-element-product-listing`
+    * Added `cmsProductListingWrapperSelector` property in `listing.plugin.js`
+    * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
+    * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
+
 6.3.0.0
 ----------------
 

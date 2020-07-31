@@ -4,6 +4,7 @@ import './page/sw-property-create';
 import './component/sw-property-option-detail';
 import './component/sw-property-detail-base';
 import './component/sw-property-option-list';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -25,7 +26,10 @@ Module.register('sw-property', {
                 default: 'sw-property-list'
             },
             path: 'index',
-            alias: '/'
+            alias: '/',
+            meta: {
+                privilege: 'property.viewer'
+            }
         },
         detail: {
             component: 'sw-property-detail',
@@ -38,21 +42,24 @@ Module.register('sw-property', {
                 }
             },
             meta: {
-                parentPath: 'sw.property.index'
+                parentPath: 'sw.property.index',
+                privilege: 'property.viewer'
             }
         },
         create: {
             component: 'sw-property-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.property.index'
+                parentPath: 'sw.property.index',
+                privilege: 'property.creator'
             }
         },
         option: {
             component: 'sw-property-option-detail',
             path: 'detail/:groupId/option/:optionId',
             meta: {
-                parentPath: 'sw.property.detail'
+                parentPath: 'sw.property.detail',
+                privilege: 'property.editor'
             }
         }
     },

@@ -36,7 +36,16 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_property_list_add_button %}
-                    <sw-button :routerLink="{ name: 'sw.property.create' }" variant="primary">
+                    <sw-button
+                        class="sw-property-list__button-create"
+                        :disabled="!acl.can('property.creator')"
+                        :routerLink="{ name: 'sw.property.create' }"
+                        variant="primary"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('property.creator'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-property.list.buttonAddProperty') }}
                     </sw-button>
                 {% endblock %}
@@ -54,7 +63,9 @@
                 <div class="sw-property-list__content">
 
                     {% block sw_property_list_grid %}
-                        <sw-entity-listing :items="propertyGroup"
+                        <sw-entity-listing
+                            class="sw-property-list-grid"
+                            :items="propertyGroup"
                             :columns="getPropertyColumns()"
                             :repository="propertyRepository"
                             ref="propertyList"
@@ -66,6 +77,9 @@
                             :isLoading="isLoading"
                             :allowColumnEdit="true"
                             :compactMode="false"
+                            :allowEdit="acl.can('property.editor')"
+                            :allowDelete="acl.can('property.deleter')"
+                            :allowInlineEdit="acl.can('property.editor')"
                             identifier="sw-properties-list"
                             @column-sort="onSortColumn">
 
@@ -100,14 +114,19 @@
                             {% block sw_property_list_grid_columns_actions %}
                                 <template slot="actions" slot-scope="{ item }">
                                     {% block sw_property_list_grid_columns_actions_detail %}
-                                        <sw-context-menu-item class="sw-property-list__edit-action"
-                                                              :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }">
+                                        <sw-context-menu-item
+                                            class="sw-property-list__edit-action"
+                                            :routerLink="{ name: 'sw.property.detail', params: { id: item.id } }"
+                                            :disabled="!acl.can('property.editor')">
                                             {{ $tc('sw-property.list.contextMenuView') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
 
                                     {% block sw_property_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                        <sw-context-menu-item class="sw-property-list__delete-action"
+                                            variant="danger"
+                                            @click="onDelete(item.id)"
+                                            :disabled=" !acl.can('property.deleter')">
                                             {{ $tc('sw-property.list.contextMenuDelete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}

@@ -63,5 +63,12 @@
       "optionEmptyStateSubline": "Pflege die Basisinformationen, speichere die Eigenschaft und füge dann individuelle Ausprägungen hinzu.",
       "labelMediaUpload": "Standardbild"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "property": {
+        "label": "Eigenschaften"
+      }
+    }
   }
 }

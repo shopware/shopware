@@ -27,6 +27,21 @@ NEXT
     * `allowInlineEdit`
     * `tooltipAdd`
     * `disableAddButton`
+* Extended `sw-category-detail-base/index.js`
+    * Added lifecycle hook `created`
+    * Added methods `createdComponent` and `loadProductStreamPreview`
+    * Added computed props `productStreamRepository`, `productAssignmentTypes` and `productStreamInvalidError`
+    * Added data props `productStreamFilter` and `productStreamInvalid`
+    * Extend `mapPropertyErrors` with props `productStreamId` and `productAssignmentType`
+* Added prop `plainAppearance` to `sw-data-grid` which provides an alternative and more minimalistic design
+* Added prop `absolute` to `sw-empty-state` which is `true` by default
+* Added prop `showDescription` to `sw-empty-state` which is `true` by default
+* Added prop `selectLabel` to `sw-many-to-many-assignment-card` in order to show a label for the default select element
+* Added slot `prepend-select` to `sw-many-to-many-assignment-card` in order to show additional content before the select element
+* Added new event `paginate` to `paginateGrid` method in `sw-many-to-many-assignment-card`
+* Added slot `select` to `sw-many-to-many-assignment-card` in order to override the default select element
+* Added slot `data-grid` to `sw-many-to-many-assignment-card` in order to override the data grid component
+* Added new component `sw-product-stream-grid-preview` which displays a product stream preview inside a `sw-data-grid`
 
 #### Core
 
@@ -37,6 +52,28 @@ NEXT
 * Added event `GenericPageLoadedEvent`, which is fired once a page is requested via the `GenericPageLoader`
 * Changed the way the `CheckoutConfirmPage` is loaded. It now uses the `GenericPageLoader` as well.
 * Deprecated the constructor of `Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`. Use `CheckoutConfirmPage::createFrom` instead.
+* Added fields in `src/Core/Content/Category/CategoryDefinition.php`
+    * `StringField` with `product_assignment_type`
+    * `FkField` with `product_stream_id`
+    * `ManyToOneAssociationField` with `product_stream_id`
+    * Extend defaults with `productAssignmentType` type `product`
+* Added new constants in `src/Core/Content/Category/CategoryDefinition.php`
+    * `PRODUCT_ASSIGNMENT_TYPE_PRODUCT` with value `product`
+    * `PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM` with value `product_stream`
+* Added new methods in `src/Core/Content/ProductStream/ProductStreamEntity.php`
+    * `getCategories`
+    * `setCategories`
+* Added new methods in `src/Core/Content/Category/CategoryEntity.php`
+    * `getProductStream`
+    * `setProductStream`
+    * `getProductStreamId`
+    * `setProductStreamId`
+    * `getProductAssignmentType`
+    * `setProductAssignmentType`
+* Added migration `src/Core/Migration/Migration1592837424AddProductTypeToCategory.php`
+* Added `OneToManyAssociationField` with `categories` and `product_stream_id` in `src/Core/Content/ProductStream/ProductStreamDefinition.php`
+* Added arguments `categoryRepository` and `productStreamBuilder` to `src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php`
+    * Added arguments `category.repository` and `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to service `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` in `src/Core/Content/DependencyInjection/product.xml`
 
 #### Storefront
 

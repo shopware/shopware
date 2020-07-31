@@ -14,10 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\HttpFoundation\Request;
+use function Flag\skipTestNext9278;
 
 class ProductListingTest extends TestCase
 {
@@ -33,9 +36,31 @@ class ProductListingTest extends TestCase
      */
     private $testData;
 
+    /**
+     * @var string
+     */
+    private $categoryStreamId;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $productIdWidth100;
+
+    /**
+     * @var string
+     */
+    private $productIdWidth150;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->context = Context::createDefaultContext();
 
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
@@ -52,6 +77,8 @@ class ProductListingTest extends TestCase
         $this->insertOptions();
 
         $this->insertProducts();
+
+        $this->categoryStreamId = Uuid::randomHex();
     }
 
     public function testListing(): void
@@ -137,6 +164,48 @@ class ProductListingTest extends TestCase
         static::assertContains($this->testData->getId('steel'), $ids);
         static::assertFalse($options->has($this->testData->getId('yellow')));
         static::assertFalse($options->has($this->testData->getId('cotton')));
+    }
+
+    public function testListingWithProductStream(): void
+    {
+        skipTestNext9278($this);
+        $this->createTestProductStreamEntity($this->categoryStreamId);
+        $request = new Request();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryStreamId, $request, $context, new Criteria())
+            ->getResult();
+
+        static::assertSame(7, $listing->getTotal());
+        static::assertFalse($listing->has($this->productIdWidth100));
+        static::assertTrue($listing->has($this->productIdWidth150));
+    }
+
+    public function testListingWithProductStreamAndAdditionalCriteria(): void
+    {
+        skipTestNext9278($this);
+        $this->createTestProductStreamEntity($this->categoryStreamId);
+        $request = new Request();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new ContainsFilter('name', 'Foo Bar'));
+
+        $listing = $this->getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($this->categoryStreamId, $request, $context, $criteria)
+            ->getResult();
+
+        static::assertSame(3, $listing->getTotal());
+        static::assertInstanceOf(ContainsFilter::class, $listing->getCriteria()->getFilters()[0]);
+        static::assertEquals('name', $listing->getCriteria()->getFilters()[0]->getField());
+        static::assertEquals('Foo Bar', $listing->getCriteria()->getFilters()[0]->getValue());
     }
 
     public function testNotFilterableProperty(): void
@@ -399,5 +468,103 @@ class ProductListingTest extends TestCase
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('property_group.repository');
         $repo->create($data, Context::createDefaultContext());
+    }
+
+    private function createTestProductStreamEntity(string $categoryStreamId): void
+    {
+        $streamId = Uuid::randomHex();
+
+        $randomProductIds = implode('|', array_column($this->createProducts(), 'id'));
+
+        $stream = [
+            'id' => $streamId,
+            'name' => 'testStream',
+            'filters' => [
+                [
+                    'type' => 'multi',
+                    'queries' => [
+                        [
+                            'type' => 'equalsAny',
+                            'field' => 'product.id',
+                            'value' => $randomProductIds,
+                        ],
+                        [
+                            'type' => 'range',
+                            'field' => 'product.width',
+                            'parameters' => [
+                                'gte' => 120,
+                                'lte' => 180,
+                            ],
+                        ],
+                    ],
+                    'operator' => 'AND',
+                ],
+            ],
+        ];
+        $productRepository = $this->getContainer()->get('product_stream.repository');
+        $productRepository->create([$stream], $this->context);
+
+        $this->getContainer()->get('category.repository')
+            ->create([['id' => $categoryStreamId, 'productStreamId' => $streamId, 'name' => 'test', 'parentId' => null, 'productAssignmentType' => 'product_stream']], Context::createDefaultContext());
+    }
+
+    private function createProducts(): array
+    {
+        $ids = new TestDataCollection();
+        $ids->create('manufacturer');
+        $ids->create('taxId');
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $salesChannelId = Defaults::SALES_CHANNEL;
+        $products = [];
+
+        $widths = [
+            '100',
+            '110',
+            '120',
+            '130',
+            '140',
+            '150',
+            '160',
+            '170',
+            '180',
+            '190',
+        ];
+
+        $names = [
+            'Wooden Heavy Magma',
+            'Small Plastic Prawn Leather',
+            'Fantastic Marble Megahurts',
+            'Foo Bar Aerodynamic Iron Viagreat',
+            'Foo Bar Awesome Bronze Sulpha Quik',
+            'Foo Bar Aerodynamic Silk Ideoswitch',
+            'Heavy Duty Wooden Magnina',
+            'Incredible Wool Q-lean',
+            'Heavy Duty Cotton Gristle Chips',
+            'Heavy Steel Hot Magma',
+        ];
+
+        for ($i = 0; $i < 10; ++$i) {
+            $products[] = [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'width' => $widths[$i],
+                'stock' => 1,
+                'name' => $names[$i],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $ids->get('manufacturer'), 'name' => 'test'],
+                'tax' => ['id' => $ids->get('taxId'), 'taxRate' => 17, 'name' => 'with id'],
+                'visibilities' => [
+                    ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ];
+        }
+
+        $this->productIdWidth100 = $products[0]['id'];
+        $this->productIdWidth150 = $products[5]['id'];
+
+        $productRepository->create($products, $this->context);
+
+        return $products;
     }
 }

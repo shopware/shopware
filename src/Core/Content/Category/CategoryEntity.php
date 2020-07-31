@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -123,6 +124,16 @@ class CategoryEntity extends Entity
     protected $cmsPage;
 
     /**
+     * @var string|null
+     */
+    protected $productStreamId;
+
+    /**
+     * @var ProductStreamEntity|null
+     */
+    protected $productStream;
+
+    /**
      * @var array|null
      */
     protected $slotConfig;
@@ -156,6 +167,11 @@ class CategoryEntity extends Entity
      * @var string
      */
     protected $type;
+
+    /**
+     * @var string
+     */
+    protected $productAssignmentType;
 
     /**
      * @var string|null
@@ -387,6 +403,26 @@ class CategoryEntity extends Entity
         $this->cmsPageId = $cmsPageId;
     }
 
+    public function getProductStream(): ?ProductStreamEntity
+    {
+        return $this->productStream;
+    }
+
+    public function setProductStream(ProductStreamEntity $productStream): void
+    {
+        $this->productStream = $productStream;
+    }
+
+    public function getProductStreamId(): ?string
+    {
+        return $this->productStreamId;
+    }
+
+    public function setProductStreamId(string $productStreamId): void
+    {
+        $this->productStreamId = $productStreamId;
+    }
+
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
@@ -492,7 +528,7 @@ class CategoryEntity extends Entity
             return $categoryBreadcrumb;
         }
 
-        // root case
+        // Root case
         if (count($categoryBreadcrumb) < 2) {
             return null;
         }
@@ -570,6 +606,16 @@ class CategoryEntity extends Entity
     public function getApiAlias(): string
     {
         return 'category';
+    }
+
+    public function getProductAssignmentType(): string
+    {
+        return $this->productAssignmentType;
+    }
+
+    public function setProductAssignmentType(string $productAssignmentType): void
+    {
+        $this->productAssignmentType = $productAssignmentType;
     }
 
     private function getBreadcrumbMapping(): array

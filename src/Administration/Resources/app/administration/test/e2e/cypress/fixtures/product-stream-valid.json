@@ -1,0 +1,19 @@
+{
+  "name": "2nd Product stream",
+  "description": "My second and valid product stream",
+  "filters": [
+    {
+      "type": "multi",
+      "queries": [
+        {
+          "type": "range",
+          "field": "product.stock",
+          "parameters": {
+            "gte": 0
+          }
+        }
+      ],
+      "operator": "AND"
+    }
+  ]
+}

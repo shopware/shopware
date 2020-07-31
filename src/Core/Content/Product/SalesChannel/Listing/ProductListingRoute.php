@@ -3,11 +3,15 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -18,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function Flag\next9278;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -44,16 +49,30 @@ class ProductListingRoute extends AbstractProductListingRoute
      */
     private $criteriaBuilder;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @var ProductStreamBuilderInterface
+     */
+    private $productStreamBuilder;
+
     public function __construct(
         ProductListingLoader $listingLoader,
         EventDispatcherInterface $eventDispatcher,
         ProductDefinition $definition,
-        RequestCriteriaBuilder $criteriaBuilder
+        RequestCriteriaBuilder $criteriaBuilder,
+        EntityRepositoryInterface $categoryRepository,
+        ProductStreamBuilderInterface $productStreamBuilder
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->listingLoader = $listingLoader;
         $this->definition = $definition;
         $this->criteriaBuilder = $criteriaBuilder;
+        $this->categoryRepository = $categoryRepository;
+        $this->productStreamBuilder = $productStreamBuilder;
     }
 
     public function getDecorated(): AbstractProductListingRoute
@@ -85,9 +104,28 @@ class ProductListingRoute extends AbstractProductListingRoute
         $criteria->addFilter(
             new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );
-        $criteria->addFilter(
-            new EqualsFilter('product.categoriesRo.id', $categoryId)
-        );
+
+        if (next9278()) {
+            $categoryCriteria = new Criteria([$categoryId]);
+            /** @var CategoryEntity $category */
+            $category = $this->categoryRepository->search($categoryCriteria, $salesChannelContext->getContext())->first();
+            if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
+                $filters = $this->productStreamBuilder->buildFilters(
+                    $category->getProductStreamId(),
+                    $salesChannelContext->getContext()
+                );
+
+                $criteria->addFilter(...$filters);
+            } else {
+                $criteria->addFilter(
+                    new EqualsFilter('product.categoriesRo.id', $categoryId)
+                );
+            }
+        } else {
+            $criteria->addFilter(
+                new EqualsFilter('product.categoriesRo.id', $categoryId)
+            );
+        }
         $criteria->addAssociation('options.group');
 
         $this->eventDispatcher->dispatch(

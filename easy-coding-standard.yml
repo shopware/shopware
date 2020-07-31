@@ -1,10 +1,3 @@
-imports:
-    - { resource: '../dev-ops/analyze/vendor-bin/cs-fixer/vendor/symplify/easy-coding-standard/config/set/psr12.yaml' }
-    - { resource: '../dev-ops/analyze/vendor-bin/cs-fixer/vendor/symplify/easy-coding-standard/config/set/symfony.yaml' }
-    - { resource: '../dev-ops/analyze/vendor-bin/cs-fixer/vendor/symplify/easy-coding-standard/config/set/common/array.yaml' }
-    - { resource: '../dev-ops/analyze/vendor-bin/cs-fixer/vendor/symplify/easy-coding-standard/config/set/common/control-structures.yaml' }
-    - { resource: '../dev-ops/analyze/vendor-bin/cs-fixer/vendor/symplify/easy-coding-standard/config/set/common/strict.yaml' }
-
 services:
     PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
     PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
@@ -36,8 +29,16 @@ services:
     PhpCsFixerCustomFixers\Fixer\OperatorLinebreakFixer: ~
     PhpCsFixerCustomFixers\Fixer\PhpdocNoIncorrectVarAnnotationFixer: ~
     PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer: ~
+    PhpCsFixerCustomFixers\Fixer\NoUselessStrlenFixer: ~
 
 parameters:
+    sets:
+        - 'psr12'
+        - 'symfony'
+        - 'array'
+        - 'control-structures'
+        - 'strict'
     cache_directory: 'var/cache/cs_fixer'
     cache_namespace: 'platform'
     skip:

@@ -74,6 +74,7 @@ NEXT
 * Added `OneToManyAssociationField` with `categories` and `product_stream_id` in `src/Core/Content/ProductStream/ProductStreamDefinition.php`
 * Added arguments `categoryRepository` and `productStreamBuilder` to `src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php`
     * Added arguments `category.repository` and `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to service `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` in `src/Core/Content/DependencyInjection/product.xml`
+* Deprecated `.php_cs.dist` cs-fixer config file. Use Easy Coding Standard instead.
 
 #### Storefront
 

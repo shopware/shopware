@@ -27,6 +27,9 @@ NEXT
 * Changed temporary filename of sitemap to avoid conflicts with other installations
 * Removed required flag of customer_id
 * Added `Logger` to `Shopware\Elasticsearch\Framework\ClientFactory::createClient`
+* Added event `GenericPageLoadedEvent`, which is fired once a page is requested via the `GenericPageLoader`
+* Changed the way the `CheckoutConfirmPage` is loaded. It now uses the `GenericPageLoader` as well.
+* Deprecated the constructor of `Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`. Use `CheckoutConfirmPage::createFrom` instead.
 
 #### Storefront
 

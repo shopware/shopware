@@ -20,6 +20,13 @@ NEXT
 ----------------
 
 #### Administration
+* Added new privileges service: 
+`src/Administration/Resources/app/administration/src/module/sw-property/acl/index.js`
+* Added prop `savePermission` to `sw-language-switch/index.js`
+* Added new computed props to `sw-property-option-list/index.js`
+    * `allowInlineEdit`
+    * `tooltipAdd`
+    * `disableAddButton`
 
 #### Core
 

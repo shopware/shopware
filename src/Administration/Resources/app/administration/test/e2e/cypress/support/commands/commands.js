@@ -73,25 +73,41 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                 })()
             }
         }).then(response => {
-            cy.log(response);
-        });
-
-        // save user
-        cy.request({
-            url: `/api/${Cypress.env('apiVersion')}/user`,
-            method: 'POST',
-            headers: headers,
-            body: {
-                aclRoles: [{ id: roleID }],
-                admin: false,
-                email: 'max@muster.com',
-                firstName: 'Max',
-                id: 'b7fb49e9d86d4e5b9b03c9d6f929e36b',
-                lastName: 'Muster',
-                localeId: localeId,
-                password: 'Passw0rd!',
-                username: 'maxmuster'
-            }
+            // get user verification
+            cy.request({
+                url: '/api/oauth/token',
+                method: 'POST',
+                headers: headers,
+                body: {
+                    client_id: 'administration',
+                    grant_type: 'password',
+                    password: 'shopware',
+                    scope: 'user-verified',
+                    username: 'admin'
+                }
+            });
+        }).then(response => {
+            // save user
+            cy.request({
+                url: `/api/${Cypress.env('apiVersion')}/user`,
+                method: 'POST',
+                headers: {
+                    Accept: 'application/vnd.api+json',
+                    Authorization: `Bearer ${response.body.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: {
+                    aclRoles: [{ id: roleID }],
+                    admin: false,
+                    email: 'max@muster.com',
+                    firstName: 'Max',
+                    id: 'b7fb49e9d86d4e5b9b03c9d6f929e36b',
+                    lastName: 'Muster',
+                    localeId: localeId,
+                    password: 'Passw0rd!',
+                    username: 'maxmuster'
+                }
+            });
         });
 
         // logout
@@ -99,11 +115,16 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
         cy.clearCookies();
         cy.get('.sw-admin-menu__logout-action').click();
         cy.get('.sw-login__container').should('be.visible');
+        cy.reload().then(() => {
+            cy.get('.sw-login__container').should('be.visible');
 
-        // login
-        cy.get('#sw-field--username').type('maxmuster');
-        cy.get('#sw-field--password').type('Passw0rd!');
-        cy.get('.sw-login__login-action').click();
+            // login
+            cy.get('#sw-field--username').type('maxmuster');
+            cy.get('#sw-field--password').type('Passw0rd!');
+            cy.get('.sw-login__login-action').click();
+            cy.contains('Max Muster');
+        })
+
     });
 });
 

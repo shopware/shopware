@@ -97,6 +97,7 @@ import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import FadingPlugin from 'src/plugin/fading/fading.plugin';
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
+import UrlModalPlugin from 'src/plugin/url-modal/url-modal.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -170,6 +171,7 @@ PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gd
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
+PluginManager.register('UrlModal', UrlModalPlugin, '[data-toggle="modal"][data-url]');
 
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {
@@ -216,8 +218,6 @@ document.addEventListener('DOMContentLoaded', () => PluginManager.initializePlug
 /*
 run utils
 */
-new AjaxModalExtensionUtil();
-
 new TimezoneUtil();
 
 new TooltipUtil();

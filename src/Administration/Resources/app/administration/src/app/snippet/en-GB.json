@@ -447,7 +447,10 @@
     },
     "sw-multi-tag-ip-select": {
       "enterValidIp": "Please enter a valid IPv4 or IPv6 address",
-      "addIpAdress": "Add IP address"
+      "addIpAdress": "Add IP address",
+      "knownIps": {
+        "you": "You"
+      }
     },
     "sw-multi-ip-select": {
       "enterValidIp": "Please enter a valid IPv4 or IPv6 address",

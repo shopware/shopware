@@ -20,7 +20,8 @@ Component.register('sw-sales-channel-detail-base', {
     inject: [
         'salesChannelService',
         'productExportService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'knownIpsService'
     ],
 
     props: {
@@ -86,8 +87,15 @@ Component.register('sw-sales-channel-detail-base', {
             selectedStorefrontSalesChannel: null,
             invalidFileName: false,
             isFileNameChecking: false,
-            disableGenerateByCronjob: false
+            disableGenerateByCronjob: false,
+            knownIps: []
         };
+    },
+
+    created() {
+        this.knownIpsService.getKnownIps().then(ips => {
+            this.knownIps = ips;
+        });
     },
 
     computed: {

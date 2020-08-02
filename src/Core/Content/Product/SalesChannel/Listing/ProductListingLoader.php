@@ -72,7 +72,12 @@ class ProductListingLoader
 
         $mapping = array_combine($ids->getIds(), $ids->getIds());
 
-        if (!$this->hasOptionFilter($criteria)) {
+        $behaviour = $criteria->getExtensionOfType(
+            ProductListingBehaviour::EXTENSION_NAME,
+            ProductListingBehaviour::class
+        ) ?? new ProductListingBehaviour();
+
+        if (!$this->hasOptionFilter($criteria) && $behaviour->isPreferMainVariant()) {
             list($variantIds, $mapping) = $this->resolvePreviews($ids->getIds(), $context);
         }
 

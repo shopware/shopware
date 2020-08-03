@@ -42,6 +42,10 @@ NEXT
 * Added slot `select` to `sw-many-to-many-assignment-card` in order to override the default select element
 * Added slot `data-grid` to `sw-many-to-many-assignment-card` in order to override the data grid component
 * Added new component `sw-product-stream-grid-preview` which displays a product stream preview inside a `sw-data-grid`
+* Added support for custom field set selection to `sw-custom-field-set-renderer`
+    * Added property `showCustomFieldSetSelection`
+* Added support for inheritance to `sw-custom-field-set-renderer`
+    * Added property `parentEntity`
 
 #### Core
 
@@ -76,6 +80,9 @@ NEXT
     * Added arguments `category.repository` and `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to service `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` in `src/Core/Content/DependencyInjection/product.xml`
 * Deprecated `.php_cs.dist` cs-fixer config file. Use Easy Coding Standard instead.
 * Plugins that are not installed can't be updated anymore. If you try to update an plugin that is not yet installed with `bin/console plugin:update` the plugin will be skipped.
+* Added bool `custom_field_set_selection_active` to ProductDefinition
+* Added many to many association `customFieldSets` to ProductDefinition
+* Added new entity `product_custom_field_set`
 
 #### Storefront
 

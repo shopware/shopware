@@ -435,6 +435,11 @@ class ProductEntity extends Entity
      */
     protected $featureSet;
 
+    /**
+     * @var bool|null
+     */
+    protected $customFieldSetSelectionActive;
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
@@ -1284,5 +1289,15 @@ class ProductEntity extends Entity
     public function getApiAlias(): string
     {
         return 'product';
+    }
+
+    public function getCustomFieldSetSelectionActive(): ?bool
+    {
+        return $this->customFieldSetSelectionActive;
+    }
+
+    public function setCustomFieldSetSelectionActive(?bool $customFieldSetSelectionActive): void
+    {
+        $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
     }
 }

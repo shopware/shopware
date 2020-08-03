@@ -142,7 +142,7 @@
 
         {% block sw_product_detail_attribute_sets %}
             <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                     v-if="customFieldSetsArray.length > 0"
+                     v-if="customFieldSetsArray.length > 0 && !isLoading"
                      :isLoading="loading.product || loading.customFieldSets">
                     <sw-custom-field-set-renderer
                             :entity="product"

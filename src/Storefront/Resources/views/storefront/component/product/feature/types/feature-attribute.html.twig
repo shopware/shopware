@@ -10,7 +10,7 @@
     {% elseif label in ['height', 'width', 'length'] %}
         {{ value|sw_sanitize }} mm
     {% elseif label == 'weight' %}
-        {{ value|sw_sanitize }} Kg
+        {{ value|sw_sanitize }} kg
     {% else %}
         {{ value|sw_sanitize }}
     {% endif %}

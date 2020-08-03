@@ -533,7 +533,7 @@
         "lineItemRule": "Line item",
         "lineItemsInCartRule": "Line items in cart",
         "lineItemsInCartCountRule": "Line item count in cart",
-        "lineItemUnitPriceRule": "Line item unit price",
+        "lineItemUnitPriceRule": "Line item price",
         "lineItemTotalPriceRule": "Line item total price",
         "lineItemWithQuantityRule": "Line item with quantity",
         "yes": "Yes",

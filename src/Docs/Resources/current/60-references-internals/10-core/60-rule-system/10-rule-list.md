@@ -27,7 +27,7 @@ List of all rule classes across Shopware 6.
  : Matches a specific line item's quantity to the current line item's quantity. 
 
 [Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule)
- : Matches a specific number to a line item's unit price.
+ : Matches a specific number to a line item's price.
 
 [Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule)
  : Matches a specific number to the carts goods price. 

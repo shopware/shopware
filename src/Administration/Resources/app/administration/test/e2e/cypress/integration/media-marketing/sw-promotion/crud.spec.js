@@ -72,7 +72,7 @@ describe('Promotion: Test crud operations', () => {
             .clear()
             .type('54');
 
-        cy.get('#sw-field--discount-type').select('Fixed unit price');
+        cy.get('#sw-field--discount-type').select('Fixed item price');
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();

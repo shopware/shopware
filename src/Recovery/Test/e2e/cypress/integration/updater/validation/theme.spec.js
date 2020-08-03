@@ -18,7 +18,7 @@ describe('Validation of theme and cache after auto update', () => {
             .should('have.css', 'background-color', 'rgb(255, 72, 85)');
     });
 
-    it('@update: Check theme compile', () => {
+    it('@update: Check theme compile', { video: true }, () => {
         cy.visit('/admin');
         cy.login();
 

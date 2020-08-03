@@ -139,10 +139,29 @@ Cypress.Commands.add('openInitialPage', (url) => {
     cy.server();
     cy.route(`${Cypress.env('apiPath')}/_info/me`).as('meCall');
 
-
+    cy.log('All preparation done!')
     cy.visit(url);
     cy.wait('@meCall').then((xhr) => {
         expect(xhr).to.have.property('status', 200);
     });
     cy.get('.sw-desktop').should('be.visible');
+});
+
+/**
+ * Logs in silently using Shopware API
+ * @memberOf Cypress.Chainable#
+ * @name loginViaApi
+ * @function
+ */
+Cypress.Commands.add('loginViaApi', () => {
+    return cy.authenticate().then((result) => {
+        return cy.window().then((win) => {
+            cy.setCookie('bearerAuth', JSON.stringify(result));
+
+            // Return bearer token
+            return cy.getCookie('bearerAuth');
+        }).then((win) => {
+            cy.log('Now, fixtures are created - if necessary...');
+        });
+    });
 });

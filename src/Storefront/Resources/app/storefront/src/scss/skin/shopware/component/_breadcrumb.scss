@@ -7,6 +7,8 @@ https://getbootstrap.com/docs/4.3/components/breadcrumb/
 */
 
 .breadcrumb {
+    padding: $breadcrumb-padding-y 0;
+
     svg {
         height: $font-size-base;
         width: auto;

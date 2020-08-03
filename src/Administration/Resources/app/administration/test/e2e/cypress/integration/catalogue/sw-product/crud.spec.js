@@ -39,7 +39,6 @@ describe('Product: Test crud operations', () => {
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
         cy.get('#sw-price-field-gross').type('10');
 
-
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
             cy.fixture('img/sw-login-background.png').then(fileContent => {

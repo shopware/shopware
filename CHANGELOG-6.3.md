@@ -75,6 +75,7 @@ NEXT
 * Added arguments `categoryRepository` and `productStreamBuilder` to `src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php`
     * Added arguments `category.repository` and `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to service `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` in `src/Core/Content/DependencyInjection/product.xml`
 * Deprecated `.php_cs.dist` cs-fixer config file. Use Easy Coding Standard instead.
+* Plugins that are not installed can't be updated anymore. If you try to update an plugin that is not yet installed with `bin/console plugin:update` the plugin will be skipped.
 
 #### Storefront
 

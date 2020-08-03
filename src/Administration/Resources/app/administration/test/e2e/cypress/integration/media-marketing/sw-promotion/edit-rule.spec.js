@@ -2,7 +2,7 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-describe('Promotion: Test promotion with individual codes', () => {
+describe('Promotion: Test promotion with preconditional rules', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -22,7 +22,7 @@ describe('Promotion: Test promotion with individual codes', () => {
             });
     });
 
-    it('@marketing: use individual promotion codes', () => {
+    it('@marketing: use general precondition rule', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -44,25 +44,18 @@ describe('Promotion: Test promotion with individual codes', () => {
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
             .type('{esc}');
         cy.get('input[name="sw-field--promotion-useCodes"]').click();
-        cy.get('input[name="sw-field--promotion-useIndividualCodes"]').click();
+        cy.get('#sw-field--promotion-code').should('be.enabled');
+        cy.get('#sw-field--promotion-code').type('funicular');
 
-        // Set individual code
-        cy.get('.sw-promotion-code-form__link-manage-individual').should('be.visible');
-        cy.get('.sw-promotion-code-form__link-manage-individual').click();
-
-        cy.get('.sw-promotion-code-form__modal-individual').should('be.visible');
-        cy.get('#sw-field--promotion-individualCodePattern').typeAndCheck('code-%d');
-        cy.get('.sw-promotion-individualcodes__top-bar > .sw-button')
-            .click();
-
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-promotion-individualcodes__progress-bar .sw-label__caption').contains('10 / 10');
-            cy.awaitAndCheckNotification('Generated 10 new codes.');
-        });
-
-        cy.get('.sw-modal__close').click();
-        cy.get('.sw-modal').should('not.exist');
+        // Add promotion rule
+        cy.get('a[title="Preconditions"]').click();
+        cy.contains('.sw-card__title', 'Target group').should('be.visible');
+        cy.get('input[name="sw-field--promotion-customerRestriction"]').click();
+        cy.get('.sw-promotion-persona-form-customers').should('be.visible');
+        cy.get('.sw-promotion-persona-form-customers__customer-search').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        cy.contains('Pep Eroni').click();
+        cy.get('.sw-data-grid__cell--fullName').contains('Pep Eroni');
 
         // Add discount
         cy.get('a[title="Discounts"]').click();
@@ -91,10 +84,21 @@ describe('Promotion: Test promotion with individual codes', () => {
         cy.get('.product-box').should('be.visible');
         cy.get('.btn-buy').click();
         cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('#addPromotionOffcanvasCartInput').type('code-0');
+        cy.get('#addPromotionOffcanvasCartInput').type('funicular');
         cy.get('#addPromotionOffcanvasCart').click();
         cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
-        cy.contains('Gift code added successfully.');
+        cy.contains('Promotion code valid - however, not all conditions were met and the discount was not applied.');
+        cy.get('.begin-checkout-btn').click();
+
+        // Log in as customer eligible for the code
+        cy.get('.login-collapse-toggle').should('be.visible');
+        cy.get('.login-collapse-toggle').click();
+        cy.get('.login-form').should('be.visible');
+        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+        cy.get('.login-submit [type="submit"]').click();
+
+        cy.get('.cart-item-promotion').scrollIntoView();
         cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
     });
 });

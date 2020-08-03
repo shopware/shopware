@@ -40,8 +40,8 @@ class Migration1589379060AddVariantCharacteristicsToEmailTemplates extends Migra
     private function updateMailTemplate(
         string $mailTemplateType,
         Connection $connection,
-        string $enLangId,
-        string $deLangId,
+        ?string $enLangId,
+        ?string $deLangId,
         $getHtmlTemplateEn,
         $getPlainTemplateEn,
         $getHtmlTemplateDe,

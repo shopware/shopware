@@ -11,7 +11,7 @@ describe('Plugin: Plugin manager', () => {
             });
     });
 
-    it('@settings: license list shows empty state', () => {
+    it.skip('@settings: license list shows empty state', () => {
         // Visit license list
         cy.get('a[href="#/sw/plugin/index/licenses"]').click();
 

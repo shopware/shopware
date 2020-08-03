@@ -110,7 +110,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             if (item.label === '') {
                 return;
             }
-
+            item.priceDefinition.isCalculated = true;
             this.$emit('on-save-item', item);
         },
 

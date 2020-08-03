@@ -1,0 +1,8 @@
+{
+  "shortName": "JPY",
+  "isoCode": "Yen",
+  "name": "ZZ Yen",
+  "factor": "01",
+  "symbol": "¥",
+  "decimalPrecision": 2
+}

@@ -1,0 +1,17 @@
+{
+  "name": "2nd Product stream",
+  "description": "My second and valid product stream",
+  "filters": [
+    {
+      "type": "multi",
+      "queries": [
+        {
+          "type": "equals",
+          "field": "active",
+          "value": "1"
+        }
+      ],
+      "operator": "AND"
+    }
+  ]
+}

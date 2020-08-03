@@ -703,11 +703,11 @@ NPM security check:
         - cd src/Administration/Resources/app/administration
         - npm i
         - npm install --save-dev audit-ci
-        - node node_modules/.bin/audit-ci --moderate
+        - node node_modules/.bin/audit-ci --moderate --allowlist http-proxy elliptic
         - cd ../../../../../src/Storefront/Resources/app/storefront
         - npm i
         - npm install --save-dev audit-ci
-        - node node_modules/.bin/audit-ci --moderate
+        - node node_modules/.bin/audit-ci --moderate --allowlist dot-prop http-proxy acorn jquery elliptic
 
 # Stage: deploy
 

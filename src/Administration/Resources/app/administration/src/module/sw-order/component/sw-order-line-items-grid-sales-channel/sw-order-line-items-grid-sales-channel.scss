@@ -9,6 +9,10 @@ $sw-order-line-item-border: $color-steam-cloud;
         @include size(16px);
     }
 
+    .sw-product-variant-info {
+        max-width: 200px;
+    }
+
     &__actions-container {
         padding: 24px;
         border-bottom: 1px solid $sw-order-line-item-border;

@@ -119,7 +119,8 @@ export default class MediaPageObject {
 
     deleteFile(fileName) {
         cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).should('be.visible');
-        cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).click();
+        cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).click({ force: true });
+        cy.get('li.quickaction--delete').should('be.visible');
         cy.get('li.quickaction--delete').click();
         cy.get(`${this.elements.modal}__body`).contains(`Are you sure you want to delete "${fileName}"?`);
         cy.get('.sw-media-modal-delete__confirm').click();

@@ -34,7 +34,7 @@ describe('Category: Edit categories', () => {
 
         cy.get('.sw-tree-item__label')
             .should('be.visible')
-            .contains('Katalog #1');
+            .contains('Home');
 
         page.changeTranslation('English', 1);
         cy.get('.sw-tree-item__label').should('be.visible');
@@ -57,9 +57,10 @@ describe('Category: Edit categories', () => {
             .should('have.value', 'Home');
 
         page.changeTranslation('Deutsch', 1);
+        cy.get('.sw-loader').should('not.exist');
         cy.get('#categoryName')
             .should('be.visible')
-            .should('have.value', 'Katalog #1');
+            .should('have.value', 'Home');
     });
 
     it('@catalogue: assign dynamic product group', () => {

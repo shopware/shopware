@@ -250,13 +250,34 @@
             "navigation": "Navigation",
             "rotate": "Automatic sliding",
             "border": "Border",
-            "minWidth": "Minimal width"
+            "minWidth": "Minimal width",
+            "productAssignmentType": "Product assignment",
+            "productStreamSorting": "Sorting",
+            "productStreamLimit": "Maximum number of products",
+            "productStreamChoice": "Dynamic product group"
           },
           "placeholder": {
             "title": "Slider title",
             "selection": "Select products",
-            "minWidth": "Minimal width"
-          }
+            "minWidth": "Minimal width",
+            "productStreamChoice": "Select a dynamic product group",
+            "productStreamSorting": "Select a sorting..."
+          },
+          "productAssignmentTypeOptions": {
+            "manual": "Manual assignment",
+            "productStream": "Dynamic product group"
+          },
+          "productStreamSortingOptions": {
+            "nameAsc": "Name ascending",
+            "nameDesc": "Name descending",
+            "priceAsc": "Price ascending",
+            "priceDesc": "Price descending",
+            "creationDateAsc": "Creation date ascending",
+            "creationDateDesc": "Creation date descending",
+            "random": "Random"
+          },
+          "textProductStreamPreviewLink": "Preview dynamic product group",
+          "textProductStreamPerformanceHint": "Please note that dynamic products groups have an impact on the performance of your storefront."
         }
       },
       "sidebarCategoryNavigation": {

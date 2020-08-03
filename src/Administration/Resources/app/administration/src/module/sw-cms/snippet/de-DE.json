@@ -250,13 +250,34 @@
             "navigation": "Navigation",
             "rotate": "Automatischer Wechsel",
             "border": "Rahmen",
-            "minWidth": "Minimale Weite"
+            "minWidth": "Minimale Weite",
+            "productAssignmentType": "Produkt-Zuweisung",
+            "productStreamSorting": "Sortierung",
+            "productStreamLimit": "Maximale Produktanzahl",
+            "productStreamChoice": "Dynamische Produktgruppe"
           },
           "placeholder": {
             "title": "Slider-Titel",
             "selection": "Produkte auswählen",
-            "minWidth": "Minimale Breite"
-          }
+            "minWidth": "Minimale Breite",
+            "productStreamChoice": "Wähle eine dynamische Produktgruppe...",
+            "productStreamSorting": "Wähle eine Sortierung..."
+          },
+          "productAssignmentTypeOptions": {
+            "manual": "Manuelle Zuweisung",
+            "productStream": "Dynamische Produktgruppe"
+          },
+          "productStreamSortingOptions": {
+            "nameAsc": "Name aufsteigend",
+            "nameDesc": "Name absteigend",
+            "priceAsc": "Price aufsteigend",
+            "priceDesc": "Price absteigend",
+            "creationDateAsc": "Erstellungsdatum aufsteigend",
+            "creationDateDesc": "Erstellungsdatum absteigend",
+            "random": "Zufällig"
+          },
+          "textProductStreamPreviewLink": "Vorschau dynamische Produktgruppe",
+          "textProductStreamPerformanceHint": "Bitte beachte, dass dynamische Produktgruppen einen Einfluss auf die Performance Deiner Storefront haben."
         }
       },
       "sidebarCategoryNavigation": {

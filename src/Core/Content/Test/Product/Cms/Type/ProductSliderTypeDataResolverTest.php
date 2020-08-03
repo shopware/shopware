@@ -15,7 +15,6 @@ use Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Defaults;
@@ -56,7 +55,6 @@ class ProductSliderTypeDataResolverTest extends TestCase
      * @var string
      */
     private $productIdWidth150;
-
 
     protected function setUp(): void
     {
@@ -212,10 +210,10 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
         $collection = $this->sliderResolver->collect($slot, $resolverContext);
 
-        $products = $this->getContainer()->get('product.repository')->search(
-            $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'],
-            $salesChannelContext->getContext()
-        );
+        // @TODO: Unused variable
+        // $products = $this->getContainer()->get('product.repository')->search(
+        //    $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'],
+        //    $salesChannelContext->getContext()
 
         static::assertNull($collection);
     }

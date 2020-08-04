@@ -60,6 +60,14 @@
                                                 </sw-button>
                                             {% endblock %}
 
+                                            {% block sw_plugin_license_list_grid_columns_actions_context_notcompatible %}
+                                                <sw-label v-if="!item.installed && !item.availableVersion"
+                                                          variant="danger"
+                                                          v-tooltip.left="{ message: $tc('sw-plugin.license-list.messageNotCompatible') }">
+                                                    {{ $tc('sw-plugin.license-list.labelNotCompatible') }}
+                                                </sw-label>
+                                            {% endblock %}
+
                                             {% block sw_plugin_license_list_grid_columns_actions_context_update %}
                                                 <sw-button v-if="item.installed && item.updateAvailable"
                                                            variant="ghost"
@@ -67,6 +75,12 @@
                                                            @click="downloadPlugin(item.technicalPluginName, true)">
                                                     {{ $tc('sw-plugin.updates.updateButton') }}
                                                 </sw-button>
+                                            {% endblock %}
+
+                                            {% block sw_plugin_license_list_grid_columns_actions_context_installed %}
+                                                <sw-label v-if="item.installed && !item.updateAvailable" variant="info">
+                                                    {{ $tc('sw-plugin.license-list.labelInstalled') }}
+                                                </sw-label>
                                             {% endblock %}
                                         </div>
                                         {% block sw_plugin_license_list_grid_columns_actions_context_version %}

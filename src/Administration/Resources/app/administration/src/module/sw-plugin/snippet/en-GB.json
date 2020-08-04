@@ -116,7 +116,10 @@
       "labelType_rent": "Rent",
       "labelType_test": "Test",
       "labelType_free": "Free",
-      "labelType_support": "Paid support"
+      "labelType_support": "Paid support",
+      "labelInstalled": "Installed",
+      "labelNotCompatible": "Not compatible",
+      "messageNotCompatible": "This plugin is not compatible to your version. You may want to contact the plugin manufacturer."
     },
     "updates": {
       "messageEmpty": "There are no updates available.",

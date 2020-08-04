@@ -134,14 +134,16 @@
                         {% block component_address_address_editor_modal_accordion_edit_include %}
                             {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                 'address': address,
-                                'addresses': page.addresses
+                                'addresses': page.addresses,
+                                'changeShipping': changeShipping
                             } %}
                         {% endblock %}
 
                         {% block component_address_address_editor_modal_accordion_create_include %}
                             {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                 'address': page.address,
-                                'addresses': page.addresses
+                                'addresses': page.addresses,
+                                'changeShipping': changeShipping
                             } %}
                         {% endblock %}
 

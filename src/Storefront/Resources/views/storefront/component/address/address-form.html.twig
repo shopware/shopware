@@ -316,13 +316,23 @@
                                     {{ "address.countryPlaceholder"|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
+
+                            {% set changeDefaultShippingAddress = false %}
+                            {% if (data is not empty and data.customer is not empty and data.id == data.customer.defaultShippingAddressId) %}
+                                {% set changeDefaultShippingAddress = true %}
+                            {% endif %}
                             {% for country in page.countries %}
-                                <option {% if country.id == data.get('countryId') %}
+                                {% if not (
+                                    (changeShipping or changeDefaultShippingAddress or prefix=='shippingAddress')
+                                    and country.shippingAvailable is empty
+                                    ) %}
+                                    <option {% if country.id == data.get('countryId') %}
                                         selected="selected"
-                                        {% endif %}
-                                        value="{{ country.id }}">
-                                    {{ country.translated.name }}
-                                </option>
+                                    {% endif %}
+                                            value="{{ country.id }}">
+                                        {{ country.translated.name }}
+                                    </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     {% endblock %}

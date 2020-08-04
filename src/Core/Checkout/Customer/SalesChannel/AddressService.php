@@ -191,6 +191,7 @@ class AddressService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $addressId));
         $criteria->addFilter(new EqualsFilter('customerId', $context->getCustomer()->getId()));
+        $criteria->addAssociation('customer');
 
         /** @var CustomerAddressEntity|null $address */
         $address = $this->customerAddressRepository

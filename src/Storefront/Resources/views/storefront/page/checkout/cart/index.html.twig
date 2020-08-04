@@ -139,7 +139,7 @@
                                         <div class="form-group">
                                             <label for="countryId">{{ "checkout.shippingCountry"|trans|sw_sanitize }}</label>
                                             <select class="custom-select" type="text" id="countryId" name="countryId">
-                                                {% for country in page.countries %}
+                                                {% for country in page.countries if country.shippingAvailable %}
                                                     <option value="{{ country.id }}"
                                                         {% if country.id == context.shippingLocation.country.id %}selected="selected"{% endif %}>
                                                         {{ country.translated.name }}

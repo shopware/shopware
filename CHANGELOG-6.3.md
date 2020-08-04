@@ -108,6 +108,8 @@ NEXT
     * Added `cmsProductListingWrapperSelector` property in `listing.plugin.js`
     * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
     * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
+* Added block `page_checkout_item_quantity_number` in `page/checkout/checkout-item.html.twig` to other place can inherit
+    * Replace block `page_checkout_item_quantity` to `page_checkout_item_quantity_form` in `account/order/line-item.html.twig`
 * Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
 * Fixed `packUnit` and `packUnitPlural` not being properly accessed in `buy-widget-form.html.twig`
 * Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.

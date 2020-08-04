@@ -199,7 +199,11 @@
                                                 {% endblock %}
                                             </form>
                                         {% else %}
-                                            {{ lineItem.quantity }}
+                                            {% block page_checkout_item_quantity_number %}
+                                                <div class="d-flex justify-content-end cart-item-quantity">
+                                                    {{ lineItem.quantity }}
+                                                </div>
+                                            {% endblock %}
                                         {% endif %}
                                     {% endblock %}
                                 </div>

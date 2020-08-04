@@ -208,6 +208,6 @@ SQL;
             return $languageId;
         }
 
-        return [$languageId];
+        return $languageId === false ? [] : [$languageId];
     }
 }

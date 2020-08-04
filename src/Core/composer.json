@@ -24,7 +24,7 @@
             "Flag/feature_next9225.php"
         ]
     },
-    "version": "6.3.0.0",
+    "version": "6.3.0.1",
     "extra": {
         "branch-alias": {
             "dev-master": "6.3.x-dev"

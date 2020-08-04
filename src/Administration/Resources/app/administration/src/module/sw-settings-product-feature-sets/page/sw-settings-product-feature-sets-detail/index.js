@@ -45,6 +45,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
             return this.placeholder(this.productFeatureSet, 'name');
         },
 
+        // @deprecated tag:v6.4.0.0
         languageStore() {
             return StateDeprecated.getStore('language');
         },

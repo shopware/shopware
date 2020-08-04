@@ -1,3 +1,4 @@
+// @deprecated tag:v6.4.0.0
 export default class InfiniteScrollingHelper {
     constructor(entityName, limit) {
         this.store = Shopware.StateDeprecated.getStore(entityName);

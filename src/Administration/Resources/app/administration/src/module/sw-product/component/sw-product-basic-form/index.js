@@ -27,6 +27,7 @@ Component.register('sw-product-basic-form', {
             'markAsTopseller'
         ]),
 
+        // @deprecated tag:v6.4.0.0
         languageStore() {
             return StateDeprecated.getStore('language');
         },

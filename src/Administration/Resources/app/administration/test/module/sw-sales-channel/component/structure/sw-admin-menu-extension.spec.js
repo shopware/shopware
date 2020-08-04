@@ -45,6 +45,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', () => {
     beforeAll(() => {
+        Shopware.FeatureConfig.isActive = () => true;
         Shopware.State.get('session').currentUser = {};
         Shopware.Service().register('loginService', () => {
             return {

@@ -4,6 +4,7 @@
         {% block sw_category_detail_information_visible %}
             <sw-switch-field
                 borderd
+                :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.menu.visible')"
                 v-model="reversedVisibility">
             </sw-switch-field>
@@ -18,6 +19,7 @@
             <sw-media-upload-v2
                     :label="$tc('sw-category.base.menu.imageLabel')"
                     variant="regular"
+                    :disabled="!acl.can('category.editor')"
                     :source="mediaItem"
                     :uploadTag="category.id"
                     :allowMultiSelect="false"
@@ -32,6 +34,7 @@
             <sw-text-editor
                 class="sw-category-detail-base__description"
                 type="textarea"
+                :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.menu.descriptionLabel')"
                 :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
                 v-model="category.description">

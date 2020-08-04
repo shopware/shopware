@@ -41,7 +41,7 @@
                         class="sw-category-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('category.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -58,6 +58,9 @@
                     :categoryId="categoryId"
                     :currentLanguageId="currentLanguageId"
                     @unsaved-changes="openChangeModal"
+                    :allowEdit="acl.can('category.editor')"
+                    :allowCreate="acl.can('category.creator')"
+                    :allowDelete="acl.can('category.deleter')"
                 ></sw-category-tree>
             {% endblock %}
         </template>

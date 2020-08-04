@@ -14,6 +14,7 @@
                                 <sw-select-base
                                     class="sw-entity-many-to-many-select"
                                     ref="selectBase"
+                                    :disabled="disabled"
                                     :label="selectLabel"
                                     :isLoading="isLoadingResults"
                                     @select-expanded="onSelectExpanded"
@@ -117,7 +118,10 @@
 
                         <template #actions="{ item }">
                             {% block sw_entity_many_to_many_assignment_card_grid_column_actions %}
-                                <sw-context-menu-item variant="danger" @click="removeFromGrid(item)">
+                                <sw-context-menu-item
+                                    variant="danger"
+                                    @click="removeFromGrid(item)"
+                                    :disabled="disabled">
                                     {{ $tc('global.entity-components.labelRemoveAssociation') }}
                                 </sw-context-menu-item>
                             {% endblock %}

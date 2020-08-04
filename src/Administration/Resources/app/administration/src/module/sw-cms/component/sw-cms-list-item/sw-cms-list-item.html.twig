@@ -1,5 +1,5 @@
 {% block sw_cms_list_item %}
-    <div class="sw-cms-list-item">
+    <div class="sw-cms-list-item" :class="componentClasses">
 
         {% block sw_cms_list_item_options %}
             <slot name="contextMenu"></slot>
@@ -9,7 +9,7 @@
             <div class="sw-cms-list-item__image"
                  v-if="page"
                  :style="previewMedia"
-                 @click="$emit('item-click', page)">
+                 @click="onItemClick(page)">
             </div>
 
             <div class="sw-cms-list-item__image is--empty" v-else>
@@ -19,7 +19,7 @@
 
         {% block sw_cms_list_item_info %}
             <div class="sw-cms-list-item__info">
-                <div v-if="page" class="sw-cms-list-item__status" :class="componentClasses"></div>
+                <div v-if="page" class="sw-cms-list-item__status" :class="statusClasses"></div>
                 <div class="sw-cms-list-item__title" v-if="page" @click="onElementClick">{{ page.translated.name }}</div>
                 <sw-icon v-if="page && page.locked" class="sw-cms-list-item__locked" name="small-lock-closed" small></sw-icon>
             </div>

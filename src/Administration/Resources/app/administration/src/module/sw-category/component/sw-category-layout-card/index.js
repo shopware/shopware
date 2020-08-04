@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-category-layout-card', {
     template,
 
+    inject: ['acl'],
+
     props: {
         category: {
             type: Object,
@@ -60,6 +62,10 @@ Component.register('sw-category-layout-card', {
         },
 
         openLayoutModal() {
+            if (!this.acl.can('category.editor')) {
+                return;
+            }
+
             this.showLayoutSelectionModal = true;
         },
 

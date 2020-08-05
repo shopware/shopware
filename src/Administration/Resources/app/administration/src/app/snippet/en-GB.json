@@ -19,7 +19,8 @@
       "success": "Success",
       "info": "Info",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "confirm": "Confirm"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

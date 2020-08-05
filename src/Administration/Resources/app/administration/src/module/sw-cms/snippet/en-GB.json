@@ -218,10 +218,12 @@
       "productBox": {
         "label": "Product box",
         "component": {
-          "actionBuy": "Add to cart",
-          "badgeTopseller": "Topseller",
-          "badgeNew": "New",
-          "priceUnitContent": "Content:"
+          "label": {
+            "actionBuy": "Add to cart",
+            "badgeTopseller": "Topseller",
+            "badgeNew": "New",
+            "priceUnitContent": "Content:"
+          }
         },
         "config": {
           "label": {

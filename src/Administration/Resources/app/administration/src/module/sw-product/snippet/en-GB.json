@@ -221,7 +221,6 @@
       "emptyStateNoOptionsDescription": "Create properties and property values first, then return here to assign them.",
       "emptyStateNoSelectedOptionsTitle": "No values selected",
       "emptyStateNoSelectedOptionsDescription": "Please select values from the search above.",
-      "selectRule": "Select a conditional rule...",
       "propertiesInherited": "This product has inherited properties from its parent.",
       "linkPropertiesOfParent": "Show properties of parent product",
       "inheritSwitchLabel": "Use properties from parent product",

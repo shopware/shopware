@@ -46,6 +46,7 @@ NEXT
     * Added property `showCustomFieldSetSelection`
 * Added support for inheritance to `sw-custom-field-set-renderer`
     * Added property `parentEntity`
+* Deprecated block `sw_product_detail_properties_empty_state_text_empty` in `sw-product-detail-properties` component.
 
 #### Core
 

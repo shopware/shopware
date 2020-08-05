@@ -1,22 +1,11 @@
+<!--- @deprecated tag:v6.4.0 -->
+
 CHANGELOG for 6.1.x
 ===================
+This file is **deprecated** and no longer in use. You will find the changelog in the [main changelog file](CHANGELOG.md).
 
-This changelog references the relevant changes (bug and security fixes) done
-in 6.1 minor versions.
+If you want to learn more about writing or using the changelog, have a look [here](/adr/2020-08-03-Implement-New-Changelog.md). 
 
-To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0-rc1...v6.1.0-rc2
-
-### 6.1.3
-
-**Addition / Changes**
-
-* Core 
-    * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
-    * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
-    
-* Storefront
-    * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
 ### 6.1.5
 
 **Addition / Changes**
@@ -25,7 +14,7 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added new `sw-import-export` module in `src/Administration/Resources/app/administration/src/module`
     * Added new slot `caption-label` in `sw-file-input` component
     * Added new `has` method to `src/Administration/Resources/app/administration/src/core/factory/entity-definition.factory.js`
-
+    * Added property `fileAccept` to `sw-media-upload`
 * Core
     * Fixed a bug, where access tokens could get very large and cause requests to fail
     * Added Import/Export module with csv support. We've decided to add this feature in this patch release, to make it available earlier, due to the current covid-19 crisis. We believe this feature may help small business owners to setup their shop faster. Beware that parts of the Import/Export api are still unstable and marked as `@experimental`.
@@ -47,19 +36,17 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Fix using the SCSS `@extend` feature on existing bootstrap classes when running `./psh.phar storefront:hot` or `./psh.phar storefront:hot-proxy`.
     * Changed reviewer mail and name to be private in sales-channel API
 
-### 6.1.5
-
-**Addition / Changes**
-
-* Administration
-    * Added property `fileAccept` to `sw-media-upload`
 ### 6.1.3
 
 **Addition / Changes**
 
 * Core
     * Moved cart extension takeover earlier in `\Shopware\Core\Checkout\Cart\Processor::process` so that custom implementations can now access all extensions of the cart. 
-
+    * Added `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder` and `\Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface`, that allows to modify twig namespace inheritance
+    * Deprecated `\Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface::registerBundles` use `TemplateNamespaceHierarchyBuilderInterface` to modify twig namespace hierarchy.
+    
+* Storefront
+    * Deprecated `\Shopware\Storefront\Theme\Twig\ThemeTemplateFinder` use `TemplateNamespaceHierarchyBuilderInterface` instead
 ### 6.1.2
 
 **Addition / Changes**

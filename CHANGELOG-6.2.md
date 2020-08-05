@@ -1,12 +1,10 @@
+<!--- @deprecated tag:v6.4.0 -->
+
 CHANGELOG for 6.2.x
 ===================
+This file is **deprecated** and no longer in use. You will find the changelog in the [main changelog file](CHANGELOG.md).
 
-This changelog references the relevant changes (bug and security fixes) done
-in 6.2 minor versions.
-
-To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0..v6.2.0
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
+If you want to learn more about writing or using the changelog, have a look [here](/adr/2020-08-03-Implement-New-Changelog.md). 
 
 ### 6.2.3
 
@@ -93,7 +91,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw_product_detail_sidebar`
         * `sw_product_detail_sidebar_additional_items`
     * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
- 
     * Fixed the administration multi-inheritance if a component was overriden and extended by multiple components
     * Added new filterable field to `sw-property-list` and `sw-property-filter`
     * Added string for `packUnitPlural` to `sw-product-stream/snippet/en-EN.json` and `sw-product-stream/snippet/de-DE.json` 
@@ -877,15 +874,3 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
-
-
-### 6.2.1
-
-**Addition / Changes**
-
-* Administration
-    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
-    * Fix timezone of `orderDate` in ordergrid
-    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
-    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
-    

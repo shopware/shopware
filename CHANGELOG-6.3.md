@@ -1,15 +1,13 @@
+<!--- @deprecated tag:v6.4.0 -->
+
 CHANGELOG for 6.3.x
 ===================
+This file is **deprecated** and no longer in use. You will find the changelog in the [main changelog file](CHANGELOG.md).
 
-This changelog references the relevant changes (bug and security fixes) done
-in 6.3 minor versions.
-
-To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/6.2...master
+If you want to learn more about writing or using the changelog, have a look [here](/adr/2020-08-03-Implement-New-Changelog.md). 
 
 Table of contents
 ----------------
-* [Table of contents](#table-of-contents)
 * [NEXT](#NEXT)
 * [6.3.1.0](#6310)
 * [6.3.0.2](#6302)

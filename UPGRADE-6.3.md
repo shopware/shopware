@@ -248,11 +248,11 @@ Example in SCSS
 
 ```scss
 body {
-  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/font/Inter-Regular.woff2");
+  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/img/some-image.webp");
 }
 ```
 
-To access in scss the asset url, you can use the variable `$sw-asset-url`
+To access in scss the asset url, you can use the variable `$sw-asset-theme-url`
 
 ## Configuring `asset` and `theme` asset to other locations
 

@@ -1347,4 +1347,21 @@ describe('core/factory/component.factory.js', () => {
         const component = ComponentFactory.build('password-field-component');
         expect(component.template).toBe('<input type="password">');
     });
+
+    it('allows to overide nested blocks', () => {
+        ComponentFactory.register('root-component', {
+            template: '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('root-component', {
+            template:
+                '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
+                '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
+        });
+
+        const component = ComponentFactory.build('root-component');
+        const expected = '<div class="root-component">Overriding outer block Overriding inner block <div>I\'m nested</div> </div>';
+
+        expect(component.template).toEqual(expected);
+    });
 });

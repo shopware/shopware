@@ -257,7 +257,6 @@
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
       "generatedListDeleteModalButtonCancel": "Cancel",
       "generatedListDeleteModalButtonDelete": "Delete",
-      "generatedListDeleteModalTitle": "Variant",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListMessageDeleteSuccess": "Variant has been deleted.",

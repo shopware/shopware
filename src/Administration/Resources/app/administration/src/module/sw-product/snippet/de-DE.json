@@ -260,7 +260,6 @@
       "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
-      "generatedListTitleDeleteError": "Gelöscht",
       "generatedListMessageDeleteSuccess": "Die Variante wurde gelöscht.",
       "overview": {
         "filterReset": "Zurücksetzen",
@@ -331,7 +330,6 @@
       "releaseDateDescendingSortingType": "Erscheinungsdatum, absteigend",
       "productStreamType": "Dynamische Produktgruppe",
       "productListType": "Manuelle Zuweisung",
-      "releaseDateSortingType": "Erscheinungsdatum",
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross Selling-Konfiguration wirklich löschen?",
       "deleteButtonCancel": "Zurück",

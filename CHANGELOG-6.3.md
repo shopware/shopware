@@ -107,6 +107,7 @@ NEXT
 * Changed the way `senderEmail` is resolved in `\Shopware\Core\Content\MailTemplate\Service\MailService`. It's now possible to override it with `$data['senderEmail']`. 
 * Thumbnails are no longer being upscaled when the original image is smaller than the desired thumbnail size
 * Added new constant `DISPLAY_TYPE_MEDIA` in `Shopware\Core\Content\Property\PropertyGroupDefinition`
+* Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
 
 #### Storefront
 

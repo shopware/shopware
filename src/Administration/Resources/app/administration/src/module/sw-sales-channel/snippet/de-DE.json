@@ -82,7 +82,6 @@
       "footerCategory": "Einsprungpunkt für die Footer-Navigation",
       "serviceCategory": "Einsprungpunkt für die Service-Navigation",
       "titleOptionsApiKey": "API-Zugang",
-      "titleApiAccess": "API-Zugang",
       "textDeleteSalesChannelWarning": "Das Entfernen dieses Verkaufskanals kann nicht wieder rückgängig gemacht werden.",
       "buttonCopyApiKeyButton": "API-Schlüssel kopieren",
       "titleStatus": "Status",
@@ -129,10 +128,6 @@
         "accessUrl": "Export-URL",
         "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
         "productStream": "Dynamische Produktgruppe",
-        "fileFormatlabels": {
-          "csv": "CSV",
-          "xml": "XML"
-        },
         "includeVariants": "Varianten als eigene Produkte exportieren",
         "interval": "Generierungsintervall",
         "generateByCronjob": "Per Scheduler generieren",
@@ -187,7 +182,6 @@
           "modal-confirm": "Template übernehmen",
           "modal-cancel": "Abbrechen",
           "message": {
-            "template-applied-title": "Template übernommen",
             "template-applied-message": "Die Daten aus dem Template wurden übernommen. Bitte speichere den Verkaufskanal, um die Änderungen dauerhaft zu übernehmen."
           }
         },

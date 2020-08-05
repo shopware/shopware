@@ -289,8 +289,19 @@ Component.register('sw-sales-channel-detail-base', {
 
         ...mapPropertyErrors('salesChannel',
             [
+                'name',
                 'customerGroupId',
                 'navigationCategoryId'
+            ]),
+
+        ...mapPropertyErrors('productExport',
+            [
+                'productStreamId',
+                'encoding',
+                'fileName',
+                'fileFormat',
+                'salesChannelDomainId',
+                'currencyId'
             ])
     },
 

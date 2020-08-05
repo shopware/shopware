@@ -53,7 +53,6 @@ function createWrapper(props) {
         },
         mocks: {
             $tc: key => key,
-            next9225: true,
             $device: {
                 onResize: () => {}
             }

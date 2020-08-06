@@ -47,7 +47,8 @@
                         required
                         :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
                         :label="$tc('sw-sales-channel.detail.labelInputName')"
-                        v-model="salesChannel.name">
+                        v-model="salesChannel.name"
+                        :error="salesChannelNameError">
                     </sw-field>
                 {% endblock %}
 
@@ -106,6 +107,7 @@
                     <sw-entity-single-select
                         v-if="!isProductComparison"
                         class="sw-sales-channel-detail__select-customer-group"
+                        required
                         :label="$tc('sw-sales-channel.detail.customerGroup')"
                         entity="customer_group"
                         :error="salesChannelCustomerGroupIdError"
@@ -229,7 +231,8 @@
                         entity="sales_channel_domain"
                         required
                         :disabled="!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId"
-                        v-model="productExport.salesChannelDomainId">
+                        v-model="productExport.salesChannelDomainId"
+                        :error="productExportSalesChannelDomainIdError">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -242,7 +245,8 @@
                             valueProperty="id"
                             required
                             entity="currency"
-                            v-model="productExport.currencyId">
+                            v-model="productExport.currencyId"
+                            :error="productExportCurrencyIdError">
                         </sw-entity-single-select>
                     </div>
                 {% endblock %}
@@ -294,7 +298,7 @@
                         required
                         :label="$tc('sw-sales-channel.detail.productComparison.fileName')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderFileName')"
-                        :error="invalidFileNameError"
+                        :error="productExportFileNameError || invalidFileNameError"
                         v-model="productExport.fileName">
                     </sw-field>
                 {% endblock %}
@@ -305,7 +309,8 @@
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
                         :options="getEncodingOptions"
                         required
-                        v-model="productExport.encoding">
+                        v-model="productExport.encoding"
+                        :error="productExportEncodingError">
                     </sw-select-field>
                 {% endblock %}
 
@@ -315,7 +320,8 @@
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
                         :options="getFileFormatOptions"
                         required
-                        v-model="productExport.fileFormat">
+                        v-model="productExport.fileFormat"
+                        :error="productExportFileFormatError">
                     </sw-select-field>
                 {% endblock %}
 
@@ -365,7 +371,8 @@
                         valueProperty="id"
                         required
                         entity="product_stream"
-                        v-model="productExport.productStreamId">
+                        v-model="productExport.productStreamId"
+                        :error="productExportProductStreamIdError">
                     </sw-entity-single-select>
                 {% endblock %}
 

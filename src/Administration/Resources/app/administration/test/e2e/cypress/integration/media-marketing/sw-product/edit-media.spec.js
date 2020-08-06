@@ -51,6 +51,9 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-login-background/);
         cy.awaitAndCheckNotification('File has been saved.');
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product with image', '.sw-product-image__image');
+
         // Add second image to product
         cy.fixture('img/sw-test-image.png').then(fileContent => {
             cy.get('#files').upload(
@@ -88,6 +91,9 @@ describe('Product: Edit product media', () => {
         cy.get('#tns2-item0 img')
             .should('have.attr', 'src')
             .and('match', /sw-test-image/);
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product in Storefront with image', '.gallery-slider-item');
     });
 
     it('@base @catalogue: set another cover image', { browser: '!firefox' }, () => {

@@ -50,8 +50,16 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer detail - address listing', '.sw-customer-detail-addresses');
+
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer detail - address modal', '.sw-modal');
+
         page.createBasicAddress(newAddress);
         cy.get(`${page.elements.modal} ${page.elements.primaryButton}`).click();
 

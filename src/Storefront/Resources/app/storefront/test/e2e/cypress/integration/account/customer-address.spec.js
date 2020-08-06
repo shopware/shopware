@@ -19,8 +19,14 @@ describe('Account: Handle addresses as customer', () => {
         cy.get('.account-content .account-aside-item[title="Addresses"]')
             .should('be.visible')
             .click();
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer address overview');
+
         cy.get('a[href="/account/address/create"]').click();
-        cy.get('.account-address-form').should('be.visible');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer address overview', '.account-address-form');
 
         // Fill in and submit address
         cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');

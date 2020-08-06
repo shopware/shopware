@@ -14,7 +14,7 @@ describe('Product: Test crud operations', () => {
             });
     });
 
-    it('@base @general: should show a growl error message when saving an entity with invalid required fields', () => {
+    it('@general: should show a growl error message when saving an entity with invalid required fields', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

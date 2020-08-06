@@ -26,8 +26,10 @@ describe('Account: Edit order', () => {
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Account overview', '.order-table');
+
         // Order detail is expandable
-        cy.get('.order-table').should('be.visible');
         cy.get('.order-table:nth-of-type(1) .order-table-header-order-number').contains('Order number: 10000');
         cy.get('.order-table:nth-of-type(1) .order-hide-btn').click();
         cy.get('.order-detail-content').should('be.visible');
@@ -60,11 +62,16 @@ describe('Account: Edit order', () => {
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
-        // cancel order
-        cy.get('.order-table').should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Cancel order - confirm', '.order-table');
+
         cy.get('.order-table-header-context-menu').click();
         cy.get('.dropdown-menu > [type="button"]').click();
         cy.get('form > .btn-primary').click();
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Cancel order - finish', '.order-table-header-order-status');
+
         cy.get('.order-table-header-order-status').contains('Cancelled');
     });
 

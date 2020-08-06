@@ -25,7 +25,8 @@
     "apiPath": "**/api/v*",
     "locale": "en-GB",
     "projectRoot": "/app",
-    "localUsage": false
+    "localUsage": false,
+    "usePercy": false
   },
   "firefoxGcInterval": {
     "runMode": null,

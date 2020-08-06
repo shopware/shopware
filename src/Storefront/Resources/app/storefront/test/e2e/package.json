@@ -11,7 +11,8 @@
     "cypress": "./node_modules/.bin/cypress",
     "open": "./node_modules/.bin/cypress open",
     "cy:run:chrome": "cypress run --browser chrome",
-    "cy:run:firefox": "cypress run --browser firefox"
+    "cy:run:firefox": "cypress run --browser firefox",
+    "cy:run:percy": "percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000"
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
@@ -20,7 +21,8 @@
     "mocha": "^7.0.0",
     "mochawesome": "^4.1.0",
     "mocha-junit-reporter": "^1.23.1",
-    "uuid": "3.3.3"
+    "uuid": "3.3.3",
+    "@percy/cypress": "^2.3.1"
   },
   "devDependencies": {
     "cypress": "4.10.0",

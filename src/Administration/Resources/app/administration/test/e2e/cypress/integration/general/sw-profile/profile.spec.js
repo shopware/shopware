@@ -12,6 +12,9 @@ describe('Profile module', () => {
     });
 
     it('@base @general: profile change email', () => {
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Profile detail', '.sw-profile__card');
+
         cy.get('#sw-field--email')
             .should('be.visible')
             .click()

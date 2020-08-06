@@ -41,8 +41,14 @@ describe('Customer: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer listing', '.sw-customer-list-grid');
+
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer create', '.sw-customer-create');
 
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
@@ -69,7 +75,11 @@ describe('Customer: Test crud operations', () => {
         // Verify new customer in detail
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
+            // cy.awaitAndCheckNotification('');
         });
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Customer create', '.sw-customer-detail');
 
         cy.get(`${page.elements.customerMetaData}-customer-name`)
             .contains(`${customer.firstName} ${customer.lastName}`);

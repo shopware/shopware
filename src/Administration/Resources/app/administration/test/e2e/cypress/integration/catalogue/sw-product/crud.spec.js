@@ -16,7 +16,7 @@ describe('Product: Test crud operations', () => {
             });
     });
 
-    it('@base @catalogue: create and read product', () => {
+    it('@base @catalogue @percy: create and read product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -29,6 +29,9 @@ describe('Product: Test crud operations', () => {
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
             method: 'post'
         }).as('calculatePrice');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product - listing');
 
         // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
@@ -88,8 +91,12 @@ describe('Product: Test crud operations', () => {
         cy.get('.search-suggest-product-name')
             .contains('Product with file upload image')
             .click();
+
         cy.get('.product-detail-name').contains('Product with file upload image');
         cy.get('.product-detail-price').contains('10.00');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product in Storefront', '.product-detail-name');
     });
 
     it('@base @catalogue: update and read product', () => {

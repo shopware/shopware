@@ -36,6 +36,9 @@ describe('Promotion: Test crud operations', () => {
             method: 'post'
         }).as('saveDiscount');
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Promotion listing', '.sw-promotion-list');
+
         cy.get('a[href="#/sw/promotion/create"]').click();
 
         // Create promotion
@@ -49,6 +52,10 @@ describe('Promotion: Test crud operations', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Promotion detail', '.sw-promotion-detail');
+
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Funicular prices');
@@ -59,6 +66,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('a[title="Discounts"]').click();
         cy.get(page.elements.loader).should('not.exist');
+
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
         cy.wait('@filteredResultCall').then((xhr) => {
@@ -73,6 +81,9 @@ describe('Promotion: Test crud operations', () => {
             .type('54');
 
         cy.get('#sw-field--discount-type').select('Fixed item price');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Promotion detail - discounts', '.sw-promotion-discount-component');
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
@@ -95,6 +106,9 @@ describe('Promotion: Test crud operations', () => {
         cy.get('.cart-item-promotion .cart-item-label').contains('Funicular prices');
         cy.get('.cart-item-promotion .cart-item-price').contains('-€10.00*');
         cy.get('.summary-total').contains('€54.00');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Promotion in Storefront checkout', '.offcanvas.is-open');
 
         // Order product with promotion
         cy.get('a[title="Proceed to checkout"]').click();

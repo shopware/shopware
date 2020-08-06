@@ -103,6 +103,9 @@ describe('Product: Check cross selling integration', () => {
             );
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product - Cross Selling in Admin', '.product-detail-cross-selling-form');
+
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
         cy.wait('@saveData').then((xhr) => {
@@ -123,6 +126,9 @@ describe('Product: Check cross selling integration', () => {
             .should('be.visible');
         cy.get('.product-slider-item .product-name[title="Third product"]')
             .should('be.visible');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product - Cross Selling in Storefront', '.product-slider-item');
     });
 
     it('@catalogue: add manual cross selling to product', () => {

@@ -1,3 +1,5 @@
+import '@percy/cypress';
+
 const uuid = require('uuid/v4');
 const RuleBuilderFixture = require('../service/fixture/rule-builder.fixture');
 
@@ -288,3 +290,24 @@ const waitUntil = (subject, checkFunction, originalOptions = {}) => {
 };
 
 Cypress.Commands.add("waitUntil", { prevSubject: "optional" }, waitUntil);
+
+/**
+ * Takes a snapshot for percy visual testing
+ * @memberOf Cypress.Chainable#
+ * @name takeSnapshot
+ * @param {String} title - Title of the screenshot
+ * @param {String} [selectorToCheck = null] - Unique selector to make sure the module is ready for being snapshot
+ * @function
+ */
+Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null) => {
+    // Request we want to wait for later
+
+    if(selectorToCheck) {
+        cy.get(selectorToCheck).should('be.visible');
+        cy.get('.sw-loader').should('not.exist');
+    }
+
+    if (Cypress.env('usePercy')) {
+        cy.percySnapshot(title);
+    }
+});

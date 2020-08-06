@@ -31,12 +31,18 @@ describe('Order: Read order', () => {
     it('@package @order: read order', () => {
         const page = new OrderPageObject();
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Order listing', '.sw-order-list');
+
         cy.get(`${page.elements.dataGridRow}--0`).contains('Max Mustermann');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Order detail', '.sw-order-detail');
 
         cy.get(`${page.elements.userMetadata}-user-name`)
             .contains('Max Mustermann');

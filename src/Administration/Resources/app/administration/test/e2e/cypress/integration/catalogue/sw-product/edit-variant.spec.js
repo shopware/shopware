@@ -51,9 +51,14 @@ describe('Product: Test variants', () => {
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product - Variant generation');
+
         // Create and verify one-dimensional variant
         page.generateVariants('Color', [0, 1, 2], 3);
-        cy.get('.sw-product-variants-overview').should('be.visible');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product - Variants in admin', '.sw-product-variants-overview');
 
         cy.get('.sw-data-grid__body').contains('Red');
         cy.get('.sw-data-grid__body').contains('Yellow');
@@ -76,6 +81,9 @@ describe('Product: Test variants', () => {
             .should('be.visible');
         cy.get('.product-detail-configurator-option-label[title="Green"]')
             .should('be.visible');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Product - Variants in Storefront');
     });
 
     it('@base @catalogue: add multidimensional variant to product', () => {

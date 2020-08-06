@@ -105,6 +105,7 @@ NEXT
     * Added `cmsProductListingWrapperSelector` property in `listing.plugin.js`
     * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
     * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
+* Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
 
 6.3.0.0
 ----------------

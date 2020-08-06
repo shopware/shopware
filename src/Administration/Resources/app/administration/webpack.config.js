@@ -71,7 +71,7 @@ const pluginEntries = (() => {
 
             return {
                 name,
-                technicalName: definition.technicalName,
+                technicalName: definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
                 basePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath),
                 path: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.path),
                 filePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.entryFilePath),

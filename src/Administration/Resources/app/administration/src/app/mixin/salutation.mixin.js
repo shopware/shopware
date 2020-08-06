@@ -2,6 +2,7 @@ const { Mixin, StateDeprecated, Filter } = Shopware;
 
 Mixin.register('salutation', {
     computed: {
+        // @deprecated tag:v6.4.0.0
         salutationStore() {
             return StateDeprecated.getStore('salutation');
         },

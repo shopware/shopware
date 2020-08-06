@@ -1,6 +1,7 @@
 import template from './sw-form-field-renderer.html.twig';
 
 const { Component, Mixin } = Shopware;
+// @deprecated tag:v6.4.0.0
 const { LocalStore } = Shopware.DataDeprecated;
 const { types } = Shopware.Utils;
 
@@ -252,6 +253,7 @@ Component.register('sw-form-field-renderer', {
             return 'sw-field';
         },
 
+        // @deprecated tag:v6.4.0.0
         addSwSelectStores(bind) {
             if (bind.store) {
                 return;
@@ -273,6 +275,7 @@ Component.register('sw-form-field-renderer', {
             this.refreshSwSelectSelections();
         },
 
+        // @deprecated tag:v6.4.0.0
         addSwSelectAssociationStore(bind, override) {
             if (bind.associationStore && override === false) {
                 return;
@@ -286,6 +289,7 @@ Component.register('sw-form-field-renderer', {
             bind.associationStore = new LocalStore(entities);
         },
 
+        // @deprecated tag:v6.4.0.0
         refreshSwSelectSelections() {
             this.$nextTick(() => {
                 if (this.$refs.component) {

@@ -1,4 +1,5 @@
 const { Mixin } = Shopware;
+// @deprecated tag:v6.4.0.0
 const { CriteriaFactory } = Shopware.DataDeprecated;
 const types = Shopware.Utils.types;
 const { debug } = Shopware.Utils;
@@ -130,6 +131,7 @@ Mixin.register('listing', {
             });
         },
 
+        // @deprecated tag:v6.4.0.0
         getListingParams() {
             if (this.disableRouteParams) {
                 return {

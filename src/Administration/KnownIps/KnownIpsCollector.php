@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @Decoratable()
  */
-class KnownIpsCollector
+class KnownIpsCollector implements KnownIpsCollectorInterface
 {
     /**
      * The result is mapped as ip => name|snippet-key. So by default it will look like this:

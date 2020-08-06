@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Administration\KnownIps\KnownIpsCollector;
+use Shopware\Administration\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -36,7 +36,7 @@ class AdministrationController extends AbstractController
     private $supportedApiVersions;
 
     /**
-     * @var KnownIpsCollector
+     * @var KnownIpsCollectorInterface
      */
     private $knownIpsCollector;
 
@@ -45,7 +45,7 @@ class AdministrationController extends AbstractController
         FirstRunWizardClient $firstRunWizardClient,
         SnippetFinderInterface $snippetFinder,
         $supportedApiVersions,
-        KnownIpsCollector $knownIpsCollector
+        KnownIpsCollectorInterface $knownIpsCollector
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;

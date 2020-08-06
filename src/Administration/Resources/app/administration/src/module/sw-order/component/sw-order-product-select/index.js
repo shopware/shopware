@@ -15,6 +15,14 @@ Component.register('sw-order-product-select', {
                 return [];
             }
         },
+
+        salesChannelId: {
+            type: String,
+            // @deprecated tag:v6.4.0 - salesChannelId will become required: true
+            required: false,
+            default: ''
+        },
+
         /** @deprecated tag:v6.4.0 */
         displayProductSelection: {
             type: Boolean,
@@ -71,6 +79,13 @@ Component.register('sw-order-product-select', {
                     ]
                 )
             );
+
+            // @deprecated tag:v6.4.0 - If-clause will be removed and filter will always be added
+            if (this.salesChannelId) {
+                criteria.addFilter(
+                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannelId)
+                );
+            }
 
             return criteria;
         }

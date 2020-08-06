@@ -1,7 +1,7 @@
 import template from './sw-order-line-items-grid.html.twig';
 import './sw-order-line-items-grid.scss';
 
-const { Component, Service } = Shopware;
+const { Component, Service, Utils } = Shopware;
 
 Component.register('sw-order-line-items-grid', {
     template,
@@ -98,6 +98,10 @@ Component.register('sw-order-line-items-grid', {
             }
 
             return columnDefinitions;
+        },
+
+        salesChannelId() {
+            return Utils.get(this.order, 'salesChannelId', '');
         }
     },
     methods: {

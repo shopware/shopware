@@ -96,7 +96,9 @@ class AssetService
         foreach ($files as $file) {
             $fs = fopen($file->getPathname(), 'rb');
             $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
-            fclose($fs);
+            if (is_resource($fs)) {
+                fclose($fs);
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+import { next3722 } from 'src/flag/feature_next3722';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
@@ -46,6 +47,10 @@ Component.register('sw-admin-menu', {
         },
 
         userTitle() {
+            if (!next3722()) {
+                return 'Administrator';
+            }
+
             if (this.currentUser.admin) {
                 return this.$tc('global.sw-admin-menu.administrator');
             }

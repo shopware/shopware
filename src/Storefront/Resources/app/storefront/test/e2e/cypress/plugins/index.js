@@ -11,8 +11,11 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+require('@babel/register');
+const selectTestsWithGrep = require('cypress-select-tests/grep');
+
 module.exports = (on, config) => {
-    const packagePlugins = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
+    // `on` is used to hook into various events Cypress emits
 
     // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
     on('before:browser:launch', (browser, launchOptions) => {
@@ -22,5 +25,6 @@ module.exports = (on, config) => {
         }
     });
 
-    return packagePlugins(on, config);
-}
+    // `config` is the resolved Cypress config
+    on('file:preprocessor', selectTestsWithGrep(config));
+};

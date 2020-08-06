@@ -49,6 +49,9 @@ function createWrapper(props) {
             },
             validationService: {
 
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {

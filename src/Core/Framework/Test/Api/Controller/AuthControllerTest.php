@@ -6,10 +6,9 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Parser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Flag\Flags\FEATURE_NEXT_3722;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -412,7 +411,7 @@ class AuthControllerTest extends TestCase
 
     public function testIntegrationAuth(): void
     {
-        if (FeatureConfig::isActive(FEATURE_NEXT_3722::NAME)) {
+        if (Feature::isActive('FEATURE_NEXT_3722')) {
             static::markTestSkipped('Reactivate if Integrations can have their own acls');
         }
         $client = $this->getBrowser(false);

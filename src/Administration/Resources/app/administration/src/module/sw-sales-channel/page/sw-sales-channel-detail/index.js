@@ -1,6 +1,6 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults, FeatureConfig } = Shopware;
+const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail', {
@@ -137,10 +137,6 @@ Component.register('sw-sales-channel-detail', {
         createdComponent() {
             this.loadEntityData();
             this.loadProductExportTemplates();
-        },
-
-        featureIsActive(flag) {
-            return FeatureConfig.isActive(flag);
         },
 
         loadEntityData() {

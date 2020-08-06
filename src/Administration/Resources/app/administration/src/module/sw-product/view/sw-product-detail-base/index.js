@@ -2,7 +2,7 @@ import Criteria from 'src/core/data-new/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
-const { Component, FeatureConfig } = Shopware;
+const { Component } = Shopware;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-base', {
@@ -19,7 +19,6 @@ Component.register('sw-product-detail-base', {
 
     data() {
         return {
-            FeatureConfig: FeatureConfig,
             showReviewDeleteModal: false,
             toDeleteReviewId: null,
             reviewItemData: [],

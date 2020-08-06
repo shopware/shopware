@@ -45,7 +45,6 @@
         </UndefinedConstant>
         <InvalidScope>
             <errorLevel type="info">
-                <directory name="platform/src/Core/Flag"/>
                 <directory name="platform/src/Core/Framework/Test/FeatureFlag"/>
             </errorLevel>
         </InvalidScope>

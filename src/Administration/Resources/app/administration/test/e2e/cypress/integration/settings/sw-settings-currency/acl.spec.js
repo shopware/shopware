@@ -18,7 +18,7 @@ describe('Currency: Test acl privileges', () => {
 
     it('@settings: can view currency', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('FEATURE_NEXT_3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -50,7 +50,7 @@ describe('Currency: Test acl privileges', () => {
 
     it('@settings: can edit currency', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('FEATURE_NEXT_3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -104,7 +104,7 @@ describe('Currency: Test acl privileges', () => {
 
     it('@settings: can create currency', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('FEATURE_NEXT_3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -160,7 +160,7 @@ describe('Currency: Test acl privileges', () => {
 
     it('@settings: can delete currency', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('FEATURE_NEXT_3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

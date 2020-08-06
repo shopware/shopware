@@ -23,7 +23,7 @@ const ApiServiceFactory = require('src/core/factory/api-service.factory').defaul
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
 
-const FeatureConfig = require('src/core/feature-config').default;
+const Feature = require('src/core/feature').default;
 const ShopwareError = require('src/core/data/ShopwareError').default;
 const ApiService = require('src/core/service/api.service').default;
 const utils = require('src/core/service/util.service').default;
@@ -241,9 +241,9 @@ const Shopware = function Shopware() {
 
     /**
      * @memberOf module:Shopware
-     * @type {module:core/feature-config}
+     * @type {module:core/feature}
      */
-    this.FeatureConfig = FeatureConfig;
+    this.Feature = Feature;
 
     /**
      * @memberOf module:Shopware

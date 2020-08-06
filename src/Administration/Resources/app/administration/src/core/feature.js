@@ -5,7 +5,7 @@
 /**
  * A static registry containing a list of all registered flags and the associated activation state
  */
-export default class FeatureConfig {
+export default class Feature {
     static flags = {};
 
     static init(flagConfig) {

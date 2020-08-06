@@ -5,11 +5,10 @@ namespace Shopware\Core\Framework\Test\Routing;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Flag\Flags\FEATURE_NEXT_3722;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -34,7 +33,7 @@ class ApiRequestContextResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->resolver = $this->getContainer()->get(ApiRequestContextResolver::class);
     }

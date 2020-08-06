@@ -1,15 +1,11 @@
 import template from './sw-users-permissions.html.twig';
 
-const { Component, FeatureConfig } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-users-permissions', {
     template,
 
-    data() {
-        return {
-            FeatureConfig: FeatureConfig
-        };
-    },
+    inject: ['feature'],
 
     metaInfo() {
         return {

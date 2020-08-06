@@ -17,11 +17,11 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\TestAppServer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use function Flag\skipTestNext10286;
 
 class AppRegistrationServiceTest extends TestCase
 {
@@ -49,7 +49,7 @@ class AppRegistrationServiceTest extends TestCase
 
     public function setup(): void
     {
-        skipTestNext10286($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->registrator = $this->getContainer()->get(AppRegistrationService::class);
         $this->shopUrl = $_SERVER['APP_URL'];

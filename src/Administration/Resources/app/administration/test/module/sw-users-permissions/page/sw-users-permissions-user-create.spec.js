@@ -52,7 +52,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
                         return {};
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
+
             },
             mocks: {
                 $tc: v => v,

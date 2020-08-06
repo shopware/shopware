@@ -15,6 +15,8 @@ function createWrapper(customCmsElementConfig) {
         name: 'Small Silk Heart Worms'
     };
 
+    Shopware.Feature.flags.FEATURE_NEXT_9279 = true;
+
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-slider'), {
         localVue,
         propsData: {

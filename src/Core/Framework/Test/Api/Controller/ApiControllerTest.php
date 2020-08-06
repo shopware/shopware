@@ -8,7 +8,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Flag\Flags\FEATURE_NEXT_3722;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -19,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -117,7 +116,7 @@ EOF;
 
     public function testInsertAuthenticatedWithIntegration(): void
     {
-        if (FeatureConfig::isActive(FEATURE_NEXT_3722::NAME)) {
+        if (Feature::isActive('FEATURE_NEXT_3722')) {
             static::markTestSkipped('Reactivate if Integrations can have their own acls or delete if integrations are finally removed');
         }
         $id = Uuid::randomHex();
@@ -190,7 +189,7 @@ EOF;
 
     public function testOneToManyInsertWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -227,7 +226,7 @@ EOF;
 
     public function testTranslatedPropertiesWritableWithParentDefinitionPermissions(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -293,7 +292,7 @@ EOF;
 
     public function testTranslatedPropertiesNotWritableWithoutParentDefinitionPermissions(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -371,7 +370,7 @@ EOF;
 
     public function testManyToOneInsertWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $manufacturer = Uuid::randomHex();
@@ -467,7 +466,7 @@ EOF;
 
     public function testManyToManyInsertWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -633,7 +632,7 @@ EOF;
 
     public function testDeleteWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $data = [
@@ -691,7 +690,7 @@ EOF;
 
     public function testDeleteOneToManyWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $stateId = Uuid::randomHex();
@@ -800,7 +799,7 @@ EOF;
 
     public function testDeleteManyToManyWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $category = Uuid::randomHex();
@@ -992,7 +991,7 @@ EOF;
 
     public function testSearchWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1175,7 +1174,7 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithoutPermissionOnParent(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1224,7 +1223,7 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithoutPermissionOnChild(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1395,7 +1394,7 @@ EOF;
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnParent(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1440,7 +1439,7 @@ EOF;
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnChild(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1920,7 +1919,7 @@ EOF;
 
     public function testCloneEntityWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $data = [
@@ -1955,7 +1954,7 @@ EOF;
 
     public function testUpdateWithoutPermission(): void
     {
-        FeatureConfig::skipTestIfActive(FEATURE_NEXT_3722::NAME, $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $data = [

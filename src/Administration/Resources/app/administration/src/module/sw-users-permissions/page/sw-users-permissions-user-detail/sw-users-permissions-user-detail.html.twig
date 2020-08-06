@@ -131,7 +131,7 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                                             <sw-switch-field
-                                                v-if="FeatureConfig.isActive('FEATURE_NEXT_3722')"
+                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-is-admin"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                                                 :disabled="isCurrentUser"
@@ -141,7 +141,7 @@
 
                                         {% block sw_settings_user_detail_grid_content_job_title %}
                                             <sw-text-field
-                                                v-if="FeatureConfig.isActive('FEATURE_NEXT_3722')"
+                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-jobTitle"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
                                                 v-model="user.title">
@@ -150,7 +150,7 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                                             <sw-entity-multi-select
-                                                v-if="FeatureConfig.isActive('FEATURE_NEXT_3722')"
+                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-aclRoles"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                                                 v-model="user.aclRoles"

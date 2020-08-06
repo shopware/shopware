@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -44,7 +45,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use function Flag\next1797;
 
 class PluginLifecycleService
 {
@@ -150,7 +150,7 @@ class PluginLifecycleService
         }
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (next1797()) {
+        if (Feature::isActive('FEATURE_NEXT_1797')) {
             $this->executor->require($plugin->getComposerName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
@@ -269,7 +269,7 @@ class PluginLifecycleService
         );
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (next1797()) {
+        if (Feature::isActive('FEATURE_NEXT_1797')) {
             $this->executor->require($plugin->getComposerName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
@@ -576,8 +576,6 @@ class PluginLifecycleService
 
     /**
      * Takes plugin base classes and returns the corresponding entities.
-     *
-     * @param Plugin[] $plugins
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {

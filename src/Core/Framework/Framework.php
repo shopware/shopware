@@ -29,7 +29,6 @@ use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use function Flag\next10286;
 
 class Framework extends Bundle
 {
@@ -66,7 +65,7 @@ class Framework extends Bundle
         $loader->load('update.xml');
         $loader->load('seo.xml');
 
-        if (next10286()) {
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
             $loader->load('app.xml');
             $loader->load('webhook.xml');
         }

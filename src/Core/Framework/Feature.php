@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework;
 
+use PHPUnit\Framework\TestCase;
+
 class Feature
 {
     /**
@@ -9,8 +11,12 @@ class Feature
      */
     private static $registeredFeatures;
 
+    /**
+     * @internal
+     */
     public static function setRegisteredFeatures(iterable $registeredFeatures, string $dumpPath): void
     {
+        self::$registeredFeatures = [];
         foreach ($registeredFeatures as $flag) {
             $flag = self::normalizeName($flag);
             self::$registeredFeatures[$flag] = $flag;
@@ -33,7 +39,7 @@ class Feature
 
         $project = $matches[2];
         if ($project !== '') {
-            $project = $matches[2] . '_';
+            $project .= '_';
         }
 
         return strtoupper('FEATURE_' . $project . $matches[3]);
@@ -66,6 +72,38 @@ class Feature
             && $value !== 'false'
             && $value !== '0'
             && $value !== '';
+    }
+
+    public static function ifActive(string $flagName, \Closure $closure): void
+    {
+        self::isActive($flagName) && $closure();
+    }
+
+    public static function ifActiveCall(string $flagName, $object, string $methodName, ...$arguments): void
+    {
+        $closure = function () use ($object, $methodName, $arguments): void {
+            $object->{$methodName}(...$arguments);
+        };
+
+        self::ifActive($flagName, \Closure::bind($closure, $object, $object));
+    }
+
+    public static function skipTestIfInActive(string $flagName, TestCase $test): void
+    {
+        if (self::isActive($flagName)) {
+            return;
+        }
+
+        $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+    }
+
+    public static function skipTestIfActive(string $flagName, TestCase $test): void
+    {
+        if (!self::isActive($flagName)) {
+            return;
+        }
+
+        $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
     }
 
     public static function getAll(): array

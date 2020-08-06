@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -145,8 +146,14 @@ abstract class EntityDefinition
                     continue;
                 }
 
+                if ($field instanceof TranslatedField) {
+                    $fields->add($field);
+
+                    continue;
+                }
+
                 if (!$field instanceof FkField) {
-                    throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                    throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields, TranslatedFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
                 }
 
                 if (!$this->hasAssociationWithStorageName($field->getStorageName(), $new)) {

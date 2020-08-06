@@ -28,12 +28,12 @@
                                         <option value="{{ quantity }}">
                                             {{ quantity }}
                                             {% if quantity == 1 %}
-                                                {% if product.packUnit %} {{ product.packUnit }}{% endif %}
+                                                {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
                                             {% else %}
-                                                {% if product.packUnitPlural %}
-                                                    {{ product.packUnitPlural }}
-                                                {% elseif product.packUnit %}
-                                                    {{ product.packUnit }}
+                                                {% if product.translated.packUnitPlural %}
+                                                    {{ product.translated.packUnitPlural }}
+                                                {% elseif product.translated.packUnit %}
+                                                    {{ product.translated.packUnit }}
                                                 {% endif %}
                                             {% endif %}
                                         </option>

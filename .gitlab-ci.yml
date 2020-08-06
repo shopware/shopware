@@ -367,6 +367,23 @@ Storefront (Jest):
         reports:
             junit: development/build/artifacts/storefront.junit.xml
 
+Validate snippets:
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+        changes:
+            - src/**/snippet/**/*.json
+    stage: unit
+    timeout: 1h 00m
+    services:
+        -   name: mariadb:10.3
+            alias: mysql
+    script:
+        - ./psh.phar init
+        - php bin/console snippets:validate
+
 # Stage: E2E
 
 .job_template: &e2e_definition

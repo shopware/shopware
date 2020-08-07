@@ -2,7 +2,6 @@
  * These types of initializers are called in the middle of the initialization process.
  * They are not allowed to depend on another initializers to suppress circular references.
  */
-import initEntity from 'src/app/init/entity.init';
 import initComponentHelper from 'src/app/init/component-helper.init';
 import initHttpClient from 'src/app/init/http.init';
 import initRepository from 'src/app/init/repository.init';
@@ -16,7 +15,6 @@ import initLocale from 'src/app/init/locale.init';
 import initComponents from 'src/app/init/component.init';
 import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
-import initStateDeprecated from 'src/app/init/state-deprecated.init';
 
 export default {
     coreMixin: initMixin,
@@ -31,7 +29,5 @@ export default {
     repositoryFactory: initRepository,
     shortcut: initShortcut,
     httpClient: initHttpClient,
-    componentHelper: initComponentHelper,
-    entity: initEntity,
-    stateDeprecated: initStateDeprecated
+    componentHelper: initComponentHelper
 };

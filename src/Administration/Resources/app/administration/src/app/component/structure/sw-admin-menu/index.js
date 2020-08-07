@@ -1,7 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -39,10 +39,6 @@ Component.register('sw-admin-menu', {
 
         isExpanded() {
             return Shopware.State.get('adminMenu').isExpanded;
-        },
-
-        userStore() {
-            return StateDeprecated.getStore('user');
         },
 
         userTitle() {

@@ -27,7 +27,6 @@ NEXT
     * `allowInlineEdit`
     * `tooltipAdd`
     * `disableAddButton`
-
 #### Core
 
 * Changed `keyword` fields in Elasticsearch to normalize to lower case

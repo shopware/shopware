@@ -13,7 +13,6 @@ import './component/sidebar/sw-media-tag';
 import './component/sw-media-display-options';
 import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
-import './component/sw-media-modal';
 import './component/sw-media-modal-v2';
 
 const { Module } = Shopware;

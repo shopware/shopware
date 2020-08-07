@@ -1,4 +1,4 @@
-import EntityDefinition, { getScalarTypes, getJsonTypes } from 'src/core/data-new/entity-definition.data';
+import EntityDefinition, { getScalarTypes, getJsonTypes } from 'src/core/data/entity-definition.data';
 
 export default {
     getScalarTypes,

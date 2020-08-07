@@ -12,10 +12,7 @@ Component.register('sw-customer-detail-addresses', {
         Mixin.getByName('notification')
     ],
 
-    inject: [
-        'repositoryFactory',
-        'customerAddressService'
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -284,7 +281,9 @@ Component.register('sw-customer-detail-addresses', {
         },
 
         onDuplicateAddress(addressId) {
-            this.customerAddressService.clone(addressId).then(() => {
+            const addressRepository = this.repositoryFactory.create('customer_address');
+
+            addressRepository.clone(addressId, Shopware.Context.api).then(() => {
                 this.refreshList();
             });
         },

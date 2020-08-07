@@ -1,7 +1,7 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
-const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
+const { Component, Data, Mixin, State } = Shopware;
 const { Criteria } = Data;
 const types = Shopware.Utils.types;
 
@@ -37,11 +37,6 @@ Component.register('sw-users-permissions-user-listing', {
     },
 
     computed: {
-        /** @deprecated tag:6.4.0 will be removed in v.6.4.0 */
-        userStore() {
-            return StateDeprecated.getStore('user');
-        },
-
         userRepository() {
             return this.repositoryFactory.create('user');
         },

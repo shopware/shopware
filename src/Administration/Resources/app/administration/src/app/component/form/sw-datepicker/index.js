@@ -1,8 +1,12 @@
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import template from './sw-datepicker.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
+
+dayjs.extend(customParseFormat);
 
 const { Component, Mixin } = Shopware;
 
@@ -390,16 +394,16 @@ Component.register('sw-datepicker', {
         },
 
         createConfig() {
-            let dateFormat = 'Y-m-dTH:i:S+00:00';
-            let altFormat = 'Y-m-d H:i';
+            let dateFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+            let altFormat = 'YYYY-MM-DD HH:mm';
 
             if (this.dateType === 'time') {
-                dateFormat = 'H:i:S+00:00';
-                altFormat = 'H:i';
+                dateFormat = 'HH:mm:ssZ';
+                altFormat = 'HH:mm';
             }
 
             if (this.dateType === 'date') {
-                altFormat = 'Y-m-d';
+                altFormat = 'YYYY-MM-DD';
             }
 
             this.defaultConfig = {
@@ -408,7 +412,13 @@ Component.register('sw-datepicker', {
                 dateFormat,
                 altInput: true,
                 altFormat,
-                allowInput: true
+                allowInput: true,
+                parseDate: (datestr, format) => {
+                    return dayjs(datestr, format).toDate();
+                },
+                formatDate: (date, format) => {
+                    return dayjs(date).format(format);
+                }
             };
         }
 

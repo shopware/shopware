@@ -43,6 +43,7 @@
     "bottlejs": "1.7.2",
     "cookie-storage": "^6.0.0",
     "copy-webpack-plugin": "5.1.1",
+    "dayjs": "^1.8.32",
     "dompurify": "2.0.7",
     "eslint-friendly-formatter": "4.0.1",
     "flatpickr": "4.6.3",

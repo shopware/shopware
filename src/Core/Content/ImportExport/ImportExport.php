@@ -294,7 +294,9 @@ class ImportExport
         // copy final file into filesystem
         $this->filesystem->putStream($target, $tmp);
 
-        fclose($tmp);
+        if (is_resource($tmp)) {
+            fclose($tmp);
+        }
         unlink($tmpFile);
 
         foreach ($partFiles as $p) {

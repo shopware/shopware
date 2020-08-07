@@ -276,4 +276,4 @@ And then you can set your image as a preview in the theme.json:
 }
 ```
 
-**Note:** Setting a preview image is required for your theme if you want to release it through the community store.
+**Note:** Setting a preview image is required for your theme, if you want to release it via the community store.

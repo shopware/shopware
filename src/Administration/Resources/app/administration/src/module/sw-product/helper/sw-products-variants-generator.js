@@ -235,8 +235,7 @@ export default class VariantsGenerator extends EventEmitter {
                     parentId: this.product.id,
                     options: variations,
                     stock: 0,
-                    productNumber: generated.number,
-                    taxId: this.product.taxId
+                    productNumber: generated.number
                 };
 
                 variationPrice = Object.values(variationPrice);

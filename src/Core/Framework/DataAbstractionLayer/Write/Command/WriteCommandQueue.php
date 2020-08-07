@@ -167,7 +167,6 @@ class WriteCommandQueue
                 continue;
             }
 
-            /** @var string $class */
             if (!empty($commands[$class])) {
                 $dependencies[] = $class;
             }

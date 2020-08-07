@@ -85,10 +85,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('category-ids'));
 
+        /** @var TermsResult|null $categoryAgg */
         $categoryAgg = $result->get('category-ids');
         static::assertInstanceOf(TermsResult::class, $categoryAgg);
 
-        /** @var TermsResult $categoryAgg */
         static::assertCount(4, $categoryAgg->getBuckets());
         static::assertTrue($categoryAgg->has(''));
         static::assertTrue($categoryAgg->has($this->ids->get('c-1')));
@@ -139,10 +139,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('category-ids'));
 
+        /** @var TermsResult|null $categoryAgg */
         $categoryAgg = $result->get('category-ids');
         static::assertInstanceOf(TermsResult::class, $categoryAgg);
 
-        /** @var TermsResult $categoryAgg */
         static::assertCount(4, $categoryAgg->getBuckets());
         static::assertTrue($categoryAgg->has(''));
         static::assertTrue($categoryAgg->has($this->ids->get('c-1')));
@@ -367,10 +367,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('avg-price'));
 
+        /** @var AvgResult|null $avg */
         $avg = $result->get('avg-price');
         static::assertInstanceOf(AvgResult::class, $avg);
 
-        /** @var AvgResult $avg */
         static::assertSame(150.0, $avg->getAvg());
     }
 
@@ -399,10 +399,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('manufacturers'));
 
+        /** @var TermsResult|null $manufacturers */
         $manufacturers = $result->get('manufacturers');
         static::assertInstanceOf(TermsResult::class, $manufacturers);
 
-        /** @var TermsResult $manufacturers */
         static::assertTrue($manufacturers->has($this->ids->get('m-1')));
         static::assertTrue($manufacturers->has($this->ids->get('m-2')));
         static::assertTrue($manufacturers->has($this->ids->get('m-3')));
@@ -448,10 +448,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('sum-price'));
 
+        /** @var SumResult|null $sum */
         $sum = $result->get('sum-price');
         static::assertInstanceOf(SumResult::class, $sum);
 
-        /** @var SumResult $sum */
         static::assertSame(750.0, $sum->getSum());
     }
 
@@ -480,10 +480,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('manufacturers'));
 
+        /** @var TermsResult|null $manufacturers */
         $manufacturers = $result->get('manufacturers');
         static::assertInstanceOf(TermsResult::class, $manufacturers);
 
-        /** @var TermsResult $manufacturers */
         static::assertTrue($manufacturers->has($this->ids->get('m-1')));
         static::assertTrue($manufacturers->has($this->ids->get('m-2')));
         static::assertTrue($manufacturers->has($this->ids->get('m-3')));
@@ -529,10 +529,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('max-price'));
 
+        /** @var MaxResult|null $max */
         $max = $result->get('max-price');
         static::assertInstanceOf(MaxResult::class, $max);
 
-        /** @var MaxResult $max */
         static::assertEquals(250, $max->getMax());
     }
 
@@ -561,10 +561,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('manufacturers'));
 
+        /** @var TermsResult|null $manufacturers */
         $manufacturers = $result->get('manufacturers');
         static::assertInstanceOf(TermsResult::class, $manufacturers);
 
-        /** @var TermsResult $manufacturers */
         static::assertTrue($manufacturers->has($this->ids->get('m-1')));
         static::assertTrue($manufacturers->has($this->ids->get('m-2')));
         static::assertTrue($manufacturers->has($this->ids->get('m-3')));
@@ -610,10 +610,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('min-price'));
 
+        /** @var MinResult|null $min */
         $min = $result->get('min-price');
         static::assertInstanceOf(MinResult::class, $min);
 
-        /** @var MinResult $min */
         static::assertEquals(50, $min->getMin());
     }
 
@@ -642,10 +642,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('manufacturers'));
 
+        /** @var TermsResult|null $manufacturers */
         $manufacturers = $result->get('manufacturers');
         static::assertInstanceOf(TermsResult::class, $manufacturers);
 
-        /** @var TermsResult $manufacturers */
         static::assertTrue($manufacturers->has($this->ids->get('m-1')));
         static::assertTrue($manufacturers->has($this->ids->get('m-2')));
         static::assertTrue($manufacturers->has($this->ids->get('m-3')));
@@ -691,10 +691,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('count-manufacturer'));
 
+        /** @var CountResult|null $count */
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        /** @var CountResult $count */
         static::assertEquals(3, $count->getCount());
     }
 
@@ -723,10 +723,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('categories'));
 
+        /** @var TermsResult|null $categories */
         $categories = $result->get('categories');
         static::assertInstanceOf(TermsResult::class, $categories);
 
-        /** @var TermsResult $categories */
         static::assertTrue($categories->has(''));
         static::assertTrue($categories->has($this->ids->get('c-1')));
         static::assertTrue($categories->has($this->ids->get('c-2')));
@@ -773,10 +773,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('stats-price'));
 
+        /** @var StatsResult|null $stats */
         $stats = $result->get('stats-price');
         static::assertInstanceOf(StatsResult::class, $stats);
 
-        /** @var StatsResult $stats */
         static::assertEquals(50, $stats->getMin());
         static::assertEquals(250, $stats->getMax());
         static::assertEquals(150, $stats->getAvg());
@@ -808,10 +808,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('manufacturers'));
 
+        /** @var TermsResult|null $manufacturers */
         $manufacturers = $result->get('manufacturers');
         static::assertInstanceOf(TermsResult::class, $manufacturers);
 
-        /** @var TermsResult $manufacturers */
         static::assertTrue($manufacturers->has($this->ids->get('m-1')));
         static::assertTrue($manufacturers->has($this->ids->get('m-2')));
         static::assertTrue($manufacturers->has($this->ids->get('m-3')));
@@ -866,10 +866,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('manufacturers'));
 
+        /** @var EntityResult|null $manufacturers */
         $manufacturers = $result->get('manufacturers');
         static::assertInstanceOf(EntityResult::class, $manufacturers);
 
-        /** @var EntityResult $manufacturers */
         static::assertCount(3, $manufacturers->getEntities());
         static::assertInstanceOf(ProductManufacturerCollection::class, $manufacturers->getEntities());
         static::assertTrue($manufacturers->getEntities()->has($this->ids->get('m-1')));
@@ -902,10 +902,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('categories'));
 
+        /** @var TermsResult|null $categories */
         $categories = $result->get('categories');
         static::assertInstanceOf(TermsResult::class, $categories);
 
-        /** @var TermsResult $categories */
         static::assertTrue($categories->has(''));
         static::assertTrue($categories->has($this->ids->get('c-1')));
         static::assertTrue($categories->has($this->ids->get('c-2')));
@@ -1004,10 +1004,10 @@ class EntityAggregatorTest extends TestCase
 
         static::assertTrue($result->has('release-histogram'));
 
+        /** @var DateHistogramResult|null $histogram */
         $histogram = $result->get('release-histogram');
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-        /** @var DateHistogramResult $histogram */
         static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
 
         foreach ($case->getBuckets() as $key => $count) {

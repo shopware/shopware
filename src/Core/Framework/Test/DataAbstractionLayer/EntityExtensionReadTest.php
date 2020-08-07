@@ -150,16 +150,16 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAssociation('manyToOne');
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        /** @var ProductEntity $product */
         static::assertSame($productId, $product->getId());
 
         static::assertTrue($product->hasExtension('manyToOne'));
+        /** @var ArrayEntity|null $extension */
         $extension = $product->getExtension('manyToOne');
 
-        /** @var ArrayEntity $extension */
         static::assertInstanceOf(ArrayEntity::class, $extension);
         static::assertEquals($extendableId, $extension->get('id'));
 

@@ -119,7 +119,6 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('auth_required')
                     ->defaultTrue()
                 ->end()
-            ->end()
             ->end();
 
         return $rootNode;

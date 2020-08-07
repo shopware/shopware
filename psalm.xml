@@ -77,6 +77,13 @@
 
         <LessSpecificImplementedReturnType errorLevel="info"/>
 
+        <UnusedMethodCall>
+            <errorLevel type="info">
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeDefinition::end"/>
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
+            </errorLevel>
+        </UnusedMethodCall>
+
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>
             <errorLevel type="info">

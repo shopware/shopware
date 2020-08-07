@@ -42,10 +42,10 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
         $this->createProduct($data);
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        /** @var ProductEntity $product */
         static::assertContains($data->get('red'), $product->getPropertyIds());
         static::assertNotContains($data->create('yellow'), $product->getPropertyIds());
         static::assertContains($data->get('green'), $product->getPropertyIds());
@@ -55,10 +55,10 @@ class ManyToManyIdFieldIndexerTest extends TestCase
             $data->getContext()
         );
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        /** @var ProductEntity $product */
         static::assertNotContains($data->get('red'), $product->getPropertyIds());
         static::assertNotContains($data->get('yellow'), $product->getPropertyIds());
         static::assertContains($data->get('green'), $product->getPropertyIds());
@@ -68,10 +68,10 @@ class ManyToManyIdFieldIndexerTest extends TestCase
             $data->getContext()
         );
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        /** @var ProductEntity $product */
         static::assertContains($data->get('red'), $product->getPropertyIds());
         static::assertNotContains($data->get('yellow'), $product->getPropertyIds());
         static::assertContains($data->get('green'), $product->getPropertyIds());
@@ -88,10 +88,10 @@ class ManyToManyIdFieldIndexerTest extends TestCase
             $data->getContext()
         );
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
-        /** @var ProductEntity $product */
         static::assertContains($data->get('red'), $product->getPropertyIds());
         static::assertContains($data->get('yellow'), $product->getPropertyIds());
         static::assertContains($data->get('green'), $product->getPropertyIds());
@@ -103,11 +103,11 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 
         $this->createProduct($data);
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         // product is created with red and green, assert both ids are inside the many to many id field
         static::assertInstanceOf(ProductEntity::class, $product);
-        /** @var ProductEntity $product */
         static::assertCount(2, $product->getPropertyIds());
         static::assertContains($data->get('red'), $product->getPropertyIds());
         static::assertContains($data->get('green'), $product->getPropertyIds());
@@ -118,11 +118,11 @@ class ManyToManyIdFieldIndexerTest extends TestCase
             ['productId' => $data->get('product'), 'optionId' => $data->get('green')],
         ], $data->getContext());
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertNull($product->getPropertyIds());
 
         // test re-assignment
@@ -131,11 +131,11 @@ class ManyToManyIdFieldIndexerTest extends TestCase
             ['productId' => $data->get('product'), 'optionId' => $data->get('green')],
         ], $data->getContext());
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search(new Criteria([$data->get('product')]), $data->getContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertCount(2, $product->getPropertyIds());
         static::assertContains($data->get('red'), $product->getPropertyIds());
         static::assertContains($data->get('green'), $product->getPropertyIds());

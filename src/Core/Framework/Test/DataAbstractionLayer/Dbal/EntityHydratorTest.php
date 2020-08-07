@@ -59,22 +59,22 @@ class EntityHydratorTest extends TestCase
         $structs = $hydrator->hydrate(new EntityCollection(), ArrayEntity::class, $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
+        /** @var ArrayEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(ArrayEntity::class, $first);
 
-        /** @var ArrayEntity $first */
         static::assertSame('test', $first->get('name'));
 
         static::assertSame(Uuid::fromBytesToHex($id), $first->get('id'));
         static::assertSame(Uuid::fromBytesToHex($normal), $first->get('normalFk'));
 
         static::assertTrue($first->hasExtension(EntityReader::FOREIGN_KEYS));
+        /** @var ArrayStruct|null $foreignKeys */
         $foreignKeys = $first->getExtension(EntityReader::FOREIGN_KEYS);
 
         static::assertInstanceOf(ArrayStruct::class, $foreignKeys);
 
-        /** @var ArrayEntity $foreignKeys */
         static::assertTrue($foreignKeys->has('extendedFk'));
         static::assertSame(Uuid::fromBytesToHex($extended), $foreignKeys->get('extendedFk'));
     }

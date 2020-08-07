@@ -49,6 +49,7 @@ NEXT
 * Deprecated block `sw_product_detail_properties_empty_state_text_empty` in `sw-product-detail-properties` component.
 * Added prop `salesChannelId` to `sw-order-line-items-grid-sales-channel/index.js`
 * Added prop `salesChannelId` to `sw-order-product-select/index.js`
+* Changed tax id of newly generated variants to null in order to inherit from the parent product
 
 #### Core
 

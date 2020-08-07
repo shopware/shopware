@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Administration\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -34,16 +35,23 @@ class AdministrationController extends AbstractController
 
     private $supportedApiVersions;
 
+    /**
+     * @var KnownIpsCollectorInterface
+     */
+    private $knownIpsCollector;
+
     public function __construct(
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,
         SnippetFinderInterface $snippetFinder,
-        $supportedApiVersions
+        $supportedApiVersions,
+        KnownIpsCollectorInterface $knownIpsCollector
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
         $this->snippetFinder = $snippetFinder;
         $this->supportedApiVersions = $supportedApiVersions;
+        $this->knownIpsCollector = $knownIpsCollector;
     }
 
     /**
@@ -80,6 +88,24 @@ class AdministrationController extends AbstractController
         }
 
         return new JsonResponse($snippets);
+    }
+
+    /**
+     * @RouteScope(scopes={"administration"})
+     * @Route("/api/v{version}/_admin/known-ips", name="api.admin.known-ips", methods={"GET"})
+     */
+    public function knownIps(Request $request): Response
+    {
+        $ips = [];
+
+        foreach ($this->knownIpsCollector->collectIps($request) as $ip => $name) {
+            $ips[] = [
+                'name' => $name,
+                'value' => $ip,
+            ];
+        }
+
+        return new JsonResponse(['ips' => $ips]);
     }
 
     private function getLatestApiVersion(): int

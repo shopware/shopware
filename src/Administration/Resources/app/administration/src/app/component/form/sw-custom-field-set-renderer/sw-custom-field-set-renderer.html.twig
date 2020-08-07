@@ -1,6 +1,6 @@
 {% block sw_custom_field_set_renderer %}
     <div class="sw-custom-field-set-renderer">
-        <template v-if="next9225 && customFieldSetSelectionAvailable">
+        <template v-if="customFieldSetSelectionAvailable">
             <sw-inherit-wrapper
                 v-model="entity.customFieldSetSelectionActive"
                 class="sw-custom-field-set-renderer__custom-field-set-selection-switch"
@@ -90,6 +90,7 @@
                                             <sw-inherit-wrapper v-if="entity"
                                                                 v-model="entity.customFields[customField.name]"
                                                                 :hasParent="hasParent"
+                                                                :required="customField.config.validation === 'required'"
                                                                 :inheritedValue="getInheritedCustomField(customField.name)"
                                                                 :helpText="getInlineSnippet(customField.config.helpText)"
                                                                 :label="getInlineSnippet(customField.config.label)">

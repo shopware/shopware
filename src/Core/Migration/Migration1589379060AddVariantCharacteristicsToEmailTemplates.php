@@ -27,7 +27,7 @@ class Migration1589379060AddVariantCharacteristicsToEmailTemplates extends Migra
             $deLangId,
             $this->getOrderConfirmationHtmlTemplateEn(),
             $this->getOrderConfirmationPlainTemplateEn(),
-            $this->getOrderConfirmationHtmlTemplateDe(),
+            $this->getOrderConfirmationHTMLTemplateDe(),
             $this->getOrderConfirmationPlainTemplateDe()
         );
     }

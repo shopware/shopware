@@ -14,6 +14,11 @@ class HoneypotCaptcha extends AbstractCaptcha
     public const CAPTCHA_REQUEST_PARAMETER = 'shopware_surname_confirm';
 
     /**
+     * @var string
+     */
+    protected $honeypotValue;
+
+    /**
      * @var ValidatorInterface
      */
     private $validator;
@@ -22,11 +27,6 @@ class HoneypotCaptcha extends AbstractCaptcha
      * @var SystemConfigService
      */
     private $systemConfigService;
-
-    /**
-     * @var string
-     */
-    private $honeypotValue;
 
     public function __construct(ValidatorInterface $validator, SystemConfigService $systemConfigService)
     {

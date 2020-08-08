@@ -13,7 +13,6 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Symfony\Contracts\Cache\CacheInterface;
 
 class ThemeService
 {
@@ -41,11 +40,6 @@ class ThemeService
      * @var ThemeCompilerInterface
      */
     private $themeCompiler;
-
-    /**
-     * @var CacheInterface
-     */
-    private $cache;
 
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,

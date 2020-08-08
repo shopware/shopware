@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Currency;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -17,16 +16,6 @@ class CurrencyValidator implements EventSubscriberInterface
     public const VIOLATION_DELETE_DEFAULT_CURRENCY = 'delete_default_currency_violation';
 
     public const DEFAULT_CURRENCIES = [Defaults::CURRENCY];
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
 
     public static function getSubscribedEvents(): array
     {

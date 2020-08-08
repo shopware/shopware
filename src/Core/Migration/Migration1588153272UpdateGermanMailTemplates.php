@@ -27,7 +27,7 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
             $connection,
             $deLangId,
-            $this->getOrderConfirmationHtmlTemplateDe(),
+            $this->getOrderConfirmationHTMLTemplateDe(),
             $this->getOrderConfirmationPlainTemplateDe()
         );
 
@@ -60,7 +60,7 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED,
             $connection,
             $deLangId,
-            $this->getDeliveryShippedHtmlTemplateDe(),
+            $this->getDeliveryShippedHTMLTemplateDe(),
             $this->getDeliveryShippedPlainTemplateDe()
         );
 

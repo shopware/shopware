@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Demodata;
 
-use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
@@ -47,17 +46,11 @@ class DemodataContext
     private $projectDir;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var DefinitionInstanceRegistry
      */
     private $registry;
 
     public function __construct(
-        Connection $connection,
         Context $context,
         Generator $faker,
         string $projectDir,
@@ -68,7 +61,6 @@ class DemodataContext
         $this->faker = $faker;
         $this->projectDir = $projectDir;
         $this->console = $console;
-        $this->connection = $connection;
         $this->registry = $registry;
     }
 

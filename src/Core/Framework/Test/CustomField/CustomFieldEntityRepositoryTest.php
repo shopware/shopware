@@ -100,7 +100,7 @@ class CustomFieldEntityRepositoryTest extends TestCase
         static::assertEquals($this->basicColor, $product->getCustomFields()['swag_backpack_color']);
     }
 
-    private function createProduct($productId): void
+    private function createProduct(string $productId): void
     {
         $data = [
             'id' => $productId,
@@ -116,14 +116,14 @@ class CustomFieldEntityRepositoryTest extends TestCase
         $this->repository->create([$data], $this->context);
     }
 
-    private function getProduct($productId): ProductEntity
+    private function getProduct(string $productId): ProductEntity
     {
         return $this->repository
             ->search(new Criteria([$productId]), $this->context)
             ->get($productId);
     }
 
-    private function createBasicCustomFields($productId): void
+    private function createBasicCustomFields(string $productId): void
     {
         $this->repository->update([[
             'id' => $productId,

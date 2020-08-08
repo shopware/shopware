@@ -185,8 +185,8 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
         string $mailTemplateType,
         Connection $connection,
         string $deLangId,
-        $getHtmlTemplateDe,
-        $getPlainTemplateDe
+        string $getHtmlTemplateDe,
+        string $getPlainTemplateDe
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
 

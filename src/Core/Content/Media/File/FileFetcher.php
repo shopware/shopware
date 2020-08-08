@@ -170,6 +170,10 @@ class FileFetcher
         return $inputStream;
     }
 
+    /**
+     * @param resource|string $sourceStream
+     * @param resource        $destStream
+     */
     private function copyStreams($sourceStream, $destStream): int
     {
         $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);

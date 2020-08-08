@@ -271,7 +271,7 @@ class EntityHydratorTest extends TestCase
         );
     }
 
-    private function createContext($inheritance = true): Context
+    private function createContext(bool $inheritance = true): Context
     {
         $rootLanguageId = Uuid::randomHex();
         $this->addLanguage($rootLanguageId, null);

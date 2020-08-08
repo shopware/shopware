@@ -236,10 +236,10 @@ class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
         Connection $connection,
         ?string $enLangId,
         ?string $deLangId,
-        $getHtmlTemplateEn,
-        $getPlainTemplateEn,
-        $getHtmlTemplateDe,
-        $getPlainTemplateDe
+        string $getHtmlTemplateEn,
+        string $getPlainTemplateEn,
+        string $getHtmlTemplateDe,
+        string $getPlainTemplateDe
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
 

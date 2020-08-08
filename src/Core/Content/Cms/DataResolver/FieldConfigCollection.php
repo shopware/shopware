@@ -21,6 +21,10 @@ class FieldConfigCollection extends Collection
         $this->set($element->getName(), $element);
     }
 
+    /**
+     * @param string|int  $key
+     * @param FieldConfig $element
+     */
     public function set($key, $element): void
     {
         parent::set($element->getName(), $element);

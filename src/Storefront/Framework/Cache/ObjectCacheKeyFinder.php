@@ -58,7 +58,7 @@ class ObjectCacheKeyFinder
         return array_filter(array_keys(array_flip($keys)));
     }
 
-    private function loop($data, SalesChannelContext $context, $skipContext = true): array
+    private function loop($data, SalesChannelContext $context, bool $skipContext = true): array
     {
         $keys = [];
         foreach ($data as $item) {

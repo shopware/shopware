@@ -167,7 +167,7 @@ class SwSanitizeTwigFilter extends AbstractExtension
         return $config;
     }
 
-    private function getConfig($options, bool $override): \HTMLPurifier_Config
+    private function getConfig(array $options, bool $override): \HTMLPurifier_Config
     {
         $config = $this->getBaseConfig();
 

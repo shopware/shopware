@@ -56,7 +56,7 @@ class ErrorResponseFactory
         return $exception instanceof OAuthServerException ? $exception->getHttpHeaders() : [];
     }
 
-    private function convertExceptionToError(\Throwable $exception, $debug = false): array
+    private function convertExceptionToError(\Throwable $exception, bool $debug = false): array
     {
         $statusCode = $this->getStatusCodeFromException($exception);
 

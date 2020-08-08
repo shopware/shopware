@@ -36,7 +36,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
         // implement update destructive
     }
 
-    private function isMigrationAllowed($connection): bool
+    private function isMigrationAllowed(Connection $connection): bool
     {
         $count = (int) $connection->executeQuery('SELECT COUNT(id) FROM tax WHERE tax_rate IN (7, 19) AND updated_at IS NULL')->fetchColumn();
 

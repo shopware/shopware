@@ -635,7 +635,7 @@ class PluginLifecycleServiceTest extends TestCase
         return $id;
     }
 
-    private function setNewSystemLanguage($iso): void
+    private function setNewSystemLanguage(string $iso): void
     {
         $languageRepository = $this->getContainer()->get('language.repository');
 

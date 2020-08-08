@@ -22,6 +22,10 @@ class CalculatedTaxCollection extends Collection
         $this->set($this->getKey($calculatedTax), $calculatedTax);
     }
 
+    /**
+     * @param string|int    $key
+     * @param CalculatedTax $calculatedTax
+     */
     public function set($key, $calculatedTax): void
     {
         parent::set($this->getKey($calculatedTax), $calculatedTax);

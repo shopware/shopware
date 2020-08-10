@@ -210,6 +210,12 @@ function resolveTemplates() {
     componentTemplates.forEach(item => {
         let templateDefinition = resolveExtendsComponent(item);
 
+        // extended component was not found
+        if (!templateDefinition) {
+            normalizedTemplateRegistry.delete(item.name);
+            return;
+        }
+
         templateDefinition = {
             ...templateDefinition,
             html: ''
@@ -292,6 +298,10 @@ function applyTemplateOverrides(name) {
  * @returns {Object} | undefined
  */
 function resolveTokens(tokens, overrideTokens) {
+    if (!tokens) {
+        return [];
+    }
+
     return tokens.reduce((acc, token) => {
         if (token.type !== 'logic' || !token.token || !token.token.block) {
             return [...acc, token];
@@ -446,19 +456,27 @@ function resolveToken(token, itemTokens, name) {
 /**
  * Resolves the extend chain for a given component
  * @param {Object} item
- * @returns {Object}
+ * @returns {null|Object}
  */
 function resolveExtendsComponent(item) {
-    item = { ...item, template: buildTwigTemplateInstance(item.name, item.raw) };
+    if (!item) {
+        return null;
+    }
 
     if (item.extend) {
-        item = {
+        const extend = resolveExtendsComponent(templateRegistry.get(item.extend));
+        if (!extend) {
+            return null;
+        }
+
+        return {
             ...item,
-            extend: resolveExtendsComponent(templateRegistry.get(item.extend))
+            template: buildTwigTemplateInstance(item.name, item.raw),
+            extend
         };
     }
 
-    return item;
+    return { ...item, template: buildTwigTemplateInstance(item.name, item.raw) };
 }
 
 /**
@@ -541,13 +559,14 @@ function getTemplateOverrides(componentName) {
  * Returns the rendered markup for the component template including all template overrides.
  *
  * @param componentName
- * @returns {string}
+ * @returns {null|string}
  */
 function getRenderedTemplate(componentName) {
-    if (!normalizedTemplateRegistry.has(componentName)) {
-        return '';
+    const componentTemplate = normalizedTemplateRegistry.get(componentName);
+
+    if (!componentTemplate) {
+        return null;
     }
 
-    const componentTemplate = normalizedTemplateRegistry.get(componentName);
     return componentTemplate.html;
 }

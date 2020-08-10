@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+.sw-settings-price-rounding {
+    .sw-settings-price-rounding__headline {
+        font-size: 16px;
+        color: $color-darkgray-200;
+        margin: 0 0 10px 0;
+        font-weight: $font-weight-bold;
+    }
+
+    .sw-settings-price-rounding__info-text {
+        margin-bottom: 22px;
+    }
+
+    .sw-settings-price-rounding__round-for-net-checkbox {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .sw-settings-price-rounding__rounding-container {
+        .sw-field {
+            margin-bottom: 24px;
+        }
+    }
+
+    .sw-settings-price-rounding__spacer {
+        margin: 0 0 20px 0;
+        border: none;
+        height: 1px;
+        background-color: $color-gray-300;
+    }
+}

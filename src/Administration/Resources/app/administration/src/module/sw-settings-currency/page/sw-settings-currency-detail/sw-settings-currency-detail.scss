@@ -1,0 +1,21 @@
+.sw-settings-currency-detail {
+    .sw-settings-currency-detail__currency-country-toolbar {
+        display: flex;
+
+        .sw-card-filter {
+            flex-grow: 1;
+        }
+
+        .sw-settings-currency-detail__currency-country-toolbar-button {
+            margin-left: 22px;
+        }
+    }
+
+    .sw-settings-currency-detail__currency-country-empty-state {
+        position: relative;
+    }
+
+    .sw-card-filter .sw-card-filter-container .sw-simple-search-field__input input {
+        padding: 0 20px;
+    }
+}

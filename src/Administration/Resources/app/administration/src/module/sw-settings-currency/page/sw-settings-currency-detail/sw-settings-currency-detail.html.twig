@@ -50,7 +50,9 @@
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card %}
-                    <sw-card :title="$tc('sw-settings-currency.detail.titleCard')">
+                    <sw-card
+                        :isLoading="isLoading"
+                        :title="$tc('sw-settings-currency.detail.titleCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
 
                             {% block sw_settings_currency_detail_content_field_name %}
@@ -106,6 +108,7 @@
 
                             {% block sw_settings_currency_detail_content_field_decimal_precision %}
                                 <sw-field type="number"
+                                          v-if="!next6059"
                                           required
                                           :label="$tc('sw-settings-currency.detail.labelPrecision')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderPrecision')"
@@ -115,6 +118,89 @@
                             {% endblock %}
                         </sw-container>
                     </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_currency_detail_content_card_price_rounding %}
+                    <sw-card
+                        v-if="next6059"
+                        :isLoading="isLoading"
+                        :title="$tc('sw-settings-currency.detail.titleRoundingCard')">
+                        <sw-settings-price-rounding
+                            :itemRounding="currency.itemRounding"
+                            :totalRounding="currency.totalRounding">
+                        </sw-settings-price-rounding>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_currency_detail_content_card_country_price_rounding %}
+                    <sw-card
+                        :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
+                        :isLoading="currencyCountryLoading"
+                        v-if="next6059">
+                        <template #toolbar>
+                            {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
+                                <div class="sw-settings-currency-detail__currency-country-toolbar">
+                                    {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter %}
+                                        <sw-card-filter
+                                            :placeholder="$tc('sw-settings-currency.detail.searchbarPlaceholder')"
+                                            @sw-card-filter-term-change="onChangeCountrySearch">
+                                        </sw-card-filter>
+                                    {% endblock %}
+                                    {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
+                                        <sw-button
+                                            variant="ghost"
+                                            class="sw-settings-currency-detail__currency-country-toolbar-button"
+                                            @click="onAddCountry"
+                                            size="small">
+                                            {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </template>
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing %}
+                            <sw-entity-listing
+                                v-if="!currencyCountryLoading && currencyCountryRoundings && currencyCountryRoundings.length > 0"
+                                :fullPage="false"
+                                :items="currencyCountryRoundings"
+                                :columns="currencyCountryColumns"
+                                :repository="currencyCountryRoundingRepository">
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}
+                                    <template #column-country="{ item }">
+                                        <a href="#" @click="onClickEdit(item)">
+                                            {{ item.country.name }}
+                                        </a>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_more_actions %}
+                                    <template #more-actions="{ item }">
+                                            <sw-context-menu-item @click="onClickEdit(item)">
+                                                {{ $tc('global.default.edit') }}
+                                            </sw-context-menu-item>
+                                    </template>
+                                {% endblock %}
+
+                            </sw-entity-listing>
+                        {% endblock %}
+
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_empty %}
+                            <sw-empty-state
+                                v-else
+                                class="sw-settings-currency-detail__currency-country-empty-state"
+                                title=""
+                                :subline="$tc('sw-settings-currency.detail.emptyCountryRoundings')">
+                            </sw-empty-state>
+                        {% endblock %}
+                    </sw-card>
+                    {% block sw_settings_currency_detail_content_card_country_price_rounding_modal %}
+                        <sw-settings-currency-country-modal
+                            :currencyCountryRounding="currentCurrencyCountry"
+                            v-if="currentCurrencyCountry"
+                            @save="onSaveCurrencyCountry"
+                            @edit-cancel="onCancelEditCountry">
+                        </sw-settings-currency-country-modal>
+                    {% endblock %}
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

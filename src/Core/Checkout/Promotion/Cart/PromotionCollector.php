@@ -356,13 +356,19 @@ class PromotionCollector implements CartDataCollectorInterface
                 continue;
             }
 
+            $factor = 1.0;
+            if (!$context->getCurrency()->getIsSystemDefault()) {
+                $factor = $context->getCurrency()->getFactor();
+            }
+
             /* @var LineItem $discountItem */
             $discountItem = $this->itemBuilder->buildDiscountLineItem(
                 $code,
                 $promotion,
                 $discount,
                 $context->getContext()->getCurrencyPrecision(),
-                $context->getCurrency()->getId()
+                $context->getCurrency()->getId(),
+                $factor
             );
 
             $lineItems[] = $discountItem;

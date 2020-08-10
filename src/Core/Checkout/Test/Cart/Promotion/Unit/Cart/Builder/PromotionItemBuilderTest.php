@@ -62,6 +62,8 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testLineItemType(): void
     {
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
@@ -70,7 +72,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
 
         static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
@@ -92,13 +94,15 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
 
         static::assertEquals('D5', $item->getId());
     }
@@ -118,12 +122,14 @@ class PromotionItemBuilderTest extends TestCase
     public function testLineItemReferenceId(): void
     {
         $discount = new PromotionDiscountEntity();
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
         $discount->setValue(50);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
-        $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 1, 'C1');
+        $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 1, 'C1', $currencyFactor);
 
         static::assertEquals('individual-123', $item->getReferencedId());
     }
@@ -143,6 +149,8 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
@@ -150,7 +158,7 @@ class PromotionItemBuilderTest extends TestCase
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
         $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
 
         $expectedPriceDefinition = new PercentagePriceDefinition(-10, $precision, null);
 
@@ -172,6 +180,8 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
@@ -180,9 +190,9 @@ class PromotionItemBuilderTest extends TestCase
 
         /** @var int $precision */
         $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
 
-        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, $precision, null);
+        $expectedPriceDefinition = new AbsolutePriceDefinition(-50 * $currencyFactor, $precision, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -196,6 +206,8 @@ class PromotionItemBuilderTest extends TestCase
     public function testDiscountTargetFilter(): void
     {
         $builder = new PromotionItemBuilder();
+
+        $currencyFactor = mt_rand() / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -220,7 +232,7 @@ class PromotionItemBuilderTest extends TestCase
         $expectedRule = new OrRule();
         $expectedRule->addRule($discountFilter);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
 
         static::assertEquals($expectedRule, $item->getPriceDefinition()->getFilter());
     }
@@ -233,6 +245,8 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testDiscountTargetFilterIfDiscountRulesShouldBeIgnored(): void
     {
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $builder = new PromotionItemBuilder();
 
         $discount = new PromotionDiscountEntity();
@@ -255,7 +269,7 @@ class PromotionItemBuilderTest extends TestCase
         $ruleCollection->add($discountRuleEntity);
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
 
         static::assertNull($item->getPriceDefinition()->getFilter());
     }
@@ -270,6 +284,8 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
+        $currencyFactor = mt_rand() / mt_getrandmax();
+
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
@@ -280,7 +296,7 @@ class PromotionItemBuilderTest extends TestCase
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
 
-        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1');
+        $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 1, 'C1', $currencyFactor);
 
         static::assertNull($item->getPriceDefinition()->getFilter());
     }
@@ -295,6 +311,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
+        $currencyFactor = mt_rand() / mt_getrandmax();
         $standardDiscountValue = 50;
         $currencyDiscountValue = 10;
 
@@ -323,13 +340,113 @@ class PromotionItemBuilderTest extends TestCase
         /** @var int $precision */
         $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
 
-        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'C1');
+        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'C1', $currencyFactor);
 
         $expectedPrice = -1 * $currencyDiscountValue;
 
         $expectedPriceDefinition = new AbsolutePriceDefinition($expectedPrice, $precision, null);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
+    }
+
+    /**
+     * This test verifies that the currency price is calculated by factor if currency couldn't be found in
+     * advanced discount prices.
+     *
+     * @group promotions
+     */
+    public function testDiscountCurrencyCustomPricesMissingAdvancedPrice(): void
+    {
+        $builder = new PromotionItemBuilder();
+
+        $currencyFactor = mt_rand() / mt_getrandmax();
+        $standardDiscountValue = 50;
+        $currencyDiscountValue = 10;
+
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+        $discount->setValue($standardDiscountValue);
+        $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+
+        $currency = new CurrencyEntity();
+        $currency->setId('C1');
+
+        $advancedPrice = new PromotionDiscountPriceEntity();
+        $advancedPrice->setUniqueIdentifier(Uuid::randomHex());
+        $advancedPrice->setCurrency($currency);
+        $advancedPrice->setCurrencyId($currency->getId());
+        $advancedPrice->setPrice($currencyDiscountValue);
+
+        $advancedPricesCollection = new PromotionDiscountPriceCollection([]);
+        $advancedPricesCollection->add($advancedPrice);
+
+        $discount->setPromotionDiscountPrices($advancedPricesCollection);
+
+        $this->salesChannelContext->method('getCurrency')->willReturn($currency);
+
+        /** @var int $precision */
+        $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
+
+        $item = $builder->buildDiscountLineItem('code', $this->promotion, $discount, $precision, 'D1', $currencyFactor);
+
+        $expectedPrice = -1 * $standardDiscountValue * $currencyFactor;
+
+        $expectedPriceDefinition = new AbsolutePriceDefinition($expectedPrice, $precision, null);
+
+        static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
+    }
+
+    /**
+     * This test verifies that we have a backward compatibility.
+     * Our currency factors is optional and should have 1.0 as default
+     * if not provided as argument.
+     * We just build a new discount line item and make sure the price
+     * definition has our price * 1.0 as factor...so just the original price :)
+     * Please note that factors and absolute price definitions will only
+     * be available on "amount" discounts...so no percentage...
+     *
+     * @group promotions
+     * @dataProvider getDefaultCurrencyDataProvider
+     *
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
+     */
+    public function testDefaultCurrencyFactor($type): void
+    {
+        $discount = new PromotionDiscountEntity();
+        $discount->setId('D5');
+        $discount->setType($type);
+        $discount->setValue(50);
+        $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
+
+        $builder = new PromotionItemBuilder();
+
+        $item = $builder->buildDiscountLineItem(
+            '',
+            $this->promotion,
+            $discount,
+            $this->salesChannelContext->getContext()->getCurrencyPrecision(),
+            'C1'
+        );
+
+        /** @var AbsolutePriceDefinition $definition */
+        $definition = $item->getPriceDefinition();
+
+        static::assertEquals(-50, $definition->getPrice());
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getDefaultCurrencyDataProvider(): array
+    {
+        return [
+            'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE],
+            'fixed' => [PromotionDiscountEntity::TYPE_FIXED],
+            'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT],
+        ];
     }
 
     /**

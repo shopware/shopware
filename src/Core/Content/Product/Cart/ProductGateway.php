@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function Flag\ifNext6997Call;
 
 class ProductGateway implements ProductGatewayInterface
 {
@@ -26,9 +25,8 @@ class ProductGateway implements ProductGatewayInterface
         $criteria->setTitle('cart::products');
         $criteria->addAssociation('cover');
         $criteria->addAssociation('options.group');
-
-        ifNext6997Call($criteria, 'addAssociation', 'featureSet');
-        ifNext6997Call($criteria, 'addAssociation', 'properties.group');
+        $criteria->addAssociation('featureSet');
+        $criteria->addAssociation('properties.group');
 
         /** @var ProductCollection $result */
         $result = $this->repository->search($criteria, $context)->getEntities();

@@ -130,12 +130,6 @@ Component.register('sw-settings-product-feature-sets-detail', {
                         params: { id: this.productFeatureSet.id }
                     });
                 }
-
-                this.productFeatureSetsRepository.get(this.productFeatureSet.id, Shopware.Context.api)
-                    .then((updatedProductFeatureSet) => {
-                        this.productFeatureSet = updatedProductFeatureSet;
-                        this.isLoading = false;
-                    });
             }).catch(() => {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),

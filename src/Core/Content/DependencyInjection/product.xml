@@ -100,12 +100,10 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition">
             <tag name="shopware.entity.definition" entity="product_feature_set"/>
-            <tag name="shopware.feature" flag="next6997"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationDefinition">
             <tag name="shopware.entity.definition" entity="product_feature_set_translation"/>
-            <tag name="shopware.feature" flag="next6997"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductGateway">

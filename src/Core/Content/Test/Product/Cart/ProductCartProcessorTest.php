@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use function Flag\skipTestNext6997;
 
 class ProductCartProcessorTest extends TestCase
 {
@@ -137,8 +136,6 @@ class ProductCartProcessorTest extends TestCase
 
     public function testPayloadContainsFeatures(): void
     {
-        skipTestNext6997($this);
-
         $this->createProduct();
 
         $cart = $this->getProductCart();
@@ -152,8 +149,6 @@ class ProductCartProcessorTest extends TestCase
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
-        skipTestNext6997($this);
-
         $this->createLanguage(self::TEST_LANGUAGE_ID);
 
         if ($testedFeature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {

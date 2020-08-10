@@ -8,8 +8,6 @@ import 'src/app/component/data-grid/sw-data-grid';
 
 const { Mixin } = Shopware;
 
-// TODO: Remove skip from tests, once the FEATURE_NEXT_6997 flag is removed
-
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list', () => {
     let wrapper;
 
@@ -138,15 +136,15 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         wrapper.destroy();
     });
 
-    it.skip('should be able to instantiate', () => {
+    it('should be able to instantiate', () => {
         expect(wrapper.isVueInstance()).toBeTruthy();
     });
 
-    it.skip('has the correct class', () => {
+    it('has the correct class', () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it.skip('should show a list of featuresets', () => {
+    it('should show a list of featuresets', () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const list = findSecure(root, `.${classes.featureSetList}`);
         const listBody = findSecure(root, `.${classes.featureSetListBody}`);

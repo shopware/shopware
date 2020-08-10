@@ -69,7 +69,7 @@ class GrossPriceCalculator
 
     private function getUnitPrice(QuantityPriceDefinition $definition): float
     {
-        //unit price already calculated?
+        //item price already calculated?
         if ($definition->isCalculated()) {
             return $definition->getPrice();
         }

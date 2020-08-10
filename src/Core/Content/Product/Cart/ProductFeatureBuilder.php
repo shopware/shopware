@@ -18,7 +18,6 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function Flag\next6997;
 
 class ProductFeatureBuilder
 {
@@ -40,20 +39,12 @@ class ProductFeatureBuilder
 
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
-        if (!next6997()) {
-            return;
-        }
-
         $this->loadSystemLanguage($data, $context->getContext());
         $this->loadCustomFields($lineItems, $data, $context->getContext());
     }
 
     public function add(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
-        if (!next6997()) {
-            return;
-        }
-
         foreach ($lineItems as $lineItem) {
             $product = $data->get('product-' . $lineItem->getReferencedId());
 
@@ -121,7 +112,7 @@ class ProductFeatureBuilder
      * loadSystemLanguage fetches the system language and is only needed for being able to read these labels
      * later on.
      *
-     * @see https://jira.shopware.com/browse/NEXT-9321
+     * @see https://issues.shopware.com/issues/NEXT-9321
      */
     private function loadSystemLanguage(CartDataCollection $data, Context $context): void
     {

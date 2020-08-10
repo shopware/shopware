@@ -9,8 +9,6 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
-// TODO: Remove skip from tests, once the FEATURE_NEXT_6997 flag is removed
-
 describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-detail', () => {
     let wrapper;
 
@@ -106,15 +104,15 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         wrapper.destroy();
     });
 
-    it.skip('should be able to instantiate', () => {
+    it('should be able to instantiate', () => {
         expect(wrapper.isVueInstance()).toBeTruthy();
     });
 
-    it.skip('has the correct class', () => {
+    it('has the correct class', () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it.skip('should show the name field', () => {
+    it('should show the name field', () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const nameField = findSecure(root, { name: components.nameField });
         const nameFieldLabel = findSecure(nameField, `.${classes.fieldLabel}`);
@@ -123,7 +121,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(nameField.props().placeholder).toEqual(text.placeholderNameField);
     });
 
-    it.skip('should show the description field', () => {
+    it('should show the description field', () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const descriptionField = findSecure(root, { name: components.descriptionField });
         const descriptionFieldLabel = findSecure(descriptionField, `.${classes.fieldLabel}`);

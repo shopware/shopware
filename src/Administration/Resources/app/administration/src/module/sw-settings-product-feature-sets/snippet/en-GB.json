@@ -46,7 +46,7 @@
       "textPropertyLabel": "Property",
       "textCustomFieldLabel": "Custom field",
       "textProductInfoLabel": "Product information",
-      "textReferencePriceLabel": "Reference price",
+      "textReferencePriceLabel": "Unit price",
       "labelTitlePageOne": "Choose a field type you want to add to your template",
       "labelTitleModal": "Add values",
       "labelName": "Name",
@@ -62,7 +62,7 @@
         "description": "Description",
         "manufacturerNumber": "Manufacturer product number",
         "ean": "EAN",
-        "referencePrice": "Reference price"
+        "referencePrice": "Unit price"
       }
     }
   }

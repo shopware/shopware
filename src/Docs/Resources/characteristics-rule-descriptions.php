@@ -26,15 +26,15 @@ Matches a specific number to the current cart's total weight.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule::class => <<<'EOD'
-Matches a specific line item's quantity to the current line item's quantity. 
+Matches a specific line item's quantity to the current line item's quantity.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule::class => <<<'EOD'
-Matches a specific number to a line item's unit price.
+Matches a specific number to a line item's price.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule::class => <<<'EOD'
-Matches a specific number to the carts goods price. 
+Matches a specific number to the carts goods price.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemTagRule::class => <<<'EOD'
@@ -126,7 +126,7 @@ Matches a fixed time range to now.
 EOD
     ,
     Shopware\Core\Framework\Rule\WeekdayRule::class => <<<'EOD'
-Matches a fixed day of the week to now. 
+Matches a fixed day of the week to now.
 EOD
     ,
     Shopware\Core\Framework\Rule\DateRangeRule::class => <<<'EOD'

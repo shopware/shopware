@@ -67,13 +67,13 @@ class SalesChannelProductSubscriberTest extends TestCase
             $this->getContainer()->get(SystemConfigService::class)
                 ->set('core.cart.maxQuantity', $case->config);
 
+            /** @var SalesChannelProductEntity|null $product */
             $product = $this->getContainer()->get('sales_channel.product.repository')
                 ->search(new Criteria([$id]), $context)
                 ->get($id);
 
             static::assertInstanceOf(SalesChannelProductEntity::class, $product);
 
-            /** @var SalesChannelProductEntity $product */
             static::assertSame($case->expected, $product->getCalculatedMaxPurchase(), $case->description);
         }
     }

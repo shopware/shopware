@@ -258,6 +258,9 @@ class ThumbnailService
         return $image;
     }
 
+    /**
+     * @param resource $image
+     */
     private function getOriginalImageSize($image): array
     {
         return [
@@ -296,6 +299,8 @@ class ThumbnailService
     }
 
     /**
+     * @param resource $mediaImage
+     *
      * @return resource
      */
     private function createNewImage($mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize)
@@ -327,6 +332,8 @@ class ThumbnailService
     }
 
     /**
+     * @param resource $thumbnail
+     *
      * @throws ThumbnailCouldNotBeSavedException
      */
     private function writeThumbnail($thumbnail, MediaEntity $media, string $url, int $quality): void

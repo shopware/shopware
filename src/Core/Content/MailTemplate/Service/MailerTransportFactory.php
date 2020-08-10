@@ -24,6 +24,9 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
         }
     }
 
+    /**
+     * @param SystemConfigService $configService
+     */
     protected function createSmtpTransport($configService): \Swift_Transport
     {
         $transport = new \Swift_SmtpTransport(

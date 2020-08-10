@@ -288,6 +288,9 @@ class CheckoutControllerTest extends TestCase
         ]);
     }
 
+    /**
+     * @param string|float|int|bool|null $customerComment
+     */
     private function createRequestDataBag($customerComment): RequestDataBag
     {
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);

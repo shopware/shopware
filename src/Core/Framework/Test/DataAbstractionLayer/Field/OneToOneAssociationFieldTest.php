@@ -250,11 +250,11 @@ SET FOREIGN_KEY_CHECKS = 1;
         $sub = $this->subRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
 
+        /** @var EntityCollection|null $many */
         $many = $sub->get('manies');
         static::assertInstanceOf(EntityCollection::class, $many);
         static::assertCount(2, $many);
 
-        /** @var EntityCollection $many */
         static::assertTrue($many->has($id3));
         static::assertTrue($many->has($id4));
     }

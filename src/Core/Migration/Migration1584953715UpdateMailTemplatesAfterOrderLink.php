@@ -27,7 +27,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
             $deLangId,
             $this->getOrderConfirmationHtmlTemplateEn(),
             $this->getOrderConfirmationPlainTemplateEn(),
-            $this->getOrderConfirmationHtmlTemplateDe(),
+            $this->getOrderConfirmationHTMLTemplateDe(),
             $this->getOrderConfirmationPlainTemplateDe()
         );
 
@@ -220,10 +220,10 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
         Connection $connection,
         string $enLangId,
         string $deLangId,
-        $getHtmlTemplateEn,
-        $getPlainTemplateEn,
-        $getHtmlTemplateDe,
-        $getPlainTemplateDe
+        string $getHtmlTemplateEn,
+        string $getPlainTemplateEn,
+        string $getHtmlTemplateDe,
+        string $getPlainTemplateDe
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
         if ($templateId !== null) {

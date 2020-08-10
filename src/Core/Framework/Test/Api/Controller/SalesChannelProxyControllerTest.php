@@ -713,7 +713,7 @@ class SalesChannelProxyControllerTest extends TestCase
         return $salesChannel;
     }
 
-    private function createCart($saleChannelId): KernelBrowser
+    private function createCart(string $saleChannelId): KernelBrowser
     {
         $this->getBrowser()->request('POST', $this->getUrl($saleChannelId, 'checkout/cart'));
 
@@ -751,7 +751,7 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
-    private function getCart(KernelBrowser $browser, $salesChannelId): array
+    private function getCart(KernelBrowser $browser, string $salesChannelId): array
     {
         $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
 

@@ -1156,10 +1156,10 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertTrue($result->has('release-histogram'));
 
+        /** @var DateHistogramResult|null $histogram */
         $histogram = $result->get('release-histogram');
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-        /** @var DateHistogramResult $histogram */
         static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
 
         foreach ($case->getBuckets() as $key => $count) {
@@ -1255,10 +1255,10 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertTrue($result->has('release-histogram'));
 
+        /** @var DateHistogramResult|null $histogram */
         $histogram = $result->get('release-histogram');
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-        /** @var DateHistogramResult $histogram */
         static::assertCount(4, $histogram->getBuckets());
 
         $bucket = $histogram->get('2019-01-01 00:00:00');

@@ -278,7 +278,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         return new HandlerFailedException($env, [$exception]);
     }
 
-    private function getMultiMessageFailedException(Envelope $env, $message, \Exception $e): HandlerFailedException
+    private function getMultiMessageFailedException(Envelope $env, TestMessage $message, \Exception $e): HandlerFailedException
     {
         $exception1 = new MessageFailedException($message, RetryMessageHandler::class, $e);
         $exception2 = new MessageFailedException($message, DummyHandler::class, $e);

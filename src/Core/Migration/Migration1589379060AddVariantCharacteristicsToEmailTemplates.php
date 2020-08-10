@@ -42,10 +42,10 @@ class Migration1589379060AddVariantCharacteristicsToEmailTemplates extends Migra
         Connection $connection,
         ?string $enLangId,
         ?string $deLangId,
-        $getHtmlTemplateEn,
-        $getPlainTemplateEn,
-        $getHtmlTemplateDe,
-        $getPlainTemplateDe
+        string $getHtmlTemplateEn,
+        string $getPlainTemplateEn,
+        string $getHtmlTemplateDe,
+        string $getPlainTemplateDe
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
         if ($templateId === null) {

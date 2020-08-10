@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Migration;
+namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1569482074AddProductMainCategory extends MigrationStep
+class Migration1595919251MainCategory extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1569482074;
+        return 1595919251;
     }
 
     public function update(Connection $connection): void
     {
         $sql = <<<SQL
-            CREATE TABLE `main_category` (
+            CREATE TABLE IF NOT EXISTS `main_category` (
               `id` BINARY(16) NOT NULL PRIMARY KEY,
               `product_id` BINARY(16) NOT NULL,
               `product_version_id` BINARY(16) NOT NULL,

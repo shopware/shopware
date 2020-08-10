@@ -140,7 +140,8 @@ class HttpKernel
             ->transform($request);
 
         // check for http caching
-        $enabled = $container->getParameter('shopware.http.cache.enabled');
+        $enabled = $container->hasParameter('shopware.http.cache.enabled')
+            && $container->getParameter('shopware.http.cache.enabled');
         if ($enabled) {
             $kernel = new HttpCache($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
         }

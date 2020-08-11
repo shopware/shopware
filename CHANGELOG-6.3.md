@@ -89,7 +89,8 @@ NEXT
 * Added many to many association `customFieldSets` to ProductDefinition
 * Added new entity `product_custom_field_set`
 * Added possibility to use a write operation without actual data, which then does nothing
-* Added generation of order delivery positions when editing an order in the administration 
+* Added generation of order delivery positions when editing an order in the administration
+* Changed the way `senderEmail` is resolved in `\Shopware\Core\Content\MailTemplate\Service\MailService`. It's now possible to override it with `$data['senderEmail']`. 
 
 #### Storefront
 

@@ -44,6 +44,7 @@
                                 <sw-data-grid-column-boolean v-model="item.status" :isInlineEdit="false"/>
                             </template>
                         {% endblock %}
+
                         {% block sw_review_list_content_list_title %}
                             <template slot="column-title" slot-scope="{ item }">
                                 <div class="sw-review-text_ellipsis">
@@ -53,11 +54,13 @@
                                 </div>
                             </template>
                         {% endblock %}
+
                         {% block sw_review_list_content_list_created_at %}
                             <template slot="column-createdAt" slot-scope="{ item }">
                                 {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
                             </template>
                         {% endblock %}
+
                         {% block sw_review_list_content_list_user %}
                             <template slot="column-user" slot-scope="{ item }">
                                 <template v-if="item.customerId">
@@ -70,6 +73,7 @@
                                 </template>
                             </template>
                         {% endblock %}
+
                         {% block sw_review_list_content_list_product %}
                             <template slot="column-product" slot-scope="{ item }">
                                 <template v-if="item.productId">
@@ -79,6 +83,7 @@
                                 </template>
                             </template>
                         {% endblock %}
+
                         {% block sw_review_list_content_list_points %}
                             <template slot="column-points" slot-scope="{ item }">
                                 <div class="sw-review-list__stars">
@@ -93,11 +98,34 @@
                                 </div>
                             </template>
                         {% endblock %}
+
                         {% block sw_review_list_content_list_comment %}
                             <template slot="column-comment" slot-scope="{ item }">
                                 <sw-data-grid-column-boolean v-model="item.comment && item.comment.length > 0"
                                                              :isInlineEdit="false"/>
                             </template>
+                        {% endblock %}
+
+                        {% block sw_review_list_grid_columns_actions %}
+                        <template slot="actions" slot-scope="{ item }">
+                            {% block sw_review_list_grid_columns_actions_detail %}
+                            <sw-context-menu-item
+                                class="sw-review-list__edit-action"
+                                :routerLink="{ name: 'sw.review.detail', params: { id: item.id } }"
+                                :disabled="!acl.can('review.editor')">
+                                {{ $tc('sw-property.list.contextMenuView') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+
+                            {% block sw_review_list_grid_columns_actions_delete %}
+                            <sw-context-menu-item class="sw-property-list__delete-action"
+                                                  variant="danger"
+                                                  @click="onDelete(item.id)"
+                                                  :disabled=" !acl.can('review.deleter')">
+                                {{ $tc('sw-property.list.contextMenuDelete') }}
+                            </sw-context-menu-item>
+                            {% endblock %}
+                        </template>
                         {% endblock %}
                     </sw-entity-listing>
                 {% endblock %}

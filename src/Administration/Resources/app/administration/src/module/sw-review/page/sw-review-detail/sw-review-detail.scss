@@ -83,10 +83,16 @@ $sw-review-detail-base-color-text: $color-gutenberg;
         }
     }
 
-    .star-count-description{
+    .star-count-description {
         position: absolute;
         font-weight: 700;
         right: 0;
         font-size: 16px;
+    }
+
+    .smart-bar__actions {
+        .sw-tooltip--wrapper {
+            margin-left: 8px;
+        }
     }
 }

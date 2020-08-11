@@ -224,7 +224,8 @@
       "propertiesInherited": "This product has inherited properties from its parent.",
       "linkPropertiesOfParent": "Show properties of parent product",
       "inheritSwitchLabel": "Use properties from parent product",
-      "propertiesNotInherited": "You can now use custom properties for this variant."
+      "propertiesNotInherited": "You can now use custom properties for this variant.",
+      "propertiesNotExisting": "No properties have been assigned to this product yet."
     },
     "variations": {
       "emptyStateDescription": "This product has no variants yet.",

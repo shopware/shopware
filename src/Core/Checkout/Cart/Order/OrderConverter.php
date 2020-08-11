@@ -141,7 +141,6 @@ class OrderConverter
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
         $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
-
         $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {
@@ -262,6 +261,7 @@ class OrderConverter
             SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
             SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
             SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
+            SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
         //get the first not paid transaction or, if all paid, the last transaction

@@ -348,12 +348,17 @@ class SalesChannelContextFactory
 
         $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
 
+        $versionId = Defaults::LIVE_VERSION;
+        if (isset($session[SalesChannelContextService::VERSION_ID])) {
+            $versionId = $session[SalesChannelContextService::VERSION_ID];
+        }
+
         return new Context(
             $origin,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             $languageChain,
-            Defaults::LIVE_VERSION,
+            $versionId,
             (float) $data['sales_channel_currency_factor'],
             (int) $data['sales_channel_currency_decimal_precision'],
             true

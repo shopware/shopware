@@ -105,20 +105,39 @@ Component.register('sw-settings-currency-detail', {
                 {
                     property: 'country',
                     label: 'sw-settings-currency.detail.currencyCountry.countryColumn',
-                    rawData: true,
                     sortable: true
                 },
                 {
                     property: 'itemRounding.decimals',
-                    label: 'sw-settings-currency.detail.currencyCountry.decimalsColumn',
-                    rawData: true,
+                    label: 'sw-settings-currency.detail.currencyCountry.itemDecimalsColumn',
                     sortable: false
                 },
                 {
                     property: 'itemRounding.interval',
-                    label: 'sw-settings-currency.detail.currencyCountry.intervalColumn',
-                    rawData: true,
+                    label: 'sw-settings-currency.detail.currencyCountry.itemIntervalColumn',
                     sortable: false
+                },
+                {
+                    property: 'itemRounding.roundForNet',
+                    label: 'sw-settings-currency.detail.currencyCountry.itemNetRoundingColumn',
+                    sortable: false,
+                    visible: false
+                },
+                {
+                    property: 'totalRounding.decimals',
+                    label: 'sw-settings-currency.detail.currencyCountry.totalDecimalsColumn',
+                    sortable: false
+                },
+                {
+                    property: 'totalRounding.interval',
+                    label: 'sw-settings-currency.detail.currencyCountry.totalIntervalColumn',
+                    sortable: false
+                },
+                {
+                    property: 'totalRounding.roundForNet',
+                    label: 'sw-settings-currency.detail.currencyCountry.totalNetRoundingColumn',
+                    sortable: false,
+                    visible: false
                 }
             ];
         },
@@ -133,6 +152,14 @@ Component.register('sw-settings-currency-detail', {
             }
 
             return criteria;
+        },
+
+        emptyStateText() {
+            if (this.currency.id && this.currency.isNew()) {
+                return this.$tc('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
+            }
+
+            return this.$tc('sw-settings-currency.detail.emptyCountryRoundings');
         }
     },
 

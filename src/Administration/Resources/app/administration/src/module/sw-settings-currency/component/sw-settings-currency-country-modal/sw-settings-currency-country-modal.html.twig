@@ -6,6 +6,7 @@
         {% block sw_settings_currency_country_modal_country_select %}
             <sw-entity-single-select
                 required
+                class="sw-settings-currency-country-modal__select-country"
                 :label="$tc('sw-settings-currency.currency-country-modal.labelCountrySelect')"
                 entity="country"
                 :criteria="countryCriteria"
@@ -48,7 +49,8 @@
         {% block sw_settings_currency_country_modal_footer %}
             <template slot="modal-footer">
                 {% block sw_settings_currency_country_modal_footer_cancel %}
-                    <sw-button size="small" @click="onCancel">
+                    <sw-button size="small"
+                               @click="onCancel">
                         {{ $tc('global.default.cancel') }}
                     </sw-button>
                 {% endblock %}
@@ -56,6 +58,7 @@
                 {% block sw_settings_currency_country_modal_footer_save %}
                     <sw-button variant="primary"
                                size="small"
+                               class="sw-settings-currency-country-modal__button-save"
                                @click="onSave">
                         {{ $tc('global.default.save') }}
                     </sw-button>

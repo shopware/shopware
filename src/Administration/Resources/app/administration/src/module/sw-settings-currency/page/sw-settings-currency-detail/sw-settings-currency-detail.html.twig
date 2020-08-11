@@ -137,7 +137,7 @@
                         :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
                         :isLoading="currencyCountryLoading"
                         v-if="next6059">
-                        <template #toolbar>
+                        <template #toolbar v-if="this.currency.id && !this.currency.isNew()">
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
                                 <div class="sw-settings-currency-detail__currency-country-toolbar">
                                     {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter %}
@@ -160,8 +160,12 @@
                         </template>
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing %}
                             <sw-entity-listing
-                                v-if="!currencyCountryLoading && currencyCountryRoundings && currencyCountryRoundings.length > 0"
+                                class="sw-settings-currency-detail__currency-country-list"
+                                v-if="currencyCountryRoundings && currencyCountryRoundings.length > 0"
                                 :fullPage="false"
+                                :showSelection="false"
+                                @item-deleted="loadCurrencyCountryRoundings"
+                                @items-delete-finish="loadCurrencyCountryRoundings"
                                 :items="currencyCountryRoundings"
                                 :columns="currencyCountryColumns"
                                 :repository="currencyCountryRoundingRepository">
@@ -170,6 +174,20 @@
                                         <a href="#" @click="onClickEdit(item)">
                                             {{ item.country.name }}
                                         </a>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_net_column %}
+                                    <template #column-itemRounding.roundForNet="{ item }">
+                                        <sw-data-grid-column-boolean v-model="item.itemRounding.roundForNet">
+                                        </sw-data-grid-column-boolean>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_net_column %}
+                                    <template #column-totalRounding.roundForNet="{ item }">
+                                        <sw-data-grid-column-boolean v-model="item.totalRounding.roundForNet">
+                                        </sw-data-grid-column-boolean>
                                     </template>
                                 {% endblock %}
 
@@ -189,7 +207,7 @@
                                 v-else
                                 class="sw-settings-currency-detail__currency-country-empty-state"
                                 title=""
-                                :subline="$tc('sw-settings-currency.detail.emptyCountryRoundings')">
+                                :subline="emptyStateText">
                             </sw-empty-state>
                         {% endblock %}
                     </sw-card>

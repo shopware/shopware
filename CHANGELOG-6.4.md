@@ -120,6 +120,8 @@ Table of contents
 * Changed `onConfirmReset` in `sw-settings-snippet-list` component
 * Removed `StateDeprecated` in `sw-users-permissions-user-listing` component
 * Removed `userStore` in `sw-users-permissions-user-listing` component
+* Added component `sw-settings-currency-country-modal`
+* Added component `sw-settings-price-rounding`
 
 ### Core
 * Refactored document templates to supported nested line items, see `adr/2020-08-12-document-template-refactoring.md` for more details

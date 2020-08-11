@@ -46,10 +46,15 @@
       "notificationCountrySuccessMessage": "Country currency settings successful saved.",
       "currencyCountry": {
         "countryColumn": "Country",
-        "decimalsColumn": "Decimals",
-        "intervalColumn": "interval"
+        "itemDecimalsColumn": "Item decimals",
+        "itemIntervalColumn": "Item interval",
+        "itemNetRoundingColumn": "Item round net ",
+        "totalDecimalsColumn": "Grand total decimals",
+        "totalIntervalColumn": "Grand total interval",
+        "totalNetRoundingColumn": "Grand total round net"
       },
       "emptyCountryRoundings": "Add individual decimals and rounding factors for different countries.",
+      "emptyCountryRoundingsNewCurrency": "Fill in basic information, save the currency - then add values",
       "buttonAddCountry": "Add country"
     },
     "currency-country-modal": {

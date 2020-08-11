@@ -46,10 +46,15 @@
       "notificationCountrySuccessMessage": "Ländereinstellungen erfoglreich gespeichert.",
       "currencyCountry": {
         "countryColumn": "Land",
-        "decimalsColumn": "Nachkommastellen",
-        "intervalColumn": "Interval"
+        "itemDecimalsColumn": "Positionen Nachkommastellen",
+        "itemIntervalColumn": "Positionen Interval",
+        "itemNetRoundingColumn": "Positionen Nettokunden",
+        "totalDecimalsColumn": "Summe Nachkommastellen",
+        "totalIntervalColumn": "Summe Interval",
+        "totalNetRoundingColumn": "Summe Nettokunden"
       },
       "emptyCountryRoundings": "Hinzufügen von Nachkommastellen und Rundungsfaktoren für verschiedene Länder.",
+      "emptyCountryRoundingsNewCurrency": "Pflege die Basisinformationen, speichere die Währung und füge dann Länderspezifische Einstellungen hinzu.",
       "buttonAddCountry": "Land hinzufügen"
     },
     "currency-country-modal": {
@@ -61,7 +66,7 @@
       "itemsHeadline": "Rundung für Positionen",
       "itemsSubline": "Rundung gilt für alle Positionen",
       "labelDecimals": "Nachkommastellen",
-      "labelInterval": "Interval",
+      "labelInterval": "Rundungsinterval",
       "labelRoundForNet": "Auch Nettokunden runden",
       "grandHeadline": "Summen",
       "grandSubline": "Rundung gilt für Summen",

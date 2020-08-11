@@ -130,7 +130,7 @@
                                                                             {% set attributes = {
                                                                                 'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                'title': (image.translated.title ?: fallbackImageTitle),
+                                                                                'aria-title': (image.translated.title ?: fallbackImageTitle),
                                                                                 'data-full-image': image.url
                                                                             } %}
 

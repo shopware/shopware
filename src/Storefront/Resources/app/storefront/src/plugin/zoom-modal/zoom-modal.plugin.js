@@ -71,6 +71,8 @@ export default class ZoomModalPlugin extends Plugin {
     init() {
         this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
         this._clickInterrupted = false;
+        this._dragActive = false;
+        this._mouseDownActive = false;
         this._registerEvents();
     }
 
@@ -84,11 +86,18 @@ export default class ZoomModalPlugin extends Plugin {
         Iterator.iterate(this._triggers, element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
-        });
 
-        Iterator.iterate(this._triggers, element => {
             element.removeEventListener('touchmove', this._onTouchMove.bind(this));
             element.addEventListener('touchmove', this._onTouchMove.bind(this));
+
+            element.removeEventListener('mousedown', this._onMouseDown.bind(this));
+            element.addEventListener('mousedown', this._onMouseDown.bind(this));
+
+            element.removeEventListener('mousemove', this._onMouseMove.bind(this));
+            element.addEventListener('mousemove', this._onMouseMove.bind(this));
+
+            element.removeEventListener('mouseup', this._onMouseUp.bind(this));
+            element.addEventListener('mouseup', this._onMouseUp.bind(this));
         });
     }
 
@@ -99,6 +108,10 @@ export default class ZoomModalPlugin extends Plugin {
     _onClick(event) {
         if (this._clickInterrupted === true) {
             this._clickInterrupted = false;
+            return;
+        }
+
+        if (this._dragActive === true) {
             return;
         }
 
@@ -113,6 +126,28 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _onTouchMove() {
         this._clickInterrupted = true;
+    }
+
+    /**
+     * @private
+     */
+    _onMouseDown() {
+        this._mouseDownActive = true;
+        this._dragActive = false;
+    }
+
+    /**
+     * @private
+     */
+    _onMouseMove() {
+        this._dragActive = this._mouseDownActive;
+    }
+
+    /**
+     * @private
+     */
+    _onMouseUp() {
+        this._mouseDownActive = false;
     }
 
     /**

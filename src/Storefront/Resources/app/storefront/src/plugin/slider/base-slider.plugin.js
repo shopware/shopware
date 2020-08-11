@@ -22,7 +22,9 @@ export default class BaseSliderPlugin extends Plugin {
                 md: {},
                 lg: {},
                 xl: {}
-            }
+            },
+            mouseDrag: true,
+            arrowKeys: true
         }
     };
 

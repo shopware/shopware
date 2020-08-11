@@ -114,6 +114,7 @@ NEXT
 * Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
+* Fixed switching to domains with upper case paths like `https://example.com/de-DE`
 
 6.3.0.0
 ----------------

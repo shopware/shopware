@@ -115,7 +115,10 @@ Table of contents
 * Removed `StateDeprecated` in `sw-users-permissions-user-listing` component
 * Removed `userStore` in `sw-users-permissions-user-listing` component
 
-#### Storefront
+### Core
+* Refactored document templates to supported nested line items, see `adr/2020-08-12-document-template-refactoring.md` for more details
+
+### Storefront
 * Removed template component/listing/breadcrumb.html.twig
 * Removed template component/product/breadcrumb.html.twig
 * Removed block page_product_detail_breadcrumb in page/product-detail/index.html.twig

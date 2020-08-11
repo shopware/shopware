@@ -1,0 +1,81 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block letter_header %}
+    <div class="letter-header">
+        <div class="recipient-address-container">
+            {% block document_recipient %}
+                <span class="sender-address-small">
+                    {% block document_recipient_sender %}
+                        {{ config.companyAddress }}<br><br>
+                    {% endblock %}
+                </span>
+                {% if billingAddress.company %}
+                    {{ billingAddress.company }}<br>
+                {% endif %}
+                {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }}<br>
+                {{ billingAddress.street }}<br>
+                {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
+                {{ billingAddress.country.name }}<br>
+            {% endblock %}
+        </div>
+
+        <div class="sender-address-container">
+            {% block document_sender_address %}
+                <table>
+                    <tr>
+                        <td>
+                            {{ config.companyAddress|replace({' - ': '</td></tr><tr><td>'})|raw }}
+                        </td>
+                    </tr>
+                </table>
+            {% endblock %}
+            {% block document_side_info %}
+                <table>
+                    {% block document_side_info_contents %}
+                        {% block document_side_info_date %}
+                            <tr>
+                                <td>
+                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                        {% block document_side_info_customer_number %}
+                            <tr>
+                                <td>
+                                    {{ 'document.customerNumber'|trans({'%customerNumber%': customer.customerNumber})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                        {% block document_side_info_order_number %}
+                            <tr>
+                                <td>
+                                    {{ 'document.orderNumber'|trans({'%orderNumber%': order.orderNumber | u.truncate(10)})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                        {% block document_side_info_order_date %}
+                            <tr>
+                                <td>
+                                    {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date('medium', locale=locale)})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
+                    {% endblock %}
+                </table><br/>
+            {% endblock %}
+        </div>
+
+        <div class="document-title-container">
+            {% block document_headline %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

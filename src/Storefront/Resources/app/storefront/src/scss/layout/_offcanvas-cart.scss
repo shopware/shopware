@@ -59,6 +59,7 @@ Extends the basic offcanvas component with additional cart styles.
 
     .cart-item-details {
         margin-bottom: $spacer;
+        word-break: break-word;
     }
 
     .cart-item-details-container {

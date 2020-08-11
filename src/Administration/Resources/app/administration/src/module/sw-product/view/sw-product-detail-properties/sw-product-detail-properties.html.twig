@@ -54,8 +54,8 @@
                                 {% endblock %}
                             </template>
                             <template v-else>
-                                {# @deprecated tag:v6.4.0 Will be removed - Empty state is handled by sw-property-assignment component #}
                                 {% block sw_product_detail_properties_empty_state_text_empty %}
+                                    <p>{{ $tc('sw-product.properties.propertiesNotExisting') }}</p>
                                 {% endblock %}
                             </template>
                         {% endblock %}

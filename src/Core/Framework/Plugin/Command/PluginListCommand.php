@@ -19,6 +19,31 @@ class PluginListCommand extends Command
     protected static $defaultName = 'plugin:list';
 
     /**
+     * @var int
+     */
+    private $installed;
+
+    /**
+     * @var int
+     */
+    private $upgradeable;
+
+    /**
+     * @var int
+     */
+    private $active;
+
+    /**
+     * @var int
+     */
+    private $total;
+
+    /**
+     * @var string[]
+     */
+    private $availableFormats;
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $pluginRepo;
@@ -26,6 +51,11 @@ class PluginListCommand extends Command
     public function __construct(EntityRepositoryInterface $pluginRepo)
     {
         parent::__construct();
+        $this->availableFormats = ['table', 'json'];
+        $this->total = 0;
+        $this->active = 0;
+        $this->installed = 0;
+        $this->upgradeable = 0;
         $this->pluginRepo = $pluginRepo;
     }
 
@@ -36,7 +66,14 @@ class PluginListCommand extends Command
     {
         $this
             ->setDescription('Show a list of available plugins.')
-            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
+            ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term')
+            ->addOption(
+                'format',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Choose "table" or "json" format to output to',
+                'table'
+            );
     }
 
     /**
@@ -44,15 +81,20 @@ class PluginListCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $format = strtolower($input->getOption('format'));
+        if (!in_array($format, $this->availableFormats, true)) {
+            throw new \Exception(sprintf(
+                'Format %s is not available for this command (available formats: %s)',
+                $format,
+                implode(', ', $this->availableFormats)
+            ));
+        }
         $io = new ShopwareStyle($input, $output);
-        $io->title('Shopware Plugin Service');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $filter = $input->getOption('filter');
         if ($filter) {
-            $io->comment(sprintf('Filtering for: %s', $filter));
-
             $criteria->addFilter(new MultiFilter(
                 MultiFilter::CONNECTION_OR,
                 [
@@ -61,39 +103,65 @@ class PluginListCommand extends Command
                 ]
             ));
         }
+
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
-
         $pluginTable = [];
-        $active = $installed = $upgradeable = 0;
 
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();
             $pluginUpgradeable = $plugin->getUpgradeVersion();
 
-            $pluginTable[] = [
-                $plugin->getName(),
-                $plugin->getLabel(),
-                $plugin->getVersion(),
-                $pluginUpgradeable,
-                $plugin->getAuthor(),
-                $pluginInstalled ? 'Yes' : 'No',
-                $pluginActive ? 'Yes' : 'No',
-                $pluginUpgradeable ? 'Yes' : 'No',
+            $pluginData = [
+                'name' => $plugin->getName(),
+                'label' => $plugin->getLabel(),
+                'version' => $plugin->getVersion(),
+                'upgrade_version' => $pluginUpgradeable,
+                'author' => $plugin->getAuthor(),
+                'installed' => $pluginInstalled ? 'Yes' : 'No',
+                'active' => $pluginActive ? 'Yes' : 'No',
+                'upgradeable' => $pluginUpgradeable ? 'Yes' : 'No',
             ];
 
+            if ($format === 'json') {
+                $pluginData['path'] = $plugin->getPath();
+            }
+
+            $pluginTable[] = $pluginData;
+
+            ++$this->total;
+
             if ($pluginActive) {
-                ++$active;
+                ++$this->active;
             }
 
             if ($pluginInstalled) {
-                ++$installed;
+                ++$this->installed;
             }
 
             if ($pluginUpgradeable) {
-                ++$upgradeable;
+                ++$this->upgradeable;
             }
+        }
+
+        if ($format === 'json') {
+            $this->outputJson($io, $pluginTable);
+        } elseif ($format === 'table') {
+            $this->outputTable($io, $pluginTable, $filter);
+        }
+
+        return 0;
+    }
+
+    protected function outputTable(
+        ShopwareStyle $io,
+        array $pluginTable,
+        ?string $filter
+    ): void {
+        $io->title('Shopware Plugin Service');
+        if ($filter) {
+            $io->comment(sprintf('Filtering for: %s', $filter));
         }
 
         $io->table(
@@ -103,13 +171,22 @@ class PluginListCommand extends Command
         $io->text(
             sprintf(
                 '%d plugins, %d installed, %d active , %d upgradeable',
-                \count($plugins),
-                $installed,
-                $active,
-                $upgradeable
+                $this->total,
+                $this->installed,
+                $this->active,
+                $this->upgradeable
             )
         );
+    }
 
-        return 0;
+    protected function outputJson(ShopwareStyle $io, array $pluginTable): void
+    {
+        $stats = [
+            'total' => $this->total,
+            'installed' => $this->installed,
+            'active' => $this->active,
+            'upgradeable' => $this->upgradeable,
+        ];
+        $io->write(json_encode(['plugins' => $pluginTable, 'stats' => $stats]));
     }
 }

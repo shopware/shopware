@@ -10,7 +10,7 @@ Component.register('sw-order-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {

@@ -65,6 +65,7 @@ NEXT
 * Added prop `salesChannelId` to `sw-order-product-select/index.js`
 * Changed tax id of newly generated variants to null in order to inherit from the parent product
 * Fixed template factory so it is possible again to override nested blocks in one `Component.override()`
+* Added ACL permissions to orders module
 
 #### Core
 

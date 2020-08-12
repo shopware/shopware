@@ -33,6 +33,7 @@
 
                     {% block sw_order_list_smart_bar_actions_add %}
                         <sw-button
+                            class="sw-order-list__add-order"
                             :disabled="!acl.can('order.creator')"
                             v-tooltip="{
                                 message: $tc('sw-privileges.tooltip.warning'),

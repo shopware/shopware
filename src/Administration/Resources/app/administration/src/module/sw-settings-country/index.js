@@ -3,6 +3,8 @@ import './page/sw-settings-country-detail';
 import './page/sw-settings-country-create';
 import './component/sw-country-state-detail';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-country', {
@@ -20,21 +22,24 @@ Module.register('sw-settings-country', {
             component: 'sw-settings-country-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'country.viewer'
             }
         },
         detail: {
             component: 'sw-settings-country-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.country.index'
+                parentPath: 'sw.settings.country.index',
+                privilege: 'country.viewer'
             }
         },
         create: {
             component: 'sw-settings-country-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.country.index'
+                parentPath: 'sw.settings.country.index',
+                privilege: 'country.creator'
             }
         }
     },
@@ -42,6 +47,7 @@ Module.register('sw-settings-country', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.country.index',
-        icon: 'default-location-map'
+        icon: 'default-location-map',
+        privilege: 'country.viewer'
     }
 });

@@ -8,6 +8,7 @@
                 {% block sw_country_state_detail_modal_technical_name %}
                     <sw-field
                             type="text"
+                            :disabled="!acl.can('country.editor')"
                             :label="$tc('sw-country-state-detail.labelName')"
                             :placeholder="placeholder(countryState, 'name')"
                             v-model="countryState.name">
@@ -17,6 +18,7 @@
                 {% block sw_country_state_detail_modal_shortcode %}
                     <sw-field
                             type="text"
+                            :disabled="!acl.can('country.editor')"
                             :label="$tc('sw-country-state-detail.labelShortCode')"
                             v-model="countryState.shortCode">
                     </sw-field>
@@ -25,6 +27,7 @@
                 {% block sw_country_state_detail_modal_position %}
                     <sw-field
                             type="number"
+                            :disabled="!acl.can('country.editor')"
                             :tooltipText="$tc('sw-country-state-detail.tooltipPosition')"
                             numberType="int"
                             :label="$tc('sw-country-state-detail.labelPosition')"
@@ -42,9 +45,13 @@
                     {% endblock %}
 
                     {% block sw_country_state_detail_modal_footer_save %}
-                        <sw-button variant="primary"
-                                   size="small"
-                                   @click="onSave">
+                        <sw-button
+                            v-tooltip.bottom="tooltipSave"
+                            class="sw-country-state-detail__save-button"
+                            variant="primary"
+                            size="small"
+                            :disabled="!acl.can('country.editor')"
+                            @click="onSave">
                             {{ $tc('sw-country-state-detail.buttonSave') }}
                         </sw-button>
                     {% endblock %}

@@ -5,8 +5,14 @@ export default class SettingsPageObject {
         this.elements = {
             ...elements,
             ...{
+                countryListContent: '.sw-settings-country-list-grid',
                 countrySaveAction: '.sw-settings-country-detail__save-action',
                 countryColumnName: '.sw-data-grid__cell--name',
+
+                countryStateListContent: '.sw-country-state-list__content',
+                countryStateSaveAction: '.sw-country-state-detail__save-button',
+                countryStateAddAction: '.sw-settings-country-detail__add-country-state-button',
+                countryStateColumnName: '.sw-settings-country-detail__link',
 
                 currencySaveAction: '.sw-settings-currency-detail__save-action',
                 currencyColumnName: '.sw-data-grid__cell--name',

@@ -23,7 +23,7 @@
         {% endif %}
     {% endif %}
 
-    {% set thumbnails = media.thumbnails|sort|reverse %}
+    {% set thumbnails = media.thumbnails|filter((v) => v.width <= media.metaData.width and v.height <= media.metaData.height)|sort|reverse %}
 
     {# generate srcset with all available thumbnails #}
     {% set srcsetValue %}{% apply spaceless %}

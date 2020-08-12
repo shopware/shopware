@@ -35,9 +35,11 @@
     color: $body-color;
     font-weight: $font-weight-bold;
 
-    a&:hover {
-        color: $primary;
-        text-decoration: none;
+    @at-root {
+        a#{&}:hover {
+            color: $primary;
+            text-decoration: none;
+        }
     }
 }
 

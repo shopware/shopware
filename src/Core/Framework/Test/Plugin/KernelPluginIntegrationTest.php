@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -129,6 +130,62 @@ class KernelPluginIntegrationTest extends TestCase
 
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext());
+
+        $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
+        static::assertNotNull($swagTestPlugin);
+
+        // autowired
+        static::assertInstanceOf(SystemConfigService::class, $swagTestPlugin->systemConfig);
+
+        // manually set
+        static::assertSame($this->kernel->getContainer()->get('category.repository'), $swagTestPlugin->categoryRepository);
+
+        // the plugin services are still not loaded when the preActivate fires but in the postActivateContext event
+        static::assertNull($swagTestPlugin->preActivateContext);
+        static::assertNotNull($swagTestPlugin->postActivateContext);
+        static::assertNull($swagTestPlugin->preDeactivateContext);
+        static::assertNull($swagTestPlugin->postDeactivateContext);
+    }
+
+    public function testActivateWithoutRebuildWithSystemSource(): void
+    {
+        $inactive = $this->getInstalledInactivePluginRebuildDisabled();
+        $this->insertPlugin($inactive);
+
+        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $this->kernel = $this->makeKernel($loader);
+        $this->kernel->boot();
+
+        $lifecycleService = $this->makePluginLifecycleService();
+        $lifecycleService->activatePlugin($inactive, Context::createDefaultContext());
+
+        $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
+        static::assertNotNull($swagTestPlugin);
+
+        // not autowired
+        static::assertNull($swagTestPlugin->systemConfig);
+
+        // not set
+        static::assertNull($swagTestPlugin->categoryRepository);
+
+        // the plugin services are still not loaded
+        static::assertNull($swagTestPlugin->preActivateContext);
+        static::assertNull($swagTestPlugin->postActivateContext);
+        static::assertNull($swagTestPlugin->preDeactivateContext);
+        static::assertNull($swagTestPlugin->postDeactivateContext);
+    }
+
+    public function testActivateWithoutRebuildWithNonSystemContext(): void
+    {
+        $inactive = $this->getInstalledInactivePluginRebuildDisabled();
+        $this->insertPlugin($inactive);
+
+        $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
+        $this->kernel = $this->makeKernel($loader);
+        $this->kernel->boot();
+
+        $lifecycleService = $this->makePluginLifecycleService();
+        $lifecycleService->activatePlugin($inactive, Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
 
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
         static::assertNotNull($swagTestPlugin);

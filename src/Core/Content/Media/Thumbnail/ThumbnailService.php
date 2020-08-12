@@ -121,7 +121,29 @@ class ThumbnailService
         $tobBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
 
+        $maxWidth = 0;
+        $maxHeight = 0;
+        $metaData = $media->getMetaData();
+        if (is_array($metaData) && isset($metaData['width'], $metaData['height'])) {
+            $maxWidth = $metaData['width'];
+            $maxHeight = $metaData['height'];
+        }
+
         foreach ($tobBeCreatedSizes as $thumbnailSize) {
+            if ($maxWidth > 0 && $maxWidth < $thumbnailSize->getWidth()) {
+                // We don't want to create this thumbnail, because it would be bigger than the original
+                $tobBeCreatedSizes->remove($thumbnailSize->getId());
+
+                continue;
+            }
+
+            if ($maxHeight > 0 && $maxHeight < $thumbnailSize->getHeight()) {
+                // We don't want to create this thumbnail, because it would be bigger than the original
+                $tobBeCreatedSizes->remove($thumbnailSize->getId());
+
+                continue;
+            }
+
             foreach ($toBeDeletedThumbnails as $thumbnail) {
                 if ($thumbnail->getWidth() === $thumbnailSize->getWidth()
                     && $thumbnail->getHeight() === $thumbnailSize->getHeight()

@@ -36,6 +36,9 @@
                             v-if="items"
                             ref="listing"
                             :items="items"
+                            :allowEdit="acl.can('review.editor')"
+                            :allowDelete="acl.can('review.deleter')"
+                            :showSelection="acl.can('review.deleter')"
                             :repository="repository"
                             :columns="columns"
                             detailRoute="sw.review.detail">
@@ -104,28 +107,6 @@
                                 <sw-data-grid-column-boolean v-model="item.comment && item.comment.length > 0"
                                                              :isInlineEdit="false"/>
                             </template>
-                        {% endblock %}
-
-                        {% block sw_review_list_grid_columns_actions %}
-                        <template slot="actions" slot-scope="{ item }">
-                            {% block sw_review_list_grid_columns_actions_detail %}
-                            <sw-context-menu-item
-                                class="sw-review-list__edit-action"
-                                :routerLink="{ name: 'sw.review.detail', params: { id: item.id } }"
-                                :disabled="!acl.can('review.editor')">
-                                {{ $tc('sw-property.list.contextMenuView') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-
-                            {% block sw_review_list_grid_columns_actions_delete %}
-                            <sw-context-menu-item class="sw-review-list__delete-action"
-                                                  variant="danger"
-                                                  @click="onDelete(item.id)"
-                                                  :disabled=" !acl.can('review.deleter')">
-                                {{ $tc('sw-property.list.contextMenuDelete') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-                        </template>
                         {% endblock %}
                     </sw-entity-listing>
                 {% endblock %}

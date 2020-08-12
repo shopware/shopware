@@ -103,6 +103,7 @@ NEXT
     * as methods:
         * `loadSeoUrls`
         * `getSeoUrl`
+* Added new priviliges for `sw-review` module to privilege service
 
 #### Core
 

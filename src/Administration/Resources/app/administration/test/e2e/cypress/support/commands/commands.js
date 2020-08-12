@@ -165,3 +165,77 @@ Cypress.Commands.add('loginViaApi', () => {
         });
     });
 });
+
+/**
+ * Logs in silently using Shopware API
+ * @memberOf Cypress.Chainable#
+ * @name createReviewFixture
+ * @function
+ */
+Cypress.Commands.add('createReviewFixture', () => {
+    // TODO move into e2e-testsuite-platform and use own service completely
+
+    let reviewJson = null;
+    let productId = '';
+    let customerId = '';
+    let salesChannelId = '';
+
+    return cy.fixture('product-review').then((data) => {
+        reviewJson = data;
+
+        return cy.getCookie('bearerAuth');
+    }).then((result) => {
+
+        const headers = {
+            Accept: 'application/vnd.api+json',
+            Authorization: `Bearer ${JSON.parse(result.value).access}`,
+            'Content-Type': 'application/json'
+        };
+
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        }).then((data) => {
+            customerId = data.id;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
+            })
+        }).then((data) => {
+            productId = data.id;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'sales-channel',
+                data: {
+                    field: 'name',
+                    value: 'Storefront'
+                }
+            })
+        }).then((data) => {
+            salesChannelId = data.id;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'language',
+                data: {
+                    field: 'name',
+                    value: 'English'
+                }
+            })
+        }).then((data) => {
+            cy.request({
+                url: `/api/${Cypress.env('apiVersion')}/product-review`,
+                method: 'POST',
+                headers: headers,
+                body: Cypress._.merge(reviewJson, {
+                    customerId: customerId,
+                    languageId: data.id,
+                    productId: productId,
+                    salesChannelId: salesChannelId,
+                })
+            })
+        });
+    })
+});

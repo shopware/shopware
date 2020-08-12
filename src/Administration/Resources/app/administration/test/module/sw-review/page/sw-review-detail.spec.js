@@ -1,4 +1,4 @@
-import {createLocalVue, shallowMount} from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-review/page/sw-review-detail';
 
 function createWrapper(privileges = []) {
@@ -8,18 +8,21 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-review-detail'), {
         localVue,
         mocks: {
-            $tc: () => {
-            },
+            $tc: () => {},
             $route: {
                 query: {
                     page: 1,
                     limit: 25
+                },
+                params: {
+                    id: '12312'
                 }
             },
             $router: {
                 replace: () => {
                 }
-            }
+            },
+            date: () => {}
         },
         provide: {
             repositoryFactory: {
@@ -35,14 +38,19 @@ function createWrapper(privileges = []) {
                                 name: 'Customer Number 1'
                             },
                             product: {
-                                name: 'Product Number 1'
+                                name: 'Product Number 1',
+                                translated: {
+                                    name: 'Product Number 1'
+                                }
                             },
                             salesChannel: {
-                                name: 'Channel Number 1'
+                                name: 'Channel Number 1',
+                                translated: {
+                                    name: 'Channel Number 1'
+                                }
                             }
                         });
-                    },
-                    search: () => Promise.resolve({})
+                    }
                 })
             },
             acl: {
@@ -65,6 +73,15 @@ function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-icon': true,
             'sw-search-bar': true,
+            'sw-description-list': true,
+            'sw-card-view': true,
+            'sw-card': '<div><slot></slot></div>',
+            'sw-container': true,
+            'sw-loader': true,
+            'sw-card-section': true,
+            'sw-entity-single-select': true,
+            'sw-switch-field': true,
+            'sw-textarea-field': true,
             'sw-language-switch': true
         }
     });
@@ -76,5 +93,29 @@ describe('module/sw-review/page/sw-review-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.isVueInstance()).toBe(true);
+    });
+
+    it('should not be able to save the review', () => {
+        const wrapper = createWrapper();
+
+        const saveButton = wrapper.find('.sw-review-detail__save-action');
+
+        expect(saveButton.attributes().isLoading).toBeFalsy();
+        expect(saveButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to save the review', async () => {
+        const wrapper = createWrapper([
+            'review.editor'
+        ]);
+        wrapper.setData({
+            isLoading: false
+        });
+        await wrapper.vm.$nextTick();
+
+        const saveButton = wrapper.find('.sw-review-detail__save-action');
+        console.log(saveButton.html());
+
+        expect(saveButton.attributes().disabled).toBeFalsy();
     });
 });

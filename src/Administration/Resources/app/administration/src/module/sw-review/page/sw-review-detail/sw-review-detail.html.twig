@@ -35,9 +35,9 @@
             <sw-card-view slot="content">
                 {% block sw_review_detail_basic_info_card %}
                     <sw-card
-                            v-if="review"
-                            :title="$tc('sw-review.detail.cardTitleReviewInfo')"
-                            :isLoading="isLoading">
+                        v-if="review"
+                        :title="$tc('sw-review.detail.cardTitleReviewInfo')"
+                        :isLoading="isLoading">
 
                         {% block sw_customer_card_rows %}
                             <sw-container slot="grid" rows="auto auto">
@@ -155,41 +155,43 @@
                 {% endblock %}
 
                 <sw-card
-                        v-if="review"
-                        :title="$tc('sw-review.detail.cardTitleReviewProperties')"
-                        :isLoading="isLoading"
-                        class="sw-review-properties">
+                    v-if="review"
+                    :title="$tc('sw-review.detail.cardTitleReviewProperties')"
+                    :isLoading="isLoading"
+                    class="sw-review-properties">
                     {% block sw_review_detail_basic_info_card_description_list %}
                         {% block sw_review_detail_description_list_language %}
-                            <sw-entity-single-select v-model="review.languageId"
-                                                     entity="language"
-                                                     :label="$tc('sw-review.detail.labelLanguage')"
-                                                     required
-                                                     :criteria="languageCriteria"
-                                                     id="language">
+                            <sw-entity-single-select
+                                v-model="review.languageId"
+                                entity="language"
+                                :label="$tc('sw-review.detail.labelLanguage')"
+                                required
+                                :criteria="languageCriteria"
+                                id="language">
                             </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_review_detail_description_list_status %}
                             <sw-switch-field
-                                    :label="$tc('sw-review.detail.labelStatus')"
-                                    class="status-switch"
-                                    :bordered="true"
-                                    v-model="review.status">
+                                :label="$tc('sw-review.detail.labelStatus')"
+                                class="status-switch"
+                                :bordered="true"
+                                v-model="review.status">
                             </sw-switch-field>
                         {% endblock %}
                     {% endblock %}
                 </sw-card>
 
                 <sw-card
-                        v-if="review"
-                        :title="$tc('sw-review.detail.labelComment')"
-                        :isLoading="isLoading">
+                    v-if="review"
+                    :title="$tc('sw-review.detail.labelComment')"
+                    :isLoading="isLoading">
                     {% block sw_review_detail_basic_info_card_comment %}
-                        <sw-textarea-field type="textarea"
-                                           :label="$tc('sw-review.detail.titleCardComment')"
-                                           :placeholder="$tc('sw-review.detail.placeholderComment')"
-                                           v-model="review.comment">
+                        <sw-textarea-field
+                            type="textarea"
+                            :label="$tc('sw-review.detail.titleCardComment')"
+                            :placeholder="$tc('sw-review.detail.placeholderComment')"
+                            v-model="review.comment">
                         </sw-textarea-field>
                     {% endblock %}
                 </sw-card>

@@ -27,7 +27,7 @@ Component.register('sw-settings-price-rounding', {
     data() {
         return {
             intervalOptions: [
-                { label: '0.01', value: 0.01 },
+                { label: this.$tc('sw-settings-currency.price-rounding.labelIntervalNone'), value: 0.01 },
                 { label: '0.05', value: 0.05 },
                 { label: '0.10', value: 0.10 },
                 { label: '0.50', value: 0.50 },

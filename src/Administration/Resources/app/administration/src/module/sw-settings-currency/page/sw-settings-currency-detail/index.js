@@ -151,6 +151,8 @@ Component.register('sw-settings-currency-detail', {
                 criteria.setTerm('');
             }
 
+            criteria.addSorting(Criteria.sort('country.name'));
+
             return criteria;
         },
 

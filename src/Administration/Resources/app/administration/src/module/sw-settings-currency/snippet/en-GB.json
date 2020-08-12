@@ -63,16 +63,17 @@
       "countryAlreadyAssigned": "The country has already a setting for this currency."
     },
     "price-rounding": {
-      "itemsHeadline": "Rounding items",
+      "itemsHeadline": "Items",
       "itemsSubline": "Rounding applies to all items",
       "labelDecimals": "Decimals",
       "labelInterval": "Interval",
-      "labelRoundForNet": "Round net customers too",
+      "labelRoundForNet": "Round for net customers too",
       "grandHeadline": "Grand total",
       "grandSubline": "Rounding applies to grand totals",
       "helpTextDecimals": "Decimals indicate the maximum number of digits after the decimal separator.",
-      "helpTextInterval": "Use rounding intervals to account for markets where the lowest physical denominations of the currency have been abolished and cash roundings are in place. <br><br> Hint: Select \"0.01\" if you don't want to apply any cash rounding. E.g. when utilising decimals larger than 2.",
-      "helpTextRoundForNet": "Activate rounding for net customer groups additionally."
+      "helpTextInterval": "Use rounding intervals to account for markets where the lowest physical denominations of the currency have been abolished and cash roundings are in place. <br><br> Hint: Select \"None\" if you don't want to apply any cash rounding. E.g. when utilising decimals larger than 2.",
+      "helpTextRoundForNet": "Activate rounding for net customer groups additionally.",
+      "labelIntervalNone": "None"
     }
   },
   "sw-privileges": {

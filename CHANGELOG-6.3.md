@@ -44,6 +44,7 @@ NEXT
     * `/api/v{version}/_action/order/{orderId}/state/{transition}`
     * `/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}`
     * `/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}`
+* Custom field sets can now be sorted using a new `position` field
 
 #### Storefront
   

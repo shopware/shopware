@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
+use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -35,7 +35,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     private $orderRepository;
 
     /**
-     * @var PaymentMethodRoute
+     * @var AbstractPaymentMethodRoute
      */
     private $paymentRoute;
 
@@ -52,7 +52,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     public function __construct(
         OrderService $orderService,
         EntityRepositoryInterface $orderRepository,
-        PaymentMethodRoute $paymentRoute,
+        AbstractPaymentMethodRoute $paymentRoute,
         StateMachineRegistry $stateMachineRegistry
     ) {
         $this->orderService = $orderService;

@@ -91,6 +91,7 @@ NEXT
 * Added generation of order delivery positions when editing an order in the administration
 * Changed the way `senderEmail` is resolved in `\Shopware\Core\Content\MailTemplate\Service\MailService`. It's now possible to override it with `$data['senderEmail']`. 
 * Thumbnails are no longer being upscaled when the original image is smaller than the desired thumbnail size
+* Replaced `PaymentMethodRoute` class with `AbstractPaymentMethodRoute` in `Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute` to ensure the extendability of the `PaymentMethodRoute`
 
 #### Storefront
 

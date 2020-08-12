@@ -118,7 +118,7 @@
                             {% endblock %}
 
                             {% block sw_review_list_grid_columns_actions_delete %}
-                            <sw-context-menu-item class="sw-property-list__delete-action"
+                            <sw-context-menu-item class="sw-review-list__delete-action"
                                                   variant="danger"
                                                   @click="onDelete(item.id)"
                                                   :disabled=" !acl.can('review.deleter')">

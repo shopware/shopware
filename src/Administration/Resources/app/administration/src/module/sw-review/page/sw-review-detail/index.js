@@ -69,6 +69,7 @@ Component.register('sw-review-detail', {
                 this.loadEntityData();
             }
         },
+
         loadEntityData() {
             this.isLoading = true;
             const criteria = new Criteria();

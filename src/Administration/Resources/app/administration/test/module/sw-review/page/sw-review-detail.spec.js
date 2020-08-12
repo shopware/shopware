@@ -1,87 +1,80 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-property/page/sw-property-detail';
+import {createLocalVue, shallowMount} from '@vue/test-utils';
+import 'src/module/sw-review/page/sw-review-detail';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-property-detail'), {
+    return shallowMount(Shopware.Component.build('sw-review-detail'), {
         localVue,
         mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
+            $tc: () => {
+            },
+            $route: {
+                query: {
+                    page: 1,
+                    limit: 25
+                }
+            },
+            $router: {
+                replace: () => {
+                }
             }
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    create: () => {
-                        return {
+                    get: () => {
+                        return Promise.resolve({
                             id: '1a2b3c',
-                            name: 'Test property',
-                            entity: 'property'
-                        };
+                            entity: 'review',
+                            customerId: 'd4c3b2a1',
+                            productId: 'd4c3b2a1',
+                            salesChannelId: 'd4c3b2a1',
+                            customer: {
+                                name: 'Customer Number 1'
+                            },
+                            product: {
+                                name: 'Product Number 1'
+                            },
+                            salesChannel: {
+                                name: 'Channel Number 1'
+                            }
+                        });
                     },
-                    get: () => Promise.resolve({
-                        id: '1a2b3c',
-                        name: 'Test property',
-                        entity: 'property'
-                    }),
                     search: () => Promise.resolve({})
                 })
             },
             acl: {
                 can: (identifier) => {
-                    if (!identifier) { return true; }
+                    if (!identifier) {
+                        return true;
+                    }
 
                     return privileges.includes(identifier);
                 }
             }
         },
         stubs: {
-            'sw-page': true,
+            'sw-page': `
+                <div class="sw-page">
+                    <slot name="smart-bar-actions"></slot>
+                    <slot name="content">CONTENT</slot>
+                    <slot></slot>
+                </div>`,
             'sw-button': true,
-            'sw-button-process': true,
-            'sw-language-switch': true,
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-field': true,
-            'sw-language-info': true
+            'sw-icon': true,
+            'sw-search-bar': true,
+            'sw-language-switch': true
         }
     });
 }
 
-describe('module/sw-property/page/sw-property-detail', () => {
-    it('should be a Vue.JS component', () => {
+describe('module/sw-review/page/sw-review-detail', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.isVueInstance()).toBe(true);
-    });
-
-    it('should not be able to save the property', () => {
-        const wrapper = createWrapper();
-        wrapper.setData({
-            isLoading: false
-        });
-
-        const saveButton = wrapper.find('.sw-property-detail__save-action');
-
-        expect(saveButton.attributes().isLoading).toBeFalsy();
-        expect(saveButton.attributes().disabled).toBeTruthy();
-    });
-
-    it('should be able to save the property', () => {
-        const wrapper = createWrapper([
-            'property.editor'
-        ]);
-        wrapper.setData({
-            isLoading: false
-        });
-
-        const saveButton = wrapper.find('.sw-property-detail__save-action');
-
-        expect(saveButton.attributes().disabled).toBeFalsy();
     });
 });

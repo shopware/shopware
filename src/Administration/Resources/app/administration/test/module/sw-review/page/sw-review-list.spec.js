@@ -1,11 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-property/page/sw-property-list';
+import 'src/module/sw-review/page/sw-review-list';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
-    return shallowMount(Shopware.Component.build('sw-property-list'), {
+    return shallowMount(Shopware.Component.build('sw-review-list'), {
         localVue,
         mocks: {
             $tc: () => {},
@@ -26,8 +26,8 @@ function createWrapper(privileges = []) {
                         return Promise.resolve([
                             {
                                 id: '1a2b3c4e',
-                                name: 'Test property',
-                                sourceEntitiy: 'property'
+                                name: 'Test review',
+                                sourceEntitiy: 'review'
                             }
                         ]);
                     }
@@ -67,7 +67,7 @@ function createWrapper(privileges = []) {
     });
 }
 
-describe('module/sw-property/page/sw-property-list', () => {
+describe('module/sw-review/page/sw-review-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
@@ -75,62 +75,21 @@ describe('module/sw-property/page/sw-property-list', () => {
         expect(wrapper.isVueInstance()).toBe(true);
     });
 
-    it('should not be able to create a new property', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-property-list__button-create');
-
-        expect(createButton.attributes().disabled).toBeTruthy();
-    });
-
-    it('should be able to create a new property', async () => {
-        const wrapper = createWrapper([
-            'property.creator'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-property-list__button-create');
-
-        expect(createButton.attributes().disabled).toBeFalsy();
-    });
-
-    it('should not be able to inline edit', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        const entityListing = wrapper.find('.sw-property-list-grid');
-
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeFalsy();
-    });
-
-    it('should be able to inline edit', async () => {
-        const wrapper = createWrapper([
-            'property.editor'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const entityListing = wrapper.find('.sw-property-list-grid');
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes().allowinlineedit).toBeTruthy();
-    });
-
     it('should not be able to delete', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
+        const deleteMenuItem = wrapper.find('.sw-review-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to delete', async () => {
         const wrapper = createWrapper([
-            'property.deleter'
+            'review.deleter'
         ]);
         await wrapper.vm.$nextTick();
 
-        const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
+        const deleteMenuItem = wrapper.find('.sw-review-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
     });
 
@@ -138,18 +97,17 @@ describe('module/sw-property/page/sw-property-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const editMenuItem = wrapper.find('.sw-property-list__edit-action');
+        const editMenuItem = wrapper.find('.sw-review-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit', async () => {
         const wrapper = createWrapper([
-            'property.editor'
+            'review.editor'
         ]);
         await wrapper.vm.$nextTick();
 
-        const editMenuItem = wrapper.find('.sw-property-list__edit-action');
+        const editMenuItem = wrapper.find('.sw-review-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 });
-

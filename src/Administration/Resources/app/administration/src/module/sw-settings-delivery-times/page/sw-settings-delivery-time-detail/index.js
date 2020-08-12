@@ -11,10 +11,16 @@ Component.register('sw-settings-delivery-time-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
+
         ESCAPE: 'onCancel'
     },
 
@@ -135,6 +141,42 @@ Component.register('sw-settings-delivery-time-detail', {
                 return new ShopwareError({ code: 'DELIVERY_TIME_MIN_INVALID' });
             }
             return null;
+        },
+
+        allowSave() {
+            if (!this.deliveryTime) {
+                return false;
+            }
+
+            if (this.deliveryTime.isNew()) {
+                return this.acl.can('delivery_times.creator');
+            }
+
+            return this.acl.can('delivery_times.editor');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     }
 });

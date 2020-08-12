@@ -36,8 +36,14 @@
             <template #smart-bar-actions>
                 {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
                     <sw-button
+                        v-tooltip.bottom="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('delivery_times.creator'),
+                            showOnDisabledElements: true
+                        }"
                         class="sw-settings-delivery-time-list__create"
                         variant="primary"
+                        :disabled="!acl.can('delivery_times.creator')"
                         :routerLink="{ name: 'sw.settings.delivery.time.create' }">
                         {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
                     </sw-button>
@@ -57,12 +63,15 @@
 
                                     {% block sw_settings_delivery_time_list_grid %}
                                         <sw-entity-listing
+                                            class="sw-settings-delivery-time-list-grid"
                                             :items="deliveryTimes"
                                             :columns="deliveryTimeColumns()"
                                             :repository="deliveryTimeRepository"
                                             detailRoute="sw.settings.delivery.time.detail"
+                                            :allowEdit="acl.can('delivery_times.editor')"
+                                            :allowDelete="acl.can('delivery_times.deleter')"
                                             :allowColumnEdit="false"
-                                            :showSelection="true"
+                                            :showSelection="acl.can('delivery_times.deleter')"
                                             :showSettings="false"
                                             :isLoading="isLoading"
                                             :fullPage="false">

@@ -54,7 +54,7 @@
         <sw-context-menu-item @click="showDelete(item.id)"
                               :disabled="!allowDelete"
                               class="sw-entity-listing__context-menu-edit-delete"
-                              v-tooltip="{
+                              v-tooltip.bottom="{
                                     message: $tc('sw-privileges.tooltip.warning'),
                                     disabled: allowDelete,
                                     showOnDisabledElements: true

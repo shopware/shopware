@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -221,6 +222,48 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(5, $product->getStock());
 
         $orderId = $this->orderProduct($id, 1);
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertTrue($product->getAvailable());
+        static::assertSame(5, $product->getStock());
+        static::assertSame(4, $product->getAvailableStock());
+
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertTrue($product->getAvailable());
+        static::assertSame(4, $product->getStock());
+        static::assertSame(4, $product->getAvailableStock());
+    }
+
+    public function testUpdateStockWithDifferentOrderVersions(): void
+    {
+        $id = $this->createProduct();
+
+        $context = Context::createDefaultContext();
+
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
+
+        static::assertSame(5, $product->getStock());
+
+        $orderId = $this->orderProduct($id, 1);
+
+        $this->getContainer()->get('order.repository')
+            ->createVersion($orderId, $context);
+
+        $this->getContainer()->get('order.repository')
+            ->createVersion($orderId, $context);
+
+        $count = $this->getContainer()
+            ->get(Connection::class)
+            ->fetchColumn('SELECT COUNT(id) FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($orderId)]);
+
+        static::assertEquals(3, $count);
 
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);

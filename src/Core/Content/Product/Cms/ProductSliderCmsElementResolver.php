@@ -137,8 +137,14 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             $resolverContext->getSalesChannelContext()->getContext()
         );
 
-        $sorting = $elementConfig->get('productStreamSorting')->getValue();
-        $limit = $elementConfig->get('productStreamLimit')->getValue();
+        $sorting = 'name:' . FieldSorting::ASCENDING;
+        if ($productStreamSorting = $elementConfig->get('productStreamSorting')) {
+            $sorting = $productStreamSorting->getValue();
+        }
+        $limit = 500;
+        if ($productStreamLimit = $elementConfig->get('productStreamLimit')) {
+            $limit = $productStreamLimit->getValue();
+        }
 
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
@@ -155,8 +161,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         );
 
         if ($sorting === 'random') {
-            // @TODO: Implement random sort
-            return $criteria;
+            return $this->setRandomSort($criteria);
         }
 
         if ($sorting) {
@@ -164,6 +169,28 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             $field = $sorting[0];
             $direction = $sorting[1];
 
+            $criteria->addSorting(new FieldSorting($field, $direction));
+        }
+
+        return $criteria;
+    }
+
+    private function setRandomSort(Criteria $criteria): Criteria
+    {
+        $fields = [
+            'id',
+            'stock',
+            'releaseDate',
+            'manufacturer.id',
+            'unit.id',
+            'tax.id',
+            'cover.id',
+        ];
+        shuffle($fields);
+        $fields = array_slice($fields, 0, 2);
+        $direction = [FieldSorting::ASCENDING, FieldSorting::DESCENDING];
+        $direction = $direction[random_int(0, 1)];
+        foreach ($fields as $field) {
             $criteria->addSorting(new FieldSorting($field, $direction));
         }
 

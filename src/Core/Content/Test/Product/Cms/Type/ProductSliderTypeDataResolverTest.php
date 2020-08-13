@@ -20,7 +20,12 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -30,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductSliderTypeDataResolverTest extends TestCase
 {
     use KernelTestBehaviour;
+    use DatabaseTransactionBehaviour;
 
     /**
      * @var ProductSliderCmsElementResolver
@@ -55,6 +61,11 @@ class ProductSliderTypeDataResolverTest extends TestCase
      * @var string
      */
     private $productIdWidth150;
+
+    /**
+     * @var array
+     */
+    private $randomProductIds;
 
     protected function setUp(): void
     {
@@ -210,12 +221,40 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
         $collection = $this->sliderResolver->collect($slot, $resolverContext);
 
-        // @TODO: Unused variable
-        // $products = $this->getContainer()->get('product.repository')->search(
-        //    $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'],
-        //    $salesChannelContext->getContext()
+        static::assertCount(1, $collection->all());
+        static::assertEquals('Shopware\Core\Content\Product\ProductDefinition', key($collection->all()));
+        static::assertEquals('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
 
-        static::assertNull($collection);
+        $expectedCriteria = new Criteria();
+        $expectedCriteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        $expectedCriteria->addFilter(new MultiFilter(
+            MultiFilter::CONNECTION_AND,
+            [
+                new EqualsAnyFilter('product.id', $this->randomProductIds),
+                new RangeFilter('product.width', [
+                    'gte' => 120,
+                    'lte' => 180,
+                ]),
+            ]
+        ));
+        $expectedCriteria->setLimit(500);
+
+        /** @var Criteria $criteria */
+        foreach ($collection->getIterator()->current() as $criteria) {
+            static::assertEquals($expectedCriteria->getSorting(), $criteria->getSorting());
+            static::assertEquals($expectedCriteria->getLimit(), $criteria->getLimit());
+            /** @var MultiFilter $expectedMultiFilter */
+            $expectedMultiFilter = $expectedCriteria->getFilters()[0];
+            /** @var MultiFilter $multiFilter */
+            $multiFilter = $expectedCriteria->getFilters()[0];
+            static::assertEquals($expectedMultiFilter->getQueries()[0], $multiFilter->getQueries()[0]);
+            /** @var RangeFilter $expectedRangeFilter */
+            $expectedRangeFilter = $expectedMultiFilter->getQueries()[1];
+            /** @var RangeFilter $rangeFilter */
+            $rangeFilter = $expectedMultiFilter->getQueries()[1];
+            static::assertEquals($rangeFilter->getField(), $rangeFilter->getField());
+            static::assertEquals($expectedRangeFilter->getParameters(), $rangeFilter->getParameters());
+        }
     }
 
     public function testCollectWithMappedConfigButEmptyManyToManyRelation(): void
@@ -238,6 +277,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.categories.id', $category->getUniqueIdentifier()));
         $criteria->addAssociation('cover');
+        $criteria->addAssociation('options.group');
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
@@ -263,6 +303,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.parent.id', $product->getUniqueIdentifier()));
         $criteria->addAssociation('cover');
+        $criteria->addAssociation('options.group');
 
         static::assertNotNull($collection);
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
@@ -270,7 +311,8 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     private function createTestProductStreamEntity(): ProductStreamEntity
     {
-        $randomProductIds = implode('|', array_column($this->createProducts(), 'id'));
+        $this->randomProductIds = array_column($this->createProducts(), 'id');
+        $randomProductIdsString = implode('|', $this->randomProductIds);
 
         $stream = [
             'id' => $this->productStreamId,
@@ -282,7 +324,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
                         [
                             'type' => 'equalsAny',
                             'field' => 'product.id',
-                            'value' => $randomProductIds,
+                            'value' => $randomProductIdsString,
                         ],
                         [
                             'type' => 'range',

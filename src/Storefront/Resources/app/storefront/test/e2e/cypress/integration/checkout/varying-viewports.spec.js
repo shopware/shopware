@@ -45,10 +45,12 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                     cy.get('.search-toggle-btn').click();
                 }
 
-                // Take snapshot for visual testing
-                cy.takeSnapshot(`Checkout ${device.model} - Search product`,
-                    '.header-search-input'
-                );
+                // Take snapshot for visual testing on desktop
+                if (device.model === 'macbook-15') {
+                    cy.takeSnapshot(`Checkout ${device.model} - Search product`,
+                        '.header-search-input'
+                    );
+                }
 
                 // Product detail
                 cy.get('.header-search-input')
@@ -66,10 +68,12 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
 
                 // Off canvas
 
-                // Take snapshot for visual testing
-                cy.takeSnapshot(`Checkout ${device.model} - Offcanvas`,
-                    `${page.elements.offCanvasCart}.is-open`
-                );
+                // Take snapshot for visual testing on desktop
+                if (device.model === 'macbook-15') {
+                    cy.takeSnapshot(`Checkout ${device.model} - Offcanvas`,
+                        `${page.elements.offCanvasCart}.is-open`
+                    );
+                }
 
                 cy.get(`${page.elements.cartItem}-label`).contains(product.name);
 
@@ -80,8 +84,10 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.get('.checkout-main').should('be.visible');
                 cy.get('.login-collapse-toggle').click();
 
-                // Take snapshot for visual testing
-                cy.takeSnapshot(`Checkout ${device.model} - Login`, accountPage.elements.loginCard);
+                // Take snapshot for visual testing on desktop
+                if (device.model === 'macbook-15') {
+                    cy.takeSnapshot(`Checkout ${device.model} - Login`, accountPage.elements.loginCard);
+                }
 
                 cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
                 cy.get('#loginPassword').typeAndCheckStorefront('shopware');
@@ -90,8 +96,10 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 // Confirm
                 cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
-                // Take snapshot for visual testing
-                cy.takeSnapshot(`Checkout ${device.model} - Confirm`, '.confirm-tos');
+                // Take snapshot for visual testing on desktop
+                if (device.model === 'macbook-15') {
+                    cy.takeSnapshot(`Checkout ${device.model} - Confirm`, '.confirm-tos');
+                }
 
                 cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
                 cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
@@ -104,8 +112,10 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.get('#confirmFormSubmit').scrollIntoView();
                 cy.get('#confirmFormSubmit').click();
 
-                // Take snapshot for visual testing
-                cy.takeSnapshot(`Checkout ${device.model} - Finish`, '.finish-header');
+                // Take snapshot for visual testing on desktop
+                if (device.model === 'macbook-15') {
+                    cy.takeSnapshot(`Checkout ${device.model} - Finish`, '.finish-header');
+                }
 
                 cy.get('.finish-header').contains('Thank you for your order with Demostore!');
             });

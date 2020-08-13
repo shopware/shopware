@@ -39,7 +39,8 @@ describe('Import/Export - Export:', () => {
             method: 'post'
         }).as('importExportLog');
 
-        cy.get('.sw-import-export-view-export').should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Import export - Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
         cy.get('.sw-import-export-exporter__profile-select')
@@ -74,5 +75,10 @@ describe('Import/Export - Export:', () => {
             .should('contain', 'E2E');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
             .should('contain', 'Succeeded');
+
+        cy.awaitAndCheckNotification('The export was completed successfully.');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Import export -  Overview after export', '.sw-import-export-activity');
     });
 });

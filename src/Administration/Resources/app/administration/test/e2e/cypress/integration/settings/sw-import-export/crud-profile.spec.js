@@ -26,13 +26,19 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
-        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Import export - Profiles overview',
+            '.sw-import-export-view-profiles__listing'
+        );
 
         // Perform create new profile action
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
         // Expect modal to be displayed and add mapping button to be disabled first
-        cy.get('.sw-import-export-edit-profile-modal').should('be.visible');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Import export - Profiles overview', '.sw-modal');
+
         cy.get('.sw-import-export-edit-profile-modal-mapping').should('be.visible');
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.disabled');
 

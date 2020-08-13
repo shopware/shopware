@@ -13,6 +13,7 @@
     "open": "node_modules/.bin/cypress open",
     "cy:run:chrome": "cypress run --browser chrome",
     "cy:run:percy": "percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000",
+    "cy:finalize:percy": "percy finalize --all",
     "cy:run:firefox": "cypress run --browser firefox"
   },
   "dependencies": {

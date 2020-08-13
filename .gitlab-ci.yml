@@ -9,7 +9,7 @@ variables:
     PERCY_TOKEN: $PERCY_TOKEN
 
 stages:
-    - unit
+#    - unit
     - E2E
     - Build
     - Generate docs
@@ -439,7 +439,20 @@ Validate snippets:
         - npm install --save-dev @percy/cypress
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && npm run cy:run:percy"
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && export PERCY_PARALLEL_TOTAL=2 && export PERCY_PARALLEL_NONCE=$SECTION && npx percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000"
+
+.percy_admin_script:
+    script: &percy_admin_definition
+        - ./psh.phar init --APP_ENV="prod"
+        - ./psh.phar administration:init --APP_ENV="prod"
+        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
+        - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
+        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
+        - npm install --save-dev @percy/cypress
+        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        - chown -R 1000:1000 .
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && export PERCY_PARALLEL_TOTAL=2 && export PERCY_PARALLEL_NONCE=$SECTION && npx percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000"
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition

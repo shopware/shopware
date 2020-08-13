@@ -36,7 +36,8 @@ describe('Import/Export - Check import functionality', { browser: "!firefox" }, 
             method: 'post'
         }).as('importExportLog');
 
-        cy.get('.sw-import-export-view-import').should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Import export -  Import overview', '.sw-import-export-view-import');
 
         // Upload a fixture CSV file with a single product
         cy.fixture('csv/single-product.csv').then(fileContent => {
@@ -91,6 +92,9 @@ describe('Import/Export - Check import functionality', { browser: "!firefox" }, 
             .should('contain', 'E2E');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
             .should('contain', 'Succeeded');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Import export -  Overview after import', '.sw-import-export-activity');
 
         // Verify that the imported product exists in product listing
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

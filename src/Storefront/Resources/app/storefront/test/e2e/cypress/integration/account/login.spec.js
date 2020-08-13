@@ -9,8 +9,6 @@ describe('Account: Login as customer', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Account overview', '.account-welcome');
 
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
         cy.get('#loginPassword').typeAndCheckStorefront('Anything');
@@ -25,7 +23,8 @@ describe('Account: Login as customer', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
-        cy.get(page.elements.loginCard).should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Account overview', page.elements.loginCard);
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();

@@ -41,10 +41,10 @@ describe('Account: Register via account menu', () => {
 
         cy.get('.account-welcome h1').should((element) => {
             expect(element).to.contain('Overview');
-
-            // Take snapshot for visual testing
-            cy.takeSnapshot('Account overview', '.account-welcome');
         });
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Account overview');
     });
 
     it('@login: Fill registration without state', () => {

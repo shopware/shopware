@@ -56,7 +56,7 @@ describe('Media: Test crud operations', () => {
         }
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Media listing', '.sw-media-item');
+        cy.takeSnapshot('Media listing', '.sw-media-library');
     });
 
     it('@base @media: update and read medium\'s meta data (uploaded via url)', () => {

@@ -304,7 +304,6 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null) => {
 
     if(selectorToCheck) {
         cy.get(selectorToCheck).should('be.visible');
-        cy.get('.sw-loader').should('not.exist');
     }
 
     if (Cypress.env('usePercy')) {

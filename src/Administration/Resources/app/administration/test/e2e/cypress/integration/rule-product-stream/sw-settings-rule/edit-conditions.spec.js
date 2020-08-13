@@ -116,6 +116,9 @@ describe('Rule builder: Test crud operations', () => {
             cy.get('.sw-condition .sw-condition__context-button').first().click();
         });
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Rule builder -  Rule with conditions', '.sw-condition');
+
         cy.get('.sw-context-menu').contains('Delete').click();
 
         cy.get('.sw-condition').should('have.length', 5);

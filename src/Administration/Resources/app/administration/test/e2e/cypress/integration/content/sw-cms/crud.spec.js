@@ -87,7 +87,7 @@ describe('CMS: Test crud operations of layouts', () => {
             expect(xhr).to.have.property('status', 204);
 
             // Take snapshot for visual testing
-            cy.takeSnapshot('CMS listing - Layouts', '.sw-cms-list');
+            cy.takeSnapshot('CMS listing - Detail', '.sw-cms-detail__stage');
         });
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
@@ -98,12 +98,13 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('CMS detail - Layouts', '.sw-modal__dialog');
+
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
         cy.get('.sw-card.sw-category-layout-card .sw-cms-list-item__title').contains('Vierte Wand');
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('CMS detail - Layouts', '.sw-cms-detail__stage');
 
         // Save layout
         cy.get('.sw-category-detail__save-action').click();
@@ -114,7 +115,7 @@ describe('CMS: Test crud operations of layouts', () => {
         // Verify layout in Storefront
         cy.visit('/');
         cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
-        cy.takeSnapshot('CMS - Layout in Storefront', '.sw-cms-detail__stage');
+        cy.takeSnapshot('CMS - Layout in Storefront', '.cms-block');
     });
 
     it('@base @content: delete layout', () => {

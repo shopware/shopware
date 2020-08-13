@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-item.html.twig' %}
 
 {% block page_checkout_item_quantity_form %}
-    {{ lineItem.quantity }}
+    {{ block('page_checkout_item_quantity_number') }}
 {% endblock %}
 
 {% block page_checkout_item_remove_form %}

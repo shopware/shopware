@@ -11,11 +11,17 @@ Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
 * [NEXT](#NEXT)
-* [6.4.0](#640)
+* [6.4.0.0](#6400)
+  - [Core](#core)
+  - [Administration](#administration)
   - [Storefront](#storefront)
   
-6.4.0
+6.4.0.0
 ----------------
+
+### Core
+
+* Changed the type of the first argument `$operations` in `\Shopware\Core\Framework\Api\Sync\SyncServiceInterface::sync` form `array` to `iterable`
 
 ### Administration
 * Removed `StateDeprecated`

@@ -32,17 +32,12 @@ class Migration1595919251MainCategoryTest extends TestCase
     {
         /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
-
-        $expectedSchema = $conn->fetchAssoc('SHOW CREATE TABLE `main_category`')['Create Table'];
         $conn->executeUpdate('DROP TABLE `main_category`');
 
         $migration = new Migration1595919251MainCategory();
         $migration->update($conn);
-        $actualSchema = $conn->fetchAssoc('SHOW CREATE TABLE `main_category`')['Create Table'];
-        static::assertSame($expectedSchema, $actualSchema, 'Schema changed!. Run init again to have clean state');
+        $exists = $conn->fetchColumn('SELECT COUNT(*) FROM `main_category`') !== false;
 
-        $migration->updateDestructive($conn);
-        $actualSchema = $conn->fetchAssoc('SHOW CREATE TABLE `main_category`')['Create Table'];
-        static::assertSame($expectedSchema, $actualSchema, 'Schema changed!. Run init again to have clean state');
+        static::assertTrue($exists);
     }
 }

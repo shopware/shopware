@@ -110,5 +110,12 @@
       "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
       "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "category": {
+        "label": "Categories"
+      }
+    }
   }
 }

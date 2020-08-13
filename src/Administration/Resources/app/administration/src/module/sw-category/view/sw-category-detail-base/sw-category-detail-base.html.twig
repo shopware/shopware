@@ -9,6 +9,7 @@
                             name="categoryName"
                             v-model="category.name"
                             validation="required"
+                            :disabled="!acl.can('category.editor')"
                             :label="$tc('sw-category.base.general.categoryNameLabel')"
                             :placeholder="placeholder(category, 'name')"
                             :error="categoryNameError">
@@ -17,6 +18,7 @@
 
                     {% block sw_category_detail_information_active %}
                         <sw-switch-field
+                            :disabled="!acl.can('category.editor')"
                             name="categoryActive"
                             class="sw-category-detail-base__active"
                             :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
@@ -32,6 +34,7 @@
                                 :helpText="$tc('sw-category.base.general.types.help')"
                                 :label="$tc('sw-category.base.general.types.title')"
                                 v-model="category.type"
+                                :disabled="!acl.can('category.editor')"
                                 :options="categoryTypes">
                             </sw-single-select>
                         {% endblock %}
@@ -44,6 +47,7 @@
                         class="sw-category-detail-base__tags"
                         :label="$tc('sw-category.base.general.labelCategoryTags')"
                         :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
+                        :disabled="!acl.can('category.editor')"
                         v-model="category.tags">
                     </sw-entity-tag-select>
                 {% endblock %}
@@ -86,6 +90,7 @@
                     :entityCollection="category.products"
                     :columns="productColumns"
                     :isLoading="isLoading"
+                    :disabled="!acl.can('category.editor')"
                     :localMode="category.isNew()"
                     :criteria="productCriteria"
                     :selectLabel="$tc('sw-category.base.products.productAssignmentLabel')"
@@ -195,6 +200,7 @@
                 <sw-seo-url v-if="category.seoUrls"
                             :isLoading="isLoading"
                             :hasDefaultTemplate="false"
+                            :disabled="!acl.can('category.editor')"
                             :urls="category.seoUrls">
                 </sw-seo-url>
             {% endblock %}

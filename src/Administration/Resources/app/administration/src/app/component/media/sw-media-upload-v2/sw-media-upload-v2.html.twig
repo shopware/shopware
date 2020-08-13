@@ -10,7 +10,7 @@
                     {% endblock %}
 
                     {% block sw_media_upload_v2_compact_button_context_menu %}
-                        <sw-context-button v-if="uploadUrlFeatureEnabled">
+                        <sw-context-button class="sw-media-upload-v2__button-open-context-menu" v-if="uploadUrlFeatureEnabled && !disabled">
                             <template slot="button">
                                 <sw-button square variant="primary" class="sw-media-upload-v2__button-context-menu">
                                     <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
@@ -53,7 +53,7 @@
 
                         {% block sw_media_upload_v2_regular_header_switch %}
                             <sw-context-button
-                                v-if="!source && uploadUrlFeatureEnabled"
+                                v-if="!source && uploadUrlFeatureEnabled && !disabled"
                                 class="sw-media-upload-v2__switch-mode">
                                 {% block sw_media_upload_v2_regular_header_switch_file_upload %}
                                     <sw-context-menu-item
@@ -118,6 +118,7 @@
                                     </div>
                                     <sw-icon class="sw-media-upload-v2__remove-icon"
                                         name="small-default-x-line-small"
+                                        v-if="!disabled"
                                         @click="onRemoveMediaItem"
                                         small>
                                     </sw-icon>
@@ -139,6 +140,7 @@
                                                 <sw-button class="sw-media-upload-v2__button upload"
                                                             variant="ghost"
                                                             size="small"
+                                                           :disabled="disabled"
                                                             @click="onClickUpload">
                                                     {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
                                                 </sw-button>
@@ -149,6 +151,7 @@
                                                             v-if="hasOpenMediaButtonListener"
                                                             variant="primary"
                                                             size="small"
+                                                           :disabled="disabled"
                                                             @click="onClickOpenMediaSidebar">
                                                     {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
                                                 </sw-button>

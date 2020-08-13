@@ -13,6 +13,7 @@
                             <template slot="toolbar">
                                 <sw-sales-channel-switch
                                         ref="salesChannelSwitch"
+                                        :disabled="disabled"
                                         :label="$tc('sw-seo-url.labelSalesChannelSelect')"
                                         @change-sales-channel-id="onSalesChannelChanged">
                                 </sw-sales-channel-switch>

@@ -91,6 +91,12 @@ Component.register('sw-many-to-many-assignment-card', {
             default() {
                 return [];
             }
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

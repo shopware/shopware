@@ -109,5 +109,12 @@
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
       "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "category": {
+        "label": "Kategorien"
+      }
+    }
   }
 }

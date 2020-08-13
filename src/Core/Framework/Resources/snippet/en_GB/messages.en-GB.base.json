@@ -35,6 +35,7 @@
             },
             "tax": "plus %taxRate%% VAT:",
             "total": "Total:",
+            "roundedTotal": "Rounded total:",
             "totalNet": "Net total:",
             "shippingCosts": "Shipping costs"
         },

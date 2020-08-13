@@ -204,7 +204,7 @@
                      :isLoading="isLoading">
                 <sw-custom-field-set-renderer
                     :entity="order"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing || !acl.can('order.editor')"
                     :sets="customFieldSets">
                 </sw-custom-field-set-renderer>
             </sw-card>

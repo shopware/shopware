@@ -70,16 +70,6 @@ You also can bind your plugin to an DOM element by providing an css selector:
 In this case the plugin just gets executed if the HTML document contains at least one element with the `data-scroll-detector` attribute.
 You could use `this.el` inside your plugin to access the DOM element your plugin is bound to.
 
-Lastly you have to add a small code snippet for the HotModuleReload server to work with your custom plugins, so your full `main.js` file now looks like this:
-
-```js
-// Import all necessary Storefront plugins and scss files
-import ExamplePlugin from './example-plugin/example-plugin.plugin';
-
-// Register them via the existing PluginManager
-const PluginManager = window.PluginManager;
-PluginManager.register('ExamplePlugin', ExamplePlugin, '[data-example-plugin]');
-```
 
 ## Loading your plugin
 

@@ -3,10 +3,12 @@ import PrivilegesService from 'src/app/service/privileges.service';
 describe('src/app/service/acl.service.js', () => {
     beforeEach(() => {
         global.console.warn = jest.fn();
+        global.console.error = jest.fn();
     });
 
     afterEach(() => {
         global.console.warn.mockReset();
+        global.console.error.mockReset();
     });
 
     it('should contain no privilege mappings', () => {
@@ -36,6 +38,31 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings()[0]).toStrictEqual(privilegeMapping);
     });
 
+    it('should add a list of privilege mappings', () => {
+        const privilegesService = new PrivilegesService();
+
+        const privilegeMappings = [
+            {
+                category: 'permissions',
+                parent: null,
+                key: 'foo',
+                roles: {}
+            },
+            {
+                category: 'permissions',
+                parent: null,
+                key: 'bar',
+                roles: {}
+            }
+        ];
+
+        privilegesService.addPrivilegeMappingEntries(privilegeMappings);
+
+        expect(privilegesService.getPrivilegesMappings().length).toBe(2);
+        expect(privilegesService.getPrivilegesMappings()[0]).toStrictEqual(privilegeMappings[0]);
+        expect(privilegesService.getPrivilegesMappings()[1]).toStrictEqual(privilegeMappings[1]);
+    });
+
     it('should throw a warning if the argument is not an object', () => {
         const privilegesService = new PrivilegesService();
 
@@ -44,6 +71,19 @@ describe('src/app/service/acl.service.js', () => {
         expect(global.console.warn).toHaveBeenCalledWith(
             '[addPrivilegeMappingEntry]',
             'The privilegeMapping has to be an object.',
+        );
+
+        expect(privilegesService.getPrivilegesMappings().length).toBe(0);
+    });
+
+    it('should throw an error if the argument is not an array', () => {
+        const privilegesService = new PrivilegesService();
+
+        expect(global.console.error).not.toHaveBeenCalled();
+        privilegesService.addPrivilegeMappingEntries('notAnArray');
+        expect(global.console.error).toHaveBeenCalledWith(
+            '[addPrivilegeMappingEntries]',
+            'The privilegeMappings must be an array.',
         );
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);

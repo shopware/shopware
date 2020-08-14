@@ -27,7 +27,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
             $deLangId,
             $this->getOrderConfirmationHtmlTemplateEn(),
             $this->getOrderConfirmationPlainTemplateEn(),
-            $this->getOrderConfirmationHtmlTemplateDe(),
+            $this->getOrderConfirmationHTMLTemplateDe(),
             $this->getOrderConfirmationPlainTemplateDe()
         );
 
@@ -72,7 +72,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
             $deLangId,
             $this->getDeliveryShippedHtmlTemplateEn(),
             $this->getDeliveryShippedPlainTemplateEn(),
-            $this->getDeliveryShippedHtmlTemplateDe(),
+            $this->getDeliveryShippedHTMLTemplateDe(),
             $this->getDeliveryShippedPlainTemplateDe()
         );
 

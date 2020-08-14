@@ -11,6 +11,9 @@ parameters:
         container_xml_path: '%rootDir%/../../../../../../..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
     inferPrivatePropertyTypeFromConstructor: true
 
+    featureToggles:
+        unusedClassElements: true
+
     excludes_analyse:
         - src/Core/Flag/feature_*.php
         - src/Recovery/*

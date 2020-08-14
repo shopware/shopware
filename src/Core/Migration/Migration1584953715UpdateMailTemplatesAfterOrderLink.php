@@ -72,7 +72,7 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
             $deLangId,
             $this->getDeliveryShippedHtmlTemplateEn(),
             $this->getDeliveryShippedPlainTemplateEn(),
-            $this->getDeliveryShippedHtmlTemplateDe(),
+            $this->getDeliveryShippedHTMLTemplateDe(),
             $this->getDeliveryShippedPlainTemplateDe()
         );
 

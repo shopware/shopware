@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Demodata;
 
 use bheller\ImagesGenerator\ImagesGeneratorProvider;
-use Doctrine\DBAL\Connection;
 use Faker\Factory;
 use Faker\Generator;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -33,20 +32,16 @@ class DemodataService
     private $registry;
 
     /**
-     * @var Connection
+     * @param \IteratorAggregate<DemodataGeneratorInterface> $generators
      */
-    private $connection;
-
     public function __construct(
-        Connection $connection,
-        iterable $generators,
+        \IteratorAggregate $generators,
         string $projectDir,
         DefinitionInstanceRegistry $registry
     ) {
         $this->projectDir = $projectDir;
         $this->generators = iterator_to_array($generators);
         $this->registry = $registry;
-        $this->connection = $connection;
     }
 
     public function generate(DemodataRequest $request, Context $context, ?SymfonyStyle $console): DemodataContext
@@ -57,7 +52,7 @@ class DemodataService
 
         $faker = $this->getFaker();
 
-        $demodataContext = new DemodataContext($this->connection, $context, $faker, $this->projectDir, $console, $this->registry);
+        $demodataContext = new DemodataContext($context, $faker, $this->projectDir, $console, $this->registry);
 
         /** @var EntityDefinition|string $definitionClass */
         foreach ($request->all() as $definitionClass => $numberOfItems) {

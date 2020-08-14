@@ -151,6 +151,7 @@ NEXT
 * Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to provide loggedin context token
 * Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
 * Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
+* Fixed to hiding the shipping cost dropdown if the customer is logged in block `page_checkout_cart_shipping_costs_form_group_country`
 
 6.3.0.0
 ----------------

@@ -120,33 +120,35 @@
                             {% endblock %}
 
                             {% block page_checkout_cart_shipping_costs_trigger %}
-                                    <a class="btn btn-link cart-shipping-costs-btn"
-                                       data-toggle="collapse"
-                                       href="#collapseShippingCost"
-                                       role="button"
-                                       aria-expanded="false"
-                                       aria-controls="collapseExample">
-                                        {{ "checkout.shippingCosts"|trans|sw_sanitize }}
-                                        {% block page_checkout_cart_shipping_costs_trigger_icon %}
-                                            {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
-                                        {% endblock %}
-                                    </a>
+                                <a class="btn btn-link cart-shipping-costs-btn"
+                                   data-toggle="collapse"
+                                   href="#collapseShippingCost"
+                                   role="button"
+                                   aria-expanded="false"
+                                   aria-controls="collapseExample">
+                                    {{ "checkout.shippingCosts"|trans|sw_sanitize }}
+                                    {% block page_checkout_cart_shipping_costs_trigger_icon %}
+                                        {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                                    {% endblock %}
+                                </a>
                             {% endblock %}
 
                             {% block page_checkout_cart_shipping_costs_form_group %}
                                 <div class="collapse" id="collapseShippingCost">
                                     {% block page_checkout_cart_shipping_costs_form_group_country %}
-                                        <div class="form-group">
-                                            <label for="countryId">{{ "checkout.shippingCountry"|trans|sw_sanitize }}</label>
-                                            <select class="custom-select" type="text" id="countryId" name="countryId">
-                                                {% for country in page.countries %}
-                                                    <option value="{{ country.id }}"
-                                                        {% if country.id == context.shippingLocation.country.id %}selected="selected"{% endif %}>
-                                                        {{ country.translated.name }}
-                                                    </option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                        {% if not context.customer %}
+                                            <div class="form-group">
+                                                <label for="countryId">{{ "checkout.shippingCountry"|trans|sw_sanitize }}</label>
+                                                <select class="custom-select" type="text" id="countryId" name="countryId">
+                                                    {% for country in page.countries %}
+                                                        <option value="{{ country.id }}"
+                                                            {% if country.id == context.shippingLocation.country.id %}selected="selected"{% endif %}>
+                                                            {{ country.translated.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
                                     {% endblock %}
 
                                     {% block page_checkout_cart_shipping_costs_form_group_payment_method %}

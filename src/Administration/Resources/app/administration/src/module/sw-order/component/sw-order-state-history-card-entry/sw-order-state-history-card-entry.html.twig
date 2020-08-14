@@ -39,6 +39,7 @@
 
         {% block sw_order_state_card_entry_state_select %}
             <sw-order-state-select :transitionOptions="transitionOptions"
+                                   :disabled="disabled"
                                    v-on="$listeners">
             </sw-order-state-select>
         {% endblock %}

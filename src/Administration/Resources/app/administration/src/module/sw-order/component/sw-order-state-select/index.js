@@ -27,6 +27,11 @@ Component.register('sw-order-state-select', {
             type: String,
             required: false,
             default: ''
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     data() {

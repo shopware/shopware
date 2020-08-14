@@ -310,6 +310,11 @@
     }
   },
   "sw-privileges": {
+    "permissions": {
+      "order": {
+        "label": "Orders"
+      }
+    },
     "additional_permissions": {
       "orders": {
         "create_discounts": "Create discounts"

@@ -15,7 +15,8 @@ Component.register('sw-order-document-card', {
     inject: [
         'documentService',
         'numberRangeService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [

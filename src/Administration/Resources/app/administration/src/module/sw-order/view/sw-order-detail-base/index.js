@@ -10,7 +10,8 @@ Component.register('sw-order-detail-base', {
     inject: [
         'repositoryFactory',
         'orderService',
-        'stateStyleDataProviderService'
+        'stateStyleDataProviderService',
+        'acl'
     ],
 
     props: {

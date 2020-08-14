@@ -15,7 +15,8 @@ Component.register('sw-order-state-history-card', {
         'orderService',
         'stateMachineService',
         'orderStateMachineService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
     props: {
         title: {

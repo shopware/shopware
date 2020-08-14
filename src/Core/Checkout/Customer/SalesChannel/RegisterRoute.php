@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
@@ -26,8 +27,10 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -78,6 +81,11 @@ class RegisterRoute extends AbstractRegisterRoute
      */
     private $systemConfigService;
 
+    /**
+     * @var SalesChannelContextPersister
+     */
+    private $contextPersister;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
@@ -85,7 +93,8 @@ class RegisterRoute extends AbstractRegisterRoute
         DataValidationFactoryInterface $accountValidationFactory,
         DataValidationFactoryInterface $addressValidationFactory,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $customerRepository
+        EntityRepositoryInterface $customerRepository,
+        SalesChannelContextPersister $contextPersister
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -94,6 +103,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->addressValidationFactory = $addressValidationFactory;
         $this->systemConfigService = $systemConfigService;
         $this->customerRepository = $customerRepository;
+        $this->contextPersister = $contextPersister;
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -181,10 +191,29 @@ class RegisterRoute extends AbstractRegisterRoute
             $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($context, $customerEntity));
         }
 
+        $response = new CustomerResponse($customerEntity);
+
+        if (!$customerEntity->getDoubleOptInRegistration()) {
+            $newToken = $this->contextPersister->replace($context->getToken());
+            $this->contextPersister->save(
+                $newToken,
+                [
+                    'customerId' => $customerEntity->getId(),
+                    'billingAddressId' => null,
+                    'shippingAddressId' => null,
+                ]
+            );
+
+            $event = new CustomerLoginEvent($context, $customerEntity, $newToken);
+            $this->eventDispatcher->dispatch($event);
+
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+        }
+
         // We don't want to leak the hash in store-api
         $customerEntity->setHash('');
 
-        return new CustomerResponse($customerEntity);
+        return $response;
     }
 
     private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url): Event

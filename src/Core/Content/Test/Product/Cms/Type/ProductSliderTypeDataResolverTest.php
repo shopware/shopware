@@ -237,7 +237,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
                 ]),
             ]
         ));
-        $expectedCriteria->setLimit(500);
+        $expectedCriteria->setLimit(50);
 
         /** @var Criteria $criteria */
         foreach ($collection->getIterator()->current() as $criteria) {

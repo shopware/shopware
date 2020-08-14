@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,6 +25,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
     private const PRODUCT_SLIDER_ENTITY_FALLBACK = 'product-slider-entity-fallback';
     private const STATIC_SEARCH_KEY = 'product-slider';
+    private const FALLBACK_LIMIT = 50;
 
     /**
      * @var ProductStreamBuilder
@@ -96,6 +98,13 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         if ($productConfig->isProductStream() && $productConfig->getValue()) {
             /** @var ProductCollection $streamResult */
             $streamResult = $result->get(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier())->getEntities();
+            foreach ($streamResult as $product) {
+                if ($product->getParentId() === null) {
+                    continue;
+                }
+
+                $product->setGrouped($this->isGrouped($product));
+            }
             $slider->setProducts($streamResult);
         }
     }
@@ -141,7 +150,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         if ($productStreamSorting = $elementConfig->get('productStreamSorting')) {
             $sorting = $productStreamSorting->getValue();
         }
-        $limit = 500;
+        $limit = self::FALLBACK_LIMIT;
         if ($productStreamLimit = $elementConfig->get('productStreamLimit')) {
             $limit = $productStreamLimit->getValue();
         }
@@ -195,5 +204,26 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
 
         return $criteria;
+    }
+
+    private function isGrouped(ProductEntity $product): bool
+    {
+        // get all configured expanded groups
+        $groups = array_filter(
+            (array) $product->getConfiguratorGroupConfig(),
+            function (array $config) {
+                return $config['expressionForListings'] ?? false;
+            }
+        );
+
+        // get ids of groups for later usage
+        $groups = array_column($groups, 'id');
+
+        // expanded group count matches option count? All variants are displayed
+        if ($product->getOptionIds() !== null && count($groups) === count($product->getOptionIds())) {
+            return false;
+        }
+
+        return true;
     }
 }

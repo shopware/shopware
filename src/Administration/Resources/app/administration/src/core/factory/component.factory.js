@@ -35,7 +35,7 @@ const componentRegistry = new Map();
 /**
  * Registry which holds all component overrides
  *
- * @type {Map<any, any>}
+ * @type {Map<String, Array<{name: String, _overrideIndex: Number}>>}
  */
 const overrideRegistry = new Map();
 
@@ -57,7 +57,7 @@ function getComponentRegistry() {
 /**
  * Returns the map with all registered component overrides.
  *
- * @returns {Map}
+ * @returns {Map<String, Array<{name: String, _overrideIndex: Number}>>}
  */
 function getOverrideRegistry() {
     return overrideRegistry;
@@ -210,12 +210,8 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
     }
 
     const overrides = overrideRegistry.get(componentName) || [];
-
-    if (overrideIndex !== null && overrideIndex >= 0 && overrides.length > 0) {
-        overrides.splice(overrideIndex, 0, config);
-    } else {
-        overrides.push(config);
-    }
+    config._overrideIndex = overrideIndex || overrides.length;
+    overrides.push(config);
 
     overrideRegistry.set(componentName, overrides);
 
@@ -313,11 +309,12 @@ function build(componentName, skipTemplate = false) {
 
 /**
  * Reorganizes the structure of the given overrides.
- * @param {Object} overrides
+ * @param {Array<{name: String, _overrideIndex: Number}>} overrides
  * @returns {Object}
  */
 function convertOverrides(overrides) {
     return overrides
+        .sort((a, b) => Math.sign(a._overrideIndex - b._overrideIndex))
         .reduceRight((acc, overrideComp) => {
             if (acc.length === 0) {
                 return [overrideComp];

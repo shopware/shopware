@@ -167,7 +167,7 @@ class ProductPageConfiguratorLoader
                         return $a->getTranslation('name') <=> $b->getTranslation('name');
                     }
 
-                    return $a->getTranslation('position') <=> $b->getTranslation('position');
+                    return ($a->getTranslation('position') ?? $a->getPosition() ?? 0) <=> ($b->getTranslation('position') ?? $b->getPosition() ?? 0);
                 }
             );
         }

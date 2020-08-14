@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -35,11 +37,21 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
      */
     private $cartPersister;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator, CartPersisterInterface $cartPersister)
-    {
+    /**
+     * @var CartRuleLoader
+     */
+    private $cartRuleLoader;
+
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        CartCalculator $cartCalculator,
+        CartPersisterInterface $cartPersister,
+        CartRuleLoader $cartRuleLoader
+    ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->cartCalculator = $cartCalculator;
         $this->cartPersister = $cartPersister;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function getDecorated(): AbstractCartItemRemoveRoute
@@ -80,6 +92,9 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
             $cart->markModified();
         }
 
+        $cart = $this->cartCalculator->calculate($cart, $context);
+        $ruleResult = $this->cartRuleLoader->loadByCart($context, $cart, new CartBehavior($context->getPermissions()));
+        $context->setRuleIds($ruleResult->getMatchingRules()->getIds());
         $cart = $this->cartCalculator->calculate($cart, $context);
         $this->cartPersister->save($cart, $context);
 

@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -40,16 +42,23 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      */
     private $lineItemFactory;
 
+    /**
+     * @var CartRuleLoader
+     */
+    private $cartRuleLoader;
+
     public function __construct(
         CartCalculator $cartCalculator,
         CartPersisterInterface $cartPersister,
         EventDispatcherInterface $eventDispatcher,
-        LineItemFactoryRegistry $lineItemFactory
+        LineItemFactoryRegistry $lineItemFactory,
+        CartRuleLoader $cartRuleLoader
     ) {
         $this->cartCalculator = $cartCalculator;
         $this->cartPersister = $cartPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->lineItemFactory = $lineItemFactory;
+        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function getDecorated(): AbstractCartItemAddRoute
@@ -90,6 +99,9 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
 
         $cart->markModified();
 
+        $cart = $this->cartCalculator->calculate($cart, $context);
+        $ruleResult = $this->cartRuleLoader->loadByCart($context, $cart, new CartBehavior($context->getPermissions()));
+        $context->setRuleIds($ruleResult->getMatchingRules()->getIds());
         $cart = $this->cartCalculator->calculate($cart, $context);
         $this->cartPersister->save($cart, $context);
 

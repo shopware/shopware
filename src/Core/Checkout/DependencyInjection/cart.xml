@@ -55,6 +55,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute" public="true">
@@ -72,6 +73,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute" public="true">
@@ -79,6 +81,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">

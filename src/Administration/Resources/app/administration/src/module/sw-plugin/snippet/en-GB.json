@@ -42,7 +42,6 @@
     },
     "fileUpload": {
       "buttonFileUpload": "Upload plugin",
-      "titleUploadSuccess": "Success",
       "messageUploadSuccess": "The plugin has been uploaded.",
       "buttonRefreshPlugins": "Refresh overview"
     },

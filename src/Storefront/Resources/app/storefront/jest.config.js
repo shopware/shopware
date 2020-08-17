@@ -72,4 +72,8 @@ module.exports = {
         '^.+\\.js$': 'babel-jest',
         '^.+\\.html$': 'html-loader-jest',
     },
+
+    setupFiles: [
+        '<rootDir>/jest.init.js',
+    ],
 };

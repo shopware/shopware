@@ -45,6 +45,8 @@ NEXT
 * Added ACL permissions to delivery times module
 * Added new privileges for `sw-setting-payment` module to privilege service
 * Added new privileges for `sw-customer` module to privilege service
+* Added ACL privileges to the theme module
+* Added `src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/acl/index.js`
 
 #### Core
 * Changed order address from customer to billing address in documents

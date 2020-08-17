@@ -35,10 +35,15 @@
                     <sw-button-process
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('theme.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
-                        @click="onSave">
+                        @click="onSave"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('theme.editor'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-theme-manager.actions.save') }}
                     </sw-button-process>
                 {% endblock %}
@@ -120,13 +125,18 @@
                                             <sw-context-button class="sw-theme-manager-detail__context-button">
 
                                                 {% block sw_theme_manager_detail_context_button_option_rename %}
-                                                    <sw-context-menu-item @click="onRenameTheme(theme)">
+                                                    <sw-context-menu-item
+                                                        @click="onRenameTheme(theme)"
+                                                        :disabled="!acl.can('theme.editor')">
                                                         {{ $tc('sw-theme-manager.actions.rename') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_theme_manager_detail_context_button_option_create %}
-                                                    <sw-context-menu-item @click="onDuplicateTheme(theme)" v-if="!theme.parentThemeId">
+                                                    <sw-context-menu-item
+                                                        @click="onDuplicateTheme(theme)"
+                                                        v-if="!theme.parentThemeId"
+                                                        :disabled="!acl.can('theme.creator')">
                                                         {{ $tc('sw-theme-manager.actions.duplicate') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
@@ -135,6 +145,7 @@
                                                     <sw-context-menu-item
                                                         @click="onReset"
                                                         v-if="theme.configValues !== null"
+                                                        :disabled="!acl.can('theme.editor')"
                                                         variant="danger">
                                                         {{ $tc('sw-theme-manager.actions.buttonReset') }}
                                                     </sw-context-menu-item>
@@ -143,7 +154,7 @@
                                                 {% block sw_theme_manager_detail_context_button_option_delete %}
                                                     <sw-context-menu-item
                                                         v-if="theme.parentThemeId"
-                                                        :disabled="theme.salesChannels.length > 0"
+                                                        :disabled="!acl.can('theme.deleter') || theme.salesChannels.length > 0"
                                                         v-tooltip="deleteDisabledToolTip"
                                                         class="sw-theme-manager-detail__option-delete"
                                                         variant="danger"
@@ -185,6 +196,7 @@
                                                                         :options="field.options"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
+                                                                        :disabled="!acl.can('theme.editor')"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
@@ -193,6 +205,7 @@
                                                                         type="url"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
+                                                                        :disabled="!acl.can('theme.editor')"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
@@ -212,6 +225,7 @@
                                                                             :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
                                                                             :defaultFolder="themeRepository.schema.entity"
                                                                             :allowMultiSelect="false"
+                                                                            :disabled="!acl.can('theme.editor')"
                                                                             @media-drop="onDropMedia($event, themeConfig[fieldName])"
                                                                             @media-upload-sidebar-open="openMediaSidebar()"
                                                                             @media-upload-remove-image="removeMediaItem(themeConfig[fieldName])">
@@ -223,13 +237,15 @@
                                                                         :type="mapSwFieldTypes(field.type)"
                                                                         :label="!field.label ? '' : field.label"
                                                                         :helpText="!field.helpText ? null : field.helpText"
+                                                                        :disabled="!acl.can('theme.editor')"
                                                                         v-model="themeConfig[fieldName].value">
                                                                     </sw-field>
 
                                                                     <sw-form-field-renderer
                                                                         v-else
                                                                         v-bind="getBind(field)"
-                                                                        v-model="themeConfig[fieldName].value">
+                                                                        v-model="themeConfig[fieldName].value"
+                                                                        :disabled="!acl.can('theme.editor')">
                                                                     </sw-form-field-renderer>
                                                                 </template>
                                                             </div>

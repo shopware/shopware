@@ -111,6 +111,7 @@ NEXT
 * Thumbnails are no longer being upscaled when the original image is smaller than the desired thumbnail size
 * Added new constant `DISPLAY_TYPE_MEDIA` in `Shopware\Core\Content\Property\PropertyGroupDefinition`
 * Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
+* Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
 
 #### Storefront
 

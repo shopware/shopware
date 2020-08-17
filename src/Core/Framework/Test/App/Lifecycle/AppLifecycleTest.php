@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
@@ -57,7 +58,7 @@ class AppLifecycleTest extends TestCase
     {
         skipTestNext10286($this);
         $this->appRepository = $this->getContainer()->get('app.repository');
-//        $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
+        $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
 
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
         $this->context = Context::createDefaultContext();
@@ -94,7 +95,7 @@ class AppLifecycleTest extends TestCase
         );
 
         static::assertEquals($appId, $apps->first()->getId());
-//        $this->assertDefaultActionButtons();
+        $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($apps->first()->getId());
@@ -127,7 +128,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $apps);
 
-//        static::assertCount(0, $apps->first()->getActionButtons());
+        static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
 //        static::assertCount(0, $apps->first()->getWebhooks());
     }
@@ -250,7 +251,7 @@ class AppLifecycleTest extends TestCase
         static::assertEquals('1.0.0', $apps->first()->getVersion());
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
 
-//        $this->assertDefaultActionButtons();
+        $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
@@ -377,7 +378,7 @@ class AppLifecycleTest extends TestCase
         static::assertEquals('1.0.0', $apps->first()->getVersion());
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
 
-//        $this->assertDefaultActionButtons();
+        $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
@@ -451,7 +452,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $apps);
 
-//        static::assertCount(0, $apps->first()->getActionButtons());
+        static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
 //        static::assertCount(0, $apps->first()->getWebhooks());
     }
@@ -505,24 +506,23 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-//        $criteria = new Criteria();
-//        $criteria->addFilter(new EqualsFilter('appId', $appId));
-//        $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
-//        static::assertCount(0, $apps);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
+        static::assertCount(0, $apps);
     }
 
-    // ToDo: reactivate once action buttons are migrated
-//    private function assertDefaultActionButtons(): void
-//    {
-//        $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
-//        static::assertCount(2, $actionButtons);
-//        $actionNames = array_map(function (ActionButtonEntity $actionButton) {
-//            return $actionButton->getAction();
-//        }, $actionButtons->getElements());
-//
-//        static::assertContains('viewOrder', $actionNames);
-//        static::assertContains('doStuffWithProducts', $actionNames);
-//    }
+    private function assertDefaultActionButtons(): void
+    {
+        $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(2, $actionButtons);
+        $actionNames = array_map(function (ActionButtonEntity $actionButton) {
+            return $actionButton->getAction();
+        }, $actionButtons->getElements());
+
+        static::assertContains('viewOrder', $actionNames);
+        static::assertContains('doStuffWithProducts', $actionNames);
+    }
 
     private function assertDefaultModules(AppEntity $app): void
     {

@@ -126,6 +126,7 @@
         "fzaninotto/faker": "1.9.1",
         "johnkary/phpunit-speedtrap": "3.1.0",
         "mbezhanov/faker-provider-collection": "1.2.1",
+        "opis/json-schema": "1.0.19",
         "phpunit/phpunit": "8.5.2",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "4.4.4",

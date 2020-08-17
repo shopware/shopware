@@ -61,7 +61,6 @@ class DeliveryProcessorTest extends TestCase
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();
         $shippingMethodPriceEntity->setUniqueIdentifier('test');
-        $shippingMethodPriceEntity->setPrice(5.0);
         $shippingMethodPriceEntity->setCurrencyPrice(new PriceCollection([new Price(Defaults::CURRENCY, 5, 5, false)]));
 
         $this->salesChannelContext->getShippingMethod()->setPrices(new ShippingMethodPriceCollection([$shippingMethodPriceEntity]));

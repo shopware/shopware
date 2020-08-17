@@ -100,8 +100,10 @@ class MigrationCommand extends Command
         $this->finishProgress($migratedCounter, $total);
         $this->io->writeln('all migrations executed');
 
-        $this->cache->clear();
-        $this->io->writeln('cleared the shopware cache');
+        if ($total > 0) {
+            $this->cache->clear();
+            $this->io->writeln('cleared the shopware cache');
+        }
 
         return 0;
     }

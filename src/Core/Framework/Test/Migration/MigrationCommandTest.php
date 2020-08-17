@@ -4,10 +4,16 @@ namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -145,6 +151,59 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+
+        static::assertSame(2, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateCacheClearBehaviourWithoutMigrations(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $connection = $this->getConnection();
+        $loader = $this->getMockBuilder(MigrationCollectionLoader::class)->disableOriginalConstructor()->getMock();
+
+        $loader->expects(static::once())->method('collect')->willReturn(
+            new MigrationCollection(
+                new MigrationSource(''),
+                new MigrationRuntime($connection, new NullLogger()),
+                $connection
+            )
+        );
+
+        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache->expects(static::never())->method('clear');
+
+        $command = new MigrationCommand($loader, $cache);
+
+        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+
+        static::assertSame(0, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateCacheClearBehaviourWithOneMigration(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache->expects(static::once())->method('clear');
+
+        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
+
+        $command->run(new ArrayInput(['--all' => true, '--limit' => 1, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+
+        static::assertSame(1, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateCacheClearBehaviourWithTwoMigrations(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache->expects(static::once())->method('clear');
+
+        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
+
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount(true));
     }

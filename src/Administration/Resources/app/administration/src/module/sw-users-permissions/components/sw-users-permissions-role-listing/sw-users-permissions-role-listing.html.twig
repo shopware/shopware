@@ -26,6 +26,11 @@
             </div>
         {% endblock %}
 
+        {% block sw_users_permissions_role_listing_verify_modal %}
+            <sw-verify-user-modal v-if="confirmPasswordModal" @verified="deleteRole" @close="onCloseConfirmPasswordModal">
+            </sw-verify-user-modal>
+        {% endblock %}
+
         {% block sw_users_permissions_role_listing_grid %}
             <sw-data-grid
                 v-if="showListingResults"

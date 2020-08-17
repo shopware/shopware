@@ -4,7 +4,10 @@ namespace Shopware\Core\Framework\Api\Acl\Role;
 
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\App\AppDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -48,6 +51,13 @@ class AclRoleDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return ['privileges' => []];
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([
+            new WriteProtection(Context::SYSTEM_SCOPE),
+        ]);
     }
 
     protected function defineFields(): FieldCollection

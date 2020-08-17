@@ -7,7 +7,12 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-users-permissions-role-detail', {
     template,
 
-    inject: ['repositoryFactory', 'privileges', 'userService'],
+    inject: [
+        'repositoryFactory',
+        'privileges',
+        'userService',
+        'loginService'
+    ],
 
     mixins: [
         Mixin.getByName('notification')
@@ -22,7 +27,8 @@ Component.register('sw-users-permissions-role-detail', {
         return {
             isLoading: true,
             isSaveSuccessful: false,
-            role: null
+            role: null,
+            confirmPasswordModal: false
         };
     },
 
@@ -117,6 +123,10 @@ Component.register('sw-users-permissions-role-detail', {
         },
 
         onSave() {
+            this.confirmPasswordModal = true;
+        },
+
+        saveRole(context) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
@@ -125,7 +135,9 @@ Component.register('sw-users-permissions-role-detail', {
                 ...this.requiredPrivileges
             ];
 
-            return this.roleRepository.save(this.role, Shopware.Context.api)
+            this.confirmPasswordModal = false;
+
+            return this.roleRepository.save(this.role, context)
                 .then(() => {
                     return this.updateCurrentUser();
                 }).then(() => {
@@ -160,6 +172,10 @@ Component.register('sw-users-permissions-role-detail', {
 
                 return Shopware.State.commit('setCurrentUser', data);
             });
+        },
+
+        onCloseConfirmPasswordModal() {
+            this.confirmPasswordModal = false;
         },
 
         getPrivilegesForSelections() {

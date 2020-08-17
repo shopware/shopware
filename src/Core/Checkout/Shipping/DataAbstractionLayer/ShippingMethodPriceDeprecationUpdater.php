@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 
 /**
@@ -10,16 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
  */
 class ShippingMethodPriceDeprecationUpdater
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
-
     public function updateByEvent(EntityWrittenEvent $event): void
     {
         //deprecated

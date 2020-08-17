@@ -17,6 +17,12 @@ Component.register('sw-theme-list-item', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -47,7 +53,8 @@ Component.register('sw-theme-list-item', {
 
         componentClasses() {
             return {
-                'is--active': this.isActive()
+                'is--active': this.isActive(),
+                'is--disabled': this.disabled
             };
         }
     },
@@ -58,10 +65,18 @@ Component.register('sw-theme-list-item', {
         },
 
         onChangePreviewImage(theme) {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('preview-image-change', theme);
         },
 
         onThemeClick() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('item-click', this.theme);
         },
 
@@ -72,7 +87,19 @@ Component.register('sw-theme-list-item', {
         },
 
         onDelete(theme) {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('theme-delete', theme);
+        },
+
+        emitItemClick(item) {
+            if (this.disabled) {
+                return;
+            }
+
+            this.$emit('item-click', item);
         }
     }
 });

@@ -8,7 +8,8 @@ Component.register('sw-sales-channel-detail-analytics', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     props: {

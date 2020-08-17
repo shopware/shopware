@@ -104,6 +104,11 @@ NEXT
         * `loadSeoUrls`
         * `getSeoUrl`
 * Added new priviliges for `sw-review` module to privilege service
+* Added ACL permissions to salesChannel
+* Added property `disabled` to `sw-code-editor` component
+* Added property `disabled` to `sw-sales-channel-defaults-select` component
+* Added property `disabled` to `sw-sales-channel-detail-domains` component
+* Added property `disabled` to `sw-sales-channel-detail-hreflang` component
 
 #### Core
 

@@ -18,6 +18,8 @@ import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-sales-channel', {

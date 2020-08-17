@@ -21,7 +21,8 @@ Component.register('sw-sales-channel-detail-base', {
         'salesChannelService',
         'productExportService',
         'repositoryFactory',
-        'knownIpsService'
+        'knownIpsService',
+        'acl'
     ],
 
     props: {
@@ -57,7 +58,7 @@ Component.register('sw-sales-channel-detail-base', {
 
         templateOptions: {
             type: Array,
-            default: []
+            default: () => []
         },
 
         showTemplateModal: {

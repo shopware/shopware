@@ -142,7 +142,7 @@
                                                 <select class="custom-select" type="text" id="countryId" name="countryId">
                                                     {% for country in page.countries %}
                                                         <option value="{{ country.id }}"
-                                                            {% if country.id == context.shippingLocation.country.id %}selected="selected"{% endif %}>
+                                                            {{ country.id == context.shippingLocation.country.id ? 'selected="selected"' : '' }}>
                                                             {{ country.translated.name }}
                                                         </option>
                                                     {% endfor %}

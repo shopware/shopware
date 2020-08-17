@@ -116,6 +116,7 @@ NEXT
 * Added new constant `DISPLAY_TYPE_MEDIA` in `Shopware\Core\Content\Property\PropertyGroupDefinition`
 * Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
 * Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
+* Fixed company name field on profile page and prefill it with billingAddress company
 
 #### Storefront
 
@@ -143,6 +144,10 @@ NEXT
 * Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
 * Fixed switching to domains with upper case paths like `https://example.com/de-DE`
 * Fixed to hide the review options in the storefront when there are no reviews
+* The `FormFieldTogglePlugin` in `form-field-toggle.plugin.js` now supports using a scope.
+    * Added `scopeAll` property, which contains the default scope being used
+    * Added `scopeDataAttribute` property, which can be used to set the scope to `parent` instead of `all`
+    * Added `parentSelectorDataAttribute` property, which must be defined if you've set the scope to `parent`. It contains the selector of the parent element.
 
 6.3.0.0
 ----------------

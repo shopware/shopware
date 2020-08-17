@@ -143,7 +143,7 @@ NEXT
 * Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
 * Fixed switching to domains with upper case paths like `https://example.com/de-DE`
-* Fixed to hide the review options in the storefront when there are no reviews
+* Fixed to hiding the `sort by` within the review options in the storefront when there are no reviews
 * The `FormFieldTogglePlugin` in `form-field-toggle.plugin.js` now supports using a scope.
     * Added `scopeAll` property, which contains the default scope being used
     * Added `scopeDataAttribute` property, which can be used to set the scope to `parent` instead of `all`

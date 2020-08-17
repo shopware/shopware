@@ -48,6 +48,8 @@ NEXT
 * Added `getPrivileges` method to `privileges` service
 * Added ACL privileges to the theme module
 * Added `src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/acl/index.js`
+* Fixed keyboard navigation in the admin searchresults
+* Fixed the searchbar so the searchterm and results no longer get lost, when the searchbar losses focus
 
 #### Core
 * Changed order address from customer to billing address in documents

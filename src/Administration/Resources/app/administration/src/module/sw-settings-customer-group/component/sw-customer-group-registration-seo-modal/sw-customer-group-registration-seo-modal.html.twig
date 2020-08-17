@@ -1,0 +1,40 @@
+{% block sw_customer_group_registration_seo_modal %}
+    <sw-modal
+        :title="$tc('sw-settings-customer-group.modal.seoUrl.title')"
+        @modal-close="cancel"
+        :isLoading="isLoading"
+    >
+        {% block sw_customer_group_registration_seo_modal_sales_channel %}
+            <sw-entity-multi-select
+                entity="sales_channel"
+                :criteria="salesChannelCriteria"
+                :label="$tc('sw-settings-customer-group.modal.seoUrl.salesChannel')"
+                v-model="salesChannels"
+            ></sw-entity-multi-select>
+        {% endblock %}
+
+        {% block sw_customer_group_registration_seo_modal_url_suffix %}
+            <sw-text-field :label="$tc('sw-settings-customer-group.modal.seoUrl.urlSuffix')" v-model="urlSuffix"></sw-text-field>
+        {% endblock %}
+
+        {% block sw_customer_group_registration_seo_modal_example_url %}
+            <sw-text-field :label="$tc('sw-settings-customer-group.modal.seoUrl.exampleUrl')" :disabled="true" v-model="exampleUrl"></sw-text-field>
+        {% endblock %}
+
+        {% block sw_customer_group_registration_seo_modal_footer %}
+            <template #modal-footer>
+                {% block sw_customer_group_registration_seo_modal_cancel %}
+                    <sw-button size="small" @click="cancel">
+                        {{ $tc('sw-settings-customer-group.modal.seoUrl.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_customer_group_registration_seo_modal_general %}
+                    <sw-button size="small" variant="primary" @click="generate" :disabled="!canBeGenerated">
+                        {{ $tc('sw-settings-customer-group.modal.seoUrl.generate') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

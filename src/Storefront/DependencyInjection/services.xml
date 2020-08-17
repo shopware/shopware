@@ -312,6 +312,12 @@
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>

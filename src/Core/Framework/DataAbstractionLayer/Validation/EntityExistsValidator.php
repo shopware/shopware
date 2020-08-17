@@ -40,7 +40,7 @@ class EntityExistsValidator extends ConstraintValidator
         $definition = $this->definitionRegistry->getByEntityName($constraint->getEntity());
 
         $criteria = $constraint->getCriteria();
-        $criteria->addFilter(new EqualsFilter('id', $value));
+        $criteria->addFilter(new EqualsFilter($constraint->getPrimaryProperty(), $value));
 
         $result = $this->entitySearcher->search($definition, $criteria, $constraint->getContext());
 
@@ -49,6 +49,7 @@ class EntityExistsValidator extends ConstraintValidator
         }
 
         $this->context->buildViolation($constraint->message)
+            ->setParameter('{{ primaryProperty }}', $constraint->getPrimaryProperty())
             ->setParameter('{{ id }}', $this->formatValue($value))
             ->setParameter('{{ entity }}', $this->formatValue($constraint->getEntity()))
             ->setCode(EntityExists::ENTITY_DOES_NOT_EXISTS)

@@ -21,6 +21,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -65,13 +66,19 @@ class RegisterController extends StorefrontController
      */
     private $customerRepository;
 
+    /**
+     * @var AbstractCustomerGroupRegistrationPageLoader
+     */
+    private $customerGroupRegistrationPageLoader;
+
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
         AccountRegistrationService $accountRegistrationService,
         CartService $cartService,
         CheckoutRegisterPageLoader $registerPageLoader,
         SystemConfigService $systemConfigService,
-        EntityRepositoryInterface $customerRepository
+        EntityRepositoryInterface $customerRepository,
+        AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->accountRegistrationService = $accountRegistrationService;
@@ -79,6 +86,7 @@ class RegisterController extends StorefrontController
         $this->registerPageLoader = $registerPageLoader;
         $this->systemConfigService = $systemConfigService;
         $this->customerRepository = $customerRepository;
+        $this->customerGroupRegistrationPageLoader = $customerGroupRegistrationPageLoader;
     }
 
     /**
@@ -101,6 +109,36 @@ class RegisterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'page' => $page,
+            'data' => $data,
+        ]);
+    }
+
+    /**
+     * @Route("/customer-group-registration/{customerGroupId}", name="frontend.account.customer-group-registration.page", methods={"GET"})
+     */
+    public function customerGroupRegistration(string $customerGroupId, Request $request, RequestDataBag $data, SalesChannelContext $context): Response
+    {
+        if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
+            return $this->redirectToRoute('frontend.account.logout.page');
+        }
+
+        if ($context->getCustomer()) {
+            return $this->redirectToRoute('frontend.account.home.page');
+        }
+
+        $redirect = $request->query->get('redirectTo', 'frontend.account.home.page');
+
+        $page = $this->customerGroupRegistrationPageLoader->load($request, $context);
+
+        if ($page->getGroup()->getTranslation('registrationOnlyCompanyRegistration')) {
+            $data->set('accountType', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
+            'redirectTo' => $redirect,
+            'redirectParameters' => $request->get('redirectParameters', json_encode([])),
+            'errorParameters' => json_encode(['customerGroupId' => $customerGroupId]),
             'page' => $page,
             'data' => $data,
         ]);
@@ -154,8 +192,10 @@ class RegisterController extends StorefrontController
                 throw new MissingRequestParameterException('errorRoute');
             }
 
+            $params = $this->decodeParam($request, 'errorParameters');
+
             // this is to show the correct form because we have different usecases (account/register||checkout/register)
-            return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations]);
+            return $this->forwardToRoute($request->get('errorRoute'), ['formViolations' => $formViolations], $params);
         }
 
         if ($this->isDoubleOptIn($data, $context)) {

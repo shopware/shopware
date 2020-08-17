@@ -209,6 +209,10 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute" public="true">
+            <argument type="service" id="customer_group.repository"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="product.repository"/>
@@ -216,6 +220,11 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.entity_indexer" priority="100"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

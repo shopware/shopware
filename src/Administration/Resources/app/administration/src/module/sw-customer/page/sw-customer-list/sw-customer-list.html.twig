@@ -107,6 +107,13 @@
                                 {% endblock %}
                             {% endblock %}
 
+                            {% block sw_customer_list_grid_columns_group %}
+                                <template #column-group="{ item, compact, isInlineEdit }">
+                                    <sw-label v-if="item.requestedGroup" variant="warning" appearance="pill" >{{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.name }}</sw-label>
+                                    <sw-label v-else size="default" appearance="pill">{{ item.group.name }}</sw-label>
+                                </template>
+                            {% endblock %}
+
                             {% block sw_customer_list_grid_columns_actions %}
                                 <template #actions="{ item }">
                                     {% block sw_customer_list_grid_columns_actions_view %}

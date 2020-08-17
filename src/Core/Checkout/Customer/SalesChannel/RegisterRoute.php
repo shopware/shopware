@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
@@ -342,6 +343,7 @@ class RegisterRoute extends AbstractRegisterRoute
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'languageId' => $context->getContext()->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
+            'requestedGroupId' => $data->get('requestedGroupId', null),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),
@@ -389,6 +391,11 @@ class RegisterRoute extends AbstractRegisterRoute
     private function getCustomerCreateValidationDefinition(bool $isGuest, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->accountValidationFactory->create($context);
+
+        $validation->add('requestedGroupId', new EntityExists([
+            'entity' => 'customer_group',
+            'context' => $context->getContext(),
+        ]));
 
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());

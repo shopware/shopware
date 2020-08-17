@@ -91,6 +91,18 @@ NEXT
     * Added property `productStreamSorting` with default value `name:ASC`
     * Added property `productStreamLimit` with default value `10`
 * Added method `addGroupField` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
+* Added new component `sw-customer-group-registration-seo-modal` to generate urls for customer group registration
+* Changed `sw-settings-customer-group-detail` to add
+    * as data
+        * `openSeoModal`
+        * `seoUrls`
+    * as computed
+        * `customerGroupRegistrationRepository`
+        * `seoUrlRepository`
+        * `hasRegistration`
+    * as methods:
+        * `loadSeoUrls`
+        * `getSeoUrl`
 
 #### Core
 
@@ -146,6 +158,14 @@ NEXT
 * Added new constructor parameter `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
 * Added new private property `$productStreamBuilder` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
 * Added new private method `collectByProductStream` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
+* Added new store-api route `/store-api/v3/customer-group-registration/config/{customerGroupId}` to fetch the configuration of the registration form
+* Added new controller `src/Core/Checkout/Customer/Api/CustomerGroupRegistrationActionController.php` to handle accept and decline of customer group requests
+    * Added new events  `Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted`
+    * Added new events  `Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined`
+* Added new association `requestedGroup` to `customer` entity
+* Added new association `registration` to `customer_group` entity
+* Added method `createCustomSeoUrls` to `Shopware/Core/Content/Seo/Api/SeoActionController` to allow creating custom seo urls in the Administration
+* Added new property `primaryProperty` to `Shopware/Core/Framework/DataAbstractionLayer/Validation/EntityExists` to allow checking existence of entities with another key
 
 #### Storefront
 

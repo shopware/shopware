@@ -25,6 +25,7 @@ import LicenseViolationsService from 'src/app/service/license-violations.service
 import LocaleToLanguageService from 'src/app/service/locale-to-language.service';
 import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.service';
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
+import addCustomerGroupRegistrationListener from 'src/core/service/customer-group-registration-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
 
 /** Import decorators */
@@ -71,6 +72,7 @@ Application
 
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);
+        addCustomerGroupRegistrationListener(loginService, serviceContainer);
 
         return loginService;
     })

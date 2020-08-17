@@ -256,6 +256,36 @@ class RegisterRouteTest extends TestCase
         static::assertSame('customer', $response['apiAlias']);
     }
 
+    public function testRegistrationWithRequestedGroup(): void
+    {
+        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository->create([
+            [
+                'id' => $this->ids->create('group'),
+                'name' => 'foo',
+                'registration' => [
+                    'title' => 'test',
+                ],
+            ],
+        ], $this->ids->getContext());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')])
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('customer', $response['apiAlias']);
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
+
+        static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
+    }
+
     private function getRegistrationData(): array
     {
         return [

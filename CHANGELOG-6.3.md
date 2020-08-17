@@ -10,10 +10,24 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
-* [6.3.0.0](#630)
+* [6.3.0.2](#6302)
+* [6.3.0.0](#6300)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
+
+
+6.3.0.2
+----------------
+
+#### Administration
+* Fixed template factory, so it is possible again to override nested blocks in one `Component.override()`
+
+#### Core
+* Fixed regression in `bin/console assets:install` that required the env var `APP_URL` to be defined. That broke the production template setup (https://github.com/shopware/production#setup-and-install).
+
+#### Storefront
+* Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`. This fixes the footer in the checkout confirm page.
 
 6.3.0.0
 ----------------

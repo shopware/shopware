@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-const { warn } = Shopware.Utils.debug;
+const { warn, error } = Shopware.Utils.debug;
 
 export default class PrivilegesService {
     state = Vue.observable({
@@ -120,6 +120,24 @@ export default class PrivilegesService {
         }
 
         this.state.privilegesMappings.push(privilegeMapping);
+
+        return this;
+    }
+
+    /**
+     *
+     * @param privilegesMappings {Array}
+     * @returns {PrivilegesService}
+     */
+    addPrivilegeMappingEntries(privilegeMappings) {
+        if (!Array.isArray(privilegeMappings)) {
+            error('addPrivilegeMappingEntries', 'The privilegeMappings must be an array.');
+            return this;
+        }
+
+        privilegeMappings.forEach((privilegeMapping) => {
+            this.addPrivilegeMappingEntry(privilegeMapping);
+        });
 
         return this;
     }

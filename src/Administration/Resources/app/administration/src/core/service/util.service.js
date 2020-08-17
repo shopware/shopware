@@ -21,7 +21,7 @@ import {
     set,
     pick
 } from './utils/object.utils';
-import { warn } from './utils/debug.utils';
+import { warn, error } from './utils/debug.utils';
 import { currency, date, fileSize, md5 } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
@@ -42,7 +42,8 @@ export const object = {
 };
 
 export const debug = {
-    warn: warn
+    warn: warn,
+    error: error
 };
 
 export const format = {

@@ -20,6 +20,10 @@ NEXT
 ----------------
 
 #### Administration
+* Added new method to `src/Administration/Resources/app/administration/src/app/service/privileges.service.js`
+    * `addPrivilegeMappingEntries`
+* Added new function to `src/Administration/Resources/app/administration/src/core/service/utils/debug.utils.js`
+    * `error`
 * Added new privileges service: 
 `src/Administration/Resources/app/administration/src/module/sw-property/acl/index.js`
 * Added prop `savePermission` to `sw-language-switch/index.js`

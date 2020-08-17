@@ -41,11 +41,11 @@ export default class CheckoutPageObject {
 
             // General cart selectors
             cartItem: '.cart-item',
-            cartItemFeatureList: '.component-product-feature-list--list',
-            cartItemFeatureListItem: '.component-product-feature-list--item',
-            cartItemFeatureContainer: '.component-product-feature--feature',
-            cartItemFeatureLabel: '.component-product-feature--label',
-            cartItemFeatureValue: '.component-product-feature--value',
+            cartItemFeatureList: '.product-feature-list-list',
+            cartItemFeatureListItem: '.product-feature-list-item',
+            cartItemFeatureContainer: '.product-feature-feature',
+            cartItemFeatureLabel: '.product-feature-label',
+            cartItemFeatureValue: '.product-feature-value',
 
             // Cart widget
             cardWidget: '.cart-widget',

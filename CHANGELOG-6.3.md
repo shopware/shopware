@@ -117,6 +117,7 @@ NEXT
 * Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
 * Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
 * Fixed company name field on profile page and prefill it with billingAddress company
+* Fixed an issue with submitting the contact form when a contact form configuration was unavailable in another language
 
 #### Storefront
 

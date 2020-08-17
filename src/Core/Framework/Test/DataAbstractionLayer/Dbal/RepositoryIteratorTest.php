@@ -38,4 +38,20 @@ class RepositoryIteratorTest extends TestCase
             ++$offset;
         }
     }
+
+    public function testFetchIdsIsNotRunningInfinitely(): void
+    {
+        $context = Context::createDefaultContext();
+        /** @var EntityRepositoryInterface $systemConfigRepository */
+        $systemConfigRepository = $this->getContainer()->get('system_config.repository');
+
+        $iterator = new RepositoryIterator($systemConfigRepository, $context, new Criteria());
+
+        $iteration = 0;
+        while ($iterator->fetchIds() !== null && $iteration < 100) {
+            ++$iteration;
+        }
+
+        static::assertTrue($iteration < 100);
+    }
 }

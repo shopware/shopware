@@ -71,55 +71,53 @@
 
                                     {% block page_product_detail_review_list %}
                                         {% block page_product_detail_review_list_actions %}
-                                            {% if productReviewCount > 0 %}
-                                                <div class="row align-items-center product-detail-review-actions">
-                                                    {% set formAjaxSubmitOptions = {
-                                                        replaceSelectors: [".js-review-container"],
-                                                        submitOnChange: true
-                                                    } %}
+                                            <div class="row align-items-center product-detail-review-actions">
+                                                {% set formAjaxSubmitOptions = {
+                                                    replaceSelectors: [".js-review-container"],
+                                                    submitOnChange: true
+                                                } %}
 
-                                                    {% block page_product_detail_review_list_action_language %}
-                                                        <div class="col product-detail-review-language">
-                                                            {% if foreignReviewsCount > 0 %}
-                                                                <form class="product-detail-review-language-form"
-                                                                      action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
-                                                                      method="post"
-                                                                      data-form-ajax-submit="true"
-                                                                      data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+                                                {% block page_product_detail_review_list_action_language %}
+                                                    <div class="col product-detail-review-language">
+                                                        {% if foreignReviewsCount > 0 %}
+                                                            <form class="product-detail-review-language-form"
+                                                                  action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
+                                                                  method="post"
+                                                                  data-form-ajax-submit="true"
+                                                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
-                                                                    {% block page_product_detail_review_list_action_language_csrf %}
-                                                                        {{ sw_csrf('frontend.product.reviews') }}
-                                                                    {% endblock %}
+                                                                {% block page_product_detail_review_list_action_language_csrf %}
+                                                                    {{ sw_csrf('frontend.product.reviews') }}
+                                                                {% endblock %}
 
-                                                                    {% if app.request.get('limit') %}
-                                                                        <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                                    {% endif %}
+                                                                {% if app.request.get('limit') %}
+                                                                    <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
+                                                                {% endif %}
 
-                                                                    {% if app.request.get('sort') %}
-                                                                        <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
-                                                                    {% endif %}
+                                                                {% if app.request.get('sort') %}
+                                                                    <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
+                                                                {% endif %}
 
-                                                                    <div class="custom-control custom-switch">
-                                                                        {#TODO: set checked and disabled state#}
-                                                                        <input type="checkbox"
-                                                                               class="custom-control-input"
-                                                                               id="showForeignReviews"
-                                                                               value="filter-language"
-                                                                               name="language"
-                                                                                {% if app.request.get('language') %}
-                                                                            checked="checked"
-                                                                                {% endif %}>
-                                                                        <label class="custom-control-label form-label"
-                                                                               for="showForeignReviews">
-                                                                            <small>{{ "detail.reviewLanguageFilterLabel"|trans|sw_sanitize }}</small>
-                                                                        </label>
-                                                                    </div>
-                                                                </form>
-                                                            {% endif %}
-                                                        </div>
-                                                    {% endblock %}
+                                                                <div class="custom-control custom-switch">
+                                                                    {#TODO: set checked and disabled state#}
+                                                                    <input type="checkbox"
+                                                                           class="custom-control-input"
+                                                                           id="showForeignReviews"
+                                                                           value="filter-language"
+                                                                           name="language"
+                                                                           {% if app.request.get('language') %}checked="checked"{% endif %}>
+                                                                    <label class="custom-control-label form-label"
+                                                                           for="showForeignReviews">
+                                                                        <small>{{ "detail.reviewLanguageFilterLabel"|trans|sw_sanitize }}</small>
+                                                                    </label>
+                                                                </div>
+                                                            </form>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endblock %}
 
-                                                    {% block page_product_detail_review_list_action_sortby %}
+                                                {% block page_product_detail_review_list_action_sortby %}
+                                                    {% if productReviewCount > 0 %}
                                                         <div class="col-12 col-md-auto product-detail-review-sortby">
                                                             {% set formAjaxSubmitOptions = {
                                                                 replaceSelectors: [
@@ -177,11 +175,11 @@
                                                                 </form>
                                                             {% endblock %}
                                                         </div>
-                                                    {% endblock %}
-                                                </div>
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
 
-                                                <hr/>
-                                            {% endif %}
+                                            <hr/>
 
                                             {# TODO: calculate reviews in current language in list #}
                                             {% set listReviewsCount = productReviewCount - foreignReviewsCount %}

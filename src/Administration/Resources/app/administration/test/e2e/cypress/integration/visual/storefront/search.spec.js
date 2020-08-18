@@ -32,6 +32,6 @@ describe('Search - Storefront: Visual tests', () => {
         cy.get('.search-headline').contains('0 products found for "Non existent stuff"');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Search - No result', '.cms-element-product-listing');
+        cy.takeSnapshot('Search - No result', '.cms-element-product-listing', { widths: [375, 1920] });
     });
 });

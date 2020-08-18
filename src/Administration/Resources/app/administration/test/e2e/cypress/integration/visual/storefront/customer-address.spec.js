@@ -23,11 +23,11 @@ describe('Account: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer address overview');
+        cy.takeSnapshot('Customer address overview', { widths: [375, 1920] });
 
         cy.get('a[href="/account/address/create"]').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer address - Create address modal', '.account-address-form');
+        cy.takeSnapshot('Customer address - Create address modal', '.account-address-form', { widths: [375, 1920] });
     });
 });

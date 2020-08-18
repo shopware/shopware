@@ -248,9 +248,10 @@ Cypress.Commands.add('createReviewFixture', () => {
  * @name takeSnapshot
  * @param {String} title - Title of the screenshot
  * @param {String} [selectorToCheck = null] - Unique selector to make sure the module is ready for being snapshot
+ * @param {Object} [width = null] - Screen width used for snapshot
  * @function
  */
-Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null) => {
+Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = null) => {
     // Request we want to wait for later
 
     if(selectorToCheck) {
@@ -258,6 +259,6 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null) => {
     }
 
     if (Cypress.env('usePercy')) {
-        cy.percySnapshot(title);
+        cy.percySnapshot(title, width);
     }
 });

@@ -35,6 +35,6 @@ describe('Import/Export - Profiles:  Visual tests', () => {
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Import export - Profiles overview', '.sw-modal');
+        cy.takeSnapshot('Import export - Profile creation', '.sw-modal');
     });
 });

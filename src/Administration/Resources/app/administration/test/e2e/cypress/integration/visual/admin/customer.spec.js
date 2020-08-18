@@ -86,11 +86,10 @@ describe('Customer:  Visual test', () => {
         // Verify new customer in detail
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
-            // cy.awaitAndCheckNotification('');
         });
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer create', '.sw-customer-detail');
+        cy.takeSnapshot('Customer in Storefront', '.sw-customer-detail');
     });
 
     it('@visual: check appearance of customer address workflow', () => {

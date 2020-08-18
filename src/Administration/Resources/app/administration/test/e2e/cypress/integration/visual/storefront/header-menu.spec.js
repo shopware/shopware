@@ -15,7 +15,7 @@ describe('Header menu:Visual tests', () => {
             cy.get('.nav-main-toggle').should('not.be.visible');
 
             // Take snapshot for visual testing
-            cy.takeSnapshot('Header on deskop', '.nav.main-navigation-menu');
+            cy.takeSnapshot('Header on deskop', '.nav.main-navigation-menu', { widths: [375, 1920] });
         });
     });
 
@@ -31,7 +31,7 @@ describe('Header menu:Visual tests', () => {
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
 
             // Take snapshot for visual testing
-            cy.takeSnapshot('Mobile menu', '.offcanvas.is-left.is-open');
+            cy.takeSnapshot('Mobile menu', '.offcanvas.is-left.is-open', { widths: [375, 1920] });
         });
     });
 });

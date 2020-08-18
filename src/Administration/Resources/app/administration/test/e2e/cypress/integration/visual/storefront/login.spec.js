@@ -13,7 +13,7 @@ describe('Account - Login: Visual tests', () => {
         cy.visit('/account/login');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Account overview after login', page.elements.loginCard);
+        cy.takeSnapshot('Account overview after login', page.elements.loginCard, { widths: [375, 1920] });
 
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');

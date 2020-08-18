@@ -23,7 +23,8 @@ describe('Checkout: Visual tests', () => {
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Search product`,
-            '.header-search-input'
+            '.header-search-input',
+            { widths: [375, 1920] }
         );
 
         // Product detail
@@ -35,7 +36,8 @@ describe('Checkout: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot(`Checkout - See product`,
-            '.product-detail-buy'
+            '.product-detail-buy',
+            { widths: [375, 1920] }
         );
 
         cy.get('.product-detail-buy .btn-buy').click();
@@ -44,7 +46,8 @@ describe('Checkout: Visual tests', () => {
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Offcanvas`,
-            `${page.elements.offCanvasCart}.is-open`
+            `${page.elements.offCanvasCart}.is-open`,
+            { widths: [375, 1920] }
         );
 
         cy.get(`${page.elements.cartItem}-label`).contains(product.name);
@@ -57,7 +60,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.login-collapse-toggle').click();
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Login`, accountPage.elements.loginCard);
+        cy.takeSnapshot(`Checkout - Login`, accountPage.elements.loginCard, { widths: [375, 1920] });
 
         cy.get('#loginMail').type('test@example.com');
         cy.get('#loginPassword').type('shopware');
@@ -67,7 +70,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Confirm`, '.confirm-tos');
+        cy.takeSnapshot(`Checkout - Confirm`, '.confirm-tos', { widths: [375, 1920] });
 
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
@@ -81,6 +84,6 @@ describe('Checkout: Visual tests', () => {
         cy.get('#confirmFormSubmit').click();
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Finish`, '.finish-header');
+        cy.takeSnapshot(`Checkout - Finish`, '.finish-header', { widths: [375, 1920] });
     });
 });

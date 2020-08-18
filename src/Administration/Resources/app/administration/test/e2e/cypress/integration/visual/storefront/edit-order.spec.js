@@ -30,7 +30,7 @@ describe('Account - Order: Visual tests', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Account overview', '.order-table');
+        cy.takeSnapshot('Account overview', '.order-table', { widths: [375, 1920] });
     });
 
     it('@visual: check appearance of basic cancel order workflow', () => {
@@ -50,13 +50,13 @@ describe('Account - Order: Visual tests', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Cancel order - confirm', '.order-table');
+        cy.takeSnapshot('Cancel order - confirm', '.order-table', { widths: [375, 1920] });
 
         cy.get('.order-table-header-context-menu').click();
         cy.get('.dropdown-menu > [type="button"]').click();
         cy.get('form > .btn-primary').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Cancel order - finish', '.order-table-header-order-status');
+        cy.takeSnapshot('Cancel order - finish', '.order-table-header-order-status', { widths: [375, 1920] });
     });
 });

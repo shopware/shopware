@@ -14,6 +14,6 @@ describe('Account - Register: Visual tests', () => {
         cy.get(page.elements.registerCard).should('be.visible');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Registration', page.elements.registerCard);
+        cy.takeSnapshot('Registration', page.elements.registerCard, { widths: [375, 1920] });
     });
 });

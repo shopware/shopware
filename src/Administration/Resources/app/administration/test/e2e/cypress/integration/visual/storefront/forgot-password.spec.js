@@ -16,6 +16,6 @@ describe('Account - Password: Visual tests', () => {
         cy.get('.login-password-recover a').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Request password', '.account-recover-password-submit');
+        cy.takeSnapshot('Request password', '.account-recover-password-submit', { widths: [375, 1920] });
     });
 });

@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-stream-detail', {
     template,
 
-    inject: ['repositoryFactory', 'productStreamConditionService'],
+    inject: ['repositoryFactory', 'productStreamConditionService', 'acl'],
 
     provide() {
         return {
@@ -90,6 +90,14 @@ Component.register('sw-product-stream-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('product_stream.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    appearance: 'dark',
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -320,6 +328,16 @@ Component.register('sw-product-stream-detail', {
                 ...this.deletedProductStreamFilters,
                 ...deletedIds
             ];
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role)
+            };
         }
     }
 });

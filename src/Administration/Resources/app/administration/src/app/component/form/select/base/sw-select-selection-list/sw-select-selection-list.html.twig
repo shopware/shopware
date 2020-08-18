@@ -46,6 +46,7 @@
                     <input ref="swSelectInput"
                            class="sw-select-selection-list__input"
                            type="text"
+                           :disabled="disabled"
                            :readonly="!enableSearch"
                            :placeholder="selections.length > 0 ? '' : placeholder"
                            :value="searchTerm"

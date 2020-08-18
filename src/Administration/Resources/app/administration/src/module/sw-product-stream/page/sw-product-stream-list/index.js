@@ -8,7 +8,8 @@ Component.register('sw-product-stream-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -101,6 +102,16 @@ Component.register('sw-product-stream-list', {
                 label: 'sw-product-stream.list.columnStatus',
                 allowResize: true
             }];
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role) || this.allowDelete
+            };
         }
     }
 });

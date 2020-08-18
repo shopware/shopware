@@ -14,19 +14,22 @@
                     size="medium"
                     :options="booleanOptions"
                     :value="condition.value"
-                    @change="setBooleanValue">
+                    @change="setBooleanValue"
+                    :disabled="disabled">
                 </sw-single-select>
             {% endblock %}
         </template>
 
         <template v-else>
             {% block sw_product_stream_value_operator_select %}
-                <sw-arrow-field class="sw-product-stream-value__operator-select">
+                <sw-arrow-field class="sw-product-stream-value__operator-select"
+                                :disabled="!acl.can('product_stream.editor')">
                     <sw-single-select
                         size="medium"
                         :options="operators"
                         :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
-                        v-model="filterType">
+                        v-model="filterType"
+                        :disabled="disabled">
                     </sw-single-select>
                 </sw-arrow-field>
             {% endblock %}
@@ -39,7 +42,8 @@
                         :entity="definition.entity"
                         :criteria="productCriteria"
                         :context="context"
-                        v-model="actualCondition.value">
+                        v-model="actualCondition.value"
+                        :disabled="disabled">
                         <template #selection-label-property="{ item }">
                             <slot name="selection-label-property" v-bind="{ item }">
                                 {% block sw_product_stream_value_results_variant_info %}
@@ -72,7 +76,8 @@
                         size="medium"
                         :entity="definition.entity"
                         :context="context"
-                        v-model="actualCondition.value">
+                        v-model="actualCondition.value"
+                        :disabled="disabled">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -83,7 +88,8 @@
                         :repository="repository"
                         :criteria="productCriteria"
                         :context="context"
-                        v-model="multiValue">
+                        v-model="multiValue"
+                        :disabled="disabled">
                         <template #selection-label-property="{ item }">
                             <slot name="selection-label-property" v-bind="{ item }">
                                 <sw-product-variant-info
@@ -117,11 +123,12 @@
                 {% block sw_product_stream_value_range_value %}
                     <template v-if="filterType === 'range'">
                         {% block sw_product_stream_value_range_from_value %}
-                            <sw-arrow-field>
+                            <sw-arrow-field :disabled="disabled">
                                 <component
                                     :is="inputComponent"
                                     size="medium"
-                                    v-model="gte">
+                                    v-model="gte"
+                                    :disabled="disabled">
                                 </component>
                             </sw-arrow-field>
                         {% endblock %}
@@ -130,7 +137,8 @@
                             <component
                                 :is="inputComponent"
                                 size="medium"
-                                v-model="lte">
+                                v-model="lte"
+                                :disabled="disabled">
                             </component>
                         {% endblock %}
                     </template>
@@ -140,7 +148,8 @@
                             <component
                                 :is="inputComponent"
                                 size="medium"
-                                v-model="currentParameter">
+                                v-model="currentParameter"
+                                :disabled="disabled">
                             </component>
                         {% endblock%}
                     </template>
@@ -158,7 +167,8 @@
                     <component
                         :is="inputComponent"
                         size="medium"
-                        v-model="stringValue">
+                        v-model="stringValue"
+                        :disabled="disabled">
                     </component>
                 {% endblock %}
             </template>

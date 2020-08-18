@@ -26,6 +26,12 @@ Component.register('sw-product-stream-field-select', {
         index: {
             type: Number,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

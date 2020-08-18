@@ -33,6 +33,16 @@ Component.register('sw-arrow-field', {
         ]);
     },
 
+    computed: {
+        arrowFill() {
+            if (this.primary === '#ffffff' || !this.primary) {
+                return 'transparent';
+            }
+
+            return this.primary;
+        }
+    },
+
     methods: {
         getArrow(h) {
             return h('div', {
@@ -50,8 +60,7 @@ Component.register('sw-arrow-field', {
                     h('path', {
                         attrs: {
                             d: 'M 0 0 L 12 50 L 0 100 Z',
-                            fill: (this.disabled && (this.primary === '#ffffff' || !this.primary))
-                                ? 'transparent' : this.primary,
+                            fill: this.arrowFill,
                             stroke: 'none'
                         }
                     }),

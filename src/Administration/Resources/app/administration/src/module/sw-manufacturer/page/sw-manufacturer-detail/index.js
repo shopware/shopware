@@ -106,7 +106,9 @@ Component.register('sw-manufacturer-detail', {
                     appearance: 'light'
                 };
             }
+
             return {
+                showDelay: 300,
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('order.editor'),
                 showOnDisabledElements: true

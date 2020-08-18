@@ -19,7 +19,9 @@ Shopware.Service('privileges')
                     Shopware.Service('privileges').getPrivileges('cms.viewer'),
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
+                    'product_stream:read',
+                    'currency:read'
                 ],
                 dependencies: []
             },

@@ -13,6 +13,7 @@ describe('Profile: Visual tests', () => {
 
     it('@visual: check appearance of basic profile workflow', () => {
         // Take snapshot for visual testing
+        cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('Profile detail', '.sw-profile__card');
     });
 });

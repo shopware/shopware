@@ -1,7 +1,5 @@
 /// <reference types="Cypress" />
 
-import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
-
 let product;
 let storefrontCustomer;
 
@@ -31,6 +29,9 @@ describe('Dashboard:  Visual tests', () => {
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
+            .then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
             .then(() => {
                 return cy.fixture('product')
             })
@@ -50,6 +51,7 @@ describe('Dashboard:  Visual tests', () => {
 
     it('@visual: check appearance of basic dashboard workflow', () => {
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer detail - address listing', '.sw-dashboard-index__content');
+        cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color : #fff');
+        cy.takeSnapshot('Dashboard overview', '.sw-dashboard-index__content');
     });
 });

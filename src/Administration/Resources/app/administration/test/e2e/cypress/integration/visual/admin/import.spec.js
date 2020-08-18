@@ -41,6 +41,7 @@ describe('Import/Export - Import:  Visual tests', {browser: "!firefox"}, () => {
         }).as('importExportLog');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Import export -  Import overview', '.sw-import-export-view-import');
 
         // Upload a fixture CSV file with a single product
@@ -85,6 +86,8 @@ describe('Import/Export - Import:  Visual tests', {browser: "!firefox"}, () => {
             .should('contain', 'Default product');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');
         cy.takeSnapshot('Import export -  Overview after import', '.sw-import-export-activity');
     });
 });

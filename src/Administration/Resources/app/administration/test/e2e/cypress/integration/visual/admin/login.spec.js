@@ -11,11 +11,10 @@ describe('Login: Visual tests', () => {
     it('@visual: check appearance of basic login workflow', () => {
         // Remove login image if percy is used
         if(!Cypress.env('usePercy')) {
-            const backgroundImageStyle = `background-image: url("${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png")`;
-
-            cy.get('.sw-login__image')
-                .invoke('attr', 'style', backgroundImageStyle)
-                .should('have.attr', 'style', backgroundImageStyle)
+            cy.changeElementStyling(
+                '.sw-login__image',
+                `background-image: url("${Cypress.config('baseUrl')}/bundles/administration/static/img/sw-login-background.png")`
+            );
 
             // Take snapshot for visual testing
             cy.takeSnapshot('Login', '.sw-login');

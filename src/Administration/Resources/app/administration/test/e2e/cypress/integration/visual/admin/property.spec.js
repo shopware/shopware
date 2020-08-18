@@ -10,7 +10,17 @@ describe('Property: Visual tests', () => {
             })
             .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+                    sortingType: 'position',
+                    options: [{
+                        name: 'Red',
+                        position: 2
+                    }, {
+                        name: 'Yellow',
+                        position: 3
+                    }, {
+                        name: 'Green',
+                        position: 1
+                    }]
                 });
             })
             .then(() => {
@@ -29,6 +39,8 @@ describe('Property: Visual tests', () => {
         }).as('saveData');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.changeElementStyling('.sw-data-grid__cell--options', 'color: #fff');
         cy.takeSnapshot('Property listing', '.sw-property-list');
 
         // Add option to property group
@@ -39,22 +51,14 @@ describe('Property: Visual tests', () => {
         );
         cy.get(page.elements.cardTitle).contains('Basic information');
 
+        // Take snapshot for visual testing
+        cy.sortListingViaColumn('Position', 'Green', '.sw-data-grid__cell--name')
+        cy.takeSnapshot('Property detail - Group', '.sw-property-option-list');
+
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Property detail - Option modal', '.sw-property-option-list');
-
-        cy.get('input[name=sw-field--currentOption-name]').typeAndCheck('Bleu');
-        cy.get('input[name=sw-field--currentOption-position]').type('1');
-        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__previewWrapper`).click();
-        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).clear();
-        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).type('#189eff');
-        cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).type('{enter}');
-        cy.get(`.sw-modal__footer ${page.elements.primaryButton}`).click();
-        cy.get(page.elements.modal).should('not.exist');
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Property detail - Group', '.sw-property-option-list');
     });
 });

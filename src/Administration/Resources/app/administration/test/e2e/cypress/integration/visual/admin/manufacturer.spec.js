@@ -26,7 +26,10 @@ describe('Manufacturer: Visual tests', () => {
             method: 'patch'
         }).as('saveData');
 
+        cy.sortListingViaColumn('Manufacturer', 'MAN-U-FACTURE');
+
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Manufacturer listing', '.sw-data-grid--full-page');
 
         // Edit base data

@@ -13,29 +13,8 @@ describe('Product: Visual tests', () => {
                 return cy.createDefaultFixture('product-stream');
             })
             .then(() => {
-                return cy.createProductFixture({
-                    name: 'Original product',
-                    productNumber: 'RS-11111',
-                    description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.'
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Second product',
-                    productNumber: 'RS-22222',
-                    description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.'
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Third product',
-                    productNumber: 'RS-33333',
-                    description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
-                });
-            })
-            .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
+                    options: [{ name: 'Red' }]
                 });
             });
     });
@@ -50,6 +29,7 @@ describe('Product: Visual tests', () => {
     it('@visual: check appearance of basic product workflow', () => {
         const page = new ProductPageObject();
 
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Product listing');
 
         // Edit base data of product
@@ -59,6 +39,8 @@ describe('Product: Visual tests', () => {
             `${page.elements.dataGridRow}--0`
         );
 
+        cy.get('.sw-select-product__select_manufacturer')
+            .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
         cy.takeSnapshot('Product detail base', '.sw-product-detail-base');
     });
 
@@ -101,7 +83,7 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--searchTerm').click();
         cy.get('.sw-property-search__tree-selection').should('be.visible');
         cy.contains('.sw-grid__cell-content', 'Color').click();
-        cy.contains('.sw-grid__row--0 .sw-grid__cell-content', 'Green').should('be.visible');
+        cy.contains('.sw-grid__row--0 .sw-grid__cell-content', 'Red').should('be.visible');
         cy.get('.sw-grid__row--0 input').click();
 
         cy.takeSnapshot('Product detail - Properties', '.sw-property-assignment__label-content');
@@ -134,11 +116,10 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('Product - Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant
-        page.generateVariants('Color', [0, 1, 2], 3);
+        page.generateVariants('Color', [0], 1);
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Product - Variants in admin', '.sw-product-variants-overview');
-
 
         // Verify in storefront
         cy.visit('/');
@@ -165,6 +146,24 @@ describe('Product: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/product-stream`,
             method: 'post'
         }).as('saveStream');
+
+        cy.createProductFixture({
+            name: 'Original product',
+            productNumber: 'RS-11111',
+            description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.'
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Second product',
+                productNumber: 'RS-22222',
+                description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.'
+            });
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Third product',
+                productNumber: 'RS-33333',
+                description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
+            });
+        });
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
 

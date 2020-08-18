@@ -53,6 +53,7 @@ describe('Customer:  Visual test', () => {
         }).as('saveData');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Customer listing', '.sw-customer-list-grid');
 
         // Fill in basic data
@@ -89,7 +90,7 @@ describe('Customer:  Visual test', () => {
         });
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer in Storefront', '.sw-customer-detail');
+        cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 
     it('@visual: check appearance of customer address workflow', () => {
@@ -106,8 +107,10 @@ describe('Customer:  Visual test', () => {
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
+        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName')
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Customer detail - address listing', '.sw-customer-detail-addresses');
 
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
@@ -115,11 +118,5 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Customer detail - address modal', '.sw-modal');
-
-        page.createBasicAddress(newAddress);
-        cy.get(`${page.elements.modal} ${page.elements.primaryButton}`).click();
-
-        // Verify updated customer
-        cy.contains(`Mr. ${customer.firstName} ${customer.lastName}`);
     });
 });

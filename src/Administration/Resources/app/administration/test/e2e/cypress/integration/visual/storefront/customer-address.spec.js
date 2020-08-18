@@ -13,8 +13,8 @@ describe('Account: Visual tests', () => {
 
         // Login
         cy.get('.login-card').should('be.visible');
-        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
-        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+        cy.get('#loginMail').type('test@example.com');
+        cy.get('#loginPassword').type('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
         // Add address form
@@ -23,7 +23,7 @@ describe('Account: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer address overview', { widths: [375, 1920] });
+        cy.takeSnapshot('Customer address overview', null, { widths: [375, 1920] });
 
         cy.get('a[href="/account/address/create"]').click();
 

@@ -16,6 +16,8 @@ describe('Promotion: Visual tests', () => {
             })
             .then(() => {
                 return cy.createCustomerFixture();
+            }).then(() => {
+                return cy.setShippingMethodInSalesChannel('Standard');
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/index`);
@@ -37,6 +39,7 @@ describe('Promotion: Visual tests', () => {
         }).as('saveDiscount');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Promotion listing', '.sw-promotion-list');
 
         cy.get('a[href="#/sw/promotion/create"]').click();

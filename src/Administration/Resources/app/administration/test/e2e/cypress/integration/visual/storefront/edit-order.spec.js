@@ -2,6 +2,12 @@ describe('Account - Order: Visual tests', () => {
     beforeEach(() => {
 
         cy.setToInitialState().then(() => {
+            // freezes the system time to Jan 1, 2018
+            const now = new Date(2018, 1, 1);
+            cy.clock(now);
+        }).then(() => {
+            return cy.setShippingMethodInSalesChannel('Standard');
+        }).then(() => {
             return cy.createProductFixture()
         }).then(() => {
             return cy.createCustomerFixture()
@@ -18,45 +24,19 @@ describe('Account - Order: Visual tests', () => {
                 username: 'test@example.com',
                 password: 'shopware'
             });
-        })
+        });
     });
 
     it('@visual: check appearance of basic account order workflow', () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');
-        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
-        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+        cy.get('#loginMail').type('test@example.com');
+        cy.get('#loginPassword').type('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
         // Take snapshot for visual testing
+        cy.changeElementStyling('.order-table-header-heading', 'color : #fff');
         cy.takeSnapshot('Account overview', '.order-table', { widths: [375, 1920] });
-    });
-
-    it('@visual: check appearance of basic cancel order workflow', () => {
-        // Enable refunds
-        cy.loginViaApi().then(() => {
-            cy.visit('/admin#/sw/settings/cart/index');
-            cy.contains('Enable refunds').click();
-            cy.get('.sw-settings-cart__save-action').click();
-            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-        });
-
-        // Login
-        cy.visit('/account/order');
-        cy.get('.login-card').should('be.visible');
-        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
-        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
-        cy.get('.login-submit [type="submit"]').click();
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Cancel order - confirm', '.order-table', { widths: [375, 1920] });
-
-        cy.get('.order-table-header-context-menu').click();
-        cy.get('.dropdown-menu > [type="button"]').click();
-        cy.get('form > .btn-primary').click();
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Cancel order - finish', '.order-table-header-order-status', { widths: [375, 1920] });
     });
 });

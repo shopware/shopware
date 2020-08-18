@@ -44,6 +44,7 @@ describe('Import/Export - Export:  Visual tests', () => {
         }).as('importExportLog');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Import export - Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
@@ -67,9 +68,9 @@ describe('Import/Export - Export:  Visual tests', () => {
             cy.get('.sw-import-export-progress__stats-list-success').contains('Export successful');
         });
 
-
-
         // Take snapshot for visual testing
+        cy.changeElementStyling('.sw-data-grid__cell--createdAt a', 'color : #fff');
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Import export -  Overview after export', '.sw-import-export-activity');
     });
 });

@@ -30,6 +30,14 @@ describe('Theme: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('CMS detail - Layouts', '.sw-theme-manager-detail__area');
+        cy.changeElementStyling(
+            ':nth-child(2) > .sw-theme-manager-detail__saleschannel-link > span',
+            'color: #fff'
+        );
+        cy.changeElementStyling(
+            ':nth-child(3) > .sw-theme-manager-detail__saleschannel-link > span',
+            'color: #fff'
+        );
+        cy.takeSnapshot('Theme detail', '.sw-theme-manager-detail__area');
     });
 });

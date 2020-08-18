@@ -7,9 +7,11 @@ variables:
     GIT_STRATEGY: clone
     LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
     PERCY_TOKEN: $PERCY_TOKEN
+    PERCY_BRANCH: $CI_DEV_BRANCH
+    PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
 
 stages:
-#    - unit
+    - unit
     - E2E
     - Build
     - Generate docs
@@ -427,6 +429,12 @@ Validate snippets:
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run -q --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
+
+.generate_mochawesome_reports:
+    after_script: &mochawesome_report_definition
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
+        - docker rm -f cypress
 
 .percy_script:
     script: &percy_definition

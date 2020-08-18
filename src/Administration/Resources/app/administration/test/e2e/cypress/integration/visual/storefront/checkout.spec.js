@@ -6,6 +6,8 @@ let product = {};
 describe('Checkout: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState().then(() => {
+            return cy.setShippingMethodInSalesChannel('Standard');
+        }).then(() => {
             return cy.createProductFixture()
         }).then(() => {
             return cy.fixture('product');
@@ -32,7 +34,6 @@ describe('Checkout: Visual tests', () => {
             .type(product.name);
         cy.get('.search-suggest-product-name').contains(product.name);
         cy.get('.search-suggest-product-name').click();
-
 
         // Take snapshot for visual testing
         cy.takeSnapshot(`Checkout - See product`,

@@ -47,6 +47,7 @@ describe('CMS: Visual tests', () => {
             expect(xhr).to.have.property('status', 204);
 
             // Take snapshot for visual testing
+            cy.get('.sw-loader').should('not.exist');
             cy.takeSnapshot('CMS listing - Detail', '.sw-cms-detail__stage');
         });
         cy.get('.sw-cms-detail__back-btn').click();

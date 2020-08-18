@@ -64,7 +64,7 @@ class CustomerRoute extends AbstractCustomerRoute
      *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
+     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): CustomerResponse
     {

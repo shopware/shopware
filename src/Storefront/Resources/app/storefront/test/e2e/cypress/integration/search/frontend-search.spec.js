@@ -31,9 +31,6 @@ describe('Searches for products', () => {
 
         cy.get('.search-headline').contains('0 products found for "Non existent stuff"');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Search - No result', '.cms-element-product-listing');
-
         cy.get('.cms-element-product-listing').contains('No products found');
 
 

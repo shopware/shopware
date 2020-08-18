@@ -16,9 +16,6 @@ describe('Login: Test login', () => {
             cy.get('.sw-login__image')
                 .invoke('attr', 'style', backgroundImageStyle)
                 .should('have.attr', 'style', backgroundImageStyle)
-
-            // Take snapshot for visual testing
-            cy.takeSnapshot('Login', '.sw-login');
         }
 
         cy.login('admin');

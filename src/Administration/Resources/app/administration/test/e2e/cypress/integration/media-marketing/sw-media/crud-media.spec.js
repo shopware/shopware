@@ -54,9 +54,6 @@ describe('Media: Test crud operations', () => {
             cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
                 .should('be.visible');
         }
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Media listing', '.sw-media-library');
     });
 
     it('@base @media: update and read medium\'s meta data (uploaded via url)', () => {

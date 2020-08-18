@@ -15,9 +15,6 @@ describe('Account: Register via account menu', () => {
         cy.visit('/account/login');
         cy.get(page.elements.registerCard).should('be.visible');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Registration', page.elements.registerCard);
-
         cy.get('select[name="salutationId"]').select('Mr.');
         cy.get('input[name="firstName"]').type('John');
         cy.get('input[name="lastName"]').type('Doe');

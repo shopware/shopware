@@ -44,9 +44,6 @@ describe('Dashboard: Test first sight of the Administration', () => {
     });
 
     it('@general: read dashboard', () => {
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Customer detail - address listing', '.sw-dashboard-index__content');
-
         // Check today stats
         cy.get('.sw-dashboard-index__intro-content').contains('Welcome to Shopware 6');
         cy.get('.sw-dashboard-index__intro-image img')

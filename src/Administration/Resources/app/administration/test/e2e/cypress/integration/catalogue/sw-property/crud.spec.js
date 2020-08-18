@@ -52,9 +52,6 @@ describe('Property: Test crud operations', () => {
             method: 'post'
         }).as('saveData');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Property listing', '.sw-property-list');
-
         // Add option to property group
         cy.clickContextMenuItem(
             '.sw-property-list__edit-action',
@@ -66,9 +63,6 @@ describe('Property: Test crud operations', () => {
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Property detail - Option modal', '.sw-property-option-list');
-
         cy.get('input[name=sw-field--currentOption-name]').typeAndCheck('Bleu');
         cy.get('input[name=sw-field--currentOption-position]').type('1');
         cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__previewWrapper`).click();
@@ -77,9 +71,6 @@ describe('Property: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-colorpicker .sw-colorpicker__input`).type('{enter}');
         cy.get(`.sw-modal__footer ${page.elements.primaryButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Property detail - Group', '.sw-property-option-list');
 
         // Save property
         cy.get(page.elements.propertySaveAction).click();

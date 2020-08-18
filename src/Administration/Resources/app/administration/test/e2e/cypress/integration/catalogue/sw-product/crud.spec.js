@@ -30,9 +30,6 @@ describe('Product: Test crud operations', () => {
             method: 'post'
         }).as('calculatePrice');
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Product - listing');
-
         // Add basic data to product
         cy.get('a[href="#/sw/product/create"]').click();
 
@@ -94,9 +91,6 @@ describe('Product: Test crud operations', () => {
 
         cy.get('.product-detail-name').contains('Product with file upload image');
         cy.get('.product-detail-price').contains('10.00');
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Product in Storefront', '.product-detail-name');
     });
 
     it('@base @catalogue: update and read product', () => {

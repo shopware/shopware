@@ -40,9 +40,6 @@ describe('Theme: Test loading and saving of theme', () => {
             .contains('Shopware default theme')
             .click();
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('CMS detail - Layouts', '.sw-theme-manager-detail__area');
-
         cy.clickContextMenuItem(
             '.sw-context-menu-item:nth-of-type(1)',
             `.sw-theme-manager-detail__info-card ${page.elements.contextMenuButton}`

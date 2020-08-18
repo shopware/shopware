@@ -22,9 +22,6 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
     it('@base @catalogue: check preview while editing', () => {
         const page = new ProductStreamObject();
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Product groups -  Listing', '.sw-product-stream-list');
-
         cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');
 
         // Verify product stream details
@@ -47,9 +44,7 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
         );
 
         cy.get('button.sw-button').contains('Preview').click();
-        // Take snapshot for visual testing
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('Product groups -  Preview', '.sw-product-stream-modal-preview');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').contains('Preview (1)');
@@ -65,9 +60,6 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
                 value: []
             }
         );
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Product groups -  Detail with conditions', '.sw-product-stream-detail');
 
         cy.get('button.sw-button').contains('Preview').click();
         cy.get('.sw-modal').should('be.visible');

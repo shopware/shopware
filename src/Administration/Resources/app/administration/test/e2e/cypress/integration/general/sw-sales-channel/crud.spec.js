@@ -28,16 +28,10 @@ describe('Sales Channel: Test crud operations', () => {
 
         cy.get('.sw-admin-menu__headline-action').click();
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Sales channel create - modal', '.sw-sales-channel-modal');
-
         cy.get('.sw-sales-channel-modal__title').contains('Add Sales Channel');
         cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
         cy.get('.sw-sales-channel-modal__title').contains('Storefront - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('Sales channel create', '.sw-sales-channel-detail-base');
 
         // Fill in form and save new sales channel
         page.fillInBasicSalesChannelData('1st Epic Sales Channel');
@@ -45,9 +39,6 @@ describe('Sales Channel: Test crud operations', () => {
         cy.get(page.elements.salesChannelSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
-
-            // Take snapshot for visual testing
-            cy.takeSnapshot('Sales channel detail', '.sw-sales-channel-detail-base');
         });
 
         // Verify creation

@@ -20,10 +20,21 @@
                 width: 100%;
 
                 .sw-property-search {
+                    display: flex;
+                    flex-direction: column;
                     height: 100%;
 
                     .sw-property-search__search-selection {
-                        height: calc(100% - 113px);
+                        min-height: 0;
+
+                        .sw-grid__pagination {
+                            background-color: $color-white;
+                        }
+
+                        .sw-grid__content,
+                        .sw-grid__body {
+                            min-height: 0;
+                        }
 
                         // deep selector is needed to avoid specifity problems
                         // uncommon BEM class name is used in 'sw-property-search'

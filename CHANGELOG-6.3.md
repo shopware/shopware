@@ -72,6 +72,7 @@ NEXT
 * Added ACL permissions to orders module
 * Added prop `disabled` to `sw-order-state-history-card-entry`
 * Added prop `disabled` to `sw-order-state-select`
+* Removed `autoHide` property from `sw_property_search_tree_option_grid_pagination` and `sw_property_search_option_search_grid_pagination`
 
 #### Core
 

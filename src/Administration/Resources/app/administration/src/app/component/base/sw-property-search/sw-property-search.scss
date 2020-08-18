@@ -60,7 +60,20 @@
     }
 
     .sw-property-search__tree-selection-container {
+        height: 100%;
         min-height: 414px;
+
+        .group_grid__column-name {
+            cursor: pointer;
+        }
+
+        .sw-icon {
+            margin-right: 10px;
+        }
+
+        .sw-grid__pagination {
+            background-color: $color-white;
+        }
     }
 
     &.overlay {
@@ -89,6 +102,8 @@
     }
 
     .sw-property-search__search-selection {
+        flex: 1;
+
         .sw-grid__row--0.is--selected {
             box-shadow: none;
         }

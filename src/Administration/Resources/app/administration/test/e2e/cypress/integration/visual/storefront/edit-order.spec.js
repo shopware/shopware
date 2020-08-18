@@ -1,7 +1,10 @@
 describe('Account - Order: Visual tests', () => {
     beforeEach(() => {
-        return cy.createProductFixture().then(() => {
-            return cy.createCustomerFixtureStorefront()
+
+        cy.setToInitialState().then(() => {
+            return cy.createProductFixture()
+        }).then(() => {
+            return cy.createCustomerFixture()
         }).then(() => {
             return cy.searchViaAdminApi({
                 endpoint: 'product',

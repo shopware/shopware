@@ -10,6 +10,9 @@ describe('Media: Visual tests', () => {
                 cy.loginViaApi();
             })
             .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
             });
     });
@@ -63,6 +66,8 @@ describe('Media: Visual tests', () => {
     it('@visual: check appearance of basic product media workflow', () => {
         const page = new ProductPageObject();
 
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -107,12 +112,12 @@ describe('Media: Visual tests', () => {
         // Verify in storefront
         cy.visit('/');
         cy.get('.product-name').click();
-        cy.get('.gallery-slider-item').should('be.visible');
-        cy.get('#tns2-item0 img')
+        cy.get('.gallery-slider-single-image > .img-fluid').should('be.visible');
+        cy.get('.gallery-slider-single-image > .img-fluid')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Product in Storefront with image', '.gallery-slider-item');
+        cy.takeSnapshot('Product in Storefront with image', '.gallery-slider-single-image > .img-fluid');
     });
 });

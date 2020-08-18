@@ -1,10 +1,14 @@
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
-describe('Import/Export - Import:  Visual tests', { browser: "!firefox" }, () => {
+describe('Import/Export - Import:  Visual tests', {browser: "!firefox"}, () => {
     let page = null;
 
     beforeEach(() => {
         cy.setToInitialState().then(() => {
+            // freezes the system time to Jan 1, 2018
+            const now = new Date(2018, 1, 1);
+            cy.clock(now);
+        }).then(() => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
@@ -52,18 +56,11 @@ describe('Import/Export - Import:  Visual tests', { browser: "!firefox" }, () =>
             );
         });
 
-        // File upload component should display file name
-        cy.get('.sw-file-input__file-headline').should('contain', 'single-product.csv');
-
-        // Start button should be disabled in the first place
-        cy.get('.sw-import-export-progress__start-process-action').should('be.disabled');
-
         // Select fixture profile for product entity
-        cy.get('.sw-import-export-importer__profile-select')
-            .typeSingleSelectAndCheck('E2E', '.sw-import-export-importer__profile-select');
+        cy.get('.sw-import-export-importer > .sw-field').click()
+        cy.contains('Default product').click();
 
         // Start the import progress
-        cy.get('.sw-import-export-progress__start-process-action').should('not.be.disabled');
         cy.get('.sw-import-export-progress__start-process-action').click();
         cy.get('.sw-import-export-progress__start-process-action').should('be.disabled');
 
@@ -82,16 +79,10 @@ describe('Import/Export - Import:  Visual tests', { browser: "!firefox" }, () =>
             expect(xhr).to.have.property('status', 200);
         });
 
-        // Progress bar and log should be visible
-        cy.get('.sw-import-export-progress__progress-bar-bar').should('be.visible');
-        cy.get('.sw-import-export-progress__stats').should('be.visible');
-
         // The activity logs should contain an entry for the succeeded import
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName`)
-            .should('contain', 'E2E');
-        cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
-            .should('contain', 'Succeeded');
+            .should('contain', 'Default product');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Import export -  Overview after import', '.sw-import-export-activity');

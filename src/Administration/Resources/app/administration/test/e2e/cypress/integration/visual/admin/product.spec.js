@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
-import ProductStreamObject from "../../../support/pages/module/sw-product-stream.page-object";
+import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Product: Visual tests', () => {
     before(() => {
@@ -10,8 +10,32 @@ describe('Product: Visual tests', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
+                return cy.createDefaultFixture('product-stream');
+            })
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'Original product',
+                    productNumber: 'RS-11111',
+                    description: 'Pudding wafer apple pie fruitcake cupcake. Biscuit cotton candy gingerbread liquorice tootsie roll caramels soufflé. Wafer gummies chocolate cake soufflé.'
+                });
+            })
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'Second product',
+                    productNumber: 'RS-22222',
+                    description: 'Jelly beans jelly-o toffee I love jelly pie tart cupcake topping. Cotton candy jelly beans tootsie roll pie tootsie roll chocolate cake brownie. I love pudding brownie I love.'
+                });
+            })
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'Third product',
+                    productNumber: 'RS-33333',
+                    description: 'Cookie bonbon tootsie roll lemon drops soufflé powder gummies bonbon. Jelly-o lemon drops cheesecake. I love carrot cake I love toffee jelly beans I love jelly.'
+                });
+            })
+            .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+                    options: [{name: 'Red'}, {name: 'Yellow'}, {name: 'Green'}]
                 });
             });
     });
@@ -141,6 +165,8 @@ describe('Product: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/product-stream`,
             method: 'post'
         }).as('saveStream');
+
+        cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
 
         // Open and adjust product stream
         cy.get('.sw-product-stream-list-grid').should('be.visible');

@@ -6,6 +6,17 @@ let customer = {
     salutation: 'Mr.',
     country: 'Germany'
 };
+const newAddress = {
+    salutation: 'Mr.',
+    firstName: 'Harry',
+    lastName: 'Potter',
+    addresses: [{
+        street: 'Ligusterweg 4',
+        zipcode: '333333',
+        city: 'Little Whinging'
+    }],
+    country: 'United Kingdom'
+};
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
@@ -80,25 +91,6 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Customer create', '.sw-customer-detail');
-
-        cy.get(`${page.elements.customerMetaData}-customer-name`)
-            .contains(`${customer.firstName} ${customer.lastName}`);
-        cy.get('.sw-customer-card-email-link').contains('tester@example.com');
-        cy.get('.sw-customer-base__label-customer-number').contains('1');
-        cy.get('.sw-address__location').contains(customer.addresses[0].zipcode);
-
-        // Verify customer in Storefront
-        cy.visit('/account/login');
-
-        cy.get('.login-card').should('be.visible');
-        cy.get('#loginMail').typeAndCheck('tester@example.com');
-        cy.get('#loginPassword').typeAndCheck('shopware');
-        cy.get('.login-submit [type="submit"]').click();
-
-        cy.get('.account-welcome h1').should((element) => {
-            expect(element).to.contain('Overview');
-        });
-        cy.contains('tester@example.com');
     });
 
     it('@visual: check appearance of customer address workflow', () => {

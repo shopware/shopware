@@ -5,13 +5,13 @@ let product = {};
 
 describe('Checkout: Visual tests', () => {
     beforeEach(() => {
-        return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category')
+        cy.setToInitialState().then(() => {
+            return cy.createProductFixture()
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
             product = result;
-            return cy.createCustomerFixtureStorefront()
+            return cy.createCustomerFixture()
         }).then(() => {
             cy.visit('/');
         })
@@ -21,16 +21,10 @@ describe('Checkout: Visual tests', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
-        if (device.model === 'iphone-6+' && device.orientation === 'portrait') {
-            cy.get('.search-toggle-btn').click();
-        }
-
         // Take snapshot for visual testing on desktop
-        if (device.model === 'macbook-15') {
-            cy.takeSnapshot(`Checkout ${device.model} - Search product`,
-                '.header-search-input'
-            );
-        }
+        cy.takeSnapshot(`Checkout - Search product`,
+            '.header-search-input'
+        );
 
         // Product detail
         cy.get('.header-search-input')
@@ -40,22 +34,18 @@ describe('Checkout: Visual tests', () => {
 
 
         // Take snapshot for visual testing
-        if (device.model === 'macbook-15') {
-            cy.takeSnapshot(`Checkout ${device.model} - See product`,
-                '.product-detail-buy'
-            );
-        }
+        cy.takeSnapshot(`Checkout - See product`,
+            '.product-detail-buy'
+        );
 
         cy.get('.product-detail-buy .btn-buy').click();
 
         // Off canvas
 
         // Take snapshot for visual testing on desktop
-        if (device.model === 'macbook-15') {
-            cy.takeSnapshot(`Checkout ${device.model} - Offcanvas`,
-                `${page.elements.offCanvasCart}.is-open`
-            );
-        }
+        cy.takeSnapshot(`Checkout - Offcanvas`,
+            `${page.elements.offCanvasCart}.is-open`
+        );
 
         cy.get(`${page.elements.cartItem}-label`).contains(product.name);
 
@@ -67,21 +57,17 @@ describe('Checkout: Visual tests', () => {
         cy.get('.login-collapse-toggle').click();
 
         // Take snapshot for visual testing on desktop
-        if (device.model === 'macbook-15') {
-            cy.takeSnapshot(`Checkout ${device.model} - Login`, accountPage.elements.loginCard);
-        }
+        cy.takeSnapshot(`Checkout - Login`, accountPage.elements.loginCard);
 
-        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
-        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+        cy.get('#loginMail').type('test@example.com');
+        cy.get('#loginPassword').type('shopware');
         cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
         // Confirm
         cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
         // Take snapshot for visual testing on desktop
-        if (device.model === 'macbook-15') {
-            cy.takeSnapshot(`Checkout ${device.model} - Confirm`, '.confirm-tos');
-        }
+        cy.takeSnapshot(`Checkout - Confirm`, '.confirm-tos');
 
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
@@ -95,8 +81,6 @@ describe('Checkout: Visual tests', () => {
         cy.get('#confirmFormSubmit').click();
 
         // Take snapshot for visual testing on desktop
-        if (device.model === 'macbook-15') {
-            cy.takeSnapshot(`Checkout ${device.model} - Finish`, '.finish-header');
-        }
+        cy.takeSnapshot(`Checkout - Finish`, '.finish-header');
     });
 });

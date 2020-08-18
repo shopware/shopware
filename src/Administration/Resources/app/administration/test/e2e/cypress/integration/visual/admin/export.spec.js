@@ -5,6 +5,10 @@ describe('Import/Export - Export:  Visual tests', () => {
 
     beforeEach(() => {
         cy.setToInitialState().then(() => {
+            // freezes the system time to Jan 1, 2018
+            const now = new Date(2018, 1, 1);
+            cy.clock(now);
+        }).then(() => {
             cy.loginViaApi();
         }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
@@ -43,8 +47,8 @@ describe('Import/Export - Export:  Visual tests', () => {
         cy.takeSnapshot('Import export - Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
-        cy.get('.sw-import-export-exporter__profile-select')
-            .typeSingleSelectAndCheck('E2E', '.sw-import-export-exporter__profile-select');
+        cy.get('.sw-import-export-exporter__profile-select').click()
+        cy.contains('Default product').click();
         cy.get('.sw-import-export-progress__start-process-action').click();
 
         // Prepare request should be successful
@@ -60,16 +64,10 @@ describe('Import/Export - Export:  Visual tests', () => {
         // Import export log request should be successful
         cy.wait('@importExportLog').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
+            cy.get('.sw-import-export-progress__stats-list-success').contains('Export successful');
         });
 
-        // The activity logs should contain an entry for the succeeded export
-        cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');
-        cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName`)
-            .should('contain', 'E2E');
-        cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
-            .should('contain', 'Succeeded');
 
-        cy.awaitAndCheckNotification('The export was completed successfully.');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Import export -  Overview after export', '.sw-import-export-activity');

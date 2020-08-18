@@ -439,7 +439,7 @@ Validate snippets:
         - npm install --save-dev @percy/cypress
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && export PERCY_PARALLEL_TOTAL=2 && export PERCY_PARALLEL_NONCE=$SECTION && npx percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000 --spec $TEST_DIRECTORY"
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && npx percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=true --config baseUrl=http://docker.vm:8000 --spec $TEST_DIRECTORY"
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition

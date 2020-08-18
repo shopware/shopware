@@ -2,7 +2,10 @@ import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account - Login: Visual tests', () => {
     beforeEach(() => {
-        return cy.createCustomerFixtureStorefront()
+        cy.setToInitialState()
+            .then(() => {
+                return cy.createCustomerFixture()
+            })
     });
 
     it('@visual: check appearance of basic storefront login workflow', () => {

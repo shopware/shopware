@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -42,11 +41,6 @@ class RegisterController extends StorefrontController
     private $loginPageLoader;
 
     /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
      * @var AccountRegistrationService
      */
     private $accountRegistrationService;
@@ -73,7 +67,6 @@ class RegisterController extends StorefrontController
 
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
-        AccountService $accountService,
         AccountRegistrationService $accountRegistrationService,
         CartService $cartService,
         CheckoutRegisterPageLoader $registerPageLoader,
@@ -81,7 +74,6 @@ class RegisterController extends StorefrontController
         EntityRepositoryInterface $customerRepository
     ) {
         $this->loginPageLoader = $loginPageLoader;
-        $this->accountService = $accountService;
         $this->accountRegistrationService = $accountRegistrationService;
         $this->cartService = $cartService;
         $this->registerPageLoader = $registerPageLoader;
@@ -170,8 +162,6 @@ class RegisterController extends StorefrontController
             return $this->redirectToRoute('frontend.account.register.page');
         }
 
-        $this->accountService->login($data->get('email'), $context, $data->has('guest'));
-
         return $this->createActionResponse($request);
     }
 
@@ -190,8 +180,6 @@ class RegisterController extends StorefrontController
 
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
-
-        $this->accountService->login($customer->getEmail(), $context, $customer->getGuest());
 
         if ($customer->getGuest()) {
             $this->addFlash('success', $this->trans('account.doubleOptInMailConfirmationSuccessfully'));

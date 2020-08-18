@@ -148,6 +148,9 @@ NEXT
     * Added `scopeAll` property, which contains the default scope being used
     * Added `scopeDataAttribute` property, which can be used to set the scope to `parent` instead of `all`
     * Added `parentSelectorDataAttribute` property, which must be defined if you've set the scope to `parent`. It contains the selector of the parent element.
+* Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to provide loggedin context token
+* Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
 
 6.3.0.0
 ----------------

@@ -68,7 +68,6 @@ class RegisterControllerTest extends TestCase
 
         $registerController = new RegisterController(
             $container->get(AccountLoginPageLoader::class),
-            $this->accountService,
             $container->get(AccountRegistrationService::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
